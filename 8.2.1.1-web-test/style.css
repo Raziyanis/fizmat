@@ -74,6 +74,8 @@ button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
   background: var(--bad-bg);
 }
 
+#s-test.changed { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-bg); }
+
 .question { font-size: 1.5rem; font-weight: 600; margin: 8px 0 16px; }
 
 .answer {
@@ -130,7 +132,7 @@ button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
 .warn {
   position: fixed;
   left: 50%;
-  top: 90px;
+  bottom: 24px;
   transform: translateX(-50%);
   z-index: 10;
   max-width: 90vw;

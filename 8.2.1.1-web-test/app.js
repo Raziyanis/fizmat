@@ -260,8 +260,21 @@
     if (inTask) {
       var tl = state.taskEnds - now;
       if (tl <= 0) {
+        var num = current() + 1;
         record('timeout');
         next();
+        // Задание сменилось само — явно предупреждаем, чтобы ответ не ушёл в новое задание.
+        if (running() && !resuming) {
+          warn('Время на задание ' + num + ' вышло. Открыто следующее задание — прочитайте его.');
+          var inp = $('t-input');
+          inp.disabled = true;
+          $('s-test').classList.add('changed');
+          setTimeout(function () {
+            inp.disabled = false;
+            $('s-test').classList.remove('changed');
+            if (!$('s-test').hidden) inp.focus();
+          }, 1500);
+        }
         return;
       }
       $('tm-task').textContent = fmt(Math.min(tl, left));
