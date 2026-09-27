@@ -77,6 +77,14 @@ button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
 
 #s-test.changed { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-bg); }
 
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.nav-btn { min-width: 44px; padding: 8px 0; font-weight: 700; border: 2px solid var(--line); }
+.nav-btn.done { background: #dbe8ff; border-color: #9dbcf5; }
+.nav-btn.skipped { background: var(--warn-bg); border-color: #e9c46a; }
+.nav-btn.cur { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.nav-legend { margin-top: -8px; }
+.saved { color: var(--accent); }
+
 .question { font-size: 1.5rem; font-weight: 600; margin: 8px 0 16px; }
 
 .answer {
@@ -124,6 +132,10 @@ button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
 }
 /* Балл — максимально крупно, чтобы учитель видел его издалека */
 .score-num { display: block; font-size: clamp(5rem, 24vw, 12rem); letter-spacing: -0.02em; }
+.time-box { max-width: 520px; margin: 16px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); text-align: center; }
+.time-box p { margin: 4px 0; font-size: 1.15rem; }
+.time-box p.small { font-size: 0.95rem; color: var(--muted); }
+.time-box p.left b { color: var(--accent); font-size: 1.5rem; }
 .count { font-size: 1.3rem; font-weight: 600; }
 .score-word { display: block; font-size: clamp(2.2rem, 8vw, 4rem); margin-top: 8px; }
 

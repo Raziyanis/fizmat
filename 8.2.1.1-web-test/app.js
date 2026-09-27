@@ -144,7 +144,7 @@
 
   // ---------- Ход работы ----------
 
-  function current() { return state.queue[state.pos]; }
+  function current() { return state.cur; }
 
   function startTask() {
     state.taskEnds = TASK_MS ? Date.now() + TASK_MS : null;
@@ -152,22 +152,50 @@
     renderTask();
   }
 
+  /** Открыть любое задание (панель с номерами, «← Предыдущее»). */
+  function goTo(i) {
+    if (!running() || i < 0 || i >= tasks.length) return;
+    if (state.phase === 'menu') state.phase = 'main';
+    state.cur = i;
+    startTask();
+  }
+
+  function answered(a) { return a.status === 'correct' || a.status === 'wrong'; }
+
+  /** Панель номеров: видно, на что уже есть ответ и что пропущено (без подсказки, верно ли). */
+  function renderNav(box) {
+    box.innerHTML = '';
+    state.answers.forEach(function (a, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = String(i + 1);
+      b.className = 'nav-btn' + (answered(a) ? ' done' : a.status === 'skipped' ? ' skipped' : '') +
+        (state.phase !== 'menu' && i === state.cur ? ' cur' : '');
+      b.title = answered(a) ? 'Есть ответ' : a.status === 'skipped' ? 'Пропущено' : 'Нет ответа';
+      b.addEventListener('click', function () { goTo(i); });
+      box.appendChild(b);
+    });
+  }
+
   function renderTask() {
     if (resuming) return;
     var i = current();
     var t = tasks[i];
-    var review = state.phase === 'review';
-    $('t-num').textContent = review
-      ? 'Пропущенное задание ' + (i + 1) + ' (' + (state.pos + 1) + ' из ' + state.queue.length + ')'
-      : 'Задание ' + (i + 1) + ' из ' + tasks.length;
+    var a = state.answers[i];
+    $('t-num').textContent = 'Задание ' + (i + 1) + ' из ' + tasks.length;
     $('t-text').textContent = t.text;
     var hint = { 2: 'цифры 0 и 1', 8: 'цифры от 0 до 7', 10: 'цифры от 0 до 9', 16: 'цифры 0–9 и буквы A–F' }[t.to];
     $('t-hint').textContent = 'Ответ запишите в ' + { 2: 'двоичной', 8: 'восьмеричной', 10: 'десятичной', 16: 'шестнадцатеричной' }[t.to] +
       ' системе (' + hint + '), без индекса основания.';
     var inp = $('t-input');
-    inp.value = '';
+    inp.value = answered(a) ? a.given : '';
     inp.inputMode = t.to === 16 ? 'text' : 'numeric';
-    $('b-answer').disabled = true;
+    $('t-saved').textContent = answered(a) ? 'Ваш ответ сохранён. Можно изменить его и снова нажать «Ответить».' : '';
+    $('t-saved').hidden = !answered(a);
+    $('b-answer').disabled = !NT.normalize(inp.value);
+    $('b-skip').textContent = answered(a) ? 'Далее' : 'Пропустить';
+    $('b-prev').disabled = i === 0;
+    renderNav($('t-nav'));
     show('s-test');
     inp.focus();
     tick();
@@ -179,11 +207,24 @@
     if (given !== undefined) a.given = given;
   }
 
+  function findFrom(i, test, wrap) {
+    var n = tasks.length;
+    for (var k = 1; k <= (wrap ? n - 1 : n - 1 - i); k++) {
+      var j = (i + k) % n;
+      if (test(state.answers[j])) return j;
+    }
+    return -1;
+  }
+
+  /** Куда идти после ответа/пропуска: следующее ещё не открытое задание; при возврате — следующее пропущенное. */
   function next() {
-    state.pos++;
-    if (state.pos < state.queue.length) { startTask(); return; }
-    var skipped = skippedList();
-    if (!skipped.length) { finish(null); return; }
+    var i = current();
+    var isPending = function (a) { return a.status === 'pending'; };
+    var j = state.phase === 'review'
+      ? findFrom(i, function (a) { return a.status === 'skipped'; }, true)
+      : findFrom(i, isPending, false);
+    if (j < 0 && state.phase !== 'review') j = findFrom(i, isPending, true);
+    if (j >= 0) { state.cur = j; startTask(); return; }
     state.phase = 'menu';
     state.taskEnds = null;
     save();
@@ -200,8 +241,14 @@
     if (resuming) return;
     $('m-confirm').hidden = true;
     var s = skippedList();
+    var done = state.answers.filter(answered).length;
+    $('m-title').textContent = s.length ? 'Остались пропущенные задания' : 'Вы ответили на все задания';
+    $('m-done').textContent = done;
+    $('m-skipped').hidden = !s.length;
     $('m-count').textContent = s.length;
     $('m-list').textContent = s.map(function (i) { return '№ ' + (i + 1); }).join(', ');
+    $('b-review').hidden = !s.length;
+    renderNav($('m-nav'));
     show('s-menu');
     tick();
   }
@@ -214,14 +261,20 @@
   }
 
   function skip() {
-    record('skipped');
+    // На уже отвеченном задании кнопка называется «Далее» и ответ не меняет.
+    if (!answered(state.answers[current()])) record('skipped');
     next();
   }
 
+  function prev() {
+    goTo(current() - 1);
+  }
+
   function reviewSkipped() {
+    var s = skippedList();
+    if (!s.length) return;
     state.phase = 'review';
-    state.queue = skippedList();
-    state.pos = 0;
+    state.cur = s[0];
     startTask();
   }
 
@@ -312,6 +365,7 @@
     $('r-score-num').textContent = score + ' / ' + n;
     $('r-score-word').textContent = plural(score, 'балл', 'балла', 'баллов');
     $('r-count').textContent = 'Правильных ответов: ' + score + ' из ' + n + '.';
+    renderTimeUsed();
     $('r-reason').textContent = state.reason || '';
     $('r-reason').hidden = !state.reason;
     var body = $('r-table');
@@ -330,6 +384,34 @@
     });
     show('s-result');
     if (window.STANDALONE) scheduleLock();
+  }
+
+  /** Сколько времени ученик потратил и сколько у него ещё оставалось, когда он завершил работу. */
+  function renderTimeUsed() {
+    var box = $('r-time');
+    box.innerHTML = '';
+    // Целые секунды, чтобы «потрачено + осталось» всегда давало ровно 15:00.
+    var left = 1000 * Math.floor(Math.max(0, state.endsAt - (state.finishedAt || state.endsAt)) / 1000);
+    var used = TOTAL_MS - left;
+    var line = function (label, value, cls) {
+      var p = document.createElement('p');
+      if (cls) p.className = cls;
+      p.appendChild(document.createTextNode(label + ' '));
+      var b = document.createElement('b');
+      b.textContent = value;
+      p.appendChild(b);
+      box.appendChild(p);
+    };
+    line('Время работы:', fmt(used) + ' из ' + fmt(TOTAL_MS));
+    if (left >= 1000) {
+      line('Оставалось времени:', fmt(left), 'left');
+      var note = document.createElement('p');
+      note.className = 'small';
+      note.textContent = 'Работа завершена досрочно: оставшееся время можно было использовать, чтобы вернуться к заданиям и проверить ответы.';
+      box.appendChild(note);
+    } else {
+      line('Оставалось времени:', '0:00');
+    }
   }
 
   // Автономная версия: через 5 минут результат скрывается, новая работа — только по паролю учителя.
@@ -377,8 +459,7 @@
         startedAt: Date.now(),
         endsAt: Date.now() + TOTAL_MS,
         phase: 'main',
-        queue: window.VARIANTS[res.variant - 1].map(function (_, i) { return i; }),
-        pos: 0,
+        cur: 0,
         taskEnds: null,
         answers: window.VARIANTS[res.variant - 1].map(function () { return { status: 'pending', given: '' }; })
       };
@@ -409,6 +490,7 @@
     $('b-retry').addEventListener('click', function () { show('s-intro'); });
     $('b-answer').addEventListener('click', answer);
     $('b-skip').addEventListener('click', skip);
+    $('b-prev').addEventListener('click', prev);
     $('b-review').addEventListener('click', reviewSkipped);
     // Своё подтверждение вместо confirm(): системное окно снимает фокус со страницы.
     $('b-finish').addEventListener('click', function () { $('m-confirm').hidden = false; });
@@ -452,6 +534,8 @@
     state = load();
     if (state && state.variant && window.VARIANTS[state.variant - 1]) {
       tasks = window.VARIANTS[state.variant - 1].map(NT.task);
+      // Состояние из прежней версии файла (очередь заданий) → номер текущего задания.
+      if (state.cur === undefined) state.cur = state.queue ? state.queue[Math.min(state.pos, state.queue.length - 1)] || 0 : 0;
     } else {
       state = null;
     }

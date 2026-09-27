@@ -29,7 +29,7 @@
         <li class="important"><b>Ответ засчитывается только после нажатия «Ответить»</b> (или Enter). Если время работы закончится, а вы не нажали «Ответить», ответ <b>не засчитывается</b>, даже если он уже введён в поле.</li>
         <li>Правильность ответа система отмечает <b>автоматически</b>.</li>
         <li>За каждый правильный ответ начисляется <b>1 балл</b>. Максимальный балл — <b>10</b>.</li>
-        <li>Кнопка «Пропустить» засчитывает задание как неправильное и открывает следующее. В конце к пропущенным заданиям можно вернуться, пока не закончилось общее время.</li>
+        <li>Кнопка «Пропустить» засчитывает задание как неправильное и открывает следующее. Кнопка «← Предыдущее» и номера заданий вверху позволяют <b>вернуться к любому заданию</b> и изменить ответ, пока не закончилось общее время.</li>
         <li>Работа <b>автоматически завершится через 15 минут</b>.</li>
         <li>Работа идёт в полноэкранном режиме. <b>Если выйти из полноэкранного режима, переключиться на другую вкладку, окно или приложение, работа сразу завершится</b>, а оставшиеся задания будут засчитаны как неправильные.</li>
       </ul>
@@ -50,20 +50,26 @@
     </section>
 
     <section id="s-test" hidden>
+      <div id="t-nav" class="nav" aria-label="Номера заданий"></div>
+      <p class="muted small nav-legend">Синие номера — есть ответ, жёлтые — пропущены. Нажмите на номер, чтобы открыть задание.</p>
       <p id="t-num" class="muted"></p>
       <p id="t-text" class="question"></p>
       <input id="t-input" class="answer" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="16" aria-label="Ответ">
       <p id="t-hint" class="muted small"></p>
+      <p id="t-saved" class="saved small" hidden></p>
       <div class="buttons">
+        <button id="b-prev">← Предыдущее</button>
         <button id="b-answer" class="primary">Ответить</button>
         <button id="b-skip">Пропустить</button>
       </div>
     </section>
 
     <section id="s-menu" hidden>
-      <h1>Остались пропущенные задания</h1>
-      <p>Пропущено заданий: <b id="m-count"></b> (<span id="m-list"></span>). Пока они засчитаны как неправильные.</p>
-      <p>Вы можете вернуться к ним, пока не закончилось общее время.</p>
+      <h1 id="m-title">Остались пропущенные задания</h1>
+      <p>Отвечено заданий: <b id="m-done"></b> из 10.</p>
+      <p id="m-skipped">Пропущено заданий: <b id="m-count"></b> (<span id="m-list"></span>). Пока они засчитаны как неправильные.</p>
+      <p>Пока не закончилось общее время, можно открыть любое задание (нажмите на его номер), проверить и изменить ответ.</p>
+      <div id="m-nav" class="nav" aria-label="Номера заданий"></div>
       <div class="buttons">
         <button id="b-review" class="primary">Вернуться к пропущенным</button>
         <button id="b-finish">Завершить работу</button>
@@ -88,6 +94,7 @@
       <p id="r-reason" class="note" hidden></p>
       <p id="r-score" class="score"><span id="r-score-num" class="score-num"></span> <span id="r-score-word" class="score-word"></span></p>
       <p id="r-count" class="center count"></p>
+      <div id="r-time" class="time-box"></div>
       <p id="r-hide" class="muted small center" hidden></p>
       <h2>Отчёт</h2>
       <div class="table-wrap">
