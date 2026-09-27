@@ -1,0 +1,677 @@
+<!doctype html><html lang="kk"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ойдағы бір</title>
+<meta name="description" content="Позициялық санау жүйелерінде қосу және азайту: қосқанда неге дәл 1 көшеді және азайтқанда неге жүйенің негізі қарызға алынады. 8-сынып, оқу мақсаты 8.2.1.2.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600;700&family=Caveat:wght@600;700&display=swap">
+<style>
+:root{
+  --paper:#fbfcfe;
+  --grid:#dfe8f3;
+  --ink:#1b2740;
+  --muted:#5a6780;
+  --pen:#2452c0;
+  --pen-soft:#e7eefb;
+  --red:#cc2f2f;
+  --red-soft:#fbe9e9;
+  --ok:#1f7a4a;
+  --ok-soft:#e3f3ea;
+  --card:#ffffff;
+  --line:#c9d5e6;
+  --shadow:0 1px 0 rgba(27,39,64,.06);
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+  --f-hand:"Caveat","Comic Sans MS","Segoe Print",cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#111827;
+    --grid:#1c2638;
+    --ink:#e6ebf4;
+    --muted:#9aa7bd;
+    --pen:#8fb0ff;
+    --pen-soft:#1b2a4d;
+    --red:#ff7b72;
+    --red-soft:#3a1d22;
+    --ok:#6fd49a;
+    --ok-soft:#163326;
+    --card:#161f31;
+    --line:#2b3850;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#111827;
+  --grid:#1c2638;
+  --ink:#e6ebf4;
+  --muted:#9aa7bd;
+  --pen:#8fb0ff;
+  --pen-soft:#1b2a4d;
+  --red:#ff7b72;
+  --red-soft:#3a1d22;
+  --ok:#6fd49a;
+  --ok-soft:#163326;
+  --card:#161f31;
+  --line:#2b3850;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);
+  font:400 17px/1.6 var(--f-body);
+}
+.wrap{max-width:860px;margin:0 auto;padding:40px 16px 80px}
+h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.6rem;font-weight:800}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{font-size:1.15rem;max-width:62ch;color:var(--ink)}
+.hand{font-family:var(--f-hand);color:var(--red);font-weight:700}
+.mono{font-family:var(--f-mono)}
+sub{font-size:.7em}
+code,.num{font-family:var(--f-mono);font-size:.95em;white-space:nowrap}
+.stack{display:flex;flex-direction:column;gap:16px}
+section{display:flex;flex-direction:column;gap:18px;padding-top:56px}
+.sec-head{display:flex;flex-direction:column;gap:6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;box-shadow:var(--shadow)}
+.key{background:var(--pen-soft);border:1px solid var(--pen);border-radius:10px;padding:18px 20px}
+.key strong{color:var(--pen)}
+.warn{background:var(--red-soft);border:1px solid var(--red);border-radius:10px;padding:18px 20px}
+.muted{color:var(--muted)}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+nav.toc a{font-size:.9rem;color:var(--pen);text-decoration:none;border:1px solid var(--line);background:var(--card);padding:4px 10px;border-radius:999px}
+nav.toc a:hover{border-color:var(--pen)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center}
+@media (max-width:680px){.hero{grid-template-columns:1fr}}
+
+/* column arithmetic */
+.col-wrap{overflow-x:auto}
+table.col{border-collapse:collapse;font-family:var(--f-mono);font-size:1.6rem;margin:0 auto}
+table.col td{width:1.6em;height:1.45em;text-align:center;padding:0;font-variant-numeric:tabular-nums}
+table.col tr.carry td{font-family:var(--f-hand);color:var(--red);font-size:1.35rem;height:1.1em;vertical-align:bottom;line-height:1}
+table.col tr.rule td{border-top:2px solid var(--ink);height:0}
+table.col td.op{color:var(--muted);width:1em}
+table.col td.base{font-size:.85rem;color:var(--muted);text-align:left;padding-left:4px;vertical-align:bottom;width:auto}
+table.col td.hl{background:var(--pen-soft);border-radius:4px}
+table.col tr.res td{color:var(--pen);font-weight:700}
+table.col td.borrow{position:relative}
+table.col td.borrow::before{content:"";position:absolute;top:2px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--red)}
+table.col td.pending{color:transparent}
+
+/* place value */
+.tbl-wrap{overflow-x:auto}
+table.pv{border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:100%}
+table.pv th,table.pv td{border:1px solid var(--line);padding:8px 12px;text-align:center}
+table.pv th{font-size:.85rem;font-weight:600;color:var(--muted);background:var(--card)}
+table.pv td{background:var(--card);font-family:var(--f-mono)}
+table.pv td.lbl{font-family:var(--f-body);text-align:left;font-weight:600}
+
+/* sticks */
+.sticks{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end}
+.pile{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pile .row{display:flex;gap:4px;align-items:flex-end;min-height:48px}
+.stick{width:5px;height:44px;border-radius:2px;background:var(--pen)}
+.bundle{display:flex;gap:1px;padding:0 2px;position:relative}
+.bundle .stick{width:3px}
+.bundle::after{content:"";position:absolute;left:-2px;right:-2px;top:18px;height:5px;background:var(--red);border-radius:2px}
+.pile small{font-size:.85rem;color:var(--muted)}
+.arrow{font-size:1.6rem;color:var(--muted);align-self:center}
+
+/* formula */
+.formula{font-family:var(--f-mono);font-size:1.02rem;background:var(--card);border:1px dashed var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+
+/* steps */
+ol.steps{padding-left:0;list-style:none;gap:10px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:2.2em 1fr;gap:10px;align-items:start}
+ol.steps li::before{content:counter(s);font-family:var(--f-mono);font-weight:700;color:var(--pen);border:1.5px solid var(--pen);border-radius:50%;width:1.8em;height:1.8em;display:grid;place-items:center;font-size:.85rem}
+ol.steps li.cur{background:var(--pen-soft);border-radius:8px;padding:6px 8px 6px 0}
+.check{border-top:1px dashed var(--line);padding-top:12px;font-size:.95rem}
+
+.two{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start}
+@media (max-width:640px){.two{grid-template-columns:1fr}}
+
+/* sim */
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted);font-weight:600}
+input[type=text],select{font:600 1.1rem var(--f-mono);color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:10ch}
+select{width:auto;font-family:var(--f-body);font-size:1rem}
+input.bad{border-color:var(--red)}
+button{font:600 .95rem var(--f-body);border-radius:8px;padding:9px 14px;cursor:pointer;border:1.5px solid var(--pen);background:var(--pen);color:var(--paper)}
+button.ghost{background:transparent;color:var(--pen)}
+button:disabled{opacity:.4;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.err{color:var(--red);font-weight:600}
+
+/* practice */
+.tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.task{display:flex;flex-direction:column;gap:10px}
+.task .q{font-family:var(--f-mono);font-size:1.1rem;font-weight:600}
+.task .row{display:flex;gap:8px;flex-wrap:wrap}
+.task input{flex:1;min-width:8ch}
+.fb{font-size:.9rem;min-height:1.4em}
+.fb.ok{color:var(--ok);font-weight:600}
+.fb.no{color:var(--red);font-weight:600}
+
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+details summary{cursor:pointer;font-weight:600}
+details[open] summary{margin-bottom:10px}
+.faq{display:flex;flex-direction:column;gap:10px}
+
+table.add{border-collapse:collapse;font-family:var(--f-mono)}
+table.add td,table.add th{border:1px solid var(--line);padding:6px 12px;text-align:center;background:var(--card)}
+table.add th{font-family:var(--f-body);font-size:.85rem;color:var(--muted)}
+.foot{margin-top:56px;font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  ol.steps li.cur{transition:background .2s}
+}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="stack">
+    <span class="eyebrow">Информатика · 8-сынып · оқу мақсаты 8.2.1.2</span>
+    <h1>«Ойдағы 1» қайдан шығады</h1>
+    <p class="lead">Натурал сандарды екілік, сегіздік, он алтылық және кез келген басқа позициялық санау жүйесінде қосу және азайту. Қосқанда келесі разрядқа неге дәл <b>бірді</b> көшіретінімізді, ал азайтқанда неге санау жүйесінің <b>негізін</b> «қарызға алатынымызды» талдаймыз.</p>
+    <nav class="toc" aria-label="Мазмұны">
+      <a href="#razryad">1. Разряд</a>
+      <a href="#pochemu">2. Неге 1 ойда</a>
+      <a href="#pravilo">3. Ереже</a>
+      <a href="#primery">4. Мысалдар</a>
+      <a href="#vychitanie">5. Азайту</a>
+      <a href="#trenazher">6. Жаттықтырғыш</a>
+      <a href="#zadaniya">7. Тапсырмалар</a>
+    </nav>
+  </div>
+  <div class="card">
+    <div class="col-wrap" id="hero-col"></div>
+    <p class="muted" style="font-size:.9rem;text-align:center;margin-top:10px">Жоғарыдағы қызыл <span class="hand">1</span> — «ойдағы бір»</p>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="razryad">
+  <div class="sec-head">
+    <span class="eyebrow">1-қадам</span>
+    <h2>Разряд деген не және оның «салмағы» қандай</h2>
+  </div>
+  <p>Позициялық санау жүйесінде цифрдың мәні оның тұрған орнына байланысты. Әр орын <b>разряд</b> деп аталады. Әр разрядтың өз «салмағы» бар. Ең оң жақтағы разрядтың салмағы 1, ал сол жаққа қарай әр келесі разряд <b>дәл q есе ауыр</b>, мұндағы q — санау жүйесінің негізі.</p>
+
+  <div class="tbl-wrap">
+    <table class="pv">
+      <thead><tr><th>Санау жүйесі</th><th>4-разряд</th><th>3-разряд</th><th>2-разряд</th><th>1-разряд</th><th>Сол жаққа әр қадам</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Ондық (q = 10)</td><td>1000</td><td>100</td><td>10</td><td>1</td><td>× 10</td></tr>
+        <tr><td class="lbl">Екілік (q = 2)</td><td>8</td><td>4</td><td>2</td><td>1</td><td>× 2</td></tr>
+        <tr><td class="lbl">Сегіздік (q = 8)</td><td>512</td><td>64</td><td>8</td><td>1</td><td>× 8</td></tr>
+        <tr><td class="lbl">Он алтылық (q = 16)</td><td>4096</td><td>256</td><td>16</td><td>1</td><td>× 16</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Екінші маңызды ереже: бір разрядқа тек <b>бір цифр</b> жазуға болады, және ол цифр негізден кіші.</p>
+  <div class="tbl-wrap">
+    <table class="pv">
+      <thead><tr><th>Санау жүйесі</th><th>Цифрлар</th><th>Ең үлкен цифр</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Екілік</td><td>0, 1</td><td>1</td></tr>
+        <tr><td class="lbl">Сегіздік</td><td>0 … 7</td><td>7</td></tr>
+        <tr><td class="lbl">Ондық</td><td>0 … 9</td><td>9</td></tr>
+        <tr><td class="lbl">Он алтылық</td><td>0 … 9, A=10, B=11, C=12, D=13, E=14, F=15</td><td>F (= 15)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key">Екі фактіні есте сақта, қалғанының бәрі солардан шығады:<br>
+    <strong>(1)</strong> сол жақтағы бір разряд ағымдағы разрядтың <strong>q</strong> бірлігіне тең;<br>
+    <strong>(2)</strong> разрядқа q-ға тең немесе q-дан үлкен санды жазуға болмайды.</div>
+</section>
+
+<!-- 2 -->
+<section id="pochemu">
+  <div class="sec-head">
+    <span class="eyebrow">2-қадам</span>
+    <h2>Неге «1 ойда»: алдымен ондық жүйеде</h2>
+  </div>
+  <p><code>27 + 15</code> өрнегін бағанмен қосайық. Бірліктер разрядында: <code>7 + 5 = 12</code>. «12» санын бір торкөзге жазуға болмайды: онда тек бір цифр сыяды. Не істейміз?</p>
+  <p>Бірліктерді таяқшалар деп елестетейік. Бізде 12 таяқша бар. Олардың <b>онын</b> бір бумаға байлаймыз. Бір бума — бұл бір ондық, ал ондықтар сол жақтағы көрші разрядта тұрады.</p>
+
+  <div class="card">
+    <div class="sticks" id="sticks" aria-label="12 таяқша: 10-ы бумаға байланған, 2-еуі қалды"></div>
+  </div>
+
+  <p>Демек, <code>12 бірлік = 1 ондық + 2 бірлік</code>. Екі бірлік бірліктер разрядында қалады — оларды жазамыз. Бір ондық ондықтар разрядына өтеді — міне, соны біз «ойда сақтаймыз».</p>
+  <div class="key"><strong>«1 ойда» — бұл ондықтар разрядына ауыстырылған 10 бірліктен тұратын бір бума.</strong> Біз бірді жоқтан ойлап шығармаймыз және онды жоғалтпаймыз: ағымдағы разрядтың 10 бірлігі мен келесі разрядтың 1 бірлігі — бірдей шама.</div>
+  <p>Әрі қарай ондықтар разрядында: <code>2 + 1 = 3</code>, оған ойдағы <span class="hand">1</span> қосылады, барлығы <code>4</code>. Жауабы: <code>42</code>. Тексеру: <code>27 + 15 = 42</code>. ✔</p>
+</section>
+
+<!-- 3 -->
+<section id="pravilo">
+  <div class="sec-head">
+    <span class="eyebrow">3-қадам</span>
+    <h2>Кез келген санау жүйесінде дәл солай</h2>
+  </div>
+  <p>Негізі q болатын санау жүйесінде бума 10 емес, <b>q</b> бірліктен тұрады. Екілік жүйеде бума — 2 дана, сегіздікте — 8, он алтылықта — 16. Басқа ештеңе өзгермейді.</p>
+
+  <div class="key"><strong>Разрядтағы қосу ережесі.</strong> Разрядтың екі цифрын және ойдағы бірді (егер ол болса) қос. <b>S</b> қосындысы шықты (оны әдеттегі ондық жүйеде есептеуге болады).
+    <ul style="margin-top:8px">
+      <li>Егер <b>S &lt; q</b> болса — S-ті (жүйенің цифры түрінде) жазамыз, келесі разрядқа ештеңе көшпейді.</li>
+      <li>Егер <b>S ≥ q</b> болса — <b>S − q</b> жазамыз, ал <span class="hand">1</span>-ді келесі разрядқа көшіреміз.</li>
+    </ul>
+  </div>
+
+  <h3>Бұл неге дұрыс (қатаң түсіндірме)</h3>
+  <p>Салмағы <i>w</i> болатын разрядта S қосындысы шықсын және S ≥ q болсын. Бұл разрядтың мәні <code>S · w</code>. Оны жіктейік:</p>
+  <div class="formula">S · w = (S − q) · w + q · w = (S − q) · w + 1 · (q · w)</div>
+  <p>Ал <code>q · w</code> — дәл келесі разрядтың салмағы (1-факт). Сондықтан <code>S − q</code> ағымдағы разрядта қалады, ал <code>1</code> келесі разрядқа өтеді. Бұл кезде санның шамасы өзгермейді: біз сол қосындыны басқаша жаздық.</p>
+
+  <h3>Неге 2 немесе 3 емес, дәл 1 көшеді</h3>
+  <p>Разрядта қандай қосынды шығуы мүмкін екенін есептейік. Ең үлкен цифр <code>q − 1</code>-ге тең, ал ойдағы сан 1-ден аспайды. Демек:</p>
+  <div class="formula">S ≤ (q − 1) + (q − 1) + 1 = 2q − 1 &lt; 2q</div>
+  <p>Қосынды әрқашан екі бумадан кіші. Онда q бірліктен тұратын бір толық бума жиналуы мүмкін, ал екі бума — ешқашан. Сондықтан екі санды қосқанда келесі разрядқа не 0, не 1 көшеді. Сонымен қатар <code>S − q ≤ q − 1</code> екені бірден көрінеді, яғни қалдық әрқашан бір цифрға сыяды.</p>
+
+  <div class="tbl-wrap">
+    <table class="pv">
+      <thead><tr><th>Санау жүйесі</th><th>Ең үлкен жағдай</th><th>S қосындысы</th><th>Жазамыз</th><th>Ойда</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">q = 2</td><td>1 + 1 + 1</td><td>3</td><td>3 − 2 = 1</td><td>1</td></tr>
+        <tr><td class="lbl">q = 8</td><td>7 + 7 + 1</td><td>15</td><td>15 − 8 = 7</td><td>1</td></tr>
+        <tr><td class="lbl">q = 10</td><td>9 + 9 + 1</td><td>19</td><td>19 − 10 = 9</td><td>1</td></tr>
+        <tr><td class="lbl">q = 16</td><td>F + F + 1</td><td>31</td><td>31 − 16 = 15 = F</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><b>Жиі кездесетін қате.</b> Қосынды «10-нан асқанда» бірді көшіру. Көшіру шегі — 10 емес, <b>санау жүйесінің негізі</b>.<br>
+  Сегіздік жүйеде: <code>5 + 4 = 9</code>, ал 9 ≥ 8, демек <code>9 − 8 = 1</code> жазамыз және <span class="hand">1</span> ойда: <code>5₈ + 4₈ = 11₈</code>.<br>
+  Он алтылық жүйеде: <code>7 + 8 = 15</code>, ал 15 &lt; 16, ештеңе көшпейді, <code>F</code> цифрын жазамыз: <code>7₁₆ + 8₁₆ = F₁₆</code>.</div>
+</section>
+
+<!-- 4 -->
+<section id="primery">
+  <div class="sec-head">
+    <span class="eyebrow">4-қадам</span>
+    <h2>Мысалдарды қадам бойынша талдау</h2>
+  </div>
+
+  <h3>Екілік санау жүйесі: қосу кестесі</h3>
+  <div class="tbl-wrap">
+    <table class="add">
+      <thead><tr><th>Нені қосамыз</th><th>S (ондық жүйеде)</th><th>S ≥ 2 ме?</th><th>Жазамыз</th><th>Ойда</th><th>Нәтиже</th></tr></thead>
+      <tbody>
+        <tr><td>0 + 0</td><td>0</td><td>жоқ</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0 + 1</td><td>1</td><td>жоқ</td><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>1 + 1</td><td>2</td><td>иә</td><td>2 − 2 = 0</td><td>1</td><td>10₂</td></tr>
+        <tr><td>1 + 1 + 1</td><td>3</td><td>иә</td><td>3 − 2 = 1</td><td>1</td><td>11₂</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><code>1 + 1 = 10₂</code> «он» деп емес, «бір-нөл» деп оқылады. Бұл бір екілік және нөл бірлік, яғни 2 саны.</p>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-bin"></div>
+    <div class="stack">
+      <h3>1011₂ + 111₂</h3>
+      <ol class="steps">
+        <li><span>1-разряд: <code>1 + 1 = 2</code>. 2 ≥ 2 → <code>0</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>2-разряд: <code>1 + 1 + 1 = 3</code>. 3 ≥ 2 → <code>1</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>3-разряд: <code>0 + 1 + 1 = 2</code> → <code>0</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>4-разряд: <code>1 + 1 = 2</code> (екінші санда бұл разряд жоқ, 0 деп есептейміз) → <code>0</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>Разрядтар бітті, бірақ ойда бір қалды → оны сол жаққа жазамыз: <code>1</code>.</span></li>
+      </ol>
+      <p class="check">Жауабы: <b class="num">10010₂</b>. Ондық жүйе арқылы тексеру: 1011₂ = 11, 111₂ = 7, 11 + 7 = 18, ал 10010₂ = 16 + 2 = 18. ✔</p>
+    </div>
+  </div>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-oct"></div>
+    <div class="stack">
+      <h3>657₈ + 246₈</h3>
+      <ol class="steps">
+        <li><span>1-разряд: <code>7 + 6 = 13</code>. 13 ≥ 8 → <code>13 − 8 = 5</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>2-разряд: <code>5 + 4 + 1 = 10</code>. 10 ≥ 8 → <code>10 − 8 = 2</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>3-разряд: <code>6 + 2 + 1 = 9</code>. 9 ≥ 8 → <code>9 − 8 = 1</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>Ойдағы бірді сол жаққа жазамыз: <code>1</code>.</span></li>
+      </ol>
+      <p class="check">Жауабы: <b class="num">1125₈</b>. Тексеру: 657₈ = 431, 246₈ = 166, 431 + 166 = 597; 1125₈ = 512 + 64 + 16 + 5 = 597. ✔</p>
+    </div>
+  </div>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-hex"></div>
+    <div class="stack">
+      <h3>3AF₁₆ + 1C9₁₆</h3>
+      <ol class="steps">
+        <li><span>1-разряд: <code>F + 9 = 15 + 9 = 24</code>. 24 ≥ 16 → <code>24 − 16 = 8</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>2-разряд: <code>A + C + 1 = 10 + 12 + 1 = 23</code>. 23 ≥ 16 → <code>23 − 16 = 7</code> жазамыз, <span class="hand">1</span> ойда.</span></li>
+        <li><span>3-разряд: <code>3 + 1 + 1 = 5</code>. 5 &lt; 16 → <code>5</code> жазамыз, ештеңе көшпейді.</span></li>
+      </ol>
+      <p class="check">Жауабы: <b class="num">578₁₆</b>. Тексеру: 3AF₁₆ = 943, 1C9₁₆ = 457, 943 + 457 = 1400; 578₁₆ = 1280 + 112 + 8 = 1400. ✔</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="vychitanie">
+  <div class="sec-head">
+    <span class="eyebrow">5-қадам</span>
+    <h2>Азайту: неге дәл q-ды «қарызға аламыз»</h2>
+  </div>
+  <p>Азайту — қосуға кері амал. Қосқанда біз q бірлікті бір бумаға <b>байлап</b>, оны жоғары разрядқа бердік. Азайтқанда, разрядта жетпей қалса, жоғары разрядтың бір бумасын <b>шешіп</b>, ағымдағы разрядтың q бірлігін аламыз.</p>
+  <div class="key"><strong>Разрядтағы азайту ережесі.</strong> Жоғарғы цифр төменгі цифрдан кіші болмаса — жай ғана азайтамыз. Кіші болса — сол жақтағы көрші разрядтан 1 қарызға аламыз (оның үстіне нүкте қоямыз, ол 1-ге кемиді), ал ағымдағы цифрға <b>q</b> қосамыз: екілік жүйеде +2, сегіздікте +8, он алтылықта +16.</div>
+  <p>Неге +10 емес, +q? Жоғары разрядтың бір бірлігі ағымдағы разрядтың q бірлігіне тең (1-факт). Біз бір «ірі тиынды» q ұсақ тиынға айырбастадық.</p>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-sub-oct"></div>
+    <div class="stack">
+      <h3>503₈ − 267₈</h3>
+      <ol class="steps">
+        <li><span>1-разряд: 3 саны 7-ден кіші. Қарызға алу керек, бірақ сол жақта <code>0</code> тұр: одан алатын ештеңе жоқ.</span></li>
+        <li><span>Әрі қарай <code>5</code> цифрына барамыз. Одан қарызға аламыз: 5 → <code>4</code>. Бір бума шешілді: ортаңғы разрядтағы 0 саны <code>8</code> болды.</span></li>
+        <li><span>Осы 8-ден бір буманы оң жаққа береміз: ортаңғы разряд <code>8 − 1 = 7</code>, ал 1-разрядта <code>3 + 8 = 11</code>.</span></li>
+        <li><span>1-разряд: <code>11 − 7 = 4</code>. 2-разряд: <code>7 − 6 = 1</code>. 3-разряд: <code>4 − 2 = 2</code>.</span></li>
+      </ol>
+      <p class="check">Жауабы: <b class="num">214₈</b>. Тексеру: 503₈ = 323, 267₈ = 183, 323 − 183 = 140; 214₈ = 128 + 8 + 4 = 140. ✔<br>
+      Назар аудар: «арқылы» қарызға алынған нөл <b>q − 1</b>-ге айналады (сегіздікте — 7-ге, екілікте — 1-ге, он алтылықта — F-ке).</p>
+    </div>
+  </div>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-sub-bin"></div>
+    <div class="stack">
+      <h3>1010₂ − 11₂</h3>
+      <ol class="steps">
+        <li><span>1-разряд: 0 саны 1-ден кіші. Көршіден қарызға аламыз (онда 1 тұр, ол 0 болады): <code>0 + 2 = 2</code>, <code>2 − 1 = 1</code>.</span></li>
+        <li><span>2-разряд: енді онда 0, ал 1-ді азайту керек. Сол жақта 0, ол арқылы үлкен 1-ден қарызға аламыз: ол 0 болады, нөл <code>1</code> болады, ал бізде <code>0 + 2 = 2</code>, <code>2 − 1 = 1</code>.</span></li>
+        <li><span>3-разряд: <code>1 − 0 = 1</code> қалды. 4-разряд: <code>0</code>, сол жақтағы нөлді жазбаймыз.</span></li>
+      </ol>
+      <p class="check">Жауабы: <b class="num">111₂</b>. Тексеру: 1010₂ = 10, 11₂ = 3, 10 − 3 = 7 = 111₂. ✔</p>
+    </div>
+  </div>
+
+  <p>Азайтуды қосу арқылы да тексеруге болады: <code>214₈ + 267₈</code> қосындысы <code>503₈</code> болуы керек. Төмендегі жаттықтырғышта байқап көр.</p>
+</section>
+
+<!-- 6 -->
+<section id="trenazher">
+  <div class="sec-head">
+    <span class="eyebrow">6-қадам</span>
+    <h2>Жаттықтырғыш: өзің есепте және әр қадамды тексер</h2>
+  </div>
+  <p class="muted">Екі санды енгіз, санау жүйесі мен амалды таңда. «Келесі қадам» батырмасы шешімді разряд бойынша көрсетеді және ойдағы бірдің қайдан шығатынын түсіндіреді.</p>
+  <div class="card stack">
+    <form class="controls" id="sim-form" autocomplete="off">
+      <label class="field" for="sim-a">Бірінші сан<input type="text" id="sim-a" value="657" spellcheck="false"></label>
+      <label class="field" for="sim-op">Амал
+        <select id="sim-op"><option value="+">қосу +</option><option value="-">азайту −</option></select></label>
+      <label class="field" for="sim-b">Екінші сан<input type="text" id="sim-b" value="246" spellcheck="false"></label>
+      <label class="field" for="sim-q">Негізі
+        <select id="sim-q"></select></label>
+      <button type="submit">Шешу</button>
+    </form>
+    <p class="err" id="sim-err" hidden></p>
+    <div class="two" id="sim-body">
+      <div class="stack">
+        <div class="col-wrap" id="sim-col"></div>
+        <div class="btns">
+          <button type="button" class="ghost" id="sim-prev">← Артқа</button>
+          <button type="button" id="sim-next">Келесі қадам →</button>
+          <button type="button" class="ghost" id="sim-all">Толық көрсету</button>
+        </div>
+      </div>
+      <div class="stack">
+        <ol class="steps" id="sim-steps"></ol>
+        <p class="check" id="sim-check"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="zadaniya">
+  <div class="sec-head">
+    <span class="eyebrow">7-қадам</span>
+    <h2>Өзін-өзі тексеруге арналған тапсырмалар</h2>
+  </div>
+  <p class="muted">Дәптерге бағанмен шығар, жауапты сол санау жүйесінде жаз да, «Тексеру» батырмасын бас. Қате жіберсең, мысалды жаттықтырғышта талда.</p>
+  <div class="tasks" id="tasks"></div>
+</section>
+
+<section id="voprosy">
+  <div class="sec-head">
+    <span class="eyebrow">Түсінгеніңді тексер</span>
+    <h2>Сұрақтарға жауап бер, содан кейін жауапты аш</h2>
+  </div>
+  <div class="faq">
+    <details><summary>Неге екілік жүйеде 1 + 1 = 2 емес, 10?</summary>
+      <p>Екілік жүйеде 2 цифры жоқ: разряд тек 0 немесе 1-ді сақтай алады. Екі бірлік — толық бума (q = 2), ол келесі разрядқа өтеді, ал ағымдағы разрядта 0 қалады. 10₂ жазбасы «бір екілік және нөл бірлік», яғни екі санын білдіреді.</p></details>
+    <details><summary>Екі санды қосқанда ойда 2 болуы мүмкін бе?</summary>
+      <p>Жоқ. Разрядтағы ең үлкен қосынды (q − 1) + (q − 1) + 1 = 2q − 1, ал бұл 2q-дан кіші. Екі толық бума ешқашан жиналмайды. Ойда 2 тек үш немесе одан көп санды бірден қосқанда болуы мүмкін.</p></details>
+    <details><summary>Сегіздік жүйеде 6 + 3 = 9. Неге 9-ды жазуға болмайды?</summary>
+      <p>Сегіздік жүйеде 9 цифры жоқ. 9 ≥ 8, сондықтан 9 − 8 = 1 жазамыз және 1-ді келесі разрядқа көшіреміз. Жауабы: 6₈ + 3₈ = 11₈.</p></details>
+    <details><summary>Он алтылық жүйеде азайтқанда 1 қарызға аламыз. Неге цифрға 10 емес, 16 қосамыз?</summary>
+      <p>Сол жақтағы көрші разрядтың бір бірлігі ағымдағы разрядтың бірлігінен 16 есе ауыр. Оны шешіп, ағымдағы разрядтың 16 бірлігін аламыз.</p></details>
+    <details><summary>Жауабымды қалай тез тексеруге болады?</summary>
+      <p>Екі тәсіл бар. (1) Екі санды да, жауапты да ондық жүйеге аударып, теңдікті тексер. (2) Азайтуда жауапты азайтқышпен қос: азайғыш шығуы керек.</p></details>
+  </div>
+</section>
+
+<p class="foot">Оқу мақсаты 8.2.1.2: позициялық санау жүйелерінде натурал сандарға арифметикалық амалдар (қосу, азайту) орындау.</p>
+</div>
+
+<script>
+(function(){
+  var DIG = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var SUB = {2:"₂",3:"₃",4:"₄",5:"₅",6:"₆",7:"₇",8:"₈",9:"₉",10:"₁₀",11:"₁₁",12:"₁₂",13:"₁₃",14:"₁₄",15:"₁₅",16:"₁₆"};
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function parse(str,q){
+    str=String(str).trim().toUpperCase();
+    if(!str) return {err:"Санды енгізіңіз."};
+    var d=[];
+    for(var i=0;i<str.length;i++){
+      var v=DIG.indexOf(str[i]);
+      if(v<0||v>=q) return {err:"Негізі "+q+" санау жүйесінде «"+str[i]+"» цифры жоқ. Рұқсат етілген цифрлар: "+DIG.slice(0,q).split("").join(", ")+"."};
+      d.push(v);
+    }
+    while(d.length>1&&d[0]===0) d.shift();
+    return {digits:d.reverse()}; // little-endian
+  }
+  function toDec(d,q){var v=0;for(var i=d.length-1;i>=0;i--) v=v*q+d[i];return v;}
+  function str(d){var s="";for(var i=d.length-1;i>=0;i--) s+=DIG[d[i]];return s;}
+  function dname(v,q){return v>=10&&q>10 ? DIG[v]+" ("+v+")" : String(v);}
+  function cmp(a,b){if(a.length!==b.length) return a.length-b.length;for(var i=a.length-1;i>=0;i--) if(a[i]!==b[i]) return a[i]-b[i];return 0;}
+
+  function add(a,b,q){
+    var n=Math.max(a.length,b.length), c=0, res=[], carries=[], steps=[];
+    for(var i=0;i<n;i++){
+      var x=a[i]||0, y=b[i]||0, S=x+y+c, cin=c;
+      var w, co;
+      if(S>=q){w=S-q;co=1;}else{w=S;co=0;}
+      res.push(w); carries[i+1]=co;
+      var parts=dname(x,q)+" + "+dname(y,q)+(cin?" + 1 (ойда)":"");
+      var t=(i+1)+"-разряд: "+parts+" = "+S+". ";
+      if(co) t+=S+" ≥ "+q+", демек "+q+" бірліктен тұратын толық бума жиналды. "+S+" − "+q+" = "+dname(w,q)+(q>10&&w>=10?"":"")+" жазамыз, ал 1-ді келесі разрядқа көшіреміз (1 ойда).";
+      else t+=S+" < "+q+", бума жиналмады. "+dname(w,q)+" жазамыз, келесі разрядқа ештеңе көшпейді.";
+      steps.push({pos:i,text:t,res:res.slice(),carries:carries.slice(),borrow:[]});
+      c=co;
+    }
+    if(c){res.push(1);steps.push({pos:n,text:"Разрядтар бітті, бірақ ойда 1 қалды. Оны сол жаққа жаңа жоғары разряд ретінде жазамыз.",res:res.slice(),carries:carries.slice(),borrow:[]});}
+    return {res:res,steps:steps};
+  }
+  function sub(a,b,q){
+    var n=a.length, br=0, res=[], steps=[], borrowMarks=[];
+    for(var i=0;i<n;i++){
+      var x=a[i], y=b[i]||0, xe=x-br, t=(i+1)+"-разряд: ";
+      var nb=0, w;
+      if(br&&x===0){
+        nb=1; borrowMarks[i+1]=1; xe=q-1; w=xe-y;
+        t+="мұнда 0 тұр, ал бұл разрядтан 1 қарызға алынған. Беретін ештеңе жоқ, сондықтан ол өзі сол жақтағы көршісінен 1 қарызға алады (нүкте қоямыз): 0 саны "+q+" болады, бір бірлікті оң жаққа береді, "+q+" − 1 = "+dname(xe,q)+" қалады. Енді "+xe+" − "+y+" = "+w+". "+dname(w,q)+" жазамыз.";
+        res.push(w);
+        steps.push({pos:i,text:t,res:res.slice(),carries:[],borrow:borrowMarks.slice()});
+        br=nb; continue;
+      }
+      if(br) t+="бұл цифрдан 1 қарызға алынған, сондықтан "+dname(x,q)+" орнына "+x+" − 1 = "+xe+" деп есептейміз. ";
+      if(xe<y){
+        nb=1; borrowMarks[i+1]=1;
+        w=xe+q-y;
+        t+=xe+" < "+dname(y,q)+", азайту мүмкін емес. Сол жақтағы көрші разрядтан 1 қарызға аламыз (нүкте қоямыз). Бұл 1 ағымдағы разрядтың "+q+" бірлігіне тең: "+xe+" + "+q+" = "+(xe+q)+". Енді "+(xe+q)+" − "+y+" = "+w+". "+dname(w,q)+" жазамыз.";
+        if((a[i+1]||0)===0) t+=" Сол жақта 0 тұр, әрі қарай қарызға алуға тура келеді: бұл 0 саны "+dname(q-1,q)+" болады.";
+      } else {
+        w=xe-y;
+        t+=xe+" − "+y+" = "+w+". Қарызға алу қажет емес, "+dname(w,q)+" жазамыз.";
+      }
+      res.push(w);
+      steps.push({pos:i,text:t,res:res.slice(),carries:[],borrow:borrowMarks.slice()});
+      br=nb;
+    }
+    var out=res.slice(); while(out.length>1&&out[out.length-1]===0) out.pop();
+    if(out.length<res.length) steps.push({pos:-1,text:"Сол жақтағы артық нөлдерді жазбаймыз.",res:out.slice(),carries:[],borrow:borrowMarks.slice(),trim:true});
+    return {res:out,steps:steps,full:res};
+  }
+
+  function renderCol(el,a,b,op,q,step,total){
+    var n=Math.max(a.length,b.length,total.res.length);
+    var s=total.steps[Math.min(step,total.steps.length-1)];
+    var shown=step<0?{res:[],carries:[],borrow:[]}:s;
+    var cols=n;
+    var h='<table class="col" aria-label="Бағанмен есептеу"><tbody>';
+    // carry row
+    h+='<tr class="carry"><td class="op"></td>';
+    for(var i=cols-1;i>=0;i--){var c=shown.carries&&shown.carries[i]; h+='<td>'+(c?'1':'')+'</td>';}
+    h+='<td class="base"></td></tr>';
+    function row(d,opch,isRes,borrow){
+      var r='<tr'+(isRes?' class="res"':'')+'><td class="op">'+(opch||'')+'</td>';
+      for(var i=cols-1;i>=0;i--){
+        var v=d[i]; var cls=[];
+        if(step>=0&&s.pos===i) cls.push('hl');
+        if(borrow&&borrow[i]) cls.push('borrow');
+        r+='<td'+(cls.length?' class="'+cls.join(' ')+'"':'')+'>'+(v===undefined?'':DIG[v])+'</td>';
+      }
+      return r+'<td class="base">'+(SUB[q]||'')+'</td></tr>';
+    }
+    h+=row(a,'',false,shown.borrow);
+    h+=row(b,op==='+'?'+':'−',false,null);
+    h+='<tr class="rule"><td></td>'; for(var k=0;k<cols;k++) h+='<td></td>'; h+='<td></td></tr>';
+    h+=row(shown.res||[],'',true,null);
+    h+='</tbody></table>';
+    el.innerHTML=h;
+  }
+
+  function solve(aStr,bStr,op,q){
+    var A=parse(aStr,q), B=parse(bStr,q);
+    if(A.err) return {err:"Бірінші сан: "+A.err};
+    if(B.err) return {err:"Екінші сан: "+B.err};
+    if(op==='-'&&cmp(A.digits,B.digits)<0) return {err:"Натурал сандар үшін азайғыш азайтқыштан кіші болмауы керек. Сандардың орнын ауыстырыңыз."};
+    var r= op==='+'?add(A.digits,B.digits,q):sub(A.digits,B.digits,q);
+    r.a=A.digits;r.b=B.digits;return r;
+  }
+
+  // static examples
+  function staticEx(id,a,b,op,q){
+    var r=solve(a,b,op,q);
+    renderCol(document.getElementById(id),r.a,r.b,op,q,r.steps.length-1,r);
+    var el=document.getElementById(id).querySelector('td.hl'); if(el) el.classList.remove('hl');
+  }
+  staticEx('hero-col','27','15','+',10);
+  staticEx('ex-bin','1011','111','+',2);
+  staticEx('ex-oct','657','246','+',8);
+  staticEx('ex-hex','3AF','1C9','+',16);
+  staticEx('ex-sub-oct','503','267','-',8);
+  staticEx('ex-sub-bin','1010','11','-',2);
+
+  // sticks
+  (function(){
+    var h='<div class="pile"><div class="row">';
+    for(var i=0;i<12;i++) h+='<span class="stick"></span>';
+    h+='</div><small>7 + 5 = 12 таяқша</small></div><span class="arrow" aria-hidden="true">→</span>';
+    h+='<div class="pile"><div class="row"><span class="bundle">';
+    for(var j=0;j<10;j++) h+='<span class="stick"></span>';
+    h+='</span></div><small>1 бума = 1 ондық → <span class="hand">1</span> ойда</small></div>';
+    h+='<div class="pile"><div class="row"><span class="stick"></span><span class="stick"></span></div><small>2 бірлік → 2 жазамыз</small></div>';
+    document.getElementById('sticks').innerHTML=h;
+  })();
+
+  // simulator
+  var qSel=document.getElementById('sim-q');
+  [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].forEach(function(q){
+    var o=document.createElement('option');o.value=q;o.textContent=q+(q===2?' (екілік)':q===8?' (сегіздік)':q===10?' (ондық)':q===16?' (он алтылық)':'');
+    if(q===8) o.selected=true; qSel.appendChild(o);
+  });
+  var cur=null, step=0;
+  var elA=document.getElementById('sim-a'), elB=document.getElementById('sim-b'), elOp=document.getElementById('sim-op');
+  var elErr=document.getElementById('sim-err'), elBody=document.getElementById('sim-body');
+  var elSteps=document.getElementById('sim-steps'), elCheck=document.getElementById('sim-check');
+  var bPrev=document.getElementById('sim-prev'), bNext=document.getElementById('sim-next'), bAll=document.getElementById('sim-all');
+  function draw(){
+    var q=cur.q;
+    renderCol(document.getElementById('sim-col'),cur.a,cur.b,cur.op,q,step,cur);
+    var h='';
+    for(var i=0;i<=step&&i<cur.steps.length;i++) h+='<li'+(i===step?' class="cur"':'')+'><span>'+esc(cur.steps[i].text)+'</span></li>';
+    elSteps.innerHTML=h;
+    var done=step>=cur.steps.length-1;
+    if(done){
+      var A=toDec(cur.a,q),B=toDec(cur.b,q),R=toDec(cur.res,q), sb=SUB[q]||'';
+      elCheck.innerHTML='Жауабы: <b class="num">'+str(cur.res)+sb+'</b>. Ондық жүйеде тексеру: '+str(cur.a)+sb+' = '+A+', '+str(cur.b)+sb+' = '+B+', '+A+(cur.op==='+'?' + ':' − ')+B+' = '+(cur.op==='+'?A+B:A-B)+'; '+str(cur.res)+sb+' = '+R+'. '+((cur.op==='+'?A+B:A-B)===R?'✔':'');
+    } else elCheck.textContent='Жалғастыру үшін «Келесі қадам» батырмасын бас.';
+    bPrev.disabled=step<=0; bNext.disabled=done; bAll.disabled=done;
+  }
+  function run(show){
+    var q=+qSel.value, r=solve(elA.value,elB.value,elOp.value,q);
+    elA.classList.remove('bad');elB.classList.remove('bad');
+    if(r.err){elErr.textContent=r.err;elErr.hidden=false;elBody.hidden=true;
+      if(/^Бірінші/.test(r.err)) elA.classList.add('bad'); else if(/^Екінші/.test(r.err)) elB.classList.add('bad'); return;}
+    elErr.hidden=true;elBody.hidden=false;
+    r.q=q;r.op=elOp.value;cur=r;step=show==='all'?r.steps.length-1:0;draw();
+  }
+  document.getElementById('sim-form').addEventListener('submit',function(e){e.preventDefault();run();});
+  bNext.addEventListener('click',function(){if(step<cur.steps.length-1){step++;draw();}});
+  bPrev.addEventListener('click',function(){if(step>0){step--;draw();}});
+  bAll.addEventListener('click',function(){step=cur.steps.length-1;draw();});
+  run('all');
+
+  // practice
+  var tasks=[
+    ['10110','1101','+',2],['4675','3547','+',8],['BEE','9C8','+',16],
+    ['11011','1110','+',2],['5020','1767','-',8],['A03','5B7','-',16],
+    ['101000','1011','-',2],['777','1','+',8],['1000','FFF','-',16]
+  ];
+  var box=document.getElementById('tasks');
+  tasks.forEach(function(t,i){
+    var r=solve(t[0],t[1],t[2],t[3]), sb=SUB[t[3]];
+    var d=document.createElement('div');d.className='card task';
+    var id='task-'+i;
+    d.innerHTML='<span class="eyebrow">Тапсырма '+(i+1)+'</span><div class="q">'+t[0]+sb+' '+(t[2]==='+'?'+':'−')+' '+t[1]+sb+' = ?</div>'+
+      '<div class="row"><input type="text" id="'+id+'" aria-label="'+(i+1)+'-тапсырманың жауабы" spellcheck="false" placeholder="жауап"><button type="button">Тексеру</button></div>'+
+      '<div class="fb" aria-live="polite"></div><button type="button" class="ghost">Жаттықтырғышта талдау</button>';
+    var inp=d.querySelector('input'), fb=d.querySelector('.fb'), btns=d.querySelectorAll('button');
+    function check(){
+      var p=parse(inp.value,t[3]);
+      if(p.err){fb.className='fb no';fb.textContent=p.err;return;}
+      if(cmp(p.digits,r.res)===0){fb.className='fb ok';fb.textContent='Дұрыс! ✔';}
+      else{fb.className='fb no';fb.textContent='Әзірге қате. Әр разрядты тексер: қосындыны 10 санымен емес, негіз '+t[3]+' санымен салыстырдың ба?';}
+    }
+    btns[0].addEventListener('click',check);
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter')check();});
+    btns[1].addEventListener('click',function(){
+      elA.value=t[0];elB.value=t[1];elOp.value=t[2];qSel.value=t[3];run();
+      document.getElementById('trenazher').scrollIntoView({behavior:'smooth'});
+    });
+    box.appendChild(d);
+  });
+})();
+</script>
+
+</body></html>
