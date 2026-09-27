@@ -139,7 +139,7 @@ function variantPages(V) {
       ['', col(g1)], ['+', col(g2)], ['', col(g3)],
     ].map((r, i) => r.map((txt, j) => cell([P(txt, { mono: true, bold: true, size: 32, align: j ? AlignmentType.RIGHT : AlignmentType.CENTER, after: 0 })], [500, 2400][j]))),
     { borders: { top: NONE, left: NONE, right: NONE, insideVertical: NONE, bottom: NONE, insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' } } }),
-    P('                  (все числа восьмеричные; черта под вторым числом — как в столбике)', { size: 20, italics: true, after: 80 }),
+    P('(все числа записаны в восьмеричной системе счисления)', { size: 20, italics: true, after: 80 }),
     P('Ответ: ______₈ + ______₈ = ______₈', { before: 60, after: 200 }),
     P('**Критерий оценивания:** выполняет сложение и вычитание натуральных чисел в позиционных системах счисления.', { size: 22, after: 20 }),
     P('**Уровень мыслительных навыков:** применение (задания 1–6), навыки высокого порядка (задания 7–8).', { size: 22, after: 80 }),

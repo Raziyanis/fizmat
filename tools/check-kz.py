@@ -16,7 +16,10 @@ SHARED = {
     'не', 'он',       # қазақша сөздер: «не» (немесе), «он» (10, он алтылық)
     'да', 'факт',     # «қосу арқылы да» (шылау), «1-факт»
     'цифры',          # қазақша тәуелдік форма: «9 цифры жоқ»
+    'а', 'б',         # тармақтар: а), ә), б)
+    'математика', 'слайд',
 }
+MIXED = re.compile(r'\b(?=\w*[A-Za-z])(?=\w*[А-Яа-яЁёӘәҒғҚқҢңӨөҰұҮүҺһІі])\w+\b')
 
 CYR = re.compile(r'[А-Яа-яЁёӘәҒғҚқҢңӨөҰұҮүҺһІі]+')
 
@@ -51,9 +54,13 @@ def main(args):
         sys.exit(__doc__)
     bad_total = 0
     for ru, kz in zip(args[::2], args[1::2]):
-        left = sorted(words(visible_text(ru)) & words(visible_text(kz)) - SHARED)
-        bad_total += len(left)
+        text = visible_text(kz)
+        left = sorted(words(visible_text(ru)) & words(text) - SHARED)
+        mixed = sorted(set(MIXED.findall(text)))
+        bad_total += len(left) + len(mixed)
         print(f'{pathlib.Path(kz).name}: ' + ('орысша сөз табылмады ✔' if not left else f'{len(left)} сөз қалды: ' + ', '.join(left)))
+        if mixed:
+            print('  латын және кирилл әріптері аралас сөздер: ' + ', '.join(mixed))
     sys.exit(1 if bad_total else 0)
 
 
