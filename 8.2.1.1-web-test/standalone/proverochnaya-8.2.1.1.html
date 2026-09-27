@@ -200,8 +200,8 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
       <h2>Инструкция</h2>
       <ul class="rules">
         <li>Прочитайте задание и введите ответ в поле. Нажмите «Ответить» (или Enter).</li>
-        <li>На каждое задание даётся <b>одна минута</b>.</li>
-        <li class="important"><b>Через минуту задание закрывается автоматически.</b> Если вы не успели нажать «Ответить», ответ <b>не засчитывается</b> (даже если вы уже ввели его в поле), и сразу открывается следующее задание.</li>
+        <li>Время на каждое задание <b>не ограничено</b> — распределяйте его сами и следите за общим таймером вверху экрана.</li>
+        <li class="important"><b>Ответ засчитывается только после нажатия «Ответить»</b> (или Enter). Если время работы закончится, а вы не нажали «Ответить», ответ <b>не засчитывается</b>, даже если он уже введён в поле.</li>
         <li>Правильность ответа система отмечает <b>автоматически</b>.</li>
         <li>За каждый правильный ответ начисляется <b>1 балл</b>. Максимальный балл — <b>10</b>.</li>
         <li>Кнопка «Пропустить» засчитывает задание как неправильное и открывает следующее. В конце к пропущенным заданиям можно вернуться, пока не закончилось общее время.</li>
@@ -238,7 +238,7 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
     <section id="s-menu" hidden>
       <h1>Остались пропущенные задания</h1>
       <p>Пропущено заданий: <b id="m-count"></b> (<span id="m-list"></span>). Пока они засчитаны как неправильные.</p>
-      <p>Вы можете вернуться к ним — на каждое снова даётся одна минута.</p>
+      <p>Вы можете вернуться к ним, пока не закончилось общее время.</p>
       <div class="buttons">
         <button id="b-review" class="primary">Вернуться к пропущенным</button>
         <button id="b-finish">Завершить работу</button>
@@ -435,7 +435,7 @@ window.VARIANTS = [
   'use strict';
 
   var TOTAL_MS = 15 * 60 * 1000;   // общее время работы
-  var TASK_MS = 60 * 1000;         // время на одно задание
+  var TASK_MS = 0;                 // время на одно задание (0 — не ограничено, только общий таймер)
   var RESULT_MS = 5 * 60 * 1000;   // сколько показывается результат, потом — экран с паролем учителя
   var STORE = 'ntest-8211-state';  // состояние хранится только в этом браузере
 
@@ -579,7 +579,7 @@ window.VARIANTS = [
   function current() { return state.queue[state.pos]; }
 
   function startTask() {
-    state.taskEnds = Date.now() + TASK_MS;
+    state.taskEnds = TASK_MS ? Date.now() + TASK_MS : null;
     save();
     renderTask();
   }
@@ -714,10 +714,12 @@ window.VARIANTS = [
       $('tm-task').textContent = fmt(Math.min(tl, left));
       $('tm-task-box').classList.toggle('low', tl <= 10000);
       $('tm-bar').style.width = (100 * tl / TASK_MS) + '%';
-    } else {
+    } else if (TASK_MS) {
       $('tm-task').textContent = '—';
       $('tm-task-box').classList.remove('low');
       $('tm-bar').style.width = '0%';
+    } else {
+      $('tm-bar').style.width = (100 * left / TOTAL_MS) + '%';   // полоса показывает оставшееся общее время
     }
   }
 
@@ -877,6 +879,7 @@ window.VARIANTS = [
       });
     }
     if (!fsSupported()) $('i-nofs').hidden = false;
+    if (!TASK_MS) $('tm-task-box').hidden = true;
 
     state = load();
     if (state && state.variant && window.VARIANTS[state.variant - 1]) {

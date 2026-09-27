@@ -3,7 +3,7 @@
   'use strict';
 
   var TOTAL_MS = 15 * 60 * 1000;   // общее время работы
-  var TASK_MS = 60 * 1000;         // время на одно задание
+  var TASK_MS = 0;                 // время на одно задание (0 — не ограничено, только общий таймер)
   var RESULT_MS = 5 * 60 * 1000;   // сколько показывается результат, потом — экран с паролем учителя
   var STORE = 'ntest-8211-state';  // состояние хранится только в этом браузере
 
@@ -147,7 +147,7 @@
   function current() { return state.queue[state.pos]; }
 
   function startTask() {
-    state.taskEnds = Date.now() + TASK_MS;
+    state.taskEnds = TASK_MS ? Date.now() + TASK_MS : null;
     save();
     renderTask();
   }
@@ -282,10 +282,12 @@
       $('tm-task').textContent = fmt(Math.min(tl, left));
       $('tm-task-box').classList.toggle('low', tl <= 10000);
       $('tm-bar').style.width = (100 * tl / TASK_MS) + '%';
-    } else {
+    } else if (TASK_MS) {
       $('tm-task').textContent = '—';
       $('tm-task-box').classList.remove('low');
       $('tm-bar').style.width = '0%';
+    } else {
+      $('tm-bar').style.width = (100 * left / TOTAL_MS) + '%';   // полоса показывает оставшееся общее время
     }
   }
 
@@ -445,6 +447,7 @@
       });
     }
     if (!fsSupported()) $('i-nofs').hidden = false;
+    if (!TASK_MS) $('tm-task-box').hidden = true;
 
     state = load();
     if (state && state.variant && window.VARIANTS[state.variant - 1]) {
