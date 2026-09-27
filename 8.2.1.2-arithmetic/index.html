@@ -1,0 +1,674 @@
+<title>Единица на уме</title>
+<meta name="description" content="Сложение и вычитание в позиционных системах счисления: почему при сложении переносится именно 1 и почему при вычитании занимают основание системы. 8 класс, цель 8.2.1.2.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600;700&family=Caveat:wght@600;700&display=swap">
+<style>
+:root{
+  --paper:#fbfcfe;
+  --grid:#dfe8f3;
+  --ink:#1b2740;
+  --muted:#5a6780;
+  --pen:#2452c0;
+  --pen-soft:#e7eefb;
+  --red:#cc2f2f;
+  --red-soft:#fbe9e9;
+  --ok:#1f7a4a;
+  --ok-soft:#e3f3ea;
+  --card:#ffffff;
+  --line:#c9d5e6;
+  --shadow:0 1px 0 rgba(27,39,64,.06);
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+  --f-hand:"Caveat","Comic Sans MS","Segoe Print",cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#111827;
+    --grid:#1c2638;
+    --ink:#e6ebf4;
+    --muted:#9aa7bd;
+    --pen:#8fb0ff;
+    --pen-soft:#1b2a4d;
+    --red:#ff7b72;
+    --red-soft:#3a1d22;
+    --ok:#6fd49a;
+    --ok-soft:#163326;
+    --card:#161f31;
+    --line:#2b3850;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#111827;
+  --grid:#1c2638;
+  --ink:#e6ebf4;
+  --muted:#9aa7bd;
+  --pen:#8fb0ff;
+  --pen-soft:#1b2a4d;
+  --red:#ff7b72;
+  --red-soft:#3a1d22;
+  --ok:#6fd49a;
+  --ok-soft:#163326;
+  --card:#161f31;
+  --line:#2b3850;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);
+  font:400 17px/1.6 var(--f-body);
+}
+.wrap{max-width:860px;margin:0 auto;padding:40px 16px 80px}
+h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.6rem;font-weight:800}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{font-size:1.15rem;max-width:62ch;color:var(--ink)}
+.hand{font-family:var(--f-hand);color:var(--red);font-weight:700}
+.mono{font-family:var(--f-mono)}
+sub{font-size:.7em}
+code,.num{font-family:var(--f-mono);font-size:.95em;white-space:nowrap}
+.stack{display:flex;flex-direction:column;gap:16px}
+section{display:flex;flex-direction:column;gap:18px;padding-top:56px}
+.sec-head{display:flex;flex-direction:column;gap:6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;box-shadow:var(--shadow)}
+.key{background:var(--pen-soft);border:1px solid var(--pen);border-radius:10px;padding:18px 20px}
+.key strong{color:var(--pen)}
+.warn{background:var(--red-soft);border:1px solid var(--red);border-radius:10px;padding:18px 20px}
+.muted{color:var(--muted)}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+nav.toc a{font-size:.9rem;color:var(--pen);text-decoration:none;border:1px solid var(--line);background:var(--card);padding:4px 10px;border-radius:999px}
+nav.toc a:hover{border-color:var(--pen)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center}
+@media (max-width:680px){.hero{grid-template-columns:1fr}}
+
+/* column arithmetic */
+.col-wrap{overflow-x:auto}
+table.col{border-collapse:collapse;font-family:var(--f-mono);font-size:1.6rem;margin:0 auto}
+table.col td{width:1.6em;height:1.45em;text-align:center;padding:0;font-variant-numeric:tabular-nums}
+table.col tr.carry td{font-family:var(--f-hand);color:var(--red);font-size:1.35rem;height:1.1em;vertical-align:bottom;line-height:1}
+table.col tr.rule td{border-top:2px solid var(--ink);height:0}
+table.col td.op{color:var(--muted);width:1em}
+table.col td.base{font-size:.85rem;color:var(--muted);text-align:left;padding-left:4px;vertical-align:bottom;width:auto}
+table.col td.hl{background:var(--pen-soft);border-radius:4px}
+table.col tr.res td{color:var(--pen);font-weight:700}
+table.col td.borrow{position:relative}
+table.col td.borrow::before{content:"";position:absolute;top:2px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--red)}
+table.col td.pending{color:transparent}
+
+/* place value */
+.tbl-wrap{overflow-x:auto}
+table.pv{border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:100%}
+table.pv th,table.pv td{border:1px solid var(--line);padding:8px 12px;text-align:center}
+table.pv th{font-size:.85rem;font-weight:600;color:var(--muted);background:var(--card)}
+table.pv td{background:var(--card);font-family:var(--f-mono)}
+table.pv td.lbl{font-family:var(--f-body);text-align:left;font-weight:600}
+
+/* sticks */
+.sticks{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end}
+.pile{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pile .row{display:flex;gap:4px;align-items:flex-end;min-height:48px}
+.stick{width:5px;height:44px;border-radius:2px;background:var(--pen)}
+.bundle{display:flex;gap:1px;padding:0 2px;position:relative}
+.bundle .stick{width:3px}
+.bundle::after{content:"";position:absolute;left:-2px;right:-2px;top:18px;height:5px;background:var(--red);border-radius:2px}
+.pile small{font-size:.85rem;color:var(--muted)}
+.arrow{font-size:1.6rem;color:var(--muted);align-self:center}
+
+/* formula */
+.formula{font-family:var(--f-mono);font-size:1.02rem;background:var(--card);border:1px dashed var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;white-space:nowrap}
+
+/* steps */
+ol.steps{padding-left:0;list-style:none;gap:10px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:2.2em 1fr;gap:10px;align-items:start}
+ol.steps li::before{content:counter(s);font-family:var(--f-mono);font-weight:700;color:var(--pen);border:1.5px solid var(--pen);border-radius:50%;width:1.8em;height:1.8em;display:grid;place-items:center;font-size:.85rem}
+ol.steps li.cur{background:var(--pen-soft);border-radius:8px;padding:6px 8px 6px 0}
+.check{border-top:1px dashed var(--line);padding-top:12px;font-size:.95rem}
+
+.two{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start}
+@media (max-width:640px){.two{grid-template-columns:1fr}}
+
+/* sim */
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted);font-weight:600}
+input[type=text],select{font:600 1.1rem var(--f-mono);color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:10ch}
+select{width:auto;font-family:var(--f-body);font-size:1rem}
+input.bad{border-color:var(--red)}
+button{font:600 .95rem var(--f-body);border-radius:8px;padding:9px 14px;cursor:pointer;border:1.5px solid var(--pen);background:var(--pen);color:var(--paper)}
+button.ghost{background:transparent;color:var(--pen)}
+button:disabled{opacity:.4;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.err{color:var(--red);font-weight:600}
+
+/* practice */
+.tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.task{display:flex;flex-direction:column;gap:10px}
+.task .q{font-family:var(--f-mono);font-size:1.1rem;font-weight:600}
+.task .row{display:flex;gap:8px;flex-wrap:wrap}
+.task input{flex:1;min-width:8ch}
+.fb{font-size:.9rem;min-height:1.4em}
+.fb.ok{color:var(--ok);font-weight:600}
+.fb.no{color:var(--red);font-weight:600}
+
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+details summary{cursor:pointer;font-weight:600}
+details[open] summary{margin-bottom:10px}
+.faq{display:flex;flex-direction:column;gap:10px}
+
+table.add{border-collapse:collapse;font-family:var(--f-mono)}
+table.add td,table.add th{border:1px solid var(--line);padding:6px 12px;text-align:center;background:var(--card)}
+table.add th{font-family:var(--f-body);font-size:.85rem;color:var(--muted)}
+.foot{margin-top:56px;font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  ol.steps li.cur{transition:background .2s}
+}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="stack">
+    <span class="eyebrow">Информатика · 8 класс · цель 8.2.1.2</span>
+    <h1>Откуда берётся «1 на уме»</h1>
+    <p class="lead">Сложение и вычитание натуральных чисел в двоичной, восьмеричной, шестнадцатеричной и любой другой позиционной системе. Разберём, почему при сложении мы переносим в следующий разряд именно <b>единицу</b>, а при вычитании «занимаем» <b>основание</b> системы.</p>
+    <nav class="toc" aria-label="Содержание">
+      <a href="#razryad">1. Разряд</a>
+      <a href="#pochemu">2. Почему 1 на уме</a>
+      <a href="#pravilo">3. Правило</a>
+      <a href="#primery">4. Примеры</a>
+      <a href="#vychitanie">5. Вычитание</a>
+      <a href="#trenazher">6. Тренажёр</a>
+      <a href="#zadaniya">7. Задания</a>
+    </nav>
+  </div>
+  <div class="card">
+    <div class="col-wrap" id="hero-col"></div>
+    <p class="muted" style="font-size:.9rem;text-align:center;margin-top:10px">Красная <span class="hand">1</span> сверху и есть «единица на уме»</p>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="razryad">
+  <div class="sec-head">
+    <span class="eyebrow">Шаг 1</span>
+    <h2>Что такое разряд и сколько он «весит»</h2>
+  </div>
+  <p>В позиционной системе значение цифры зависит от места, где она стоит. Каждое место называется <b>разрядом</b>. У каждого разряда есть свой «вес». Самый правый разряд весит 1, а каждый следующий слева весит <b>ровно в q раз больше</b>, где q — основание системы.</p>
+
+  <div class="tbl-wrap">
+    <table class="pv">
+      <thead><tr><th>Система</th><th>4-й разряд</th><th>3-й разряд</th><th>2-й разряд</th><th>1-й разряд</th><th>Каждый шаг влево</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Десятичная (q = 10)</td><td>1000</td><td>100</td><td>10</td><td>1</td><td>× 10</td></tr>
+        <tr><td class="lbl">Двоичная (q = 2)</td><td>8</td><td>4</td><td>2</td><td>1</td><td>× 2</td></tr>
+        <tr><td class="lbl">Восьмеричная (q = 8)</td><td>512</td><td>64</td><td>8</td><td>1</td><td>× 8</td></tr>
+        <tr><td class="lbl">Шестнадцатеричная (q = 16)</td><td>4096</td><td>256</td><td>16</td><td>1</td><td>× 16</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Второе важное правило: в одном разряде можно записать только <b>одну цифру</b>, и эта цифра меньше основания.</p>
+  <div class="tbl-wrap">
+    <table class="pv">
+      <thead><tr><th>Система</th><th>Цифры</th><th>Наибольшая цифра</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Двоичная</td><td>0, 1</td><td>1</td></tr>
+        <tr><td class="lbl">Восьмеричная</td><td>0 … 7</td><td>7</td></tr>
+        <tr><td class="lbl">Десятичная</td><td>0 … 9</td><td>9</td></tr>
+        <tr><td class="lbl">Шестнадцатеричная</td><td>0 … 9, A=10, B=11, C=12, D=13, E=14, F=15</td><td>F (= 15)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key">Запомни два факта, из них следует всё остальное:<br>
+    <strong>(1)</strong> один разряд слева стоит столько же, сколько <strong>q</strong> единиц текущего разряда;<br>
+    <strong>(2)</strong> в разряд нельзя записать число, равное q или больше q.</div>
+</section>
+
+<!-- 2 -->
+<section id="pochemu">
+  <div class="sec-head">
+    <span class="eyebrow">Шаг 2</span>
+    <h2>Почему «1 на уме»: сначала в десятичной системе</h2>
+  </div>
+  <p>Сложим в столбик <code>27 + 15</code>. В разряде единиц: <code>7 + 5 = 12</code>. Записать «12» в одну клетку нельзя: там помещается одна цифра. Что делать?</p>
+  <p>Представим, что единицы — это палочки. У нас 12 палочек. <b>Десять</b> из них связываем в один пучок. Один пучок — это один десяток, а десятки живут в соседнем разряде слева.</p>
+
+  <div class="card">
+    <div class="sticks" id="sticks" aria-label="12 палочек: 10 связаны в пучок, 2 остались"></div>
+  </div>
+
+  <p>Значит, <code>12 единиц = 1 десяток + 2 единицы</code>. Две единицы остаются в разряде единиц — их записываем. Один десяток переходит в разряд десятков — его мы и «держим в уме».</p>
+  <div class="key"><strong>«1 на уме» — это один пучок из 10 единиц, который мы отнесли в разряд десятков.</strong> Мы не придумываем единицу из ничего и не теряем десять: 10 единиц текущего разряда и 1 единица следующего разряда — это одно и то же количество.</div>
+  <p>Дальше в разряде десятков: <code>2 + 1 = 3</code>, и ещё <span class="hand">1</span> на уме, итого <code>4</code>. Ответ: <code>42</code>. Проверка: <code>27 + 15 = 42</code>. ✔</p>
+</section>
+
+<!-- 3 -->
+<section id="pravilo">
+  <div class="sec-head">
+    <span class="eyebrow">Шаг 3</span>
+    <h2>То же самое в любой системе счисления</h2>
+  </div>
+  <p>В системе с основанием q пучок состоит не из 10, а из <b>q</b> единиц. В двоичной системе пучок — 2 штуки, в восьмеричной — 8, в шестнадцатеричной — 16. Больше ничего не меняется.</p>
+
+  <div class="key"><strong>Правило сложения в разряде.</strong> Сложи две цифры разряда и перенос (если он есть). Получилась сумма <b>S</b> (считать её можно в привычной десятичной системе).
+    <ul style="margin-top:8px">
+      <li>Если <b>S &lt; q</b> — записываем S (в виде цифры системы), переноса нет.</li>
+      <li>Если <b>S ≥ q</b> — записываем <b>S − q</b>, а <span class="hand">1</span> переносим в следующий разряд.</li>
+    </ul>
+  </div>
+
+  <h3>Почему это правильно (строгое объяснение)</h3>
+  <p>Пусть в разряде с весом <i>w</i> получилась сумма S и S ≥ q. Значение этого разряда равно <code>S · w</code>. Разложим его:</p>
+  <div class="formula">S · w = (S − q) · w + q · w = (S − q) · w + 1 · (q · w)</div>
+  <p>Но <code>q · w</code> — это как раз вес следующего разряда (факт 1). Поэтому <code>S − q</code> остаётся в текущем разряде, а <code>1</code> уходит в следующий. Величина числа при этом не меняется: мы просто по-другому записали ту же сумму.</p>
+
+  <h3>Почему переносится именно 1, а не 2 или 3</h3>
+  <p>Посчитаем, какая сумма в разряде вообще может получиться. Наибольшая цифра равна <code>q − 1</code>, а перенос не больше 1. Значит:</p>
+  <div class="formula">S ≤ (q − 1) + (q − 1) + 1 = 2q − 1 &lt; 2q</div>
+  <p>Сумма всегда меньше двух пучков. Один полный пучок из q единиц в ней может набраться, а два — никогда. Поэтому при сложении двух чисел перенос равен либо 0, либо 1. И сразу видно, что <code>S − q ≤ q − 1</code>, то есть остаток всегда помещается в одну цифру.</p>
+
+  <div class="tbl-wrap">
+    <table class="pv">
+      <thead><tr><th>Система</th><th>Самый большой случай</th><th>Сумма S</th><th>Пишем</th><th>На уме</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">q = 2</td><td>1 + 1 + 1</td><td>3</td><td>3 − 2 = 1</td><td>1</td></tr>
+        <tr><td class="lbl">q = 8</td><td>7 + 7 + 1</td><td>15</td><td>15 − 8 = 7</td><td>1</td></tr>
+        <tr><td class="lbl">q = 10</td><td>9 + 9 + 1</td><td>19</td><td>19 − 10 = 9</td><td>1</td></tr>
+        <tr><td class="lbl">q = 16</td><td>F + F + 1</td><td>31</td><td>31 − 16 = 15 = F</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><b>Частая ошибка.</b> Переносить единицу, когда сумма «перевалила за 10». Граница переноса — <b>основание системы</b>, а не 10.<br>
+  В восьмеричной: <code>5 + 4 = 9</code>, а 9 ≥ 8, значит пишем <code>9 − 8 = 1</code> и <span class="hand">1</span> на уме: <code>5₈ + 4₈ = 11₈</code>.<br>
+  В шестнадцатеричной: <code>7 + 8 = 15</code>, а 15 &lt; 16, переноса нет, пишем цифру <code>F</code>: <code>7₁₆ + 8₁₆ = F₁₆</code>.</div>
+</section>
+
+<!-- 4 -->
+<section id="primery">
+  <div class="sec-head">
+    <span class="eyebrow">Шаг 4</span>
+    <h2>Разбор примеров по шагам</h2>
+  </div>
+
+  <h3>Двоичная система: таблица сложения</h3>
+  <div class="tbl-wrap">
+    <table class="add">
+      <thead><tr><th>Что складываем</th><th>S (в десятичной)</th><th>S ≥ 2?</th><th>Пишем</th><th>На уме</th><th>Итог</th></tr></thead>
+      <tbody>
+        <tr><td>0 + 0</td><td>0</td><td>нет</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0 + 1</td><td>1</td><td>нет</td><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>1 + 1</td><td>2</td><td>да</td><td>2 − 2 = 0</td><td>1</td><td>10₂</td></tr>
+        <tr><td>1 + 1 + 1</td><td>3</td><td>да</td><td>3 − 2 = 1</td><td>1</td><td>11₂</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><code>1 + 1 = 10₂</code> читается «один-ноль», а не «десять». Это одна двойка и ноль единиц, то есть число 2.</p>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-bin"></div>
+    <div class="stack">
+      <h3>1011₂ + 111₂</h3>
+      <ol class="steps">
+        <li><span>1-й разряд: <code>1 + 1 = 2</code>. 2 ≥ 2 → пишем <code>0</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>2-й разряд: <code>1 + 1 + 1 = 3</code>. 3 ≥ 2 → пишем <code>1</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>3-й разряд: <code>0 + 1 + 1 = 2</code> → пишем <code>0</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>4-й разряд: <code>1 + 1 = 2</code> (у второго числа тут цифры нет, считаем 0) → пишем <code>0</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>Разрядов больше нет, а единица на уме осталась → записываем её слева: <code>1</code>.</span></li>
+      </ol>
+      <p class="check">Ответ: <b class="num">10010₂</b>. Проверка через десятичную: 1011₂ = 11, 111₂ = 7, 11 + 7 = 18, а 10010₂ = 16 + 2 = 18. ✔</p>
+    </div>
+  </div>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-oct"></div>
+    <div class="stack">
+      <h3>657₈ + 246₈</h3>
+      <ol class="steps">
+        <li><span>1-й разряд: <code>7 + 6 = 13</code>. 13 ≥ 8 → пишем <code>13 − 8 = 5</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>2-й разряд: <code>5 + 4 + 1 = 10</code>. 10 ≥ 8 → пишем <code>10 − 8 = 2</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>3-й разряд: <code>6 + 2 + 1 = 9</code>. 9 ≥ 8 → пишем <code>9 − 8 = 1</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>Единицу на уме записываем слева: <code>1</code>.</span></li>
+      </ol>
+      <p class="check">Ответ: <b class="num">1125₈</b>. Проверка: 657₈ = 431, 246₈ = 166, 431 + 166 = 597; 1125₈ = 512 + 64 + 16 + 5 = 597. ✔</p>
+    </div>
+  </div>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-hex"></div>
+    <div class="stack">
+      <h3>3AF₁₆ + 1C9₁₆</h3>
+      <ol class="steps">
+        <li><span>1-й разряд: <code>F + 9 = 15 + 9 = 24</code>. 24 ≥ 16 → пишем <code>24 − 16 = 8</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>2-й разряд: <code>A + C + 1 = 10 + 12 + 1 = 23</code>. 23 ≥ 16 → пишем <code>23 − 16 = 7</code>, <span class="hand">1</span> на уме.</span></li>
+        <li><span>3-й разряд: <code>3 + 1 + 1 = 5</code>. 5 &lt; 16 → пишем <code>5</code>, переноса нет.</span></li>
+      </ol>
+      <p class="check">Ответ: <b class="num">578₁₆</b>. Проверка: 3AF₁₆ = 943, 1C9₁₆ = 457, 943 + 457 = 1400; 578₁₆ = 1280 + 112 + 8 = 1400. ✔</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="vychitanie">
+  <div class="sec-head">
+    <span class="eyebrow">Шаг 5</span>
+    <h2>Вычитание: почему «занимаем» именно q</h2>
+  </div>
+  <p>Вычитание — это сложение наоборот. При сложении мы <b>связывали</b> q единиц в один пучок и отдавали его старшему разряду. При вычитании, когда в разряде не хватает, мы <b>развязываем</b> один пучок старшего разряда и получаем q единиц текущего.</p>
+  <div class="key"><strong>Правило вычитания в разряде.</strong> Если верхняя цифра не меньше нижней — просто вычитаем. Если меньше — занимаем 1 у соседнего слева разряда (ставим над ним точку, он уменьшается на 1), а к текущей цифре прибавляем <b>q</b>: в двоичной +2, в восьмеричной +8, в шестнадцатеричной +16.</div>
+  <p>Почему +q, а не +10? Одна единица старшего разряда весит столько же, сколько q единиц текущего (факт 1). Мы разменяли одну «крупную монету» на q мелких.</p>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-sub-oct"></div>
+    <div class="stack">
+      <h3>503₈ − 267₈</h3>
+      <ol class="steps">
+        <li><span>1-й разряд: 3 меньше 7. Нужно занять, но слева стоит <code>0</code>: у него занимать нечего.</span></li>
+        <li><span>Идём дальше, к цифре <code>5</code>. Занимаем у неё: 5 → <code>4</code>. Один пучок развязали: 0 в среднем разряде стал <code>8</code>.</span></li>
+        <li><span>Из этих 8 один пучок отдаём вправо: средний разряд <code>8 − 1 = 7</code>, а в 1-м разряде <code>3 + 8 = 11</code>.</span></li>
+        <li><span>1-й разряд: <code>11 − 7 = 4</code>. 2-й разряд: <code>7 − 6 = 1</code>. 3-й разряд: <code>4 − 2 = 2</code>.</span></li>
+      </ol>
+      <p class="check">Ответ: <b class="num">214₈</b>. Проверка: 503₈ = 323, 267₈ = 183, 323 − 183 = 140; 214₈ = 128 + 8 + 4 = 140. ✔<br>
+      Обрати внимание: ноль, «через который» занимали, превращается в <b>q − 1</b> (в восьмеричной — в 7, в двоичной — в 1, в шестнадцатеричной — в F).</p>
+    </div>
+  </div>
+
+  <div class="card two">
+    <div class="col-wrap" id="ex-sub-bin"></div>
+    <div class="stack">
+      <h3>1010₂ − 11₂</h3>
+      <ol class="steps">
+        <li><span>1-й разряд: 0 меньше 1. Занимаем у соседа (там 1, он становится 0): <code>0 + 2 = 2</code>, <code>2 − 1 = 1</code>.</span></li>
+        <li><span>2-й разряд: теперь там 0, а вычесть нужно 1. Слева 0, занимаем через него у старшей 1: она становится 0, ноль становится <code>1</code>, а у нас <code>0 + 2 = 2</code>, <code>2 − 1 = 1</code>.</span></li>
+        <li><span>3-й разряд: осталось <code>1 − 0 = 1</code>. 4-й разряд: <code>0</code>, ведущий ноль не пишем.</span></li>
+      </ol>
+      <p class="check">Ответ: <b class="num">111₂</b>. Проверка: 1010₂ = 10, 11₂ = 3, 10 − 3 = 7 = 111₂. ✔</p>
+    </div>
+  </div>
+
+  <p>Проверить вычитание можно и сложением: <code>214₈ + 267₈</code> должно дать <code>503₈</code>. Попробуй в тренажёре ниже.</p>
+</section>
+
+<!-- 6 -->
+<section id="trenazher">
+  <div class="sec-head">
+    <span class="eyebrow">Шаг 6</span>
+    <h2>Тренажёр: посчитай сам и проверь каждый шаг</h2>
+  </div>
+  <p class="muted">Введи два числа, выбери систему и действие. Кнопка «Следующий шаг» показывает решение по одному разряду, с объяснением, откуда берётся единица на уме.</p>
+  <div class="card stack">
+    <form class="controls" id="sim-form" autocomplete="off">
+      <label class="field" for="sim-a">Первое число<input type="text" id="sim-a" value="657" spellcheck="false"></label>
+      <label class="field" for="sim-op">Действие
+        <select id="sim-op"><option value="+">сложение +</option><option value="-">вычитание −</option></select></label>
+      <label class="field" for="sim-b">Второе число<input type="text" id="sim-b" value="246" spellcheck="false"></label>
+      <label class="field" for="sim-q">Основание
+        <select id="sim-q"></select></label>
+      <button type="submit">Решить</button>
+    </form>
+    <p class="err" id="sim-err" hidden></p>
+    <div class="two" id="sim-body">
+      <div class="stack">
+        <div class="col-wrap" id="sim-col"></div>
+        <div class="btns">
+          <button type="button" class="ghost" id="sim-prev">← Назад</button>
+          <button type="button" id="sim-next">Следующий шаг →</button>
+          <button type="button" class="ghost" id="sim-all">Показать всё</button>
+        </div>
+      </div>
+      <div class="stack">
+        <ol class="steps" id="sim-steps"></ol>
+        <p class="check" id="sim-check"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="zadaniya">
+  <div class="sec-head">
+    <span class="eyebrow">Шаг 7</span>
+    <h2>Задания для самопроверки</h2>
+  </div>
+  <p class="muted">Реши в тетради в столбик, впиши ответ в той же системе счисления и нажми «Проверить». Если ошибся, разбери пример в тренажёре.</p>
+  <div class="tasks" id="tasks"></div>
+</section>
+
+<section id="voprosy">
+  <div class="sec-head">
+    <span class="eyebrow">Проверь понимание</span>
+    <h2>Ответь на вопросы, потом открой ответ</h2>
+  </div>
+  <div class="faq">
+    <details><summary>Почему в двоичной системе 1 + 1 = 10, а не 2?</summary>
+      <p>Цифры 2 в двоичной системе нет: разряд может хранить только 0 или 1. Две единицы — это полный пучок (q = 2), он уходит в следующий разряд, а в текущем остаётся 0. Запись 10₂ означает «одна двойка и ноль единиц», то есть число два.</p></details>
+    <details><summary>Может ли при сложении двух чисел на уме оказаться 2?</summary>
+      <p>Нет. Наибольшая сумма в разряде равна (q − 1) + (q − 1) + 1 = 2q − 1, а это меньше 2q. Два полных пучка не набираются никогда. Перенос 2 возможен, только если складывать сразу три числа и больше.</p></details>
+    <details><summary>В восьмеричной системе 6 + 3 = 9. Почему нельзя записать 9?</summary>
+      <p>Цифры 9 в восьмеричной системе нет. 9 ≥ 8, поэтому пишем 9 − 8 = 1 и переносим 1. Ответ: 6₈ + 3₈ = 11₈.</p></details>
+    <details><summary>При вычитании в шестнадцатеричной занимаем 1. Почему к цифре прибавляем 16, а не 10?</summary>
+      <p>Одна единица соседнего слева разряда весит в 16 раз больше единицы текущего. Развязав её, мы получаем 16 единиц текущего разряда.</p></details>
+    <details><summary>Как быстро проверить свой ответ?</summary>
+      <p>Два способа. (1) Переведи оба числа и ответ в десятичную систему и проверь равенство. (2) Для вычитания сложи ответ с вычитаемым: должно получиться уменьшаемое.</p></details>
+  </div>
+</section>
+
+<p class="foot">Цель обучения 8.2.1.2: выполнять арифметические действия (сложение, вычитание) с натуральными числами в позиционных системах счисления.</p>
+</div>
+
+<script>
+(function(){
+  var DIG = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var SUB = {2:"₂",3:"₃",4:"₄",5:"₅",6:"₆",7:"₇",8:"₈",9:"₉",10:"₁₀",11:"₁₁",12:"₁₂",13:"₁₃",14:"₁₄",15:"₁₅",16:"₁₆"};
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function parse(str,q){
+    str=String(str).trim().toUpperCase();
+    if(!str) return {err:"Введите число."};
+    var d=[];
+    for(var i=0;i<str.length;i++){
+      var v=DIG.indexOf(str[i]);
+      if(v<0||v>=q) return {err:"Цифра «"+str[i]+"» не существует в системе с основанием "+q+". Допустимые цифры: "+DIG.slice(0,q).split("").join(", ")+"."};
+      d.push(v);
+    }
+    while(d.length>1&&d[0]===0) d.shift();
+    return {digits:d.reverse()}; // little-endian
+  }
+  function toDec(d,q){var v=0;for(var i=d.length-1;i>=0;i--) v=v*q+d[i];return v;}
+  function str(d){var s="";for(var i=d.length-1;i>=0;i--) s+=DIG[d[i]];return s;}
+  function dname(v,q){return v>=10&&q>10 ? DIG[v]+" ("+v+")" : String(v);}
+  function cmp(a,b){if(a.length!==b.length) return a.length-b.length;for(var i=a.length-1;i>=0;i--) if(a[i]!==b[i]) return a[i]-b[i];return 0;}
+
+  function add(a,b,q){
+    var n=Math.max(a.length,b.length), c=0, res=[], carries=[], steps=[];
+    for(var i=0;i<n;i++){
+      var x=a[i]||0, y=b[i]||0, S=x+y+c, cin=c;
+      var w, co;
+      if(S>=q){w=S-q;co=1;}else{w=S;co=0;}
+      res.push(w); carries[i+1]=co;
+      var parts=dname(x,q)+" + "+dname(y,q)+(cin?" + 1 (на уме)":"");
+      var t=(i+1)+"-й разряд: "+parts+" = "+S+". ";
+      if(co) t+=S+" ≥ "+q+", значит набрался полный пучок из "+q+". Пишем "+S+" − "+q+" = "+dname(w,q)+(q>10&&w>=10?"":"")+", а 1 переносим в следующий разряд (1 на уме).";
+      else t+=S+" < "+q+", пучок не набрался. Пишем "+dname(w,q)+", переноса нет.";
+      steps.push({pos:i,text:t,res:res.slice(),carries:carries.slice(),borrow:[]});
+      c=co;
+    }
+    if(c){res.push(1);steps.push({pos:n,text:"Разрядов больше нет, а 1 на уме осталась. Записываем её слева как новый старший разряд.",res:res.slice(),carries:carries.slice(),borrow:[]});}
+    return {res:res,steps:steps};
+  }
+  function sub(a,b,q){
+    var n=a.length, br=0, res=[], steps=[], borrowMarks=[];
+    for(var i=0;i<n;i++){
+      var x=a[i], y=b[i]||0, xe=x-br, t=(i+1)+"-й разряд: ";
+      var nb=0, w;
+      if(br&&x===0){
+        nb=1; borrowMarks[i+1]=1; xe=q-1; w=xe-y;
+        t+="здесь 0, а у этого разряда заняли 1. Отдать нечего, поэтому он сам занимает 1 у соседа слева (ставим точку): 0 превращается в "+q+", одну единицу отдаёт вправо, остаётся "+q+" − 1 = "+dname(xe,q)+". Теперь "+xe+" − "+y+" = "+w+". Пишем "+dname(w,q)+".";
+        res.push(w);
+        steps.push({pos:i,text:t,res:res.slice(),carries:[],borrow:borrowMarks.slice()});
+        br=nb; continue;
+      }
+      if(br) t+="у этой цифры уже заняли 1, поэтому вместо "+dname(x,q)+" считаем "+x+" − 1 = "+xe+". ";
+      if(xe<y){
+        nb=1; borrowMarks[i+1]=1;
+        w=xe+q-y;
+        t+=xe+" меньше "+dname(y,q)+", вычесть нельзя. Занимаем 1 у соседнего слева разряда (ставим точку). Эта 1 весит как "+q+" единиц текущего разряда: "+xe+" + "+q+" = "+(xe+q)+". Теперь "+(xe+q)+" − "+y+" = "+w+". Пишем "+dname(w,q)+".";
+        if((a[i+1]||0)===0) t+=" Слева стоит 0, занимать придётся дальше: этот 0 станет "+dname(q-1,q)+".";
+      } else {
+        w=xe-y;
+        t+=xe+" − "+y+" = "+w+". Занимать не нужно, пишем "+dname(w,q)+".";
+      }
+      res.push(w);
+      steps.push({pos:i,text:t,res:res.slice(),carries:[],borrow:borrowMarks.slice()});
+      br=nb;
+    }
+    var out=res.slice(); while(out.length>1&&out[out.length-1]===0) out.pop();
+    if(out.length<res.length) steps.push({pos:-1,text:"Ведущие нули слева не пишем.",res:out.slice(),carries:[],borrow:borrowMarks.slice(),trim:true});
+    return {res:out,steps:steps,full:res};
+  }
+
+  function renderCol(el,a,b,op,q,step,total){
+    var n=Math.max(a.length,b.length,total.res.length);
+    var s=total.steps[Math.min(step,total.steps.length-1)];
+    var shown=step<0?{res:[],carries:[],borrow:[]}:s;
+    var cols=n;
+    var h='<table class="col" aria-label="Вычисление в столбик"><tbody>';
+    // carry row
+    h+='<tr class="carry"><td class="op"></td>';
+    for(var i=cols-1;i>=0;i--){var c=shown.carries&&shown.carries[i]; h+='<td>'+(c?'1':'')+'</td>';}
+    h+='<td class="base"></td></tr>';
+    function row(d,opch,isRes,borrow){
+      var r='<tr'+(isRes?' class="res"':'')+'><td class="op">'+(opch||'')+'</td>';
+      for(var i=cols-1;i>=0;i--){
+        var v=d[i]; var cls=[];
+        if(step>=0&&s.pos===i) cls.push('hl');
+        if(borrow&&borrow[i]) cls.push('borrow');
+        r+='<td'+(cls.length?' class="'+cls.join(' ')+'"':'')+'>'+(v===undefined?'':DIG[v])+'</td>';
+      }
+      return r+'<td class="base">'+(SUB[q]||'')+'</td></tr>';
+    }
+    h+=row(a,'',false,shown.borrow);
+    h+=row(b,op==='+'?'+':'−',false,null);
+    h+='<tr class="rule"><td></td>'; for(var k=0;k<cols;k++) h+='<td></td>'; h+='<td></td></tr>';
+    h+=row(shown.res||[],'',true,null);
+    h+='</tbody></table>';
+    el.innerHTML=h;
+  }
+
+  function solve(aStr,bStr,op,q){
+    var A=parse(aStr,q), B=parse(bStr,q);
+    if(A.err) return {err:"Первое число: "+A.err};
+    if(B.err) return {err:"Второе число: "+B.err};
+    if(op==='-'&&cmp(A.digits,B.digits)<0) return {err:"Для натуральных чисел уменьшаемое должно быть не меньше вычитаемого. Поменяйте числа местами."};
+    var r= op==='+'?add(A.digits,B.digits,q):sub(A.digits,B.digits,q);
+    r.a=A.digits;r.b=B.digits;return r;
+  }
+
+  // static examples
+  function staticEx(id,a,b,op,q){
+    var r=solve(a,b,op,q);
+    renderCol(document.getElementById(id),r.a,r.b,op,q,r.steps.length-1,r);
+    var el=document.getElementById(id).querySelector('td.hl'); if(el) el.classList.remove('hl');
+  }
+  staticEx('hero-col','27','15','+',10);
+  staticEx('ex-bin','1011','111','+',2);
+  staticEx('ex-oct','657','246','+',8);
+  staticEx('ex-hex','3AF','1C9','+',16);
+  staticEx('ex-sub-oct','503','267','-',8);
+  staticEx('ex-sub-bin','1010','11','-',2);
+
+  // sticks
+  (function(){
+    var h='<div class="pile"><div class="row">';
+    for(var i=0;i<12;i++) h+='<span class="stick"></span>';
+    h+='</div><small>7 + 5 = 12 палочек</small></div><span class="arrow" aria-hidden="true">→</span>';
+    h+='<div class="pile"><div class="row"><span class="bundle">';
+    for(var j=0;j<10;j++) h+='<span class="stick"></span>';
+    h+='</span></div><small>1 пучок = 1 десяток → <span class="hand">1</span> на уме</small></div>';
+    h+='<div class="pile"><div class="row"><span class="stick"></span><span class="stick"></span></div><small>2 единицы → пишем 2</small></div>';
+    document.getElementById('sticks').innerHTML=h;
+  })();
+
+  // simulator
+  var qSel=document.getElementById('sim-q');
+  [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].forEach(function(q){
+    var o=document.createElement('option');o.value=q;o.textContent=q+(q===2?' (двоичная)':q===8?' (восьмеричная)':q===10?' (десятичная)':q===16?' (шестнадцатеричная)':'');
+    if(q===8) o.selected=true; qSel.appendChild(o);
+  });
+  var cur=null, step=0;
+  var elA=document.getElementById('sim-a'), elB=document.getElementById('sim-b'), elOp=document.getElementById('sim-op');
+  var elErr=document.getElementById('sim-err'), elBody=document.getElementById('sim-body');
+  var elSteps=document.getElementById('sim-steps'), elCheck=document.getElementById('sim-check');
+  var bPrev=document.getElementById('sim-prev'), bNext=document.getElementById('sim-next'), bAll=document.getElementById('sim-all');
+  function draw(){
+    var q=cur.q;
+    renderCol(document.getElementById('sim-col'),cur.a,cur.b,cur.op,q,step,cur);
+    var h='';
+    for(var i=0;i<=step&&i<cur.steps.length;i++) h+='<li'+(i===step?' class="cur"':'')+'><span>'+esc(cur.steps[i].text)+'</span></li>';
+    elSteps.innerHTML=h;
+    var done=step>=cur.steps.length-1;
+    if(done){
+      var A=toDec(cur.a,q),B=toDec(cur.b,q),R=toDec(cur.res,q), sb=SUB[q]||'';
+      elCheck.innerHTML='Ответ: <b class="num">'+str(cur.res)+sb+'</b>. Проверка в десятичной: '+str(cur.a)+sb+' = '+A+', '+str(cur.b)+sb+' = '+B+', '+A+(cur.op==='+'?' + ':' − ')+B+' = '+(cur.op==='+'?A+B:A-B)+'; '+str(cur.res)+sb+' = '+R+'. '+((cur.op==='+'?A+B:A-B)===R?'✔':'');
+    } else elCheck.textContent='Нажми «Следующий шаг», чтобы продолжить.';
+    bPrev.disabled=step<=0; bNext.disabled=done; bAll.disabled=done;
+  }
+  function run(show){
+    var q=+qSel.value, r=solve(elA.value,elB.value,elOp.value,q);
+    elA.classList.remove('bad');elB.classList.remove('bad');
+    if(r.err){elErr.textContent=r.err;elErr.hidden=false;elBody.hidden=true;
+      if(/^Первое/.test(r.err)) elA.classList.add('bad'); else if(/^Второе/.test(r.err)) elB.classList.add('bad'); return;}
+    elErr.hidden=true;elBody.hidden=false;
+    r.q=q;r.op=elOp.value;cur=r;step=show==='all'?r.steps.length-1:0;draw();
+  }
+  document.getElementById('sim-form').addEventListener('submit',function(e){e.preventDefault();run();});
+  bNext.addEventListener('click',function(){if(step<cur.steps.length-1){step++;draw();}});
+  bPrev.addEventListener('click',function(){if(step>0){step--;draw();}});
+  bAll.addEventListener('click',function(){step=cur.steps.length-1;draw();});
+  run('all');
+
+  // practice
+  var tasks=[
+    ['10110','1101','+',2],['4675','3547','+',8],['BEE','9C8','+',16],
+    ['11011','1110','+',2],['5020','1767','-',8],['A03','5B7','-',16],
+    ['101000','1011','-',2],['777','1','+',8],['1000','FFF','-',16]
+  ];
+  var box=document.getElementById('tasks');
+  tasks.forEach(function(t,i){
+    var r=solve(t[0],t[1],t[2],t[3]), sb=SUB[t[3]];
+    var d=document.createElement('div');d.className='card task';
+    var id='task-'+i;
+    d.innerHTML='<span class="eyebrow">Задание '+(i+1)+'</span><div class="q">'+t[0]+sb+' '+(t[2]==='+'?'+':'−')+' '+t[1]+sb+' = ?</div>'+
+      '<div class="row"><input type="text" id="'+id+'" aria-label="Ответ к заданию '+(i+1)+'" spellcheck="false" placeholder="ответ"><button type="button">Проверить</button></div>'+
+      '<div class="fb" aria-live="polite"></div><button type="button" class="ghost">Разобрать в тренажёре</button>';
+    var inp=d.querySelector('input'), fb=d.querySelector('.fb'), btns=d.querySelectorAll('button');
+    function check(){
+      var p=parse(inp.value,t[3]);
+      if(p.err){fb.className='fb no';fb.textContent=p.err;return;}
+      if(cmp(p.digits,r.res)===0){fb.className='fb ok';fb.textContent='Верно! ✔';}
+      else{fb.className='fb no';fb.textContent='Пока неверно. Проверь каждый разряд: сравниваешь ли ты сумму с '+t[3]+', а не с 10?';}
+    }
+    btns[0].addEventListener('click',check);
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter')check();});
+    btns[1].addEventListener('click',function(){
+      elA.value=t[0];elB.value=t[1];elOp.value=t[2];qSel.value=t[3];run();
+      document.getElementById('trenazher').scrollIntoView({behavior:'smooth'});
+    });
+    box.appendChild(d);
+  });
+})();
+</script>
