@@ -307,7 +307,8 @@
   function renderResult() {
     var score = state.answers.filter(function (a) { return a.status === 'correct'; }).length;
     var n = tasks.length;
-    $('r-score').textContent = score + ' / ' + n + ' ' + plural(score, 'балл', 'балла', 'баллов');
+    $('r-score-num').textContent = score + ' / ' + n;
+    $('r-score-word').textContent = plural(score, 'балл', 'балла', 'баллов');
     $('r-count').textContent = 'Правильных ответов: ' + score + ' из ' + n + '.';
     $('r-reason').textContent = state.reason || '';
     $('r-reason').hidden = !state.reason;

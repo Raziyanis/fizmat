@@ -125,10 +125,14 @@ button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
 
 .score {
   text-align: center;
-  font-size: 3.5rem;
   font-weight: 800;
-  margin: 16px 0 0;
+  line-height: 1;
+  margin: 24px 0 8px;
 }
+/* Балл — максимально крупно, чтобы учитель видел его издалека */
+.score-num { display: block; font-size: clamp(5rem, 24vw, 12rem); letter-spacing: -0.02em; }
+.count { font-size: 1.3rem; font-weight: 600; }
+.score-word { display: block; font-size: clamp(2.2rem, 8vw, 4rem); margin-top: 8px; }
 
 .table-wrap { overflow-x: auto; }
 .report { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
@@ -255,8 +259,8 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
     <section id="s-result" hidden>
       <h1>Работа завершена</h1>
       <p id="r-reason" class="note" hidden></p>
-      <p id="r-score" class="score"></p>
-      <p id="r-count" class="center"></p>
+      <p id="r-score" class="score"><span id="r-score-num" class="score-num"></span> <span id="r-score-word" class="score-word"></span></p>
+      <p id="r-count" class="center count"></p>
       <p id="r-hide" class="muted small center" hidden></p>
       <h2>Отчёт</h2>
       <div class="table-wrap">
@@ -733,7 +737,8 @@ window.VARIANTS = [
   function renderResult() {
     var score = state.answers.filter(function (a) { return a.status === 'correct'; }).length;
     var n = tasks.length;
-    $('r-score').textContent = score + ' / ' + n + ' ' + plural(score, 'балл', 'балла', 'баллов');
+    $('r-score-num').textContent = score + ' / ' + n;
+    $('r-score-word').textContent = plural(score, 'балл', 'балла', 'баллов');
     $('r-count').textContent = 'Правильных ответов: ' + score + ' из ' + n + '.';
     $('r-reason').textContent = state.reason || '';
     $('r-reason').hidden = !state.reason;
