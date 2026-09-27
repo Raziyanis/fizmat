@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Проверочная работа 8.2.1.1</title>
+  <style>
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5f6b7a;
+  --line: #d9dee5;
+  --accent: #1f6feb;
+  --ok: #1a7f37;
+  --ok-bg: #e8f5ec;
+  --bad: #c62828;
+  --bad-bg: #fdecec;
+  --warn-bg: #fff4d6;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+h1 { font-size: 1.6rem; margin: 0 0 12px; }
+h2 { font-size: 1.2rem; margin: 24px 0 8px; }
+
+.topic { color: var(--muted); margin-top: 0; }
+.rules li { margin-bottom: 6px; }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+.center { text-align: center; }
+
+.note {
+  background: var(--warn-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+button {
+  font: inherit;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+
+.confirm {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--bad);
+  border-radius: 8px;
+  background: var(--bad-bg);
+}
+
+.question { font-size: 1.5rem; font-weight: 600; margin: 8px 0 16px; }
+
+.answer {
+  width: 100%;
+  max-width: 360px;
+  font: 600 1.6rem/1.2 ui-monospace, "Consolas", monospace;
+  letter-spacing: 0.08em;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+.answer:focus { outline: none; border-color: var(--accent); }
+
+/* Таймеры закреплены сверху и видны всё время работы */
+.timers {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 32px;
+  padding: 10px 16px 14px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.timer { display: flex; align-items: baseline; gap: 10px; }
+.timer span { color: var(--muted); font-size: 0.95rem; }
+.timer b { font: 700 1.8rem/1 ui-monospace, "Consolas", monospace; }
+.timer.low b { color: var(--bad); }
+.bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: var(--line);
+}
+.bar div { height: 100%; width: 0; background: var(--accent); transition: width 0.25s linear; }
+
+.score {
+  text-align: center;
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 16px 0 0;
+}
+
+.table-wrap { overflow-x: auto; }
+.report { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.report th, .report td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.report th { background: var(--bg); }
+.report tr.ok td:last-child { color: var(--ok); background: var(--ok-bg); }
+.report tr.bad td:last-child { color: var(--bad); background: var(--bad-bg); }
+
+.warn {
+  position: fixed;
+  left: 50%;
+  top: 90px;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: 90vw;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: var(--bad);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.demo {
+  background: var(--warn-bg);
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+/* Сброс результата учителем (автономный файл) */
+.teacher { margin-top: 32px; padding-top: 12px; border-top: 1px dashed var(--line); }
+button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); font-size: 0.85rem; text-decoration: underline; }
+@media print { .teacher { display: none; } }
+
+/* Страница учителя */
+.key { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 8px; }
+.key th, .key td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
+.key th { background: var(--bg); }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 160px; }
+
+@media print {
+  .no-print { display: none; }
+  section { border: 0; padding: 0; }
+}
+</style>
+</head>
+<body>
+  <div id="demo" class="demo" hidden>Демо-режим: сервер не подключён, варианты выдаются только в этом браузере.</div>
+
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span>До конца работы</span><b id="tm-total">15:00</b></div>
+    <div id="tm-task-box" class="timer"><span>На это задание</span><b id="tm-task">1:00</b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Загрузка…</p></section>
+
+    <section id="s-intro" hidden>
+      <h1>Проверочная работа</h1>
+      <p class="topic">8.2.1.1 — перевод натуральных чисел из десятичной системы счисления в двоичную, восьмеричную, шестнадцатеричную и обратно</p>
+      <h2>Инструкция</h2>
+      <ul class="rules">
+        <li>Прочитайте задание и введите ответ в поле. Нажмите «Ответить» (или Enter).</li>
+        <li>На каждое задание даётся <b>одна минута</b>. Если время вышло, задание засчитывается как неправильное и открывается следующее.</li>
+        <li>Правильность ответа система отмечает <b>автоматически</b>.</li>
+        <li>За каждый правильный ответ начисляется <b>1 балл</b>. Максимальный балл — <b>10</b>.</li>
+        <li>Кнопка «Пропустить» засчитывает задание как неправильное и открывает следующее. В конце к пропущенным заданиям можно вернуться, пока не закончилось общее время.</li>
+        <li>Работа <b>автоматически завершится через 15 минут</b>.</li>
+        <li>Работа идёт в полноэкранном режиме. <b>Если выйти из полноэкранного режима, переключиться на другую вкладку, окно или приложение, работа сразу завершится</b>, а оставшиеся задания будут засчитаны как неправильные.</li>
+      </ul>
+      <p id="i-nofs" class="note" hidden>Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки и приложения — работа завершится.</p>
+      <p class="muted">Имя и другие личные данные не нужны. Ответы и баллы никуда не отправляются.</p>
+      <button id="b-start" class="primary big">Начать</button>
+    </section>
+
+    <section id="s-full" hidden>
+      <h1>Свободных вариантов нет</h1>
+      <p>Все 15 вариантов уже выданы. Обратитесь к учителю.</p>
+    </section>
+
+    <section id="s-error" hidden>
+      <h1>Ошибка</h1>
+      <p id="e-text"></p>
+      <button id="b-retry" class="primary">Назад</button>
+    </section>
+
+    <section id="s-test" hidden>
+      <p id="t-num" class="muted"></p>
+      <p id="t-text" class="question"></p>
+      <input id="t-input" class="answer" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="16" aria-label="Ответ">
+      <p id="t-hint" class="muted small"></p>
+      <div class="buttons">
+        <button id="b-answer" class="primary">Ответить</button>
+        <button id="b-skip">Пропустить</button>
+      </div>
+    </section>
+
+    <section id="s-menu" hidden>
+      <h1>Остались пропущенные задания</h1>
+      <p>Пропущено заданий: <b id="m-count"></b> (<span id="m-list"></span>). Пока они засчитаны как неправильные.</p>
+      <p>Вы можете вернуться к ним — на каждое снова даётся одна минута.</p>
+      <div class="buttons">
+        <button id="b-review" class="primary">Вернуться к пропущенным</button>
+        <button id="b-finish">Завершить работу</button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p>Завершить работу? Пропущенные задания останутся неправильными.</p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger">Да, завершить</button>
+          <button id="b-finish-no">Нет</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-resume" hidden>
+      <h1>Работа восстановлена</h1>
+      <p>Страница была обновлена. Время продолжает идти. Нажмите «Продолжить», чтобы вернуться к заданиям в полноэкранном режиме.</p>
+      <button id="b-resume" class="primary big">Продолжить</button>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1>Работа завершена</h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p id="r-score" class="score"></p>
+      <p id="r-count" class="center"></p>
+      <h2>Отчёт</h2>
+      <div class="table-wrap">
+        <table class="report">
+          <thead><tr><th>№</th><th>Задание</th><th>Ваш ответ</th><th>Правильный ответ</th><th>Результат</th></tr></thead>
+          <tbody id="r-table"></tbody>
+        </table>
+      </div>
+      <div id="r-teacher" class="teacher" hidden>
+        <button id="b-teacher" class="link">Для учителя: новая работа на этом устройстве</button>
+        <div id="r-teacher-form" class="row" hidden>
+          <input id="r-pin" type="password" autocomplete="off" placeholder="PIN учителя" aria-label="PIN учителя">
+          <button id="b-restart" class="primary">Начать заново</button>
+          <span id="r-pin-msg" class="muted small"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+<script>
+/* Настройки автономной версии. PIN можно поменять здесь (в Блокноте). */
+window.STANDALONE = true;
+window.TEACHER_PIN = "1234";
+
+</script>
+<script>
+/* Сгенерировано tools/generate-variants.js (SEED = 8211). Не редактируйте вручную. */
+/* Каждое задание: [из какой системы, в какую систему, число в десятичной записи]. */
+window.VARIANTS = [
+  /*  1 */ [[10,2,21],[2,10,26],[10,8,229],[8,10,15],[10,16,109],[16,10,214],[10,2,189],[2,10,132],[8,10,225],[10,16,186]],
+  /*  2 */ [[10,2,27],[2,10,62],[10,8,396],[8,10,28],[10,16,58],[16,10,206],[10,2,158],[2,10,210],[8,10,91],[10,16,200]],
+  /*  3 */ [[10,2,35],[2,10,43],[10,8,370],[8,10,20],[10,16,90],[16,10,175],[10,2,98],[2,10,137],[8,10,260],[10,16,183]],
+  /*  4 */ [[10,2,34],[2,10,60],[10,8,118],[8,10,37],[10,16,47],[16,10,195],[10,2,161],[2,10,245],[8,10,109],[10,16,222]],
+  /*  5 */ [[10,2,52],[2,10,59],[10,8,220],[8,10,50],[10,16,108],[16,10,186],[10,2,138],[2,10,218],[8,10,227],[10,16,165]],
+  /*  6 */ [[10,2,22],[2,10,20],[10,8,71],[8,10,39],[10,16,46],[16,10,30],[10,2,78],[2,10,100],[8,10,332],[10,16,245]],
+  /*  7 */ [[10,2,47],[2,10,39],[10,8,134],[8,10,58],[10,16,159],[16,10,239],[10,2,173],[2,10,236],[8,10,189],[10,16,246]],
+  /*  8 */ [[10,2,23],[2,10,61],[10,8,227],[8,10,59],[10,16,93],[16,10,28],[10,2,99],[2,10,148],[8,10,65],[10,16,193]],
+  /*  9 */ [[10,2,38],[2,10,22],[10,8,332],[8,10,34],[10,16,106],[16,10,77],[10,2,171],[2,10,149],[8,10,270],[10,16,188]],
+  /* 10 */ [[10,2,37],[2,10,42],[10,8,175],[8,10,51],[10,16,92],[16,10,245],[10,2,79],[2,10,122],[8,10,101],[10,16,244]],
+  /* 11 */ [[10,2,50],[2,10,49],[10,8,276],[8,10,43],[10,16,63],[16,10,155],[10,2,175],[2,10,146],[8,10,220],[10,16,249]],
+  /* 12 */ [[10,2,45],[2,10,34],[10,8,329],[8,10,47],[10,16,94],[16,10,138],[10,2,125],[2,10,121],[8,10,308],[10,16,164]],
+  /* 13 */ [[10,2,39],[2,10,47],[10,8,105],[8,10,19],[10,16,110],[16,10,27],[10,2,196],[2,10,115],[8,10,395],[10,16,168]],
+  /* 14 */ [[10,2,53],[2,10,54],[10,8,182],[8,10,60],[10,16,31],[16,10,92],[10,2,94],[2,10,171],[8,10,84],[10,16,232]],
+  /* 15 */ [[10,2,25],[2,10,27],[10,8,278],[8,10,26],[10,16,127],[16,10,126],[10,2,65],[2,10,251],[8,10,249],[10,16,184]]
+];
+
+</script>
+<script>
+/* Общие функции для страниц ученика и учителя. */
+(function () {
+  'use strict';
+
+  var SUB = { 2: '₂', 8: '₈', 10: '₁₀', 16: '₁₆' };
+  var NAME = { 2: 'двоичную', 8: 'восьмеричную', 10: 'десятичную', 16: 'шестнадцатеричную' };
+  var DEMO_KEY = 'ntest-8211-demo-pool';
+
+  function digits(n, base) { return n.toString(base).toUpperCase(); }
+
+  /** Задание [from, to, n] → текст, правильный ответ, подсказка для поля ввода. */
+  function task(t) {
+    var from = t[0], to = t[1], n = t[2];
+    return {
+      from: from,
+      to: to,
+      shown: digits(n, from) + SUB[from],
+      text: 'Переведите число ' + digits(n, from) + SUB[from] + ' в ' + NAME[to] + ' систему счисления.',
+      answer: digits(n, to),
+      answerShown: digits(n, to) + SUB[to]
+    };
+  }
+
+  var ALLOWED = { 2: /^[01]+$/, 8: /^[0-7]+$/, 10: /^[0-9]+$/, 16: /^[0-9A-F]+$/ };
+
+  /** Приводит ответ ученика к виду для сравнения: без пробелов, заглавные, без ведущих нулей. */
+  function normalize(s) {
+    var v = String(s || '').replace(/\s+/g, '').toUpperCase().replace(/^0+(?=.)/, '');
+    return v;
+  }
+
+  function isCorrect(given, t) {
+    var v = normalize(given);
+    return ALLOWED[t.to].test(v) && v === t.answer;
+  }
+
+  function newId() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    var a = new Uint8Array(16);
+    crypto.getRandomValues(a);
+    return Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+
+  // ---------- Обращение к серверу (или демо-режим в localStorage) ----------
+
+  function demoLoad() {
+    try {
+      var s = JSON.parse(localStorage.getItem(DEMO_KEY));
+      if (s && s.issued) return s;
+    } catch (e) {}
+    return { round: 'demo-' + newId().slice(0, 6), issued: {} };
+  }
+  function demoSave(s) { try { localStorage.setItem(DEMO_KEY, JSON.stringify(s)); } catch (e) {} }
+
+  function demoCall(p) {
+    var total = window.VARIANTS.length;
+    var s = demoLoad();
+    var list = Object.keys(s.issued).map(function (k) { return s.issued[k]; });
+    if (p.action === 'status') return { ok: true, round: s.round, issued: list.length, total: total };
+    if (p.action === 'stats') return { ok: true, round: s.round, issued: list.length, total: total, variants: list.sort(function (a, b) { return a - b; }) };
+    if (p.action === 'reset') { s = { round: 'demo-' + newId().slice(0, 6), issued: {} }; demoSave(s); return { ok: true, round: s.round, issued: 0, total: total }; }
+    if (p.action === 'issue') {
+      if (s.issued[p.sid]) return { ok: true, variant: s.issued[p.sid], round: s.round };
+      var free = [];
+      for (var v = 1; v <= total; v++) if (list.indexOf(v) < 0) free.push(v);
+      if (!free.length) return { ok: false, error: 'full', round: s.round };
+      var pick = free[Math.floor(Math.random() * free.length)];
+      s.issued[p.sid] = pick;
+      demoSave(s);
+      return { ok: true, variant: pick, round: s.round };
+    }
+    return { ok: false, error: 'bad_action' };
+  }
+
+  // Автономный файл без сервера: вариант выбирается случайно на каждом устройстве.
+  function localCall(p) {
+    if (p.action === 'issue') return { ok: true, variant: 1 + Math.floor(Math.random() * window.VARIANTS.length), round: 'local' };
+    return { ok: true, round: 'local' };
+  }
+
+  function api(p) {
+    if (window.STANDALONE) return Promise.resolve(localCall(p));
+    if (!window.API_URL) return Promise.resolve(demoCall(p));
+    // text/plain — «простой» запрос без предварительного CORS-запроса; Apps Script его принимает.
+    return fetch(window.API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(p),
+      redirect: 'follow'
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  window.NT = {
+    task: task,
+    isCorrect: isCorrect,
+    normalize: normalize,
+    newId: newId,
+    api: api,
+    demo: !window.API_URL && !window.STANDALONE
+  };
+})();
+
+</script>
+<script>
+/* Страница ученика: выдача варианта, два таймера, проверка ответов, защита от выхода. */
+(function () {
+  'use strict';
+
+  var TOTAL_MS = 15 * 60 * 1000;   // общее время работы
+  var TASK_MS = 60 * 1000;         // время на одно задание
+  var STORE = 'ntest-8211-state';  // состояние хранится только в этом браузере
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = null;
+  var tasks = [];
+  var fsActive = false;      // страница сейчас в полноэкранном режиме, который включили мы
+  var unloading = false;     // идёт обновление/закрытие страницы — это не нарушение
+  var ignoreUntil = 0;       // короткая пауза проверки фокуса сразу после входа в полный экран
+  var ticker = null;
+  var resuming = false;      // показан экран «Работа восстановлена» после обновления страницы
+
+  // ---------- Хранение ----------
+
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
+  }
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; }
+  }
+
+  // ---------- Экраны ----------
+
+  function show(id) {
+    ['s-loading', 's-intro', 's-full', 's-error', 's-test', 's-menu', 's-resume', 's-result'].forEach(function (s) {
+      $(s).hidden = s !== id;
+    });
+    $('timers').hidden = !(state && state.status === 'running');
+  }
+
+  function running() { return state && state.status === 'running'; }
+
+  // ---------- Полноэкранный режим ----------
+
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function fsSupported() {
+    var el = document.documentElement;
+    return !!(el.requestFullscreen || el.webkitRequestFullscreen);
+  }
+
+  function enterFullscreen() {
+    var el = document.documentElement;
+    var req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req || fsElement()) return Promise.resolve();
+    try {
+      var p = req.call(el, { navigationUI: 'hide' });
+      return Promise.resolve(p).then(function () {
+        // Chrome/Edge: клавиши (в том числе Esc) сначала получает страница, выход — только удержанием Esc.
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(function () {});
+      }).catch(function () {});
+    } catch (e) {
+      return Promise.resolve();
+    }
+  }
+
+  function exitFullscreen() {
+    var ex = document.exitFullscreen || document.webkitExitFullscreen;
+    if (fsElement() && ex) { try { ex.call(document); } catch (e) {} }
+  }
+
+  function onFullscreenChange() {
+    if (fsElement()) {
+      fsActive = true;
+      ignoreUntil = Date.now() + 1500;
+      return;
+    }
+    if (fsActive) {
+      fsActive = false;
+      violation('вы вышли из полноэкранного режима.');
+    }
+  }
+
+  // ---------- Нарушения ----------
+
+  function violation(reason) {
+    if (!running()) return;
+    // Даём браузеру мгновение: при обновлении страницы сначала срабатывает beforeunload.
+    setTimeout(function () {
+      if (unloading || !running()) return;
+      finish('Работа завершена автоматически: ' + reason);
+    }, 300);
+  }
+
+  function onVisibility() {
+    if (document.visibilityState === 'hidden') violation('вы переключились на другую вкладку или приложение.');
+  }
+
+  function onBlur() {
+    if (!running() || Date.now() < ignoreUntil) return;
+    setTimeout(function () {
+      if (!document.hasFocus() && document.visibilityState === 'visible') {
+        violation('вы переключились на другое окно или приложение.');
+      }
+    }, 400);
+  }
+
+  function warn(text) {
+    $('warn-text').textContent = text;
+    $('warn').hidden = false;
+    clearTimeout(warn.t);
+    warn.t = setTimeout(function () { $('warn').hidden = true; }, 5000);
+  }
+
+  function onKey(e) {
+    if (!running()) return;
+    if (e.key === 'Escape') {
+      warn('Не выходите из полноэкранного режима: работа сразу завершится.');
+      e.preventDefault();
+    }
+    var k = (e.key || '').toLowerCase();
+    // Блокируем то, что страница вправе блокировать: обновление, печать, сохранение, поиск, новую вкладку.
+    if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l'].indexOf(k) >= 0) ||
+        (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) {
+      e.preventDefault();
+      warn('Это действие недоступно во время работы.');
+    }
+  }
+
+  function onBeforeUnload(e) {
+    if (!running()) return;
+    unloading = true;
+    setTimeout(function () { unloading = false; }, 1000); // если ученик нажал «Остаться»
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+
+  function blockNavigation() {
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', function () {
+      if (running()) {
+        history.pushState(null, '', location.href);
+        warn('Переход назад во время работы недоступен.');
+      }
+    });
+  }
+
+  // ---------- Ход работы ----------
+
+  function current() { return state.queue[state.pos]; }
+
+  function startTask() {
+    state.taskEnds = Date.now() + TASK_MS;
+    save();
+    renderTask();
+  }
+
+  function renderTask() {
+    if (resuming) return;
+    var i = current();
+    var t = tasks[i];
+    var review = state.phase === 'review';
+    $('t-num').textContent = review
+      ? 'Пропущенное задание ' + (i + 1) + ' (' + (state.pos + 1) + ' из ' + state.queue.length + ')'
+      : 'Задание ' + (i + 1) + ' из ' + tasks.length;
+    $('t-text').textContent = t.text;
+    var hint = { 2: 'цифры 0 и 1', 8: 'цифры от 0 до 7', 10: 'цифры от 0 до 9', 16: 'цифры 0–9 и буквы A–F' }[t.to];
+    $('t-hint').textContent = 'Ответ запишите в ' + { 2: 'двоичной', 8: 'восьмеричной', 10: 'десятичной', 16: 'шестнадцатеричной' }[t.to] +
+      ' системе (' + hint + '), без индекса основания.';
+    var inp = $('t-input');
+    inp.value = '';
+    inp.inputMode = t.to === 16 ? 'text' : 'numeric';
+    $('b-answer').disabled = true;
+    show('s-test');
+    inp.focus();
+    tick();
+  }
+
+  function record(status, given) {
+    var a = state.answers[current()];
+    a.status = status;
+    if (given !== undefined) a.given = given;
+  }
+
+  function next() {
+    state.pos++;
+    if (state.pos < state.queue.length) { startTask(); return; }
+    var skipped = skippedList();
+    if (!skipped.length) { finish(null); return; }
+    state.phase = 'menu';
+    state.taskEnds = null;
+    save();
+    renderMenu();
+  }
+
+  function skippedList() {
+    var out = [];
+    state.answers.forEach(function (a, i) { if (a.status === 'skipped') out.push(i); });
+    return out;
+  }
+
+  function renderMenu() {
+    if (resuming) return;
+    $('m-confirm').hidden = true;
+    var s = skippedList();
+    $('m-count').textContent = s.length;
+    $('m-list').textContent = s.map(function (i) { return '№ ' + (i + 1); }).join(', ');
+    show('s-menu');
+    tick();
+  }
+
+  function answer() {
+    var v = $('t-input').value;
+    if (!NT.normalize(v)) return;
+    record(NT.isCorrect(v, tasks[current()]) ? 'correct' : 'wrong', v.trim());
+    next();
+  }
+
+  function skip() {
+    record('skipped');
+    next();
+  }
+
+  function reviewSkipped() {
+    state.phase = 'review';
+    state.queue = skippedList();
+    state.pos = 0;
+    startTask();
+  }
+
+  function finish(reason) {
+    if (!state || state.status !== 'running') return;
+    state.answers.forEach(function (a) {
+      if (a.status === 'pending') a.status = 'unanswered';
+    });
+    resuming = false;
+    state.status = 'finished';
+    state.reason = reason;
+    state.finishedAt = Date.now();
+    save();
+    clearInterval(ticker);
+    $('warn').hidden = true;
+    if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+    fsActive = false;
+    exitFullscreen();
+    renderResult();
+  }
+
+  // ---------- Таймеры ----------
+
+  function fmt(ms) {
+    var s = Math.max(0, Math.ceil(ms / 1000));
+    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+  }
+
+  function tick() {
+    if (!running()) return;
+    var now = Date.now();
+    var left = state.endsAt - now;
+    if (left <= 0) { finish('Время работы (15 минут) закончилось. Оставшиеся задания засчитаны как неправильные.'); return; }
+    $('tm-total').textContent = fmt(left);
+    $('tm-total-box').classList.toggle('low', left <= 60000);
+
+    var inTask = (state.phase === 'main' || state.phase === 'review') && state.taskEnds;
+    if (inTask) {
+      var tl = state.taskEnds - now;
+      if (tl <= 0) {
+        record('timeout');
+        next();
+        return;
+      }
+      $('tm-task').textContent = fmt(Math.min(tl, left));
+      $('tm-task-box').classList.toggle('low', tl <= 10000);
+      $('tm-bar').style.width = (100 * tl / TASK_MS) + '%';
+    } else {
+      $('tm-task').textContent = '—';
+      $('tm-task-box').classList.remove('low');
+      $('tm-bar').style.width = '0%';
+    }
+  }
+
+  function startTicker() {
+    clearInterval(ticker);
+    ticker = setInterval(tick, 250);
+  }
+
+  // ---------- Итог ----------
+
+  var STATUS_TEXT = {
+    correct: 'верно',
+    wrong: 'неверно',
+    skipped: 'пропущено',
+    timeout: 'время вышло',
+    unanswered: 'нет ответа'
+  };
+
+  function renderResult() {
+    var score = state.answers.filter(function (a) { return a.status === 'correct'; }).length;
+    var n = tasks.length;
+    $('r-score').textContent = score + ' / ' + n + ' ' + plural(score, 'балл', 'балла', 'баллов');
+    $('r-count').textContent = 'Правильных ответов: ' + score + ' из ' + n + '. Вариант № ' + state.variant + '.';
+    $('r-reason').textContent = state.reason || '';
+    $('r-reason').hidden = !state.reason;
+    var body = $('r-table');
+    body.innerHTML = '';
+    tasks.forEach(function (t, i) {
+      var a = state.answers[i];
+      var tr = document.createElement('tr');
+      tr.className = a.status === 'correct' ? 'ok' : 'bad';
+      [String(i + 1), t.text, a.given ? a.given : '—', t.answerShown,
+       (a.status === 'correct' ? '✓ ' : '✗ ') + STATUS_TEXT[a.status]].forEach(function (txt) {
+        var td = document.createElement('td');
+        td.textContent = txt;
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    show('s-result');
+  }
+
+  function plural(n, one, few, many) {
+    var m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+
+  // ---------- Запуск ----------
+
+  function begin() {
+    $('b-start').disabled = true;
+    var fs = enterFullscreen();   // вызываем сразу по нажатию — иначе браузер откажет
+    var sid = NT.newId();
+    NT.api({ action: 'issue', sid: sid }).then(function (res) {
+      if (!res.ok && res.error === 'full') { exitFullscreen(); show('s-full'); return; }
+      if (!res.ok || !window.VARIANTS[res.variant - 1]) throw new Error(res.error || 'нет варианта');
+      state = {
+        v: 1,
+        sid: sid,
+        round: res.round,
+        variant: res.variant,
+        status: 'running',
+        startedAt: Date.now(),
+        endsAt: Date.now() + TOTAL_MS,
+        phase: 'main',
+        queue: window.VARIANTS[res.variant - 1].map(function (_, i) { return i; }),
+        pos: 0,
+        taskEnds: null,
+        answers: window.VARIANTS[res.variant - 1].map(function () { return { status: 'pending', given: '' }; })
+      };
+      tasks = window.VARIANTS[res.variant - 1].map(NT.task);
+      return fs.then(function () {
+        startTicker();
+        startTask();
+      });
+    }).catch(function (err) {
+      exitFullscreen();
+      $('b-start').disabled = false;
+      $('e-text').textContent = 'Не удалось получить вариант (' + err.message + '). Проверьте подключение к интернету и нажмите «Начать» ещё раз.';
+      show('s-error');
+    });
+  }
+
+  function resume() {
+    enterFullscreen().then(function () {
+      if (!running()) return;
+      resuming = false;
+      startTicker();
+      if (state.phase === 'menu') renderMenu(); else renderTask();
+    });
+  }
+
+  function init() {
+    $('b-start').addEventListener('click', begin);
+    $('b-retry').addEventListener('click', function () { show('s-intro'); });
+    $('b-answer').addEventListener('click', answer);
+    $('b-skip').addEventListener('click', skip);
+    $('b-review').addEventListener('click', reviewSkipped);
+    // Своё подтверждение вместо confirm(): системное окно снимает фокус со страницы.
+    $('b-finish').addEventListener('click', function () { $('m-confirm').hidden = false; });
+    $('b-finish-yes').addEventListener('click', function () { finish(null); });
+    $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
+    $('b-resume').addEventListener('click', resume);
+    $('warn').addEventListener('click', function () { $('warn').hidden = true; });
+    $('t-input').addEventListener('input', function () { $('b-answer').disabled = !NT.normalize(this.value); });
+    $('t-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); answer(); } });
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    document.addEventListener('contextmenu', function (e) { if (running()) e.preventDefault(); });
+    blockNavigation();
+
+    if (NT.demo) $('demo').hidden = false;
+    if (window.STANDALONE) {
+      // Без сервера учитель очищает результат на общем компьютере PIN-кодом (задаётся в файле).
+      $('r-teacher').hidden = false;
+      $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
+      var restart = function () {
+        if ($('r-pin').value.trim() !== String(window.TEACHER_PIN)) { $('r-pin-msg').textContent = 'Неверный PIN'; return; }
+        try { localStorage.removeItem(STORE); } catch (e) {}
+        location.reload();
+      };
+      $('b-restart').addEventListener('click', restart);
+      $('r-pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') restart(); });
+    }
+    if (!fsSupported()) $('i-nofs').hidden = false;
+
+    state = load();
+    if (state && state.variant && window.VARIANTS[state.variant - 1]) {
+      tasks = window.VARIANTS[state.variant - 1].map(NT.task);
+    } else {
+      state = null;
+    }
+
+    if (running()) {
+      // Страницу обновили во время работы: время шло, восстанавливаем ход работы.
+      resuming = true;
+      show('s-resume');
+      startTicker();
+      tick();
+      return;
+    }
+
+    show('s-loading');
+    NT.api({ action: 'status' }).then(function (res) { return res && res.ok ? res.round : null; }, function () { return null; })
+      .then(function (round) {
+        // После сброса учителем (новый урок) старый результат на этом устройстве больше не показываем.
+        if (state && state.status === 'finished' && (!round || round === state.round)) { renderResult(); return; }
+        state = null;
+        try { localStorage.removeItem(STORE); } catch (e) {}
+        show('s-intro');
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>

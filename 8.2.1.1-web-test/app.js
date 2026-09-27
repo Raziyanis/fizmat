@@ -390,6 +390,18 @@
     blockNavigation();
 
     if (NT.demo) $('demo').hidden = false;
+    if (window.STANDALONE) {
+      // Без сервера учитель очищает результат на общем компьютере PIN-кодом (задаётся в файле).
+      $('r-teacher').hidden = false;
+      $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
+      var restart = function () {
+        if ($('r-pin').value.trim() !== String(window.TEACHER_PIN)) { $('r-pin-msg').textContent = 'Неверный PIN'; return; }
+        try { localStorage.removeItem(STORE); } catch (e) {}
+        location.reload();
+      };
+      $('b-restart').addEventListener('click', restart);
+      $('r-pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') restart(); });
+    }
     if (!fsSupported()) $('i-nofs').hidden = false;
 
     state = load();

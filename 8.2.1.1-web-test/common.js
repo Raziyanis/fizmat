@@ -72,7 +72,14 @@
     return { ok: false, error: 'bad_action' };
   }
 
+  // Автономный файл без сервера: вариант выбирается случайно на каждом устройстве.
+  function localCall(p) {
+    if (p.action === 'issue') return { ok: true, variant: 1 + Math.floor(Math.random() * window.VARIANTS.length), round: 'local' };
+    return { ok: true, round: 'local' };
+  }
+
   function api(p) {
+    if (window.STANDALONE) return Promise.resolve(localCall(p));
     if (!window.API_URL) return Promise.resolve(demoCall(p));
     // text/plain — «простой» запрос без предварительного CORS-запроса; Apps Script его принимает.
     return fetch(window.API_URL, {
@@ -92,6 +99,6 @@
     normalize: normalize,
     newId: newId,
     api: api,
-    demo: !window.API_URL
+    demo: !window.API_URL && !window.STANDALONE
   };
 })();
