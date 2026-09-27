@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Учитель — работа 8.2.1.1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="demo" class="demo no-print" hidden>Демо-режим: сервер не подключён (config.js), данные только этого браузера. PIN в демо-режиме не проверяется.</div>
+  <main>
+    <section>
+      <h1>Страница учителя</h1>
+      <div id="login" class="row no-print">
+        <label for="pin">PIN учителя</label>
+        <input id="pin" type="password" autocomplete="off">
+        <button id="b-login" class="primary">Войти</button>
+      </div>
+      <p id="msg" class="note" hidden></p>
+
+      <div id="panel" hidden>
+        <p class="no-print">Выдано вариантов: <b id="st-issued"></b> из <b id="st-total"></b>. <span id="st-list" class="muted"></span></p>
+        <div class="buttons no-print">
+          <button id="b-refresh">Обновить</button>
+          <button id="b-reset" class="danger">Сбросить выданные варианты</button>
+          <button id="b-key">Показать ключи ко всем вариантам</button>
+        </div>
+        <p class="muted small no-print">Сбрасывайте список перед каждым новым классом. После сброса на устройствах, где работа уже завершена, при следующем открытии ссылки снова появится кнопка «Начать».</p>
+        <div id="m-reset" class="confirm no-print" hidden>
+          <p>Сбросить список? Все 15 вариантов снова станут свободными. Делайте это только когда текущий класс закончил работу.</p>
+          <div class="buttons">
+            <button id="b-reset-yes" class="danger">Да, сбросить</button>
+            <button id="b-reset-no">Отмена</button>
+          </div>
+        </div>
+        <div id="key" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="variants.js"></script>
+  <script src="common.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var pin = '';
+
+    function msg(text) { $('msg').textContent = text; $('msg').hidden = !text; }
+
+    function showStats(res) {
+      if (!res.ok) {
+        msg(res.error === 'pin' ? 'Неверный PIN.' : 'Ошибка сервера: ' + (res.message || res.error));
+        return false;
+      }
+      $('login').hidden = true;
+      $('panel').hidden = false;
+      $('st-issued').textContent = res.issued;
+      $('st-total').textContent = res.total;
+      $('st-list').textContent = res.variants && res.variants.length ? '(№ ' + res.variants.join(', ') + ')' : '';
+      return true;
+    }
+
+    function call(p) {
+      p.pin = pin;
+      return NT.api(p).then(showStats).catch(function (e) { msg('Нет связи с сервером: ' + e.message); });
+    }
+
+    $('b-login').addEventListener('click', function () {
+      pin = $('pin').value.trim();
+      msg('');
+      call({ action: 'stats' });
+    });
+    $('pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('b-login').click(); });
+    $('b-refresh').addEventListener('click', function () { msg(''); call({ action: 'stats' }); });
+    $('b-reset').addEventListener('click', function () { $('m-reset').hidden = false; });
+    $('b-reset-no').addEventListener('click', function () { $('m-reset').hidden = true; });
+    $('b-reset-yes').addEventListener('click', function () {
+      $('m-reset').hidden = true;
+      call({ action: 'reset' }).then(function (ok) { if (ok === true) msg('Список выданных вариантов сброшен.'); });
+    });
+
+    $('b-key').addEventListener('click', function () {
+      var box = $('key');
+      if (!box.hidden) { box.hidden = true; return; }
+      var html = '<h2>Ключи</h2><table class="key"><thead><tr><th>Вар.</th>';
+      for (var i = 1; i <= 10; i++) html += '<th>' + i + '</th>';
+      html += '</tr></thead><tbody>';
+      window.VARIANTS.forEach(function (v, n) {
+        html += '<tr><td><b>' + (n + 1) + '</b></td>';
+        v.forEach(function (t) {
+          var q = NT.task(t);
+          html += '<td>' + q.shown + ' → ' + q.answerShown + '</td>';
+        });
+        html += '</tr>';
+      });
+      box.innerHTML = html + '</tbody></table><p class="muted small">Для печати: Ctrl+P.</p>';
+      box.hidden = false;
+    });
+
+    if (NT.demo) $('demo').hidden = false;
+  })();
+  </script>
+</body>
+</html>
