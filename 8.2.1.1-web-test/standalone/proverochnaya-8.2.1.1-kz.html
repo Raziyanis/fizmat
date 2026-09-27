@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Тексеру жұмысы 8.2.1.1</title>
+  <style>
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5f6b7a;
+  --line: #d9dee5;
+  --accent: #1f6feb;
+  --ok: #1a7f37;
+  --ok-bg: #e8f5ec;
+  --bad: #c62828;
+  --bad-bg: #fdecec;
+  --warn-bg: #fff4d6;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+h1 { font-size: 1.6rem; margin: 0 0 12px; }
+h2 { font-size: 1.2rem; margin: 24px 0 8px; }
+
+.topic { color: var(--muted); margin-top: 0; }
+.rules li { margin-bottom: 6px; }
+.rules li.important { background: var(--bad-bg); color: var(--bad); border-radius: 6px; padding: 6px 10px; margin-left: -10px; list-style-position: inside; }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+.center { text-align: center; }
+
+.note {
+  background: var(--warn-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+button {
+  font: inherit;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+
+.confirm {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--bad);
+  border-radius: 8px;
+  background: var(--bad-bg);
+}
+
+#s-test.changed { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-bg); }
+
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.nav-btn { min-width: 44px; padding: 8px 0; font-weight: 700; border: 2px solid var(--line); }
+.nav-btn.done { background: #dbe8ff; border-color: #9dbcf5; }
+.nav-btn.skipped { background: var(--warn-bg); border-color: #e9c46a; }
+.nav-btn.cur { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.nav-legend { margin-top: -8px; }
+.saved { color: var(--accent); }
+
+.question { font-size: 1.5rem; font-weight: 600; margin: 8px 0 16px; }
+
+.answer {
+  width: 100%;
+  max-width: 360px;
+  font: 600 1.6rem/1.2 ui-monospace, "Consolas", monospace;
+  letter-spacing: 0.08em;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+.answer:focus { outline: none; border-color: var(--accent); }
+
+/* Таймеры закреплены сверху и видны всё время работы */
+.timers {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 32px;
+  padding: 10px 16px 14px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.timer { display: flex; align-items: baseline; gap: 10px; }
+.timer span { color: var(--muted); font-size: 0.95rem; }
+.timer b { font: 700 1.8rem/1 ui-monospace, "Consolas", monospace; }
+.timer.low b { color: var(--bad); }
+.bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: var(--line);
+}
+.bar div { height: 100%; width: 0; background: var(--accent); transition: width 0.25s linear; }
+
+.score {
+  text-align: center;
+  font-weight: 800;
+  line-height: 1;
+  margin: 24px 0 8px;
+}
+/* Балл — максимально крупно, чтобы учитель видел его издалека */
+.score-num { display: block; font-size: clamp(5rem, 24vw, 12rem); letter-spacing: -0.02em; }
+.time-box { max-width: 520px; margin: 16px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); text-align: center; }
+.time-box p { margin: 4px 0; font-size: 1.15rem; }
+.time-box p.small { font-size: 0.95rem; color: var(--muted); }
+.time-box p.left b { color: var(--accent); font-size: 1.5rem; }
+.count { font-size: 1.3rem; font-weight: 600; }
+.score-word { display: block; font-size: clamp(2.2rem, 8vw, 4rem); margin-top: 8px; }
+
+.table-wrap { overflow-x: auto; }
+.report { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.report th, .report td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.report th { background: var(--bg); }
+.report tr.ok td:last-child { color: var(--ok); background: var(--ok-bg); }
+.report tr.bad td:last-child { color: var(--bad); background: var(--bad-bg); }
+
+.warn {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: 90vw;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: var(--bad);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.demo {
+  background: var(--warn-bg);
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+/* Сброс результата учителем (автономный файл) */
+.teacher { margin-top: 32px; padding-top: 12px; border-top: 1px dashed var(--line); }
+button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); font-size: 0.85rem; text-decoration: underline; }
+@media print { .teacher { display: none; } }
+
+/* Страница учителя */
+.key { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 8px; }
+.key th, .key td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
+.key th { background: var(--bg); }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 200px; }
+
+@media print {
+  .no-print { display: none; }
+  section { border: 0; padding: 0; }
+}
+</style>
+</head>
+<body>
+  <div id="demo" class="demo" hidden>Демо режим: сервер қосылмаған, нұсқалар тек осы браузерде беріледі.</div>
+
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span>Жұмыстың аяқталуына</span><b id="tm-total">15:00</b></div>
+    <div id="tm-task-box" class="timer"><span>Осы тапсырмаға</span><b id="tm-task">1:00</b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Жүктелуде…</p></section>
+
+    <section id="s-intro" hidden>
+      <h1>Тексеру жұмысы</h1>
+      <p class="topic">8.2.1.1 — натурал сандарды ондық санау жүйесінен екілік, сегіздік, он алтылық санау жүйелеріне және керісінше аудару</p>
+      <h2>Нұсқаулық</h2>
+      <ul class="rules">
+        <li>Тапсырманы оқып, жауапты өріске енгізіңіз. «Жауап беру» батырмасын (немесе Enter пернесін) басыңыз.</li>
+        <li>Әр тапсырмаға берілетін уақыт <b>шектелмеген</b> — уақытты өзіңіз бөліңіз және экранның жоғарғы жағындағы жалпы таймерді қадағалаңыз.</li>
+        <li class="important"><b>Жауап «Жауап беру» батырмасын басқаннан кейін ғана есептеледі</b> (немесе Enter пернесін). Егер жұмыс уақыты аяқталып, сіз «Жауап беру» батырмасын баспаған болсаңыз, жауап өріске енгізілсе де <b>есептелмейді</b>.</li>
+        <li>Жауаптың дұрыстығын жүйе <b>автоматты түрде</b> тексереді.</li>
+        <li>Әр дұрыс жауапқа <b>1 балл</b> беріледі. Ең жоғары балл — <b>10</b>.</li>
+        <li>«Өткізіп жіберу» батырмасы тапсырманы қате деп есептеп, келесі тапсырманы ашады. «← Алдыңғы» батырмасы мен жоғарыдағы тапсырма нөмірлері арқылы жалпы уақыт аяқталғанша <b>кез келген тапсырмаға оралып</b>, жауапты өзгертуге болады.</li>
+        <li>Жұмыс <b>15 минуттан кейін автоматты түрде аяқталады</b>.</li>
+        <li>Жұмыс толық экран режимінде жүреді. <b>Толық экран режимінен шықсаңыз немесе басқа қойындыға, терезеге не қолданбаға ауыссаңыз, жұмыс бірден аяқталады</b>, ал қалған тапсырмалар қате деп есептеледі.</li>
+      </ul>
+      <p id="i-nofs" class="note" hidden>Бұл браузер толық экран режимін қолдамайды. Басқа қойындыларға және қолданбаларға ауыспаңыз — жұмыс аяқталады.</p>
+      <p class="muted">Аты-жөніңізді және басқа жеке деректерді енгізудің қажеті жоқ. Жауаптар мен баллдар ешқайда жіберілмейді.</p>
+      <button id="b-start" class="primary big">Бастау</button>
+    </section>
+
+    <section id="s-full" hidden>
+      <h1>Бос нұсқалар жоқ</h1>
+      <p>15 нұсқаның бәрі берілді. Мұғалімге жүгініңіз.</p>
+    </section>
+
+    <section id="s-error" hidden>
+      <h1>Қате</h1>
+      <p id="e-text"></p>
+      <button id="b-retry" class="primary">Артқа</button>
+    </section>
+
+    <section id="s-test" hidden>
+      <div id="t-nav" class="nav" aria-label="Тапсырма нөмірлері"></div>
+      <p class="muted small nav-legend">Көк нөмірлер — жауап берілген, сары нөмірлер — өткізіп жіберілген. Тапсырманы ашу үшін нөмірді басыңыз.</p>
+      <p id="t-num" class="muted"></p>
+      <p id="t-text" class="question"></p>
+      <input id="t-input" class="answer" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="16" aria-label="Жауап">
+      <p id="t-hint" class="muted small"></p>
+      <p id="t-saved" class="saved small" hidden></p>
+      <div class="buttons">
+        <button id="b-prev">← Алдыңғы</button>
+        <button id="b-answer" class="primary">Жауап беру</button>
+        <button id="b-skip">Өткізіп жіберу</button>
+      </div>
+    </section>
+
+    <section id="s-menu" hidden>
+      <h1 id="m-title">Өткізіп жіберілген тапсырмалар қалды</h1>
+      <p>Жауап берілген тапсырмалар саны: <b id="m-done"></b> (барлығы 10).</p>
+      <p id="m-skipped">Өткізіп жіберілген тапсырмалар саны: <b id="m-count"></b> (<span id="m-list"></span>). Әзірге олар қате деп есептеледі.</p>
+      <p>Жалпы уақыт аяқталғанша кез келген тапсырманы ашып (нөмірін басыңыз), жауапты тексеріп, өзгертуге болады.</p>
+      <div id="m-nav" class="nav" aria-label="Тапсырма нөмірлері"></div>
+      <div class="buttons">
+        <button id="b-review" class="primary">Өткізіп жіберілгендерге оралу</button>
+        <button id="b-finish">Жұмысты аяқтау</button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p>Жұмысты аяқтайсыз ба? Өткізіп жіберілген тапсырмалар қате болып қалады.</p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger">Иә, аяқтау</button>
+          <button id="b-finish-no">Жоқ</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-resume" hidden>
+      <h1>Жұмыс қалпына келтірілді</h1>
+      <p>Бет жаңартылды. Уақыт жүріп жатыр. Тапсырмаларға толық экран режимінде оралу үшін «Жалғастыру» батырмасын басыңыз.</p>
+      <button id="b-resume" class="primary big">Жалғастыру</button>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1>Жұмыс аяқталды</h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p id="r-score" class="score"><span id="r-score-num" class="score-num"></span> <span id="r-score-word" class="score-word"></span></p>
+      <p id="r-count" class="center count"></p>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2>Есеп</h2>
+      <div class="table-wrap">
+        <table class="report">
+          <thead><tr><th>№</th><th>Тапсырма</th><th>Сіздің жауабыңыз</th><th>Дұрыс жауап</th><th>Нәтиже</th></tr></thead>
+          <tbody id="r-table"></tbody>
+        </table>
+      </div>
+      <div id="r-teacher" class="teacher" hidden>
+        <button id="b-teacher" class="link">Мұғалімге: осы құрылғыда жаңа жұмыс бастау</button>
+        <div id="r-teacher-form" class="row" hidden>
+          <input id="r-pin" type="password" autocomplete="off" placeholder="Мұғалімнің құпиясөзі" aria-label="Мұғалімнің құпиясөзі">
+          <button id="b-restart" class="primary">Қайта бастау</button>
+          <span id="r-pin-msg" class="muted small"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-locked" hidden>
+      <h1>Жұмыс аяқталды</h1>
+      <p>Нәтиже жасырылды. Осы құрылғыда жаңа жұмысты бастау үшін мұғалім құпиясөзді енгізеді.</p>
+      <div class="row">
+        <input id="l-pin" type="password" autocomplete="off" placeholder="Мұғалімнің құпиясөзі" aria-label="Мұғалімнің құпиясөзі">
+        <button id="b-unlock" class="primary">Қайта бастау</button>
+        <span id="l-pin-msg" class="muted small"></span>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+<script>
+/* Автономды нұсқаның баптаулары. PIN кодты (құпиясөзді) осы жерде Блокнотта өзгертуге болады. */
+window.STANDALONE = true;
+window.TEACHER_PIN = "1234";
+
+</script>
+<script>
+/* Сгенерировано tools/generate-variants.js (SEED = 8211). Не редактируйте вручную. */
+/* Каждое задание: [из какой системы, в какую систему, число в десятичной записи]. */
+window.VARIANTS = [
+  /*  1 */ [[10,2,21],[2,10,26],[10,8,229],[8,10,15],[10,16,109],[16,10,214],[10,2,189],[2,10,132],[8,10,225],[10,16,186]],
+  /*  2 */ [[10,2,27],[2,10,62],[10,8,396],[8,10,28],[10,16,58],[16,10,206],[10,2,158],[2,10,210],[8,10,91],[10,16,200]],
+  /*  3 */ [[10,2,35],[2,10,43],[10,8,370],[8,10,20],[10,16,90],[16,10,175],[10,2,98],[2,10,137],[8,10,260],[10,16,183]],
+  /*  4 */ [[10,2,34],[2,10,60],[10,8,118],[8,10,37],[10,16,47],[16,10,195],[10,2,161],[2,10,245],[8,10,109],[10,16,222]],
+  /*  5 */ [[10,2,52],[2,10,59],[10,8,220],[8,10,50],[10,16,108],[16,10,186],[10,2,138],[2,10,218],[8,10,227],[10,16,165]],
+  /*  6 */ [[10,2,22],[2,10,20],[10,8,71],[8,10,39],[10,16,46],[16,10,30],[10,2,78],[2,10,100],[8,10,332],[10,16,245]],
+  /*  7 */ [[10,2,47],[2,10,39],[10,8,134],[8,10,58],[10,16,159],[16,10,239],[10,2,173],[2,10,236],[8,10,189],[10,16,246]],
+  /*  8 */ [[10,2,23],[2,10,61],[10,8,227],[8,10,59],[10,16,93],[16,10,28],[10,2,99],[2,10,148],[8,10,65],[10,16,193]],
+  /*  9 */ [[10,2,38],[2,10,22],[10,8,332],[8,10,34],[10,16,106],[16,10,77],[10,2,171],[2,10,149],[8,10,270],[10,16,188]],
+  /* 10 */ [[10,2,37],[2,10,42],[10,8,175],[8,10,51],[10,16,92],[16,10,245],[10,2,79],[2,10,122],[8,10,101],[10,16,244]],
+  /* 11 */ [[10,2,50],[2,10,49],[10,8,276],[8,10,43],[10,16,63],[16,10,155],[10,2,175],[2,10,146],[8,10,220],[10,16,249]],
+  /* 12 */ [[10,2,45],[2,10,34],[10,8,329],[8,10,47],[10,16,94],[16,10,138],[10,2,125],[2,10,121],[8,10,308],[10,16,164]],
+  /* 13 */ [[10,2,39],[2,10,47],[10,8,105],[8,10,19],[10,16,110],[16,10,27],[10,2,196],[2,10,115],[8,10,395],[10,16,168]],
+  /* 14 */ [[10,2,53],[2,10,54],[10,8,182],[8,10,60],[10,16,31],[16,10,92],[10,2,94],[2,10,171],[8,10,84],[10,16,232]],
+  /* 15 */ [[10,2,25],[2,10,27],[10,8,278],[8,10,26],[10,16,127],[16,10,126],[10,2,65],[2,10,251],[8,10,249],[10,16,184]]
+];
+
+</script>
+<script>
+/* Общие функции для страниц ученика и учителя. */
+(function () {
+  'use strict';
+
+  var SUB = { 2: '₂', 8: '₈', 10: '₁₀', 16: '₁₆' };
+  var NAME = { 2: 'екілік', 8: 'сегіздік', 10: 'ондық', 16: 'он алтылық' };
+  var DEMO_KEY = 'ntest-8211-demo-pool';
+
+  function digits(n, base) { return n.toString(base).toUpperCase(); }
+
+  /** Задание [from, to, n] → текст, правильный ответ, подсказка для поля ввода. */
+  function task(t) {
+    var from = t[0], to = t[1], n = t[2];
+    return {
+      from: from,
+      to: to,
+      shown: digits(n, from) + SUB[from],
+      text: digits(n, from) + SUB[from] + ' санын ' + NAME[to] + ' санау жүйесіне аударыңыз.',
+      answer: digits(n, to),
+      answerShown: digits(n, to) + SUB[to]
+    };
+  }
+
+  var ALLOWED = { 2: /^[01]+$/, 8: /^[0-7]+$/, 10: /^[0-9]+$/, 16: /^[0-9A-F]+$/ };
+
+  /** Приводит ответ ученика к виду для сравнения: без пробелов, заглавные, без ведущих нулей. */
+  function normalize(s) {
+    var v = String(s || '').replace(/\s+/g, '').toUpperCase().replace(/^0+(?=.)/, '');
+    return v;
+  }
+
+  function isCorrect(given, t) {
+    var v = normalize(given);
+    return ALLOWED[t.to].test(v) && v === t.answer;
+  }
+
+  function newId() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    var a = new Uint8Array(16);
+    crypto.getRandomValues(a);
+    return Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+
+  // ---------- Обращение к серверу (или демо-режим в localStorage) ----------
+
+  function demoLoad() {
+    try {
+      var s = JSON.parse(localStorage.getItem(DEMO_KEY));
+      if (s && s.issued) return s;
+    } catch (e) {}
+    return { round: 'demo-' + newId().slice(0, 6), issued: {} };
+  }
+  function demoSave(s) { try { localStorage.setItem(DEMO_KEY, JSON.stringify(s)); } catch (e) {} }
+
+  function demoCall(p) {
+    var total = window.VARIANTS.length;
+    var s = demoLoad();
+    var list = Object.keys(s.issued).map(function (k) { return s.issued[k]; });
+    if (p.action === 'status') return { ok: true, round: s.round, issued: list.length, total: total };
+    if (p.action === 'stats') return { ok: true, round: s.round, issued: list.length, total: total, variants: list.sort(function (a, b) { return a - b; }) };
+    if (p.action === 'reset') { s = { round: 'demo-' + newId().slice(0, 6), issued: {} }; demoSave(s); return { ok: true, round: s.round, issued: 0, total: total }; }
+    if (p.action === 'issue') {
+      if (s.issued[p.sid]) return { ok: true, variant: s.issued[p.sid], round: s.round };
+      var free = [];
+      for (var v = 1; v <= total; v++) if (list.indexOf(v) < 0) free.push(v);
+      if (!free.length) return { ok: false, error: 'full', round: s.round };
+      var pick = free[Math.floor(Math.random() * free.length)];
+      s.issued[p.sid] = pick;
+      demoSave(s);
+      return { ok: true, variant: pick, round: s.round };
+    }
+    return { ok: false, error: 'bad_action' };
+  }
+
+  // Автономный файл без сервера: вариант выбирается случайно на каждом устройстве.
+  function localCall(p) {
+    if (p.action === 'issue') return { ok: true, variant: 1 + Math.floor(Math.random() * window.VARIANTS.length), round: 'local' };
+    return { ok: true, round: 'local' };
+  }
+
+  function api(p) {
+    if (window.STANDALONE) return Promise.resolve(localCall(p));
+    if (!window.API_URL) return Promise.resolve(demoCall(p));
+    // text/plain — «простой» запрос без предварительного CORS-запроса; Apps Script его принимает.
+    return fetch(window.API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(p),
+      redirect: 'follow'
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  window.NT = {
+    task: task,
+    isCorrect: isCorrect,
+    normalize: normalize,
+    newId: newId,
+    api: api,
+    demo: !window.API_URL && !window.STANDALONE
+  };
+})();
+
+</script>
+<script>
+/* Страница ученика: выдача варианта, два таймера, проверка ответов, защита от выхода. */
+(function () {
+  'use strict';
+
+  var TOTAL_MS = 15 * 60 * 1000;   // общее время работы
+  var TASK_MS = 0;                 // время на одно задание (0 — не ограничено, только общий таймер)
+  var RESULT_MS = 5 * 60 * 1000;   // сколько показывается результат, потом — экран с паролем учителя
+  var STORE = 'ntest-8211-state-kz';  // состояние хранится только в этом браузере
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = null;
+  var tasks = [];
+  var fsActive = false;      // страница сейчас в полноэкранном режиме, который включили мы
+  var unloading = false;     // идёт обновление/закрытие страницы — это не нарушение
+  var ignoreUntil = 0;       // короткая пауза проверки фокуса сразу после входа в полный экран
+  var ticker = null;
+  var resuming = false;
+  var hideTimer = null;      // показан экран «Работа восстановлена» после обновления страницы
+
+  // ---------- Хранение ----------
+
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
+  }
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; }
+  }
+
+  // ---------- Экраны ----------
+
+  function show(id) {
+    ['s-loading', 's-intro', 's-full', 's-error', 's-test', 's-menu', 's-resume', 's-result', 's-locked'].forEach(function (s) {
+      $(s).hidden = s !== id;
+    });
+    $('timers').hidden = !(state && state.status === 'running');
+  }
+
+  function running() { return state && state.status === 'running'; }
+
+  // ---------- Полноэкранный режим ----------
+
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function fsSupported() {
+    var el = document.documentElement;
+    return !!(el.requestFullscreen || el.webkitRequestFullscreen);
+  }
+
+  function enterFullscreen() {
+    var el = document.documentElement;
+    var req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req || fsElement()) return Promise.resolve();
+    try {
+      var p = req.call(el, { navigationUI: 'hide' });
+      return Promise.resolve(p).then(function () {
+        // Chrome/Edge: клавиши (в том числе Esc) сначала получает страница, выход — только удержанием Esc.
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(function () {});
+      }).catch(function () {});
+    } catch (e) {
+      return Promise.resolve();
+    }
+  }
+
+  function exitFullscreen() {
+    var ex = document.exitFullscreen || document.webkitExitFullscreen;
+    if (fsElement() && ex) { try { ex.call(document); } catch (e) {} }
+  }
+
+  function onFullscreenChange() {
+    if (fsElement()) {
+      fsActive = true;
+      ignoreUntil = Date.now() + 1500;
+      return;
+    }
+    if (fsActive) {
+      fsActive = false;
+      violation('сіз толық экран режимінен шықтыңыз.');
+    }
+  }
+
+  // ---------- Нарушения ----------
+
+  function violation(reason) {
+    if (!running()) return;
+    // Даём браузеру мгновение: при обновлении страницы сначала срабатывает beforeunload.
+    setTimeout(function () {
+      if (unloading || !running()) return;
+      finish('Жұмыс автоматты түрде аяқталды: ' + reason);
+    }, 300);
+  }
+
+  function onVisibility() {
+    if (document.visibilityState === 'hidden') violation('сіз басқа қойындыға немесе қолданбаға ауыстыңыз.');
+  }
+
+  function onBlur() {
+    if (!running() || Date.now() < ignoreUntil) return;
+    setTimeout(function () {
+      if (!document.hasFocus() && document.visibilityState === 'visible') {
+        violation('сіз басқа терезеге немесе қолданбаға ауыстыңыз.');
+      }
+    }, 400);
+  }
+
+  function warn(text) {
+    $('warn-text').textContent = text;
+    $('warn').hidden = false;
+    clearTimeout(warn.t);
+    warn.t = setTimeout(function () { $('warn').hidden = true; }, 5000);
+  }
+
+  function onKey(e) {
+    if (!running()) return;
+    if (e.key === 'Escape') {
+      warn('Толық экран режимінен шықпаңыз: жұмыс бірден аяқталады.');
+      e.preventDefault();
+    }
+    var k = (e.key || '').toLowerCase();
+    // Блокируем то, что страница вправе блокировать: обновление, печать, сохранение, поиск, новую вкладку.
+    if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l'].indexOf(k) >= 0) ||
+        (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) {
+      e.preventDefault();
+      warn('Жұмыс кезінде бұл әрекетке рұқсат жоқ.');
+    }
+  }
+
+  function onBeforeUnload(e) {
+    if (!running()) return;
+    unloading = true;
+    setTimeout(function () { unloading = false; }, 1000); // если ученик нажал «Остаться»
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+
+  function blockNavigation() {
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', function () {
+      if (running()) {
+        history.pushState(null, '', location.href);
+        warn('Жұмыс кезінде артқа өтуге болмайды.');
+      }
+    });
+  }
+
+  // ---------- Ход работы ----------
+
+  function current() { return state.cur; }
+
+  function startTask() {
+    state.taskEnds = TASK_MS ? Date.now() + TASK_MS : null;
+    save();
+    renderTask();
+  }
+
+  /** Открыть любое задание (панель с номерами, «← Предыдущее»). */
+  function goTo(i) {
+    if (!running() || i < 0 || i >= tasks.length) return;
+    if (state.phase === 'menu') state.phase = 'main';
+    state.cur = i;
+    startTask();
+  }
+
+  function answered(a) { return a.status === 'correct' || a.status === 'wrong'; }
+
+  /** Панель номеров: видно, на что уже есть ответ и что пропущено (без подсказки, верно ли). */
+  function renderNav(box) {
+    box.innerHTML = '';
+    state.answers.forEach(function (a, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = String(i + 1);
+      b.className = 'nav-btn' + (answered(a) ? ' done' : a.status === 'skipped' ? ' skipped' : '') +
+        (state.phase !== 'menu' && i === state.cur ? ' cur' : '');
+      b.title = answered(a) ? 'Жауап бар' : a.status === 'skipped' ? 'Өткізіп жіберілді' : 'Жауап жоқ';
+      b.addEventListener('click', function () { goTo(i); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderTask() {
+    if (resuming) return;
+    var i = current();
+    var t = tasks[i];
+    var a = state.answers[i];
+    $('t-num').textContent = 'Тапсырма ' + (i + 1) + ' / ' + tasks.length;
+    $('t-text').textContent = t.text;
+    var hint = { 2: '0 және 1 цифрлары', 8: '0-ден 7-ге дейінгі цифрлар', 10: '0-ден 9-ға дейінгі цифрлар', 16: '0–9 цифрлары және A–F әріптері' }[t.to];
+    $('t-hint').textContent = 'Жауапты ' + { 2: 'екілік', 8: 'сегіздік', 10: 'ондық', 16: 'он алтылық' }[t.to] +
+      ' санау жүйесінде жазыңыз (' + hint + '), негіздің индексін жазбаңыз.';
+    var inp = $('t-input');
+    inp.value = answered(a) ? a.given : '';
+    inp.inputMode = t.to === 16 ? 'text' : 'numeric';
+    $('t-saved').textContent = answered(a) ? 'Жауабыңыз сақталды. Оны өзгертіп, «Жауап беру» батырмасын қайта басуға болады.' : '';
+    $('t-saved').hidden = !answered(a);
+    $('b-answer').disabled = !NT.normalize(inp.value);
+    $('b-skip').textContent = answered(a) ? 'Келесі' : 'Өткізіп жіберу';
+    $('b-prev').disabled = i === 0;
+    renderNav($('t-nav'));
+    show('s-test');
+    inp.focus();
+    tick();
+  }
+
+  function record(status, given) {
+    var a = state.answers[current()];
+    a.status = status;
+    if (given !== undefined) a.given = given;
+  }
+
+  function findFrom(i, test, wrap) {
+    var n = tasks.length;
+    for (var k = 1; k <= (wrap ? n - 1 : n - 1 - i); k++) {
+      var j = (i + k) % n;
+      if (test(state.answers[j])) return j;
+    }
+    return -1;
+  }
+
+  /** Куда идти после ответа/пропуска: следующее ещё не открытое задание; при возврате — следующее пропущенное. */
+  function next() {
+    var i = current();
+    var isPending = function (a) { return a.status === 'pending'; };
+    var j = state.phase === 'review'
+      ? findFrom(i, function (a) { return a.status === 'skipped'; }, true)
+      : findFrom(i, isPending, false);
+    if (j < 0 && state.phase !== 'review') j = findFrom(i, isPending, true);
+    if (j >= 0) { state.cur = j; startTask(); return; }
+    state.phase = 'menu';
+    state.taskEnds = null;
+    save();
+    renderMenu();
+  }
+
+  function skippedList() {
+    var out = [];
+    state.answers.forEach(function (a, i) { if (a.status === 'skipped') out.push(i); });
+    return out;
+  }
+
+  function renderMenu() {
+    if (resuming) return;
+    $('m-confirm').hidden = true;
+    var s = skippedList();
+    var done = state.answers.filter(answered).length;
+    $('m-title').textContent = s.length ? 'Өткізіп жіберілген тапсырмалар қалды' : 'Сіз барлық тапсырмаға жауап бердіңіз';
+    $('m-done').textContent = done;
+    $('m-skipped').hidden = !s.length;
+    $('m-count').textContent = s.length;
+    $('m-list').textContent = s.map(function (i) { return '№ ' + (i + 1); }).join(', ');
+    $('b-review').hidden = !s.length;
+    renderNav($('m-nav'));
+    show('s-menu');
+    tick();
+  }
+
+  function answer() {
+    var v = $('t-input').value;
+    if (!NT.normalize(v)) return;
+    record(NT.isCorrect(v, tasks[current()]) ? 'correct' : 'wrong', v.trim());
+    next();
+  }
+
+  function skip() {
+    // На уже отвеченном задании кнопка называется «Далее» и ответ не меняет.
+    if (!answered(state.answers[current()])) record('skipped');
+    next();
+  }
+
+  function prev() {
+    goTo(current() - 1);
+  }
+
+  function reviewSkipped() {
+    var s = skippedList();
+    if (!s.length) return;
+    state.phase = 'review';
+    state.cur = s[0];
+    startTask();
+  }
+
+  function finish(reason) {
+    if (!state || state.status !== 'running') return;
+    state.answers.forEach(function (a) {
+      if (a.status === 'pending') a.status = 'unanswered';
+    });
+    resuming = false;
+    state.status = 'finished';
+    state.reason = reason;
+    state.finishedAt = Date.now();
+    save();
+    clearInterval(ticker);
+    $('warn').hidden = true;
+    if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+    fsActive = false;
+    exitFullscreen();
+    renderResult();
+  }
+
+  // ---------- Таймеры ----------
+
+  function fmt(ms) {
+    var s = Math.max(0, Math.ceil(ms / 1000));
+    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+  }
+
+  function tick() {
+    if (!running()) return;
+    var now = Date.now();
+    var left = state.endsAt - now;
+    if (left <= 0) { finish('Жұмыс уақыты (15 минут) аяқталды. Қалған тапсырмалар қате деп есептелді.'); return; }
+    $('tm-total').textContent = fmt(left);
+    $('tm-total-box').classList.toggle('low', left <= 60000);
+
+    var inTask = (state.phase === 'main' || state.phase === 'review') && state.taskEnds;
+    if (inTask) {
+      var tl = state.taskEnds - now;
+      if (tl <= 0) {
+        var num = current() + 1;
+        record('timeout');
+        next();
+        // Задание сменилось само — явно предупреждаем, чтобы ответ не ушёл в новое задание.
+        if (running() && !resuming) {
+          warn(num + '-тапсырманың уақыты бітті. Келесі тапсырма ашылды — оны оқыңыз.');
+          var inp = $('t-input');
+          inp.disabled = true;
+          $('s-test').classList.add('changed');
+          setTimeout(function () {
+            inp.disabled = false;
+            $('s-test').classList.remove('changed');
+            if (!$('s-test').hidden) inp.focus();
+          }, 1500);
+        }
+        return;
+      }
+      $('tm-task').textContent = fmt(Math.min(tl, left));
+      $('tm-task-box').classList.toggle('low', tl <= 10000);
+      $('tm-bar').style.width = (100 * tl / TASK_MS) + '%';
+    } else if (TASK_MS) {
+      $('tm-task').textContent = '—';
+      $('tm-task-box').classList.remove('low');
+      $('tm-bar').style.width = '0%';
+    } else {
+      $('tm-bar').style.width = (100 * left / TOTAL_MS) + '%';   // полоса показывает оставшееся общее время
+    }
+  }
+
+  function startTicker() {
+    clearInterval(ticker);
+    ticker = setInterval(tick, 250);
+  }
+
+  // ---------- Итог ----------
+
+  var STATUS_TEXT = {
+    correct: 'дұрыс',
+    wrong: 'қате',
+    skipped: 'өткізіп жіберілді',
+    timeout: 'уақыт бітті',
+    unanswered: 'жауап жоқ'
+  };
+
+  function renderResult() {
+    var score = state.answers.filter(function (a) { return a.status === 'correct'; }).length;
+    var n = tasks.length;
+    $('r-score-num').textContent = score + ' / ' + n;
+    $('r-score-word').textContent = 'балл';
+    $('r-count').textContent = 'Дұрыс жауаптар саны: ' + score + ' (барлығы ' + n + ').';
+    renderTimeUsed();
+    $('r-reason').textContent = state.reason || '';
+    $('r-reason').hidden = !state.reason;
+    var body = $('r-table');
+    body.innerHTML = '';
+    tasks.forEach(function (t, i) {
+      var a = state.answers[i];
+      var tr = document.createElement('tr');
+      tr.className = a.status === 'correct' ? 'ok' : 'bad';
+      [String(i + 1), t.text, a.given ? a.given : '—', t.answerShown,
+       (a.status === 'correct' ? '✓ ' : '✗ ') + STATUS_TEXT[a.status]].forEach(function (txt) {
+        var td = document.createElement('td');
+        td.textContent = txt;
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    show('s-result');
+    if (window.STANDALONE) scheduleLock();
+  }
+
+  /** Сколько времени ученик потратил и сколько у него ещё оставалось, когда он завершил работу. */
+  function renderTimeUsed() {
+    var box = $('r-time');
+    box.innerHTML = '';
+    // Целые секунды, чтобы «потрачено + осталось» всегда давало ровно 15:00.
+    var left = 1000 * Math.floor(Math.max(0, state.endsAt - (state.finishedAt || state.endsAt)) / 1000);
+    var used = TOTAL_MS - left;
+    var line = function (label, value, cls) {
+      var p = document.createElement('p');
+      if (cls) p.className = cls;
+      p.appendChild(document.createTextNode(label + ' '));
+      var b = document.createElement('b');
+      b.textContent = value;
+      p.appendChild(b);
+      box.appendChild(p);
+    };
+    line('Жұмыс уақыты:', fmt(used) + ' / ' + fmt(TOTAL_MS));
+    if (left >= 1000) {
+      line('Қалған уақыт:', fmt(left), 'left');
+      var note = document.createElement('p');
+      note.className = 'small';
+      note.textContent = 'Жұмыс мерзімінен бұрын аяқталды: қалған уақытты тапсырмаларға оралып, жауаптарды тексеруге пайдалануға болатын еді.';
+      box.appendChild(note);
+    } else {
+      line('Қалған уақыт:', '0:00');
+    }
+  }
+
+  // Автономная версия: через 5 минут результат скрывается, новая работа — только по паролю учителя.
+  function scheduleLock() {
+    clearInterval(hideTimer);
+    var update = function () {
+      var left = (state.finishedAt || 0) + RESULT_MS - Date.now();
+      if (left <= 0) {
+        clearInterval(hideTimer);
+        $('l-pin').value = '';
+        $('l-pin-msg').textContent = '';
+        show('s-locked');
+        $('l-pin').focus();
+        return;
+      }
+      $('r-hide').textContent = 'Нәтиже жасырылғанға дейін: ' + fmt(left) + '.';
+      $('r-hide').hidden = false;
+    };
+    update();
+    hideTimer = setInterval(update, 1000);
+  }
+
+  function plural(n, one, few, many) {
+    var m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+
+  // ---------- Запуск ----------
+
+  function begin() {
+    $('b-start').disabled = true;
+    var fs = enterFullscreen();   // вызываем сразу по нажатию — иначе браузер откажет
+    var sid = NT.newId();
+    NT.api({ action: 'issue', sid: sid }).then(function (res) {
+      if (!res.ok && res.error === 'full') { exitFullscreen(); show('s-full'); return; }
+      if (!res.ok || !window.VARIANTS[res.variant - 1]) throw new Error(res.error || 'нұсқа жоқ');
+      state = {
+        v: 1,
+        sid: sid,
+        round: res.round,
+        variant: res.variant,
+        status: 'running',
+        startedAt: Date.now(),
+        endsAt: Date.now() + TOTAL_MS,
+        phase: 'main',
+        cur: 0,
+        taskEnds: null,
+        answers: window.VARIANTS[res.variant - 1].map(function () { return { status: 'pending', given: '' }; })
+      };
+      tasks = window.VARIANTS[res.variant - 1].map(NT.task);
+      return fs.then(function () {
+        startTicker();
+        startTask();
+      });
+    }).catch(function (err) {
+      exitFullscreen();
+      $('b-start').disabled = false;
+      $('e-text').textContent = 'Нұсқаны алу мүмкін болмады (' + err.message + '). Интернет байланысын тексеріп, «Бастау» батырмасын қайта басыңыз.';
+      show('s-error');
+    });
+  }
+
+  function resume() {
+    enterFullscreen().then(function () {
+      if (!running()) return;
+      resuming = false;
+      startTicker();
+      if (state.phase === 'menu') renderMenu(); else renderTask();
+    });
+  }
+
+  function init() {
+    $('b-start').addEventListener('click', begin);
+    $('b-retry').addEventListener('click', function () { show('s-intro'); });
+    $('b-answer').addEventListener('click', answer);
+    $('b-skip').addEventListener('click', skip);
+    $('b-prev').addEventListener('click', prev);
+    $('b-review').addEventListener('click', reviewSkipped);
+    // Своё подтверждение вместо confirm(): системное окно снимает фокус со страницы.
+    $('b-finish').addEventListener('click', function () { $('m-confirm').hidden = false; });
+    $('b-finish-yes').addEventListener('click', function () { finish(null); });
+    $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
+    $('b-resume').addEventListener('click', resume);
+    $('warn').addEventListener('click', function () { $('warn').hidden = true; });
+    $('t-input').addEventListener('input', function () { $('b-answer').disabled = !NT.normalize(this.value); });
+    $('t-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); answer(); } });
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    document.addEventListener('contextmenu', function (e) { if (running()) e.preventDefault(); });
+    blockNavigation();
+
+    if (NT.demo) $('demo').hidden = false;
+    if (window.STANDALONE) {
+      // Без сервера учитель очищает результат на общем компьютере PIN-кодом (задаётся в файле).
+      $('r-teacher').hidden = false;
+      $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
+      var restart = function (input, msg) {
+        return function () {
+          if ($(input).value.trim() !== String(window.TEACHER_PIN)) { $(msg).textContent = 'Құпиясөз қате'; return; }
+          try { localStorage.removeItem(STORE); } catch (e) {}
+          location.reload();
+        };
+      };
+      [['b-restart', 'r-pin', 'r-pin-msg'], ['b-unlock', 'l-pin', 'l-pin-msg']].forEach(function (ids) {
+        var go = restart(ids[1], ids[2]);
+        $(ids[0]).addEventListener('click', go);
+        $(ids[1]).addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+      });
+    }
+    if (!fsSupported()) $('i-nofs').hidden = false;
+    if (!TASK_MS) $('tm-task-box').hidden = true;
+
+    state = load();
+    if (state && state.variant && window.VARIANTS[state.variant - 1]) {
+      tasks = window.VARIANTS[state.variant - 1].map(NT.task);
+      // Состояние из прежней версии файла (очередь заданий) → номер текущего задания.
+      if (state.cur === undefined) state.cur = state.queue ? state.queue[Math.min(state.pos, state.queue.length - 1)] || 0 : 0;
+    } else {
+      state = null;
+    }
+
+    if (running()) {
+      // Страницу обновили во время работы: время шло, восстанавливаем ход работы.
+      resuming = true;
+      show('s-resume');
+      startTicker();
+      tick();
+      return;
+    }
+
+    show('s-loading');
+    NT.api({ action: 'status' }).then(function (res) { return res && res.ok ? res.round : null; }, function () { return null; })
+      .then(function (round) {
+        // После сброса учителем (новый урок) старый результат на этом устройстве больше не показываем.
+        if (state && state.status === 'finished' && (!round || round === state.round)) { renderResult(); return; }
+        state = null;
+        try { localStorage.removeItem(STORE); } catch (e) {}
+        show('s-intro');
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>
