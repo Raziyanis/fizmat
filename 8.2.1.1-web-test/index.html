@@ -87,6 +87,7 @@
       <p id="r-reason" class="note" hidden></p>
       <p id="r-score" class="score"></p>
       <p id="r-count" class="center"></p>
+      <p id="r-hide" class="muted small center" hidden></p>
       <h2>Отчёт</h2>
       <div class="table-wrap">
         <table class="report">
@@ -97,10 +98,20 @@
       <div id="r-teacher" class="teacher" hidden>
         <button id="b-teacher" class="link">Для учителя: новая работа на этом устройстве</button>
         <div id="r-teacher-form" class="row" hidden>
-          <input id="r-pin" type="password" autocomplete="off" placeholder="PIN учителя" aria-label="PIN учителя">
+          <input id="r-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
           <button id="b-restart" class="primary">Начать заново</button>
           <span id="r-pin-msg" class="muted small"></span>
         </div>
+      </div>
+    </section>
+
+    <section id="s-locked" hidden>
+      <h1>Работа завершена</h1>
+      <p>Результат скрыт. Чтобы начать новую работу на этом устройстве, учитель вводит пароль.</p>
+      <div class="row">
+        <input id="l-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+        <button id="b-unlock" class="primary">Начать заново</button>
+        <span id="l-pin-msg" class="muted small"></span>
       </div>
     </section>
   </main>

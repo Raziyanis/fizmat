@@ -161,7 +161,7 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
 .key th, .key td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
 .key th { background: var(--bg); }
 .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 160px; }
+.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 200px; }
 
 @media print {
   .no-print { display: none; }

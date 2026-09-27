@@ -4,6 +4,7 @@
 
   var TOTAL_MS = 15 * 60 * 1000;   // общее время работы
   var TASK_MS = 60 * 1000;         // время на одно задание
+  var RESULT_MS = 5 * 60 * 1000;   // сколько показывается результат, потом — экран с паролем учителя
   var STORE = 'ntest-8211-state';  // состояние хранится только в этом браузере
 
   var $ = function (id) { return document.getElementById(id); };
@@ -13,7 +14,8 @@
   var unloading = false;     // идёт обновление/закрытие страницы — это не нарушение
   var ignoreUntil = 0;       // короткая пауза проверки фокуса сразу после входа в полный экран
   var ticker = null;
-  var resuming = false;      // показан экран «Работа восстановлена» после обновления страницы
+  var resuming = false;
+  var hideTimer = null;      // показан экран «Работа восстановлена» после обновления страницы
 
   // ---------- Хранение ----------
 
@@ -27,7 +29,7 @@
   // ---------- Экраны ----------
 
   function show(id) {
-    ['s-loading', 's-intro', 's-full', 's-error', 's-test', 's-menu', 's-resume', 's-result'].forEach(function (s) {
+    ['s-loading', 's-intro', 's-full', 's-error', 's-test', 's-menu', 's-resume', 's-result', 's-locked'].forEach(function (s) {
       $(s).hidden = s !== id;
     });
     $('timers').hidden = !(state && state.status === 'running');
@@ -324,6 +326,27 @@
       body.appendChild(tr);
     });
     show('s-result');
+    if (window.STANDALONE) scheduleLock();
+  }
+
+  // Автономная версия: через 5 минут результат скрывается, новая работа — только по паролю учителя.
+  function scheduleLock() {
+    clearInterval(hideTimer);
+    var update = function () {
+      var left = (state.finishedAt || 0) + RESULT_MS - Date.now();
+      if (left <= 0) {
+        clearInterval(hideTimer);
+        $('l-pin').value = '';
+        $('l-pin-msg').textContent = '';
+        show('s-locked');
+        $('l-pin').focus();
+        return;
+      }
+      $('r-hide').textContent = 'Результат будет скрыт через ' + fmt(left) + '.';
+      $('r-hide').hidden = false;
+    };
+    update();
+    hideTimer = setInterval(update, 1000);
   }
 
   function plural(n, one, few, many) {
@@ -407,13 +430,18 @@
       // Без сервера учитель очищает результат на общем компьютере PIN-кодом (задаётся в файле).
       $('r-teacher').hidden = false;
       $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
-      var restart = function () {
-        if ($('r-pin').value.trim() !== String(window.TEACHER_PIN)) { $('r-pin-msg').textContent = 'Неверный PIN'; return; }
-        try { localStorage.removeItem(STORE); } catch (e) {}
-        location.reload();
+      var restart = function (input, msg) {
+        return function () {
+          if ($(input).value.trim() !== String(window.TEACHER_PIN)) { $(msg).textContent = 'Неверный пароль'; return; }
+          try { localStorage.removeItem(STORE); } catch (e) {}
+          location.reload();
+        };
       };
-      $('b-restart').addEventListener('click', restart);
-      $('r-pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') restart(); });
+      [['b-restart', 'r-pin', 'r-pin-msg'], ['b-unlock', 'l-pin', 'l-pin-msg']].forEach(function (ids) {
+        var go = restart(ids[1], ids[2]);
+        $(ids[0]).addEventListener('click', go);
+        $(ids[1]).addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+      });
     }
     if (!fsSupported()) $('i-nofs').hidden = false;
 

@@ -169,7 +169,7 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
 .key th, .key td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
 .key th { background: var(--bg); }
 .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 160px; }
+.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 200px; }
 
 @media print {
   .no-print { display: none; }
@@ -257,6 +257,7 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
       <p id="r-reason" class="note" hidden></p>
       <p id="r-score" class="score"></p>
       <p id="r-count" class="center"></p>
+      <p id="r-hide" class="muted small center" hidden></p>
       <h2>Отчёт</h2>
       <div class="table-wrap">
         <table class="report">
@@ -267,10 +268,20 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
       <div id="r-teacher" class="teacher" hidden>
         <button id="b-teacher" class="link">Для учителя: новая работа на этом устройстве</button>
         <div id="r-teacher-form" class="row" hidden>
-          <input id="r-pin" type="password" autocomplete="off" placeholder="PIN учителя" aria-label="PIN учителя">
+          <input id="r-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
           <button id="b-restart" class="primary">Начать заново</button>
           <span id="r-pin-msg" class="muted small"></span>
         </div>
+      </div>
+    </section>
+
+    <section id="s-locked" hidden>
+      <h1>Работа завершена</h1>
+      <p>Результат скрыт. Чтобы начать новую работу на этом устройстве, учитель вводит пароль.</p>
+      <div class="row">
+        <input id="l-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+        <button id="b-unlock" class="primary">Начать заново</button>
+        <span id="l-pin-msg" class="muted small"></span>
       </div>
     </section>
   </main>
@@ -419,6 +430,7 @@ window.VARIANTS = [
 
   var TOTAL_MS = 15 * 60 * 1000;   // общее время работы
   var TASK_MS = 60 * 1000;         // время на одно задание
+  var RESULT_MS = 5 * 60 * 1000;   // сколько показывается результат, потом — экран с паролем учителя
   var STORE = 'ntest-8211-state';  // состояние хранится только в этом браузере
 
   var $ = function (id) { return document.getElementById(id); };
@@ -428,7 +440,8 @@ window.VARIANTS = [
   var unloading = false;     // идёт обновление/закрытие страницы — это не нарушение
   var ignoreUntil = 0;       // короткая пауза проверки фокуса сразу после входа в полный экран
   var ticker = null;
-  var resuming = false;      // показан экран «Работа восстановлена» после обновления страницы
+  var resuming = false;
+  var hideTimer = null;      // показан экран «Работа восстановлена» после обновления страницы
 
   // ---------- Хранение ----------
 
@@ -442,7 +455,7 @@ window.VARIANTS = [
   // ---------- Экраны ----------
 
   function show(id) {
-    ['s-loading', 's-intro', 's-full', 's-error', 's-test', 's-menu', 's-resume', 's-result'].forEach(function (s) {
+    ['s-loading', 's-intro', 's-full', 's-error', 's-test', 's-menu', 's-resume', 's-result', 's-locked'].forEach(function (s) {
       $(s).hidden = s !== id;
     });
     $('timers').hidden = !(state && state.status === 'running');
@@ -739,6 +752,27 @@ window.VARIANTS = [
       body.appendChild(tr);
     });
     show('s-result');
+    if (window.STANDALONE) scheduleLock();
+  }
+
+  // Автономная версия: через 5 минут результат скрывается, новая работа — только по паролю учителя.
+  function scheduleLock() {
+    clearInterval(hideTimer);
+    var update = function () {
+      var left = (state.finishedAt || 0) + RESULT_MS - Date.now();
+      if (left <= 0) {
+        clearInterval(hideTimer);
+        $('l-pin').value = '';
+        $('l-pin-msg').textContent = '';
+        show('s-locked');
+        $('l-pin').focus();
+        return;
+      }
+      $('r-hide').textContent = 'Результат будет скрыт через ' + fmt(left) + '.';
+      $('r-hide').hidden = false;
+    };
+    update();
+    hideTimer = setInterval(update, 1000);
   }
 
   function plural(n, one, few, many) {
@@ -822,13 +856,18 @@ window.VARIANTS = [
       // Без сервера учитель очищает результат на общем компьютере PIN-кодом (задаётся в файле).
       $('r-teacher').hidden = false;
       $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
-      var restart = function () {
-        if ($('r-pin').value.trim() !== String(window.TEACHER_PIN)) { $('r-pin-msg').textContent = 'Неверный PIN'; return; }
-        try { localStorage.removeItem(STORE); } catch (e) {}
-        location.reload();
+      var restart = function (input, msg) {
+        return function () {
+          if ($(input).value.trim() !== String(window.TEACHER_PIN)) { $(msg).textContent = 'Неверный пароль'; return; }
+          try { localStorage.removeItem(STORE); } catch (e) {}
+          location.reload();
+        };
       };
-      $('b-restart').addEventListener('click', restart);
-      $('r-pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') restart(); });
+      [['b-restart', 'r-pin', 'r-pin-msg'], ['b-unlock', 'l-pin', 'l-pin-msg']].forEach(function (ids) {
+        var go = restart(ids[1], ids[2]);
+        $(ids[0]).addEventListener('click', go);
+        $(ids[1]).addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+      });
     }
     if (!fsSupported()) $('i-nofs').hidden = false;
 
