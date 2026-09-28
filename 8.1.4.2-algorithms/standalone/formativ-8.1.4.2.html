@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Формативная работа 8.1.4.2</title>
+  <style>
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5f6b7a;
+  --line: #d9dee5;
+  --accent: #1f6feb;
+  --ok: #1a7f37;
+  --ok-bg: #e8f5ec;
+  --bad: #c62828;
+  --bad-bg: #fdecec;
+  --warn-bg: #fff4d6;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+h1 { font-size: 1.6rem; margin: 0 0 12px; }
+h2 { font-size: 1.2rem; margin: 24px 0 8px; }
+
+.topic { color: var(--muted); margin-top: 0; }
+.rules li { margin-bottom: 6px; }
+.rules li.important { background: var(--bad-bg); color: var(--bad); border-radius: 6px; padding: 6px 10px; margin-left: -10px; list-style-position: inside; }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+.center { text-align: center; }
+
+.note {
+  background: var(--warn-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+button {
+  font: inherit;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+
+.confirm {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--bad);
+  border-radius: 8px;
+  background: var(--bad-bg);
+}
+
+#s-test.changed { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-bg); }
+
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.nav-btn { min-width: 44px; padding: 8px 0; font-weight: 700; border: 2px solid var(--line); }
+.nav-btn.done { background: #dbe8ff; border-color: #9dbcf5; }
+.nav-btn.skipped { background: var(--warn-bg); border-color: #e9c46a; }
+.nav-btn.cur { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.nav-legend { margin-top: -8px; }
+.saved { color: var(--accent); }
+
+.question { font-size: 1.5rem; font-weight: 600; margin: 8px 0 16px; }
+
+.answer {
+  width: 100%;
+  max-width: 360px;
+  font: 600 1.6rem/1.2 ui-monospace, "Consolas", monospace;
+  letter-spacing: 0.08em;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+.answer:focus { outline: none; border-color: var(--accent); }
+
+/* Таймеры закреплены сверху и видны всё время работы */
+.timers {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 32px;
+  padding: 10px 16px 14px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.timer { display: flex; align-items: baseline; gap: 10px; }
+.timer span { color: var(--muted); font-size: 0.95rem; }
+.timer b { font: 700 1.8rem/1 ui-monospace, "Consolas", monospace; }
+.timer.low b { color: var(--bad); }
+.bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: var(--line);
+}
+.bar div { height: 100%; width: 0; background: var(--accent); transition: width 0.25s linear; }
+
+.score {
+  text-align: center;
+  font-weight: 800;
+  line-height: 1;
+  margin: 24px 0 8px;
+}
+/* Балл — максимально крупно, чтобы учитель видел его издалека */
+.score-num { display: block; font-size: clamp(5rem, 24vw, 12rem); letter-spacing: -0.02em; }
+.time-box { max-width: 520px; margin: 16px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); text-align: center; }
+.time-box p { margin: 4px 0; font-size: 1.15rem; }
+.time-box p.small { font-size: 0.95rem; color: var(--muted); }
+.time-box p.left b { color: var(--accent); font-size: 1.5rem; }
+.count { font-size: 1.3rem; font-weight: 600; }
+.score-word { display: block; font-size: clamp(2.2rem, 8vw, 4rem); margin-top: 8px; }
+
+.table-wrap { overflow-x: auto; }
+.report { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.report th, .report td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.report th { background: var(--bg); }
+.report tr.ok td:last-child { color: var(--ok); background: var(--ok-bg); }
+.report tr.bad td:last-child { color: var(--bad); background: var(--bad-bg); }
+
+.warn {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: 90vw;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: var(--bad);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.demo {
+  background: var(--warn-bg);
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+/* Сброс результата учителем (автономный файл) */
+.teacher { margin-top: 32px; padding-top: 12px; border-top: 1px dashed var(--line); }
+button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); font-size: 0.85rem; text-decoration: underline; }
+@media print { .teacher { display: none; } }
+
+/* Страница учителя */
+.key { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 8px; }
+.key th, .key td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
+.key th { background: var(--bg); }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 200px; }
+
+@media print {
+  .no-print { display: none; }
+  section { border: 0; padding: 0; }
+}
+
+/* ---------- Формативная работа 8.1.4.2: типы заданий ---------- */
+.answer.text-answer { text-transform: none; }
+.code {
+  background: #1b2740;
+  color: #f1f5fb;
+  font: 500 1.15rem/1.5 ui-monospace, "Consolas", "Courier New", monospace;
+  padding: 16px 20px;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 0 0 16px;
+  tab-size: 4;
+}
+.figure { margin: 0 0 16px; overflow-x: auto; }
+.figure svg { max-width: 100%; height: auto; }
+.mono { font-family: ui-monospace, "Consolas", "Courier New", monospace; }
+
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.choice {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; cursor: pointer;
+}
+.choice:has(input:checked) { border-color: var(--accent); background: #eef4ff; }
+.choice input { margin-top: 5px; width: 18px; height: 18px; flex: none; }
+.choice.mono span { font-family: ui-monospace, "Consolas", monospace; font-size: 1.1rem; }
+
+.match { display: flex; flex-direction: column; gap: 12px; }
+.match-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.match-left { min-width: 130px; display: flex; align-items: center; }
+.match-left code { font-size: 1.25rem; font-weight: 700; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+.match-row .arrow { color: var(--muted); font-size: 1.3rem; }
+.match select, .row select {
+  font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; background: #fff;
+  min-width: 260px; max-width: 100%;
+}
+.match select:focus { outline: none; border-color: var(--accent); }
+
+.order { list-style: decimal; padding-left: 28px; display: flex; flex-direction: column; gap: 8px; margin: 0; }
+.order-row { padding: 6px 8px 6px 4px; }
+.order-row code { display: inline-block; min-width: 240px; font-size: 1.15rem; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; margin-right: 8px; }
+button.mini { padding: 6px 14px; font-size: 1.1rem; margin-left: 4px; }
+</style>
+</head>
+<body>
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span>До конца работы</span><b id="tm-total">20:00</b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Загрузка…</p></section>
+
+    <section id="s-intro" hidden>
+      <h1>Формативная работа</h1>
+      <p class="topic">8.1.4.2 — разработка линейных алгоритмов и алгоритмов с ветвлением (язык Python)</p>
+      <h2>Инструкция</h2>
+      <ul class="rules">
+        <li>В работе <b>20 заданий</b> разных видов: сопоставление, «что выведет программа», заполнение пропуска, выбор ответа, порядок строк программы.</li>
+        <li>Выполните задание и нажмите «Ответить» (в заданиях с полем ввода можно нажать Enter).</li>
+        <li>Время на каждое задание <b>не ограничено</b> — распределяйте его сами и следите за общим таймером вверху экрана.</li>
+        <li class="important"><b>Ответ засчитывается только после нажатия «Ответить»</b>. Если время работы закончится, а вы не нажали «Ответить», ответ <b>не засчитывается</b>.</li>
+        <li>Правильность ответа система отмечает <b>автоматически</b>. За каждый правильный ответ — <b>1 балл</b>, максимальный балл — <b>20</b>. В задании на сопоставление балл ставится, только если все пары верны.</li>
+        <li>Кнопка «Пропустить» засчитывает задание как неправильное и открывает следующее. Кнопка «← Предыдущее» и номера заданий вверху позволяют <b>вернуться к любому заданию</b> и изменить ответ, пока не закончилось общее время.</li>
+        <li>Работа <b>автоматически завершится через 20 минут</b>.</li>
+        <li>Работа идёт в полноэкранном режиме. <b>Если выйти из полноэкранного режима, переключиться на другую вкладку, окно или приложение, работа сразу завершится</b>, а оставшиеся задания будут засчитаны как неправильные.</li>
+      </ul>
+      <p id="i-nofs" class="note" hidden>Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки и приложения — работа завершится.</p>
+      <p class="muted">Имя и другие личные данные не нужны. Ответы и баллы никуда не отправляются. У каждого ученика свои числа в заданиях.</p>
+      <button id="b-start" class="primary big">Начать</button>
+    </section>
+
+    <section id="s-test" hidden>
+      <div id="t-nav" class="nav" aria-label="Номера заданий"></div>
+      <p class="muted small nav-legend">Синие номера — есть ответ, жёлтые — пропущены. Нажмите на номер, чтобы открыть задание.</p>
+      <p id="t-num" class="muted"></p>
+      <p id="t-text" class="question"></p>
+      <div id="t-body"></div>
+      <p id="t-saved" class="saved small" hidden></p>
+      <div class="buttons">
+        <button id="b-prev">← Предыдущее</button>
+        <button id="b-answer" class="primary">Ответить</button>
+        <button id="b-skip">Пропустить</button>
+      </div>
+    </section>
+
+    <section id="s-menu" hidden>
+      <h1 id="m-title">Остались пропущенные задания</h1>
+      <p>Отвечено заданий: <b id="m-done"></b> из <span id="m-total"></span>.</p>
+      <p id="m-skipped">Пропущено заданий: <b id="m-count"></b> (<span id="m-list"></span>). Пока они засчитаны как неправильные.</p>
+      <p>Пока не закончилось общее время, можно открыть любое задание (нажмите на его номер), проверить и изменить ответ.</p>
+      <div id="m-nav" class="nav" aria-label="Номера заданий"></div>
+      <div class="buttons">
+        <button id="b-review" class="primary">Вернуться к пропущенным</button>
+        <button id="b-finish">Завершить работу</button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p>Завершить работу? Пропущенные задания останутся неправильными.</p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger">Да, завершить</button>
+          <button id="b-finish-no">Нет</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-resume" hidden>
+      <h1>Работа восстановлена</h1>
+      <p>Страница была обновлена. Время продолжает идти. Нажмите «Продолжить», чтобы вернуться к заданиям в полноэкранном режиме.</p>
+      <button id="b-resume" class="primary big">Продолжить</button>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1>Работа завершена</h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p id="r-score" class="score"><span id="r-score-num" class="score-num"></span> <span id="r-score-word" class="score-word"></span></p>
+      <p id="r-count" class="center count"></p>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2>Отчёт</h2>
+      <div class="table-wrap">
+        <table class="report">
+          <thead><tr><th>№</th><th>Задание</th><th>Ваш ответ</th><th>Правильный ответ</th><th>Результат</th></tr></thead>
+          <tbody id="r-table"></tbody>
+        </table>
+      </div>
+      <div class="teacher">
+        <button id="b-teacher" class="link">Для учителя: новая работа на этом устройстве</button>
+        <div id="r-teacher-form" class="row" hidden>
+          <input id="r-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+          <button id="b-restart" class="primary">Начать заново</button>
+          <span id="r-pin-msg" class="muted small"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-locked" hidden>
+      <h1>Работа завершена</h1>
+      <p>Результат скрыт. Чтобы начать новую работу на этом устройстве, учитель вводит пароль.</p>
+      <div class="row">
+        <input id="l-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+        <button id="b-unlock" class="primary">Начать заново</button>
+        <span id="l-pin-msg" class="muted small"></span>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+<script>
+/* Настройки. Пароль учителя можно поменять здесь (в Блокноте). */
+window.TEACHER_PIN = "2026";
+
+</script>
+<script>
+/* Задания формативной работы 8.1.4.2 «Линейные алгоритмы и алгоритмы с ветвлением» (Python).
+ * TASKS.generate(seed) → 20 заданий. Числа зависят от seed, поэтому у каждого ученика свой вариант.
+ * Типы: input — ввести ответ; choice — выбрать один ответ; match — сопоставить; order — расставить строки. */
+(function () {
+  'use strict';
+
+  function rng(seed) {
+    var s = seed >>> 0;
+    return function () {
+      s = (s + 0x6d2b79f5) >>> 0;
+      var t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // ---------- Рисунки блок-схем (SVG строится только из чисел и фиксированного текста) ----------
+
+  var STROKE = 'stroke="#1c2430" stroke-width="2" fill="#ffffff"';
+  var SHAPES = {
+    oval: '<svg viewBox="0 0 120 60" width="120" height="60" aria-label="овал"><rect x="4" y="12" width="112" height="36" rx="18" ' + STROKE + '/></svg>',
+    para: '<svg viewBox="0 0 120 60" width="120" height="60" aria-label="параллелограмм"><polygon points="24,12 116,12 96,48 4,48" ' + STROKE + '/></svg>',
+    rect: '<svg viewBox="0 0 120 60" width="120" height="60" aria-label="прямоугольник"><rect x="10" y="12" width="100" height="36" ' + STROKE + '/></svg>',
+    diamond: '<svg viewBox="0 0 120 60" width="120" height="60" aria-label="ромб"><polygon points="60,4 116,30 60,56 4,30" ' + STROKE + '/></svg>'
+  };
+
+  function flowchart(k, yesExpr, noExpr) {
+    var t = function (x, y, s, w) { return '<text x="' + x + '" y="' + y + '" text-anchor="middle" font-size="15" font-weight="' + (w || 400) + '" font-family="Consolas, monospace" fill="#1c2430">' + s + '</text>'; };
+    var line = function (x1, y1, x2, y2) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#1c2430" stroke-width="2" marker-end="url(#ar)"/>'; };
+    var seg = function (x1, y1, x2, y2) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#1c2430" stroke-width="2"/>'; };
+    return '<svg viewBox="0 0 420 470" width="420" height="470" aria-label="Блок-схема алгоритма с ветвлением">' +
+      '<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1c2430"/></marker></defs>' +
+      '<rect x="150" y="10" width="120" height="36" rx="18" ' + STROKE + '/>' + t(210, 33, 'начало') +
+      line(210, 46, 210, 70) +
+      '<polygon points="170,70 270,70 250,106 150,106" ' + STROKE + '/>' + t(210, 93, 'ввод x') +
+      line(210, 106, 210, 130) +
+      '<polygon points="210,130 290,170 210,210 130,170" ' + STROKE + '/>' + t(210, 175, 'x &gt; ' + k, 700) +
+      t(105, 162, 'да') + t(315, 162, 'нет') +
+      seg(130, 170, 80, 170) + line(80, 170, 80, 240) +
+      seg(290, 170, 340, 170) + line(340, 170, 340, 240) +
+      '<rect x="10" y="240" width="140" height="40" ' + STROKE + '/>' + t(80, 265, yesExpr) +
+      '<rect x="270" y="240" width="140" height="40" ' + STROKE + '/>' + t(340, 265, noExpr) +
+      seg(80, 280, 80, 310) + seg(340, 280, 340, 310) + seg(80, 310, 340, 310) + line(210, 310, 210, 340) +
+      '<polygon points="170,340 270,340 250,376 150,376" ' + STROKE + '/>' + t(210, 363, 'вывод y') +
+      line(210, 376, 210, 410) +
+      '<rect x="150" y="410" width="120" height="36" rx="18" ' + STROKE + '/>' + t(210, 433, 'конец') +
+      '</svg>';
+  }
+
+  // ---------- Генератор ----------
+
+  function generate(seed) {
+    var r = rng(seed);
+    var ri = function (a, b) { return a + Math.floor(r() * (b - a + 1)); };
+    var pick = function (a) { return a[Math.floor(r() * a.length)]; };
+    var shuffle = function (a) {
+      a = a.slice();
+      for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; }
+      return a;
+    };
+    var distinct = function (a, b, avoid) { var v; do { v = ri(a, b); } while (avoid.indexOf(v) >= 0); return v; };
+    var T = [];
+    var OUT = 'Что выведет программа?';
+
+    // 1. Сопоставление: блоки блок-схемы
+    var blocks = shuffle([
+      { svg: SHAPES.oval, name: 'овал', ans: 'начало или конец алгоритма' },
+      { svg: SHAPES.para, name: 'параллелограмм', ans: 'ввод или вывод данных' },
+      { svg: SHAPES.rect, name: 'прямоугольник', ans: 'действие (вычисление, присваивание)' },
+      { svg: SHAPES.diamond, name: 'ромб', ans: 'проверка условия' }
+    ]);
+    T.push({ type: 'match', title: 'Блоки блок-схемы', text: 'Сопоставьте каждый блок блок-схемы с его назначением.',
+      items: blocks.map(function (b) { return { svg: b.svg, name: b.name }; }),
+      options: shuffle(blocks.map(function (b) { return b.ans; })),
+      answer: blocks.map(function (b) { return b.ans; }) });
+
+    // 2. Выбор: определение линейного алгоритма
+    T.push({ type: 'choice', title: 'Линейный алгоритм', text: 'Какой алгоритм называется линейным?',
+      options: shuffle([
+        'команды выполняются последовательно, одна за другой, каждая ровно один раз',
+        'в зависимости от условия выполняется одна из нескольких групп команд',
+        'группа команд повторяется несколько раз',
+        'команды выполняются в случайном порядке'
+      ]),
+      answer: 'команды выполняются последовательно, одна за другой, каждая ровно один раз' });
+
+    // 3. Выбор: сколько ветвей выполняется
+    T.push({ type: 'choice', title: 'Полное ветвление', text: 'Сколько ветвей выполняется при одном выполнении полного ветвления if … else?',
+      options: shuffle(['ровно одна', 'обе ветви', 'ни одной', 'зависит от количества команд в ветвях']),
+      answer: 'ровно одна' });
+
+    // 4. Сопоставление: операторы Python
+    var ops = shuffle([
+      { code: '==', ans: 'равно' }, { code: '!=', ans: 'не равно' }, { code: '>=', ans: 'больше или равно' },
+      { code: '%', ans: 'остаток от деления' }, { code: '//', ans: 'целочисленное деление' }
+    ]);
+    T.push({ type: 'match', title: 'Операторы Python', text: 'Сопоставьте оператор Python с его значением.',
+      items: ops.map(function (o) { return { code: o.code, name: o.code }; }),
+      options: shuffle(ops.map(function (o) { return o.ans; })),
+      answer: ops.map(function (o) { return o.ans; }) });
+
+    // 5. Блок-схема с ветвлением
+    var k5 = ri(6, 15), m5 = ri(2, 3), x5 = pick([distinct(k5 + 1, k5 + 9, []), distinct(2, k5 - 1, [])]);
+    var y5 = x5 > k5 ? x5 * m5 : x5 + k5;
+    T.push({ type: 'input', title: 'Блок-схема: x = ' + x5, text: 'Дана блок-схема. Какое значение y будет выведено, если ввести x = ' + x5 + '?',
+      svg: flowchart(k5, 'y = x * ' + m5, 'y = x + ' + k5), accept: [String(y5)], answerShown: String(y5), numeric: true });
+
+    // 6. Линейная программа: обмен через сумму
+    var a6 = ri(3, 9), b6 = distinct(2, 9, [a6]);
+    T.push({ type: 'input', title: 'Линейная программа (a, b)', text: OUT,
+      code: 'a = ' + a6 + '\nb = ' + b6 + '\na = a + b\nb = a - b\nprint(a, b)',
+      accept: [(a6 + b6) + ' ' + a6], answerShown: (a6 + b6) + ' ' + a6, multi: true });
+
+    // 7. Линейная программа: // и %
+    var n7 = ri(1, 9) * 100 + ri(0, 9) * 10 + ri(1, 9);
+    T.push({ type: 'input', title: 'Линейная программа (// и %)', text: OUT,
+      code: 'n = ' + n7 + '\na = n // 100\nb = n % 10\nprint(a + b)',
+      accept: [String(Math.floor(n7 / 100) + n7 % 10)], answerShown: String(Math.floor(n7 / 100) + n7 % 10), numeric: true });
+
+    // 8. if … else
+    var x8 = ri(10, 40), y8 = distinct(10, 40, [x8]);
+    T.push({ type: 'input', title: 'Ветвление if … else', text: OUT,
+      code: 'x = ' + x8 + '\ny = ' + y8 + '\nif x > y:\n    print(x - y)\nelse:\n    print(y - x)',
+      accept: [String(Math.abs(x8 - y8))], answerShown: String(Math.abs(x8 - y8)), numeric: true });
+
+    // 9. Неполное ветвление
+    var a9 = pick([ri(1, 5), ri(6, 12)]);
+    T.push({ type: 'input', title: 'Неполное ветвление', text: OUT,
+      code: 's = 10\na = ' + a9 + '\nif a > 5:\n    s = s + a\nprint(s)',
+      accept: [String(a9 > 5 ? 10 + a9 : 10)], answerShown: String(a9 > 5 ? 10 + a9 : 10), numeric: true });
+
+    // 10. if … elif … else
+    var b10 = pick([ri(86, 100), ri(65, 84), ri(40, 64), ri(10, 39)]);
+    var g10 = b10 >= 85 ? 5 : b10 >= 65 ? 4 : b10 >= 40 ? 3 : 2;
+    T.push({ type: 'input', title: 'Ветвление if … elif … else', text: OUT,
+      code: 'b = ' + b10 + '\nif b >= 85:\n    print(5)\nelif b >= 65:\n    print(4)\nelif b >= 40:\n    print(3)\nelse:\n    print(2)',
+      accept: [String(g10)], answerShown: String(g10), numeric: true });
+
+    // 11. Составное условие and
+    var a11 = ri(-5, 9), b11 = ri(-5, 9);
+    if (r() < 0.5) { a11 = ri(1, 9); b11 = ri(1, 9); }
+    var v11 = a11 > 0 && b11 > 0 ? a11 * b11 : a11 + b11;
+    T.push({ type: 'input', title: 'Составное условие (and)', text: OUT,
+      code: 'a = ' + a11 + '\nb = ' + b11 + '\nif a > 0 and b > 0:\n    print(a * b)\nelse:\n    print(a + b)',
+      accept: [String(v11)], answerShown: String(v11), numeric: true });
+
+    // 12. Наибольшее из трёх
+    var a12 = ri(1, 50), b12 = distinct(1, 50, [a12]), c12 = distinct(1, 50, [a12, b12]);
+    T.push({ type: 'input', title: 'Два ветвления подряд', text: OUT,
+      code: 'a = ' + a12 + '\nb = ' + b12 + '\nc = ' + c12 + '\nm = a\nif b > m:\n    m = b\nif c > m:\n    m = c\nprint(m)',
+      accept: [String(Math.max(a12, b12, c12))], answerShown: String(Math.max(a12, b12, c12)), numeric: true });
+
+    // 13–16. Заполните пропуск
+    var FILL = 'Что нужно написать вместо ___? Запишите только пропущенную часть.';
+    var big = r() < 0.5;
+    T.push({ type: 'input', title: 'Пропуск: ' + (big ? 'большее' : 'меньшее') + ' из двух чисел', text: 'Программа должна выводить ' + (big ? 'большее' : 'меньшее') + ' из двух чисел a и b. ' + FILL,
+      code: 'if a ___ b:\n    print(a)\nelse:\n    print(b)', accept: big ? ['>', '>='] : ['<', '<='], answerShown: big ? '> (или >=)' : '< (или <=)', symbol: true });
+    var d14 = pick([2, 3, 5]);
+    T.push({ type: 'input', title: 'Пропуск: проверка делимости на ' + d14, text: 'Программа должна выводить «да», если x делится на ' + d14 + ' без остатка. ' + FILL,
+      code: 'if x % ' + d14 + ' ___ 0:\n    print("да")\nelse:\n    print("нет")', accept: ['=='], answerShown: '==', symbol: true });
+    T.push({ type: 'input', title: 'Пропуск: третий случай', text: 'Программа определяет, какое число: положительное, ноль или отрицательное. ' + FILL,
+      code: 'if x > 0:\n    print("положительное")\n___ x == 0:\n    print("ноль")\nelse:\n    print("отрицательное")', accept: ['elif'], answerShown: 'elif' });
+    T.push({ type: 'input', title: 'Пропуск: ввод целого числа', text: 'Программа вводит целое число и выводит его удвоенное значение. ' + FILL,
+      code: 'a = ___(input())\nb = a * 2\nprint(b)', accept: ['int'], answerShown: 'int' });
+
+    // 17. Порядок строк
+    var k17 = ri(2, 9), m17 = ri(1, 9);
+    var lines17 = ['x = int(input())', 'y = x * ' + k17, 'z = y + ' + m17, 'print(z)'];
+    var shown17;
+    do { shown17 = shuffle(lines17); } while (shown17.join() === lines17.join());
+    T.push({ type: 'order', title: 'Порядок строк программы', text: 'Расставьте строки так, чтобы программа ввела число x и вывела значение ' + k17 + '·x + ' + m17 + '. Перемещайте строки кнопками ↑ и ↓.',
+      lines: shown17, answer: lines17 });
+
+    // 18. Правильная запись условия
+    var v18 = ri(2, 9);
+    T.push({ type: 'choice', title: 'Запись условия в Python', text: 'Какая строка — правильное начало ветвления в Python?', mono: true,
+      options: shuffle(['if x == ' + v18 + ':', 'if x = ' + v18 + ':', 'if x == ' + v18, 'If x == ' + v18 + ':']),
+      answer: 'if x == ' + v18 + ':' });
+
+    // 19. Сколько раз выведет «да»
+    var d19 = pick([3, 4]), nums19, cnt19;
+    do {
+      nums19 = []; while (nums19.length < 6) { var q = ri(5, 40); if (nums19.indexOf(q) < 0) nums19.push(q); }
+      cnt19 = nums19.filter(function (x) { return x % d19 === 0 && x > 10; }).length;
+    } while (cnt19 < 1 || cnt19 > 4);
+    T.push({ type: 'input', title: 'Сколько раз «да»', text: 'Программу запустили 6 раз и вводили числа: ' + nums19.join(', ') + '. Сколько раз программа вывела «да»?',
+      code: 'x = int(input())\nif x % ' + d19 + ' == 0 and x > 10:\n    print("да")\nelse:\n    print("нет")', accept: [String(cnt19)], answerShown: String(cnt19), numeric: true });
+
+    // 20. Сопоставление: истина или ложь
+    var a20 = ri(2, 9), b20 = distinct(2, 9, [a20]);
+    var exprs = shuffle([
+      ['a > b', a20 > b20], ['a != b', true], ['a % 2 == 0', a20 % 2 === 0],
+      ['a + b > 10', a20 + b20 > 10], ['b - a < 0', b20 - a20 < 0], ['a * 2 == b', a20 * 2 === b20]
+    ]).slice(0, 4);
+    T.push({ type: 'match', title: 'Истина или ложь (a = ' + a20 + ', b = ' + b20 + ')', text: 'Пусть a = ' + a20 + ', b = ' + b20 + '. Для каждого условия выберите его значение.',
+      items: exprs.map(function (e) { return { code: e[0], name: e[0] }; }), options: ['True', 'False'],
+      answer: exprs.map(function (e) { return e[1] ? 'True' : 'False'; }) });
+
+    return T;
+  }
+
+  // ---------- Проверка и отображение ответа ----------
+
+  function norm(s) {
+    return String(s == null ? '' : s).trim().replace(/\s+/g, ' ').replace(/\s*,\s*/g, ' ').toLowerCase();
+  }
+  function normSymbol(s) { return String(s == null ? '' : s).replace(/\s+/g, ''); }
+
+  function isComplete(t, given) {
+    if (t.type === 'input') return norm(given) !== '';
+    if (t.type === 'choice') return !!given;
+    if (t.type === 'match') return Array.isArray(given) && given.length === t.items.length && given.every(Boolean);
+    if (t.type === 'order') return Array.isArray(given) && given.length === t.answer.length;
+    return false;
+  }
+
+  function isCorrect(t, given) {
+    if (!isComplete(t, given)) return false;
+    if (t.type === 'input') {
+      var g = t.symbol ? normSymbol(given) : norm(given);
+      return t.accept.some(function (a) { return (t.symbol ? normSymbol(a) : norm(a)) === g; });
+    }
+    if (t.type === 'choice') return given === t.answer;
+    return given.join('\n') === t.answer.join('\n');
+  }
+
+  function showGiven(t, given) {
+    if (given == null || given === '' || (Array.isArray(given) && !given.length)) return '—';
+    if (t.type === 'match') return t.items.map(function (it, i) { return it.name + ' → ' + (given[i] || '—'); }).join('; ');
+    if (t.type === 'order') return given.join(' | ');
+    return String(given);
+  }
+
+  function showAnswer(t) {
+    if (t.type === 'match') return t.items.map(function (it, i) { return it.name + ' → ' + t.answer[i]; }).join('; ');
+    if (t.type === 'order') return t.answer.join(' | ');
+    if (t.type === 'input') return t.answerShown;
+    return t.answer;
+  }
+
+  window.TASKS = { generate: generate, isComplete: isComplete, isCorrect: isCorrect, showGiven: showGiven, showAnswer: showAnswer, norm: norm };
+})();
+
+</script>
+<script>
+/* Формативная работа 8.1.4.2: общий таймер, задания разных типов, возврат к заданиям, защита от выхода.
+ * Движок взят из формативной работы 8.2.1.1 (одинаковое поведение для учеников). */
+(function () {
+  'use strict';
+
+  var TOTAL_MS = 20 * 60 * 1000;   // общее время работы
+  var RESULT_MS = 5 * 60 * 1000;   // сколько показывается результат, потом — экран с паролем учителя
+  var STORE = 'formativ-8142-state';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = null;
+  var tasks = [];
+  var draft = null;          // ответ, который ученик собирает в текущем задании
+  var fsActive = false;
+  var unloading = false;
+  var ignoreUntil = 0;
+  var ticker = null;
+  var resuming = false;
+  var hideTimer = null;
+
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
+  function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
+
+  function show(id) {
+    ['s-loading', 's-intro', 's-test', 's-menu', 's-resume', 's-result', 's-locked'].forEach(function (s) { $(s).hidden = s !== id; });
+    $('timers').hidden = !running();
+  }
+  function running() { return !!state && state.status === 'running'; }
+
+  // ---------- Полноэкранный режим и защита от выхода ----------
+
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function fsSupported() { var el = document.documentElement; return !!(el.requestFullscreen || el.webkitRequestFullscreen); }
+
+  function enterFullscreen() {
+    var el = document.documentElement;
+    var req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req || fsElement()) return Promise.resolve();
+    try {
+      return Promise.resolve(req.call(el, { navigationUI: 'hide' })).then(function () {
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(function () {});
+      }).catch(function () {});
+    } catch (e) { return Promise.resolve(); }
+  }
+  function exitFullscreen() {
+    var ex = document.exitFullscreen || document.webkitExitFullscreen;
+    if (fsElement() && ex) { try { ex.call(document); } catch (e) {} }
+  }
+  function onFullscreenChange() {
+    if (fsElement()) { fsActive = true; ignoreUntil = Date.now() + 1500; return; }
+    if (fsActive) { fsActive = false; violation('вы вышли из полноэкранного режима.'); }
+  }
+  function violation(reason) {
+    if (!running()) return;
+    setTimeout(function () {
+      if (unloading || !running()) return;
+      finish('Работа завершена автоматически: ' + reason);
+    }, 300);
+  }
+  function onVisibility() { if (document.visibilityState === 'hidden') violation('вы переключились на другую вкладку или приложение.'); }
+  function onBlur() {
+    if (!running() || Date.now() < ignoreUntil) return;
+    setTimeout(function () {
+      if (!document.hasFocus() && document.visibilityState === 'visible') violation('вы переключились на другое окно или приложение.');
+    }, 400);
+  }
+  function warn(text) {
+    $('warn-text').textContent = text;
+    $('warn').hidden = false;
+    clearTimeout(warn.t);
+    warn.t = setTimeout(function () { $('warn').hidden = true; }, 5000);
+  }
+  function onKey(e) {
+    if (!running()) return;
+    if (e.key === 'Escape') { warn('Не выходите из полноэкранного режима: работа сразу завершится.'); e.preventDefault(); }
+    var k = (e.key || '').toLowerCase();
+    if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l'].indexOf(k) >= 0) ||
+        (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) {
+      e.preventDefault();
+      warn('Это действие недоступно во время работы.');
+    }
+  }
+  function onBeforeUnload(e) {
+    if (!running()) return;
+    unloading = true;
+    setTimeout(function () { unloading = false; }, 1000);
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+  function blockNavigation() {
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', function () {
+      if (running()) { history.pushState(null, '', location.href); warn('Переход назад во время работы недоступен.'); }
+    });
+  }
+
+  // ---------- Отрисовка задания ----------
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function updateAnswerButton() { $('b-answer').disabled = !TASKS.isComplete(tasks[state.cur], draft); }
+
+  function renderBody(t, saved) {
+    var box = $('t-body');
+    box.innerHTML = '';
+    if (t.svg) { var fig = el('div', 'figure'); fig.innerHTML = t.svg; box.appendChild(fig); }   // SVG собран из чисел в tasks.js
+    if (t.code) box.appendChild(el('pre', 'code', t.code));
+
+    if (t.type === 'input') {
+      draft = saved || '';
+      var inp = el('input', 'answer' + (t.numeric ? '' : ' text-answer'));
+      inp.type = 'text';
+      inp.id = 't-input';
+      inp.autocomplete = 'off';
+      inp.spellcheck = false;
+      inp.setAttribute('autocapitalize', 'off');
+      inp.setAttribute('aria-label', 'Ответ');
+      inp.maxLength = 40;
+      inp.value = draft;
+      if (t.numeric) inp.inputMode = 'numeric';
+      inp.addEventListener('input', function () { draft = inp.value; updateAnswerButton(); });
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); answer(); } });
+      box.appendChild(inp);
+      box.appendChild(el('p', 'muted small', t.multi ? 'Если программа выводит несколько чисел, запишите их через пробел — так, как их выведет Python.'
+        : t.symbol ? 'Запишите только знак сравнения.' : t.code && !t.numeric ? 'Запишите только пропущенное слово.' : 'Запишите только число.'));
+      setTimeout(function () { inp.focus(); }, 0);
+    } else if (t.type === 'choice') {
+      draft = saved || null;
+      var list = el('div', 'choices');
+      t.options.forEach(function (o, i) {
+        var lab = el('label', 'choice' + (t.mono ? ' mono' : ''));
+        var r = el('input');
+        r.type = 'radio';
+        r.name = 'choice';
+        r.value = o;
+        r.checked = draft === o;
+        r.addEventListener('change', function () { draft = o; updateAnswerButton(); });
+        lab.appendChild(r);
+        lab.appendChild(el('span', null, o));
+        list.appendChild(lab);
+      });
+      box.appendChild(list);
+    } else if (t.type === 'match') {
+      draft = Array.isArray(saved) ? saved.slice() : t.items.map(function () { return ''; });
+      var tbl = el('div', 'match');
+      t.items.forEach(function (it, i) {
+        var row = el('div', 'match-row');
+        var left = el('div', 'match-left');
+        if (it.svg) left.innerHTML = it.svg; else left.appendChild(el('code', 'mono', it.code));
+        var sel = el('select');
+        sel.setAttribute('aria-label', 'Соответствие для ' + it.name);
+        sel.appendChild(el('option', null, '— выберите —')).value = '';
+        t.options.forEach(function (o) { var op = el('option', null, o); op.value = o; sel.appendChild(op); });
+        sel.value = draft[i] || '';
+        sel.addEventListener('change', function () { draft[i] = sel.value; updateAnswerButton(); });
+        row.appendChild(left);
+        row.appendChild(el('span', 'arrow', '→'));
+        row.appendChild(sel);
+        tbl.appendChild(row);
+      });
+      box.appendChild(tbl);
+    } else if (t.type === 'order') {
+      draft = Array.isArray(saved) ? saved.slice() : t.lines.slice();
+      var ol = el('ol', 'order');
+      var redraw = function () {
+        ol.innerHTML = '';
+        draft.forEach(function (line, i) {
+          var li = el('li', 'order-row');
+          li.appendChild(el('code', 'mono', line));
+          var up = el('button', 'mini', '↑'); up.type = 'button'; up.disabled = i === 0; up.setAttribute('aria-label', 'Выше');
+          var dn = el('button', 'mini', '↓'); dn.type = 'button'; dn.disabled = i === draft.length - 1; dn.setAttribute('aria-label', 'Ниже');
+          up.addEventListener('click', function () { var x = draft[i - 1]; draft[i - 1] = draft[i]; draft[i] = x; redraw(); });
+          dn.addEventListener('click', function () { var x = draft[i + 1]; draft[i + 1] = draft[i]; draft[i] = x; redraw(); });
+          li.appendChild(up);
+          li.appendChild(dn);
+          ol.appendChild(li);
+        });
+      };
+      redraw();
+      box.appendChild(ol);
+    }
+  }
+
+  function answered(a) { return a.status === 'correct' || a.status === 'wrong'; }
+
+  function renderNav(box) {
+    box.innerHTML = '';
+    state.answers.forEach(function (a, i) {
+      var b = el('button', 'nav-btn' + (answered(a) ? ' done' : a.status === 'skipped' ? ' skipped' : '') +
+        (state.phase !== 'menu' && i === state.cur ? ' cur' : ''), String(i + 1));
+      b.type = 'button';
+      b.title = answered(a) ? 'Есть ответ' : a.status === 'skipped' ? 'Пропущено' : 'Нет ответа';
+      b.addEventListener('click', function () { goTo(i); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderTask() {
+    if (resuming) return;
+    var i = state.cur, t = tasks[i], a = state.answers[i];
+    $('t-num').textContent = 'Задание ' + (i + 1) + ' из ' + tasks.length;
+    $('t-text').textContent = t.text;
+    renderBody(t, answered(a) ? a.given : null);
+    $('t-saved').textContent = answered(a) ? 'Ваш ответ сохранён. Можно изменить его и снова нажать «Ответить».' : '';
+    $('t-saved').hidden = !answered(a);
+    updateAnswerButton();
+    $('b-skip').textContent = answered(a) ? 'Далее' : 'Пропустить';
+    $('b-prev').disabled = i === 0;
+    renderNav($('t-nav'));
+    show('s-test');
+    tick();
+  }
+
+  // ---------- Ход работы ----------
+
+  function startTask() { save(); renderTask(); }
+
+  function goTo(i) {
+    if (!running() || i < 0 || i >= tasks.length) return;
+    if (state.phase === 'menu') state.phase = 'main';
+    state.cur = i;
+    startTask();
+  }
+
+  function record(status, given) {
+    var a = state.answers[state.cur];
+    a.status = status;
+    if (given !== undefined) a.given = given;
+  }
+
+  function findFrom(i, test, wrap) {
+    var n = tasks.length;
+    for (var k = 1; k <= (wrap ? n - 1 : n - 1 - i); k++) {
+      var j = (i + k) % n;
+      if (test(state.answers[j])) return j;
+    }
+    return -1;
+  }
+
+  function next() {
+    var i = state.cur;
+    var isPending = function (a) { return a.status === 'pending'; };
+    var j = state.phase === 'review'
+      ? findFrom(i, function (a) { return a.status === 'skipped'; }, true)
+      : findFrom(i, isPending, false);
+    if (j < 0 && state.phase !== 'review') j = findFrom(i, isPending, true);
+    if (j >= 0) { state.cur = j; startTask(); return; }
+    state.phase = 'menu';
+    save();
+    renderMenu();
+  }
+
+  function skippedList() {
+    var out = [];
+    state.answers.forEach(function (a, i) { if (a.status === 'skipped') out.push(i); });
+    return out;
+  }
+
+  function renderMenu() {
+    if (resuming) return;
+    $('m-confirm').hidden = true;
+    var s = skippedList();
+    $('m-title').textContent = s.length ? 'Остались пропущенные задания' : 'Вы ответили на все задания';
+    $('m-done').textContent = state.answers.filter(answered).length;
+    $('m-total').textContent = tasks.length;
+    $('m-skipped').hidden = !s.length;
+    $('m-count').textContent = s.length;
+    $('m-list').textContent = s.map(function (i) { return '№ ' + (i + 1); }).join(', ');
+    $('b-review').hidden = !s.length;
+    renderNav($('m-nav'));
+    show('s-menu');
+    tick();
+  }
+
+  function answer() {
+    var t = tasks[state.cur];
+    if (!TASKS.isComplete(t, draft)) return;
+    var given = Array.isArray(draft) ? draft.slice() : typeof draft === 'string' ? draft.trim() : draft;
+    record(TASKS.isCorrect(t, given) ? 'correct' : 'wrong', given);
+    next();
+  }
+
+  function skip() {
+    if (!answered(state.answers[state.cur])) record('skipped');
+    next();
+  }
+
+  function reviewSkipped() {
+    var s = skippedList();
+    if (!s.length) return;
+    state.phase = 'review';
+    state.cur = s[0];
+    startTask();
+  }
+
+  function finish(reason) {
+    if (!running()) return;
+    state.answers.forEach(function (a) { if (a.status === 'pending') a.status = 'unanswered'; });
+    resuming = false;
+    state.status = 'finished';
+    state.reason = reason;
+    state.finishedAt = Date.now();
+    save();
+    clearInterval(ticker);
+    $('warn').hidden = true;
+    if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+    fsActive = false;
+    exitFullscreen();
+    renderResult();
+  }
+
+  // ---------- Таймер ----------
+
+  function fmt(ms) {
+    var s = Math.max(0, Math.ceil(ms / 1000));
+    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+  }
+
+  function tick() {
+    if (!running()) return;
+    var left = state.endsAt - Date.now();
+    if (left <= 0) { finish('Время работы (20 минут) закончилось. Оставшиеся задания засчитаны как неправильные.'); return; }
+    $('tm-total').textContent = fmt(left);
+    $('tm-total-box').classList.toggle('low', left <= 60000);
+    $('tm-bar').style.width = (100 * left / TOTAL_MS) + '%';
+  }
+
+  function startTicker() { clearInterval(ticker); ticker = setInterval(tick, 250); }
+
+  // ---------- Итог ----------
+
+  var STATUS_TEXT = { correct: 'верно', wrong: 'неверно', skipped: 'пропущено', unanswered: 'нет ответа' };
+
+  function plural(n, one, few, many) {
+    var m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+
+  function renderResult() {
+    var score = state.answers.filter(function (a) { return a.status === 'correct'; }).length;
+    var n = tasks.length;
+    $('r-score-num').textContent = score + ' / ' + n;
+    $('r-score-word').textContent = plural(score, 'балл', 'балла', 'баллов');
+    $('r-count').textContent = 'Правильных ответов: ' + score + ' из ' + n + '.';
+    renderTimeUsed();
+    $('r-reason').textContent = state.reason || '';
+    $('r-reason').hidden = !state.reason;
+    var body = $('r-table');
+    body.innerHTML = '';
+    tasks.forEach(function (t, i) {
+      var a = state.answers[i];
+      var tr = el('tr', a.status === 'correct' ? 'ok' : 'bad');
+      [String(i + 1), t.title, answered(a) ? TASKS.showGiven(t, a.given) : '—', TASKS.showAnswer(t),
+       (a.status === 'correct' ? '✓ ' : '✗ ') + STATUS_TEXT[a.status]].forEach(function (txt) { tr.appendChild(el('td', null, txt)); });
+      body.appendChild(tr);
+    });
+    show('s-result');
+    scheduleLock();
+  }
+
+  function renderTimeUsed() {
+    var box = $('r-time');
+    box.innerHTML = '';
+    var left = 1000 * Math.floor(Math.max(0, state.endsAt - (state.finishedAt || state.endsAt)) / 1000);
+    var line = function (label, value, cls) {
+      var p = el('p', cls);
+      p.appendChild(document.createTextNode(label + ' '));
+      p.appendChild(el('b', null, value));
+      box.appendChild(p);
+    };
+    line('Время работы:', fmt(TOTAL_MS - left) + ' из ' + fmt(TOTAL_MS));
+    if (left >= 1000) {
+      line('Оставалось времени:', fmt(left), 'left');
+      box.appendChild(el('p', 'small', 'Работа завершена досрочно: оставшееся время можно было использовать, чтобы вернуться к заданиям и проверить ответы.'));
+    } else {
+      line('Оставалось времени:', '0:00');
+    }
+  }
+
+  function scheduleLock() {
+    clearInterval(hideTimer);
+    var update = function () {
+      var left = (state.finishedAt || 0) + RESULT_MS - Date.now();
+      if (left <= 0) {
+        clearInterval(hideTimer);
+        $('l-pin').value = '';
+        $('l-pin-msg').textContent = '';
+        show('s-locked');
+        $('l-pin').focus();
+        return;
+      }
+      $('r-hide').textContent = 'Результат будет скрыт через ' + fmt(left) + '.';
+      $('r-hide').hidden = false;
+    };
+    update();
+    hideTimer = setInterval(update, 1000);
+  }
+
+  // ---------- Запуск ----------
+
+  function newSeed() {
+    var a = new Uint32Array(1);
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    return a[0] || 1;
+  }
+
+  function begin() {
+    $('b-start').disabled = true;
+    var fs = enterFullscreen();   // сразу по нажатию — иначе браузер откажет
+    var seed = newSeed();
+    tasks = TASKS.generate(seed);
+    state = {
+      v: 1, seed: seed, status: 'running', startedAt: Date.now(), endsAt: Date.now() + TOTAL_MS,
+      phase: 'main', cur: 0,
+      answers: tasks.map(function () { return { status: 'pending', given: null }; })
+    };
+    save();
+    fs.then(function () { startTicker(); startTask(); });
+  }
+
+  function resume() {
+    enterFullscreen().then(function () {
+      if (!running()) return;
+      resuming = false;
+      startTicker();
+      if (state.phase === 'menu') renderMenu(); else renderTask();
+    });
+  }
+
+  function init() {
+    $('b-start').addEventListener('click', begin);
+    $('b-answer').addEventListener('click', answer);
+    $('b-skip').addEventListener('click', skip);
+    $('b-prev').addEventListener('click', function () { goTo(state.cur - 1); });
+    $('b-review').addEventListener('click', reviewSkipped);
+    $('b-finish').addEventListener('click', function () { $('m-confirm').hidden = false; });
+    $('b-finish-yes').addEventListener('click', function () { finish(null); });
+    $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
+    $('b-resume').addEventListener('click', resume);
+    $('warn').addEventListener('click', function () { $('warn').hidden = true; });
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    document.addEventListener('contextmenu', function (e) { if (running()) e.preventDefault(); });
+    blockNavigation();
+
+    // Новая работа на этом устройстве — только по паролю учителя (задаётся в config.js / в начале файла).
+    $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
+    [['b-restart', 'r-pin', 'r-pin-msg'], ['b-unlock', 'l-pin', 'l-pin-msg']].forEach(function (ids) {
+      var go = function () {
+        if ($(ids[1]).value.trim() !== String(window.TEACHER_PIN)) { $(ids[2]).textContent = 'Неверный пароль'; return; }
+        try { localStorage.removeItem(STORE); } catch (e) {}
+        location.reload();
+      };
+      $(ids[0]).addEventListener('click', go);
+      $(ids[1]).addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    });
+    if (!fsSupported()) $('i-nofs').hidden = false;
+
+    state = load();
+    if (state && state.seed) tasks = TASKS.generate(state.seed); else state = null;
+
+    if (running()) {
+      resuming = true;
+      show('s-resume');
+      startTicker();
+      tick();
+      return;
+    }
+    if (state && state.status === 'finished') { renderResult(); return; }
+    state = null;
+    show('s-intro');
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>
