@@ -41,6 +41,10 @@
 Проверка: `python3 tools/check-solutions.py` — эталонные решения (`tools/solutions.py`) сверяются с независимыми переборными на 3000 случайных тестов.
 Сборка документов: `python3 tools/make-data.py && NODE_PATH=<пакет docx> node tools/build-docs.js`.
 
+## Лист с ответами
+
+`zadachi-acmp-8.1.4.4-s-otvetami.docx` (и `kz/esepter-acmp-8.1.4.4-kz-zhauaptary.docx`) — тот же лист, в конце на отдельной странице ответы для учителя: идея и программа к каждой задаче. Собирается: `python3 tools/add-answers.py`.
+
 ## Қазақша нұсқа (kz/)
 
 - `kz/sabak-zhospary-8.1.4.4-kz.docx` — сабақ жоспары (`python3 tools/translate-plan-kz.py`, орысша жоспарды жинағаннан кейін).
