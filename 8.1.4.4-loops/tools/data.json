@@ -19,12 +19,13 @@
    ]
   ],
   "code": "def solve_18(text):          # Факториал\n    n = int(text)\n    f = 1\n    for i in range(2, n + 1):\n        f = f * i\n    return str(f)\n",
-  "short": false
+  "short": false,
+  "official": false
  },
  {
   "id": 543,
   "level": "A",
-  "title": "Фальшивые монеты",
+  "title": "Монеты – 2",
   "text": "В N корзинах находятся золотые монеты. Корзины пронумерованы числами от 1 до N. Во всех корзинах, кроме одной, монеты весят по w граммов. В одной корзине монеты фальшивые и весят w − d граммов. Волшебник берёт 1 монету из первой корзины, 2 монеты из второй корзины, и так далее, и, наконец, N − 1 монету из (N − 1)-й корзины. Из N-й корзины он не берёт ничего. Он взвешивает взятые монеты и сразу указывает на корзину с фальшивыми монетами. Требуется написать программу, которая выполняет это волшебство.",
   "input": "Четыре целых числа: N, w, d и P — суммарный вес отобранных монет (2 ≤ N ≤ 8000, 1 ≤ d < w ≤ 30).",
   "output": "Номер корзины с фальшивыми монетами.",
@@ -32,16 +33,21 @@
   "url": "https://acmp.ru/index.asp?main=task&id_task=543",
   "examples": [
    [
-    "5 10 2 94",
-    "3"
+    "10 25 8 1109",
+    "2"
    ],
    [
-    "4 7 3 42",
-    "4"
+    "10 25 8 1125",
+    "10"
+   ],
+   [
+    "8000 30 12 959879400",
+    "50"
    ]
   ],
-  "code": "def solve_543(text):         # Фальшивые монеты\n    n, w, d, p = map(int, text.split())\n    s = 0\n    for i in range(1, n):    # из корзины i берут i монет\n        s = s + i * w\n    k = (s - p) // d         # недостача веса = k * d\n    return str(k if k > 0 else n)\n",
-  "short": false
+  "code": "def solve_543(text):         # Монеты – 2 (фальшивые монеты)\n    n, w, d, p = map(int, text.split())\n    s = 0\n    for i in range(1, n):    # из корзины i берут i монет\n        s = s + i * w\n    k = (s - p) // d         # недостача веса = k * d\n    return str(k if k > 0 else n)\n",
+  "short": false,
+  "official": true
  },
  {
   "id": 447,
@@ -63,7 +69,8 @@
    ]
   ],
   "code": "def solve_447(text):         # Последняя ненулевая цифра N!\n    n = int(text)\n    f = 1\n    for i in range(2, n + 1):\n        f = f * i\n    while f % 10 == 0:\n        f = f // 10\n    return str(f % 10)\n",
-  "short": false
+  "short": false,
+  "official": false
  },
  {
   "id": 333,
@@ -85,7 +92,8 @@
    ]
   ],
   "code": "def solve_333(text):         # Общие цифры\n    a, b, c = text.split()\n    common = []\n    for d in '0123456789':\n        if d in a and d in b and d in c:\n            common.append(d)\n    return str(len(common)) + ('\\n' + ' '.join(common) if common else '')\n",
-  "short": false
+  "short": false,
+  "official": false
  },
  {
   "id": 519,
@@ -107,7 +115,8 @@
    ]
   ],
   "code": "def solve_519(text):         # Наименьшее и наибольшее из тех же цифр\n    digits = sorted(text.strip())\n    big = ''.join(reversed(digits))\n    i = 0\n    while digits[i] == '0':  # первая ненулевая цифра встаёт в начало\n        i = i + 1\n    small = digits[i] + ''.join(digits[:i] + digits[i + 1:])\n    return small + ' ' + big\n",
-  "short": false
+  "short": false,
+  "official": false
  },
  {
   "id": 9,
@@ -129,7 +138,8 @@
    ]
   ],
   "code": "def solve_9(text):           # Домашнее задание\n    lines = text.split('\\n')\n    a = list(map(int, lines[1].split()))\n    s = 0\n    for x in a:\n        if x > 0:\n            s = s + x\n    i, j = a.index(min(a)), a.index(max(a))\n    if i > j:\n        i, j = j, i\n    p = 1\n    for k in range(i + 1, j):\n        p = p * a[k]\n    return str(s) + ' ' + str(p)\n",
-  "short": true
+  "short": true,
+  "official": false
  },
  {
   "id": 322,
@@ -151,7 +161,8 @@
    ]
   ],
   "code": "def solve_322(text):         # Числа Фибоначчи в строке\n    s = text.strip()\n    word = ''\n    a, b = 1, 2\n    while a <= len(s):\n        word = word + s[a - 1]\n        a, b = b, a + b\n    return word\n",
-  "short": false
+  "short": false,
+  "official": false
  },
  {
   "id": 317,
@@ -173,7 +184,8 @@
    ]
   ],
   "code": "def solve_317(text):         # Подарки: ириски, мандарины, пряники\n    x, y, z, w = map(int, text.split())\n    count = 0\n    for a in range(w // x + 1):\n        for b in range((w - a * x) // y + 1):\n            if (w - a * x - b * y) % z == 0:\n                count = count + 1\n    return str(count)\n",
-  "short": false
+  "short": false,
+  "official": false
  },
  {
   "id": 42,
@@ -195,7 +207,8 @@
    ]
   ],
   "code": "def solve_42(text):          # Сила драконьей стаи\n    n = int(text)\n    p = 1\n    while n > 4:\n        p = p * 3\n        n = n - 3\n    return str(p * n)\n",
-  "short": true
+  "short": true,
+  "official": false
  },
  {
   "id": 170,
@@ -217,6 +230,7 @@
    ]
   ],
   "code": "def solve_170(text):         # Сумма последовательных натуральных чисел\n    n = int(text)\n    best = 1\n    k = 1\n    while k * (k + 1) // 2 <= n:   # k чисел: a + (a+1) + … , a ≥ 1\n        if (n - k * (k - 1) // 2) % k == 0:\n            best = k\n        k = k + 1\n    return str(best)\n",
-  "short": false
+  "short": false,
+  "official": false
  }
 ]

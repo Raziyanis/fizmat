@@ -10,7 +10,7 @@ def solve_18(text):          # Факториал
     return str(f)
 
 
-def solve_543(text):         # Фальшивые монеты
+def solve_543(text):         # Монеты – 2 (фальшивые монеты)
     n, w, d, p = map(int, text.split())
     s = 0
     for i in range(1, n):    # из корзины i берут i монет

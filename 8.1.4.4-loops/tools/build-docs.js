@@ -56,6 +56,7 @@ function taskBlock(t, n) {
   return [
     P(`**Задача ${n}. ${t.title}** (acmp.ru, № ${t.id}; уровень ${t.level})`, { size: 26, before: 160, after: 60, keepNext: true }),
     P(t.text + (t.short ? ' (Условие приведено сокращённо.)' : ''), { size: 22, after: 60 }),
+    ...(t.official ? [P('Примеры — с сайта acmp.ru.', { size: 20, italics: true, after: 40 })] : []),
     P('**Входные данные:** ' + t.input, { size: 22, after: 40 }),
     P('**Выходные данные:** ' + t.output, { size: 22, after: 60 }),
     table([W / 2, W / 2], ex.map((r, i) => (i === 0 ? r : r.map((v) => new TableCell({ children: codeLines(v), width: { size: W / 2, type: WidthType.DXA }, margins: { top: 60, bottom: 60, left: 100, right: 100 } })))), { header: true, size: 22 }),
