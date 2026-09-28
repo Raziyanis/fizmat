@@ -1,0 +1,21 @@
+<section id="errors" data-transition="fade" style="background:#F7F9FC; color:#14213D; font-family:'Golos Text', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:48px">
+<h2 style="font-size:64px; font-weight:800">Частые ошибки</h2>
+<div style="display:flex; gap:32px">
+<div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFFFF; padding:36px; border:2px solid #C62828; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">1. Конец range</h3>
+<p style="font-size:30px">range(1, 10) — это 1…9, число 10 не входит.</p>
+<p style="font-family:'JetBrains Mono', monospace; font-size:30px">range(1, n + 1)</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFFFF; padding:36px; border:2px solid #C62828; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">2. Бесконечный цикл</h3>
+<p style="font-size:30px">В теле while забыли изменить переменную из условия.</p>
+<p style="font-family:'JetBrains Mono', monospace; font-size:30px">n = n // 10</p>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFFFF; padding:36px; border:2px solid #C62828; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">3. Отступ</h3>
+<p style="font-size:30px">print внутри цикла выводит на каждой итерации, после цикла — один раз.</p>
+<p style="font-family:'JetBrains Mono', monospace; font-size:30px">print(s)</p>
+</div>
+</div>
+<aside>Покажите третью ошибку: сдвиньте print(s) в тело цикла в примере с суммой — программа выведет 1, 3, 6, 10, 15 вместо одного числа 15.</aside>
+</section>
