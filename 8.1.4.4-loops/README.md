@@ -40,3 +40,11 @@
 
 Проверка: `python3 tools/check-solutions.py` — эталонные решения (`tools/solutions.py`) сверяются с независимыми переборными на 3000 случайных тестов.
 Сборка документов: `python3 tools/make-data.py && NODE_PATH=<пакет docx> node tools/build-docs.js`.
+
+## Қазақша нұсқа (kz/)
+
+- `kz/sabak-zhospary-8.1.4.4-kz.docx` — сабақ жоспары (`python3 tools/translate-plan-kz.py`, орысша жоспарды жинағаннан кейін).
+- `kz/esepter-acmp-8.1.4.4-kz.docx` — мұғалімнің үлестірме парағы (`python3 tools/translate-handout-kz.py`).
+- `kz/slides-kz/` — презентация (`python3 tools/translate-slides-kz.py`), Claude артефакты ретінде жарияланған.
+- Формативтік жұмыс: `../8.1.4.2-algorithms/standalone/formativ-8.1.4.2-kz.html` (`python3 tools/translate-kz.py` 8.1.4.2 қалтасында).
+- Орысша сөз қалмағанын тексеру: `python3 ../tools/check-kz.py <орысша> <қазақша>`.
