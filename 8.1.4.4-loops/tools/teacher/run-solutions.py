@@ -1,4 +1,4 @@
-"""Запускает решения из sol/ на примерах листа учителя и на случайных тестах (сверка с check-examples.py)."""
+"""Запускает решения из sol/ (NN_for.py и NN_while.py) на примерах листа учителя и на случайных тестах (сверка с check-examples.py)."""
 import subprocess, sys, random, pathlib, importlib.util
 HERE = pathlib.Path(__file__).parent
 spec = importlib.util.spec_from_file_location('ce', HERE / 'check-examples.py')
@@ -22,13 +22,15 @@ def rnd(k, r):
     if k == 9:
         n = r.randint(2, 12); a = r.sample(range(-9, 10), n); return f'{n}\n' + ' '.join(map(str, a))
     if k == 10: return str(2 * r.randint(2, 499))
-def run(k, inp):
-    return subprocess.run([sys.executable, HERE / 'sol' / f'{k:02}.py'], input=inp + '\n', capture_output=True, text=True, timeout=5).stdout.split()
+def run(k, v, inp):
+    return subprocess.run([sys.executable, HERE / 'sol' / f'{k:02}_{v}.py'], input=inp + '\n', capture_output=True, text=True, timeout=5).stdout.split()
 r = random.Random(1); bad = 0; count = 0
 for k in range(1, 11):
     tests = EX[k] + [(t, REF[k](t)) for t in (rnd(k, r) for _ in range(40))]
-    for inp, out in tests:
-        count += 1
-        if run(k, inp) != out.split(): bad += 1; print('ОШИБКА', k, repr(inp), run(k, inp), out)
+    for v in ('for', 'while'):          # у каждой задачи два решения: с for и с while
+        for inp, out in tests:
+            count += 1
+            got = run(k, v, inp)
+            if got != out.split(): bad += 1; print('ОШИБКА', k, v, repr(inp), got, out)
 print('OK' if not bad else 'ЕСТЬ ОШИБКИ', count, 'тестов')
 sys.exit(1 if bad else 0)

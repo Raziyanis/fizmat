@@ -161,11 +161,14 @@ const TEACHER_TASKS = ["Сумма", "Факториал", "Список ква�
 const SOL = path.join(__dirname, 'teacher', 'sol');
 function keyAppendix() {
   const out = [new Paragraph({ children: [new PageBreak()] }),
-    P('Приложение. Ключ к раздаточному листу (решения задач 1–10)', { bold: true, size: 28, after: 60 }),
+    P('Приложение. Ключ к раздаточному листу (решения задач 1–10: с for и с while)', { bold: true, size: 28, after: 60 }),
     P('Каждое решение запущено на всех примерах листа и на случайных тестах (tools/teacher/run-solutions.py), ответы совпали. На самом сайте acmp.ru решения не отправлялись.', { italics: true, size: 20, after: 120 })];
   TEACHER_TASKS.forEach((t, i) => {
     out.push(P(`**${i + 1}. ${t}** (уровень ${i < 4 ? 'A' : i < 8 ? 'B' : 'C'})`, { size: 22, before: 120, after: 40, keepNext: true }));
-    out.push(...codeLines(fs.readFileSync(path.join(SOL, String(i + 1).padStart(2, '0') + '.py'), 'utf8'), { size: 18 }));
+    [['Решение 1 — цикл for', 'for'], ['Решение 2 — цикл while', 'while']].forEach(([label, v]) => {
+      out.push(P(label, { size: 20, italics: true, before: 60, after: 20, keepNext: true }));
+      out.push(...codeLines(fs.readFileSync(path.join(SOL, String(i + 1).padStart(2, '0') + '_' + v + '.py'), 'utf8'), { size: 18 }));
+    });
   });
   return out;
 }
