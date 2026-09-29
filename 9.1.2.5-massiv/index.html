@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Формативтік жұмыс 9.1.2.5</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span>Жұмыстың аяқталуына</span><b id="tm-total">25:00</b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Жүктелуде…</p></section>
+
+    <section id="s-intro" hidden>
+      <h1>Формативтік жұмыс</h1>
+      <p class="topic">9.1.2.5 — бір өлшемді массивтер: Python тіліндегі тізімдер және тізім әдістері</p>
+      <h2>Нұсқаулық</h2>
+      <ul class="rules">
+        <li>Жұмыста әртүрлі <b>20 тапсырма</b> бар: сәйкестендіру, «бағдарлама не шығарады», бос орынды толтыру, жауапты таңдау, бағдарлама жолдарының реті.</li>
+        <li>Тапсырманы орындап, «Жауап беру» батырмасын басыңыз (жауап жазатын тапсырмаларда Enter пернесін басуға болады).</li>
+        <li>Әр тапсырманың уақыты <b>шектелмеген</b> — уақытты өзіңіз бөліп, экранның жоғарғы жағындағы жалпы таймерді қадағалаңыз.</li>
+        <li class="important"><b>Жауап «Жауап беру» батырмасын басқаннан кейін ғана есептеледі</b>. Егер жұмыс уақыты бітіп, сіз «Жауап беру» батырмасын баспасаңыз, жауап <b>есептелмейді</b>.</li>
+        <li>Жауаптың дұрыстығын жүйе <b>автоматты түрде</b> тексереді. Әр дұрыс жауапқа — <b>1 балл</b>, ең жоғары балл — <b>20</b>. Сәйкестендіру тапсырмасында балл барлық жұп дұрыс болса ғана қойылады.</li>
+        <li>«Өткізіп жіберу» батырмасы тапсырманы қате деп есептеп, келесісін ашады. «← Алдыңғы» батырмасы мен жоғарыдағы тапсырма нөмірлері арқылы жалпы уақыт бітпейінше <b>кез келген тапсырмаға қайта оралып</b>, жауапты өзгертуге болады.</li>
+        <li>Жұмыс <b>25 минуттан кейін автоматты түрде аяқталады</b>.</li>
+        <li>Жұмыс толық экран режимінде орындалады. <b>Толық экран режимінен шықсаңыз немесе басқа қойындыға, терезеге не қосымшаға ауыссаңыз, жұмыс бірден аяқталады</b>, ал қалған тапсырмалар қате деп есептеледі.</li>
+      </ul>
+      <p id="i-nofs" class="note" hidden>Бұл браузер толық экран режимін қолдамайды. Басқа қойындыларға және қосымшаларға ауыспаңыз — жұмыс аяқталады.</p>
+      <p class="muted">Аты-жөніңіз және басқа жеке деректер қажет емес. Жауаптар мен баллдар ешқайда жіберілмейді. Әр оқушының тапсырмаларындағы сандар әртүрлі.</p>
+      <button id="b-start" class="primary big">Бастау</button>
+    </section>
+
+    <section id="s-test" hidden>
+      <div id="t-nav" class="nav" aria-label="Тапсырма нөмірлері"></div>
+      <p class="muted small nav-legend">Көк нөмірлер — жауап берілген, сары нөмірлер — өткізіп жіберілген. Тапсырманы ашу үшін оның нөмірін басыңыз.</p>
+      <p id="t-num" class="muted"></p>
+      <p id="t-text" class="question"></p>
+      <div id="t-body"></div>
+      <p id="t-saved" class="saved small" hidden></p>
+      <div class="buttons">
+        <button id="b-prev">← Алдыңғы</button>
+        <button id="b-answer" class="primary">Жауап беру</button>
+        <button id="b-skip">Өткізіп жіберу</button>
+      </div>
+    </section>
+
+    <section id="s-menu" hidden>
+      <h1 id="m-title">Өткізіп жіберілген тапсырмалар қалды</h1>
+      <p>Жауап берілген тапсырмалар: <b id="m-done"></b> / <span id="m-total"></span>.</p>
+      <p id="m-skipped">Өткізіп жіберілген тапсырмалар: <b id="m-count"></b> (<span id="m-list"></span>). Әзірге олар қате деп есептелген.</p>
+      <p>Жалпы уақыт бітпейінше кез келген тапсырманы ашып (нөмірін басыңыз), жауапты тексеріп, өзгертуге болады.</p>
+      <div id="m-nav" class="nav" aria-label="Тапсырма нөмірлері"></div>
+      <div class="buttons">
+        <button id="b-review" class="primary">Өткізіп жіберілгендерге оралу</button>
+        <button id="b-finish">Жұмысты аяқтау</button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p>Жұмысты аяқтайсыз ба? Өткізіп жіберілген тапсырмалар қате болып қалады.</p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger">Иә, аяқтау</button>
+          <button id="b-finish-no">Жоқ</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-resume" hidden>
+      <h1>Жұмыс қалпына келтірілді</h1>
+      <p>Бет жаңартылды. Уақыт жүріп жатыр. Толық экран режимінде тапсырмаларға оралу үшін «Жалғастыру» батырмасын басыңыз.</p>
+      <button id="b-resume" class="primary big">Жалғастыру</button>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1>Жұмыс аяқталды</h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p id="r-score" class="score"><span id="r-score-num" class="score-num"></span> <span id="r-score-word" class="score-word"></span></p>
+      <p id="r-count" class="center count"></p>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2>Тапсырмаларды талдау</h2>
+      <p class="muted small">Әр тапсырманың астында — сіздің жауабыңыз және дұрыс жауап.</p>
+      <div id="r-list" class="review"></div>
+      <div class="teacher">
+        <button id="b-teacher" class="link">Мұғалімге: осы құрылғыда жаңа жұмыс</button>
+        <div id="r-teacher-form" class="row" hidden>
+          <input id="r-pin" type="password" autocomplete="off" placeholder="Мұғалімнің құпиясөзі" aria-label="Мұғалімнің құпиясөзі">
+          <button id="b-restart" class="primary">Қайта бастау</button>
+          <span id="r-pin-msg" class="muted small"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-locked" hidden>
+      <h1>Жұмыс аяқталды</h1>
+      <p>Нәтиже жасырылды. Осы құрылғыда жаңа жұмысты бастау үшін мұғалім құпиясөзді енгізеді.</p>
+      <div class="row">
+        <input id="l-pin" type="password" autocomplete="off" placeholder="Мұғалімнің құпиясөзі" aria-label="Мұғалімнің құпиясөзі">
+        <button id="b-unlock" class="primary">Қайта бастау</button>
+        <span id="l-pin-msg" class="muted small"></span>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <script src="config.js"></script>
+  <script src="tasks.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
