@@ -225,3 +225,35 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
 .order-row { padding: 6px 8px 6px 4px; }
 .order-row code { display: inline-block; min-width: 240px; font-size: 1.15rem; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; margin-right: 8px; }
 button.mini { padding: 6px 14px; font-size: 1.1rem; margin-left: 4px; }
+
+/* Разбор заданий на экране результата */
+.review { display: flex; flex-direction: column; gap: 14px; }
+.rv { border: 2px solid var(--line); border-left-width: 8px; border-radius: 10px; padding: 14px 16px; }
+.rv.ok { border-color: #b7dfc3; border-left-color: var(--ok); }
+.rv.bad { border-color: #f1c0c0; border-left-color: var(--bad); }
+.rv-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.rv-num { font-weight: 700; color: var(--muted); }
+.rv-badge { font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.rv.ok .rv-badge { color: var(--ok); background: var(--ok-bg); }
+.rv.bad .rv-badge { color: var(--bad); background: var(--bad-bg); }
+.rv-q { font-weight: 600; margin: 4px 0 12px; }
+.rv .code { font-size: 1rem; margin-bottom: 10px; }
+.rv-line { margin: 6px 0; font-size: 1.1rem; }
+.rv-line .mono { font-weight: 700; }
+.rv-line.right .mono, .rv-right .mono { color: var(--ok); }
+.rv-line.wrong .mono { color: var(--bad); text-decoration: line-through; }
+.rv-none { color: var(--muted); font-style: italic; }
+.rv-opts { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.rv-opts li { display: flex; gap: 10px; padding: 6px 10px; border-radius: 8px; }
+.rv-opts li.right { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+.rv-opts li.wrong { background: var(--bad-bg); color: var(--bad); text-decoration: line-through; }
+.rv-mark { width: 1.2em; flex: none; font-weight: 700; }
+.rv-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.rv-table th, .rv-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: middle; }
+.rv-table th { background: var(--bg); }
+.rv-table td.right { color: var(--ok); background: var(--ok-bg); }
+.rv-table td.wrong { color: var(--bad); background: var(--bad-bg); }
+.rv-item svg { width: 90px; height: auto; }
+.rv-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rv-cols .code { margin-top: 4px; }
+@media (max-width: 600px) { .rv-cols { grid-template-columns: 1fr; } }

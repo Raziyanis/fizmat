@@ -353,17 +353,77 @@
     renderTimeUsed();
     $('r-reason').textContent = state.reason || '';
     $('r-reason').hidden = !state.reason;
-    var body = $('r-table');
-    body.innerHTML = '';
-    tasks.forEach(function (t, i) {
-      var a = state.answers[i];
-      var tr = el('tr', a.status === 'correct' ? 'ok' : 'bad');
-      [String(i + 1), t.title, answered(a) ? TASKS.showGiven(t, a.given) : '—', TASKS.showAnswer(t),
-       (a.status === 'correct' ? '✓ ' : '✗ ') + STATUS_TEXT[a.status]].forEach(function (txt) { tr.appendChild(el('td', null, txt)); });
-      body.appendChild(tr);
-    });
+    var list = $('r-list');
+    list.innerHTML = '';
+    tasks.forEach(function (t, i) { list.appendChild(reviewCard(t, state.answers[i], i)); });
     show('s-result');
     scheduleLock();
+  }
+
+  // Карточка разбора: условие задания, ответ ученика и правильный ответ рядом.
+  function reviewCard(t, a, i) {
+    var ok = a.status === 'correct';
+    var given = answered(a) ? a.given : null;
+    var card = el('article', 'rv ' + (ok ? 'ok' : 'bad'));
+    var head = el('div', 'rv-head');
+    head.appendChild(el('span', 'rv-num', 'Задание ' + (i + 1)));
+    head.appendChild(el('span', 'rv-badge', (ok ? '✓ ' : '✗ ') + STATUS_TEXT[a.status]));
+    card.appendChild(head);
+    card.appendChild(el('p', 'rv-q', t.text));
+    if (t.svg) { var fig = el('div', 'figure'); fig.innerHTML = t.svg; card.appendChild(fig); }   // SVG собран из чисел в tasks.js
+    if (t.code) card.appendChild(el('pre', 'code', t.code));
+
+    var line = function (label, value, cls) {
+      var p = el('p', 'rv-line ' + cls);
+      p.appendChild(el('b', null, label + ' '));
+      p.appendChild(el('span', cls === 'rv-none' ? null : 'mono', value));
+      return p;
+    };
+
+    if (t.type === 'choice') {
+      var ul = el('ul', 'rv-opts' + (t.mono ? ' mono' : ''));
+      t.options.forEach(function (o) {
+        var right = o === t.answer, mine = o === given;
+        var li = el('li', right ? 'right' : mine ? 'wrong' : '');
+        li.appendChild(el('span', 'rv-mark', right ? '✓' : mine ? '✗' : '•'));
+        li.appendChild(el('span', null, o + (mine ? ' — ваш ответ' : '') + (right ? ' — правильный ответ' : '')));
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+      if (!given) card.appendChild(line('Ваш ответ:', 'нет ответа', 'rv-none'));
+    } else if (t.type === 'match') {
+      var tb = el('table', 'rv-table');
+      var hr = el('tr');
+      ['', 'Ваш ответ', 'Правильный ответ'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+      tb.appendChild(hr);
+      t.items.forEach(function (it, k) {
+        var tr = el('tr');
+        var c0 = el('td', 'rv-item');
+        if (it.svg) c0.innerHTML = it.svg; else c0.appendChild(el('code', 'mono', it.code));
+        var mine = given ? given[k] : '';
+        var c1 = el('td', mine === t.answer[k] ? 'right' : 'wrong', (mine === t.answer[k] ? '✓ ' : '✗ ') + (mine || 'нет ответа'));
+        tr.appendChild(c0); tr.appendChild(c1); tr.appendChild(el('td', null, t.answer[k]));
+        tb.appendChild(tr);
+      });
+      card.appendChild(tb);
+    } else if (t.type === 'order') {
+      var cols = el('div', 'rv-cols');
+      [['Ваш ответ', given], ['Правильный ответ', t.answer]].forEach(function (c, k) {
+        var box = el('div');
+        box.appendChild(el('b', null, c[0]));
+        if (c[1]) {
+          var pre = el('pre', 'code');
+          pre.textContent = c[1].join('\n');
+          box.appendChild(pre);
+        } else box.appendChild(el('p', 'rv-none', 'нет ответа'));
+        cols.appendChild(box);
+      });
+      card.appendChild(cols);
+    } else {
+      card.appendChild(line('Ваш ответ:', given || 'нет ответа', ok ? 'rv-your right' : 'rv-your wrong'));
+      if (!ok) card.appendChild(line('Правильный ответ:', TASKS.showAnswer(t), 'rv-right'));
+    }
+    return card;
   }
 
   function renderTimeUsed() {

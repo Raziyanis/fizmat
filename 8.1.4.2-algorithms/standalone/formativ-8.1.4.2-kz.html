@@ -233,6 +233,38 @@ button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); 
 .order-row { padding: 6px 8px 6px 4px; }
 .order-row code { display: inline-block; min-width: 240px; font-size: 1.15rem; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; margin-right: 8px; }
 button.mini { padding: 6px 14px; font-size: 1.1rem; margin-left: 4px; }
+
+/* Разбор заданий на экране результата */
+.review { display: flex; flex-direction: column; gap: 14px; }
+.rv { border: 2px solid var(--line); border-left-width: 8px; border-radius: 10px; padding: 14px 16px; }
+.rv.ok { border-color: #b7dfc3; border-left-color: var(--ok); }
+.rv.bad { border-color: #f1c0c0; border-left-color: var(--bad); }
+.rv-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.rv-num { font-weight: 700; color: var(--muted); }
+.rv-badge { font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.rv.ok .rv-badge { color: var(--ok); background: var(--ok-bg); }
+.rv.bad .rv-badge { color: var(--bad); background: var(--bad-bg); }
+.rv-q { font-weight: 600; margin: 4px 0 12px; }
+.rv .code { font-size: 1rem; margin-bottom: 10px; }
+.rv-line { margin: 6px 0; font-size: 1.1rem; }
+.rv-line .mono { font-weight: 700; }
+.rv-line.right .mono, .rv-right .mono { color: var(--ok); }
+.rv-line.wrong .mono { color: var(--bad); text-decoration: line-through; }
+.rv-none { color: var(--muted); font-style: italic; }
+.rv-opts { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.rv-opts li { display: flex; gap: 10px; padding: 6px 10px; border-radius: 8px; }
+.rv-opts li.right { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+.rv-opts li.wrong { background: var(--bad-bg); color: var(--bad); text-decoration: line-through; }
+.rv-mark { width: 1.2em; flex: none; font-weight: 700; }
+.rv-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.rv-table th, .rv-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: middle; }
+.rv-table th { background: var(--bg); }
+.rv-table td.right { color: var(--ok); background: var(--ok-bg); }
+.rv-table td.wrong { color: var(--bad); background: var(--bad-bg); }
+.rv-item svg { width: 90px; height: auto; }
+.rv-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rv-cols .code { margin-top: 4px; }
+@media (max-width: 600px) { .rv-cols { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -309,13 +341,9 @@ button.mini { padding: 6px 14px; font-size: 1.1rem; margin-left: 4px; }
       <p id="r-count" class="center count"></p>
       <div id="r-time" class="time-box"></div>
       <p id="r-hide" class="muted small center" hidden></p>
-      <h2>Есеп</h2>
-      <div class="table-wrap">
-        <table class="report">
-          <thead><tr><th>№</th><th>Тапсырма</th><th>Сіздің жауабыңыз</th><th>Дұрыс жауап</th><th>Нәтиже</th></tr></thead>
-          <tbody id="r-table"></tbody>
-        </table>
-      </div>
+      <h2>Тапсырмаларды талдау</h2>
+      <p class="muted small">Әр тапсырманың астында — сіздің жауабыңыз және дұрыс жауап.</p>
+      <div id="r-list" class="review"></div>
       <div class="teacher">
         <button id="b-teacher" class="link">Мұғалімге: осы құрылғыда жаңа жұмыс</button>
         <div id="r-teacher-form" class="row" hidden>
@@ -946,17 +974,77 @@ window.TEACHER_PIN = "2026";
     renderTimeUsed();
     $('r-reason').textContent = state.reason || '';
     $('r-reason').hidden = !state.reason;
-    var body = $('r-table');
-    body.innerHTML = '';
-    tasks.forEach(function (t, i) {
-      var a = state.answers[i];
-      var tr = el('tr', a.status === 'correct' ? 'ok' : 'bad');
-      [String(i + 1), t.title, answered(a) ? TASKS.showGiven(t, a.given) : '—', TASKS.showAnswer(t),
-       (a.status === 'correct' ? '✓ ' : '✗ ') + STATUS_TEXT[a.status]].forEach(function (txt) { tr.appendChild(el('td', null, txt)); });
-      body.appendChild(tr);
-    });
+    var list = $('r-list');
+    list.innerHTML = '';
+    tasks.forEach(function (t, i) { list.appendChild(reviewCard(t, state.answers[i], i)); });
     show('s-result');
     scheduleLock();
+  }
+
+  // Карточка разбора: условие задания, ответ ученика и правильный ответ рядом.
+  function reviewCard(t, a, i) {
+    var ok = a.status === 'correct';
+    var given = answered(a) ? a.given : null;
+    var card = el('article', 'rv ' + (ok ? 'ok' : 'bad'));
+    var head = el('div', 'rv-head');
+    head.appendChild(el('span', 'rv-num', (i + 1) + '-тапсырма'));
+    head.appendChild(el('span', 'rv-badge', (ok ? '✓ ' : '✗ ') + STATUS_TEXT[a.status]));
+    card.appendChild(head);
+    card.appendChild(el('p', 'rv-q', t.text));
+    if (t.svg) { var fig = el('div', 'figure'); fig.innerHTML = t.svg; card.appendChild(fig); }   // SVG собран из чисел в tasks.js
+    if (t.code) card.appendChild(el('pre', 'code', t.code));
+
+    var line = function (label, value, cls) {
+      var p = el('p', 'rv-line ' + cls);
+      p.appendChild(el('b', null, label + ' '));
+      p.appendChild(el('span', cls === 'rv-none' ? null : 'mono', value));
+      return p;
+    };
+
+    if (t.type === 'choice') {
+      var ul = el('ul', 'rv-opts' + (t.mono ? ' mono' : ''));
+      t.options.forEach(function (o) {
+        var right = o === t.answer, mine = o === given;
+        var li = el('li', right ? 'right' : mine ? 'wrong' : '');
+        li.appendChild(el('span', 'rv-mark', right ? '✓' : mine ? '✗' : '•'));
+        li.appendChild(el('span', null, o + (mine ? ' — сіздің жауабыңыз' : '') + (right ? ' — дұрыс жауап' : '')));
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+      if (!given) card.appendChild(line('Сіздің жауабыңыз:', 'жауап жоқ', 'rv-none'));
+    } else if (t.type === 'match') {
+      var tb = el('table', 'rv-table');
+      var hr = el('tr');
+      ['', 'Сіздің жауабыңыз', 'Дұрыс жауап'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+      tb.appendChild(hr);
+      t.items.forEach(function (it, k) {
+        var tr = el('tr');
+        var c0 = el('td', 'rv-item');
+        if (it.svg) c0.innerHTML = it.svg; else c0.appendChild(el('code', 'mono', it.code));
+        var mine = given ? given[k] : '';
+        var c1 = el('td', mine === t.answer[k] ? 'right' : 'wrong', (mine === t.answer[k] ? '✓ ' : '✗ ') + (mine || 'жауап жоқ'));
+        tr.appendChild(c0); tr.appendChild(c1); tr.appendChild(el('td', null, t.answer[k]));
+        tb.appendChild(tr);
+      });
+      card.appendChild(tb);
+    } else if (t.type === 'order') {
+      var cols = el('div', 'rv-cols');
+      [['Сіздің жауабыңыз', given], ['Дұрыс жауап', t.answer]].forEach(function (c, k) {
+        var box = el('div');
+        box.appendChild(el('b', null, c[0]));
+        if (c[1]) {
+          var pre = el('pre', 'code');
+          pre.textContent = c[1].join('\n');
+          box.appendChild(pre);
+        } else box.appendChild(el('p', 'rv-none', 'жауап жоқ'));
+        cols.appendChild(box);
+      });
+      card.appendChild(cols);
+    } else {
+      card.appendChild(line('Сіздің жауабыңыз:', given || 'жауап жоқ', ok ? 'rv-your right' : 'rv-your wrong'));
+      if (!ok) card.appendChild(line('Дұрыс жауап:', TASKS.showAnswer(t), 'rv-right'));
+    }
+    return card;
   }
 
   function renderTimeUsed() {
