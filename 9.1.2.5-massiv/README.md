@@ -7,3 +7,4 @@
 - Әр оқушының сандары әртүрлі (seed). Нәтиже экранында әр тапсырманың шарты, оқушының жауабы және дұрыс жауап көрсетіледі.
 - Кілтті тексеру: `python3 tools/check-tasks.py` (әр кодты нағыз Python-да орындайды). Жинау: `node tools/build-standalone.js`.
 - Қозғалтқыш (app.js, index.html, style.css) 8.1.4.2 формативтік жұмысынан алынған.
+- `praktika-9.1.2.5-kz.docx` — уақыт қалса орындалатын практикалық жұмыс: A, B, C деңгейлері (9 тапсырма, мысалдарымен); `praktika-9.1.2.5-kz-zhauaptary.docx` — соңында жауаптары. Жинау: `node praktika/build.js`, тексеру: `python3 praktika/check.py`.
