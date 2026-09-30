@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title data-t="title"></title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span data-t="timeLeft"></span><b id="tm-total"></b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">…</p></section>
+
+    <section id="s-intro" hidden>
+      <h1 data-t="title"></h1>
+      <p class="topic" data-t="topic"></p>
+      <h2 data-t="rulesTitle"></h2>
+      <ul id="i-rules" class="rules"></ul>
+      <p class="muted" data-t="privacy"></p>
+      <button id="b-start" class="primary big" data-t="start"></button>
+    </section>
+
+    <section id="s-test" hidden>
+      <div id="t-nav" class="nav"></div>
+      <p class="muted small nav-legend" data-t="legend"></p>
+      <p id="t-num" class="muted"></p>
+      <h2 id="t-title" class="task-title"></h2>
+      <p id="t-text" class="task-text"></p>
+      <div class="io">
+        <p><b data-t="inputLabel"></b> <span id="t-in"></span></p>
+        <p><b data-t="outputLabel"></b> <span id="t-out"></span></p>
+      </div>
+      <table class="examples">
+        <thead><tr><th data-t="exIn"></th><th data-t="exOut"></th></tr></thead>
+        <tbody id="t-ex"></tbody>
+      </table>
+      <label class="code-label" for="t-code" data-t="yourCode"></label>
+      <textarea id="t-code" class="editor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off"></textarea>
+      <div class="run-row">
+        <div class="run-in">
+          <label for="t-stdin" class="small muted" data-t="stdinLabel"></label>
+          <textarea id="t-stdin" class="stdin" spellcheck="false" rows="2"></textarea>
+        </div>
+        <div class="buttons">
+          <button id="b-run" data-t="run"></button>
+          <button id="b-check" class="primary" data-t="check"></button>
+        </div>
+      </div>
+      <div id="t-result" class="run-result" hidden></div>
+      <div class="buttons nav-buttons">
+        <button id="b-prev" data-t="prev"></button>
+        <button id="b-next" data-t="next"></button>
+        <span class="spacer"></span>
+        <button id="b-finish" class="danger-outline" data-t="finish"></button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p data-t="confirm"></p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger" data-t="yes"></button>
+          <button id="b-finish-no" data-t="no"></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-eval" hidden>
+      <h1 data-t="evalTitle"></h1>
+      <p id="e-progress" class="count"></p>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1 data-t="doneTitle"></h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p class="score"><span id="r-score-num" class="score-num"></span> <span class="score-word" data-t="points"></span></p>
+      <p id="r-count" class="center count"></p>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2 data-t="review"></h2>
+      <div id="r-list" class="review"></div>
+      <div class="teacher">
+        <button id="b-teacher" class="link" data-t="teacher"></button>
+        <div id="r-teacher-form" class="row" hidden>
+          <input id="r-pin" type="password" autocomplete="off">
+          <button id="b-restart" class="primary" data-t="restart"></button>
+          <span id="r-pin-msg" class="muted small"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-locked" hidden>
+      <h1 data-t="doneTitle"></h1>
+      <p data-t="lockedText"></p>
+      <div class="row">
+        <input id="l-pin" type="password" autocomplete="off">
+        <button id="b-unlock" class="primary" data-t="restart"></button>
+        <span id="l-pin-msg" class="muted small"></span>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <script src="config.js"></script>
+  <script src="vendor/skulpt.min.js"></script>
+  <script src="vendor/skulpt-stdlib.js"></script>
+  <script src="tasks.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
