@@ -68,7 +68,23 @@ def trace_digits():
     return rows
 
 
-out = {k: {'code': c, 'output': run(c, INPUTS.get(k, ())), 'input': INPUTS.get(k)} for k, c in EX.items()}
+# Казахская версия примеров: переводятся только строки, которые программа печатает (код тот же)
+KZ_STR = [('"Привет!"', '"Сәлем!"'), ('"Цикл не выполнился ни разу"', '"Цикл бір рет те орындалмады"'), ('"Готово"', '"Дайын"'),
+          ('"в квадрате ="', '"квадраты ="'), ('"- оценка"', '"- баға"'), ('"Условие сразу ложно"', '"Шарт бірден жалған"')]
+
+
+def to_kz(code):
+    for a, b in KZ_STR:
+        code = code.replace(a, b)
+    return code
+
+
+out = {}
+for k, c in EX.items():
+    out[k] = {'code': c, 'output': run(c, INPUTS.get(k, ())), 'input': INPUTS.get(k)}
+    ck = to_kz(c)
+    out[k]['kz'] = {'code': ck, 'output': run(ck, INPUTS.get(k, ()))}
+    assert not any(a in ck for a, b in KZ_STR), (k, ck)
 out['_trace_sum'] = trace_sum()
 out['_trace_digits'] = trace_digits()
 out['_ranges'] = [[r, ' '.join(map(str, eval(r))) or '(пусто)', str(len(eval(r)))] for r in

@@ -14,6 +14,14 @@
   var RUN_LIMIT_MS = 1000, OUT_LIMIT = 20000;
   var LETTERS = ['A', 'B', 'C', 'D'];
 
+  // ---------- Язык: казахский по умолчанию, кнопка ҚАЗ / РУС переключает в любой момент ----------
+  var LANG = (function () { try { return localStorage.getItem('cikly-lang') === 'ru' ? 'ru' : 'kz'; } catch (e) { return 'kz'; } })();
+  function t(s) {
+    if (LANG !== 'kz') return s;
+    var d = window.UI_KZ && window.UI_KZ.JS;
+    return d && d[s] !== undefined ? d[s] : s;
+  }
+
   var $ = function (id) { return document.getElementById(id); };
   var state = null, quiz = [], code = [], fsActive = false, ignoreUntil = 0, ticker = null, hideTimer = null, busy = false;
 
@@ -45,7 +53,7 @@
     return Sk.misceval.asyncToPromise(function () { return Sk.importMainWithBody('<stdin>', false, src, true); })
       .then(function () { return { out: out }; }, function (e) {
         var msg = String(e && e.toString ? e.toString() : e), to = /TimeLimitError/.test(msg);
-        return { out: out, error: to ? 'Программа работала слишком долго (возможно, бесконечный цикл).' : msg, timeout: to };
+        return { out: out, error: to ? t('Программа работала слишком долго (возможно, бесконечный цикл).') : msg, timeout: to };
       });
   }
   function checkTask(i) {
@@ -82,8 +90,10 @@
       });
     });
   }
-  var INPUT_HINT = 'Подсказка: если в одной строке несколько чисел, прочитайте их так: a, b = map(int, input().split()). ' +
-    'Или в поле «Входные данные» запишите каждое число на отдельной строке — при проверке засчитываются оба способа.';
+  function inputHint() {
+    return t('Подсказка: если в одной строке несколько чисел, прочитайте их так: a, b = map(int, input().split()). ') +
+      t('Или в поле «Входные данные» запишите каждое число на отдельной строке — при проверке засчитываются оба способа.');
+  }
 
   // ---------- Полноэкранный режим и защита ----------
   function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
@@ -98,7 +108,7 @@
     } catch (err) { return Promise.resolve(); }
   }
   function exitFullscreen() { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (fsElement() && ex) { try { ex.call(document); } catch (e) {} } }
-  function violation(reason) { if (!running()) return; setTimeout(function () { if (running()) finish('Работа завершена автоматически: ' + reason); }, 300); }
+  function violation(reason) { if (!running()) return; setTimeout(function () { if (running()) finish(['Работа завершена автоматически: ', reason]); }, 300); }
   function onFullscreenChange() {
     if (fsElement()) { fsActive = true; ignoreUntil = Date.now() + 1500; return; }
     if (fsActive) { fsActive = false; violation('вы вышли из полноэкранного режима.'); }
@@ -111,10 +121,10 @@
   function warn(text) { $('warn-text').textContent = text; $('warn').hidden = false; clearTimeout(warn.t); warn.t = setTimeout(function () { $('warn').hidden = true; }, 5000); }
   function onKey(e) {
     if (!running()) return;
-    if (e.key === 'Escape') { warn('Не выходите из полноэкранного режима: работа сразу завершится.'); e.preventDefault(); }
+    if (e.key === 'Escape') { warn(t('Не выходите из полноэкранного режима: работа сразу завершится.')); e.preventDefault(); }
     var k = (e.key || '').toLowerCase();
     if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l'].indexOf(k) >= 0) ||
-        (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) { e.preventDefault(); warn('Это действие недоступно во время работы.'); }
+        (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) { e.preventDefault(); warn(t('Это действие недоступно во время работы.')); }
   }
   function onPageHide() { if (running()) { state.closedAt = Date.now(); save(); } }
   function onBeforeUnload(e) { if (!running()) return; e.preventDefault(); e.returnValue = ''; return ''; }
@@ -153,7 +163,7 @@
     var isQ = state.stage === 'quiz';
     $('nav-q-box').hidden = !isQ;
     $('nav-c-box').hidden = isQ;
-    $('nav-q-label').textContent = 'Тест — попытка ' + state.attempt + ' из ' + ATTEMPTS;
+    $('nav-q-label').textContent = t('Тест — попытка ') + state.attempt + t(' из ') + ATTEMPTS;
     var box = $(isQ ? 'nav-q' : 'nav-c'); box.innerHTML = '';
     for (var k = 0; k < NQ; k++) {
       (function (i) {
@@ -173,8 +183,8 @@
     $('m-confirm').hidden = true;
     $('b-prev').disabled = i === 0;
     $('b-next').disabled = i === NQ - 1;
-    $('b-finish').textContent = isQ ? 'Сдать тест' : 'Завершить работу';
-    $('w-legend').textContent = isQ ? 'Синий — есть ответ. Нажмите на номер, чтобы открыть вопрос.' : 'Синий — код написан; зелёный — все тесты пройдены; красный — при проверке есть ошибки.';
+    $('b-finish').textContent = isQ ? t('Сдать тест') : t('Завершить работу');
+    $('w-legend').textContent = isQ ? t('Синий — есть ответ. Нажмите на номер, чтобы открыть вопрос.') : t('Синий — код написан; зелёный — все тесты пройдены; красный — при проверке есть ошибки.');
     if (isQ) renderQuiz(i); else renderCode(i);
     renderNav();
     show('s-work');
@@ -184,7 +194,7 @@
   // ---------- Тест ----------
   function renderQuiz(i) {
     var q = quiz[i], g = state.q[i];
-    $('w-num').textContent = 'Тест · вопрос ' + (i + 1) + ' из ' + NQ;
+    $('w-num').textContent = t('Тест · вопрос ') + (i + 1) + t(' из ') + NQ;
     $('w-title').textContent = q.title;
     $('w-text').textContent = q.text;
     var box = $('q-body'); box.innerHTML = '';
@@ -193,8 +203,8 @@
       var list = el('div', 'choices');
       q.options.forEach(function (o, k) {
         var lab = el('label', 'choice');
-        var r = el('input'); r.type = 'radio'; r.name = 'q'; r.value = o; r.checked = g === o;
-        r.addEventListener('change', function () { state.q[i] = o; save(); renderNav(); $('w-saved').hidden = false; });
+        var r = el('input'); r.type = 'radio'; r.name = 'q'; r.value = String(k); r.checked = g === k;
+        r.addEventListener('change', function () { state.q[i] = k; save(); renderNav(); $('w-saved').hidden = false; });
         lab.appendChild(r);
         lab.appendChild(el('span', 'letter', LETTERS[k] + ')'));
         lab.appendChild(el('span', 'opt' + (q.mono ? ' mono' : ''), o));
@@ -202,16 +212,16 @@
       });
       box.appendChild(list);
     } else {
-      var cur = Array.isArray(g) ? g.slice() : q.items.map(function () { return ''; });
+      var cur = Array.isArray(g) ? g.slice() : q.items.map(function () { return null; });
       var m = el('div', 'match');
       q.items.forEach(function (it, k) {
         var row = el('div', 'match-row');
         var left = el('div', 'match-left'); left.appendChild(el(it.word ? 'b' : 'code', null, it.code));
-        var sel = el('select'); sel.setAttribute('aria-label', 'Пара для ' + it.name);
-        sel.appendChild(el('option', null, '— выберите —')).value = '';
-        q.options.forEach(function (o) { var op = el('option', null, o); op.value = o; sel.appendChild(op); });
-        sel.value = cur[k] || '';
-        sel.addEventListener('change', function () { cur[k] = sel.value; state.q[i] = cur.slice(); save(); renderNav(); $('w-saved').hidden = false; });
+        var sel = el('select'); sel.setAttribute('aria-label', t('Пара для ') + it.name);
+        sel.appendChild(el('option', null, t('— выберите —'))).value = '';
+        q.options.forEach(function (o, n) { var op = el('option', null, o); op.value = String(n); sel.appendChild(op); });
+        sel.value = cur[k] == null ? '' : String(cur[k]);
+        sel.addEventListener('change', function () { cur[k] = sel.value === '' ? null : Number(sel.value); state.q[i] = cur.slice(); save(); renderNav(); $('w-saved').hidden = false; });
         row.appendChild(left); row.appendChild(el('span', 'arrow', '→')); row.appendChild(sel);
         m.appendChild(row);
       });
@@ -234,26 +244,26 @@
     var last = state.attempts[state.attempts.length - 1], best = bestAttempt();
     var left = ATTEMPTS - state.attempts.length;
     $('qr-score').textContent = last.score + ' / ' + NQ;
-    var msg = (last.auto ? 'Время на тест закончилось — тест сдан автоматически. ' : '');
-    if (last.score === NQ) msg += 'Отлично, все ответы верные! Переходите к задачам на код.';
-    else if (last.score < PASS && left > 0) msg += 'Балл низкий. Перечитайте разделы теории, указанные у неверных ответов, и пройдите тест заново — засчитается лучшая попытка.';
-    else if (left > 0) msg += 'Можно перейти к задачам или пройти тест ещё раз, чтобы улучшить результат (засчитается лучшая попытка).';
-    else msg += 'Попытки закончились. Переходите к задачам на код.';
+    var msg = (last.auto ? t('Время на тест закончилось — тест сдан автоматически. ') : '');
+    if (last.score === NQ) msg += t('Отлично, все ответы верные! Переходите к задачам на код.');
+    else if (last.score < PASS && left > 0) msg += t('Балл низкий. Перечитайте разделы теории, указанные у неверных ответов, и пройдите тест заново — засчитается лучшая попытка.');
+    else if (left > 0) msg += t('Можно перейти к задачам или пройти тест ещё раз, чтобы улучшить результат (засчитается лучшая попытка).');
+    else msg += t('Попытки закончились. Переходите к задачам на код.');
     $('qr-msg').textContent = msg;
-    $('qr-attempts').textContent = 'Попытка ' + last.n + ' из ' + ATTEMPTS + '. Баллы по попыткам: ' +
-      state.attempts.map(function (a) { return a.score; }).join(', ') + '. Засчитывается лучшая: ' + best.score + ' / ' + NQ + '.';
+    $('qr-attempts').textContent = t('Попытка ') + last.n + t(' из ') + ATTEMPTS + t('. Баллы по попыткам: ') +
+      state.attempts.map(function (a) { return a.score; }).join(', ') + t('. Засчитывается лучшая: ') + best.score + ' / ' + NQ + '.';
     $('b-retry').hidden = left <= 0 || last.score === NQ;
-    $('b-retry').textContent = '↻ Пройти тест заново (осталось попыток: ' + left + ')';
+    $('b-retry').textContent = t('↻ Пройти тест заново (осталось попыток: ') + left + ')';
     $('qr-confirm').hidden = true;
     var lq = quizFor(last.n), list = $('qr-list'); list.innerHTML = '';
     lq.forEach(function (q, i) {
       var card = quizCard(q, last.answers[i], last.ok[i], i);
-      if (!last.ok[i]) card.appendChild(el('p', 'rv-theory', '📖 Повторите теорию: раздел ' + q.theory));
+      if (!last.ok[i]) card.appendChild(el('p', 'rv-theory', t('📖 Повторите теорию: раздел ') + q.theory));
       list.appendChild(card);
     });
     show('s-quizres');
   }
-  function quizFor(n) { return QUIZ.generate(quizSeed(n), n - 1, state.seed); }   // n — номер попытки
+  function quizFor(n) { return QUIZ.generate(quizSeed(n), n - 1, state.seed, LANG); }   // n — номер попытки
   function retryQuiz() {
     if (!running() || state.stage !== 'quizres' || state.attempts.length >= ATTEMPTS) return;
     state.attempt = state.attempts.length + 1;
@@ -278,10 +288,10 @@
   // ---------- Задачи на код ----------
   function renderCode(j) {
     var tk = code[j];
-    $('w-num').textContent = 'Задача ' + (j + 1) + ' из ' + NQ;
+    $('w-num').textContent = t('Задача ') + (j + 1) + t(' из ') + NQ;
     $('w-title').innerHTML = '';
     $('w-title').appendChild(document.createTextNode(tk.title));
-    $('w-title').appendChild(el('span', 'lvl lvl-' + tk.level, 'уровень ' + tk.level));
+    $('w-title').appendChild(el('span', 'lvl lvl-' + tk.level, t('уровень ') + tk.level));
     $('w-text').textContent = tk.text;
     $('c-in').textContent = tk.input;
     $('c-out').textContent = tk.output;
@@ -300,28 +310,28 @@
   }
   function needCode(j) {
     if ((state.code[j] || '').trim()) return false;
-    $('c-result').hidden = false; $('c-result').textContent = 'Сначала напишите программу.';
+    $('c-result').hidden = false; $('c-result').textContent = t('Сначала напишите программу.');
     return true;
   }
   function doRun() {
     var j = state.cur;
     if (busy || state.stage !== 'code' || needCode(j)) return;
     setBusy(true);
-    $('c-result').hidden = false; $('c-result').textContent = 'Выполняется…';
+    $('c-result').hidden = false; $('c-result').textContent = t('Выполняется…');
     runPython(state.code[j], $('c-stdin').value).then(function (r) {
       setBusy(false);
       if (!running() || state.cur !== j) return;
       var box = $('c-result'); box.innerHTML = '';
-      box.appendChild(el('b', null, 'Вывод:'));
-      box.appendChild(el('pre', null, r.out || '(программа ничего не вывела)'));
-      if (r.error) { box.appendChild(el('b', 'bad', 'Ошибка:')); box.appendChild(el('pre', 'bad', r.error)); if (/invalid literal for int/.test(r.error)) box.appendChild(el('p', 'hint', INPUT_HINT)); }
+      box.appendChild(el('b', null, t('Вывод:')));
+      box.appendChild(el('pre', null, r.out || t('(программа ничего не вывела)')));
+      if (r.error) { box.appendChild(el('b', 'bad', t('Ошибка:'))); box.appendChild(el('pre', 'bad', r.error)); if (/invalid literal for int/.test(r.error)) box.appendChild(el('p', 'hint', inputHint())); }
     });
   }
   function doCheck() {
     var j = state.cur;
     if (busy || state.stage !== 'code' || needCode(j)) return;
     setBusy(true);
-    $('c-result').hidden = false; $('c-result').textContent = 'Проверяется…';
+    $('c-result').hidden = false; $('c-result').textContent = t('Проверяется…');
     checkTask(j).then(function (res) {
       setBusy(false);
       if (!running()) return;
@@ -329,14 +339,14 @@
       save(); renderNav();
       if (state.cur !== j) return;
       var box = $('c-result'), all = res.passed === res.total; box.innerHTML = '';
-      box.appendChild(el('p', all ? 'ok' : 'bad', all ? '✓ Все тесты пройдены! Можно переходить к следующей задаче.' : 'Пройдено тестов: ' + res.passed + ' из ' + res.total));
-      box.appendChild(el('b', null, 'Примеры:'));
+      box.appendChild(el('p', all ? 'ok' : 'bad', all ? t('✓ Все тесты пройдены! Можно переходить к следующей задаче.') : t('Пройдено тестов: ') + res.passed + t(' из ') + res.total));
+      box.appendChild(el('b', null, t('Примеры:')));
       res.details.slice(0, 2).forEach(function (d, k) {
-        box.appendChild(el('p', d.ok ? 'ok' : 'bad', (d.ok ? '✓ ' : '✗ ') + 'Пример ' + (k + 1)));
+        box.appendChild(el('p', d.ok ? 'ok' : 'bad', (d.ok ? '✓ ' : '✗ ') + t('Пример ') + (k + 1)));
         if (!d.ok && !d.skipped) {
-          box.appendChild(el('pre', null, 'ожидалось: ' + code[j].tests[k].output + '\nваш вывод: ' + (d.out || '(программа ничего не вывела)')));
+          box.appendChild(el('pre', null, t('ожидалось: ') + code[j].tests[k].output + t('\nваш вывод: ') + (d.out || t('(программа ничего не вывела)'))));
           if (d.error) box.appendChild(el('pre', 'bad', d.error));
-          if (d.error && /invalid literal for int/.test(d.error)) box.appendChild(el('p', 'hint', INPUT_HINT));
+          if (d.error && /invalid literal for int/.test(d.error)) box.appendChild(el('p', 'hint', inputHint()));
         }
       });
     });
@@ -364,7 +374,7 @@
     show('s-eval');
     var results = [], j = 0;
     var next = function () {
-      $('e-progress').textContent = 'Проверено задач: ' + j + ' из ' + NQ;
+      $('e-progress').textContent = t('Проверено задач: ') + j + t(' из ') + NQ;
       if (j >= NQ) { state.results = results; state.status = 'finished'; save(); renderResult(); return; }
       checkTask(j).then(function (res) {
         results.push({ passed: res.passed, total: res.total, fail: res.fail, details: res.details.map(function (d) { return { ok: d.ok, out: (d.out || '').slice(0, 500), error: d.error || null }; }) });
@@ -378,10 +388,10 @@
     var left = stageEnds() - Date.now();
     if (left <= 0) {
       if (state.stage === 'quiz') submitQuiz(true);
-      else finish('Время на задачи (' + (window.CODE_MIN || 80) + ' минут) закончилось.');
+      else finish(['Время на задачи (', String(window.CODE_MIN || 80), ' минут) закончилось.']);
       return;
     }
-    $('tm-label').textContent = state.stage === 'quiz' ? 'До конца теста' : 'До конца работы над задачами';
+    $('tm-label').textContent = state.stage === 'quiz' ? t('До конца теста') : t('До конца работы над задачами');
     $('tm-total').textContent = fmt(left);
     $('tm-total-box').classList.toggle('low', left <= 60000);
     $('tm-bar').style.width = (100 * left / stageMs()) + '%';
@@ -395,17 +405,17 @@
     var qs = qOk.filter(Boolean).length, cs = cOk.filter(Boolean).length;
     $('r-score-num').textContent = (qs + cs) + ' / 20';
     $('r-quiz').textContent = qs + ' / 10';
-    $('r-quiz-att').textContent = state.attempts.length ? 'попыток: ' + state.attempts.length + ' (' + state.attempts.map(function (a) { return a.score; }).join(', ') + ')' : 'тест не сдан';
+    $('r-quiz-att').textContent = state.attempts.length ? t('попыток: ') + state.attempts.length + ' (' + state.attempts.map(function (a) { return a.score; }).join(', ') + ')' : t('тест не сдан');
     $('r-code').textContent = cs + ' / 10';
-    $('r-reason').textContent = state.reason || '';
+    $('r-reason').textContent = !state.reason ? '' : Array.isArray(state.reason) ? state.reason.map(t).join('') : state.reason;
     $('r-reason').hidden = !state.reason;
     var tb = $('r-time'); tb.innerHTML = '';
     var line = function (label, value) { var p = el('p'); p.appendChild(document.createTextNode(label + ' ')); p.appendChild(el('b', null, value)); tb.appendChild(p); };
     if (state.codeStartedAt) {
       var used = Math.min(CODE_MS, Math.max(0, state.finishedAt - state.codeStartedAt));
-      line('Время на задачи:', fmt(used) + ' из ' + fmt(CODE_MS));
-      line('Оставалось времени:', fmt(CODE_MS - used));
-    } else line('До задач на код ученик не дошёл.', '');
+      line(t('Время на задачи:'), fmt(used) + t(' из ') + fmt(CODE_MS));
+      line(t('Оставалось времени:'), fmt(CODE_MS - used));
+    } else line(t('До задач на код ученик не дошёл.'), '');
 
     var lq = $('r-list-q'); lq.innerHTML = '';
     bq.forEach(function (q, i) { lq.appendChild(quizCard(q, best ? best.answers[i] : null, qOk[i], i)); });
@@ -417,66 +427,66 @@
   function cardHead(label, ok, extra) {
     var card = el('article', 'rv ' + (ok ? 'ok' : 'bad')), head = el('div', 'rv-head');
     head.appendChild(el('span', 'rv-num', label));
-    head.appendChild(el('span', 'rv-badge', (ok ? '✓ верно' : '✗ неверно') + (extra || '')));
+    head.appendChild(el('span', 'rv-badge', (ok ? t('✓ верно') : t('✗ неверно')) + (extra || '')));
     card.appendChild(head);
     return card;
   }
   function quizCard(q, g, ok, i) {
-    var card = cardHead('Вопрос ' + (i + 1) + ' — ' + q.title, ok);
+    var card = cardHead(t('Вопрос ') + (i + 1) + ' — ' + q.title, ok);
     card.appendChild(el('p', 'rv-q', q.text));
     if (q.code) card.appendChild(el('pre', 'code', q.code));
     if (q.type === 'choice') {
       var ul = el('ul', 'rv-opts' + (q.mono ? ' mono' : ''));
       q.options.forEach(function (o, k) {
-        var right = o === q.answer, mine = o === g;
+        var right = o === q.answer, mine = k === g;
         var li = el('li', right ? 'right' : mine ? 'wrong' : '');
         li.appendChild(el('span', 'rv-mark', right ? '✓' : mine ? '✗' : '•'));
         li.appendChild(el('span', 'letter', LETTERS[k] + ')'));
         var body = el('div', 'rv-opt-body');
         body.appendChild(el('span', 'opt', o));
-        if (mine || right) body.appendChild(el('span', 'rv-tag', right && mine ? 'ваш ответ — правильный' : right ? 'правильный ответ' : 'ваш ответ'));
+        if (mine || right) body.appendChild(el('span', 'rv-tag', right && mine ? t('ваш ответ — правильный') : right ? t('правильный ответ') : t('ваш ответ')));
         li.appendChild(body);
         ul.appendChild(li);
       });
       card.appendChild(ul);
-      if (!g) card.appendChild(el('p', 'rv-none', 'Ответ не выбран.'));
+      if (!g) card.appendChild(el('p', 'rv-none', t('Ответ не выбран.')));
     } else {
-      var t = el('table', 'rv-table'), hr = el('tr');
-      ['', 'Ваш ответ', 'Правильный ответ'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
-      t.appendChild(hr);
+      var tbl = el('table', 'rv-table'), hr = el('tr');
+      ['', t('Ваш ответ'), t('Правильный ответ')].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+      tbl.appendChild(hr);
       q.items.forEach(function (it, k) {
-        var mine = Array.isArray(g) ? g[k] : '', good = mine === q.answer[k], tr = el('tr');
+        var mine = Array.isArray(g) && g[k] != null ? q.options[g[k]] : '', good = mine === q.answer[k], tr = el('tr');
         var c0 = el('td'); c0.appendChild(el(it.word ? 'b' : 'code', null, it.code));
         tr.appendChild(c0);
-        tr.appendChild(el('td', good ? 'right' : 'wrong', (good ? '✓ ' : '✗ ') + (mine || 'нет ответа')));
+        tr.appendChild(el('td', good ? 'right' : 'wrong', (good ? '✓ ' : '✗ ') + (mine || t('нет ответа'))));
         tr.appendChild(el('td', null, q.answer[k]));
-        t.appendChild(tr);
+        tbl.appendChild(tr);
       });
-      card.appendChild(t);
+      card.appendChild(tbl);
     }
     return card;
   }
   function codeCard(tk, j, r, ok) {
-    var card = cardHead('Задача ' + (j + 1) + ' (уровень ' + tk.level + ') — ' + tk.title, ok, ' · тестов ' + r.passed + '/' + r.total);
+    var card = cardHead(t('Задача ') + (j + 1) + t(' (уровень ') + tk.level + ') — ' + tk.title, ok, t(' · тестов ') + r.passed + '/' + r.total);
     card.appendChild(el('p', 'rv-q', tk.text));
     var cols = el('div', 'rv-cols one'), src = state.code[j] || '';
-    var c1 = el('div'); c1.appendChild(el('b', null, 'Ваша программа')); c1.appendChild(el('pre', 'code', src.trim() ? src : '(код не написан)'));
+    var c1 = el('div'); c1.appendChild(el('b', null, t('Ваша программа'))); c1.appendChild(el('pre', 'code', src.trim() ? src : t('(код не написан)')));
     cols.appendChild(c1);
     card.appendChild(cols);
     // Два образца: одна и та же задача разными циклами
-    var how = function (src2) { return /while True/.test(src2) ? 'while True и break' : /while/.test(src2) ? 'цикл while' : 'цикл for'; };
+    var how = function (src2) { return /while True/.test(src2) ? t('while True и break') : /while/.test(src2) ? t('цикл while') : t('цикл for'); };
     var sols = el('div', 'rv-cols');
     [tk.solution, tk.alt].forEach(function (src2, k) {
       var c = el('div');
-      c.appendChild(el('b', null, 'Образец ' + (k + 1) + ': ' + how(src2)));
+      c.appendChild(el('b', null, t('Образец ') + (k + 1) + ': ' + how(src2)));
       c.appendChild(el('pre', 'code', src2));
       sols.appendChild(c);
     });
-    card.appendChild(el('p', 'rv-note', 'Задачу можно решить разными способами — засчитывается любой, если программа выводит правильный ответ:'));
+    card.appendChild(el('p', 'rv-note', t('Задачу можно решить разными способами — засчитывается любой, если программа выводит правильный ответ:')));
     card.appendChild(sols);
     if (!ok && r.fail != null && src.trim()) {
       var tc = tk.tests[r.fail], d = r.details[r.fail] || {};
-      card.appendChild(el('p', 'rv-err', 'Ошибка на тесте:\nвход: ' + tc.input.replace(/\n/g, ' / ') + '\nожидалось: ' + tc.output + '\nваш вывод: ' + (d.out || '(ничего)') + (d.error ? '\n' + d.error : '')));
+      card.appendChild(el('p', 'rv-err', t('Ошибка на тесте:\nвход: ') + tc.input.replace(/\n/g, ' / ') + t('\nожидалось: ') + tc.output + t('\nваш вывод: ') + (d.out || t('(ничего)')) + (d.error ? '\n' + d.error : '')));
     }
     return card;
   }
@@ -485,7 +495,7 @@
     var update = function () {
       var left = state.finishedAt + RESULT_MS - Date.now();
       if (left <= 0) { clearInterval(hideTimer); $('l-pin').value = ''; $('l-pin-msg').textContent = ''; show('s-locked'); return; }
-      $('r-hide').textContent = 'Результат будет скрыт через ' + fmt(left) + '.';
+      $('r-hide').textContent = t('Результат будет скрыт через ') + fmt(left) + '.';
       $('r-hide').hidden = false;
     };
     update();
@@ -499,7 +509,7 @@
     var fs = enterFullscreen(), seed = newSeed();
     state = { v: 2, seed: seed, status: 'running', stage: 'quiz', startedAt: Date.now(), attempt: 1, attempts: [],
       quizEndsAt: Date.now() + QUIZ_MS, cur: 0, q: [], code: [], stdin: [], checks: [] };
-    quiz = quizFor(1); code = CODE.generate(seed);
+    quiz = quizFor(1); code = CODE.generate(seed, LANG);
     state.q = quiz.map(function () { return null; });
     state.code = code.map(function () { return ''; });
     state.stdin = code.map(function () { return null; });
@@ -515,10 +525,42 @@
     show('s-theory');
   }
 
-  function init() {
+  // Тексты страницы: при запуске запоминаем русский innerHTML, при смене языка подставляем перевод из UI_KZ.STATIC
+  var STATIC = [];
+  function initStatic() {
+    var dict = (window.UI_KZ && window.UI_KZ.STATIC) || {};
+    document.querySelectorAll('title, p, li, h1, h2, button, label, th, small, span').forEach(function (e) {
+      if (e.closest('#theory') || e.closest('.lang-switch')) return;
+      var h = e.innerHTML.trim();
+      if (dict[h] !== undefined) STATIC.push({ el: e, ru: h, kz: dict[h] });
+    });
+  }
+  function applyStatic() {
+    STATIC.forEach(function (x) { x.el.innerHTML = LANG === 'kz' ? x.kz : x.ru; });
+    document.documentElement.lang = LANG === 'kz' ? 'kk' : 'ru';
     document.querySelectorAll('.i-qmin').forEach(function (e) { e.textContent = String(window.QUIZ_MIN || 15); });
     document.querySelectorAll('.i-cmin').forEach(function (e) { e.textContent = String(window.CODE_MIN || 80); });
     document.querySelectorAll('.i-att').forEach(function (e) { e.textContent = String(ATTEMPTS); });
+    ['r-pin', 'l-pin'].forEach(function (id) { $(id).placeholder = t('Пароль учителя'); $(id).setAttribute('aria-label', t('Пароль учителя')); });
+    document.querySelectorAll('.lang-switch button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-lang') === LANG); b.setAttribute('aria-pressed', b.getAttribute('data-lang') === LANG); });
+  }
+  // Смена языка: ответы, код и таймер сохраняются; текущий экран перерисовывается на новом языке
+  function setLang(l) {
+    if (l === LANG) return;
+    LANG = l;
+    try { localStorage.setItem('cikly-lang', l); } catch (e) {}
+    applyStatic();
+    if (state && state.seed) { quiz = quizFor(state.attempt); code = CODE.generate(state.seed, LANG); }
+    var vis = ['s-work', 's-quizres', 's-result'].filter(function (id) { return !$(id).hidden; })[0];
+    if (vis === 's-work') { var keep = $('c-code').value; renderItem(); if (state.stage === 'code') $('c-code').value = keep; }
+    else if (vis === 's-quizres') renderQuizResult();
+    else if (vis === 's-result') renderResult();
+  }
+
+  function init() {
+    initStatic();
+    applyStatic();
+    document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     $('b-to-intro').addEventListener('click', function () { show('s-intro'); });
     $('b-back-theory').addEventListener('click', showTheory);
     $('b-theory-back').addEventListener('click', function () { if (running() && state.stage === 'quizres') renderQuizResult(); });
@@ -530,10 +572,10 @@
     $('b-finish').addEventListener('click', function () {
       if (state.stage === 'quiz') {
         var u = quiz.filter(function (x, i) { return !QUIZ.isComplete(x, state.q[i]); }).length;
-        $('m-confirm-text').textContent = 'Сдать тест?' + (u ? ' Без ответа: ' + u + ' вопр.' : '') + ' После сдачи вы увидите результат.';
+        $('m-confirm-text').textContent = t('Сдать тест?') + (u ? t(' Без ответа: ') + u + t(' вопр.') : '') + t(' После сдачи вы увидите результат.');
       } else {
         var c = code.filter(function (x, j) { return !(state.code[j] || '').trim(); }).length;
-        $('m-confirm-text').textContent = 'Завершить работу?' + (c ? ' Задач без кода: ' + c + '.' : '') + ' Балл будет посчитан по текущему коду.';
+        $('m-confirm-text').textContent = t('Завершить работу?') + (c ? t(' Задач без кода: ') + c + '.' : '') + t(' Балл будет посчитан по текущему коду.');
       }
       $('m-confirm').hidden = false;
     });
@@ -564,12 +606,12 @@
     window.addEventListener('pagehide', onPageHide);
     document.addEventListener('contextmenu', function (e) { if (running()) e.preventDefault(); });
     history.pushState(null, '', location.href);
-    window.addEventListener('popstate', function () { if (running()) { history.pushState(null, '', location.href); warn('Переход назад во время работы недоступен.'); } });
+    window.addEventListener('popstate', function () { if (running()) { history.pushState(null, '', location.href); warn(t('Переход назад во время работы недоступен.')); } });
 
     $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
     [['b-restart', 'r-pin', 'r-pin-msg'], ['b-unlock', 'l-pin', 'l-pin-msg']].forEach(function (ids) {
       var go = function () {
-        if ($(ids[1]).value.trim() !== String(window.TEACHER_PIN)) { $(ids[2]).textContent = 'Неверный пароль'; return; }
+        if ($(ids[1]).value.trim() !== String(window.TEACHER_PIN)) { $(ids[2]).textContent = t('Неверный пароль'); return; }
         try { localStorage.removeItem(STORE); } catch (e) {}
         location.reload();
       };
@@ -579,10 +621,10 @@
     if (!fsSupported()) $('i-nofs').hidden = false;
 
     state = load();
-    if (state && state.v === 2 && state.seed) { quiz = quizFor(state.attempt); code = CODE.generate(state.seed); } else state = null;
+    if (state && state.v === 2 && state.seed) { quiz = quizFor(state.attempt); code = CODE.generate(state.seed, LANG); } else state = null;
     if (state && state.status === 'running') {
       // Страница была закрыта или перезагружена — работа завершается
-      finish('Работа завершена автоматически: страница была закрыта или перезагружена.');
+      finish(['Работа завершена автоматически: страница была закрыта или перезагружена.']);
       return;
     }
     if (state && state.status === 'evaluating') { evaluateAll(); return; }

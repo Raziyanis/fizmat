@@ -188,4 +188,32 @@ const body = [
   ], 'F3F6FA', 'Запомни', '2452C0'),
 ];
 
-module.exports = { body, EX };
+// Казахская версия: каждая русская строка переводится по словарю theory-kz.json.
+// Если строки нет в словаре — ошибка (так ничего не останется непереведённым).
+const KZ = JSON.parse(fs.readFileSync(path.join(__dirname, 'theory-kz.json'), 'utf8'));
+const CYR = /[А-Яа-яЁё]/;
+function tr(s) {
+  if (!CYR.test(s)) return s;
+  if (!(s in KZ)) throw new Error('Нет перевода: ' + s);
+  return KZ[s];
+}
+function bodyFor(lang) {
+  if (lang !== 'kz') return body;
+  return body.map((b) => {
+    switch (b[0]) {
+      case 'box': return ['box', b[1].map(tr), tr(b[2] || ''), b[3]];
+      case 'table': return ['table', b[1], b[2].map((r) => r.map((c) => String(c).split('\n').map(tr).join('\n'))), b[3]];
+      case 'ex': return b;
+      case 'gap': return b;
+      default: return [b[0], tr(b[1]), b[2]];
+    }
+  });
+}
+// Пример (код и вывод) на нужном языке: в казахской версии переведены только печатаемые строки
+function exFor(key, lang) {
+  const e = EX[key];
+  return lang === 'kz' ? { code: e.kz.code, output: e.kz.output, input: e.input } : e;
+}
+const LABELS = { ru: { prog: 'Программа', inp: 'Ввод с клавиатуры', out: 'Вывод на экран' }, kz: { prog: 'Бағдарлама', inp: 'Пернетақтадан енгізу', out: 'Экранға шығару' } };
+
+module.exports = { body, EX, bodyFor, exFor, LABELS };

@@ -301,3 +301,9 @@ button.danger-outline { border-color: var(--bad); color: var(--bad); }
 .rv-theory { margin: 8px 0 0; color: #8a5a00; background: #fff4d6; border-radius: 8px; padding: 6px 10px; }
 .rv-given { background: var(--bg); border-radius: 8px; padding: 8px 12px; margin: 6px 0 0; white-space: pre-wrap; font-family: inherit; }
 .rv-given.mono { font-family: ui-monospace, "Consolas", monospace; }
+
+/* Переключатель языка ҚАЗ / РУС — всегда виден */
+.lang-switch { position: fixed; top: 10px; right: 12px; z-index: 20; display: flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.lang-switch button { border: 0; border-radius: 0; padding: 6px 14px; font-weight: 800; background: #fff; color: var(--accent); }
+.lang-switch button.on { background: var(--accent); color: #fff; }
+html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }

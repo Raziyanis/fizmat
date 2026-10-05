@@ -7,15 +7,17 @@ const fs = require('fs');
 const path = require('path');
 const dir = path.join(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
-const { body, EX } = require(path.join(dir, '..', 'tools', 'theory-content.js'));
+const { bodyFor, exFor, LABELS } = require(path.join(dir, '..', 'tools', 'theory-content.js'));
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const md = (s) => esc(s).split(/(\*\*[^*]+\*\*|`[^`]+`)/).map((p) =>
   /^\*\*.*\*\*$/.test(p) ? '<b>' + p.slice(2, -2) + '</b>' : /^`.*`$/.test(p) ? '<code>' + p.slice(1, -1) + '</code>' : p).join('');
 const tbox = (cls, label, text) => `<div class="t-box ${cls}"><div class="lbl">${esc(label)}</div><pre>${esc(text)}</pre></div>`;
 
+function theoryHtml(lang) {
+const lb = LABELS[lang];
 let html = '', inList = false;
-for (const b of body) {
+for (const b of bodyFor(lang)) {
   if (b[0] !== 'b' && inList) { html += '</ul>'; inList = false; }
   switch (b[0]) {
     case 'title': html += `<h1 class="t-title">${md(b[1])}</h1>`; break;
@@ -27,10 +29,10 @@ for (const b of body) {
     case 'box': html += tbox('', b[2], b[1].join('\n')); break;
     case 'gap': break;
     case 'ex': {
-      const e = EX[b[1]];
-      const right = (e.input ? tbox('inp', 'Ввод с клавиатуры', e.input.join('\n')) : '') +
-        (b[2] && b[2].noOutput ? '' : tbox('out', 'Вывод на экран', e.output.replace(/ +$/gm, '') || ' '));
-      html += `<div class="t-pair">${tbox('', 'Программа', e.code)}<div>${right}</div></div>`;
+      const e = exFor(b[1], lang);
+      const right = (e.input ? tbox('inp', lb.inp, e.input.join('\n')) : '') +
+        (b[2] && b[2].noOutput ? '' : tbox('out', lb.out, e.output.replace(/ +$/gm, '') || ' '));
+      html += `<div class="t-pair">${tbox('', lb.prog, e.code)}<div>${right}</div></div>`;
       break;
     }
     case 'table': {
@@ -41,13 +43,16 @@ for (const b of body) {
   }
 }
 if (inList) html += '</ul>';
+return html;
+}
+const html = '<div class="lang-kz">' + theoryHtml('kz') + '</div><div class="lang-ru">' + theoryHtml('ru') + '</div>';
 
 const inline = (js) => '<script>\n' + js.replace(/<\/script/gi, '<\\/script') + '\n</script>';
 const scripts = [
   inline(read('config.js')),
   inline('/* Skulpt — Python in the browser. Copyright (c) 2009-2016 Scott Graham and contributors. MIT License. */\n' + read('vendor/skulpt.min.js')),
   inline(read('vendor/skulpt-stdlib.js')),
-  inline(read('quiz.js')), inline(read('tasks.js')), inline(read('app.js')),
+  inline(read('ui-kz.js')), inline(read('quiz.js')), inline(read('tasks.js')), inline(read('app.js')),
 ].join('\n');
 let page = read('index.html')
   .replace('<!--THEORY-->', () => html)

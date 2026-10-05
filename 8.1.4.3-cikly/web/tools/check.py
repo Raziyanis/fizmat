@@ -15,7 +15,8 @@ vm.runInNewContext(fs.readFileSync(%r, 'utf8'), ctx);
 vm.runInNewContext(fs.readFileSync(%r, 'utf8'), ctx);
 const out = [];
 for (let s = 1; s <= %d; s++) { const seed = s * 2654435761 >>> 0;
-  out.push({ code: ctx.window.CODE.generate(seed), quizzes: [1, 2, 3].map(n => ctx.window.QUIZ.generate((seed + n * 7919) >>> 0, n - 1, seed)) }); }
+  const G = (lang) => ({ code: ctx.window.CODE.generate(seed, lang), quizzes: [1, 2, 3].map(n => ctx.window.QUIZ.generate((seed + n * 7919) >>> 0, n - 1, seed, lang)) });
+  out.push(Object.assign(G('ru'), { kz: G('kz') })); }
 process.stdout.write(JSON.stringify(out));
 """ % (str(ROOT / 'tasks.js'), str(ROOT / 'quiz.js'), N)
 
@@ -73,6 +74,19 @@ def main():
     nt = 0
     for vi, v in enumerate(data):
         C, QS = v['code'], v['quizzes']
+        # казахская версия: те же числа, код, тесты и тот же номер правильного варианта
+        K = v['kz']
+        for a, b in zip(C, K['code']):
+            assert a['tests'] == b['tests'] and a['solution'] == b['solution'] and a['alt'] == b['alt'] and a['level'] == b['level']
+            assert a['text'] != b['text'] or not re.search('[А-Яа-яЁё]', a['text'])
+        for qa, qb in zip(QS, K['quizzes']):
+            for a, b in zip(qa, qb):
+                assert a['type'] == b['type'] and a.get('code') == b.get('code') and len(a['options']) == len(b['options'])
+                if a['type'] == 'choice':
+                    assert a['options'].index(a['answer']) == b['options'].index(b['answer'])
+                else:
+                    assert [a['options'].index(x) for x in a['answer']] == [b['options'].index(x) for x in b['answer']]
+                    assert [i['code'] for i in a['items']] == [i['code'] for i in b['items']] or a.get('title') != b.get('title')
         assert len(C) == 10 and all(len(Q) == 10 for Q in QS)
         for i in (4, 5, 6):   # вопросы 5–7: в трёх попытках три разные формулировки
             assert len({QS[k][i]['text'] + (QS[k][i].get('code') or '')[:12] for k in range(3)}) == 3, (i + 1, [QS[k][i]['title'] for k in range(3)])

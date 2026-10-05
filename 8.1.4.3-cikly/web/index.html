@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
   <div id="timers" class="timers" hidden>
     <div id="tm-total-box" class="timer"><span id="tm-label">До конца работы</span><b id="tm-total"></b></div>
     <div class="bar"><div id="tm-bar"></div></div>
@@ -148,7 +149,7 @@
       <div class="teacher">
         <button id="b-teacher" class="link">Для учителя: новая работа на этом устройстве</button>
         <div id="r-teacher-form" class="row" hidden>
-          <input id="r-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+          <input id="r-pin" type="password" autocomplete="off" >
           <button id="b-restart" class="primary">Начать заново</button>
           <span id="r-pin-msg" class="muted small"></span>
         </div>
@@ -159,7 +160,7 @@
       <h1>Работа завершена</h1>
       <p>Результат скрыт. Чтобы начать новую работу на этом устройстве, учитель вводит пароль.</p>
       <div class="row">
-        <input id="l-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+        <input id="l-pin" type="password" autocomplete="off" >
         <button id="b-unlock" class="primary">Начать заново</button>
         <span id="l-pin-msg" class="muted small"></span>
       </div>
@@ -171,6 +172,7 @@
   <script src="config.js"></script>
   <script src="vendor/skulpt.min.js"></script>
   <script src="vendor/skulpt-stdlib.js"></script>
+  <script src="ui-kz.js"></script>
   <script src="quiz.js"></script>
   <script src="tasks.js"></script>
   <script src="app.js"></script>

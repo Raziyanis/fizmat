@@ -9,7 +9,8 @@ const {
   AlignmentType, ShadingType, HeadingLevel, PageBreak,
 } = require('docx');
 
-const { body: BLOCKS, EX } = require('./theory-content');
+const { bodyFor, exFor, LABELS } = require('./theory-content');
+let LANG = 'ru';
 const FONT = 'Times New Roman', MONO = 'Courier New';
 const M = 850, W = 11906 - 2 * M;
 
@@ -43,10 +44,10 @@ function box(lines, fill, label, labelColor) {
 const gap = () => new Paragraph({ children: [], spacing: { after: 60 } });
 // Пример: код + вывод (вывод получен запуском Python)
 function ex(key, o = {}) {
-  const e = EX[key];
-  const out = [box(e.code.split('\n'), 'F3F6FA', 'Программа', '2452C0')];
-  if (e.input) out.push(gap(), box(e.input, 'FFF8E6', 'Ввод с клавиатуры', 'B5520F'));
-  if (!o.noOutput) out.push(gap(), box((e.output.replace(/ +$/gm, '') || ' ').split('\n'), 'EAF6EE', 'Вывод на экран', '1A7F37'));
+  const e = exFor(key, LANG), lb = LABELS[LANG];
+  const out = [box(e.code.split('\n'), 'F3F6FA', lb.prog, '2452C0')];
+  if (e.input) out.push(gap(), box(e.input, 'FFF8E6', lb.inp, 'B5520F'));
+  if (!o.noOutput) out.push(gap(), box((e.output.replace(/ +$/gm, '') || ' ').split('\n'), 'EAF6EE', lb.out, '1A7F37'));
   out.push(gap());
   return out;
 }
@@ -70,12 +71,18 @@ const DOCX_BLOCK = {
   h1: (b) => H1(b[1]), h2: (b) => H2(b[1]), p: (b) => P(b[1], b[2]), b: (b) => B(b[1]),
   box: (b) => box(b[1], 'F3F6FA', b[2], b[3]), gap: () => gap(), table: (b) => table(b[1], b[2], b[3]),
 };
-const body = [];
-BLOCKS.forEach((b) => { if (b[0] === 'ex') body.push(...ex(b[1], b[2])); else body.push(DOCX_BLOCK[b[0]](b)); });
-
-const doc = new Document({
-  creator: 'Учитель информатики', title: 'Теория 8.1.4.3: цикл while, цикл for',
-  styles: { default: { document: { run: { font: FONT, size: 24 } } } },
-  sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: M, bottom: M, left: M, right: M } } }, children: body }],
-});
-Packer.toBuffer(doc).then((b) => { fs.writeFileSync(path.join(__dirname, '..', 'teoriya-8.1.4.3.docx'), b); console.log('teoriya-8.1.4.3.docx готов'); });
+// Сборка на двух языках: teoriya-8.1.4.3.docx (рус.) и kz/teoriya-8.1.4.3-kz.docx (каз.)
+function build(lang, file, title) {
+  LANG = lang;
+  const body = [];
+  bodyFor(lang).forEach((b) => { if (b[0] === 'ex') body.push(...ex(b[1], b[2])); else body.push(DOCX_BLOCK[b[0]](b)); });
+  const doc = new Document({
+    creator: lang === 'kz' ? 'Информатика мұғалімі' : 'Учитель информатики', title,
+    styles: { default: { document: { run: { font: FONT, size: 24 } } } },
+    sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: M, bottom: M, left: M, right: M } } }, children: body }],
+  });
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  return Packer.toBuffer(doc).then((b) => { fs.writeFileSync(file, b); console.log(path.relative(path.join(__dirname, '..'), file) + ' готов'); });
+}
+build('ru', path.join(__dirname, '..', 'teoriya-8.1.4.3.docx'), 'Теория 8.1.4.3: цикл while, цикл for')
+  .then(() => build('kz', path.join(__dirname, '..', 'kz', 'teoriya-8.1.4.3-kz.docx'), 'Теория 8.1.4.3: while циклі, for циклі'));
