@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Формативная работа 8.1.4.3</title>
+  <style>
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5f6b7a;
+  --line: #d9dee5;
+  --accent: #1f6feb;
+  --ok: #1a7f37;
+  --ok-bg: #e8f5ec;
+  --bad: #c62828;
+  --bad-bg: #fdecec;
+  --warn-bg: #fff4d6;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+h1 { font-size: 1.6rem; margin: 0 0 12px; }
+h2 { font-size: 1.2rem; margin: 24px 0 8px; }
+
+.topic { color: var(--muted); margin-top: 0; }
+.rules li { margin-bottom: 6px; }
+.rules li.important { background: var(--bad-bg); color: var(--bad); border-radius: 6px; padding: 6px 10px; margin-left: -10px; list-style-position: inside; }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+.center { text-align: center; }
+
+.note {
+  background: var(--warn-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+button {
+  font: inherit;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+
+.confirm {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--bad);
+  border-radius: 8px;
+  background: var(--bad-bg);
+}
+
+#s-test.changed { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-bg); }
+
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.nav-btn { min-width: 44px; padding: 8px 0; font-weight: 700; border: 2px solid var(--line); }
+.nav-btn.done { background: #dbe8ff; border-color: #9dbcf5; }
+.nav-btn.skipped { background: var(--warn-bg); border-color: #e9c46a; }
+.nav-btn.cur { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.nav-legend { margin-top: -8px; }
+.saved { color: var(--accent); }
+
+.question { font-size: 1.5rem; font-weight: 600; margin: 8px 0 16px; }
+
+.answer {
+  width: 100%;
+  max-width: 360px;
+  font: 600 1.6rem/1.2 ui-monospace, "Consolas", monospace;
+  letter-spacing: 0.08em;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+.answer:focus { outline: none; border-color: var(--accent); }
+
+/* Таймеры закреплены сверху и видны всё время работы */
+.timers {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 32px;
+  padding: 10px 16px 14px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.timer { display: flex; align-items: baseline; gap: 10px; }
+.timer span { color: var(--muted); font-size: 0.95rem; }
+.timer b { font: 700 1.8rem/1 ui-monospace, "Consolas", monospace; }
+.timer.low b { color: var(--bad); }
+.bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: var(--line);
+}
+.bar div { height: 100%; width: 0; background: var(--accent); transition: width 0.25s linear; }
+
+.score {
+  text-align: center;
+  font-weight: 800;
+  line-height: 1;
+  margin: 24px 0 8px;
+}
+/* Балл — максимально крупно, чтобы учитель видел его издалека */
+.score-num { display: block; font-size: clamp(5rem, 24vw, 12rem); letter-spacing: -0.02em; }
+.time-box { max-width: 520px; margin: 16px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); text-align: center; }
+.time-box p { margin: 4px 0; font-size: 1.15rem; }
+.time-box p.small { font-size: 0.95rem; color: var(--muted); }
+.time-box p.left b { color: var(--accent); font-size: 1.5rem; }
+.count { font-size: 1.3rem; font-weight: 600; }
+.score-word { display: block; font-size: clamp(2.2rem, 8vw, 4rem); margin-top: 8px; }
+
+.table-wrap { overflow-x: auto; }
+.report { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.report th, .report td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.report th { background: var(--bg); }
+.report tr.ok td:last-child { color: var(--ok); background: var(--ok-bg); }
+.report tr.bad td:last-child { color: var(--bad); background: var(--bad-bg); }
+
+.warn {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: 90vw;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: var(--bad);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.demo {
+  background: var(--warn-bg);
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+/* Сброс результата учителем (автономный файл) */
+.teacher { margin-top: 32px; padding-top: 12px; border-top: 1px dashed var(--line); }
+button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); font-size: 0.85rem; text-decoration: underline; }
+@media print { .teacher { display: none; } }
+
+/* Страница учителя */
+.key { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 8px; }
+.key th, .key td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
+.key th { background: var(--bg); }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 200px; }
+
+@media print {
+  .no-print { display: none; }
+  section { border: 0; padding: 0; }
+}
+
+/* ---------- Формативная работа 8.1.4.2: типы заданий ---------- */
+.answer.text-answer { text-transform: none; }
+.code {
+  background: #1b2740;
+  color: #f1f5fb;
+  font: 500 1.15rem/1.5 ui-monospace, "Consolas", "Courier New", monospace;
+  padding: 16px 20px;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 0 0 16px;
+  tab-size: 4;
+}
+.figure { margin: 0 0 16px; overflow-x: auto; }
+.figure svg { max-width: 100%; height: auto; }
+.mono { font-family: ui-monospace, "Consolas", "Courier New", monospace; }
+
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.choice {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; cursor: pointer;
+}
+.choice:has(input:checked) { border-color: var(--accent); background: #eef4ff; }
+.choice input { margin-top: 5px; width: 18px; height: 18px; flex: none; }
+.choice.mono span { font-family: ui-monospace, "Consolas", monospace; font-size: 1.1rem; }
+
+.match { display: flex; flex-direction: column; gap: 12px; }
+.match-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.match-left { min-width: 130px; display: flex; align-items: center; }
+.match-left code { font-size: 1.25rem; font-weight: 700; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+.match-row .arrow { color: var(--muted); font-size: 1.3rem; }
+.match select, .row select {
+  font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; background: #fff;
+  min-width: 260px; max-width: 100%;
+}
+.match select:focus { outline: none; border-color: var(--accent); }
+
+.order { list-style: decimal; padding-left: 28px; display: flex; flex-direction: column; gap: 8px; margin: 0; }
+.order-row { padding: 6px 8px 6px 4px; }
+.order-row code { display: inline-block; min-width: 240px; font-size: 1.15rem; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; margin-right: 8px; }
+button.mini { padding: 6px 14px; font-size: 1.1rem; margin-left: 4px; }
+
+/* Разбор заданий на экране результата */
+.review { display: flex; flex-direction: column; gap: 14px; }
+.rv { border: 2px solid var(--line); border-left-width: 8px; border-radius: 10px; padding: 14px 16px; }
+.rv.ok { border-color: #b7dfc3; border-left-color: var(--ok); }
+.rv.bad { border-color: #f1c0c0; border-left-color: var(--bad); }
+.rv-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.rv-num { font-weight: 700; color: var(--muted); }
+.rv-badge { font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.rv.ok .rv-badge { color: var(--ok); background: var(--ok-bg); }
+.rv.bad .rv-badge { color: var(--bad); background: var(--bad-bg); }
+.rv-q { font-weight: 600; margin: 4px 0 12px; }
+.rv .code { font-size: 1rem; margin-bottom: 10px; }
+.rv-line { margin: 6px 0; font-size: 1.1rem; }
+.rv-line .mono { font-weight: 700; }
+.rv-line.right .mono, .rv-right .mono { color: var(--ok); }
+.rv-line.wrong .mono { color: var(--bad); text-decoration: line-through; }
+.rv-none { color: var(--muted); font-style: italic; }
+.rv-opts { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.rv-opts li { display: flex; gap: 10px; padding: 6px 10px; border-radius: 8px; }
+.rv-opts li.right { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+.rv-opts li.wrong { background: var(--bad-bg); color: var(--bad); text-decoration: line-through; }
+.rv-mark { width: 1.2em; flex: none; font-weight: 700; }
+.rv-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.rv-table th, .rv-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: middle; }
+.rv-table th { background: var(--bg); }
+.rv-table td.right { color: var(--ok); background: var(--ok-bg); }
+.rv-table td.wrong { color: var(--bad); background: var(--bad-bg); }
+.rv-item svg { width: 90px; height: auto; }
+.rv-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rv-cols .code { margin-top: 4px; }
+@media (max-width: 600px) { .rv-cols { grid-template-columns: 1fr; } }
+
+/* 8.1.4.3: многострочные варианты ответа и строки с отступом */
+.choice.mono span, .rv-opts.mono li span { white-space: pre; font-family: ui-monospace, "Consolas", monospace; }
+.order-row code { white-space: pre; }
+</style>
+</head>
+<body>
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span>До конца работы</span><b id="tm-total">20:00</b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Загрузка…</p></section>
+
+    <section id="s-intro" hidden>
+      <h1>Формативная работа</h1>
+      <p class="topic">8.1.4.3 — цикл for, функция range(), цикл while (язык Python)</p>
+      <h2>Инструкция</h2>
+      <ul class="rules">
+        <li>В работе <b>20 заданий</b> разных видов: сопоставление, «что выведет программа», заполнение пропуска, выбор ответа, порядок строк программы.</li>
+        <li>Выполните задание и нажмите «Ответить» (в заданиях с полем ввода можно нажать Enter).</li>
+        <li>Время на каждое задание <b>не ограничено</b> — распределяйте его сами и следите за общим таймером вверху экрана.</li>
+        <li class="important"><b>Ответ засчитывается только после нажатия «Ответить»</b>. Если время работы закончится, а вы не нажали «Ответить», ответ <b>не засчитывается</b>.</li>
+        <li>Правильность ответа система отмечает <b>автоматически</b>. За каждый правильный ответ — <b>1 балл</b>, максимальный балл — <b>20</b>. В задании на сопоставление балл ставится, только если все пары верны.</li>
+        <li>Кнопка «Пропустить» засчитывает задание как неправильное и открывает следующее. Кнопка «← Предыдущее» и номера заданий вверху позволяют <b>вернуться к любому заданию</b> и изменить ответ, пока не закончилось общее время.</li>
+        <li>Работа <b>автоматически завершится через 20 минут</b>.</li>
+        <li>Работа идёт в полноэкранном режиме. <b>Если выйти из полноэкранного режима, переключиться на другую вкладку, окно или приложение, работа сразу завершится</b>, а оставшиеся задания будут засчитаны как неправильные.</li>
+      </ul>
+      <p id="i-nofs" class="note" hidden>Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки и приложения — работа завершится.</p>
+      <p class="muted">Имя и другие личные данные не нужны. Ответы и баллы никуда не отправляются. У каждого ученика свои числа в заданиях.</p>
+      <button id="b-start" class="primary big">Начать</button>
+    </section>
+
+    <section id="s-test" hidden>
+      <div id="t-nav" class="nav" aria-label="Номера заданий"></div>
+      <p class="muted small nav-legend">Синие номера — есть ответ, жёлтые — пропущены. Нажмите на номер, чтобы открыть задание.</p>
+      <p id="t-num" class="muted"></p>
+      <p id="t-text" class="question"></p>
+      <div id="t-body"></div>
+      <p id="t-saved" class="saved small" hidden></p>
+      <div class="buttons">
+        <button id="b-prev">← Предыдущее</button>
+        <button id="b-answer" class="primary">Ответить</button>
+        <button id="b-skip">Пропустить</button>
+      </div>
+    </section>
+
+    <section id="s-menu" hidden>
+      <h1 id="m-title">Остались пропущенные задания</h1>
+      <p>Отвечено заданий: <b id="m-done"></b> из <span id="m-total"></span>.</p>
+      <p id="m-skipped">Пропущено заданий: <b id="m-count"></b> (<span id="m-list"></span>). Пока они засчитаны как неправильные.</p>
+      <p>Пока не закончилось общее время, можно открыть любое задание (нажмите на его номер), проверить и изменить ответ.</p>
+      <div id="m-nav" class="nav" aria-label="Номера заданий"></div>
+      <div class="buttons">
+        <button id="b-review" class="primary">Вернуться к пропущенным</button>
+        <button id="b-finish">Завершить работу</button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p>Завершить работу? Пропущенные задания останутся неправильными.</p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger">Да, завершить</button>
+          <button id="b-finish-no">Нет</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-resume" hidden>
+      <h1>Работа восстановлена</h1>
+      <p>Страница была обновлена. Время продолжает идти. Нажмите «Продолжить», чтобы вернуться к заданиям в полноэкранном режиме.</p>
+      <button id="b-resume" class="primary big">Продолжить</button>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1>Работа завершена</h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p id="r-score" class="score"><span id="r-score-num" class="score-num"></span> <span id="r-score-word" class="score-word"></span></p>
+      <p id="r-count" class="center count"></p>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2>Разбор заданий</h2>
+      <p class="muted small">Под каждым заданием — ваш ответ и правильный ответ.</p>
+      <div id="r-list" class="review"></div>
+      <div class="teacher">
+        <button id="b-teacher" class="link">Для учителя: новая работа на этом устройстве</button>
+        <div id="r-teacher-form" class="row" hidden>
+          <input id="r-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+          <button id="b-restart" class="primary">Начать заново</button>
+          <span id="r-pin-msg" class="muted small"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-locked" hidden>
+      <h1>Работа завершена</h1>
+      <p>Результат скрыт. Чтобы начать новую работу на этом устройстве, учитель вводит пароль.</p>
+      <div class="row">
+        <input id="l-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+        <button id="b-unlock" class="primary">Начать заново</button>
+        <span id="l-pin-msg" class="muted small"></span>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+<script>
+/* Настройки. Пароль учителя можно поменять здесь (в Блокноте). */
+window.TEACHER_PIN = "2026";
+
+</script>
+<script>
+/* Задания формативной работы 8.1.4.3 «Цикл for, функция range(), цикл while» (Python).
+ * TASKS.generate(seed) → 20 заданий. Числа зависят от seed, поэтому у каждого ученика свой вариант.
+ * Типы: input — ввести ответ; choice — выбрать ответ; match — сопоставить; order — расставить строки.
+ * Ключ проверяется настоящим Python: tools/check-tasks.py. */
+(function () {
+  'use strict';
+
+  function rng(seed) {
+    var s = seed >>> 0;
+    return function () {
+      s = (s + 0x6d2b79f5) >>> 0;
+      var t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function py(a) { return '[' + a.join(', ') + ']'; }
+  // Числа, которые даёт range(a, b, s) — как в Python
+  function range(a, b, s) {
+    if (b === undefined) { b = a; a = 0; }
+    s = s || 1;
+    var out = [];
+    for (var x = a; s > 0 ? x < b : x > b; x += s) out.push(x);
+    return out;
+  }
+  var rstr = function (a, b, s) { return 'range(' + a + (b !== undefined ? ', ' + b : '') + (s !== undefined ? ', ' + s : '') + ')'; };
+
+  var LIST_HINT = 'Запишите список так, как его выведет Python, например: [1, 2, 3]';
+  var ROW_HINT = 'Запишите числа через пробел, как их выведет программа.';
+
+  function generate(seed) {
+    var r = rng(seed);
+    var ri = function (a, b) { return a + Math.floor(r() * (b - a + 1)); };
+    var pick = function (a) { return a[Math.floor(r() * a.length)]; };
+    var shuffle = function (a) {
+      a = a.slice();
+      for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; }
+      return a;
+    };
+    var nums = function (n, lo, hi) { var o = []; while (o.length < n) { var v = ri(lo, hi); if (o.indexOf(v) < 0) o.push(v); } return o; };
+    var T = [];
+    var OUT = 'Что выведет программа?';
+    var num = function (title, code, ans, text) { return { type: 'input', title: title, text: text || OUT, code: code, accept: [String(ans)], answerShown: String(ans), numeric: true }; };
+    var row = function (title, code, arr) { return { type: 'input', title: title, text: OUT, code: code, accept: [arr.join(' ')], answerShown: arr.join(' '), hint: ROW_HINT }; };
+
+    // 1. Сопоставление: запись range → числа
+    var k1 = ri(3, 6), a1 = ri(1, 4), b1 = a1 + ri(3, 5), s1 = ri(2, 3), c1 = a1 + s1 * ri(3, 4) + 1, d1 = ri(8, 12), e1 = pick([2, 3]);
+    var items1 = shuffle([[rstr(k1)], [rstr(a1, b1)], [rstr(a1, c1, s1)], [rstr(d1, 0, -e1)]].map(function (x, i) {
+      var arr = [range(k1), range(a1, b1), range(a1, c1, s1), range(d1, 0, -e1)][i];
+      return { code: x[0], ans: arr.join(' ') };
+    }));
+    T.push({ type: 'match', title: 'range() и числа', text: 'Сопоставьте запись range() с числами, которые она даёт.',
+      items: items1.map(function (m) { return { code: m.code, name: m.code }; }),
+      options: shuffle(items1.map(function (m) { return m.ans; })), answer: items1.map(function (m) { return m.ans; }) });
+
+    // 2. Выбор: итерация
+    T.push({ type: 'choice', title: 'Итерация', text: 'Что называется итерацией цикла?',
+      options: shuffle(['одно выполнение тела цикла', 'условие продолжения цикла', 'переменная цикла', 'команды до начала цикла']),
+      answer: 'одно выполнение тела цикла' });
+
+    // 3. Выбор: какой цикл
+    T.push({ type: 'choice', title: 'for или while', text: 'Какой цикл удобнее, если количество повторений заранее неизвестно (например, «повторять, пока пользователь не введёт 0»)?',
+      options: shuffle(['while', 'for с range()', 'любой цикл здесь не подходит', 'for x in список']), answer: 'while' });
+
+    // 4. Сколько раз выполнится тело
+    var a4 = ri(1, 9), b4 = a4 + ri(4, 12);
+    T.push(num('Сколько повторений', 'for i in range(' + a4 + ', ' + b4 + '):\n    print("Привет")', b4 - a4,
+      'Сколько раз программа напечатает слово «Привет»?'));
+
+    // 5. Количество чисел при шаге
+    var a5 = ri(0, 5), s5 = ri(2, 4), b5 = a5 + s5 * ri(3, 6) + ri(0, s5 - 1) + 1;
+    T.push(num('range() с шагом', 'k = 0\nfor i in range(' + a5 + ', ' + b5 + ', ' + s5 + '):\n    k = k + 1\nprint(k)', range(a5, b5, s5).length));
+
+    // 6. Вывод range с шагом
+    var a6 = ri(1, 6), s6 = ri(2, 5), b6 = a6 + s6 * ri(3, 4) + ri(1, s6);
+    T.push(row('Вывод в одну строку', 'for i in range(' + a6 + ', ' + b6 + ', ' + s6 + '):\n    print(i, end=" ")', range(a6, b6, s6)));
+
+    // 7. Отрицательный шаг
+    var a7 = ri(12, 20), s7 = ri(2, 4), b7 = ri(0, 4);
+    T.push(row('Обратный отсчёт', 'for i in range(' + a7 + ', ' + b7 + ', -' + s7 + '):\n    print(i, end=" ")', range(a7, b7, -s7)));
+
+    // 8. Сумма
+    var a8 = ri(1, 5), b8 = a8 + ri(3, 7), s8 = range(a8, b8 + 1).reduce(function (p, q) { return p + q; }, 0);
+    T.push(num('Накопление суммы', 's = 0\nfor i in range(' + a8 + ', ' + (b8 + 1) + '):\n    s = s + i\nprint(s)', s8));
+
+    // 9. Произведение
+    var k9 = ri(3, 6), p9 = range(1, k9 + 1).reduce(function (p, q) { return p * q; }, 1);
+    T.push(num('Накопление произведения', 'p = 1\nfor i in range(1, ' + (k9 + 1) + '):\n    p = p * i\nprint(p)', p9));
+
+    // 10. Счётчик
+    var n10 = ri(20, 50), d10 = ri(3, 7);
+    T.push(num('Счётчик', 'k = 0\nfor x in range(1, ' + (n10 + 1) + '):\n    if x % ' + d10 + ' == 0:\n        k = k + 1\nprint(k)', Math.floor(n10 / d10)));
+
+    // 11. for x in список
+    var a11 = nums(5, 1, 20), t11 = ri(6, 12), s11 = a11.filter(function (x) { return x > t11; }).reduce(function (p, q) { return p + q; }, 0);
+    T.push(num('for x in список', 'a = ' + py(a11) + '\ns = 0\nfor x in a:\n    if x > ' + t11 + ':\n        s = s + x\nprint(s)', s11));
+
+    // 12. for i in range(len(a)) — изменение списка
+    var a12 = nums(3, 1, 9), m12 = ri(2, 5);
+    T.push({ type: 'input', title: 'for i in range(len(a))', text: OUT,
+      code: 'a = ' + py(a12) + '\nfor i in range(len(a)):\n    a[i] = a[i] * ' + m12 + '\nprint(a)',
+      accept: [py(a12.map(function (x) { return x * m12; }))], answerShown: py(a12.map(function (x) { return x * m12; })), hint: LIST_HINT });
+
+    // 13. for x in a не меняет список
+    var a13 = nums(3, 1, 9), m13 = ri(2, 5);
+    T.push({ type: 'input', title: 'Изменение x в цикле', text: OUT,
+      code: 'a = ' + py(a13) + '\nfor x in a:\n    x = x * ' + m13 + '\nprint(a)', accept: [py(a13)], answerShown: py(a13), hint: LIST_HINT });
+
+    // 14. while со счётчиком: значение после цикла
+    var a14 = ri(1, 5), s14 = ri(2, 4), b14 = a14 + ri(8, 15), i14 = a14;
+    while (i14 <= b14) i14 += s14;
+    T.push(num('while: значение после цикла', 'i = ' + a14 + '\nwhile i <= ' + b14 + ':\n    i = i + ' + s14 + '\nprint(i)', i14));
+
+    // 15. while: цифры числа
+    var n15 = ri(1000, 99999), v15 = r() < 0.5;
+    var ds = String(n15).split('').map(Number);
+    T.push(num(v15 ? 'while: сумма цифр' : 'while: количество цифр',
+      'n = ' + n15 + '\nk = 0\nwhile n > 0:\n    k = k + ' + (v15 ? 'n % 10' : '1') + '\n    n = n // 10\nprint(k)',
+      v15 ? ds.reduce(function (p, q) { return p + q; }, 0) : ds.length));
+
+    // 16. while: удвоение
+    var lim = ri(30, 300), st = pick([1, 3, 5]), x16 = st, c16 = 0;
+    while (x16 < lim) { x16 *= 2; c16++; }
+    var cnt16 = r() < 0.5;
+    T.push(num(cnt16 ? 'while: сколько итераций' : 'while: удвоение',
+      'x = ' + st + '\nk = 0\nwhile x < ' + lim + ':\n    x = x * 2\n    k = k + 1\nprint(' + (cnt16 ? 'k' : 'x') + ')', cnt16 ? c16 : x16));
+
+    // 17. Пропуск: конец range
+    var FILL = 'Что нужно написать вместо ___? Запишите только пропущенную часть.';
+    var a17 = ri(1, 5), b17 = a17 + ri(5, 15);
+    T.push({ type: 'input', title: 'Пропуск: конец range', text: 'Программа должна вывести все числа от ' + a17 + ' до ' + b17 + ' включительно. ' + FILL,
+      code: 'for i in range(' + a17 + ', ___):\n    print(i)', accept: [String(b17 + 1)], answerShown: String(b17 + 1), numeric: true });
+
+    // 18. Пропуск: условие while
+    var b18 = ri(5, 12);
+    T.push({ type: 'input', title: 'Пропуск: условие while', text: 'Программа должна вывести числа от 1 до ' + b18 + ' включительно. ' + FILL,
+      code: 'i = 1\nwhile i ___ ' + b18 + ':\n    print(i)\n    i = i + 1', accept: ['<='], answerShown: '<=', symbol: true, hint: 'Запишите только знак сравнения.' });
+
+    // 19. Выбор: бесконечный цикл
+    var v19 = ri(3, 8);
+    T.push({ type: 'choice', title: 'Бесконечный цикл', text: 'Какая программа выполняется бесконечно?', mono: true,
+      options: shuffle([
+        'i = 1\nwhile i < ' + v19 + ':\n    print(i)',
+        'i = 1\nwhile i < ' + v19 + ':\n    print(i)\n    i = i + 1',
+        'for i in range(' + v19 + '):\n    print(i)',
+        'i = ' + v19 + '\nwhile i > 0:\n    i = i - 1'
+      ]), answer: 'i = 1\nwhile i < ' + v19 + ':\n    print(i)' });
+
+    // 20. Порядок строк
+    var n20 = ri(5, 15);
+    var lines20 = ['s = 0', 'for i in range(1, ' + (n20 + 1) + '):', '    s = s + i', 'print(s)'];
+    var shown20;
+    do { shown20 = shuffle(lines20); } while (shown20.join() === lines20.join());
+    T.push({ type: 'order', title: 'Порядок строк программы',
+      text: 'Расставьте строки так, чтобы программа вывела одно число — сумму чисел от 1 до ' + n20 + '. Перемещайте строки кнопками ↑ и ↓.',
+      lines: shown20, answer: lines20 });
+
+    return T;
+  }
+
+  // ---------- Проверка и отображение ответа ----------
+
+  function norm(s) {
+    return String(s == null ? '' : s).trim().replace(/\s+/g, ' ').replace(/\s*,\s*/g, ' ').replace(/\[\s+/g, '[').replace(/\s+\]/g, ']').toLowerCase();
+  }
+  function normSymbol(s) { return String(s == null ? '' : s).replace(/\s+/g, ''); }
+
+  function isComplete(t, given) {
+    if (t.type === 'input') return norm(given) !== '';
+    if (t.type === 'choice') return !!given;
+    if (t.type === 'match') return Array.isArray(given) && given.length === t.items.length && given.every(Boolean);
+    if (t.type === 'order') return Array.isArray(given) && given.length === t.answer.length;
+    return false;
+  }
+
+  function isCorrect(t, given) {
+    if (!isComplete(t, given)) return false;
+    if (t.type === 'input') {
+      var g = t.symbol ? normSymbol(given) : norm(given);
+      return t.accept.some(function (a) { return (t.symbol ? normSymbol(a) : norm(a)) === g; });
+    }
+    if (t.type === 'choice') return given === t.answer;
+    return given.join('\n') === t.answer.join('\n');
+  }
+
+  function showGiven(t, given) {
+    if (given == null || given === '' || (Array.isArray(given) && !given.length)) return '—';
+    if (t.type === 'match') return t.items.map(function (it, i) { return it.name + ' → ' + (given[i] || '—'); }).join('; ');
+    if (t.type === 'order') return given.join(' | ');
+    return String(given);
+  }
+
+  function showAnswer(t) {
+    if (t.type === 'match') return t.items.map(function (it, i) { return it.name + ' → ' + t.answer[i]; }).join('; ');
+    if (t.type === 'order') return t.answer.join(' | ');
+    if (t.type === 'input') return t.answerShown;
+    return t.answer;
+  }
+
+  window.TASKS = { generate: generate, isComplete: isComplete, isCorrect: isCorrect, showGiven: showGiven, showAnswer: showAnswer, norm: norm };
+})();
+
+</script>
+<script>
+/* Формативная работа 8.1.4.3 (движок из работы 8.1.4.2): общий таймер, задания разных типов, возврат к заданиям, защита от выхода.
+ * Движок взят из формативной работы 8.2.1.1 (одинаковое поведение для учеников). */
+(function () {
+  'use strict';
+
+  var TOTAL_MS = 20 * 60 * 1000;   // общее время работы
+  var RESULT_MS = 5 * 60 * 1000;   // сколько показывается результат, потом — экран с паролем учителя
+  var STORE = 'formativ-8143-state';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = null;
+  var tasks = [];
+  var draft = null;          // ответ, который ученик собирает в текущем задании
+  var fsActive = false;
+  var unloading = false;
+  var ignoreUntil = 0;
+  var ticker = null;
+  var resuming = false;
+  var hideTimer = null;
+
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
+  function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
+
+  function show(id) {
+    ['s-loading', 's-intro', 's-test', 's-menu', 's-resume', 's-result', 's-locked'].forEach(function (s) { $(s).hidden = s !== id; });
+    $('timers').hidden = !running();
+  }
+  function running() { return !!state && state.status === 'running'; }
+
+  // ---------- Полноэкранный режим и защита от выхода ----------
+
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function fsSupported() { var el = document.documentElement; return !!(el.requestFullscreen || el.webkitRequestFullscreen); }
+
+  function enterFullscreen() {
+    var el = document.documentElement;
+    var req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req || fsElement()) return Promise.resolve();
+    try {
+      return Promise.resolve(req.call(el, { navigationUI: 'hide' })).then(function () {
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(function () {});
+      }).catch(function () {});
+    } catch (e) { return Promise.resolve(); }
+  }
+  function exitFullscreen() {
+    var ex = document.exitFullscreen || document.webkitExitFullscreen;
+    if (fsElement() && ex) { try { ex.call(document); } catch (e) {} }
+  }
+  function onFullscreenChange() {
+    if (fsElement()) { fsActive = true; ignoreUntil = Date.now() + 1500; return; }
+    if (fsActive) { fsActive = false; violation('вы вышли из полноэкранного режима.'); }
+  }
+  function violation(reason) {
+    if (!running()) return;
+    setTimeout(function () {
+      if (unloading || !running()) return;
+      finish('Работа завершена автоматически: ' + reason);
+    }, 300);
+  }
+  function onVisibility() { if (document.visibilityState === 'hidden') violation('вы переключились на другую вкладку или приложение.'); }
+  function onBlur() {
+    if (!running() || Date.now() < ignoreUntil) return;
+    setTimeout(function () {
+      if (!document.hasFocus() && document.visibilityState === 'visible') violation('вы переключились на другое окно или приложение.');
+    }, 400);
+  }
+  function warn(text) {
+    $('warn-text').textContent = text;
+    $('warn').hidden = false;
+    clearTimeout(warn.t);
+    warn.t = setTimeout(function () { $('warn').hidden = true; }, 5000);
+  }
+  function onKey(e) {
+    if (!running()) return;
+    if (e.key === 'Escape') { warn('Не выходите из полноэкранного режима: работа сразу завершится.'); e.preventDefault(); }
+    var k = (e.key || '').toLowerCase();
+    if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l'].indexOf(k) >= 0) ||
+        (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) {
+      e.preventDefault();
+      warn('Это действие недоступно во время работы.');
+    }
+  }
+  function onBeforeUnload(e) {
+    if (!running()) return;
+    unloading = true;
+    setTimeout(function () { unloading = false; }, 1000);
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+  function blockNavigation() {
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', function () {
+      if (running()) { history.pushState(null, '', location.href); warn('Переход назад во время работы недоступен.'); }
+    });
+  }
+
+  // ---------- Отрисовка задания ----------
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function updateAnswerButton() { $('b-answer').disabled = !TASKS.isComplete(tasks[state.cur], draft); }
+
+  function renderBody(t, saved) {
+    var box = $('t-body');
+    box.innerHTML = '';
+    if (t.svg) { var fig = el('div', 'figure'); fig.innerHTML = t.svg; box.appendChild(fig); }   // SVG собран из чисел в tasks.js
+    if (t.code) box.appendChild(el('pre', 'code', t.code));
+
+    if (t.type === 'input') {
+      draft = saved || '';
+      var inp = el('input', 'answer' + (t.numeric ? '' : ' text-answer'));
+      inp.type = 'text';
+      inp.id = 't-input';
+      inp.autocomplete = 'off';
+      inp.spellcheck = false;
+      inp.setAttribute('autocapitalize', 'off');
+      inp.setAttribute('aria-label', 'Ответ');
+      inp.maxLength = 40;
+      inp.value = draft;
+      if (t.numeric) inp.inputMode = 'numeric';
+      inp.addEventListener('input', function () { draft = inp.value; updateAnswerButton(); });
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); answer(); } });
+      box.appendChild(inp);
+      box.appendChild(el('p', 'muted small', t.hint ? t.hint : t.multi ? 'Если программа выводит несколько чисел, запишите их через пробел — так, как их выведет Python.'
+        : t.symbol ? 'Запишите только знак сравнения.' : t.code && !t.numeric ? 'Запишите только пропущенное слово.' : 'Запишите только число.'));
+      setTimeout(function () { inp.focus(); }, 0);
+    } else if (t.type === 'choice') {
+      draft = saved || null;
+      var list = el('div', 'choices');
+      t.options.forEach(function (o, i) {
+        var lab = el('label', 'choice' + (t.mono ? ' mono' : ''));
+        var r = el('input');
+        r.type = 'radio';
+        r.name = 'choice';
+        r.value = o;
+        r.checked = draft === o;
+        r.addEventListener('change', function () { draft = o; updateAnswerButton(); });
+        lab.appendChild(r);
+        lab.appendChild(el('span', null, o));
+        list.appendChild(lab);
+      });
+      box.appendChild(list);
+    } else if (t.type === 'match') {
+      draft = Array.isArray(saved) ? saved.slice() : t.items.map(function () { return ''; });
+      var tbl = el('div', 'match');
+      t.items.forEach(function (it, i) {
+        var row = el('div', 'match-row');
+        var left = el('div', 'match-left');
+        if (it.svg) left.innerHTML = it.svg; else left.appendChild(el('code', 'mono', it.code));
+        var sel = el('select');
+        sel.setAttribute('aria-label', 'Соответствие для ' + it.name);
+        sel.appendChild(el('option', null, '— выберите —')).value = '';
+        t.options.forEach(function (o) { var op = el('option', null, o); op.value = o; sel.appendChild(op); });
+        sel.value = draft[i] || '';
+        sel.addEventListener('change', function () { draft[i] = sel.value; updateAnswerButton(); });
+        row.appendChild(left);
+        row.appendChild(el('span', 'arrow', '→'));
+        row.appendChild(sel);
+        tbl.appendChild(row);
+      });
+      box.appendChild(tbl);
+    } else if (t.type === 'order') {
+      draft = Array.isArray(saved) ? saved.slice() : t.lines.slice();
+      var ol = el('ol', 'order');
+      var redraw = function () {
+        ol.innerHTML = '';
+        draft.forEach(function (line, i) {
+          var li = el('li', 'order-row');
+          li.appendChild(el('code', 'mono', line));
+          var up = el('button', 'mini', '↑'); up.type = 'button'; up.disabled = i === 0; up.setAttribute('aria-label', 'Выше');
+          var dn = el('button', 'mini', '↓'); dn.type = 'button'; dn.disabled = i === draft.length - 1; dn.setAttribute('aria-label', 'Ниже');
+          up.addEventListener('click', function () { var x = draft[i - 1]; draft[i - 1] = draft[i]; draft[i] = x; redraw(); });
+          dn.addEventListener('click', function () { var x = draft[i + 1]; draft[i + 1] = draft[i]; draft[i] = x; redraw(); });
+          li.appendChild(up);
+          li.appendChild(dn);
+          ol.appendChild(li);
+        });
+      };
+      redraw();
+      box.appendChild(ol);
+    }
+  }
+
+  function answered(a) { return a.status === 'correct' || a.status === 'wrong'; }
+
+  function renderNav(box) {
+    box.innerHTML = '';
+    state.answers.forEach(function (a, i) {
+      var b = el('button', 'nav-btn' + (answered(a) ? ' done' : a.status === 'skipped' ? ' skipped' : '') +
+        (state.phase !== 'menu' && i === state.cur ? ' cur' : ''), String(i + 1));
+      b.type = 'button';
+      b.title = answered(a) ? 'Есть ответ' : a.status === 'skipped' ? 'Пропущено' : 'Нет ответа';
+      b.addEventListener('click', function () { goTo(i); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderTask() {
+    if (resuming) return;
+    var i = state.cur, t = tasks[i], a = state.answers[i];
+    $('t-num').textContent = 'Задание ' + (i + 1) + ' из ' + tasks.length;
+    $('t-text').textContent = t.text;
+    renderBody(t, answered(a) ? a.given : null);
+    $('t-saved').textContent = answered(a) ? 'Ваш ответ сохранён. Можно изменить его и снова нажать «Ответить».' : '';
+    $('t-saved').hidden = !answered(a);
+    updateAnswerButton();
+    $('b-skip').textContent = answered(a) ? 'Далее' : 'Пропустить';
+    $('b-prev').disabled = i === 0;
+    renderNav($('t-nav'));
+    show('s-test');
+    tick();
+  }
+
+  // ---------- Ход работы ----------
+
+  function startTask() { save(); renderTask(); }
+
+  function goTo(i) {
+    if (!running() || i < 0 || i >= tasks.length) return;
+    if (state.phase === 'menu') state.phase = 'main';
+    state.cur = i;
+    startTask();
+  }
+
+  function record(status, given) {
+    var a = state.answers[state.cur];
+    a.status = status;
+    if (given !== undefined) a.given = given;
+  }
+
+  function findFrom(i, test, wrap) {
+    var n = tasks.length;
+    for (var k = 1; k <= (wrap ? n - 1 : n - 1 - i); k++) {
+      var j = (i + k) % n;
+      if (test(state.answers[j])) return j;
+    }
+    return -1;
+  }
+
+  function next() {
+    var i = state.cur;
+    var isPending = function (a) { return a.status === 'pending'; };
+    var j = state.phase === 'review'
+      ? findFrom(i, function (a) { return a.status === 'skipped'; }, true)
+      : findFrom(i, isPending, false);
+    if (j < 0 && state.phase !== 'review') j = findFrom(i, isPending, true);
+    if (j >= 0) { state.cur = j; startTask(); return; }
+    state.phase = 'menu';
+    save();
+    renderMenu();
+  }
+
+  function skippedList() {
+    var out = [];
+    state.answers.forEach(function (a, i) { if (a.status === 'skipped') out.push(i); });
+    return out;
+  }
+
+  function renderMenu() {
+    if (resuming) return;
+    $('m-confirm').hidden = true;
+    var s = skippedList();
+    $('m-title').textContent = s.length ? 'Остались пропущенные задания' : 'Вы ответили на все задания';
+    $('m-done').textContent = state.answers.filter(answered).length;
+    $('m-total').textContent = tasks.length;
+    $('m-skipped').hidden = !s.length;
+    $('m-count').textContent = s.length;
+    $('m-list').textContent = s.map(function (i) { return '№ ' + (i + 1); }).join(', ');
+    $('b-review').hidden = !s.length;
+    renderNav($('m-nav'));
+    show('s-menu');
+    tick();
+  }
+
+  function answer() {
+    var t = tasks[state.cur];
+    if (!TASKS.isComplete(t, draft)) return;
+    var given = Array.isArray(draft) ? draft.slice() : typeof draft === 'string' ? draft.trim() : draft;
+    record(TASKS.isCorrect(t, given) ? 'correct' : 'wrong', given);
+    next();
+  }
+
+  function skip() {
+    if (!answered(state.answers[state.cur])) record('skipped');
+    next();
+  }
+
+  function reviewSkipped() {
+    var s = skippedList();
+    if (!s.length) return;
+    state.phase = 'review';
+    state.cur = s[0];
+    startTask();
+  }
+
+  function finish(reason) {
+    if (!running()) return;
+    state.answers.forEach(function (a) { if (a.status === 'pending') a.status = 'unanswered'; });
+    resuming = false;
+    state.status = 'finished';
+    state.reason = reason;
+    state.finishedAt = Date.now();
+    save();
+    clearInterval(ticker);
+    $('warn').hidden = true;
+    if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+    fsActive = false;
+    exitFullscreen();
+    renderResult();
+  }
+
+  // ---------- Таймер ----------
+
+  function fmt(ms) {
+    var s = Math.max(0, Math.ceil(ms / 1000));
+    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+  }
+
+  function tick() {
+    if (!running()) return;
+    var left = state.endsAt - Date.now();
+    if (left <= 0) { finish('Время работы (20 минут) закончилось. Оставшиеся задания засчитаны как неправильные.'); return; }
+    $('tm-total').textContent = fmt(left);
+    $('tm-total-box').classList.toggle('low', left <= 60000);
+    $('tm-bar').style.width = (100 * left / TOTAL_MS) + '%';
+  }
+
+  function startTicker() { clearInterval(ticker); ticker = setInterval(tick, 250); }
+
+  // ---------- Итог ----------
+
+  var STATUS_TEXT = { correct: 'верно', wrong: 'неверно', skipped: 'пропущено', unanswered: 'нет ответа' };
+
+  function plural(n, one, few, many) {
+    var m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+
+  function renderResult() {
+    var score = state.answers.filter(function (a) { return a.status === 'correct'; }).length;
+    var n = tasks.length;
+    $('r-score-num').textContent = score + ' / ' + n;
+    $('r-score-word').textContent = plural(score, 'балл', 'балла', 'баллов');
+    $('r-count').textContent = 'Правильных ответов: ' + score + ' из ' + n + '.';
+    renderTimeUsed();
+    $('r-reason').textContent = state.reason || '';
+    $('r-reason').hidden = !state.reason;
+    var list = $('r-list');
+    list.innerHTML = '';
+    tasks.forEach(function (t, i) { list.appendChild(reviewCard(t, state.answers[i], i)); });
+    show('s-result');
+    scheduleLock();
+  }
+
+  // Карточка разбора: условие задания, ответ ученика и правильный ответ рядом.
+  function reviewCard(t, a, i) {
+    var ok = a.status === 'correct';
+    var given = answered(a) ? a.given : null;
+    var card = el('article', 'rv ' + (ok ? 'ok' : 'bad'));
+    var head = el('div', 'rv-head');
+    head.appendChild(el('span', 'rv-num', 'Задание ' + (i + 1)));
+    head.appendChild(el('span', 'rv-badge', (ok ? '✓ ' : '✗ ') + STATUS_TEXT[a.status]));
+    card.appendChild(head);
+    card.appendChild(el('p', 'rv-q', t.text));
+    if (t.svg) { var fig = el('div', 'figure'); fig.innerHTML = t.svg; card.appendChild(fig); }   // SVG собран из чисел в tasks.js
+    if (t.code) card.appendChild(el('pre', 'code', t.code));
+
+    var line = function (label, value, cls) {
+      var p = el('p', 'rv-line ' + cls);
+      p.appendChild(el('b', null, label + ' '));
+      p.appendChild(el('span', cls === 'rv-none' ? null : 'mono', value));
+      return p;
+    };
+
+    if (t.type === 'choice') {
+      var ul = el('ul', 'rv-opts' + (t.mono ? ' mono' : ''));
+      t.options.forEach(function (o) {
+        var right = o === t.answer, mine = o === given;
+        var li = el('li', right ? 'right' : mine ? 'wrong' : '');
+        li.appendChild(el('span', 'rv-mark', right ? '✓' : mine ? '✗' : '•'));
+        li.appendChild(el('span', null, o + (mine ? ' — ваш ответ' : '') + (right ? ' — правильный ответ' : '')));
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+      if (!given) card.appendChild(line('Ваш ответ:', 'нет ответа', 'rv-none'));
+    } else if (t.type === 'match') {
+      var tb = el('table', 'rv-table');
+      var hr = el('tr');
+      ['', 'Ваш ответ', 'Правильный ответ'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+      tb.appendChild(hr);
+      t.items.forEach(function (it, k) {
+        var tr = el('tr');
+        var c0 = el('td', 'rv-item');
+        if (it.svg) c0.innerHTML = it.svg; else c0.appendChild(el('code', 'mono', it.code));
+        var mine = given ? given[k] : '';
+        var c1 = el('td', mine === t.answer[k] ? 'right' : 'wrong', (mine === t.answer[k] ? '✓ ' : '✗ ') + (mine || 'нет ответа'));
+        tr.appendChild(c0); tr.appendChild(c1); tr.appendChild(el('td', null, t.answer[k]));
+        tb.appendChild(tr);
+      });
+      card.appendChild(tb);
+    } else if (t.type === 'order') {
+      var cols = el('div', 'rv-cols');
+      [['Ваш ответ', given], ['Правильный ответ', t.answer]].forEach(function (c, k) {
+        var box = el('div');
+        box.appendChild(el('b', null, c[0]));
+        if (c[1]) {
+          var pre = el('pre', 'code');
+          pre.textContent = c[1].join('\n');
+          box.appendChild(pre);
+        } else box.appendChild(el('p', 'rv-none', 'нет ответа'));
+        cols.appendChild(box);
+      });
+      card.appendChild(cols);
+    } else {
+      card.appendChild(line('Ваш ответ:', given || 'нет ответа', ok ? 'rv-your right' : 'rv-your wrong'));
+      if (!ok) card.appendChild(line('Правильный ответ:', TASKS.showAnswer(t), 'rv-right'));
+    }
+    return card;
+  }
+
+  function renderTimeUsed() {
+    var box = $('r-time');
+    box.innerHTML = '';
+    var left = 1000 * Math.floor(Math.max(0, state.endsAt - (state.finishedAt || state.endsAt)) / 1000);
+    var line = function (label, value, cls) {
+      var p = el('p', cls);
+      p.appendChild(document.createTextNode(label + ' '));
+      p.appendChild(el('b', null, value));
+      box.appendChild(p);
+    };
+    line('Время работы:', fmt(TOTAL_MS - left) + ' из ' + fmt(TOTAL_MS));
+    if (left >= 1000) {
+      line('Оставалось времени:', fmt(left), 'left');
+      box.appendChild(el('p', 'small', 'Работа завершена досрочно: оставшееся время можно было использовать, чтобы вернуться к заданиям и проверить ответы.'));
+    } else {
+      line('Оставалось времени:', '0:00');
+    }
+  }
+
+  function scheduleLock() {
+    clearInterval(hideTimer);
+    var update = function () {
+      var left = (state.finishedAt || 0) + RESULT_MS - Date.now();
+      if (left <= 0) {
+        clearInterval(hideTimer);
+        $('l-pin').value = '';
+        $('l-pin-msg').textContent = '';
+        show('s-locked');
+        $('l-pin').focus();
+        return;
+      }
+      $('r-hide').textContent = 'Результат будет скрыт через ' + fmt(left) + '.';
+      $('r-hide').hidden = false;
+    };
+    update();
+    hideTimer = setInterval(update, 1000);
+  }
+
+  // ---------- Запуск ----------
+
+  function newSeed() {
+    var a = new Uint32Array(1);
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    return a[0] || 1;
+  }
+
+  function begin() {
+    $('b-start').disabled = true;
+    var fs = enterFullscreen();   // сразу по нажатию — иначе браузер откажет
+    var seed = newSeed();
+    tasks = TASKS.generate(seed);
+    state = {
+      v: 1, seed: seed, status: 'running', startedAt: Date.now(), endsAt: Date.now() + TOTAL_MS,
+      phase: 'main', cur: 0,
+      answers: tasks.map(function () { return { status: 'pending', given: null }; })
+    };
+    save();
+    fs.then(function () { startTicker(); startTask(); });
+  }
+
+  function resume() {
+    enterFullscreen().then(function () {
+      if (!running()) return;
+      resuming = false;
+      startTicker();
+      if (state.phase === 'menu') renderMenu(); else renderTask();
+    });
+  }
+
+  function init() {
+    $('b-start').addEventListener('click', begin);
+    $('b-answer').addEventListener('click', answer);
+    $('b-skip').addEventListener('click', skip);
+    $('b-prev').addEventListener('click', function () { goTo(state.cur - 1); });
+    $('b-review').addEventListener('click', reviewSkipped);
+    $('b-finish').addEventListener('click', function () { $('m-confirm').hidden = false; });
+    $('b-finish-yes').addEventListener('click', function () { finish(null); });
+    $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
+    $('b-resume').addEventListener('click', resume);
+    $('warn').addEventListener('click', function () { $('warn').hidden = true; });
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    document.addEventListener('contextmenu', function (e) { if (running()) e.preventDefault(); });
+    blockNavigation();
+
+    // Новая работа на этом устройстве — только по паролю учителя (задаётся в config.js / в начале файла).
+    $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
+    [['b-restart', 'r-pin', 'r-pin-msg'], ['b-unlock', 'l-pin', 'l-pin-msg']].forEach(function (ids) {
+      var go = function () {
+        if ($(ids[1]).value.trim() !== String(window.TEACHER_PIN)) { $(ids[2]).textContent = 'Неверный пароль'; return; }
+        try { localStorage.removeItem(STORE); } catch (e) {}
+        location.reload();
+      };
+      $(ids[0]).addEventListener('click', go);
+      $(ids[1]).addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    });
+    if (!fsSupported()) $('i-nofs').hidden = false;
+
+    state = load();
+    if (state && state.seed) tasks = TASKS.generate(state.seed); else state = null;
+
+    if (running()) {
+      resuming = true;
+      show('s-resume');
+      startTicker();
+      tick();
+      return;
+    }
+    if (state && state.status === 'finished') { renderResult(); return; }
+    state = null;
+    show('s-intro');
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>

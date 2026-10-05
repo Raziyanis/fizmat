@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Формативная работа 8.1.4.3</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span>До конца работы</span><b id="tm-total">20:00</b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Загрузка…</p></section>
+
+    <section id="s-intro" hidden>
+      <h1>Формативная работа</h1>
+      <p class="topic">8.1.4.3 — цикл for, функция range(), цикл while (язык Python)</p>
+      <h2>Инструкция</h2>
+      <ul class="rules">
+        <li>В работе <b>20 заданий</b> разных видов: сопоставление, «что выведет программа», заполнение пропуска, выбор ответа, порядок строк программы.</li>
+        <li>Выполните задание и нажмите «Ответить» (в заданиях с полем ввода можно нажать Enter).</li>
+        <li>Время на каждое задание <b>не ограничено</b> — распределяйте его сами и следите за общим таймером вверху экрана.</li>
+        <li class="important"><b>Ответ засчитывается только после нажатия «Ответить»</b>. Если время работы закончится, а вы не нажали «Ответить», ответ <b>не засчитывается</b>.</li>
+        <li>Правильность ответа система отмечает <b>автоматически</b>. За каждый правильный ответ — <b>1 балл</b>, максимальный балл — <b>20</b>. В задании на сопоставление балл ставится, только если все пары верны.</li>
+        <li>Кнопка «Пропустить» засчитывает задание как неправильное и открывает следующее. Кнопка «← Предыдущее» и номера заданий вверху позволяют <b>вернуться к любому заданию</b> и изменить ответ, пока не закончилось общее время.</li>
+        <li>Работа <b>автоматически завершится через 20 минут</b>.</li>
+        <li>Работа идёт в полноэкранном режиме. <b>Если выйти из полноэкранного режима, переключиться на другую вкладку, окно или приложение, работа сразу завершится</b>, а оставшиеся задания будут засчитаны как неправильные.</li>
+      </ul>
+      <p id="i-nofs" class="note" hidden>Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки и приложения — работа завершится.</p>
+      <p class="muted">Имя и другие личные данные не нужны. Ответы и баллы никуда не отправляются. У каждого ученика свои числа в заданиях.</p>
+      <button id="b-start" class="primary big">Начать</button>
+    </section>
+
+    <section id="s-test" hidden>
+      <div id="t-nav" class="nav" aria-label="Номера заданий"></div>
+      <p class="muted small nav-legend">Синие номера — есть ответ, жёлтые — пропущены. Нажмите на номер, чтобы открыть задание.</p>
+      <p id="t-num" class="muted"></p>
+      <p id="t-text" class="question"></p>
+      <div id="t-body"></div>
+      <p id="t-saved" class="saved small" hidden></p>
+      <div class="buttons">
+        <button id="b-prev">← Предыдущее</button>
+        <button id="b-answer" class="primary">Ответить</button>
+        <button id="b-skip">Пропустить</button>
+      </div>
+    </section>
+
+    <section id="s-menu" hidden>
+      <h1 id="m-title">Остались пропущенные задания</h1>
+      <p>Отвечено заданий: <b id="m-done"></b> из <span id="m-total"></span>.</p>
+      <p id="m-skipped">Пропущено заданий: <b id="m-count"></b> (<span id="m-list"></span>). Пока они засчитаны как неправильные.</p>
+      <p>Пока не закончилось общее время, можно открыть любое задание (нажмите на его номер), проверить и изменить ответ.</p>
+      <div id="m-nav" class="nav" aria-label="Номера заданий"></div>
+      <div class="buttons">
+        <button id="b-review" class="primary">Вернуться к пропущенным</button>
+        <button id="b-finish">Завершить работу</button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p>Завершить работу? Пропущенные задания останутся неправильными.</p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger">Да, завершить</button>
+          <button id="b-finish-no">Нет</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-resume" hidden>
+      <h1>Работа восстановлена</h1>
+      <p>Страница была обновлена. Время продолжает идти. Нажмите «Продолжить», чтобы вернуться к заданиям в полноэкранном режиме.</p>
+      <button id="b-resume" class="primary big">Продолжить</button>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1>Работа завершена</h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p id="r-score" class="score"><span id="r-score-num" class="score-num"></span> <span id="r-score-word" class="score-word"></span></p>
+      <p id="r-count" class="center count"></p>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2>Разбор заданий</h2>
+      <p class="muted small">Под каждым заданием — ваш ответ и правильный ответ.</p>
+      <div id="r-list" class="review"></div>
+      <div class="teacher">
+        <button id="b-teacher" class="link">Для учителя: новая работа на этом устройстве</button>
+        <div id="r-teacher-form" class="row" hidden>
+          <input id="r-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+          <button id="b-restart" class="primary">Начать заново</button>
+          <span id="r-pin-msg" class="muted small"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-locked" hidden>
+      <h1>Работа завершена</h1>
+      <p>Результат скрыт. Чтобы начать новую работу на этом устройстве, учитель вводит пароль.</p>
+      <div class="row">
+        <input id="l-pin" type="password" autocomplete="off" placeholder="Пароль учителя" aria-label="Пароль учителя">
+        <button id="b-unlock" class="primary">Начать заново</button>
+        <span id="l-pin-msg" class="muted small"></span>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <script src="config.js"></script>
+  <script src="tasks.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

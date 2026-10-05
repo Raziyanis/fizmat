@@ -7,4 +7,8 @@ for x in список / for i in range(len(...)), накопители с тра
 Код всех примеров и их вывод — `tools/examples.py` → `tools/examples.json` (вывод получен запуском Python, вручную не пишется).
 Сборка: `python3 tools/examples.py && NODE_PATH=<пакет docx> node tools/build-teoriya.js`.
 
-Дальше (следующие шаги): тестовое задание, 10 задач уровней A, B, C.
+Шаг 2. `formativ/standalone/formativ-8.1.4.3.html` — тестовое задание (веб, один файл, без интернета): 20 заданий, 20 минут,
+пароль учителя 2026 (`formativ/config.js`). У каждого ученика свои числа; после работы — разбор с правильными ответами.
+Ключ: `python3 formativ/tools/check-tasks.py` (код каждого задания выполняется настоящим Python). Сборка: `node formativ/tools/build-standalone.js`.
+
+Дальше: 10 задач уровней A, B, C.
