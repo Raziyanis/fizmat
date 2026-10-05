@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><span class="lang-label">Тіл / Язык</span><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
   <div id="timers" class="timers" hidden>
     <div id="tm-total-box" class="timer"><span id="tm-label">До конца работы</span><b id="tm-total"></b></div>
     <div class="bar"><div id="tm-bar"></div></div>
@@ -22,6 +22,7 @@
       <p class="topic">8.1.4.3 — использовать оператор цикла while, использовать оператор цикла for</p>
       <p class="steps"><b>1. Теория</b> → 2. Тест → 3. Задачи на код</p>
       <p class="note">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</p>
+      <p class="note lang-note">Язык можно сменить в любой момент — даже во время теста и задач: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы и код при этом сохраняются.</p>
       <div class="buttons"><button id="b-gate" class="primary big">Начать (на весь экран)</button></div>
     </section>
 
@@ -46,6 +47,7 @@
         <li><b>Часть 2. Задачи</b> — 10 задач уровней A, B, C: к каждой напишите программу на Python. На задачи — <b><span class="i-cmin"></span> минут</b>.</li>
         <li>В задачах можно использовать <b>и цикл for, и цикл while</b> — проверяется только результат работы программы.</li>
         <li>Данные вводите через <b>input()</b>, ответ выводите через <b>print()</b>. Под каждой задачей есть примеры. Если в строке несколько чисел, можно читать их одной строкой (<code>a, b = map(int, input().split())</code>) или каждое отдельным <code>input()</code> — засчитываются оба способа.</li>
+        <li>Код можно писать при любой раскладке: над редактором включён режим <b>«⌨ Латиница»</b> — клавиши вводят английские буквы и знаки, как подписано на клавише. Чтобы написать текст кириллицей (например, в <code>print("...")</code>), выключите его. Раскладку можно переключать и как обычно — Alt+Shift или Win+Пробел.</li>
         <li><b>«▶ Запустить»</b> — выполнить программу со своими входными данными. <b>«✓ Проверить»</b> — проверить на 8 тестах (2 примера + 6 скрытых).</li>
         <li>За каждый верный тестовый вопрос — <b>1 балл</b>. За задачу — <b>1 балл, если пройдены все 8 тестов</b>, иначе 0. Максимум — <b>20 баллов</b>.</li>
         <li>Ответы и код сохраняются автоматически. Между вопросами (и между задачами) можно свободно переходить. Балл за задачи считается <b>по последней версии кода</b>, когда работа завершается.</li>
@@ -81,7 +83,7 @@
           <thead><tr><th>Входные данные</th><th>Выходные данные</th></tr></thead>
           <tbody id="c-ex"></tbody>
         </table>
-        <label class="code-label" for="c-code">Ваша программа:</label>
+        <div class="code-head"><label class="code-label" for="c-code">Ваша программа:</label><button id="b-kbd" type="button" class="kbd-btn"></button></div>
         <textarea id="c-code" class="editor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off"></textarea>
         <div class="run-row">
           <div class="run-in">

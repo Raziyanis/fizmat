@@ -104,7 +104,7 @@
     if (!req || fsElement()) return Promise.resolve();
     try {
       return Promise.resolve(req.call(e, { navigationUI: 'hide' })).then(function () {
-        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(function () {});
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock(['Escape']).catch(function () {});   // только Esc: Alt+Shift, Ctrl+Shift, Win+Пробел (смена раскладки) работают
       }).catch(function () {});
     } catch (err) { return Promise.resolve(); }
   }
@@ -163,8 +163,43 @@
   }
 
   // ---------- Редактор кода ----------
-  function setupEditor(ta) {
+  // Режим «Латиница»: при любой раскладке (казахской, русской) клавиша вводит символ английской раскладки,
+  // как подписано на клавише, — код на Python можно писать, не переключая язык в Windows. Кнопкой режим выключается.
+  var US = { Backquote: '`~', Digit1: '1!', Digit2: '2@', Digit3: '3#', Digit4: '4$', Digit5: '5%', Digit6: '6^', Digit7: '7&',
+    Digit8: '8*', Digit9: '9(', Digit0: '0)', Minus: '-_', Equal: '=+', BracketLeft: '[{', BracketRight: ']}', Backslash: '\\|',
+    IntlBackslash: '\\|', Semicolon: ';:', Quote: '\'"', Comma: ',<', Period: '.>', Slash: '/?' };
+  var latin = (function () { try { return localStorage.getItem('cikly-latin') !== 'off'; } catch (e) { return true; } })();
+  function usChar(e) {
+    if (!latin || e.ctrlKey || e.metaKey || e.altKey || !e.key || e.key.length !== 1) return null;
+    var m = /^Key([A-Z])$/.exec(e.code || '');
+    if (m) { var up = e.shiftKey !== (e.getModifierState && e.getModifierState('CapsLock')); return up ? m[1] : m[1].toLowerCase(); }
+    var p = US[e.code];
+    return p ? p.charAt(e.shiftKey ? 1 : 0) : null;
+  }
+  function renderLatin() {
+    $('b-kbd').textContent = '⌨ ' + t('Латиница: ') + (latin ? t('вкл.') : t('выкл.'));
+    $('b-kbd').classList.toggle('on', latin);
+    $('b-kbd').title = latin ? t('Клавиши вводят английские буквы и знаки при любой раскладке. Выключите, чтобы писать кириллицей.') : t('Включите, чтобы клавиши вводили английские буквы и знаки при любой раскладке.');
+  }
+  function toggleLatin() {
+    latin = !latin;
+    try { localStorage.setItem('cikly-latin', latin ? 'on' : 'off'); } catch (e) {}
+    renderLatin();
+    $('c-code').focus();
+  }
+  function latinKeys(ta) {
     ta.addEventListener('keydown', function (e) {
+      var ch = usChar(e);
+      if (ch === null || ch === e.key) return;
+      e.preventDefault();
+      ta.setRangeText(ch, ta.selectionStart, ta.selectionEnd, 'end');
+      ta.dispatchEvent(new Event('input'));
+    });
+  }
+  function setupEditor(ta) {
+    latinKeys(ta);
+    ta.addEventListener('keydown', function (e) {
+      if (e.defaultPrevented) return;
       var v = ta.value, s = ta.selectionStart, en = ta.selectionEnd, ls = v.lastIndexOf('\n', s - 1) + 1;
       var put = function (txt, a, b, mode) { e.preventDefault(); ta.setRangeText(txt, a, b, mode); ta.dispatchEvent(new Event('input')); };
       if (e.key === 'Tab' && !e.shiftKey) put('    ', s, en, 'end');
@@ -603,6 +638,7 @@
     else if (vis === 's-quizres') renderQuizResult();
     else if (vis === 's-result') renderResult();
     if (!$('m-back').hidden) renderBack();
+    renderLatin();
   }
 
   function init() {
@@ -640,6 +676,9 @@
     $('warn').addEventListener('click', function () { $('warn').hidden = true; });
     var ed = $('c-code');
     setupEditor(ed);
+    latinKeys($('c-stdin'));
+    $('b-kbd').addEventListener('click', toggleLatin);
+    renderLatin();
     ed.addEventListener('input', function () {
       if (!running() || state.stage !== 'code') return;
       var j = state.cur;

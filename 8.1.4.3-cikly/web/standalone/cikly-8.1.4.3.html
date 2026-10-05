@@ -311,9 +311,11 @@ button.danger-outline { border-color: var(--bad); color: var(--bad); }
 .rv-given.mono { font-family: ui-monospace, "Consolas", monospace; }
 
 /* Переключатель языка ҚАЗ / РУС — всегда виден */
-.lang-switch { position: fixed; top: 10px; right: 12px; z-index: 20; display: flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.lang-switch { position: fixed; top: 10px; right: 12px; z-index: 1001; display: flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
 .lang-switch button { border: 0; border-radius: 0; padding: 6px 14px; font-weight: 800; background: #fff; color: var(--accent); }
 .lang-switch button.on { background: var(--accent); color: #fff; }
+.lang-switch .lang-label { align-self: center; padding: 6px 10px 6px 14px; font-size: 0.85rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.lang-note { background: #e7eefb; }
 html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 
 /* Окно после нарушения: вернуться в полноэкранный режим */
@@ -330,10 +332,15 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 }
 .back-box h2 { color: var(--bad); margin-top: 0; }
 .back-box p { font-size: 1.1rem; }
+
+/* Кнопка режима «Латиница» над редактором кода */
+.code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.kbd-btn { padding: 4px 12px; font-size: 0.9rem; border-radius: 999px; }
+.kbd-btn.on { background: #e7eefb; border-color: var(--accent); color: var(--accent); font-weight: 700; }
 </style>
 </head>
 <body>
-  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><span class="lang-label">Тіл / Язык</span><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
   <div id="timers" class="timers" hidden>
     <div id="tm-total-box" class="timer"><span id="tm-label">До конца работы</span><b id="tm-total"></b></div>
     <div class="bar"><div id="tm-bar"></div></div>
@@ -347,6 +354,7 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
       <p class="topic">8.1.4.3 — использовать оператор цикла while, использовать оператор цикла for</p>
       <p class="steps"><b>1. Теория</b> → 2. Тест → 3. Задачи на код</p>
       <p class="note">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</p>
+      <p class="note lang-note">Язык можно сменить в любой момент — даже во время теста и задач: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы и код при этом сохраняются.</p>
       <div class="buttons"><button id="b-gate" class="primary big">Начать (на весь экран)</button></div>
     </section>
 
@@ -621,6 +629,7 @@ while i &lt;= n:                    # 2) условие продолжения
         <li><b>Часть 2. Задачи</b> — 10 задач уровней A, B, C: к каждой напишите программу на Python. На задачи — <b><span class="i-cmin"></span> минут</b>.</li>
         <li>В задачах можно использовать <b>и цикл for, и цикл while</b> — проверяется только результат работы программы.</li>
         <li>Данные вводите через <b>input()</b>, ответ выводите через <b>print()</b>. Под каждой задачей есть примеры. Если в строке несколько чисел, можно читать их одной строкой (<code>a, b = map(int, input().split())</code>) или каждое отдельным <code>input()</code> — засчитываются оба способа.</li>
+        <li>Код можно писать при любой раскладке: над редактором включён режим <b>«⌨ Латиница»</b> — клавиши вводят английские буквы и знаки, как подписано на клавише. Чтобы написать текст кириллицей (например, в <code>print("...")</code>), выключите его. Раскладку можно переключать и как обычно — Alt+Shift или Win+Пробел.</li>
         <li><b>«▶ Запустить»</b> — выполнить программу со своими входными данными. <b>«✓ Проверить»</b> — проверить на 8 тестах (2 примера + 6 скрытых).</li>
         <li>За каждый верный тестовый вопрос — <b>1 балл</b>. За задачу — <b>1 балл, если пройдены все 8 тестов</b>, иначе 0. Максимум — <b>20 баллов</b>.</li>
         <li>Ответы и код сохраняются автоматически. Между вопросами (и между задачами) можно свободно переходить. Балл за задачи считается <b>по последней версии кода</b>, когда работа завершается.</li>
@@ -656,7 +665,7 @@ while i &lt;= n:                    # 2) условие продолжения
           <thead><tr><th>Входные данные</th><th>Выходные данные</th></tr></thead>
           <tbody id="c-ex"></tbody>
         </table>
-        <label class="code-label" for="c-code">Ваша программа:</label>
+        <div class="code-head"><label class="code-label" for="c-code">Ваша программа:</label><button id="b-kbd" type="button" class="kbd-btn"></button></div>
         <textarea id="c-code" class="editor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off"></textarea>
         <div class="run-row">
           <div class="run-in">
@@ -1889,7 +1898,9 @@ window.UI_KZ = {
   "Начать (на весь экран)": "Бастау (толық экранда)",
   "Новая работа на этом компьютере": "Осы компьютерде жаңа жұмыс",
   "Внимание! Нарушение": "Назар аударыңыз! Ереже бұзылды",
-  "Вернуться в полноэкранный режим": "Толық экран режиміне оралу"
+  "Вернуться в полноэкранный режим": "Толық экран режиміне оралу",
+  "Язык можно сменить в любой момент — даже во время теста и задач: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы и код при этом сохраняются.": "Тілді кез келген уақытта ауыстыруға болады — тест пен есептер кезінде де: жоғарғы оң жақ бұрыштағы <b>ҚАЗ / РУС</b> батырмалары. Жауаптар мен код сақталады.",
+  "Код можно писать при любой раскладке: над редактором включён режим <b>«⌨ Латиница»</b> — клавиши вводят английские буквы и знаки, как подписано на клавише. Чтобы написать текст кириллицей (например, в <code>print(\"...\")</code>), выключите его. Раскладку можно переключать и как обычно — Alt+Shift или Win+Пробел.": "Кодты кез келген пернетақта тілінде жазуға болады: редактордың үстінде <b>«⌨ Латын әріптері»</b> режимі қосулы — пернелер пернеде жазылғандай ағылшын әріптері мен белгілерін енгізеді. Кириллицамен мәтін жазу үшін (мысалы, <code>print(\"...\")</code> ішінде) оны өшіріңіз. Тілді әдеттегідей де ауыстыруға болады — Alt+Shift немесе Win+Бос орын."
  },
  "JS": {
   "Программа работала слишком долго (возможно, бесконечный цикл).": "Бағдарлама тым ұзақ орындалды (шексіз цикл болуы мүмкін).",
@@ -1978,7 +1989,12 @@ window.UI_KZ = {
   "Когда попытки закончатся, работа завершится. Нажмите кнопку и продолжайте работу.": "Мүмкіндіктер біткенде жұмыс аяқталады. Батырманы басып, жұмысты жалғастырыңыз.",
   "Не выходите из полноэкранного режима: это нарушение.": "Толық экран режимінен шықпаңыз: бұл — ереже бұзу.",
   "Начальная страница откроется через ": "Бастапқы бет мына уақыттан кейін ашылады: ",
-  "страница была закрыта или перезагружена.": "бет жабылды немесе қайта жүктелді."
+  "страница была закрыта или перезагружена.": "бет жабылды немесе қайта жүктелді.",
+  "Латиница: ": "Латын әріптері: ",
+  "вкл.": "қосулы",
+  "выкл.": "өшірулі",
+  "Клавиши вводят английские буквы и знаки при любой раскладке. Выключите, чтобы писать кириллицей.": "Пернелер кез келген пернетақта тілінде ағылшын әріптері мен белгілерін енгізеді. Кириллицамен жазу үшін өшіріңіз.",
+  "Включите, чтобы клавиши вводили английские буквы и знаки при любой раскладке.": "Пернелер кез келген пернетақта тілінде ағылшын әріптері мен белгілерін енгізуі үшін қосыңыз."
  }
 };
 
@@ -2437,7 +2453,7 @@ window.UI_KZ = {
     if (!req || fsElement()) return Promise.resolve();
     try {
       return Promise.resolve(req.call(e, { navigationUI: 'hide' })).then(function () {
-        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(function () {});
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock(['Escape']).catch(function () {});   // только Esc: Alt+Shift, Ctrl+Shift, Win+Пробел (смена раскладки) работают
       }).catch(function () {});
     } catch (err) { return Promise.resolve(); }
   }
@@ -2496,8 +2512,43 @@ window.UI_KZ = {
   }
 
   // ---------- Редактор кода ----------
-  function setupEditor(ta) {
+  // Режим «Латиница»: при любой раскладке (казахской, русской) клавиша вводит символ английской раскладки,
+  // как подписано на клавише, — код на Python можно писать, не переключая язык в Windows. Кнопкой режим выключается.
+  var US = { Backquote: '`~', Digit1: '1!', Digit2: '2@', Digit3: '3#', Digit4: '4$', Digit5: '5%', Digit6: '6^', Digit7: '7&',
+    Digit8: '8*', Digit9: '9(', Digit0: '0)', Minus: '-_', Equal: '=+', BracketLeft: '[{', BracketRight: ']}', Backslash: '\\|',
+    IntlBackslash: '\\|', Semicolon: ';:', Quote: '\'"', Comma: ',<', Period: '.>', Slash: '/?' };
+  var latin = (function () { try { return localStorage.getItem('cikly-latin') !== 'off'; } catch (e) { return true; } })();
+  function usChar(e) {
+    if (!latin || e.ctrlKey || e.metaKey || e.altKey || !e.key || e.key.length !== 1) return null;
+    var m = /^Key([A-Z])$/.exec(e.code || '');
+    if (m) { var up = e.shiftKey !== (e.getModifierState && e.getModifierState('CapsLock')); return up ? m[1] : m[1].toLowerCase(); }
+    var p = US[e.code];
+    return p ? p.charAt(e.shiftKey ? 1 : 0) : null;
+  }
+  function renderLatin() {
+    $('b-kbd').textContent = '⌨ ' + t('Латиница: ') + (latin ? t('вкл.') : t('выкл.'));
+    $('b-kbd').classList.toggle('on', latin);
+    $('b-kbd').title = latin ? t('Клавиши вводят английские буквы и знаки при любой раскладке. Выключите, чтобы писать кириллицей.') : t('Включите, чтобы клавиши вводили английские буквы и знаки при любой раскладке.');
+  }
+  function toggleLatin() {
+    latin = !latin;
+    try { localStorage.setItem('cikly-latin', latin ? 'on' : 'off'); } catch (e) {}
+    renderLatin();
+    $('c-code').focus();
+  }
+  function latinKeys(ta) {
     ta.addEventListener('keydown', function (e) {
+      var ch = usChar(e);
+      if (ch === null || ch === e.key) return;
+      e.preventDefault();
+      ta.setRangeText(ch, ta.selectionStart, ta.selectionEnd, 'end');
+      ta.dispatchEvent(new Event('input'));
+    });
+  }
+  function setupEditor(ta) {
+    latinKeys(ta);
+    ta.addEventListener('keydown', function (e) {
+      if (e.defaultPrevented) return;
       var v = ta.value, s = ta.selectionStart, en = ta.selectionEnd, ls = v.lastIndexOf('\n', s - 1) + 1;
       var put = function (txt, a, b, mode) { e.preventDefault(); ta.setRangeText(txt, a, b, mode); ta.dispatchEvent(new Event('input')); };
       if (e.key === 'Tab' && !e.shiftKey) put('    ', s, en, 'end');
@@ -2936,6 +2987,7 @@ window.UI_KZ = {
     else if (vis === 's-quizres') renderQuizResult();
     else if (vis === 's-result') renderResult();
     if (!$('m-back').hidden) renderBack();
+    renderLatin();
   }
 
   function init() {
@@ -2973,6 +3025,9 @@ window.UI_KZ = {
     $('warn').addEventListener('click', function () { $('warn').hidden = true; });
     var ed = $('c-code');
     setupEditor(ed);
+    latinKeys($('c-stdin'));
+    $('b-kbd').addEventListener('click', toggleLatin);
+    renderLatin();
     ed.addEventListener('input', function () {
       if (!running() || state.stage !== 'code') return;
       var j = state.cur;
