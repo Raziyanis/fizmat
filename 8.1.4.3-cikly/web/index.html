@@ -9,7 +9,7 @@
 </head>
 <body>
   <div id="timers" class="timers" hidden>
-    <div id="tm-total-box" class="timer"><span>До конца работы</span><b id="tm-total"></b></div>
+    <div id="tm-total-box" class="timer"><span id="tm-label">До конца работы</span><b id="tm-total"></b></div>
     <div class="bar"><div id="tm-bar"></div></div>
   </div>
 
@@ -20,8 +20,9 @@
       <p class="steps"><b>1. Теория</b> → 2. Тест → 3. Задачи на код</p>
       <div id="theory"><!--THEORY--></div>
       <div class="theory-end">
-        <p>Прочитали теорию? Дальше — работа: <b>10 тестовых вопросов</b> и <b>10 задач</b>, где нужно написать программу на Python.</p>
+        <p id="t-end-text">Прочитали теорию? Дальше — работа: <b>тест из 10 вопросов</b>, затем <b>10 задач</b>, где нужно написать программу на Python.</p>
         <button id="b-to-intro" class="primary big">Перейти к работе →</button>
+        <button id="b-theory-back" class="primary big" hidden>← Вернуться к результату теста</button>
       </div>
     </section>
 
@@ -31,13 +32,15 @@
       <p class="topic">8.1.4.3 — использовать оператор цикла while, использовать оператор цикла for</p>
       <h2>Инструкция</h2>
       <ul class="rules">
-        <li>Работа из двух частей. <b>Тест</b> — 10 вопросов: выберите один ответ (A, B, C, D) или сопоставьте пары. <b>Задачи</b> — 10 задач уровней A, B, C: к каждой напишите программу на Python.</li>
+        <li><b>Часть 1. Тест</b> — 10 вопросов: выберите один ответ (A, B, C, D) или сопоставьте пары. На попытку — <b><span class="i-qmin"></span> минут</b>. После теста сразу видно, сколько баллов набрано и в каких вопросах ошибки.</li>
+        <li>Если балл низкий, можно <b>перечитать теорию и пройти тест заново</b> (с другими числами). Всего попыток — <b><span class="i-att"></span></b>, засчитывается <b>лучшая</b>.</li>
+        <li><b>Часть 2. Задачи</b> — 10 задач уровней A, B, C: к каждой напишите программу на Python. На задачи — <b><span class="i-cmin"></span> минут</b>.</li>
         <li>В задачах можно использовать <b>и цикл for, и цикл while</b> — проверяется только результат работы программы.</li>
         <li>Данные вводите через <b>input()</b>, ответ выводите через <b>print()</b>. Под каждой задачей есть примеры. Если в строке несколько чисел, можно читать их одной строкой (<code>a, b = map(int, input().split())</code>) или каждое отдельным <code>input()</code> — засчитываются оба способа.</li>
         <li><b>«▶ Запустить»</b> — выполнить программу со своими входными данными. <b>«✓ Проверить»</b> — проверить на 8 тестах (2 примера + 6 скрытых).</li>
         <li>За каждый верный тестовый вопрос — <b>1 балл</b>. За задачу — <b>1 балл, если пройдены все 8 тестов</b>, иначе 0. Максимум — <b>20 баллов</b>.</li>
-        <li>Ответы в тесте и код сохраняются автоматически. Балл считается <b>по последним ответам и последней версии кода</b>, когда работа завершается. Между вопросами и задачами можно свободно переходить.</li>
-        <li>Работа <b>автоматически завершится через <span id="i-min"></span> минут</b>.</li>
+        <li>Ответы и код сохраняются автоматически. Между вопросами (и между задачами) можно свободно переходить. Балл за задачи считается <b>по последней версии кода</b>, когда работа завершается.</li>
+        <li>Когда время теста закончится, тест сдаётся автоматически. Когда закончится время на задачи, работа завершится автоматически.</li>
         <li class="important">Работа идёт в полноэкранном режиме. <b>Если выйти из полноэкранного режима, переключиться на другую вкладку, окно или приложение или закрыть страницу, работа сразу завершится</b>, а балл будет посчитан по ответам на этот момент.</li>
       </ul>
       <p id="i-nofs" class="note" hidden>Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки — работа завершится.</p>
@@ -50,10 +53,10 @@
 
     <section id="s-work" hidden>
       <div class="nav-groups">
-        <div><span class="nav-label">Тест</span><div id="nav-q" class="nav"></div></div>
-        <div><span class="nav-label">Задачи</span><div id="nav-c" class="nav"></div></div>
+        <div id="nav-q-box"><span class="nav-label" id="nav-q-label">Тест</span><div id="nav-q" class="nav"></div></div>
+        <div id="nav-c-box"><span class="nav-label">Задачи</span><div id="nav-c" class="nav"></div></div>
       </div>
-      <p class="muted small nav-legend">Синий — есть ответ; в задачах: зелёный — все тесты пройдены, красный — при проверке есть ошибки.</p>
+      <p class="muted small nav-legend" id="w-legend"></p>
       <p id="w-num" class="muted"></p>
       <h2 id="w-title" class="task-title"></h2>
       <p id="w-text" class="task-text"></p>
@@ -89,7 +92,7 @@
         <button id="b-prev">← Назад</button>
         <button id="b-next" class="primary">Далее →</button>
         <span class="spacer"></span>
-        <button id="b-finish" class="danger-outline">Завершить работу</button>
+        <button id="b-finish" class="danger-outline"></button>
       </div>
       <div id="m-confirm" class="confirm" hidden>
         <p id="m-confirm-text"></p>
@@ -98,6 +101,29 @@
           <button id="b-finish-no">Нет</button>
         </div>
       </div>
+    </section>
+
+    <section id="s-quizres" hidden>
+      <p class="steps">1. Теория → <b>2. Тест</b> → 3. Задачи на код</p>
+      <h1>Результат теста</h1>
+      <p class="score"><span id="qr-score" class="score-num"></span> <span class="score-word">баллов</span></p>
+      <p id="qr-msg" class="note"></p>
+      <p id="qr-attempts" class="center muted"></p>
+      <div class="buttons center-buttons">
+        <button id="b-reread">📖 Перечитать теорию</button>
+        <button id="b-retry" class="danger-outline">↻ Пройти тест заново</button>
+        <button id="b-to-code" class="primary big">Перейти к задачам на код →</button>
+      </div>
+      <div id="qr-confirm" class="confirm" hidden>
+        <p>Перейти к задачам? Вернуться к тесту будет нельзя. На задачи — <b><span class="i-cmin"></span> минут</b>.</p>
+        <div class="buttons">
+          <button id="b-to-code-yes" class="primary">Да, перейти к задачам</button>
+          <button id="b-to-code-no">Нет</button>
+        </div>
+      </div>
+      <h2>Ваши ответы</h2>
+      <p class="muted small">Правильные ответы будут показаны в конце работы. Если ответ неверный — перечитайте указанный раздел теории.</p>
+      <div id="qr-list" class="review"></div>
     </section>
 
     <section id="s-eval" hidden>
@@ -110,12 +136,12 @@
       <p id="r-reason" class="note" hidden></p>
       <p class="score"><span id="r-score-num" class="score-num"></span> <span class="score-word">баллов</span></p>
       <div class="parts">
-        <div class="part"><span>Тест</span><b id="r-quiz"></b></div>
+        <div class="part"><span>Тест (лучшая попытка)</span><b id="r-quiz"></b><small id="r-quiz-att" class="muted"></small></div>
         <div class="part"><span>Задачи на код</span><b id="r-code"></b></div>
       </div>
       <div id="r-time" class="time-box"></div>
       <p id="r-hide" class="muted small center" hidden></p>
-      <h2>Разбор: тест</h2>
+      <h2>Разбор: тест (лучшая попытка)</h2>
       <div id="r-list-q" class="review"></div>
       <h2>Разбор: задачи на код</h2>
       <div id="r-list-c" class="review"></div>

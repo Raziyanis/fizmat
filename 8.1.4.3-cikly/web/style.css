@@ -295,3 +295,9 @@ button.danger-outline { border-color: var(--bad); color: var(--bad); }
 .hint { background: #fff4d6; border-radius: 8px; padding: 8px 12px; color: #6b4a00; margin: 6px 0; }
 .rv-cols.one { grid-template-columns: minmax(0, 1fr); }
 .rv-note { margin: 10px 0 4px; font-weight: 600; color: var(--muted); }
+
+.center-buttons { justify-content: center; }
+.part small { display: block; font-size: 0.85rem; }
+.rv-theory { margin: 8px 0 0; color: #8a5a00; background: #fff4d6; border-radius: 8px; padding: 6px 10px; }
+.rv-given { background: var(--bg); border-radius: 8px; padding: 8px 12px; margin: 6px 0 0; white-space: pre-wrap; font-family: inherit; }
+.rv-given.mono { font-family: ui-monospace, "Consolas", monospace; }

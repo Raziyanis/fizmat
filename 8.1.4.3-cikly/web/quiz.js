@@ -97,6 +97,11 @@
       items: terms.map(function (m) { return { code: m[0], name: m[0], word: true }; }), options: shuffle(terms.map(function (m) { return m[1]; })),
       answer: terms.map(function (m) { return m[1]; }) });
 
+    // Какой раздел теории повторить, если ответ неверный
+    var THEORY = ['2.2 «Функция range()»', '2.2 «Функция range()»', '2.2 «Сводная таблица range»', '2.5 «Накопители»',
+      '4 «for или while — что выбрать»', '1 «Что такое цикл»', '2.4 «for i in range(...) и for x in список»', '3.2 «Три шага цикла while»',
+      '3.4 «Бесконечный цикл»', '1 «Что такое цикл», 2.5 и 3.1'];
+    Q.forEach(function (q, i) { q.theory = THEORY[i]; });
     return Q;
   }
 

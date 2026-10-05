@@ -1,11 +1,14 @@
-/* Веб-ресурс 8.1.4.3: теория → тест (10 вопросов) → 10 задач на код (Python выполняется в браузере через Skulpt).
+/* Веб-ресурс 8.1.4.3: теория → тест (10 вопросов, проверяется сразу; при низком балле можно перечитать теорию
+ * и пройти тест заново, засчитывается лучшая попытка) → 10 задач на код (Python выполняется в браузере через Skulpt).
  * Балл: тест — 1 за верный ответ; задача — 1, если пройдены все 8 тестов. Максимум 20.
  * Полноэкранный режим; выход из него, переключение окна, закрытие или перезагрузка страницы завершают работу,
  * балл считается по ответам и коду на этот момент. Интернет и сервер не нужны. */
 (function () {
   'use strict';
 
-  var TOTAL_MS = (window.TOTAL_MIN || 40) * 60 * 1000;
+  var QUIZ_MS = (window.QUIZ_MIN || 15) * 60 * 1000;
+  var CODE_MS = (window.CODE_MIN || 80) * 60 * 1000;
+  var ATTEMPTS = window.QUIZ_ATTEMPTS || 3, PASS = window.QUIZ_PASS || 7;
   var RESULT_MS = (window.RESULT_MIN || 5) * 60 * 1000;
   var STORE = 'cikly-8143-state';
   var RUN_LIMIT_MS = 1000, OUT_LIMIT = 20000;
@@ -18,8 +21,8 @@
   function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
   function running() { return !!state && state.status === 'running'; }
   function show(id) {
-    ['s-loading', 's-theory', 's-intro', 's-work', 's-eval', 's-result', 's-locked'].forEach(function (s) { $(s).hidden = s !== id; });
-    $('timers').hidden = !running();
+    ['s-loading', 's-theory', 's-intro', 's-work', 's-quizres', 's-eval', 's-result', 's-locked'].forEach(function (s) { $(s).hidden = s !== id; });
+    $('timers').hidden = !running() || state.stage === 'quizres' || id !== 's-work';
     window.scrollTo(0, 0);
   }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -128,39 +131,51 @@
     });
   }
 
-  // ---------- Навигация: 0–9 тест, 10–19 задачи ----------
+  // ---------- Этапы: 'quiz' (попытка теста) → 'quizres' (результат теста) → 'code' (задачи) ----------
   var NQ = 10;
-  function isQuiz(i) { return i < NQ; }
+  function quizSeed(n) { return (state.seed + n * 7919) >>> 0; }      // у каждой попытки свои числа
+  function stageEnds() { return state.stage === 'quiz' ? state.quizEndsAt : state.codeEndsAt; }
+  function stageMs() { return state.stage === 'quiz' ? QUIZ_MS : CODE_MS; }
+  function bestAttempt() {
+    var b = null;
+    state.attempts.forEach(function (a) { if (!b || a.score > b.score) b = a; });
+    return b;
+  }
+
   function navClass(i) {
-    if (isQuiz(i)) return QUIZ.isComplete(quiz[i], state.q[i]) ? ' answered' : '';
-    var j = i - NQ, c = state.checks[j];
+    if (state.stage === 'quiz') return QUIZ.isComplete(quiz[i], state.q[i]) ? ' answered' : '';
+    var c = state.checks[i];
     if (c && c.passed === c.total) return ' ok';
     if (c) return ' bad';
-    return (state.code[j] || '').trim() ? ' answered' : '';
+    return (state.code[i] || '').trim() ? ' answered' : '';
   }
   function renderNav() {
-    [['nav-q', 0], ['nav-c', NQ]].forEach(function (g) {
-      var box = $(g[0]); box.innerHTML = '';
-      for (var k = 0; k < NQ; k++) {
-        (function (i) {
-          var b = el('button', 'nav-btn' + navClass(i) + (i === state.cur ? ' cur' : ''), isQuiz(i) ? String(i + 1) : (i - NQ + 1) + code[i - NQ].level);
-          b.type = 'button';
-          b.addEventListener('click', function () { goTo(i); });
-          box.appendChild(b);
-        })(g[1] + k);
-      }
-    });
+    var isQ = state.stage === 'quiz';
+    $('nav-q-box').hidden = !isQ;
+    $('nav-c-box').hidden = isQ;
+    $('nav-q-label').textContent = 'Тест — попытка ' + state.attempt + ' из ' + ATTEMPTS;
+    var box = $(isQ ? 'nav-q' : 'nav-c'); box.innerHTML = '';
+    for (var k = 0; k < NQ; k++) {
+      (function (i) {
+        var b = el('button', 'nav-btn' + navClass(i) + (i === state.cur ? ' cur' : ''), isQ ? String(i + 1) : (i + 1) + code[i].level);
+        b.type = 'button';
+        b.addEventListener('click', function () { goTo(i); });
+        box.appendChild(b);
+      })(k);
+    }
   }
-  function goTo(i) { if (!running() || busy || i < 0 || i >= 2 * NQ) return; state.cur = i; save(); renderItem(); window.scrollTo(0, 0); }
+  function goTo(i) { if (!running() || busy || i < 0 || i >= NQ) return; state.cur = i; save(); renderItem(); window.scrollTo(0, 0); }
 
   function renderItem() {
-    var i = state.cur;
-    $('q-body').hidden = !isQuiz(i);
-    $('c-body').hidden = isQuiz(i);
+    var i = state.cur, isQ = state.stage === 'quiz';
+    $('q-body').hidden = !isQ;
+    $('c-body').hidden = isQ;
     $('m-confirm').hidden = true;
     $('b-prev').disabled = i === 0;
-    $('b-next').disabled = i === 2 * NQ - 1;
-    if (isQuiz(i)) renderQuiz(i); else renderCode(i - NQ);
+    $('b-next').disabled = i === NQ - 1;
+    $('b-finish').textContent = isQ ? 'Сдать тест' : 'Завершить работу';
+    $('w-legend').textContent = isQ ? 'Синий — есть ответ. Нажмите на номер, чтобы открыть вопрос.' : 'Синий — код написан; зелёный — все тесты пройдены; красный — при проверке есть ошибки.';
+    if (isQ) renderQuiz(i); else renderCode(i);
     renderNav();
     show('s-work');
     tick();
@@ -205,6 +220,66 @@
     $('w-saved').hidden = !QUIZ.isComplete(q, g);
   }
 
+  // Сдать попытку теста: результат сохраняется, ученик видит балл и где ошибся
+  function submitQuiz(auto) {
+    if (!running() || state.stage !== 'quiz') return;
+    var ok = quiz.map(function (q, i) { return QUIZ.isCorrect(q, state.q[i]); });
+    state.attempts.push({ n: state.attempt, seed: quizSeed(state.attempt), answers: state.q.slice(), ok: ok,
+      score: ok.filter(Boolean).length, auto: !!auto, at: Date.now() });
+    state.stage = 'quizres';
+    save();
+    renderQuizResult();
+  }
+  function renderQuizResult() {
+    var last = state.attempts[state.attempts.length - 1], best = bestAttempt();
+    var left = ATTEMPTS - state.attempts.length;
+    $('qr-score').textContent = last.score + ' / ' + NQ;
+    var msg = (last.auto ? 'Время на тест закончилось — тест сдан автоматически. ' : '');
+    if (last.score === NQ) msg += 'Отлично, все ответы верные! Переходите к задачам на код.';
+    else if (last.score < PASS && left > 0) msg += 'Балл низкий. Перечитайте разделы теории, указанные у неверных ответов, и пройдите тест заново — засчитается лучшая попытка.';
+    else if (left > 0) msg += 'Можно перейти к задачам или пройти тест ещё раз, чтобы улучшить результат (засчитается лучшая попытка).';
+    else msg += 'Попытки закончились. Переходите к задачам на код.';
+    $('qr-msg').textContent = msg;
+    $('qr-attempts').textContent = 'Попытка ' + last.n + ' из ' + ATTEMPTS + '. Баллы по попыткам: ' +
+      state.attempts.map(function (a) { return a.score; }).join(', ') + '. Засчитывается лучшая: ' + best.score + ' / ' + NQ + '.';
+    $('b-retry').hidden = left <= 0 || last.score === NQ;
+    $('b-retry').textContent = '↻ Пройти тест заново (осталось попыток: ' + left + ')';
+    $('qr-confirm').hidden = true;
+    var lq = quizFor(last.seed), list = $('qr-list'); list.innerHTML = '';
+    lq.forEach(function (q, i) {
+      var card = cardHead('Вопрос ' + (i + 1) + ' — ' + q.title, last.ok[i]);
+      card.appendChild(el('p', 'rv-q', q.text));
+      if (q.code) card.appendChild(el('pre', 'code', q.code));
+      var g = last.answers[i];
+      var given = g == null ? 'нет ответа' : Array.isArray(g) ? q.items.map(function (it, k) { return it.name + ' → ' + (g[k] || '—'); }).join('\n') : g;
+      card.appendChild(el('pre', 'rv-given' + (q.mono ? ' mono' : ''), 'Ваш ответ:\n' + given));
+      if (!last.ok[i]) card.appendChild(el('p', 'rv-theory', '📖 Повторите теорию: раздел ' + q.theory));
+      list.appendChild(card);
+    });
+    show('s-quizres');
+  }
+  function quizFor(seed) { return QUIZ.generate(seed); }
+  function retryQuiz() {
+    if (!running() || state.stage !== 'quizres' || state.attempts.length >= ATTEMPTS) return;
+    state.attempt = state.attempts.length + 1;
+    quiz = quizFor(quizSeed(state.attempt));
+    state.q = quiz.map(function () { return null; });
+    state.stage = 'quiz';
+    state.cur = 0;
+    state.quizEndsAt = Date.now() + QUIZ_MS;
+    save();
+    renderItem();
+  }
+  function toCode() {
+    if (!running() || state.stage !== 'quizres') return;
+    state.stage = 'code';
+    state.cur = 0;
+    state.codeStartedAt = Date.now();
+    state.codeEndsAt = Date.now() + CODE_MS;
+    save();
+    renderItem();
+  }
+
   // ---------- Задачи на код ----------
   function renderCode(j) {
     var tk = code[j];
@@ -225,7 +300,7 @@
   function setBusy(v) {
     busy = v;
     ['b-run', 'b-check', 'b-prev', 'b-next', 'b-finish'].forEach(function (id) {
-      $(id).disabled = v || (id === 'b-prev' && state.cur === 0) || (id === 'b-next' && state.cur === 2 * NQ - 1);
+      $(id).disabled = v || (id === 'b-prev' && state.cur === 0) || (id === 'b-next' && state.cur === NQ - 1);
     });
   }
   function needCode(j) {
@@ -234,22 +309,22 @@
     return true;
   }
   function doRun() {
-    var j = state.cur - NQ;
-    if (busy || j < 0 || needCode(j)) return;
+    var j = state.cur;
+    if (busy || state.stage !== 'code' || needCode(j)) return;
     setBusy(true);
     $('c-result').hidden = false; $('c-result').textContent = 'Выполняется…';
     runPython(state.code[j], $('c-stdin').value).then(function (r) {
       setBusy(false);
-      if (!running() || state.cur - NQ !== j) return;
+      if (!running() || state.cur !== j) return;
       var box = $('c-result'); box.innerHTML = '';
       box.appendChild(el('b', null, 'Вывод:'));
       box.appendChild(el('pre', null, r.out || '(программа ничего не вывела)'));
-      if (r.error) { box.appendChild(el('b', 'bad', 'Ошибка:')); box.appendChild(el('pre', 'bad', r.error));  if (/invalid literal for int/.test(r.error)) box.appendChild(el('p', 'hint', INPUT_HINT)); }
+      if (r.error) { box.appendChild(el('b', 'bad', 'Ошибка:')); box.appendChild(el('pre', 'bad', r.error)); if (/invalid literal for int/.test(r.error)) box.appendChild(el('p', 'hint', INPUT_HINT)); }
     });
   }
   function doCheck() {
-    var j = state.cur - NQ;
-    if (busy || j < 0 || needCode(j)) return;
+    var j = state.cur;
+    if (busy || state.stage !== 'code' || needCode(j)) return;
     setBusy(true);
     $('c-result').hidden = false; $('c-result').textContent = 'Проверяется…';
     checkTask(j).then(function (res) {
@@ -257,7 +332,7 @@
       if (!running()) return;
       state.checks[j] = { passed: res.passed, total: res.total };
       save(); renderNav();
-      if (state.cur - NQ !== j) return;
+      if (state.cur !== j) return;
       var box = $('c-result'), all = res.passed === res.total; box.innerHTML = '';
       box.appendChild(el('p', all ? 'ok' : 'bad', all ? '✓ Все тесты пройдены! Можно переходить к следующей задаче.' : 'Пройдено тестов: ' + res.passed + ' из ' + res.total));
       box.appendChild(el('b', null, 'Примеры:'));
@@ -273,13 +348,12 @@
   }
 
   // ---------- Завершение и подсчёт ----------
-  function unanswered() {
-    var q = quiz.filter(function (x, i) { return !QUIZ.isComplete(x, state.q[i]); }).length;
-    var c = code.filter(function (x, j) { return !(state.code[j] || '').trim(); }).length;
-    return { q: q, c: c };
-  }
   function finish(reason) {
     if (!running()) return;
+    if (state.stage === 'quiz') {        // работа прервана во время теста: текущая попытка засчитывается как есть
+      var ok = quiz.map(function (q, i) { return QUIZ.isCorrect(q, state.q[i]); });
+      state.attempts.push({ n: state.attempt, seed: quizSeed(state.attempt), answers: state.q.slice(), ok: ok, score: ok.filter(Boolean).length, at: Date.now() });
+    }
     state.status = 'evaluating';
     state.reason = reason;
     state.finishedAt = state.closedAt || Date.now();
@@ -305,31 +379,41 @@
     next();
   }
   function tick() {
-    if (!running()) return;
-    var left = state.endsAt - Date.now();
-    if (left <= 0) { finish('Время работы (' + (window.TOTAL_MIN || 40) + ' минут) закончилось.'); return; }
+    if (!running() || state.stage === 'quizres') return;
+    var left = stageEnds() - Date.now();
+    if (left <= 0) {
+      if (state.stage === 'quiz') submitQuiz(true);
+      else finish('Время на задачи (' + (window.CODE_MIN || 80) + ' минут) закончилось.');
+      return;
+    }
+    $('tm-label').textContent = state.stage === 'quiz' ? 'До конца теста' : 'До конца работы над задачами';
     $('tm-total').textContent = fmt(left);
     $('tm-total-box').classList.toggle('low', left <= 60000);
-    $('tm-bar').style.width = (100 * left / TOTAL_MS) + '%';
+    $('tm-bar').style.width = (100 * left / stageMs()) + '%';
   }
 
   function renderResult() {
-    var qOk = quiz.map(function (q, i) { return QUIZ.isCorrect(q, state.q[i]); });
+    var best = bestAttempt();
+    var bq = best ? quizFor(best.seed) : QUIZ.generate(quizSeed(1));
+    var qOk = best ? best.ok : bq.map(function () { return false; });
     var cOk = state.results.map(function (r) { return r.passed === r.total; });
     var qs = qOk.filter(Boolean).length, cs = cOk.filter(Boolean).length;
     $('r-score-num').textContent = (qs + cs) + ' / 20';
     $('r-quiz').textContent = qs + ' / 10';
+    $('r-quiz-att').textContent = state.attempts.length ? 'попыток: ' + state.attempts.length + ' (' + state.attempts.map(function (a) { return a.score; }).join(', ') + ')' : 'тест не сдан';
     $('r-code').textContent = cs + ' / 10';
     $('r-reason').textContent = state.reason || '';
     $('r-reason').hidden = !state.reason;
     var tb = $('r-time'); tb.innerHTML = '';
-    var left = 1000 * Math.floor(Math.max(0, state.endsAt - state.finishedAt) / 1000);
     var line = function (label, value) { var p = el('p'); p.appendChild(document.createTextNode(label + ' ')); p.appendChild(el('b', null, value)); tb.appendChild(p); };
-    line('Время работы:', fmt(TOTAL_MS - left) + ' из ' + fmt(TOTAL_MS));
-    line('Оставалось времени:', fmt(left));
+    if (state.codeStartedAt) {
+      var used = Math.min(CODE_MS, Math.max(0, state.finishedAt - state.codeStartedAt));
+      line('Время на задачи:', fmt(used) + ' из ' + fmt(CODE_MS));
+      line('Оставалось времени:', fmt(CODE_MS - used));
+    } else line('До задач на код ученик не дошёл.', '');
 
     var lq = $('r-list-q'); lq.innerHTML = '';
-    quiz.forEach(function (q, i) { lq.appendChild(quizCard(q, state.q[i], qOk[i], i)); });
+    bq.forEach(function (q, i) { lq.appendChild(quizCard(q, best ? best.answers[i] : null, qOk[i], i)); });
     var lc = $('r-list-c'); lc.innerHTML = '';
     code.forEach(function (tk, j) { lc.appendChild(codeCard(tk, j, state.results[j], cOk[j])); });
     show('s-result');
@@ -418,41 +502,63 @@
   function begin() {
     $('b-start').disabled = true;
     var fs = enterFullscreen(), seed = newSeed();
-    quiz = QUIZ.generate(seed); code = CODE.generate(seed);
-    state = { v: 1, seed: seed, status: 'running', startedAt: Date.now(), endsAt: Date.now() + TOTAL_MS, cur: 0,
-      q: quiz.map(function () { return null; }), code: code.map(function () { return ''; }),
-      stdin: code.map(function () { return null; }), checks: code.map(function () { return null; }) };
+    state = { v: 2, seed: seed, status: 'running', stage: 'quiz', startedAt: Date.now(), attempt: 1, attempts: [],
+      quizEndsAt: Date.now() + QUIZ_MS, cur: 0, q: [], code: [], stdin: [], checks: [] };
+    quiz = quizFor(quizSeed(1)); code = CODE.generate(seed);
+    state.q = quiz.map(function () { return null; });
+    state.code = code.map(function () { return ''; });
+    state.stdin = code.map(function () { return null; });
+    state.checks = code.map(function () { return null; });
     save();
     fs.then(function () { ticker = setInterval(tick, 250); renderItem(); });
   }
+  function showTheory() {
+    var during = running();
+    $('b-to-intro').hidden = during;
+    $('b-theory-back').hidden = !during;
+    $('t-end-text').hidden = during;
+    show('s-theory');
+  }
 
   function init() {
-    $('i-min').textContent = String(window.TOTAL_MIN || 40);
-    $('tm-total').textContent = fmt(TOTAL_MS);
+    document.querySelectorAll('.i-qmin').forEach(function (e) { e.textContent = String(window.QUIZ_MIN || 15); });
+    document.querySelectorAll('.i-cmin').forEach(function (e) { e.textContent = String(window.CODE_MIN || 80); });
+    document.querySelectorAll('.i-att').forEach(function (e) { e.textContent = String(ATTEMPTS); });
     $('b-to-intro').addEventListener('click', function () { show('s-intro'); });
-    $('b-back-theory').addEventListener('click', function () { show('s-theory'); });
+    $('b-back-theory').addEventListener('click', showTheory);
+    $('b-theory-back').addEventListener('click', function () { if (running() && state.stage === 'quizres') renderQuizResult(); });
     $('b-start').addEventListener('click', begin);
     $('b-run').addEventListener('click', doRun);
     $('b-check').addEventListener('click', doCheck);
     $('b-prev').addEventListener('click', function () { goTo(state.cur - 1); });
     $('b-next').addEventListener('click', function () { goTo(state.cur + 1); });
     $('b-finish').addEventListener('click', function () {
-      var u = unanswered();
-      $('m-confirm-text').textContent = 'Завершить работу?' + (u.q || u.c ? ' Без ответа: вопросов теста — ' + u.q + ', задач — ' + u.c + '.' : '') + ' Балл будет посчитан по текущим ответам и коду.';
+      if (state.stage === 'quiz') {
+        var u = quiz.filter(function (x, i) { return !QUIZ.isComplete(x, state.q[i]); }).length;
+        $('m-confirm-text').textContent = 'Сдать тест?' + (u ? ' Без ответа: ' + u + ' вопр.' : '') + ' После сдачи вы увидите результат.';
+      } else {
+        var c = code.filter(function (x, j) { return !(state.code[j] || '').trim(); }).length;
+        $('m-confirm-text').textContent = 'Завершить работу?' + (c ? ' Задач без кода: ' + c + '.' : '') + ' Балл будет посчитан по текущему коду.';
+      }
       $('m-confirm').hidden = false;
     });
-    $('b-finish-yes').addEventListener('click', function () { finish(null); });
+    $('b-finish-yes').addEventListener('click', function () { if (state.stage === 'quiz') submitQuiz(false); else finish(null); });
     $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
+    $('b-reread').addEventListener('click', showTheory);
+    $('b-retry').addEventListener('click', retryQuiz);
+    $('b-to-code').addEventListener('click', function () { $('qr-confirm').hidden = false; });
+    $('b-to-code-yes').addEventListener('click', toCode);
+    $('b-to-code-no').addEventListener('click', function () { $('qr-confirm').hidden = true; });
     $('warn').addEventListener('click', function () { $('warn').hidden = true; });
     var ed = $('c-code');
     setupEditor(ed);
     ed.addEventListener('input', function () {
-      if (!running() || isQuiz(state.cur)) return;
-      var j = state.cur - NQ;
+      if (!running() || state.stage !== 'code') return;
+      var j = state.cur;
       state.code[j] = ed.value; state.checks[j] = null;   // код изменился — прошлая проверка устарела
       save(); renderNav();
     });
-    $('c-stdin').addEventListener('input', function () { if (running() && !isQuiz(state.cur)) { state.stdin[state.cur - NQ] = $('c-stdin').value; save(); } });
+    $('c-stdin').addEventListener('input', function () { if (running() && state.stage === 'code') { state.stdin[state.cur] = $('c-stdin').value; save(); } });
 
     document.addEventListener('fullscreenchange', onFullscreenChange);
     document.addEventListener('webkitfullscreenchange', onFullscreenChange);
@@ -478,10 +584,10 @@
     if (!fsSupported()) $('i-nofs').hidden = false;
 
     state = load();
-    if (state && state.seed) { quiz = QUIZ.generate(state.seed); code = CODE.generate(state.seed); } else state = null;
+    if (state && state.v === 2 && state.seed) { quiz = quizFor(quizSeed(state.attempt)); code = CODE.generate(state.seed); } else state = null;
     if (state && state.status === 'running') {
-      // Страница была закрыта или перезагружена (или время вышло) — работа завершается
-      finish(state.endsAt <= Date.now() && !state.closedAt ? 'Время работы закончилось.' : 'Работа завершена автоматически: страница была закрыта или перезагружена.');
+      // Страница была закрыта или перезагружена — работа завершается
+      finish('Работа завершена автоматически: страница была закрыта или перезагружена.');
       return;
     }
     if (state && state.status === 'evaluating') { evaluateAll(); return; }
