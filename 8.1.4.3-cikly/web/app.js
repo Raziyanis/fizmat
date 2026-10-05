@@ -9,7 +9,8 @@
   var QUIZ_MS = (window.QUIZ_MIN || 15) * 60 * 1000;
   var CODE_MS = (window.CODE_MIN || 80) * 60 * 1000;
   var ATTEMPTS = window.QUIZ_ATTEMPTS || 3, PASS = window.QUIZ_PASS || 7;
-  var RESULT_MS = (window.RESULT_MIN || 5) * 60 * 1000;
+  var RESULT_MS = (window.RESULT_MIN || 4) * 60 * 1000;
+  var MAX_VIOL = window.MAX_VIOLATIONS || 3;
   var STORE = 'cikly-8143-state';
   var RUN_LIMIT_MS = 1000, OUT_LIMIT = 20000;
   var LETTERS = ['A', 'B', 'C', 'D'];
@@ -29,7 +30,7 @@
   function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
   function running() { return !!state && state.status === 'running'; }
   function show(id) {
-    ['s-loading', 's-theory', 's-intro', 's-work', 's-quizres', 's-eval', 's-result', 's-locked'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['s-loading', 's-gate', 's-theory', 's-intro', 's-work', 's-quizres', 's-eval', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
     $('timers').hidden = !running() || state.stage === 'quizres' || id !== 's-work';
     window.scrollTo(0, 0);
   }
@@ -108,9 +109,37 @@
     } catch (err) { return Promise.resolve(); }
   }
   function exitFullscreen() { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (fsElement() && ex) { try { ex.call(document); } catch (e) {} } }
-  function violation(reason) { if (!running()) return; setTimeout(function () { if (running()) finish(['Работа завершена автоматически: ', reason]); }, 300); }
+  // Нарушение: выход из полноэкранного режима, смена вкладки или окна, перезагрузка страницы.
+  // Первые нарушения — предупреждение (сколько попыток осталось), на MAX_VIOL-м работа завершается.
+  // Одно действие часто вызывает несколько событий подряд (выход из полноэкранного режима + потеря фокуса) — считаем его один раз.
+  // При закрытии или перезагрузке браузер сам выходит из полноэкранного режима: это событие не считаем,
+  // нарушение засчитывается один раз при следующем открытии страницы. Поэтому нарушение учитывается с задержкой:
+  // если страница за это время выгружается, таймер не срабатывает.
+  var violLock = 0, leaving = false;
+  function violation(reason) {
+    if (!running() || leaving || Date.now() < violLock) return;
+    violLock = Date.now() + 1500;
+    setTimeout(function () { if (running() && !leaving) countViolation(reason); }, 400);
+  }
+  function countViolation(reason) {
+    state.viol = (state.viol || 0) + 1;
+    state.lastViol = reason;
+    save();
+    if (state.viol >= MAX_VIOL) { finish(['Работа завершена автоматически: ', reason]); return; }
+    renderBack();
+    $('m-back').hidden = false;
+  }
+  function renderBack() {
+    if (!state) return;
+    var r = t(state.lastViol || '');
+    $('m-back-text').textContent = r.charAt(0).toUpperCase() + r.slice(1) + ' ' + t('Осталось попыток: ') + (MAX_VIOL - (state.viol || 0)) + '. ' +
+      t('Когда попытки закончатся, работа завершится. Нажмите кнопку и продолжайте работу.');
+  }
+  function backToFullscreen() {
+    enterFullscreen().then(function () { if (fsElement() || !fsSupported()) $('m-back').hidden = true; });
+  }
   function onFullscreenChange() {
-    if (fsElement()) { fsActive = true; ignoreUntil = Date.now() + 1500; return; }
+    if (fsElement()) { fsActive = true; ignoreUntil = Date.now() + 1500; $('m-back').hidden = true; return; }
     if (fsActive) { fsActive = false; violation('вы вышли из полноэкранного режима.'); }
   }
   function onVisibility() { if (document.visibilityState === 'hidden') violation('вы переключились на другую вкладку или приложение.'); }
@@ -121,13 +150,17 @@
   function warn(text) { $('warn-text').textContent = text; $('warn').hidden = false; clearTimeout(warn.t); warn.t = setTimeout(function () { $('warn').hidden = true; }, 5000); }
   function onKey(e) {
     if (!running()) return;
-    if (e.key === 'Escape') { warn(t('Не выходите из полноэкранного режима: работа сразу завершится.')); e.preventDefault(); }
+    if (e.key === 'Escape') { warn(t('Не выходите из полноэкранного режима: это нарушение.')); e.preventDefault(); }
     var k = (e.key || '').toLowerCase();
     if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l'].indexOf(k) >= 0) ||
         (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) { e.preventDefault(); warn(t('Это действие недоступно во время работы.')); }
   }
-  function onPageHide() { if (running()) { state.closedAt = Date.now(); save(); } }
-  function onBeforeUnload(e) { if (!running()) return; e.preventDefault(); e.returnValue = ''; return ''; }
+  function onPageHide() { leaving = true; if (running()) { state.closedAt = Date.now(); save(); } }
+  function onBeforeUnload(e) {
+    if (!running()) return;
+    leaving = true; setTimeout(function () { leaving = false; }, 3000);   // если ученик отменил закрытие — снова следим
+    e.preventDefault(); e.returnValue = ''; return '';
+  }
 
   // ---------- Редактор кода ----------
   function setupEditor(ta) {
@@ -384,7 +417,7 @@
     next();
   }
   function tick() {
-    if (!running() || state.stage === 'quizres') return;
+    if (!running() || state.stage === 'quizres' || state.stage === 'theory') return;
     var left = stageEnds() - Date.now();
     if (left <= 0) {
       if (state.stage === 'quiz') submitQuiz(true);
@@ -494,8 +527,8 @@
     clearInterval(hideTimer);
     var update = function () {
       var left = state.finishedAt + RESULT_MS - Date.now();
-      if (left <= 0) { clearInterval(hideTimer); $('l-pin').value = ''; $('l-pin-msg').textContent = ''; show('s-locked'); return; }
-      $('r-hide').textContent = t('Результат будет скрыт через ') + fmt(left) + '.';
+      if (left <= 0) { clearInterval(hideTimer); resetToStart(); return; }
+      $('r-hide').textContent = t('Начальная страница откроется через ') + fmt(left) + '.';
       $('r-hide').hidden = false;
     };
     update();
@@ -504,21 +537,36 @@
 
   // ---------- Запуск ----------
   function newSeed() { var a = new Uint32Array(1); (window.crypto || window.msCrypto).getRandomValues(a); return a[0] || 1; }
+  // Новая работа открывается на весь экран сразу, с чтения теории; нарушения считаются с этого момента
+  function startSession() {
+    if (state) return;
+    var fs = enterFullscreen(), seed = newSeed();
+    state = { v: 3, seed: seed, status: 'running', stage: 'theory', startedAt: Date.now(), viol: 0, attempt: 1, attempts: [],
+      cur: 0, q: [], code: [], stdin: [], checks: [] };
+    quiz = quizFor(1); code = CODE.generate(seed, LANG);
+    save();
+    ticker = setInterval(tick, 250);
+    fs.then(showTheory);
+  }
+  function resetToStart() {
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    location.reload();
+  }
   function begin() {
     $('b-start').disabled = true;
-    var fs = enterFullscreen(), seed = newSeed();
-    state = { v: 2, seed: seed, status: 'running', stage: 'quiz', startedAt: Date.now(), attempt: 1, attempts: [],
-      quizEndsAt: Date.now() + QUIZ_MS, cur: 0, q: [], code: [], stdin: [], checks: [] };
-    quiz = quizFor(1); code = CODE.generate(seed, LANG);
+    var fs = enterFullscreen();
+    state.stage = 'quiz'; state.attempt = 1; state.attempts = []; state.cur = 0;
+    state.quizEndsAt = Date.now() + QUIZ_MS;
+    quiz = quizFor(1); code = CODE.generate(state.seed, LANG);
     state.q = quiz.map(function () { return null; });
     state.code = code.map(function () { return ''; });
     state.stdin = code.map(function () { return null; });
     state.checks = code.map(function () { return null; });
     save();
-    fs.then(function () { ticker = setInterval(tick, 250); renderItem(); });
+    fs.then(renderItem);
   }
   function showTheory() {
-    var during = running();
+    var during = running() && state.stage !== 'theory';
     $('b-to-intro').hidden = during;
     $('b-theory-back').hidden = !during;
     $('t-end-text').hidden = during;
@@ -541,7 +589,6 @@
     document.querySelectorAll('.i-qmin').forEach(function (e) { e.textContent = String(window.QUIZ_MIN || 15); });
     document.querySelectorAll('.i-cmin').forEach(function (e) { e.textContent = String(window.CODE_MIN || 80); });
     document.querySelectorAll('.i-att').forEach(function (e) { e.textContent = String(ATTEMPTS); });
-    ['r-pin', 'l-pin'].forEach(function (id) { $(id).placeholder = t('Пароль учителя'); $(id).setAttribute('aria-label', t('Пароль учителя')); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-lang') === LANG); b.setAttribute('aria-pressed', b.getAttribute('data-lang') === LANG); });
   }
   // Смена языка: ответы, код и таймер сохраняются; текущий экран перерисовывается на новом языке
@@ -555,6 +602,7 @@
     if (vis === 's-work') { var keep = $('c-code').value; renderItem(); if (state.stage === 'code') $('c-code').value = keep; }
     else if (vis === 's-quizres') renderQuizResult();
     else if (vis === 's-result') renderResult();
+    if (!$('m-back').hidden) renderBack();
   }
 
   function init() {
@@ -565,6 +613,9 @@
     $('b-back-theory').addEventListener('click', showTheory);
     $('b-theory-back').addEventListener('click', function () { if (running() && state.stage === 'quizres') renderQuizResult(); });
     $('b-start').addEventListener('click', begin);
+    $('b-gate').addEventListener('click', startSession);
+    $('b-back-fs').addEventListener('click', backToFullscreen);
+    $('b-restart').addEventListener('click', resetToStart);
     $('b-run').addEventListener('click', doRun);
     $('b-check').addEventListener('click', doCheck);
     $('b-prev').addEventListener('click', function () { goTo(state.cur - 1); });
@@ -608,29 +659,30 @@
     history.pushState(null, '', location.href);
     window.addEventListener('popstate', function () { if (running()) { history.pushState(null, '', location.href); warn(t('Переход назад во время работы недоступен.')); } });
 
-    $('b-teacher').addEventListener('click', function () { $('r-teacher-form').hidden = false; $('r-pin').focus(); });
-    [['b-restart', 'r-pin', 'r-pin-msg'], ['b-unlock', 'l-pin', 'l-pin-msg']].forEach(function (ids) {
-      var go = function () {
-        if ($(ids[1]).value.trim() !== String(window.TEACHER_PIN)) { $(ids[2]).textContent = t('Неверный пароль'); return; }
-        try { localStorage.removeItem(STORE); } catch (e) {}
-        location.reload();
-      };
-      $(ids[0]).addEventListener('click', go);
-      $(ids[1]).addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
-    });
     if (!fsSupported()) $('i-nofs').hidden = false;
 
     state = load();
-    if (state && state.v === 2 && state.seed) { quiz = quizFor(state.attempt); code = CODE.generate(state.seed, LANG); } else state = null;
+    if (state && state.v === 3 && state.seed) { quiz = quizFor(state.attempt); code = CODE.generate(state.seed, LANG); } else state = null;
     if (state && state.status === 'running') {
-      // Страница была закрыта или перезагружена — работа завершается
-      finish(['Работа завершена автоматически: страница была закрыта или перезагружена.']);
+      // Страница была закрыта или перезагружена — это нарушение: работа продолжается с того же места
+      // (таймеры не останавливались), а на MAX_VIOL-м нарушении завершается
+      var why = 'страница была закрыта или перезагружена.';
+      state.viol = (state.viol || 0) + 1; state.lastViol = why;
+      if (state.viol >= MAX_VIOL) { finish(['Работа завершена автоматически: ', why]); return; }
+      delete state.closedAt; save();
+      violLock = Date.now() + 1500;
+      ticker = setInterval(tick, 250);
+      if (state.stage === 'theory') showTheory();
+      else if (state.stage === 'quizres') renderQuizResult();
+      else renderItem();
+      renderBack();
+      $('m-back').hidden = false;
       return;
     }
     if (state && state.status === 'evaluating') { evaluateAll(); return; }
     if (state && state.status === 'finished') { renderResult(); return; }
     state = null;
-    show('s-theory');
+    show('s-gate');
   }
 
   document.addEventListener('DOMContentLoaded', init);

@@ -307,3 +307,18 @@ button.danger-outline { border-color: var(--bad); color: var(--bad); }
 .lang-switch button { border: 0; border-radius: 0; padding: 6px 14px; font-weight: 800; background: #fff; color: var(--accent); }
 .lang-switch button.on { background: var(--accent); color: #fff; }
 html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
+
+/* Окно после нарушения: вернуться в полноэкранный режим */
+.back-fs {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(20, 33, 61, 0.72);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.back-fs[hidden] { display: none; }
+.back-box {
+  max-width: 560px; width: 100%;
+  background: var(--card); border: 3px solid var(--bad); border-radius: 12px; padding: 24px;
+  text-align: center;
+}
+.back-box h2 { color: var(--bad); margin-top: 0; }
+.back-box p { font-size: 1.1rem; }

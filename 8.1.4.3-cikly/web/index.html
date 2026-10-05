@@ -17,6 +17,14 @@
   <main>
     <section id="s-loading"><p class="muted">Загрузка…</p></section>
 
+    <section id="s-gate" hidden>
+      <h1>Формативная работа: циклы for и while</h1>
+      <p class="topic">8.1.4.3 — использовать оператор цикла while, использовать оператор цикла for</p>
+      <p class="steps"><b>1. Теория</b> → 2. Тест → 3. Задачи на код</p>
+      <p class="note">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</p>
+      <div class="buttons"><button id="b-gate" class="primary big">Начать (на весь экран)</button></div>
+    </section>
+
     <section id="s-theory" class="theory" hidden>
       <p class="steps"><b>1. Теория</b> → 2. Тест → 3. Задачи на код</p>
       <div id="theory"><!--THEORY--></div>
@@ -42,9 +50,9 @@
         <li>За каждый верный тестовый вопрос — <b>1 балл</b>. За задачу — <b>1 балл, если пройдены все 8 тестов</b>, иначе 0. Максимум — <b>20 баллов</b>.</li>
         <li>Ответы и код сохраняются автоматически. Между вопросами (и между задачами) можно свободно переходить. Балл за задачи считается <b>по последней версии кода</b>, когда работа завершается.</li>
         <li>Когда время теста закончится, тест сдаётся автоматически. Когда закончится время на задачи, работа завершится автоматически.</li>
-        <li class="important">Работа идёт в полноэкранном режиме. <b>Если выйти из полноэкранного режима, переключиться на другую вкладку, окно или приложение или закрыть страницу, работа сразу завершится</b>, а балл будет посчитан по ответам на этот момент.</li>
+        <li class="important">Работа идёт в полноэкранном режиме. Выход из него, переключение на другую вкладку, окно или приложение, перезагрузка страницы — нарушение. <b>За первые два нарушения — предупреждение, после третьего работа завершится</b>, а балл будет посчитан по ответам на этот момент.</li>
       </ul>
-      <p id="i-nofs" class="note" hidden>Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки — работа завершится.</p>
+      <p id="i-nofs" class="note" hidden>Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки: после третьего нарушения работа завершится.</p>
       <p class="muted">Имя не нужно. Ответы и баллы никуда не отправляются. У каждого ученика свои числа и варианты задач.</p>
       <div class="buttons">
         <button id="b-back-theory">← Ещё раз прочитать теорию</button>
@@ -147,27 +155,20 @@
       <h2>Разбор: задачи на код</h2>
       <div id="r-list-c" class="review"></div>
       <div class="teacher">
-        <button id="b-teacher" class="link">Для учителя: новая работа на этом устройстве</button>
-        <div id="r-teacher-form" class="row" hidden>
-          <input id="r-pin" type="password" autocomplete="off" >
-          <button id="b-restart" class="primary">Начать заново</button>
-          <span id="r-pin-msg" class="muted small"></span>
-        </div>
-      </div>
-    </section>
-
-    <section id="s-locked" hidden>
-      <h1>Работа завершена</h1>
-      <p>Результат скрыт. Чтобы начать новую работу на этом устройстве, учитель вводит пароль.</p>
-      <div class="row">
-        <input id="l-pin" type="password" autocomplete="off" >
-        <button id="b-unlock" class="primary">Начать заново</button>
-        <span id="l-pin-msg" class="muted small"></span>
+        <button id="b-restart" class="primary">Новая работа на этом компьютере</button>
       </div>
     </section>
   </main>
 
   <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <div id="m-back" class="back-fs" role="alertdialog" aria-modal="true" hidden>
+    <div class="back-box">
+      <h2>Внимание! Нарушение</h2>
+      <p id="m-back-text"></p>
+      <button id="b-back-fs" class="primary big">Вернуться в полноэкранный режим</button>
+    </div>
+  </div>
 
   <script src="config.js"></script>
   <script src="vendor/skulpt.min.js"></script>
