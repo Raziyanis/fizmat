@@ -52,8 +52,8 @@
     var step = function () {
       if (k >= task.tests.length) return res;
       var tc = task.tests[k];
-      return runPython(src, tc.input).then(function (r) {
-        var ok = !r.error && CODE.sameOutput(r.out, tc.output);
+      return runTest(src, tc.input, tc.output, CODE.sameOutput).then(function (x) {
+        var r = x.r, ok = x.ok;
         if (ok) res.passed++;
         res.details.push({ ok: ok, out: r.out, error: r.error || null });
         if (!ok && res.fail == null) res.fail = k;
@@ -64,6 +64,23 @@
     };
     return step();
   }
+
+  // Если в строке теста несколько чисел, а программа читает каждое число отдельным input(),
+  // повторяем запуск, подав каждое число на отдельной строке: засчитываются оба способа ввода.
+  function runTest(src, input, output, same) {
+    return runPython(src, input).then(function (r) {
+      var ok = !r.error && same(r.out, output);
+      var multi = String(input).split('\n').some(function (l) { return l.trim().split(/\s+/).length > 1; });
+      if (ok || !multi || r.timeout) return { r: r, ok: ok };
+      var alt = String(input).trim().split(/\s+/).join('\n');
+      return runPython(src, alt).then(function (r2) {
+        var ok2 = !r2.error && same(r2.out, output);
+        return ok2 ? { r: r2, ok: true } : { r: r, ok: false };
+      });
+    });
+  }
+  var INPUT_HINT = 'Подсказка: если в одной строке несколько чисел, прочитайте их так: a, b = map(int, input().split()). ' +
+    'Или в поле «Входные данные» запишите каждое число на отдельной строке — при проверке засчитываются оба способа.';
 
   // ---------- Полноэкранный режим и защита ----------
   function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
@@ -227,7 +244,7 @@
       var box = $('c-result'); box.innerHTML = '';
       box.appendChild(el('b', null, 'Вывод:'));
       box.appendChild(el('pre', null, r.out || '(программа ничего не вывела)'));
-      if (r.error) { box.appendChild(el('b', 'bad', 'Ошибка:')); box.appendChild(el('pre', 'bad', r.error)); }
+      if (r.error) { box.appendChild(el('b', 'bad', 'Ошибка:')); box.appendChild(el('pre', 'bad', r.error));  if (/invalid literal for int/.test(r.error)) box.appendChild(el('p', 'hint', INPUT_HINT)); }
     });
   }
   function doCheck() {
@@ -249,6 +266,7 @@
         if (!d.ok && !d.skipped) {
           box.appendChild(el('pre', null, 'ожидалось: ' + code[j].tests[k].output + '\nваш вывод: ' + (d.out || '(программа ничего не вывела)')));
           if (d.error) box.appendChild(el('pre', 'bad', d.error));
+          if (d.error && /invalid literal for int/.test(d.error)) box.appendChild(el('p', 'hint', INPUT_HINT));
         }
       });
     });
@@ -362,11 +380,21 @@
   function codeCard(tk, j, r, ok) {
     var card = cardHead('Задача ' + (j + 1) + ' (уровень ' + tk.level + ') — ' + tk.title, ok, ' · тестов ' + r.passed + '/' + r.total);
     card.appendChild(el('p', 'rv-q', tk.text));
-    var cols = el('div', 'rv-cols'), src = state.code[j] || '';
+    var cols = el('div', 'rv-cols one'), src = state.code[j] || '';
     var c1 = el('div'); c1.appendChild(el('b', null, 'Ваша программа')); c1.appendChild(el('pre', 'code', src.trim() ? src : '(код не написан)'));
-    var c2 = el('div'); c2.appendChild(el('b', null, 'Образец решения (можно решить и другим циклом)')); c2.appendChild(el('pre', 'code', tk.solution));
-    cols.appendChild(c1); cols.appendChild(c2);
+    cols.appendChild(c1);
     card.appendChild(cols);
+    // Два образца: одна и та же задача разными циклами
+    var how = function (src2) { return /while True/.test(src2) ? 'while True и break' : /while/.test(src2) ? 'цикл while' : 'цикл for'; };
+    var sols = el('div', 'rv-cols');
+    [tk.solution, tk.alt].forEach(function (src2, k) {
+      var c = el('div');
+      c.appendChild(el('b', null, 'Образец ' + (k + 1) + ': ' + how(src2)));
+      c.appendChild(el('pre', 'code', src2));
+      sols.appendChild(c);
+    });
+    card.appendChild(el('p', 'rv-note', 'Задачу можно решить разными способами — засчитывается любой, если программа выводит правильный ответ:'));
+    card.appendChild(sols);
     if (!ok && r.fail != null && src.trim()) {
       var tc = tk.tests[r.fail], d = r.details[r.fail] || {};
       card.appendChild(el('p', 'rv-err', 'Ошибка на тесте:\nвход: ' + tc.input.replace(/\n/g, ' / ') + '\nожидалось: ' + tc.output + '\nваш вывод: ' + (d.out || '(ничего)') + (d.error ? '\n' + d.error : '')));

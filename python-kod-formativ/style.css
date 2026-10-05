@@ -227,3 +227,4 @@ button.danger-outline { border-color: var(--bad); color: var(--bad); }
   background: #1b2740; color: #f1f5fb; font: 500 0.98rem/1.5 ui-monospace, "Consolas", "Courier New", monospace;
   padding: 12px 16px; border-radius: 10px; overflow-x: auto; margin: 4px 0 0; tab-size: 4; white-space: pre;
 }
+.hint { background: #fff4d6; border-radius: 8px; padding: 8px 12px; color: #6b4a00; margin: 6px 0; }

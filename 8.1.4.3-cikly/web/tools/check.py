@@ -77,9 +77,12 @@ def main():
         for t in C:
             assert len(t['tests']) == 8 and all(tc['output'].strip() for tc in t['tests'])
             alt = ALT[t['title'] if t['title'] in ALT else re.sub(r' с шагом \d+$', '', t['title'])](t)
+            alt2 = t['alt']   # второй образец из tasks.js (показывается ученику в разборе)
+            assert ('while' in alt2) != ('while' in t['solution']) or 'while True' in alt2, t['title']
             for tc in t['tests']:
                 assert tokens(run(t['solution'], tc['input'])) == tokens(tc['output']), (t['title'], tc)
                 assert tokens(run(alt, tc['input'])) == tokens(tc['output']), (t['title'], 'alt', tc)
+                assert tokens(run(alt2, '\n'.join(tc['input'].split()) if 'int(input())\nb = int' in alt2 or 'a = int(input())\nn = int' in alt2 else tc['input'])) == tokens(tc['output']), (t['title'], 'alt2', tc)
                 nt += 1
         for i, q in enumerate(Q, 1):
             if q['type'] == 'match':
@@ -104,7 +107,7 @@ def main():
             if i == 9 and vi < 10:
                 for o in q['options']:
                     assert halts(o) == (o != q['answer']), o
-    print(f'OK: {N} вариантов; задачи на код — {nt} тестов (образец + решение другим циклом); тест — {N * 10} вопросов')
+    print(f'OK: {N} вариантов; задачи на код — {nt} тестов (образец, второй образец из разбора и независимое решение другим циклом); тест — {N * 10} вопросов')
 
 
 main()

@@ -33,7 +33,8 @@
       text: 'Даны два целых числа a и b (a < b). Выведите в одну строку через пробел ' + (d1 === 1 ? 'все целые числа от a до b включительно.' : 'числа a, a + ' + d1 + ', a + ' + (2 * d1) + ', … не больше b.'),
       input: 'В одной строке через пробел два целых числа a и b.', output: ROW,
       tests: tests(function () { var a = ri(-10, 20), b = a + ri(d1 + 1, 15); return { input: a + ' ' + b, output: seq(a, b, d1).join(' ') }; }),
-      solution: 'a, b = map(int, input().split())\nfor i in range(a, b + 1' + (d1 === 1 ? '' : ', ' + d1) + '):\n    print(i, end=" ")' });
+      solution: 'a, b = map(int, input().split())\nfor i in range(a, b + 1' + (d1 === 1 ? '' : ', ' + d1) + '):\n    print(i, end=" ")',
+      alt: 'a = int(input())\nb = int(input())\ni = a\nwhile i <= b:\n    print(i, end=" ")\n    i = i + ' + d1 });
 
     // A2. Сумма от 1 до n (или сумма квадратов)
     var sq = r() < 0.4;
@@ -41,7 +42,8 @@
       text: sq ? 'Дано натуральное число n. Найдите сумму квадратов 1² + 2² + … + n².' : 'Дано натуральное число n. Найдите сумму всех чисел от 1 до n включительно.',
       input: 'Одно натуральное число n (n ≤ 1000).', output: ONE,
       tests: tests(function (i) { var n = i === 7 ? 1 : ri(2, 200 * (i + 1) > 1000 ? 1000 : 200 * (i + 1)); return { input: String(n), output: String(sum(seq(1, n, 1).map(function (x) { return sq ? x * x : x; }))) }; }),
-      solution: 'n = int(input())\ns = 0\nfor i in range(1, n + 1):\n    s = s + ' + (sq ? 'i * i' : 'i') + '\nprint(s)' });
+      solution: 'n = int(input())\ns = 0\nfor i in range(1, n + 1):\n    s = s + ' + (sq ? 'i * i' : 'i') + '\nprint(s)',
+      alt: 'n = int(input())\ns = 0\ni = 1\nwhile i <= n:\n    s = s + ' + (sq ? 'i * i' : 'i') + '\n    i = i + 1\nprint(s)' });
 
     // A3. Таблица умножения
     var m3 = pick([5, 10]);
@@ -49,7 +51,8 @@
       text: 'Дано натуральное число k. Выведите в одну строку через пробел произведения k · 1, k · 2, …, k · ' + m3 + '.',
       input: 'Одно натуральное число k (k ≤ 100).', output: ROW,
       tests: tests(function () { var k = ri(2, 99); return { input: String(k), output: seq(1, m3, 1).map(function (x) { return k * x; }).join(' ') }; }),
-      solution: 'k = int(input())\nfor i in range(1, ' + (m3 + 1) + '):\n    print(k * i, end=" ")' });
+      solution: 'k = int(input())\nfor i in range(1, ' + (m3 + 1) + '):\n    print(k * i, end=" ")',
+      alt: 'k = int(input())\ni = 1\nwhile i <= ' + m3 + ':\n    print(k * i, end=" ")\n    i = i + 1' });
 
     // A4. Обратный отсчёт
     var d4 = pick([1, 2]);
@@ -58,7 +61,8 @@
                      : 'Дано натуральное число n. Выведите в одну строку через пробел числа n, n − 2, n − 4, … , которые больше 0.',
       input: 'Одно натуральное число n (n ≤ 100).', output: ROW,
       tests: tests(function (i) { var n = i === 7 ? 1 : ri(2, 40); return { input: String(n), output: seq(n, 1, -d4).join(' ') }; }),
-      solution: 'n = int(input())\nfor i in range(n, 0, -' + d4 + '):\n    print(i, end=" ")' });
+      solution: 'n = int(input())\nfor i in range(n, 0, -' + d4 + '):\n    print(i, end=" ")',
+      alt: 'n = int(input())\nwhile n > 0:\n    print(n, end=" ")\n    n = n - ' + d4 });
 
     // B5. Факториал / степень
     var pw = r() < 0.5;
@@ -69,7 +73,8 @@
         if (pw) { var a = ri(2, 10), n = i === 7 ? 1 : ri(2, 15), p = 1; for (var k = 0; k < n; k++) p *= a; return { input: a + ' ' + n, output: String(p) }; }
         var m = i === 7 ? 1 : ri(2, 15), f = 1; for (var j = 2; j <= m; j++) f *= j; return { input: String(m), output: String(f) };
       }),
-      solution: pw ? 'a, n = map(int, input().split())\np = 1\nfor i in range(n):\n    p = p * a\nprint(p)' : 'n = int(input())\np = 1\nfor i in range(1, n + 1):\n    p = p * i\nprint(p)' });
+      solution: pw ? 'a, n = map(int, input().split())\np = 1\nfor i in range(n):\n    p = p * a\nprint(p)' : 'n = int(input())\np = 1\nfor i in range(1, n + 1):\n    p = p * i\nprint(p)',
+      alt: pw ? 'a = int(input())\nn = int(input())\np = 1\nwhile n > 0:\n    p = p * a\n    n = n - 1\nprint(p)' : 'n = int(input())\np = 1\ni = 1\nwhile i <= n:\n    p = p * i\n    i = i + 1\nprint(p)' });
 
     // B6. Делители
     var cnt6 = r() < 0.5;
@@ -82,7 +87,8 @@
         for (var d = 1; d <= n; d++) if (n % d === 0) { c++; s += d; }
         return { input: String(n), output: String(cnt6 ? c : s) };
       }),
-      solution: 'n = int(input())\nk = 0\nfor d in range(1, n + 1):\n    if n % d == 0:\n        k = k + ' + (cnt6 ? '1' : 'd') + '\nprint(k)' });
+      solution: 'n = int(input())\nk = 0\nfor d in range(1, n + 1):\n    if n % d == 0:\n        k = k + ' + (cnt6 ? '1' : 'd') + '\nprint(k)',
+      alt: 'n = int(input())\nk = 0\nd = 1\nwhile d <= n:\n    if n % d == 0:\n        k = k + ' + (cnt6 ? '1' : 'd') + '\n    d = d + 1\nprint(k)' });
 
     // B7. Цифры числа (while)
     var v7 = pick(['sum', 'even', 'max']);
@@ -100,6 +106,11 @@
         sum: 'n = int(input())\ns = 0\nwhile n > 0:\n    s = s + n % 10\n    n = n // 10\nprint(s)',
         even: 'n = int(input())\nk = 0\nwhile n > 0:\n    if n % 10 % 2 == 0:\n        k = k + 1\n    n = n // 10\nprint(k)',
         max: 'n = int(input())\nm = 0\nwhile n > 0:\n    if n % 10 > m:\n        m = n % 10\n    n = n // 10\nprint(m)'
+      }[v7],
+      alt: {   // через for: перебираем цифры как символы строки
+        sum: 's = 0\nfor c in input():\n    s = s + int(c)\nprint(s)',
+        even: 'k = 0\nfor c in input():\n    if int(c) % 2 == 0:\n        k = k + 1\nprint(k)',
+        max: 'm = 0\nfor c in input():\n    if int(c) > m:\n        m = int(c)\nprint(m)'
       }[v7] });
 
     // C8. Числа Фибоначчи
@@ -111,7 +122,9 @@
       input: 'Одно натуральное число n (n ≤ 40).', output: last8 ? ONE : ROW,
       tests: tests(function (i) { var n = [1, 2][i - 6] || ri(3, 40); var f = fib(n); return { input: String(n), output: last8 ? String(f[n - 1]) : f.join(' ') }; }),
       solution: last8 ? 'n = int(input())\na = 1\nb = 1\nfor i in range(n - 1):\n    a, b = b, a + b\nprint(a)'
-                      : 'n = int(input())\na = 1\nb = 1\nfor i in range(n):\n    print(a, end=" ")\n    a, b = b, a + b' });
+                      : 'n = int(input())\na = 1\nb = 1\nfor i in range(n):\n    print(a, end=" ")\n    a, b = b, a + b',
+      alt: last8 ? 'n = int(input())\na = 1\nb = 1\nk = 1\nwhile k < n:\n    c = a + b\n    a = b\n    b = c\n    k = k + 1\nprint(a)'
+                 : 'n = int(input())\na = 1\nb = 1\nk = 0\nwhile k < n:\n    print(a, end=" ")\n    c = a + b\n    a = b\n    b = c\n    k = k + 1' });
 
     // C9. Ввод до нуля (while)
     var v9 = pick(['sum', 'max', 'count']);
@@ -129,6 +142,11 @@
         sum: 's = 0\nx = int(input())\nwhile x != 0:\n    s = s + x\n    x = int(input())\nprint(s)',
         max: 'x = int(input())\nm = x\nwhile x != 0:\n    if x > m:\n        m = x\n    x = int(input())\nprint(m)',
         count: 'k = 0\nx = int(input())\nwhile x != 0:\n    if x % 2 == 0:\n        k = k + 1\n    x = int(input())\nprint(k)'
+      }[v9],
+      alt: {   // while True + break: проверка на 0 внутри цикла
+        sum: 's = 0\nwhile True:\n    x = int(input())\n    if x == 0:\n        break\n    s = s + x\nprint(s)',
+        max: 'm = None\nwhile True:\n    x = int(input())\n    if x == 0:\n        break\n    if m == None or x > m:\n        m = x\nprint(m)',
+        count: 'k = 0\nwhile True:\n    x = int(input())\n    if x == 0:\n        break\n    if x % 2 == 0:\n        k = k + 1\nprint(k)'
       }[v9] });
 
     // C10. Пока сумма не превысит n (while)
@@ -141,7 +159,8 @@
         while (s <= n) { k++; s += st10 * k; }
         return { input: String(n), output: String(k) };
       }),
-      solution: 'n = int(input())\ns = 0\nk = 0\nwhile s <= n:\n    k = k + 1\n    s = s + ' + (st10 === 1 ? 'k' : '2 * k') + '\nprint(k)' });
+      solution: 'n = int(input())\ns = 0\nk = 0\nwhile s <= n:\n    k = k + 1\n    s = s + ' + (st10 === 1 ? 'k' : '2 * k') + '\nprint(k)',
+      alt: 'n = int(input())\ns = 0\nfor k in range(1, n + 2):\n    s = s + ' + (st10 === 1 ? 'k' : '2 * k') + '\n    if s > n:\n        print(k)\n        break' });
 
     return T;
   }

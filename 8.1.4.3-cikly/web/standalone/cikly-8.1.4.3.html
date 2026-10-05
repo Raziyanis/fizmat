@@ -300,6 +300,9 @@ button.danger-outline { border-color: var(--bad); color: var(--bad); }
 .rv-opt-body { display: flex; flex-direction: column; gap: 4px; }
 .rv-tag { display: inline-block; align-self: flex-start; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: 0.85rem; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: #fff; border: 1px solid currentColor; }
+.hint { background: #fff4d6; border-radius: 8px; padding: 8px 12px; color: #6b4a00; margin: 6px 0; }
+.rv-cols.one { grid-template-columns: minmax(0, 1fr); }
+.rv-note { margin: 10px 0 4px; font-weight: 600; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -453,7 +456,7 @@ while i &lt;= n:                    # 2) условие продолжения
       <ul class="rules">
         <li>Работа из двух частей. <b>Тест</b> — 10 вопросов: выберите один ответ (A, B, C, D) или сопоставьте пары. <b>Задачи</b> — 10 задач уровней A, B, C: к каждой напишите программу на Python.</li>
         <li>В задачах можно использовать <b>и цикл for, и цикл while</b> — проверяется только результат работы программы.</li>
-        <li>Данные вводите через <b>input()</b>, ответ выводите через <b>print()</b>. Под каждой задачей есть примеры.</li>
+        <li>Данные вводите через <b>input()</b>, ответ выводите через <b>print()</b>. Под каждой задачей есть примеры. Если в строке несколько чисел, можно читать их одной строкой (<code>a, b = map(int, input().split())</code>) или каждое отдельным <code>input()</code> — засчитываются оба способа.</li>
         <li><b>«▶ Запустить»</b> — выполнить программу со своими входными данными. <b>«✓ Проверить»</b> — проверить на 8 тестах (2 примера + 6 скрытых).</li>
         <li>За каждый верный тестовый вопрос — <b>1 балл</b>. За задачу — <b>1 балл, если пройдены все 8 тестов</b>, иначе 0. Максимум — <b>20 баллов</b>.</li>
         <li>Ответы в тесте и код сохраняются автоматически. Балл считается <b>по последним ответам и последней версии кода</b>, когда работа завершается. Между вопросами и задачами можно свободно переходить.</li>
@@ -1788,7 +1791,8 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
       text: 'Даны два целых числа a и b (a < b). Выведите в одну строку через пробел ' + (d1 === 1 ? 'все целые числа от a до b включительно.' : 'числа a, a + ' + d1 + ', a + ' + (2 * d1) + ', … не больше b.'),
       input: 'В одной строке через пробел два целых числа a и b.', output: ROW,
       tests: tests(function () { var a = ri(-10, 20), b = a + ri(d1 + 1, 15); return { input: a + ' ' + b, output: seq(a, b, d1).join(' ') }; }),
-      solution: 'a, b = map(int, input().split())\nfor i in range(a, b + 1' + (d1 === 1 ? '' : ', ' + d1) + '):\n    print(i, end=" ")' });
+      solution: 'a, b = map(int, input().split())\nfor i in range(a, b + 1' + (d1 === 1 ? '' : ', ' + d1) + '):\n    print(i, end=" ")',
+      alt: 'a = int(input())\nb = int(input())\ni = a\nwhile i <= b:\n    print(i, end=" ")\n    i = i + ' + d1 });
 
     // A2. Сумма от 1 до n (или сумма квадратов)
     var sq = r() < 0.4;
@@ -1796,7 +1800,8 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
       text: sq ? 'Дано натуральное число n. Найдите сумму квадратов 1² + 2² + … + n².' : 'Дано натуральное число n. Найдите сумму всех чисел от 1 до n включительно.',
       input: 'Одно натуральное число n (n ≤ 1000).', output: ONE,
       tests: tests(function (i) { var n = i === 7 ? 1 : ri(2, 200 * (i + 1) > 1000 ? 1000 : 200 * (i + 1)); return { input: String(n), output: String(sum(seq(1, n, 1).map(function (x) { return sq ? x * x : x; }))) }; }),
-      solution: 'n = int(input())\ns = 0\nfor i in range(1, n + 1):\n    s = s + ' + (sq ? 'i * i' : 'i') + '\nprint(s)' });
+      solution: 'n = int(input())\ns = 0\nfor i in range(1, n + 1):\n    s = s + ' + (sq ? 'i * i' : 'i') + '\nprint(s)',
+      alt: 'n = int(input())\ns = 0\ni = 1\nwhile i <= n:\n    s = s + ' + (sq ? 'i * i' : 'i') + '\n    i = i + 1\nprint(s)' });
 
     // A3. Таблица умножения
     var m3 = pick([5, 10]);
@@ -1804,7 +1809,8 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
       text: 'Дано натуральное число k. Выведите в одну строку через пробел произведения k · 1, k · 2, …, k · ' + m3 + '.',
       input: 'Одно натуральное число k (k ≤ 100).', output: ROW,
       tests: tests(function () { var k = ri(2, 99); return { input: String(k), output: seq(1, m3, 1).map(function (x) { return k * x; }).join(' ') }; }),
-      solution: 'k = int(input())\nfor i in range(1, ' + (m3 + 1) + '):\n    print(k * i, end=" ")' });
+      solution: 'k = int(input())\nfor i in range(1, ' + (m3 + 1) + '):\n    print(k * i, end=" ")',
+      alt: 'k = int(input())\ni = 1\nwhile i <= ' + m3 + ':\n    print(k * i, end=" ")\n    i = i + 1' });
 
     // A4. Обратный отсчёт
     var d4 = pick([1, 2]);
@@ -1813,7 +1819,8 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
                      : 'Дано натуральное число n. Выведите в одну строку через пробел числа n, n − 2, n − 4, … , которые больше 0.',
       input: 'Одно натуральное число n (n ≤ 100).', output: ROW,
       tests: tests(function (i) { var n = i === 7 ? 1 : ri(2, 40); return { input: String(n), output: seq(n, 1, -d4).join(' ') }; }),
-      solution: 'n = int(input())\nfor i in range(n, 0, -' + d4 + '):\n    print(i, end=" ")' });
+      solution: 'n = int(input())\nfor i in range(n, 0, -' + d4 + '):\n    print(i, end=" ")',
+      alt: 'n = int(input())\nwhile n > 0:\n    print(n, end=" ")\n    n = n - ' + d4 });
 
     // B5. Факториал / степень
     var pw = r() < 0.5;
@@ -1824,7 +1831,8 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
         if (pw) { var a = ri(2, 10), n = i === 7 ? 1 : ri(2, 15), p = 1; for (var k = 0; k < n; k++) p *= a; return { input: a + ' ' + n, output: String(p) }; }
         var m = i === 7 ? 1 : ri(2, 15), f = 1; for (var j = 2; j <= m; j++) f *= j; return { input: String(m), output: String(f) };
       }),
-      solution: pw ? 'a, n = map(int, input().split())\np = 1\nfor i in range(n):\n    p = p * a\nprint(p)' : 'n = int(input())\np = 1\nfor i in range(1, n + 1):\n    p = p * i\nprint(p)' });
+      solution: pw ? 'a, n = map(int, input().split())\np = 1\nfor i in range(n):\n    p = p * a\nprint(p)' : 'n = int(input())\np = 1\nfor i in range(1, n + 1):\n    p = p * i\nprint(p)',
+      alt: pw ? 'a = int(input())\nn = int(input())\np = 1\nwhile n > 0:\n    p = p * a\n    n = n - 1\nprint(p)' : 'n = int(input())\np = 1\ni = 1\nwhile i <= n:\n    p = p * i\n    i = i + 1\nprint(p)' });
 
     // B6. Делители
     var cnt6 = r() < 0.5;
@@ -1837,7 +1845,8 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
         for (var d = 1; d <= n; d++) if (n % d === 0) { c++; s += d; }
         return { input: String(n), output: String(cnt6 ? c : s) };
       }),
-      solution: 'n = int(input())\nk = 0\nfor d in range(1, n + 1):\n    if n % d == 0:\n        k = k + ' + (cnt6 ? '1' : 'd') + '\nprint(k)' });
+      solution: 'n = int(input())\nk = 0\nfor d in range(1, n + 1):\n    if n % d == 0:\n        k = k + ' + (cnt6 ? '1' : 'd') + '\nprint(k)',
+      alt: 'n = int(input())\nk = 0\nd = 1\nwhile d <= n:\n    if n % d == 0:\n        k = k + ' + (cnt6 ? '1' : 'd') + '\n    d = d + 1\nprint(k)' });
 
     // B7. Цифры числа (while)
     var v7 = pick(['sum', 'even', 'max']);
@@ -1855,6 +1864,11 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
         sum: 'n = int(input())\ns = 0\nwhile n > 0:\n    s = s + n % 10\n    n = n // 10\nprint(s)',
         even: 'n = int(input())\nk = 0\nwhile n > 0:\n    if n % 10 % 2 == 0:\n        k = k + 1\n    n = n // 10\nprint(k)',
         max: 'n = int(input())\nm = 0\nwhile n > 0:\n    if n % 10 > m:\n        m = n % 10\n    n = n // 10\nprint(m)'
+      }[v7],
+      alt: {   // через for: перебираем цифры как символы строки
+        sum: 's = 0\nfor c in input():\n    s = s + int(c)\nprint(s)',
+        even: 'k = 0\nfor c in input():\n    if int(c) % 2 == 0:\n        k = k + 1\nprint(k)',
+        max: 'm = 0\nfor c in input():\n    if int(c) > m:\n        m = int(c)\nprint(m)'
       }[v7] });
 
     // C8. Числа Фибоначчи
@@ -1866,7 +1880,9 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
       input: 'Одно натуральное число n (n ≤ 40).', output: last8 ? ONE : ROW,
       tests: tests(function (i) { var n = [1, 2][i - 6] || ri(3, 40); var f = fib(n); return { input: String(n), output: last8 ? String(f[n - 1]) : f.join(' ') }; }),
       solution: last8 ? 'n = int(input())\na = 1\nb = 1\nfor i in range(n - 1):\n    a, b = b, a + b\nprint(a)'
-                      : 'n = int(input())\na = 1\nb = 1\nfor i in range(n):\n    print(a, end=" ")\n    a, b = b, a + b' });
+                      : 'n = int(input())\na = 1\nb = 1\nfor i in range(n):\n    print(a, end=" ")\n    a, b = b, a + b',
+      alt: last8 ? 'n = int(input())\na = 1\nb = 1\nk = 1\nwhile k < n:\n    c = a + b\n    a = b\n    b = c\n    k = k + 1\nprint(a)'
+                 : 'n = int(input())\na = 1\nb = 1\nk = 0\nwhile k < n:\n    print(a, end=" ")\n    c = a + b\n    a = b\n    b = c\n    k = k + 1' });
 
     // C9. Ввод до нуля (while)
     var v9 = pick(['sum', 'max', 'count']);
@@ -1884,6 +1900,11 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
         sum: 's = 0\nx = int(input())\nwhile x != 0:\n    s = s + x\n    x = int(input())\nprint(s)',
         max: 'x = int(input())\nm = x\nwhile x != 0:\n    if x > m:\n        m = x\n    x = int(input())\nprint(m)',
         count: 'k = 0\nx = int(input())\nwhile x != 0:\n    if x % 2 == 0:\n        k = k + 1\n    x = int(input())\nprint(k)'
+      }[v9],
+      alt: {   // while True + break: проверка на 0 внутри цикла
+        sum: 's = 0\nwhile True:\n    x = int(input())\n    if x == 0:\n        break\n    s = s + x\nprint(s)',
+        max: 'm = None\nwhile True:\n    x = int(input())\n    if x == 0:\n        break\n    if m == None or x > m:\n        m = x\nprint(m)',
+        count: 'k = 0\nwhile True:\n    x = int(input())\n    if x == 0:\n        break\n    if x % 2 == 0:\n        k = k + 1\nprint(k)'
       }[v9] });
 
     // C10. Пока сумма не превысит n (while)
@@ -1896,7 +1917,8 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
         while (s <= n) { k++; s += st10 * k; }
         return { input: String(n), output: String(k) };
       }),
-      solution: 'n = int(input())\ns = 0\nk = 0\nwhile s <= n:\n    k = k + 1\n    s = s + ' + (st10 === 1 ? 'k' : '2 * k') + '\nprint(k)' });
+      solution: 'n = int(input())\ns = 0\nk = 0\nwhile s <= n:\n    k = k + 1\n    s = s + ' + (st10 === 1 ? 'k' : '2 * k') + '\nprint(k)',
+      alt: 'n = int(input())\ns = 0\nfor k in range(1, n + 2):\n    s = s + ' + (st10 === 1 ? 'k' : '2 * k') + '\n    if s > n:\n        print(k)\n        break' });
 
     return T;
   }
@@ -1964,8 +1986,8 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
     var step = function () {
       if (k >= task.tests.length) return res;
       var tc = task.tests[k];
-      return runPython(src, tc.input).then(function (r) {
-        var ok = !r.error && CODE.sameOutput(r.out, tc.output);
+      return runTest(src, tc.input, tc.output, CODE.sameOutput).then(function (x) {
+        var r = x.r, ok = x.ok;
         if (ok) res.passed++;
         res.details.push({ ok: ok, out: r.out, error: r.error || null });
         if (!ok && res.fail == null) res.fail = k;
@@ -1976,6 +1998,23 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
     };
     return step();
   }
+
+  // Если в строке теста несколько чисел, а программа читает каждое число отдельным input(),
+  // повторяем запуск, подав каждое число на отдельной строке: засчитываются оба способа ввода.
+  function runTest(src, input, output, same) {
+    return runPython(src, input).then(function (r) {
+      var ok = !r.error && same(r.out, output);
+      var multi = String(input).split('\n').some(function (l) { return l.trim().split(/\s+/).length > 1; });
+      if (ok || !multi || r.timeout) return { r: r, ok: ok };
+      var alt = String(input).trim().split(/\s+/).join('\n');
+      return runPython(src, alt).then(function (r2) {
+        var ok2 = !r2.error && same(r2.out, output);
+        return ok2 ? { r: r2, ok: true } : { r: r, ok: false };
+      });
+    });
+  }
+  var INPUT_HINT = 'Подсказка: если в одной строке несколько чисел, прочитайте их так: a, b = map(int, input().split()). ' +
+    'Или в поле «Входные данные» запишите каждое число на отдельной строке — при проверке засчитываются оба способа.';
 
   // ---------- Полноэкранный режим и защита ----------
   function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
@@ -2139,7 +2178,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
       var box = $('c-result'); box.innerHTML = '';
       box.appendChild(el('b', null, 'Вывод:'));
       box.appendChild(el('pre', null, r.out || '(программа ничего не вывела)'));
-      if (r.error) { box.appendChild(el('b', 'bad', 'Ошибка:')); box.appendChild(el('pre', 'bad', r.error)); }
+      if (r.error) { box.appendChild(el('b', 'bad', 'Ошибка:')); box.appendChild(el('pre', 'bad', r.error));  if (/invalid literal for int/.test(r.error)) box.appendChild(el('p', 'hint', INPUT_HINT)); }
     });
   }
   function doCheck() {
@@ -2161,6 +2200,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
         if (!d.ok && !d.skipped) {
           box.appendChild(el('pre', null, 'ожидалось: ' + code[j].tests[k].output + '\nваш вывод: ' + (d.out || '(программа ничего не вывела)')));
           if (d.error) box.appendChild(el('pre', 'bad', d.error));
+          if (d.error && /invalid literal for int/.test(d.error)) box.appendChild(el('p', 'hint', INPUT_HINT));
         }
       });
     });
@@ -2274,11 +2314,21 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
   function codeCard(tk, j, r, ok) {
     var card = cardHead('Задача ' + (j + 1) + ' (уровень ' + tk.level + ') — ' + tk.title, ok, ' · тестов ' + r.passed + '/' + r.total);
     card.appendChild(el('p', 'rv-q', tk.text));
-    var cols = el('div', 'rv-cols'), src = state.code[j] || '';
+    var cols = el('div', 'rv-cols one'), src = state.code[j] || '';
     var c1 = el('div'); c1.appendChild(el('b', null, 'Ваша программа')); c1.appendChild(el('pre', 'code', src.trim() ? src : '(код не написан)'));
-    var c2 = el('div'); c2.appendChild(el('b', null, 'Образец решения (можно решить и другим циклом)')); c2.appendChild(el('pre', 'code', tk.solution));
-    cols.appendChild(c1); cols.appendChild(c2);
+    cols.appendChild(c1);
     card.appendChild(cols);
+    // Два образца: одна и та же задача разными циклами
+    var how = function (src2) { return /while True/.test(src2) ? 'while True и break' : /while/.test(src2) ? 'цикл while' : 'цикл for'; };
+    var sols = el('div', 'rv-cols');
+    [tk.solution, tk.alt].forEach(function (src2, k) {
+      var c = el('div');
+      c.appendChild(el('b', null, 'Образец ' + (k + 1) + ': ' + how(src2)));
+      c.appendChild(el('pre', 'code', src2));
+      sols.appendChild(c);
+    });
+    card.appendChild(el('p', 'rv-note', 'Задачу можно решить разными способами — засчитывается любой, если программа выводит правильный ответ:'));
+    card.appendChild(sols);
     if (!ok && r.fail != null && src.trim()) {
       var tc = tk.tests[r.fail], d = r.details[r.fail] || {};
       card.appendChild(el('p', 'rv-err', 'Ошибка на тесте:\nвход: ' + tc.input.replace(/\n/g, ' / ') + '\nожидалось: ' + tc.output + '\nваш вывод: ' + (d.out || '(ничего)') + (d.error ? '\n' + d.error : '')));
