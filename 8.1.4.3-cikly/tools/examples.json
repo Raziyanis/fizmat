@@ -1,0 +1,263 @@
+{
+ "hello3": {
+  "code": "for i in range(3):\n    print(\"Привет!\")",
+  "output": "Привет!\nПривет!\nПривет!",
+  "input": null
+ },
+ "r_stop": {
+  "code": "for i in range(5):\n    print(i)",
+  "output": "0\n1\n2\n3\n4",
+  "input": null
+ },
+ "r_start": {
+  "code": "for i in range(1, 6):\n    print(i)",
+  "output": "1\n2\n3\n4\n5",
+  "input": null
+ },
+ "r_step": {
+  "code": "for i in range(1, 10, 2):\n    print(i)",
+  "output": "1\n3\n5\n7\n9",
+  "input": null
+ },
+ "r_step5": {
+  "code": "for i in range(0, 21, 5):\n    print(i, end=\" \")",
+  "output": "0 5 10 15 20 ",
+  "input": null
+ },
+ "r_back1": {
+  "code": "for i in range(10, 0, -1):\n    print(i, end=\" \")",
+  "output": "10 9 8 7 6 5 4 3 2 1 ",
+  "input": null
+ },
+ "r_back3": {
+  "code": "for i in range(10, 0, -3):\n    print(i, end=\" \")",
+  "output": "10 7 4 1 ",
+  "input": null
+ },
+ "r_empty": {
+  "code": "for i in range(5, 1):\n    print(i)\nprint(\"Цикл не выполнился ни разу\")",
+  "output": "Цикл не выполнился ни разу",
+  "input": null
+ },
+ "end_demo": {
+  "code": "for i in range(1, 6):\n    print(i, end=\" \")\nprint()\nprint(\"Готово\")",
+  "output": "1 2 3 4 5 \nГотово",
+  "input": null
+ },
+ "use_i": {
+  "code": "for i in range(1, 6):\n    print(i, \"в квадрате =\", i * i)",
+  "output": "1 в квадрате = 1\n2 в квадрате = 4\n3 в квадрате = 9\n4 в квадрате = 16\n5 в квадрате = 25",
+  "input": null
+ },
+ "n_input": {
+  "code": "n = 4\nfor i in range(1, n + 1):\n    print(i, end=\" \")",
+  "output": "1 2 3 4 ",
+  "input": null
+ },
+ "for_list": {
+  "code": "marks = [5, 4, 3, 5]\nfor x in marks:\n    print(x, end=\" \")",
+  "output": "5 4 3 5 ",
+  "input": null
+ },
+ "for_str": {
+  "code": "for ch in \"Python\":\n    print(ch, end=\" \")",
+  "output": "P y t h o n ",
+  "input": null
+ },
+ "for_index": {
+  "code": "marks = [5, 4, 3, 5]\nfor i in range(len(marks)):\n    print(\"Индекс\", i, \"- оценка\", marks[i])",
+  "output": "Индекс 0 - оценка 5\nИндекс 1 - оценка 4\nИндекс 2 - оценка 3\nИндекс 3 - оценка 5",
+  "input": null
+ },
+ "change_list": {
+  "code": "a = [3, 7, 2]\nfor i in range(len(a)):\n    a[i] = a[i] * 10\nprint(a)",
+  "output": "[30, 70, 20]",
+  "input": null
+ },
+ "change_wrong": {
+  "code": "a = [3, 7, 2]\nfor x in a:\n    x = x * 10\nprint(a)",
+  "output": "[3, 7, 2]",
+  "input": null
+ },
+ "sum": {
+  "code": "s = 0\nfor i in range(1, 6):\n    s = s + i\nprint(s)",
+  "output": "15",
+  "input": null
+ },
+ "prod": {
+  "code": "p = 1\nfor i in range(1, 6):\n    p = p * i\nprint(p)",
+  "output": "120",
+  "input": null
+ },
+ "count": {
+  "code": "k = 0\nfor x in range(1, 21):\n    if x % 3 == 0:\n        k = k + 1\nprint(k)",
+  "output": "6",
+  "input": null
+ },
+ "w_count": {
+  "code": "i = 1\nwhile i <= 5:\n    print(i)\n    i = i + 1",
+  "output": "1\n2\n3\n4\n5",
+  "input": null
+ },
+ "w_digits": {
+  "code": "n = 2026\ns = 0\nwhile n > 0:\n    s = s + n % 10\n    n = n // 10\nprint(s)",
+  "output": "10",
+  "input": null
+ },
+ "w_double": {
+  "code": "x = 1\nwhile x < 100:\n    x = x * 2\nprint(x)",
+  "output": "128",
+  "input": null
+ },
+ "w_never": {
+  "code": "x = 10\nwhile x < 5:\n    print(x)\nprint(\"Условие сразу ложно\")",
+  "output": "Условие сразу ложно",
+  "input": null
+ },
+ "w_input": {
+  "code": "s = 0\nx = int(input())\nwhile x != 0:\n    s = s + x\n    x = int(input())\nprint(s)",
+  "output": "16",
+  "input": [
+   "8",
+   "3",
+   "5",
+   "0"
+  ]
+ },
+ "w_break": {
+  "code": "i = 1\nwhile True:\n    if i * i > 50:\n        break\n    i = i + 1\nprint(i)",
+  "output": "8",
+  "input": null
+ },
+ "for_as_while_for": {
+  "code": "for i in range(1, 10, 3):\n    print(i, end=\" \")",
+  "output": "1 4 7 ",
+  "input": null
+ },
+ "for_as_while_while": {
+  "code": "i = 1\nwhile i < 10:\n    print(i, end=\" \")\n    i = i + 3",
+  "output": "1 4 7 ",
+  "input": null
+ },
+ "continue": {
+  "code": "for i in range(1, 8):\n    if i % 2 == 0:\n        continue\n    print(i, end=\" \")",
+  "output": "1 3 5 7 ",
+  "input": null
+ },
+ "i_change": {
+  "code": "for i in range(3):\n    print(i, end=\" \")\n    i = 100",
+  "output": "0 1 2 ",
+  "input": null
+ },
+ "_trace_sum": [
+  [
+   "1",
+   "1",
+   "1"
+  ],
+  [
+   "2",
+   "2",
+   "3"
+  ],
+  [
+   "3",
+   "3",
+   "6"
+  ],
+  [
+   "4",
+   "4",
+   "10"
+  ],
+  [
+   "5",
+   "5",
+   "15"
+  ]
+ ],
+ "_trace_digits": [
+  [
+   "1",
+   "2026",
+   "n > 0 → True",
+   "6",
+   "6",
+   "202"
+  ],
+  [
+   "2",
+   "202",
+   "n > 0 → True",
+   "2",
+   "8",
+   "20"
+  ],
+  [
+   "3",
+   "20",
+   "n > 0 → True",
+   "0",
+   "8",
+   "2"
+  ],
+  [
+   "4",
+   "2",
+   "n > 0 → True",
+   "2",
+   "10",
+   "0"
+  ],
+  [
+   "—",
+   "0",
+   "n > 0 → False",
+   "—",
+   "10",
+   "цикл закончен"
+  ]
+ ],
+ "_ranges": [
+  [
+   "range(5)",
+   "0 1 2 3 4",
+   "5"
+  ],
+  [
+   "range(1, 6)",
+   "1 2 3 4 5",
+   "5"
+  ],
+  [
+   "range(2, 10, 2)",
+   "2 4 6 8",
+   "4"
+  ],
+  [
+   "range(1, 10, 3)",
+   "1 4 7",
+   "3"
+  ],
+  [
+   "range(10, 0, -1)",
+   "10 9 8 7 6 5 4 3 2 1",
+   "10"
+  ],
+  [
+   "range(10, 0, -2)",
+   "10 8 6 4 2",
+   "5"
+  ],
+  [
+   "range(5, 1)",
+   "(пусто)",
+   "0"
+  ],
+  [
+   "range(0)",
+   "(пусто)",
+   "0"
+  ]
+ ]
+}
