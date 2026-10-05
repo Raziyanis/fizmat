@@ -334,7 +334,11 @@
         var right = o === q.answer, mine = o === g;
         var li = el('li', right ? 'right' : mine ? 'wrong' : '');
         li.appendChild(el('span', 'rv-mark', right ? '✓' : mine ? '✗' : '•'));
-        li.appendChild(el('span', 'opt', LETTERS[k] + ') ' + o + (mine ? '   ← ваш ответ' : '') + (right ? '   ← правильный ответ' : '')));
+        li.appendChild(el('span', 'letter', LETTERS[k] + ')'));
+        var body = el('div', 'rv-opt-body');
+        body.appendChild(el('span', 'opt', o));
+        if (mine || right) body.appendChild(el('span', 'rv-tag', right && mine ? 'ваш ответ — правильный' : right ? 'правильный ответ' : 'ваш ответ'));
+        li.appendChild(body);
         ul.appendChild(li);
       });
       card.appendChild(ul);

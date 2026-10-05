@@ -285,3 +285,10 @@ button.danger-outline { border-color: var(--bad); color: var(--bad); }
 .rv-table th { background: var(--bg); }
 .rv-table td.right { color: var(--ok); background: var(--ok-bg); }
 .rv-table td.wrong { color: var(--bad); background: var(--bad-bg); }
+
+/* Разбор вариантов: буква отдельно, код ровным блоком, пометка отдельной строкой */
+.rv-opts li { align-items: flex-start; }
+.rv-opts li .letter { font-weight: 800; min-width: 1.6em; }
+.rv-opt-body { display: flex; flex-direction: column; gap: 4px; }
+.rv-tag { display: inline-block; align-self: flex-start; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 0.85rem; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: #fff; border: 1px solid currentColor; }
