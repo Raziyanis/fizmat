@@ -12,7 +12,8 @@ const {
 } = require('docx');
 
 const ROOT = path.join(__dirname, '..');
-const H = JSON.parse(fs.readFileSync(path.join(__dirname, 'handout.json'), 'utf8'));
+const VARS = JSON.parse(fs.readFileSync(path.join(__dirname, 'handout.json'), 'utf8')).variants;
+const ROMAN = ['I', 'II', 'III', 'IV'];
 const DECK = JSON.parse(fs.readFileSync(path.join(ROOT, 'slides', 'ru', 'project', 'deck.json'), 'utf8')).order;
 let LANG = 'ru';
 const T = (ru, kz) => (LANG === 'ru' ? ru : kz);
@@ -179,8 +180,8 @@ function planDoc() {
     P(T('Ход урока', 'Сабақтың барысы'), { bold: true, size: 28, before: 200, after: 100 }),
     stageTable(L1),
     ...footer(
-      T('Задания раздаточного листа идут от простого к сложному; задание 5 — уровни A (всем), B и C (по готовности). Учащимся, которые затрудняются, предлагается шпаргалка на первой странице листа и примеры со слайдов 5–8. Быстро справившимся — решить задачу 5 вторым циклом (for ↔ while).',
-        'Үлестірме парақтың тапсырмалары жеңілден күрделіге қарай берілген; 5-тапсырма — A (барлығына), B және C (дайындығына қарай) деңгейлері. Қиналған оқушыларға парақтың бірінші бетіндегі жадынаманы және 5–8-слайдтардағы мысалдарды пайдалану ұсынылады. Тез орындаған оқушылар 5-тапсырманы екінші циклмен (for ↔ while) шығарады.'),
+      T('Раздаточный лист в 4 вариантах (соседи по парте получают разные варианты). Задания идут от простого к сложному; задание 5 — уровни A (всем), B и C (по готовности). Учащимся, которые затрудняются, предлагается шпаргалка на первой странице листа и примеры со слайдов 5–8. Быстро справившимся — решить задачу 5 вторым циклом (for ↔ while).',
+        'Үлестірме парақ 4 нұсқада (қатар отырған оқушылар әртүрлі нұсқа алады). Тапсырмалар жеңілден күрделіге қарай берілген; 5-тапсырма — A (барлығына), B және C (дайындығына қарай) деңгейлері. Қиналған оқушыларға парақтың бірінші бетіндегі жадынаманы және 5–8-слайдтардағы мысалдарды пайдалану ұсынылады. Тез орындаған оқушылар 5-тапсырманы екінші циклмен (for ↔ while) шығарады.'),
       T('Предсказание вывода (слайды 5, 13), взаимопроверка заданий 1 и 3 в паре, самопроверка запуском (задания 2, 4, 5), лист самооценки, рефлексия «3 – 2 – 1».', 'Шығысты болжау (5, 13-слайдтар), 1 және 3-тапсырмаларды жұпта өзара тексеру, іске қосу арқылы өзін-өзі тексеру (2, 4, 5-тапсырмалар), өзін-өзі бағалау парағы, «3 – 2 – 1» рефлексиясы.'),
       T('Соблюдение правил работы за компьютером; физминутка на 24–26 минуте; смена видов деятельности: объяснение → работа на листе → работа в редакторе.', 'Компьютермен жұмыс істеу ережелерін сақтау; 24–26-минутта сергіту сәті; іс-әрекетті ауыстыру: түсіндіру → парақта жұмыс → редакторда жұмыс.')),
     P(T('Домашнее задание: доделать задания раздаточного листа; выучить шпаргалку по range и while.', 'Үй тапсырмасы: үлестірме парақтың тапсырмаларын аяқтау; range мен while жадынамасын жаттау.'), { size: 22, italics: true, before: 60 }),
@@ -254,15 +255,16 @@ function cheatSheet() {
   ];
 }
 
-function handoutDoc(withAnswers) {
+function handoutBody(H, vi, withAnswers) {
+  const V = T(`Вариант ${ROMAN[vi]}`, `${ROMAN[vi]} нұсқа`);
   const ans = (t) => (withAnswers ? [P(T('Ответ: ', 'Жауабы: ') + t, { size: 22, color: '1A7F37', bold: true, before: 40 })] : []);
   const out = (s) => (s === '' ? T('(пусто — ничего не выводится)', '(бос — ештеңе шықпайды)') : s.replace(/ +$/gm, '').split('\n').join(' | '));
   const c = [];
   c.push(P(T('Раздаточный лист. Цикл for и цикл while', 'Үлестірме парақ. for циклі және while циклі') + (withAnswers ? T(' — ответы', ' — жауаптары') : ''), { bold: true, size: 32, align: AlignmentType.CENTER, after: 60 }));
-  c.push(P(T('8 класс · цель обучения 8.1.4.3', '8 сынып · 8.1.4.3 оқу мақсаты'), { size: 22, align: AlignmentType.CENTER, after: 120 }));
+  c.push(P(`**${V}**  ·  ` + T('8 класс · цель обучения 8.1.4.3', '8 сынып · 8.1.4.3 оқу мақсаты'), { size: 24, align: AlignmentType.CENTER, after: 120 }));
   if (!withAnswers) c.push(P(T('Фамилия, имя: ______________________________     Класс: ________', 'Аты-жөні: ______________________________     Сынып: ________'), { size: 24, after: 160 }));
-  else c.push(P(T('Для учителя. Все ответы получены запуском программ в Python (tools/handout.py); для задания 5 оба решения — через for и через while — проверены на примерах и на 200 случайных тестах.', 'Мұғалімге арналған. Барлық жауап бағдарламаларды Python-да іске қосып алынған (tools/handout.py); 5-тапсырмада екі шешім де — for арқылы және while арқылы — мысалдармен және 200 кездейсоқ тестпен тексерілген.'), { size: 22, italics: true, after: 160 }));
-  c.push(...cheatSheet());
+  else if (vi === 0) c.push(P(T('Для учителя. Все ответы получены запуском программ в Python (tools/handout.py); для задания 5 оба решения — через for и через while — проверены на примерах и на 200 случайных тестах.', 'Мұғалімге арналған. Барлық жауап бағдарламаларды Python-да іске қосып алынған (tools/handout.py); 5-тапсырмада екі шешім де — for арқылы және while арқылы — мысалдармен және 200 кездейсоқ тестпен тексерілген.'), { size: 22, italics: true, after: 160 }));
+  if (!withAnswers) c.push(...cheatSheet());
 
   // 1
   c.push(H1(T('Задание 1. Какие числа даёт range?', '1-тапсырма. range қандай сандар береді?')));
@@ -309,7 +311,7 @@ function handoutDoc(withAnswers) {
       ] }));
     }
   });
-  if (withAnswers) c.push(P(T('Примечание к 5.4: в решении через for используется range(1000) с break — так задаётся «достаточно большое» число повторений; естественнее эта задача решается через while. Примечание к 5.5: 120 → 21 (ведущий ноль у числа не записывается).', '5.4-ке ескерту: for арқылы шешімде break бар range(1000) қолданылады — осылайша «жеткілікті үлкен» қайталану саны беріледі; бұл есеп while арқылы табиғи шығады. 5.5-ке ескерту: 120 → 21 (санның басындағы нөл жазылмайды).'), { size: 21, italics: true, before: 100 }));
+  if (withAnswers) c.push(P(H.note[LANG], { size: 21, italics: true, before: 100 }));
 
   // самооценка
   if (!withAnswers) {
@@ -323,22 +325,28 @@ function handoutDoc(withAnswers) {
       [T('Выбираю подходящий цикл и решаю задачу (задание 5)', 'Қолайлы циклді таңдап, есеп шығарамын (5-тапсырма)'), '', '', ''],
     ], { header: true, size: 21 }));
   }
+  return c;
+}
+function handoutDoc(withAnswers, vi) {
+  const children = withAnswers
+    ? VARS.flatMap((H, i) => (i ? [pageBreak()] : []).concat(handoutBody(H, i, true)))
+    : handoutBody(VARS[vi], vi, false);
   return new Document({
     creator: T('Учитель информатики', 'Информатика мұғалімі'), title: T('Раздаточный лист 8.1.4.3', 'Үлестірме парақ 8.1.4.3'),
     styles: { default: { document: { run: { font: FONT, size: 24 } } } },
-    sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 850, bottom: 850, left: 850, right: 850 } } }, children: c }],
+    sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 850, bottom: 850, left: 850, right: 850 } } }, children }],
   });
 }
 
 const OUT = {
-  ru: { plan: 'plan-uroka-8.1.4.3.docx', h: 'razdatka-8.1.4.3.docx', a: 'razdatka-8.1.4.3-otvety.docx', dir: ROOT },
-  kz: { plan: 'sabak-zhospary-8.1.4.3-kz.docx', h: 'ulestirme-8.1.4.3-kz.docx', a: 'ulestirme-8.1.4.3-kz-zhauaptary.docx', dir: path.join(ROOT, 'kz') },
+  ru: { plan: 'plan-uroka-8.1.4.3.docx', h: (n) => `razdatka-8.1.4.3-variant-${n}.docx`, a: 'razdatka-8.1.4.3-otvety.docx', dir: ROOT },
+  kz: { plan: 'sabak-zhospary-8.1.4.3-kz.docx', h: (n) => `ulestirme-8.1.4.3-kz-${n}-nuska.docx`, a: 'ulestirme-8.1.4.3-kz-zhauaptary.docx', dir: path.join(ROOT, 'kz') },
 };
 (async () => {
   for (const lang of ['ru', 'kz']) {
     LANG = lang;
     const o = OUT[lang];
-    for (const [file, doc] of [[o.plan, planDoc()], [o.h, handoutDoc(false)], [o.a, handoutDoc(true)]]) {
+    for (const [file, doc] of [[o.plan, planDoc()], ...VARS.map((_, i) => [o.h(i + 1), handoutDoc(false, i)]), [o.a, handoutDoc(true)]]) {
       fs.writeFileSync(path.join(o.dir, file), await Packer.toBuffer(doc));
       console.log(path.relative(ROOT, path.join(o.dir, file)));
     }
