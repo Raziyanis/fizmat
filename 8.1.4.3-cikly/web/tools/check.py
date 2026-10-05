@@ -14,7 +14,8 @@ const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(%r, 'utf8'), ctx);
 vm.runInNewContext(fs.readFileSync(%r, 'utf8'), ctx);
 const out = [];
-for (let s = 1; s <= %d; s++) { const seed = s * 2654435761 >>> 0; out.push({ code: ctx.window.CODE.generate(seed), quiz: ctx.window.QUIZ.generate(seed) }); }
+for (let s = 1; s <= %d; s++) { const seed = s * 2654435761 >>> 0;
+  out.push({ code: ctx.window.CODE.generate(seed), quizzes: [1, 2, 3].map(n => ctx.window.QUIZ.generate((seed + n * 7919) >>> 0, n - 1, seed)) }); }
 process.stdout.write(JSON.stringify(out));
 """ % (str(ROOT / 'tasks.js'), str(ROOT / 'quiz.js'), N)
 
@@ -71,8 +72,10 @@ def main():
     data = json.loads(subprocess.check_output(['node', '-e', JS]))
     nt = 0
     for vi, v in enumerate(data):
-        C, Q = v['code'], v['quiz']
-        assert len(C) == 10 and len(Q) == 10
+        C, QS = v['code'], v['quizzes']
+        assert len(C) == 10 and all(len(Q) == 10 for Q in QS)
+        for i in (4, 5, 6):   # вопросы 5–7: в трёх попытках три разные формулировки
+            assert len({QS[k][i]['text'] + (QS[k][i].get('code') or '')[:12] for k in range(3)}) == 3, (i + 1, [QS[k][i]['title'] for k in range(3)])
         assert [t['level'] for t in C] == ['A'] * 4 + ['B'] * 3 + ['C'] * 3
         for t in C:
             assert len(t['tests']) == 8 and all(tc['output'].strip() for tc in t['tests'])
@@ -84,30 +87,31 @@ def main():
                 assert tokens(run(alt, tc['input'])) == tokens(tc['output']), (t['title'], 'alt', tc)
                 assert tokens(run(alt2, '\n'.join(tc['input'].split()) if 'int(input())\nb = int' in alt2 or 'a = int(input())\nn = int' in alt2 else tc['input'])) == tokens(tc['output']), (t['title'], 'alt2', tc)
                 nt += 1
-        for i, q in enumerate(Q, 1):
-            if q['type'] == 'match':
-                assert sorted(q['options']) == sorted(q['answer']) and len(set(q['answer'])) == len(q['answer'])
-                if i == 1:
-                    for it, ans in zip(q['items'], q['answer']):
-                        assert ' '.join(map(str, eval(it['code']))) == ans
-                continue
-            assert len(q['options']) == 4 and len(set(q['options'])) == 4 and q['answer'] in q['options'], (i, q['options'])
-            if q.get('code'):
-                out = run(q['code'])
-                if i == 3:
-                    out = str(len(out.split()))
-                got = ' '.join(out.split())
-                assert got == q['answer'], (i, q['code'], got, q['answer'])
-                for o in q['options']:
-                    assert (o == got) == (o == q['answer'])
-            if i == 7 and vi < 5:   # только первый вариант действительно умножает элементы списка
-                for o in q['options']:
-                    ok = run_isolated('a = [1, 2, 3]\n' + o + '\nprint(a)') == '[2, 4, 6]\n'
-                    assert ok == (o == q['answer']), o
-            if i == 9 and vi < 10:
-                for o in q['options']:
-                    assert halts(o) == (o != q['answer']), o
-    print(f'OK: {N} вариантов; задачи на код — {nt} тестов (образец, второй образец из разбора и независимое решение другим циклом); тест — {N * 10} вопросов')
+        for Q in QS:
+            for i, q in enumerate(Q, 1):
+                if q['type'] == 'match':
+                    assert sorted(q['options']) == sorted(q['answer']) and len(set(q['answer'])) == len(q['answer'])
+                    if i == 1:
+                        for it, ans in zip(q['items'], q['answer']):
+                            assert ' '.join(map(str, eval(it['code']))) == ans
+                    continue
+                assert len(q['options']) == 4 and len(set(q['options'])) == 4 and q['answer'] in q['options'], (i, q['options'])
+                if q.get('code'):
+                    out = run(q['code'])
+                    if i == 3 or q.get('count'):
+                        out = str(len(out.split()))
+                    got = ' '.join(out.split())
+                    assert got == q['answer'], (i, q['code'], got, q['answer'])
+                    for o in q['options']:
+                        assert (o == got) == (o == q['answer'])
+                if q.get('kind') == 'mod-list' and vi < 5:   # только первый вариант действительно умножает элементы списка
+                    for o in q['options']:
+                        ok = run_isolated('a = [1, 2, 3]\n' + o + '\nprint(a)') == '[2, 4, 6]\n'
+                        assert ok == (o == q['answer']), o
+                if q.get('kind') == 'infinite' and vi < 10:
+                    for o in q['options']:
+                        assert halts(o) == (o != q['answer']), o
+    print(f'OK: {N} вариантов; задачи на код — {nt} тестов (образец, второй образец из разбора и независимое решение другим циклом); тест — {N * 30} вопросов (3 попытки на ученика)')
 
 
 main()

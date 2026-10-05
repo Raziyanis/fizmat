@@ -245,24 +245,19 @@
     $('b-retry').hidden = left <= 0 || last.score === NQ;
     $('b-retry').textContent = '↻ Пройти тест заново (осталось попыток: ' + left + ')';
     $('qr-confirm').hidden = true;
-    var lq = quizFor(last.seed), list = $('qr-list'); list.innerHTML = '';
+    var lq = quizFor(last.n), list = $('qr-list'); list.innerHTML = '';
     lq.forEach(function (q, i) {
-      var card = cardHead('Вопрос ' + (i + 1) + ' — ' + q.title, last.ok[i]);
-      card.appendChild(el('p', 'rv-q', q.text));
-      if (q.code) card.appendChild(el('pre', 'code', q.code));
-      var g = last.answers[i];
-      var given = g == null ? 'нет ответа' : Array.isArray(g) ? q.items.map(function (it, k) { return it.name + ' → ' + (g[k] || '—'); }).join('\n') : g;
-      card.appendChild(el('pre', 'rv-given' + (q.mono ? ' mono' : ''), 'Ваш ответ:\n' + given));
+      var card = quizCard(q, last.answers[i], last.ok[i], i);
       if (!last.ok[i]) card.appendChild(el('p', 'rv-theory', '📖 Повторите теорию: раздел ' + q.theory));
       list.appendChild(card);
     });
     show('s-quizres');
   }
-  function quizFor(seed) { return QUIZ.generate(seed); }
+  function quizFor(n) { return QUIZ.generate(quizSeed(n), n - 1, state.seed); }   // n — номер попытки
   function retryQuiz() {
     if (!running() || state.stage !== 'quizres' || state.attempts.length >= ATTEMPTS) return;
     state.attempt = state.attempts.length + 1;
-    quiz = quizFor(quizSeed(state.attempt));
+    quiz = quizFor(state.attempt);
     state.q = quiz.map(function () { return null; });
     state.stage = 'quiz';
     state.cur = 0;
@@ -394,7 +389,7 @@
 
   function renderResult() {
     var best = bestAttempt();
-    var bq = best ? quizFor(best.seed) : QUIZ.generate(quizSeed(1));
+    var bq = quizFor(best ? best.n : 1);
     var qOk = best ? best.ok : bq.map(function () { return false; });
     var cOk = state.results.map(function (r) { return r.passed === r.total; });
     var qs = qOk.filter(Boolean).length, cs = cOk.filter(Boolean).length;
@@ -504,7 +499,7 @@
     var fs = enterFullscreen(), seed = newSeed();
     state = { v: 2, seed: seed, status: 'running', stage: 'quiz', startedAt: Date.now(), attempt: 1, attempts: [],
       quizEndsAt: Date.now() + QUIZ_MS, cur: 0, q: [], code: [], stdin: [], checks: [] };
-    quiz = quizFor(quizSeed(1)); code = CODE.generate(seed);
+    quiz = quizFor(1); code = CODE.generate(seed);
     state.q = quiz.map(function () { return null; });
     state.code = code.map(function () { return ''; });
     state.stdin = code.map(function () { return null; });
@@ -584,7 +579,7 @@
     if (!fsSupported()) $('i-nofs').hidden = false;
 
     state = load();
-    if (state && state.v === 2 && state.seed) { quiz = quizFor(quizSeed(state.attempt)); code = CODE.generate(state.seed); } else state = null;
+    if (state && state.v === 2 && state.seed) { quiz = quizFor(state.attempt); code = CODE.generate(state.seed); } else state = null;
     if (state && state.status === 'running') {
       // Страница была закрыта или перезагружена — работа завершается
       finish('Работа завершена автоматически: страница была закрыта или перезагружена.');
