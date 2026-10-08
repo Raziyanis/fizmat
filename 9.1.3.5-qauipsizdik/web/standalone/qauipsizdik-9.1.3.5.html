@@ -489,6 +489,7 @@ select:focus { outline: none; border-color: var(--accent); }
       <div class="theory-end">
         <p id="t-end-text"><span class="lang-kz">Теорияны оқыдыңыз ба? Енді — әртүрлі түрдегі <b>13 тапсырма</b>.</span><span class="lang-ru">Прочитали теорию? Дальше — <b>13 заданий</b> разных видов.</span></p>
         <button id="b-to-intro" class="primary big"><span class="lang-kz">Жұмысқа өту →</span><span class="lang-ru">Перейти к работе →</span></button>
+        <button id="b-theory-result" class="primary big" hidden><span class="lang-kz">← Нәтижеге оралу</span><span class="lang-ru">← Вернуться к результату</span></button>
         <button id="b-theory-back" class="primary big" hidden><span class="lang-kz">← Тапсырмаларға оралу</span><span class="lang-ru">← Вернуться к заданиям</span></button>
       </div>
     </section>
@@ -554,7 +555,7 @@ select:focus { outline: none; border-color: var(--accent); }
       <h2><span class="lang-kz">Тапсырмаларды талдау</span><span class="lang-ru">Разбор заданий</span></h2>
       <div id="r-review" class="review"></div>
       <div class="teacher">
-        <button id="b-restart" class="primary"><span class="lang-kz">Осы компьютерде жаңа жұмыс</span><span class="lang-ru">Новая работа на этом компьютере</span></button>
+        <button id="b-to-theory" class="primary"><span class="lang-kz">📖 Теорияға оралу</span><span class="lang-ru">📖 Вернуться к теории</span></button>
       </div>
     </section>
   </main>
@@ -1448,10 +1449,11 @@ select:focus { outline: none; border-color: var(--accent); }
     fs.then(showTheory);
   }
   function showTheory() {
-    var during = inBonus() || (running() && state.stage === 'work');
-    $('b-to-intro').hidden = during;
+    var during = inBonus() || (running() && state.stage === 'work'), after = !!state && state.status === 'finished';
+    $('b-to-intro').hidden = during || after;
     $('b-theory-back').hidden = !during;
-    $('t-end-text').hidden = during;
+    $('b-theory-result').hidden = !after;
+    $('t-end-text').hidden = during || after;
     show('s-theory');
   }
   function begin() {
@@ -1987,7 +1989,8 @@ select:focus { outline: none; border-color: var(--accent); }
     $('b-ai').addEventListener('click', aiCheck);
     $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
     $('b-back-fs').addEventListener('click', backToFullscreen);
-    $('b-restart').addEventListener('click', resetToStart);
+    $('b-to-theory').addEventListener('click', showTheory);
+    $('b-theory-result').addEventListener('click', renderResult);
     $('warn').addEventListener('click', function () { $('warn').hidden = true; });
 
     document.addEventListener('fullscreenchange', onFullscreenChange);

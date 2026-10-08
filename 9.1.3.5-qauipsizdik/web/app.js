@@ -116,10 +116,11 @@
     fs.then(showTheory);
   }
   function showTheory() {
-    var during = inBonus() || (running() && state.stage === 'work');
-    $('b-to-intro').hidden = during;
+    var during = inBonus() || (running() && state.stage === 'work'), after = !!state && state.status === 'finished';
+    $('b-to-intro').hidden = during || after;
     $('b-theory-back').hidden = !during;
-    $('t-end-text').hidden = during;
+    $('b-theory-result').hidden = !after;
+    $('t-end-text').hidden = during || after;
     show('s-theory');
   }
   function begin() {
@@ -655,7 +656,8 @@
     $('b-ai').addEventListener('click', aiCheck);
     $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
     $('b-back-fs').addEventListener('click', backToFullscreen);
-    $('b-restart').addEventListener('click', resetToStart);
+    $('b-to-theory').addEventListener('click', showTheory);
+    $('b-theory-result').addEventListener('click', renderResult);
     $('warn').addEventListener('click', function () { $('warn').hidden = true; });
 
     document.addEventListener('fullscreenchange', onFullscreenChange);
