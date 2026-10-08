@@ -30,7 +30,7 @@ if (blocks(C.THEORY.kz) !== blocks(C.THEORY.ru)) fail('теория: число 
 const kinds = {};
 for (let seed = 1; seed <= 500; seed++) {
   const T = C.generate(seed * 2654435761 >>> 0);
-  if (T.length !== 15) fail('не 15 заданий');
+  if (T.length !== 14) fail('не 14 заданий');
   T.forEach((t, i) => {
     kinds[t.type] = (kinds[t.type] || 0) + 1;
     walk(t, 'task' + i);
