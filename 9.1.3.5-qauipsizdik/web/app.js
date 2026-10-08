@@ -656,7 +656,7 @@
     $('b-ai').addEventListener('click', aiCheck);
     $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
     $('b-back-fs').addEventListener('click', backToFullscreen);
-    $('b-to-theory').addEventListener('click', showTheory);
+    $('b-read').addEventListener('click', showTheory);
     $('b-theory-result').addEventListener('click', renderResult);
     $('warn').addEventListener('click', function () { $('warn').hidden = true; });
 
