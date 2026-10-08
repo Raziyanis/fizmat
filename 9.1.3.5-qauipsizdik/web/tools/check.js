@@ -49,5 +49,28 @@ for (let seed = 1; seed <= 500; seed++) {
     n++;
   });
 }
-const RU = JSON.stringify(C.BANKS);
-console.log('OK: 500 вариантов, ' + n + ' заданий; типы: ' + Object.entries(kinds).map(([k, v]) => k + ' ' + v).join(', '));
+// «Қосымша деңгей»: 2 әрекет, әр әрекетте тапсырмалар әртүрлі
+let nb = 0;
+for (let seed = 1; seed <= 300; seed++) {
+  const s0 = seed * 2654435761 >>> 0, A = C.generateBonus(s0, 1), B = C.generateBonus(s0, 2);
+  [A, B].forEach((T) => T.forEach((t, i) => {
+    walk(t, 'bonus' + i);
+    if (t.type === 'text') {
+      if (C.precheck(t, '').score !== 0) fail('text: пустой ответ даёт баллы');
+      if (C.complete(t, '')) fail('text: пустой ответ считается выполненным');
+    } else {
+      if (C.score(t, C.perfect(t)) !== t.max) fail('bonus ' + t.type + ': правильный ответ не даёт максимум');
+      if (C.score(t, C.empty(t)) !== 0) fail('bonus ' + t.type + ': пустой ответ даёт баллы');
+    }
+    nb++;
+  }));
+  if (JSON.stringify(A[0].parts) === JSON.stringify(B[0].parts)) fail('попытки 1 и 2: одно и то же письмо');
+  if (A[2].rude.kz === B[2].rude.kz) fail('попытки 1 и 2: одно и то же «Түзет»');
+  if (A[3].ctx.kz === B[3].ctx.kz) fail('попытки 1 и 2: одна и та же ситуация «Пайымда»');
+}
+// Алдын ала тексеру: сыпайы жауап балл алады, дөрекі көшірме — жоқ
+C.BANKS.REWRITE.forEach((r) => {
+  const t = { kind: 'rewrite', crit: C.BANKS.REWRITE_CRIT, rude: r.rude, topic: r.topic, minWords: 5 };
+  ['kz', 'ru'].forEach((l) => { if (C.precheck(t, r.rude[l]).score !== 0) fail('precheck: грубый оригинал получил баллы: ' + r.rude[l]); });
+});
+console.log('OK: 500 вариантов, ' + n + ' заданий; доп. уровень: ' + nb + ' заданий (300 × 2 попытки); типы: ' + Object.entries(kinds).map(([k, v]) => k + ' ' + v).join(', '));

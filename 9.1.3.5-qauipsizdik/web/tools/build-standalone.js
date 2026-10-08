@@ -9,8 +9,9 @@ const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
 const inline = (js) => '<script>\n' + js.replace(/<\/script/gi, '<\\/script') + '\n</script>';
 let page = read('index.html')
   .replace('<link rel="stylesheet" href="style.css">', () => '<style>\n' + read('style.css') + '</style>')
-  .replace(/  <script src="config\.js"><\/script>[\s\S]*<script src="app\.js"><\/script>/, () => [read('config.js'), read('content.js'), read('app.js')].map(inline).join('\n'));
+  .replace(/  <script src="config\.js"><\/script>[\s\S]*<script src="app\.js"><\/script>/, () => [read('config.js'), read('content.js'), read('ai.js'), read('app.js')].map(inline).join('\n'));
 if (/<script src=|<link rel="stylesheet"/.test(page)) throw new Error('остались внешние файлы');
 fs.mkdirSync(path.join(dir, 'standalone'), { recursive: true });
 fs.writeFileSync(path.join(dir, 'standalone', 'qauipsizdik-9.1.3.5.html'), page);
+fs.copyFileSync(path.join(dir, 'tools', 'ai-kilt-qosu.html'), path.join(dir, 'standalone', 'ai-kilt-qosu.html'));   // мұғалімге: ЖИ кілтін қосу
 console.log('standalone/qauipsizdik-9.1.3.5.html', Math.round(page.length / 1024) + ' КБ');

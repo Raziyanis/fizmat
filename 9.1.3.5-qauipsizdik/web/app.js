@@ -8,9 +8,12 @@
   var WORK_MS = (window.WORK_MIN || 30) * 60 * 1000;
   var RESULT_MS = (window.RESULT_MIN || 4) * 60 * 1000;
   var MAX_VIOL = window.MAX_VIOLATIONS || 3;
+  var BONUS_MS = (window.BONUS_MIN || 15) * 60 * 1000;
+  var BONUS_N = window.BONUS_ATTEMPTS || 2;
+  var AI = window.AIGRADE;
   var C = window.CONTENT;
   var LANG = (function () { try { return localStorage.getItem('qauip-lang') === 'ru' ? 'ru' : 'kz'; } catch (e) { return 'kz'; } })();
-  var state = null, tasks = [], ticker = null, hideTimer = null, fsActive = false, ignoreUntil = 0;
+  var state = null, tasks = [], btasks = [], ticker = null, hideTimer = null, fsActive = false, ignoreUntil = 0;
 
   var $ = function (id) { return document.getElementById(id); };
   function T(kz, ru) { return LANG === 'kz' ? kz : ru; }
@@ -18,11 +21,15 @@
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
   function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
-  function running() { return !!state && state.status === 'running'; }
+  function running() { return !!state && (state.status === 'running' || state.status === 'bonus'); }
+  function inBonus() { return !!state && state.status === 'bonus'; }
+  // Ағымдағы жұмыс: негізгі тапсырмалар немесе «Қосымша деңгей» әрекеті
+  function W() { return inBonus() ? { tasks: btasks, st: state.bcur } : { tasks: tasks, st: state }; }
+  function curViol() { return inBonus() ? state.bcur.viol : (state.viol || 0); }
   function fmt(ms) { var s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
   function show(id) {
     ['s-loading', 's-gate', 's-theory', 's-intro', 's-work', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
-    $('timers').hidden = !(running() && state.stage === 'work');
+    $('timers').hidden = !(id === 's-work' && (inBonus() || (running() && state.stage === 'work')));
     window.scrollTo(0, 0);
   }
   var LETTERS = 'ABCDEFGH';
@@ -50,10 +57,14 @@
     setTimeout(function () { if (running() && !leaving) countViolation(reason); }, 400);
   }
   function countViolation(reason) {
-    state.viol = (state.viol || 0) + 1;
     state.lastViol = reason;
-    save();
-    if (state.viol >= MAX_VIOL) { finish(reason); return; }
+    if (inBonus()) {
+      state.bcur.viol++; save();
+      if (state.bcur.viol >= MAX_VIOL) { finishBonus(reason); return; }
+    } else {
+      state.viol = (state.viol || 0) + 1; save();
+      if (state.viol >= MAX_VIOL) { finish(reason); return; }
+    }
     renderBack();
     $('m-back').hidden = false;
   }
@@ -66,7 +77,7 @@
   };
   function renderBack() {
     if (!state) return;
-    $('m-back-text').textContent = L(REASONS[state.lastViol]) + ' ' + T('Қалған мүмкіндік: ', 'Осталось попыток: ') + (MAX_VIOL - (state.viol || 0)) + '. ' +
+    $('m-back-text').textContent = L(REASONS[state.lastViol]) + ' ' + T('Қалған мүмкіндік: ', 'Осталось попыток: ') + (MAX_VIOL - curViol()) + '. ' +
       T('Мүмкіндіктер біткенде жұмыс аяқталады. Батырманы басып, жұмысты жалғастырыңыз.', 'Когда попытки закончатся, работа завершится. Нажмите кнопку и продолжайте работу.');
   }
   function backToFullscreen() { enterFullscreen().then(function () { if (fsElement() || !fsSupported()) $('m-back').hidden = true; }); }
@@ -106,7 +117,7 @@
     fs.then(showTheory);
   }
   function showTheory() {
-    var during = running() && state.stage === 'work';
+    var during = inBonus() || (running() && state.stage === 'work');
     $('b-to-intro').hidden = during;
     $('b-theory-back').hidden = !during;
     $('t-end-text').hidden = during;
@@ -122,37 +133,40 @@
     renderTask();
   }
   function tick() {
-    if (!running() || state.stage !== 'work') return;
-    var left = state.endsAt - Date.now();
-    if (left <= 0) { finish('time'); return; }
+    if (!running()) return;
+    var b = inBonus();
+    if (!b && state.stage !== 'work') return;
+    var left = (b ? state.bcur.endsAt : state.endsAt) - Date.now();
+    if (left <= 0) { if (b) finishBonus('time'); else finish('time'); return; }
     $('tm').textContent = fmt(left);
-    $('tm-bar').style.width = (100 * left / WORK_MS) + '%';
+    $('tm-bar').style.width = (100 * left / (b ? BONUS_MS : WORK_MS)) + '%';
     $('timers').classList.toggle('low', left < 3 * 60 * 1000);
   }
   function resetToStart() { try { localStorage.removeItem(STORE); } catch (e) {} location.reload(); }
 
   // ---------- Тапсырмалар ----------
-  function goTo(i) { if (!running() || i < 0 || i >= tasks.length) return; state.cur = i; save(); renderTask(); }
-  function set(i, a) { state.ans[i] = a; save(); renderNav(); }
+  function goTo(i) { var w = W(); if (!running() || i < 0 || i >= w.tasks.length) return; w.st.cur = i; save(); renderTask(); }
+  function set(i, a) { W().st.ans[i] = a; save(); renderNav(); }
   function renderNav() {
-    var nav = $('nav'); nav.innerHTML = '';
-    tasks.forEach(function (t, i) {
-      var b = el('button', 'nav-btn' + (C.touched(t, state.ans[i]) ? ' done' : '') + (i === state.cur ? ' cur' : ''), String(i + 1));
+    var nav = $('nav'), w = W(); nav.innerHTML = '';
+    w.tasks.forEach(function (t, i) {
+      var b = el('button', 'nav-btn' + (C.touched(t, w.st.ans[i]) ? ' done' : '') + (i === w.st.cur ? ' cur' : ''), (inBonus() ? '★' : '') + (i + 1));
       b.title = L(t.title);
       b.addEventListener('click', function () { goTo(i); });
       nav.appendChild(b);
     });
   }
   function renderTask() {
-    var i = state.cur, t = tasks[i], box = $('task');
+    var w = W(), i = w.st.cur, t = w.tasks[i], box = $('task');
     box.innerHTML = '';
     $('m-confirm').hidden = true;
-    box.appendChild(el('p', 'muted small', T('Тапсырма ', 'Задание ') + (i + 1) + ' / ' + tasks.length + ' · ' + T('оқу мақсаты ', 'цель ') + t.obj + ' · ' + T('ең жоғары балл: ', 'максимум баллов: ') + t.max));
+    if (inBonus()) box.appendChild(el('p', 'bonus-badge', T('★ Қосымша деңгей · ', '★ Дополнительный уровень · ') + state.bcur.n + T('-әрекет / ', '-я попытка из ') + BONUS_N + T(' · балл негізгі бағаға қосылмайды', ' · баллы не входят в основную оценку')));
+    box.appendChild(el('p', 'muted small', T('Тапсырма ', 'Задание ') + (i + 1) + ' / ' + w.tasks.length + ' · ' + T('оқу мақсаты ', 'цель ') + t.obj + ' · ' + T('ең жоғары балл: ', 'максимум баллов: ') + t.max));
     box.appendChild(el('h2', 'task-title', L(t.title)));
-    var R = { match: rMatch, fill: rFill, tf: rTF, hot: rHot, sort: rSort, order: rOrder, chat: rChat, multi: rMulti };
-    R[t.type](t, state.ans[i], box, i);
+    var R = { match: rMatch, fill: rFill, tf: rTF, hot: rHot, sort: rSort, order: rOrder, chat: rChat, multi: rMulti, text: rText };
+    R[t.type](t, w.st.ans[i], box, i);
     $('b-prev').disabled = i === 0;
-    $('b-next').disabled = i === tasks.length - 1;
+    $('b-next').disabled = i === w.tasks.length - 1;
     renderNav();
     show('s-work');
     tick();
@@ -173,7 +187,7 @@
       t.right.forEach(function (r, n) { var o = choose(LETTERS[n]); o.value = String(n); sel.appendChild(o); });
       sel.firstChild.value = '';
       sel.value = a[k] === null ? '' : String(a[k]);
-      sel.addEventListener('change', function () { var b = state.ans[i].slice(); b[k] = sel.value === '' ? null : Number(sel.value); set(i, b); });
+      sel.addEventListener('change', function () { var b = W().st.ans[i].slice(); b[k] = sel.value === '' ? null : Number(sel.value); set(i, b); });
       row.appendChild(sel);
       rows.appendChild(row);
     });
@@ -190,7 +204,7 @@
       sel.firstChild.value = '';
       t.blanks[k].opts.forEach(function (o, n) { var op = choose(L(o)); op.value = String(n); sel.appendChild(op); });
       sel.value = a[k] === null ? '' : String(a[k]);
-      sel.addEventListener('change', function () { var b = state.ans[i].slice(); b[k] = sel.value === '' ? null : Number(sel.value); set(i, b); sel.classList.toggle('empty', sel.value === ''); });
+      sel.addEventListener('change', function () { var b = W().st.ans[i].slice(); b[k] = sel.value === '' ? null : Number(sel.value); set(i, b); sel.classList.toggle('empty', sel.value === ''); });
       p.appendChild(sel);
     });
     box.appendChild(p);
@@ -203,7 +217,7 @@
       var g = el('span', 'seg');
       [[true, T('Ақиқат', 'Правда')], [false, T('Жалған', 'Ложь')]].forEach(function (x) {
         var b = el('button', 'seg-btn' + (a[k] === x[0] ? ' on' : ''), x[1]);
-        b.addEventListener('click', function () { var c = state.ans[i].slice(); c[k] = x[0]; set(i, c); rerender(); });
+        b.addEventListener('click', function () { var c = W().st.ans[i].slice(); c[k] = x[0]; set(i, c); rerender(); });
         g.appendChild(b);
       });
       row.appendChild(g);
@@ -225,7 +239,7 @@
         b.appendChild(el('span', 'chat-text', L(p.text)));
       } else b.textContent = L(p.text);
       b.setAttribute('aria-pressed', a[k] ? 'true' : 'false');
-      b.addEventListener('click', function () { var c = state.ans[i].slice(); c[k] = !c[k]; set(i, c); rerender(); });
+      b.addEventListener('click', function () { var c = W().st.ans[i].slice(); c[k] = !c[k]; set(i, c); rerender(); });
       card.appendChild(b);
     });
     box.appendChild(card);
@@ -238,7 +252,7 @@
       var g = el('span', 'seg');
       t.bins.forEach(function (bn, n) {
         var b = el('button', 'seg-btn' + (a[k] === n ? ' on' : ''), L(bn));
-        b.addEventListener('click', function () { var c = state.ans[i].slice(); c[k] = n; set(i, c); rerender(); });
+        b.addEventListener('click', function () { var c = W().st.ans[i].slice(); c[k] = n; set(i, c); rerender(); });
         g.appendChild(b);
       });
       row.appendChild(g);
@@ -256,7 +270,7 @@
         var b = el('button', 'order-btn', x[1]);
         b.disabled = k + x[0] < 0 || k + x[0] >= a.length;
         b.setAttribute('aria-label', x[0] < 0 ? T('Жоғары', 'Вверх') : T('Төмен', 'Вниз'));
-        b.addEventListener('click', function () { var c = state.ans[i].slice(), j = k + x[0], tmp = c[k]; c[k] = c[j]; c[j] = tmp; set(i, c); rerender(); });
+        b.addEventListener('click', function () { var c = W().st.ans[i].slice(), j = k + x[0], tmp = c[k]; c[k] = c[j]; c[j] = tmp; set(i, c); rerender(); });
         li.appendChild(b);
       });
       list.appendChild(li);
@@ -278,14 +292,14 @@
           log.appendChild(el('div', 'bubble out', L(s.opts[a[k]])));
           var ch = el('button', 'link chat-change', T('Жауапты өзгерту', 'Изменить ответ'));
           // жауапты өзгерткенде келесі қадамдар қайта басталады
-          ch.addEventListener('click', function () { var c = state.ans[i].slice(); for (var m = k; m < c.length; m++) c[m] = null; set(i, c); rerender(); });
+          ch.addEventListener('click', function () { var c = W().st.ans[i].slice(); for (var m = k; m < c.length; m++) c[m] = null; set(i, c); rerender(); });
           var wrap = el('div', 'chat-opts'); wrap.appendChild(ch); log.appendChild(wrap);
           return;
         }
         var opts = el('div', 'chat-opts');
         s.opts.forEach(function (o, n) {
           var b = el('button', 'chat-opt' + (a[k] === n ? ' on' : ''), L(o));
-          b.addEventListener('click', function () { var c = state.ans[i].slice(); c[k] = n; set(i, c); rerender(); });
+          b.addEventListener('click', function () { var c = W().st.ans[i].slice(); c[k] = n; set(i, c); rerender(); });
           opts.appendChild(b);
         });
         log.appendChild(opts);
@@ -299,11 +313,86 @@
     t.opts.forEach(function (o, k) {
       var lab = el('label', 'check' + (a[k] ? ' on' : ''));
       var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!a[k];
-      cb.addEventListener('change', function () { var c = state.ans[i].slice(); c[k] = cb.checked; set(i, c); lab.classList.toggle('on', cb.checked); });
+      cb.addEventListener('change', function () { var c = W().st.ans[i].slice(); c[k] = cb.checked; set(i, c); lab.classList.toggle('on', cb.checked); });
       lab.appendChild(cb);
       lab.appendChild(el('span', null, L(o.t)));
       box.appendChild(lab);
     });
+  }
+
+  function rText(t, a, box, i) {
+    box.appendChild(el('div', 'case', L(t.ctx)));
+    if (t.kind === 'rewrite') {
+      box.appendChild(el('div', 'bubble in rude', L(t.rude)));
+      box.appendChild(el('p', 'lead', T('Осы хабарламаны нетикет бойынша сыпайы етіп қайта жазыңыз. Негізгі ойы сақталсын.', 'Перепишите это сообщение вежливо, по правилам нетикета. Главная мысль должна сохраниться.')));
+    } else box.appendChild(el('p', 'lead', L(t.q)));
+    var cr = el('div', 'crit');
+    cr.appendChild(el('b', null, T('Бағалау критерийлері (әрқайсысы 1 балл):', 'Критерии оценивания (по 1 баллу):')));
+    var ul = el('ul'); t.crit.forEach(function (c) { ul.appendChild(el('li', null, L(c))); }); cr.appendChild(ul);
+    box.appendChild(cr);
+    var ta = el('textarea', 'answer-text'); ta.rows = t.kind === 'reason' ? 8 : 4; ta.value = a || '';
+    ta.setAttribute('spellcheck', 'false');
+    ta.placeholder = T('Жауабыңызды осында жазыңыз…', 'Напишите ответ здесь…');
+    var cnt = el('p', 'muted small');
+    var upd = function () {
+      var p = C.precheck(t, ta.value);
+      cnt.textContent = T('Сөз саны: ', 'Слов: ') + p.words + (t.kind === 'reason' ? T(' · сөйлем: ', ' · предложений: ') + p.sentences + T(' (кемінде 4 сөйлем, ', ' (не меньше 4 предложений, ') + t.minWords + T(' сөз)', ' слов)') : '');
+    };
+    ta.addEventListener('input', function () { var had = C.touched(t, W().st.ans[i]); W().st.ans[i] = ta.value; save(); upd(); if (had !== C.touched(t, ta.value)) renderNav(); });
+    box.appendChild(ta); box.appendChild(cnt); upd();
+    box.appendChild(el('p', 'muted small', AI && AI.enabled()
+      ? T('Жауапты жұмыс аяқталғаннан кейін автоматты жүйе (жасанды интеллект) критерийлер бойынша тексереді, мұғалім де оқиды.', 'После завершения ответ по критериям проверит автоматическая система (искусственный интеллект), учитель тоже его прочитает.')
+      : T('Жауап критерийлер бойынша алдын ала автоматты тексеріледі, қорытынды бағаны мұғалім қояды.', 'Ответ предварительно проверяется автоматически по критериям, итоговую оценку ставит учитель.')));
+  }
+
+  // ---------- Қосымша деңгей (★) ----------
+  function startBonus() {
+    if (!state || state.status !== 'finished' || (state.bonus || []).length >= BONUS_N) return;
+    clearInterval(hideTimer);
+    enterFullscreen();
+    state.bonus = state.bonus || [];
+    var n = state.bonus.length + 1, seed = newSeed();
+    btasks = C.generateBonus(seed, n);
+    state.bcur = { n: n, seed: seed, ans: btasks.map(C.empty), cur: 0, viol: 0, startedAt: Date.now(), endsAt: Date.now() + BONUS_MS };
+    state.status = 'bonus';
+    save();
+    clearInterval(ticker); ticker = setInterval(tick, 250);
+    renderTask();
+  }
+  function finishBonus(reason) {
+    if (!inBonus()) return;
+    var b = state.bcur, rec = { n: b.n, seed: b.seed, ans: b.ans, reason: reason, startedAt: b.startedAt, finishedAt: state.closedAt || Date.now(), viol: b.viol, scores: [], text: {} };
+    btasks.forEach(function (t, i) {
+      if (t.type === 'text') {
+        var pre = C.precheck(t, b.ans[i]), empty = !String(b.ans[i] || '').trim();
+        rec.text[i] = { pre: pre, ai: null, lang: LANG, status: empty ? 'empty' : (AI && AI.enabled() ? 'pending' : 'off') };
+        rec.scores[i] = pre.score;
+      } else rec.scores[i] = C.score(t, b.ans[i]);
+    });
+    state.bonus.push(rec);
+    state.bcur = null; state.status = 'finished'; state.resultAt = Date.now(); delete state.closedAt;
+    save();
+    clearInterval(ticker);
+    $('warn').hidden = true; $('m-back').hidden = true;
+    fsActive = false; exitFullscreen();
+    renderResult();
+    runAI();
+  }
+  function recTasks(rec) { return C.generateBonus(rec.seed, rec.n); }
+  function recScore(rec) {
+    return rec.scores.reduce(function (s, x, i) { var e = rec.text[i]; return s + (e ? (e.ai ? e.ai.score : e.pre.score) : x); }, 0);
+  }
+  function recMax(rec) { return recTasks(rec).reduce(function (s, t) { return s + t.max; }, 0); }
+  var aiBusy = false;
+  function runAI() {
+    if (aiBusy || !state || !state.bonus || !AI || !AI.enabled()) return;
+    var job = null;
+    state.bonus.forEach(function (rec) { Object.keys(rec.text).forEach(function (i) { if (!job && rec.text[i].status === 'pending') job = { rec: rec, i: Number(i) }; }); });
+    if (!job) return;
+    aiBusy = true;
+    var e = job.rec.text[job.i], t = recTasks(job.rec)[job.i];
+    AI.grade(t, job.rec.ans[job.i], e.lang).then(function (res) { e.ai = res; e.status = 'done'; }, function (err) { e.status = 'error'; e.err = String(err && err.message || err); })
+      .then(function () { aiBusy = false; save(); if (!$('s-result').hidden) renderResult(); runAI(); });
   }
 
   // ---------- Аяқтау және нәтиже ----------
@@ -313,6 +402,7 @@
     state.reason = reason || null;
     state.finishedAt = state.closedAt || Date.now();
     state.scores = tasks.map(function (t, i) { return C.score(t, state.ans[i]); });
+    state.resultAt = Date.now();
     save();
     clearInterval(ticker);
     $('warn').hidden = true; $('m-back').hidden = true;
@@ -345,15 +435,33 @@
     tb.appendChild(table);
     var start = state.workStartedAt || state.startedAt;
     $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '');
+    renderBonus();
     var rv = $('r-review'); rv.innerHTML = '';
     tasks.forEach(function (t, i) { rv.appendChild(review(t, state.ans[i], state.scores[i], i)); });
     show('s-result');
     scheduleReset();
   }
+  function renderBonus() {
+    var list = state.bonus || [], left = BONUS_N - list.length;
+    $('b-bonus').hidden = left <= 0;
+    $('r-bonus-left').textContent = left > 0 ? T('Қалған әрекет: ', 'Осталось попыток: ') + left + ' / ' + BONUS_N + '. ' + T('Бір әрекетке — ', 'На одну попытку — ') + Math.round(BONUS_MS / 60000) + T(' минут.', ' минут.') : T('Әрекеттер аяқталды.', 'Попытки закончились.');
+    var box = $('r-bonus-list'); box.innerHTML = '';
+    if (!list.length) return;
+    var best = list.reduce(function (b, r) { return !b || recScore(r) > recScore(b) ? r : b; }, null);
+    box.appendChild(el('p', 'stars', '★ ' + recScore(best) + ' / ' + recMax(best) + ' ' + T('(ең жақсы әрекет)', '(лучшая попытка)')));
+    list.forEach(function (rec) {
+      var det = el('details', 'bonus-att'); if (rec === list[list.length - 1]) det.open = true;
+      var pending = Object.keys(rec.text).some(function (i) { return rec.text[i].status === 'pending'; });
+      det.appendChild(el('summary', null, rec.n + T('-әрекет: ★ ', '-я попытка: ★ ') + recScore(rec) + ' / ' + recMax(rec) + (pending ? T(' · ЖИ тексеруде…', ' · ИИ проверяет…') : '') +
+        (rec.reason && rec.reason !== 'done' ? ' · ' + (rec.reason === 'time' ? L(REASONS.time) : T('ереже бұзылғандықтан аяқталды', 'завершена из-за нарушений')) : '')));
+      recTasks(rec).forEach(function (t, i) { det.appendChild(review(t, rec.ans[i], rec.text[i] ? (rec.text[i].ai ? rec.text[i].ai.score : rec.text[i].pre.score) : rec.scores[i], i, rec.text[i])); });
+      box.appendChild(det);
+    });
+  }
   function scheduleReset() {
     clearInterval(hideTimer);
     var upd = function () {
-      var left = state.finishedAt + RESULT_MS - Date.now();
+      var left = (state.resultAt || state.finishedAt) + RESULT_MS - Date.now();
       if (left <= 0) { clearInterval(hideTimer); resetToStart(); return; }
       $('r-hide').textContent = T('Бастапқы бет мына уақыттан кейін ашылады: ', 'Начальная страница откроется через ') + fmt(left) + '.';
     };
@@ -367,7 +475,7 @@
     if (extra) d.appendChild(el('div', 'rv-why', extra));
     return d;
   }
-  function review(t, a, sc, i) {
+  function review(t, a, sc, i, extra) {
     var card = el('div', 'rv-card ' + (sc === t.max ? 'ok' : sc === 0 ? 'bad' : 'mid'));
     card.appendChild(el('h3', null, (i + 1) + '. ' + L(t.title) + ' — ' + sc + ' / ' + t.max));
     var you = T('Сіздің жауабыңыз: ', 'Ваш ответ: '), right = T('Дұрыс жауап: ', 'Правильный ответ: '), none = T('жауап жоқ', 'нет ответа');
@@ -417,6 +525,24 @@
           card.appendChild(line(ok, right + L(s.opts[s.key]), (ok ? '' : you + (a[k] === null ? none : L(s.opts[a[k]])) + '. ') + L(s.why)));
         });
         break;
+      case 'text': {
+        card.appendChild(el('div', 'case', L(t.ctx)));
+        if (t.kind === 'rewrite') card.appendChild(el('div', 'bubble in rude', L(t.rude)));
+        card.appendChild(el('div', 'student-text', String(a || '').trim() || none));
+        var e = extra || {}, ai = e.ai, pre = e.pre || { crit: [] };
+        var src = e.status === 'done' ? T('Жасанды интеллект бағасы', 'Оценка искусственного интеллекта')
+          : e.status === 'pending' ? T('Жасанды интеллект тексеруде… Әзірге — алдын ала автоматты баға.', 'Искусственный интеллект проверяет… Пока — предварительная автоматическая оценка.')
+          : e.status === 'error' ? T('ЖИ-ге қосылу мүмкін болмады (интернет?). Алдын ала автоматты баға — қорытынды бағаны мұғалім қояды.', 'Не удалось связаться с ИИ (интернет?). Предварительная автоматическая оценка — итог ставит учитель.')
+          : e.status === 'empty' ? T('Жауап жазылмаған.', 'Ответ не написан.')
+          : T('Алдын ала автоматты баға — қорытынды бағаны мұғалім қояды.', 'Предварительная автоматическая оценка — итог ставит учитель.');
+        card.appendChild(el('p', 'muted small', src));
+        t.crit.forEach(function (c, k) {
+          var ok = ai ? ai.crit[k] : !!pre.crit[k];
+          card.appendChild(line(ok, L(c), ai ? ai.comments[k] : null));
+        });
+        if (ai && ai.feedback) card.appendChild(el('div', 'ai-feedback', ai.feedback));
+        break;
+      }
       case 'multi':
         card.appendChild(el('div', 'case', L(t.text)));
         t.opts.forEach(function (o, k) {
@@ -442,8 +568,8 @@
     if (!$('m-confirm').hidden) confirmText();
   }
   function confirmText() {
-    var u = tasks.filter(function (t, i) { return !C.complete(t, state.ans[i]); }).length;
-    $('m-confirm-text').textContent = T('Жұмысты тапсырасыз ба?', 'Сдать работу?') + (u ? ' ' + T('Толық орындалмаған тапсырмалар: ', 'Не до конца выполненных заданий: ') + u + '.' : '') + ' ' + T('Тапсырғаннан кейін жауаптарды өзгертуге болмайды.', 'После сдачи ответы изменить нельзя.');
+    var w = W(), u = w.tasks.filter(function (t, i) { return !C.complete(t, w.st.ans[i]); }).length;
+    $('m-confirm-text').textContent = (inBonus() ? T('Қосымша деңгейді аяқтайсыз ба?', 'Завершить дополнительный уровень?') : T('Жұмысты тапсырасыз ба?', 'Сдать работу?')) + (u ? ' ' + T('Толық орындалмаған тапсырмалар: ', 'Не до конца выполненных заданий: ') + u + '.' : '') + ' ' + T('Тапсырғаннан кейін жауаптарды өзгертуге болмайды.', 'После сдачи ответы изменить нельзя.');
   }
 
   function init() {
@@ -458,10 +584,11 @@
     $('b-theory-back').addEventListener('click', renderTask);
     $('b-read').addEventListener('click', showTheory);
     $('b-start').addEventListener('click', begin);
-    $('b-prev').addEventListener('click', function () { goTo(state.cur - 1); });
-    $('b-next').addEventListener('click', function () { goTo(state.cur + 1); });
+    $('b-prev').addEventListener('click', function () { goTo(W().st.cur - 1); });
+    $('b-next').addEventListener('click', function () { goTo(W().st.cur + 1); });
     $('b-finish').addEventListener('click', function () { confirmText(); $('m-confirm').hidden = false; });
-    $('b-finish-yes').addEventListener('click', function () { finish('done'); });
+    $('b-finish-yes').addEventListener('click', function () { if (inBonus()) finishBonus('done'); else finish('done'); });
+    $('b-bonus').addEventListener('click', startBonus);
     $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
     $('b-back-fs').addEventListener('click', backToFullscreen);
     $('b-restart').addEventListener('click', resetToStart);
@@ -479,7 +606,17 @@
     window.addEventListener('popstate', function () { if (running()) { history.pushState(null, '', location.href); warn(T('Жұмыс кезінде артқа өтуге болмайды.', 'Переход назад во время работы недоступен.')); } });
 
     state = load();
-    if (state && state.v === 1 && state.seed) tasks = C.generate(state.seed); else state = null;
+    if (state && state.v === 1 && state.seed) { tasks = C.generate(state.seed); if (state.bcur) btasks = C.generateBonus(state.bcur.seed, state.bcur.n); } else state = null;
+    if (state && state.status === 'bonus') {
+      // «Қосымша деңгей» кезінде бет қайта жүктелді — бұзушылық, әрекет сол жерден жалғасады
+      state.bcur.viol++; state.lastViol = 'reload';
+      if (state.bcur.viol >= MAX_VIOL) { finishBonus('reload'); return; }
+      delete state.closedAt; save();
+      violLock = Date.now() + 1500;
+      ticker = setInterval(tick, 250);
+      renderTask(); renderBack(); $('m-back').hidden = false;
+      return;
+    }
     if (state && state.status === 'running') {
       // Бет жабылды немесе қайта жүктелді — бұл бұзушылық: жұмыс сол жерден жалғасады, MAX_VIOL-ші рет аяқталады
       state.viol = (state.viol || 0) + 1; state.lastViol = 'reload';
@@ -492,7 +629,7 @@
       $('m-back').hidden = false;
       return;
     }
-    if (state && state.status === 'finished') { renderResult(); return; }
+    if (state && state.status === 'finished') { renderResult(); runAI(); return; }
     state = null;
     show('s-gate');
   }
