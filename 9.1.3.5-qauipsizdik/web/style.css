@@ -458,6 +458,9 @@ select:focus { outline: none; border-color: var(--accent); }
 /* ===== INSERT белгілері ===== */
 .ins-block { border-left: 4px solid transparent; padding-left: 8px; transition: background 0.2s; }
 .ins-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 2px 0 14px 12px; }
+.ins-bar.mini { display: inline-flex; gap: 4px; margin: 0 0 0 8px; vertical-align: middle; }
+.ins-bar.mini .ins-btn { padding: 0 8px; min-width: 28px; font-weight: 700; line-height: 1.5; }
+li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .ins-label { font-size: 0.8rem; color: var(--muted); }
 .ins-btn { font-size: 0.8rem; padding: 3px 10px; border-radius: 999px; }
 .ins-btn.on { color: #fff; font-weight: 700; }

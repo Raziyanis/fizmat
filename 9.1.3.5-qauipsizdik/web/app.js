@@ -131,18 +131,26 @@
   function setupINS() {
     ['kz', 'ru'].forEach(function (lang) {
       var root = $('theory-' + lang), k = 0;
+      // Абзац, кесте, тізім — бір белгі; терминдері бар тізімде (<b>) әр термин (li) бөлек белгіленеді
+      var units = [];
       root.querySelectorAll('p:not(.t-sub), ul, ol, table').forEach(function (blk) {
-        if (blk.closest('ul, ol') && blk.tagName !== 'UL' && blk.tagName !== 'OL' && blk.parentElement.closest('ul, ol')) return;
-        var idx = k++;
+        if (blk.parentElement.closest('ul, ol, table')) return;
+        if ((blk.tagName === 'UL' || blk.tagName === 'OL') && blk.querySelector('li b')) {
+          Array.prototype.forEach.call(blk.children, function (li) { if (li.tagName === 'LI') units.push(li); });
+        } else units.push(blk);
+      });
+      units.forEach(function (blk) {
+        var idx = k++, mini = blk.tagName === 'LI';
         blk.classList.add('ins-block'); blk.setAttribute('data-ins', idx);
-        var bar = el('div', 'ins-bar'); bar.setAttribute('data-ins', idx);
-        bar.appendChild(el('span', 'ins-label', lang === 'kz' ? 'Белгі:' : 'Пометка:'));
+        var bar = el(mini ? 'span' : 'div', 'ins-bar' + (mini ? ' mini' : '')); bar.setAttribute('data-ins', idx);
+        if (!mini) bar.appendChild(el('span', 'ins-label', lang === 'kz' ? 'Белгі:' : 'Пометка:'));
         INS.forEach(function (m) {
-          var b = el('button', 'ins-btn ins-' + m[0], m[1] + ' ' + m[2][lang]);
+          var b = el('button', 'ins-btn ins-' + m[0], mini ? m[1] : m[1] + ' ' + m[2][lang]);
+          if (mini) b.title = m[2][lang];
           b.addEventListener('click', function () { if (!state) return; state.ins = state.ins || {}; state.ins[idx] = m[0]; save(); renderINS(); });
           bar.appendChild(b);
         });
-        blk.parentNode.insertBefore(bar, blk.nextSibling);
+        if (mini) blk.appendChild(bar); else blk.parentNode.insertBefore(bar, blk.nextSibling);
       });
       insCount = k;
     });
@@ -158,7 +166,7 @@
     });
     var done = Object.keys(ins).length;
     $('b-to-intro').disabled = !insDone();
-    $('tc-progress').textContent = insDone() ? '' : T('Жұмысқа өту үшін теорияның әр абзацын белгілеңіз (✓ білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім): ', 'Чтобы перейти к работе, отметьте каждый абзац теории (✓ знаю, + новое, − думал(а) иначе, ? непонятно): ') + done + ' / ' + insCount;
+    $('tc-progress').textContent = insDone() ? '' : T('Жұмысқа өту үшін теорияның әр абзацын және тізімдегі әр терминді белгілеңіз (✓ білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім): ', 'Чтобы перейти к работе, отметьте каждый абзац теории и каждый термин в списках (✓ знаю, + новое, − думал(а) иначе, ? непонятно): ') + done + ' / ' + insCount;
   }
   function begin() {
     $('b-start').disabled = true;
@@ -585,11 +593,12 @@
     box.appendChild(el('p', null, T('Теорияны INSERT әдісімен оқу: ', 'Чтение теории по методу INSERT: ') + '✓ ' + cnt.v + ' · + ' + cnt.n + ' · − ' + cnt.d + ' · ? ' + cnt.q));
     var qs = Object.keys(ins).filter(function (k) { return ins[k] === 'q' || ins[k] === 'd'; });
     if (qs.length) {
-      box.appendChild(el('p', 'muted small', T('Түсінбеген (?) және басқаша ойлаған (−) абзацтары:', 'Непонятные (?) и «думал иначе» (−) абзацы:')));
+      box.appendChild(el('p', 'muted small', T('Түсінбеген (?) және басқаша ойлаған (−) абзацтар мен терминдер:', 'Непонятные (?) и «думал иначе» (−) абзацы и термины:')));
       var ul = el('ul', 'small');
       qs.forEach(function (k) {
         var blk = document.querySelector('#theory-' + LANG + ' .ins-block[data-ins="' + k + '"]');
-        var txt = blk ? blk.textContent.replace(/\s+/g, ' ').trim() : '';
+        var c = blk ? blk.cloneNode(true) : null; if (c) c.querySelectorAll('.ins-bar').forEach(function (b) { b.remove(); });
+        var txt = c ? c.textContent.replace(/\s+/g, ' ').trim() : '';
         ul.appendChild(el('li', null, (ins[k] === 'q' ? '? ' : '− ') + (txt.length > 110 ? txt.slice(0, 110) + '…' : txt)));
       });
       box.appendChild(ul);
