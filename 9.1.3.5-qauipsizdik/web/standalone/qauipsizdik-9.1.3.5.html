@@ -155,13 +155,13 @@ button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
   margin: 24px 0 8px;
 }
 /* Балл — максимально крупно, чтобы учитель видел его издалека */
-.score-num { display: block; font-size: clamp(5rem, 24vw, 12rem); letter-spacing: -0.02em; }
+.score-num { display: block; font-size: clamp(4rem, 15vw, 8rem); letter-spacing: -0.02em; }
 .time-box { max-width: 520px; margin: 16px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); text-align: center; }
 .time-box p { margin: 4px 0; font-size: 1.15rem; }
 .time-box p.small { font-size: 0.95rem; color: var(--muted); }
 .time-box p.left b { color: var(--accent); font-size: 1.5rem; }
 .count { font-size: 1.3rem; font-weight: 600; }
-.score-word { display: block; font-size: clamp(2.2rem, 8vw, 4rem); margin-top: 8px; }
+.score-word { display: block; font-size: clamp(1.8rem, 6vw, 3rem); margin-top: 8px; }
 
 .table-wrap { overflow-x: auto; }
 .report { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
@@ -522,6 +522,17 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .an-final p { margin: 2px 0; }
 .an-final-h { font-weight: 700; font-size: 1.1rem; }
 .an-final-num { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
+.score-wrap { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 40px; margin-top: 8px; }
+.score-main { text-align: center; }
+.score-main .score { margin-top: 8px; }
+.r-ten { font-size: 1.4rem; font-weight: 700; color: var(--accent); margin: 6px 0 0; text-align: center; }
+.scale { font-size: 0.85rem; }
+.scale-h { margin: 0 0 4px; font-weight: 700; text-align: center; color: var(--muted); }
+.scale-t { border-collapse: collapse; }
+.scale-t th, .scale-t td { border: 1px solid var(--line); padding: 2px 12px; text-align: center; }
+.scale-t th { background: var(--bg); }
+.scale-t tr.on td { background: var(--accent); color: #fff; font-weight: 700; }
+.r-calc { display: block; font-size: 0.95rem; font-weight: 400; color: var(--muted); margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -601,8 +612,14 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     <section id="s-result" hidden>
       <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
       <p id="r-reason" class="note" hidden></p>
-      <p class="score" hidden><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
-      <p id="r-pct" class="center muted" hidden></p>
+      <div class="score-wrap">
+        <div class="score-main">
+          <p class="score"><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
+          <p id="r-pct" class="center muted"></p>
+          <p id="r-ten" class="r-ten"></p>
+        </div>
+        <div id="r-scale" class="scale"></div>
+      </div>
       <div id="r-table" class="r-table"></div>
       <div id="r-time" class="time-box"></div>
       <div id="r-analysis" class="analysis"></div>
@@ -1962,6 +1979,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     var tt = totals();
     $('r-score').textContent = tt.got + ' / ' + tt.max;
     $('r-pct').textContent = Math.round(100 * tt.got / tt.max) + '%';
+    renderScale(tt);
     if (state.reason && state.reason !== 'done') {
       $('r-reason').hidden = false;
       $('r-reason').textContent = state.reason === 'time' ? L(REASONS.time) + ' ' + T('Жұмыс автоматты түрде тапсырылды.', 'Работа сдана автоматически.')
@@ -2018,6 +2036,28 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       });
       box.appendChild(det);
     });
+  }
+  // Балдық шкала: жинаған балл 10 балдық бағаға пропорция бойынша (балл × 10 : максимум, бүтінге дөңгелектеу)
+  function tenOf(got, max) { return max ? Math.round(10 * got / max) : 0; }
+  function renderScale(tt) {
+    var mark = tenOf(tt.got, tt.max), rows = {};
+    for (var g = 0; g <= tt.max; g++) { var m = tenOf(g, tt.max); rows[m] = rows[m] || [g, g]; rows[m][1] = g; }
+    var ten = tt.max ? 10 * tt.got / tt.max : 0;
+    $('r-ten').innerHTML = '';
+    $('r-ten').appendChild(el('span', null, T('10 балдық шкала бойынша: ', 'По 10-балльной шкале: ') + mark + ' / 10'));
+    $('r-ten').appendChild(el('span', 'r-calc', T('Есептеу: ', 'Расчёт: ') + tt.got + ' × 10 : ' + tt.max + ' = ' + (Math.round(ten * 10) / 10).toString().replace('.', ',') + ' ≈ ' + mark));
+    var box = $('r-scale'); box.innerHTML = '';
+    var tb = el('table', 'scale-t');
+    var hr = el('tr'); [T('Балл', 'Балл'), T('Баға', 'Оценка')].forEach(function (h) { hr.appendChild(el('th', null, h)); }); tb.appendChild(hr);
+    for (var m = 10; m >= 0; m--) {
+      if (!rows[m]) continue;
+      var tr = el('tr', m === mark ? 'on' : null);
+      tr.appendChild(el('td', null, rows[m][0] === rows[m][1] ? String(rows[m][0]) : rows[m][0] + '–' + rows[m][1]));
+      tr.appendChild(el('td', null, String(m)));
+      tb.appendChild(tr);
+    }
+    box.appendChild(el('p', 'scale-h', T('Балдық шкала', 'Шкала баллов') + ' (' + tt.max + ' → 10)'));
+    box.appendChild(tb);
   }
   // Нәтиже бетіндегі жеке талдау: оқу мақсаттары, дағдылар, күшті және әлсіз жақтар, INSERT белгілерімен салыстыру
   var SKILLS = [

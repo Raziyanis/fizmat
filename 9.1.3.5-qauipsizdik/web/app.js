@@ -532,6 +532,7 @@
     var tt = totals();
     $('r-score').textContent = tt.got + ' / ' + tt.max;
     $('r-pct').textContent = Math.round(100 * tt.got / tt.max) + '%';
+    renderScale(tt);
     if (state.reason && state.reason !== 'done') {
       $('r-reason').hidden = false;
       $('r-reason').textContent = state.reason === 'time' ? L(REASONS.time) + ' ' + T('Жұмыс автоматты түрде тапсырылды.', 'Работа сдана автоматически.')
@@ -588,6 +589,28 @@
       });
       box.appendChild(det);
     });
+  }
+  // Балдық шкала: жинаған балл 10 балдық бағаға пропорция бойынша (балл × 10 : максимум, бүтінге дөңгелектеу)
+  function tenOf(got, max) { return max ? Math.round(10 * got / max) : 0; }
+  function renderScale(tt) {
+    var mark = tenOf(tt.got, tt.max), rows = {};
+    for (var g = 0; g <= tt.max; g++) { var m = tenOf(g, tt.max); rows[m] = rows[m] || [g, g]; rows[m][1] = g; }
+    var ten = tt.max ? 10 * tt.got / tt.max : 0;
+    $('r-ten').innerHTML = '';
+    $('r-ten').appendChild(el('span', null, T('10 балдық шкала бойынша: ', 'По 10-балльной шкале: ') + mark + ' / 10'));
+    $('r-ten').appendChild(el('span', 'r-calc', T('Есептеу: ', 'Расчёт: ') + tt.got + ' × 10 : ' + tt.max + ' = ' + (Math.round(ten * 10) / 10).toString().replace('.', ',') + ' ≈ ' + mark));
+    var box = $('r-scale'); box.innerHTML = '';
+    var tb = el('table', 'scale-t');
+    var hr = el('tr'); [T('Балл', 'Балл'), T('Баға', 'Оценка')].forEach(function (h) { hr.appendChild(el('th', null, h)); }); tb.appendChild(hr);
+    for (var m = 10; m >= 0; m--) {
+      if (!rows[m]) continue;
+      var tr = el('tr', m === mark ? 'on' : null);
+      tr.appendChild(el('td', null, rows[m][0] === rows[m][1] ? String(rows[m][0]) : rows[m][0] + '–' + rows[m][1]));
+      tr.appendChild(el('td', null, String(m)));
+      tb.appendChild(tr);
+    }
+    box.appendChild(el('p', 'scale-h', T('Балдық шкала', 'Шкала баллов') + ' (' + tt.max + ' → 10)'));
+    box.appendChild(tb);
   }
   // Нәтиже бетіндегі жеке талдау: оқу мақсаттары, дағдылар, күшті және әлсіз жақтар, INSERT белгілерімен салыстыру
   var SKILLS = [
