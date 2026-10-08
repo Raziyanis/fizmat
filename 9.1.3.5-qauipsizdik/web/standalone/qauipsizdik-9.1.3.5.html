@@ -492,6 +492,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .ins-btn.ins-n.on { background: var(--accent); border-color: var(--accent); }
 .ins-btn.ins-d.on { background: #b5520f; border-color: #b5520f; }
 .ins-btn.ins-q.on { background: #8b3fb0; border-color: #8b3fb0; }
+.ins-btn.ins-p.on { background: #0f7f86; border-color: #0f7f86; }
+.ins-block.mark-p { border-left-color: #0f7f86; background: #effafa; }
 .ins-block.mark-v { border-left-color: var(--ok); }
 .ins-block.mark-n { border-left-color: var(--accent); background: #f2f7ff; }
 .ins-block.mark-d { border-left-color: #b5520f; background: #fff7ef; }
@@ -1548,9 +1550,9 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     renderINS();
     show('s-theory');
   }
-  // INSERT: оқушы теорияның әр абзацын белгілейді (✓ білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім).
+  // INSERT: оқушы теорияның әр абзацын белгілейді (✓ білемін, ½ жартылай білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім).
   // Тізім мен кесте — бір абзац. Барлығы белгіленбейінше «Жұмысқа өту» жабық. state.ins[k] — белгі.
-  var INS = [['v', '✓', { kz: 'Білемін', ru: 'Знаю' }], ['n', '+', { kz: 'Жаңа ақпарат', ru: 'Новое' }], ['d', '−', { kz: 'Басқаша ойлағанмын', ru: 'Думал(а) иначе' }], ['q', '?', { kz: 'Түсінбедім', ru: 'Непонятно' }]];
+  var INS = [['v', '✓', { kz: 'Білемін', ru: 'Знаю' }], ['p', '½', { kz: 'Жартылай білемін', ru: 'Знаю частично' }], ['n', '+', { kz: 'Жаңа ақпарат', ru: 'Новое' }], ['d', '−', { kz: 'Басқаша ойлағанмын', ru: 'Думал(а) иначе' }], ['q', '?', { kz: 'Түсінбедім', ru: 'Непонятно' }]];
   var insCount = 0;
   var state0Sec = {};   // INSERT белгісі → теория бөлімінің нөмірі (1–5)
   function setupINS() {
@@ -1593,7 +1595,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     });
     var done = Object.keys(ins).length;
     $('b-to-intro').disabled = !insDone();
-    $('tc-progress').textContent = insDone() ? '' : T('Жұмысқа өту үшін теорияның әр абзацын және тізімдегі әр терминді белгілеңіз (✓ білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім): ', 'Чтобы перейти к работе, отметьте каждый абзац теории и каждый термин в списках (✓ знаю, + новое, − думал(а) иначе, ? непонятно): ') + done + ' / ' + insCount;
+    $('tc-progress').textContent = insDone() ? '' : T('Жұмысқа өту үшін теорияның әр абзацын және тізімдегі әр терминді белгілеңіз (✓ білемін, ½ жартылай білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім): ', 'Чтобы перейти к работе, отметьте каждый абзац теории и каждый термин в списках (✓ знаю, ½ знаю частично, + новое, − думал(а) иначе, ? непонятно): ') + done + ' / ' + insCount;
   }
   function begin() {
     $('b-start').disabled = true;
@@ -2074,8 +2076,10 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       if (!x.s[2].length) return;
       var marks = Object.keys(ins).filter(function (k) { return x.s[2].indexOf(state0Sec[k]) >= 0; }).map(function (k) { return ins[k]; });
       if (!marks.length) return;
-      var known = marks.filter(function (m) { return m === 'v'; }).length / marks.length, unclear = marks.filter(function (m) { return m === 'q' || m === 'd'; }).length;
+      var known = marks.filter(function (m) { return m === 'v'; }).length / marks.length, partial = marks.filter(function (m) { return m === 'p'; }).length / marks.length, unclear = marks.filter(function (m) { return m === 'q' || m === 'd'; }).length;
       if (known >= 0.5 && x.r.p < 60) notes.push(T('«' + L(x.s[1]) + '»: теорияда көбін «✓ Білемін» деп белгіледіңіз, бірақ тапсырмаларда қате бар (' + x.r.p + '%). Білетін нәрсені де мұқият тексерген жөн.', '«' + L(x.s[1]) + '»: в теории вы чаще отмечали «✓ Знаю», но в заданиях есть ошибки (' + x.r.p + '%). Даже знакомое стоит проверять внимательно.'));
+      else if (partial >= 0.5 && x.r.p >= 80) notes.push(T('«' + L(x.s[1]) + '»: көбін «½ Жартылай білемін» деп белгіледіңіз, ал тапсырмаларды жақсы орындадыңыз (' + x.r.p + '%). Біліміңіз толықты — жарайсыз!', '«' + L(x.s[1]) + '»: вы чаще отмечали «½ Знаю частично», а задания выполнили хорошо (' + x.r.p + '%). Знания пополнились — отлично!'));
+      else if (partial >= 0.5 && x.r.p < 60) notes.push(T('«' + L(x.s[1]) + '»: көбін «½ Жартылай білемін» деп белгіледіңіз, тапсырмаларда да қате бар (' + x.r.p + '%). Білмеген бөлігін теориядан толықтырыңыз.', '«' + L(x.s[1]) + '»: вы чаще отмечали «½ Знаю частично», и в заданиях есть ошибки (' + x.r.p + '%). Восполните пробелы по теории.'));
       else if (unclear && x.r.p >= 80) notes.push(T('«' + L(x.s[1]) + '»: теорияда «?» немесе «−» белгісін қойғансыз, бірақ тапсырмаларды жақсы орындадыңыз (' + x.r.p + '%). Түсінбегеніңізді анықтап алдыңыз — жарайсыз!', '«' + L(x.s[1]) + '»: в теории вы ставили «?» или «−», но задания выполнили хорошо (' + x.r.p + '%). Вы разобрались в непонятном — отлично!'));
       else if (unclear && x.r.p < 60) notes.push(T('«' + L(x.s[1]) + '»: теорияда «?» немесе «−» қойғансыз және тапсырмалар қиын болды (' + x.r.p + '%). Мұғалімнен сұраңыз.', '«' + L(x.s[1]) + '»: в теории вы ставили «?» или «−», и задания дались трудно (' + x.r.p + '%). Спросите учителя.'));
     });
@@ -2086,10 +2090,10 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
   }
   // Нәтиже бетінде: INSERT белгілерінің саны және «?» қойылған абзацтар (мұғалім нені қайта түсіндіру керегін көреді)
   function renderInsResult() {
-    var ins = state.ins || {}, cnt = { v: 0, n: 0, d: 0, q: 0 }, box = $('r-ins');
+    var ins = state.ins || {}, cnt = { v: 0, p: 0, n: 0, d: 0, q: 0 }, box = $('r-ins');
     Object.keys(ins).forEach(function (k) { cnt[ins[k]]++; });
     box.innerHTML = '';
-    box.appendChild(el('p', null, T('Теорияны INSERT әдісімен оқу: ', 'Чтение теории по методу INSERT: ') + '✓ ' + cnt.v + ' · + ' + cnt.n + ' · − ' + cnt.d + ' · ? ' + cnt.q));
+    box.appendChild(el('p', null, T('Теорияны INSERT әдісімен оқу: ', 'Чтение теории по методу INSERT: ') + '✓ ' + cnt.v + ' · ½ ' + cnt.p + ' · + ' + cnt.n + ' · − ' + cnt.d + ' · ? ' + cnt.q));
     var qs = Object.keys(ins).filter(function (k) { return ins[k] === 'q' || ins[k] === 'd'; });
     if (qs.length) {
       box.appendChild(el('p', 'muted small', T('Түсінбеген (?) және басқаша ойлаған (−) абзацтар мен терминдер:', 'Непонятные (?) и «думал иначе» (−) абзацы и термины:')));
