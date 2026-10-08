@@ -1,0 +1,1547 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Желідегі қауіпсіздік — 9.1.3.5–9.1.3.6</title>
+  <style>
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5f6b7a;
+  --line: #d9dee5;
+  --accent: #1f6feb;
+  --ok: #1a7f37;
+  --ok-bg: #e8f5ec;
+  --bad: #c62828;
+  --bad-bg: #fdecec;
+  --warn-bg: #fff4d6;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+h1 { font-size: 1.6rem; margin: 0 0 12px; }
+h2 { font-size: 1.2rem; margin: 24px 0 8px; }
+
+.topic { color: var(--muted); margin-top: 0; }
+.rules li { margin-bottom: 6px; }
+.rules li.important { background: var(--bad-bg); color: var(--bad); border-radius: 6px; padding: 6px 10px; margin-left: -10px; list-style-position: inside; }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+.center { text-align: center; }
+
+.note {
+  background: var(--warn-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+button {
+  font: inherit;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+
+.confirm {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--bad);
+  border-radius: 8px;
+  background: var(--bad-bg);
+}
+
+#s-test.changed { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-bg); }
+
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.nav-btn { min-width: 44px; padding: 8px 0; font-weight: 700; border: 2px solid var(--line); }
+.nav-btn.done { background: #dbe8ff; border-color: #9dbcf5; }
+.nav-btn.skipped { background: var(--warn-bg); border-color: #e9c46a; }
+.nav-btn.cur { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.nav-legend { margin-top: -8px; }
+.saved { color: var(--accent); }
+
+.question { font-size: 1.5rem; font-weight: 600; margin: 8px 0 16px; }
+
+.answer {
+  width: 100%;
+  max-width: 360px;
+  font: 600 1.6rem/1.2 ui-monospace, "Consolas", monospace;
+  letter-spacing: 0.08em;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+.answer:focus { outline: none; border-color: var(--accent); }
+
+/* Таймеры закреплены сверху и видны всё время работы */
+.timers {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 32px;
+  padding: 10px 16px 14px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.timer { display: flex; align-items: baseline; gap: 10px; }
+.timer span { color: var(--muted); font-size: 0.95rem; }
+.timer b { font: 700 1.8rem/1 ui-monospace, "Consolas", monospace; }
+.timer.low b { color: var(--bad); }
+.bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: var(--line);
+}
+.bar div { height: 100%; width: 0; background: var(--accent); transition: width 0.25s linear; }
+
+.score {
+  text-align: center;
+  font-weight: 800;
+  line-height: 1;
+  margin: 24px 0 8px;
+}
+/* Балл — максимально крупно, чтобы учитель видел его издалека */
+.score-num { display: block; font-size: clamp(5rem, 24vw, 12rem); letter-spacing: -0.02em; }
+.time-box { max-width: 520px; margin: 16px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); text-align: center; }
+.time-box p { margin: 4px 0; font-size: 1.15rem; }
+.time-box p.small { font-size: 0.95rem; color: var(--muted); }
+.time-box p.left b { color: var(--accent); font-size: 1.5rem; }
+.count { font-size: 1.3rem; font-weight: 600; }
+.score-word { display: block; font-size: clamp(2.2rem, 8vw, 4rem); margin-top: 8px; }
+
+.table-wrap { overflow-x: auto; }
+.report { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.report th, .report td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.report th { background: var(--bg); }
+.report tr.ok td:last-child { color: var(--ok); background: var(--ok-bg); }
+.report tr.bad td:last-child { color: var(--bad); background: var(--bad-bg); }
+
+.warn {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: 90vw;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: var(--bad);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.demo {
+  background: var(--warn-bg);
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+/* Сброс результата учителем (автономный файл) */
+.teacher { margin-top: 32px; padding-top: 12px; border-top: 1px dashed var(--line); }
+button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); font-size: 0.85rem; text-decoration: underline; }
+@media print { .teacher { display: none; } }
+
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 200px; }
+
+/* ---------- Код жазатын формативтік жұмыс ---------- */
+main { max-width: 960px; }
+.nav-btn.ok { background: var(--ok-bg); border-color: #8fcfa3; color: var(--ok); }
+.nav-btn.bad { background: var(--bad-bg); border-color: #eea5a5; color: var(--bad); }
+.nav-btn.written { background: #dbe8ff; border-color: #9dbcf5; }
+.task-title { margin: 4px 0 8px; font-size: 1.35rem; }
+.task-text { font-size: 1.15rem; margin: 0 0 10px; }
+.io p { margin: 4px 0; }
+.examples { border-collapse: collapse; margin: 12px 0 16px; min-width: 60%; }
+.examples th, .examples td { border: 1px solid var(--line); padding: 6px 12px; text-align: left; vertical-align: top; }
+.examples th { background: var(--bg); }
+.examples td { font-family: ui-monospace, "Consolas", "Courier New", monospace; white-space: pre; }
+.code-label { display: block; font-weight: 700; margin: 8px 0 6px; }
+.editor, .stdin {
+  width: 100%; font: 500 1.05rem/1.5 ui-monospace, "Consolas", "Courier New", monospace;
+  padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; tab-size: 4; resize: vertical;
+  background: #fbfcfe; color: var(--text);
+}
+.editor { min-height: 260px; }
+.editor:focus, .stdin:focus { outline: none; border-color: var(--accent); }
+.run-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-top: 10px; }
+.run-in { flex: 1; min-width: 240px; }
+.run-row .buttons { margin-top: 0; }
+.run-result { margin-top: 12px; border-radius: 10px; padding: 12px 14px; border: 1px solid var(--line); background: var(--bg); }
+.run-result pre { margin: 6px 0; white-space: pre-wrap; font: 500 1rem/1.4 ui-monospace, "Consolas", monospace; }
+.run-result .ok { color: var(--ok); font-weight: 700; }
+.run-result .bad { color: var(--bad); font-weight: 700; }
+.nav-buttons { align-items: center; }
+.spacer { flex: 1; }
+button.danger-outline { border-color: var(--bad); color: var(--bad); }
+.rules li.important { list-style-position: inside; }
+
+.review { display: flex; flex-direction: column; gap: 14px; }
+.rv { border: 2px solid var(--line); border-left-width: 8px; border-radius: 10px; padding: 14px 16px; }
+.rv.ok { border-color: #b7dfc3; border-left-color: var(--ok); }
+.rv.bad { border-color: #f1c0c0; border-left-color: var(--bad); }
+.rv-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.rv-num { font-weight: 700; color: var(--muted); }
+.rv-badge { font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.rv.ok .rv-badge { color: var(--ok); background: var(--ok-bg); }
+.rv.bad .rv-badge { color: var(--bad); background: var(--bad-bg); }
+.rv-q { font-weight: 600; margin: 4px 0 10px; }
+.rv-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.rv-cols > div { min-width: 0; }
+.rv-cols pre { margin: 4px 0 0; font-size: 0.95rem; }
+.rv-err { color: var(--bad); margin: 8px 0 0; white-space: pre-wrap; font-family: ui-monospace, "Consolas", monospace; font-size: 0.95rem; }
+@media (max-width: 700px) { .rv-cols { grid-template-columns: 1fr; } }
+.code {
+  background: #1b2740; color: #f1f5fb; font: 500 0.98rem/1.5 ui-monospace, "Consolas", "Courier New", monospace;
+  padding: 12px 16px; border-radius: 10px; overflow-x: auto; margin: 4px 0 0; tab-size: 4; white-space: pre;
+}
+
+/* ---------- 8.1.4.3: теория, тест, задачи ---------- */
+.steps { color: var(--muted); margin: 0 0 12px; }
+.steps b { color: var(--accent); }
+.theory h1.t-title { font-size: 1.8rem; margin-bottom: 4px; }
+.theory .t-sub { color: var(--muted); font-style: italic; margin-top: 0; }
+.theory h2.t-h1 { font-size: 1.45rem; color: #1f3b73; margin: 28px 0 8px; border-bottom: 2px solid var(--line); padding-bottom: 4px; }
+.theory h3.t-h2 { font-size: 1.15rem; color: #1f3b73; margin: 20px 0 6px; }
+.theory p, .theory li { line-height: 1.55; }
+.theory code { background: #eef1f5; border-radius: 4px; padding: 1px 5px; font-family: ui-monospace, "Consolas", monospace; font-size: 0.95em; }
+.t-box { border-left: 6px solid var(--accent); background: #f3f6fa; border-radius: 6px; padding: 8px 14px; margin: 8px 0; }
+.t-box .lbl { font-weight: 700; font-size: 0.85rem; margin-bottom: 2px; }
+.t-box pre { margin: 0; font: 500 1rem/1.5 ui-monospace, "Consolas", "Courier New", monospace; white-space: pre; overflow-x: auto; }
+.t-box.out { border-left-color: var(--ok); background: #eaf6ee; }
+.t-box.inp { border-left-color: #b5520f; background: #fff8e6; }
+.t-pair { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+@media (max-width: 700px) { .t-pair { grid-template-columns: 1fr; } }
+.t-table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.95rem; }
+.t-table th, .t-table td { border: 1px solid #c7cfda; padding: 5px 8px; text-align: left; vertical-align: top; white-space: pre-wrap; }
+.t-table th { background: #e3eaf6; }
+.theory-end { margin-top: 28px; padding: 16px; border-radius: 10px; background: #eef4ff; border: 1px solid #c9d8f5; }
+
+.nav-groups { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 6px; }
+.nav-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.nav-groups .nav { margin: 0; }
+.nav-btn.answered { background: #dbe8ff; border-color: #9dbcf5; }
+.lvl { display: inline-block; font-weight: 700; padding: 1px 8px; border-radius: 999px; font-size: 0.85rem; margin-left: 6px; }
+.lvl-A { background: #e8f5ec; color: #1a7f37; } .lvl-B { background: #fff4d6; color: #8a5a00; } .lvl-C { background: #fdecec; color: #a52222; }
+
+.choices { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.choice { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; cursor: pointer; }
+.choice:has(input:checked) { border-color: var(--accent); background: #eef4ff; }
+.choice input { margin-top: 5px; width: 18px; height: 18px; flex: none; }
+.choice .letter { font-weight: 800; color: var(--accent); min-width: 1.4em; }
+.choice .opt { white-space: pre-wrap; }
+.choice .opt.mono { font-family: ui-monospace, "Consolas", monospace; white-space: pre; }
+.match { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.match-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.match-left { min-width: 190px; }
+.match-left code { font-size: 1.1rem; font-weight: 700; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+.match select { font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; background: #fff; min-width: 260px; max-width: 100%; }
+.saved { color: var(--accent); }
+
+.parts { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+.part { border: 1px solid var(--line); border-radius: 10px; padding: 10px 18px; text-align: center; background: var(--bg); }
+.part span { display: block; color: var(--muted); }
+.part b { font-size: 1.6rem; }
+.rv-opts { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.rv-opts li { display: flex; gap: 10px; padding: 6px 10px; border-radius: 8px; }
+.rv-opts li .opt { white-space: pre-wrap; }
+.rv-opts.mono li .opt { font-family: ui-monospace, "Consolas", monospace; white-space: pre; }
+.rv-opts li.right { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+.rv-opts li.wrong { background: var(--bad-bg); color: var(--bad); }
+.rv-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.rv-table th, .rv-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+.rv-table th { background: var(--bg); }
+.rv-table td.right { color: var(--ok); background: var(--ok-bg); }
+.rv-table td.wrong { color: var(--bad); background: var(--bad-bg); }
+
+/* Разбор вариантов: буква отдельно, код ровным блоком, пометка отдельной строкой */
+.rv-opts li { align-items: flex-start; }
+.rv-opts li .letter { font-weight: 800; min-width: 1.6em; }
+.rv-opt-body { display: flex; flex-direction: column; gap: 4px; }
+.rv-tag { display: inline-block; align-self: flex-start; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 0.85rem; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: #fff; border: 1px solid currentColor; }
+.hint { background: #fff4d6; border-radius: 8px; padding: 8px 12px; color: #6b4a00; margin: 6px 0; }
+.rv-cols.one { grid-template-columns: minmax(0, 1fr); }
+.rv-note { margin: 10px 0 4px; font-weight: 600; color: var(--muted); }
+
+.center-buttons { justify-content: center; }
+.part small { display: block; font-size: 0.85rem; }
+.rv-theory { margin: 8px 0 0; color: #8a5a00; background: #fff4d6; border-radius: 8px; padding: 6px 10px; }
+.rv-given { background: var(--bg); border-radius: 8px; padding: 8px 12px; margin: 6px 0 0; white-space: pre-wrap; font-family: inherit; }
+.rv-given.mono { font-family: ui-monospace, "Consolas", monospace; }
+
+/* Переключатель языка ҚАЗ / РУС — всегда виден */
+.lang-switch { position: fixed; top: 10px; right: 12px; z-index: 1001; display: flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.lang-switch button { border: 0; border-radius: 0; padding: 6px 14px; font-weight: 800; background: #fff; color: var(--accent); }
+.lang-switch button.on { background: var(--accent); color: #fff; }
+.lang-switch .lang-label { align-self: center; padding: 6px 10px 6px 14px; font-size: 0.85rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.lang-note { background: #e7eefb; }
+html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
+
+/* Окно после нарушения: вернуться в полноэкранный режим */
+.back-fs {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(20, 33, 61, 0.72);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.back-fs[hidden] { display: none; }
+.back-box {
+  max-width: 560px; width: 100%;
+  background: var(--card); border: 3px solid var(--bad); border-radius: 12px; padding: 24px;
+  text-align: center;
+}
+.back-box h2 { color: var(--bad); margin-top: 0; }
+.back-box p { font-size: 1.1rem; }
+
+/* Кнопка режима «Латиница» над редактором кода */
+.code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.kbd-btn { padding: 4px 12px; font-size: 0.9rem; border-radius: 999px; }
+.kbd-btn.on { background: #e7eefb; border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+/* ===== 9.1.3.5: тапсырма түрлері ===== */
+.lang-switch button { cursor: pointer; }
+.work-buttons { align-items: center; }
+button.link { border: 0; background: none; color: var(--accent); text-decoration: underline; padding: 8px 6px; }
+button.danger-outline { border-color: var(--bad); color: var(--bad); }
+.lead { font-weight: 600; margin: 4px 0 12px; }
+.counter { display: inline-block; font-weight: 700; color: var(--accent); background: #e7eefb; border-radius: 999px; padding: 2px 12px; margin: 0 0 10px; }
+select { font: inherit; padding: 6px 8px; border: 2px solid var(--line); border-radius: 8px; background: #fff; max-width: 100%; }
+select:focus { outline: none; border-color: var(--accent); }
+
+/* сәйкестендіру */
+.match { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.match-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.match-row .term { font-weight: 700; }
+.defs { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.defs li { padding: 6px 10px; border-left: 4px solid var(--accent); background: #f3f6fa; border-radius: 6px; }
+
+/* бос орын */
+.fill-text { font-size: 1.15rem; line-height: 2.4; }
+.fill-sel { margin: 0 4px; font-weight: 700; color: var(--accent); }
+.fill-sel.empty { color: var(--muted); border-style: dashed; }
+
+/* ақиқат/жалған, топтастыру */
+.tf-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; }
+.tf-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tf-text.mono { font-family: ui-monospace, "Consolas", monospace; font-weight: 600; }
+.seg { display: inline-flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; flex: none; }
+.seg-btn { border: 0; border-radius: 0; padding: 6px 14px; color: var(--accent); background: #fff; font-weight: 600; font-size: 0.95rem; }
+.seg-btn + .seg-btn { border-left: 2px solid var(--accent); }
+.seg-btn.on { background: var(--accent); color: #fff; }
+@media (max-width: 640px) { .tf-row, .match-row { flex-direction: column; align-items: stretch; } .seg { align-self: flex-end; } }
+
+/* хат және чат */
+.mail, .chatlog { border: 2px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+.mail-head { background: #eef1f5; padding: 8px 14px; font-weight: 700; color: var(--muted); }
+.mail-part { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 10px 14px; background: #fff; }
+.mail-part:hover, .chat-msg:hover { background: #f6f8fb; }
+.mail-part.marked, .chat-msg.marked { background: var(--bad-bg); box-shadow: inset 6px 0 0 var(--bad); color: var(--bad); font-weight: 600; }
+.chatlog { background: #eef3f8; }
+.chat-msg { display: block; width: calc(100% - 24px); margin: 10px 12px; text-align: left; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; background: #fff; }
+.chat-meta { display: block; font-size: 0.85rem; color: var(--muted); }
+.chat-meta b { color: var(--accent); }
+.chat-text { display: block; }
+.bubble { max-width: 80%; margin: 10px 12px; padding: 8px 12px; border-radius: 14px; }
+.bubble.in { background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.bubble.out { margin-left: auto; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.chat-opts { display: flex; flex-direction: column; gap: 6px; margin: 4px 12px 12px; align-items: flex-end; }
+.chat-opt { text-align: left; border: 2px solid var(--accent); color: var(--accent); background: #fff; border-radius: 14px; padding: 8px 12px; max-width: 85%; }
+.chat-opt.on { background: #dbe8ff; font-weight: 700; }
+
+/* ретке келтіру */
+.order { list-style: none; padding: 0; margin: 4px 0; display: flex; flex-direction: column; gap: 8px; }
+.order-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.order-n { font-weight: 700; color: var(--muted); width: 1.5em; }
+.order-text { flex: 1; font: 700 1.15rem/1.3 ui-monospace, "Consolas", monospace; overflow-wrap: anywhere; }
+.order-btn { padding: 6px 14px; font-weight: 700; }
+.order-end { margin: 4px 0; }
+
+/* жағдаят */
+.case { background: #fff8e6; border-left: 6px solid #b5520f; border-radius: 8px; padding: 10px 14px; margin: 6px 0 12px; }
+.check { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin-top: 3px; flex: none; }
+.check.on { border-color: var(--accent); background: #eef4ff; }
+
+/* нәтиже */
+.r-table { margin: 16px auto 0; max-width: 640px; }
+.res { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.res th, .res td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+.res th { background: var(--bg); }
+.res td:last-child { white-space: nowrap; font-weight: 700; }
+.res tr.ok td:last-child { color: var(--ok); background: var(--ok-bg); }
+.res tr.bad td:last-child { color: var(--bad); background: var(--bad-bg); }
+.res tr.mid td:last-child { background: var(--warn-bg); }
+.rv-card { border: 2px solid var(--line); border-left-width: 8px; border-radius: 10px; padding: 12px 16px; }
+.rv-card.ok { border-left-color: var(--ok); }
+.rv-card.bad { border-left-color: var(--bad); }
+.rv-card.mid { border-left-color: #e9a23b; }
+.rv-card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+.rv-line { padding: 6px 8px; border-radius: 6px; margin-bottom: 4px; }
+.rv-line.ok { background: var(--ok-bg); }
+.rv-line.bad { background: var(--bad-bg); }
+.rv-line.hot { box-shadow: inset 4px 0 0 var(--bad); }
+.rv-ok { color: var(--ok); font-weight: 800; }
+.rv-bad { color: var(--bad); font-weight: 800; }
+.rv-why { color: var(--muted); font-size: 0.92rem; margin-top: 2px; }
+.rv-card .bubble { max-width: 100%; margin: 8px 0 4px; }
+.chat-change { font-size: 0.85rem; padding: 0 4px; }
+</style>
+</head>
+<body>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><span class="lang-label">Тіл / Язык</span><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div id="timers" class="timers" hidden>
+    <div class="timer"><span><span class="lang-kz">Жұмыстың аяқталуына</span><span class="lang-ru">До конца работы</span></span><b id="tm"></b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Жүктелуде… / Загрузка…</p></section>
+
+    <section id="s-gate" hidden>
+      <h1><span class="lang-kz">Формативтік жұмыс: желідегі қауіпсіздік және желілік этикет</span><span class="lang-ru">Формативная работа: безопасность в сети и сетевой этикет</span></h1>
+      <p class="topic"><span class="lang-kz">9.1.3.5 — желідегі қауіпсіздік ережелерін сақтау (интернеттегі алаяқтық және агрессия); 9.1.3.6 — желідегі этикалық және құқықтық нормаларды бұзудың салдары</span><span class="lang-ru">9.1.3.5 — соблюдать правила безопасности в сети (интернет-мошенничество и агрессия); 9.1.3.6 — последствия нарушения этических и правовых норм в сети</span></p>
+      <p class="steps"><span class="lang-kz"><b>1. Теория</b> → 2. Тапсырмалар → 3. Нәтиже және талдау</span><span class="lang-ru"><b>1. Теория</b> → 2. Задания → 3. Результат и разбор</span></p>
+      <p class="note"><span class="lang-kz">Бүкіл жұмыс, теорияны оқуды қоса алғанда, <b>толық экран режимінде</b> жүреді. Одан шығуға, басқа қойындыға, терезеге немесе қосымшаға ауысуға және бетті қайта жүктеуге болмайды. Алғашқы екі бұзушылыққа ескерту шығады, <b>үшіншісінен</b> кейін жұмыс аяқталады.</span><span class="lang-ru">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</span></p>
+      <p class="note lang-note"><span class="lang-kz">Тілді кез келген уақытта ауыстыруға болады: жоғарғы оң жақ бұрыштағы <b>ҚАЗ / РУС</b> батырмалары. Жауаптар сақталады.</span><span class="lang-ru">Язык можно сменить в любой момент: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы сохраняются.</span></p>
+      <div class="buttons"><button id="b-gate" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
+    </section>
+
+    <section id="s-theory" class="theory" hidden>
+      <p class="steps"><span class="lang-kz"><b>1. Теория</b> → 2. Тапсырмалар → 3. Нәтиже</span><span class="lang-ru"><b>1. Теория</b> → 2. Задания → 3. Результат</span></p>
+      <div class="lang-kz" id="theory-kz"></div>
+      <div class="lang-ru" id="theory-ru"></div>
+      <div class="theory-end">
+        <p id="t-end-text"><span class="lang-kz">Теорияны оқыдыңыз ба? Енді — әртүрлі түрдегі <b>11 тапсырма</b>.</span><span class="lang-ru">Прочитали теорию? Дальше — <b>11 заданий</b> разных видов.</span></p>
+        <button id="b-to-intro" class="primary big"><span class="lang-kz">Жұмысқа өту →</span><span class="lang-ru">Перейти к работе →</span></button>
+        <button id="b-theory-back" class="primary big" hidden><span class="lang-kz">← Тапсырмаларға оралу</span><span class="lang-ru">← Вернуться к заданиям</span></button>
+      </div>
+    </section>
+
+    <section id="s-intro" hidden>
+      <h1><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h1>
+      <ul class="rules">
+        <li class="lang-kz"><b>11 тапсырма</b>, әрқайсысы әр түрлі: сәйкестендіру, бос орынды толтыру, ақиқат/жалған, алаяқтың хатын әшкере ету, сілтемені тексеру, топтастыру, ретке келтіру, чат-тренажёр, жағдаят талдау.</li>
+        <li class="lang-ru"><b>11 заданий</b> разных видов: сопоставление, заполнение пропусков, правда/ложь, разоблачение письма мошенника, проверка ссылок, группировка, упорядочивание, чат-тренажёр, разбор ситуаций.</li>
+        <li class="lang-kz">Жұмысқа — <b><span class="i-min"></span> минут</b>. Теорияға тапсырмалар кезінде де оралуға болады (таймер тоқтамайды).</li>
+        <li class="lang-ru">На работу — <b><span class="i-min"></span> минут</b>. К теории можно вернуться и во время заданий (таймер не останавливается).</li>
+        <li class="lang-kz">Әр дұрыс тармаққа — <b>1 балл</b>. «Тап», «белгіле» тапсырмаларында қате белгі балды азайтады.</li>
+        <li class="lang-ru">За каждый верный пункт — <b>1 балл</b>. В заданиях «найди», «отметь» лишняя отметка уменьшает балл.</li>
+        <li class="lang-kz">Жауаптар автоматты түрде сақталады, тапсырмалар арасында еркін ауысуға болады. Уақыт біткенде жұмыс өзі тапсырылады.</li>
+        <li class="lang-ru">Ответы сохраняются автоматически, между заданиями можно свободно переходить. Когда время выйдет, работа сдастся сама.</li>
+        <li class="lang-kz">Әр оқушының тапсырмалары әртүрлі.</li>
+        <li class="lang-ru">У каждого ученика свои задания.</li>
+        <li class="important lang-kz">Толық экран режимінен шығу, басқа терезеге ауысу, бетті қайта жүктеу — ереже бұзу. Алғашқы екеуіне ескерту, үшіншісінен кейін жұмыс аяқталады.</li>
+        <li class="important lang-ru">Выход из полноэкранного режима, переключение окна, перезагрузка страницы — нарушение. За первые два — предупреждение, после третьего работа завершится.</li>
+      </ul>
+      <div class="buttons">
+        <button id="b-back-theory"><span class="lang-kz">← Теорияны қайта оқу</span><span class="lang-ru">← Ещё раз прочитать теорию</span></button>
+        <button id="b-start" class="primary big"><span class="lang-kz">Жұмысты бастау</span><span class="lang-ru">Начать работу</span></button>
+      </div>
+    </section>
+
+    <section id="s-work" hidden>
+      <div id="nav" class="nav"></div>
+      <p class="muted small nav-legend"><span class="lang-kz">Көк — жауап берілген. Тапсырманы ашу үшін нөмірін басыңыз.</span><span class="lang-ru">Синий — есть ответ. Нажмите на номер, чтобы открыть задание.</span></p>
+      <div id="task"></div>
+      <div class="buttons work-buttons">
+        <button id="b-prev">← <span class="lang-kz">Артқа</span><span class="lang-ru">Назад</span></button>
+        <button id="b-next" class="primary"><span class="lang-kz">Келесі</span><span class="lang-ru">Далее</span> →</button>
+        <button id="b-read" class="link"><span class="lang-kz">Теорияны қарау</span><span class="lang-ru">Посмотреть теорию</span></button>
+        <span class="spacer"></span>
+        <button id="b-finish" class="danger-outline"><span class="lang-kz">Жұмысты тапсыру</span><span class="lang-ru">Сдать работу</span></button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p id="m-confirm-text"></p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger"><span class="lang-kz">Иә, тапсырамын</span><span class="lang-ru">Да, сдать</span></button>
+          <button id="b-finish-no"><span class="lang-kz">Жоқ, жалғастырамын</span><span class="lang-ru">Нет, продолжить</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p class="score"><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
+      <p id="r-pct" class="center muted"></p>
+      <div id="r-table" class="r-table"></div>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center"></p>
+      <h2><span class="lang-kz">Тапсырмаларды талдау</span><span class="lang-ru">Разбор заданий</span></h2>
+      <div id="r-review" class="review"></div>
+      <div class="teacher">
+        <button id="b-restart" class="primary"><span class="lang-kz">Осы компьютерде жаңа жұмыс</span><span class="lang-ru">Новая работа на этом компьютере</span></button>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <div id="m-back" class="back-fs" role="alertdialog" aria-modal="true" hidden>
+    <div class="back-box">
+      <h2><span class="lang-kz">Назар аударыңыз! Ереже бұзылды</span><span class="lang-ru">Внимание! Нарушение</span></h2>
+      <p id="m-back-text"></p>
+      <button id="b-back-fs" class="primary big"><span class="lang-kz">Толық экран режиміне оралу</span><span class="lang-ru">Вернуться в полноэкранный режим</span></button>
+    </div>
+  </div>
+
+<script>
+/* Настройки. Можно изменить в Блокноте, затем собрать файл заново: node tools/build-standalone.js */
+window.WORK_MIN = 30;          // время на задания, минут (теория не ограничена по времени)
+window.RESULT_MIN = 4;         // сколько минут виден результат, потом открывается начальная страница
+window.MAX_VIOLATIONS = 3;     // на каком нарушении (выход из полноэкранного режима, смена окна, перезагрузка) работа завершается
+
+</script>
+<script>
+/* 9.1.3.5–9.1.3.6 «Желідегі қауіпсіздік. Желілік этикет»: теория және тапсырмалар банкі (қазақша және орысша).
+ * Әр мәтін — {kz, ru} жұбы. CONTENT.generate(seed) әр оқушыға өз тапсырмалар жинағын құрады:
+ * банктен элементтер кездейсоқ таңдалады, жауап нұсқаларының реті араласады.
+ * Сайттар мен ұйымдардың атаулары (QazPay, qazpay.kz) — оқу үшін ойдан шығарылған. */
+(function () {
+  'use strict';
+  function K(kz, ru) { return { kz: kz, ru: ru }; }
+
+  // ---------------- Теория ----------------
+  var THEORY = {
+    kz: [
+      '<h1 class="t-title">Желідегі қауіпсіздік. Желілік этикет</h1>',
+      '<p class="t-sub">9.1.3.5 — пайдаланушының желідегі қауіпсіздігін қамтамасыз ету ережелерін сақтау (интернеттегі алаяқтық және агрессия)<br>9.1.3.6 — желідегі этикалық және құқықтық нормаларды бұзудың салдары туралы пайымдау</p>',
+      '<h2 class="t-h1">1. Интернеттегі алаяқтық</h2>',
+      '<p><b>Интернет-алаяқтық</b> — адамды интернет арқылы алдап, оның ақшасын, жеке деректерін немесе аккаунтын иемдену.</p>',
+      '<ul>',
+      '<li><b>Фишинг</b> — жалған сайт, хат немесе хабарлама арқылы логин, құпиясөз, банк картасының деректерін алдап алу. Жалған сайт ресми сайтқа өте ұқсас жасалады.</li>',
+      '<li><b>Әлеуметтік инженерия</b> — адамның сенгіштігін, қорқынышын немесе асығыстығын пайдаланып алдау. Мысалы, «банк қызметкері» болып қоңырау шалып, SMS-кодты сұрайды.</li>',
+      '<li><b>Жалған ұтыс пен сыйлық</b> — «Сіз смартфон ұттыңыз, тек жеткізу ақысын төлеңіз».</li>',
+      '<li><b>Жалған интернет-дүкен мен хабарландыру</b> — алдын ала төлем алады, бірақ тауарды жібермейді.</li>',
+      '<li><b>Бұзылған аккаунт</b> — досыңыздың аккаунтынан «қарыз бере тұршы» немесе «осы сілтеме арқылы дауыс берші» деген хабар келеді.</li>',
+      '</ul>',
+      '<h3 class="t-h2">Алаяқтықтың белгілері</h3>',
+      '<ul>',
+      '<li>Асықтырады немесе қорқытады: «24 сағат ішінде», «шотыңыз бұғатталады».</li>',
+      '<li>Тым жақсы ұсыныс: сіз қатыспаған ұтыстан жүлде, «тегін» ойын валютасы.</li>',
+      '<li>SMS-кодты, құпиясөзді, карта нөмірін, CVV-кодты сұрайды.</li>',
+      '<li>Жіберушінің адресі немесе сілтеменің домені ресми сайттікі емес: <code>qazpay-bonus.top</code>, <code>qazpai.kz</code>.</li>',
+      '<li>Бейтаныс файлды ашуды сұрайды: <code>.apk</code>, <code>.exe</code>.</li>',
+      '<li>Атыңызды атамай, «Құрметті клиент» деп жалпы сөзбен жазады, мәтінде қате көп.</li>',
+      '</ul>',
+      '<h2 class="t-h1">2. Қауіпсіздік ережелері</h2>',
+      '<ul>',
+      '<li><b>Сенімді құпиясөз:</b> кемінде 12 таңба, бас және кіші әріптер, сандар, белгілер. Әр сайтқа — бөлек құпиясөз. Құпиясөзді ешкімге айтпаймыз.</li>',
+      '<li><b>Екі факторлы аутентификация:</b> құпиясөзден бөлек екінші растау (SMS-код, қосымшадағы код). Құпиясөз ұрланса да, аккаунтқа кіру қиын болады.</li>',
+      '<li><b>SMS-кодты, PIN-кодты, CVV-кодты</b> ешкімге айтпаймыз. Банк қызметкері оларды ешқашан сұрамайды.</li>',
+      '<li><b>Сілтемені тексереміз:</b> домен ресми сайттың доменімен дәл сәйкес пе? Күдік болса, сілтемені баспай, сайтты немесе ресми қосымшаны өзіміз ашамыз. <code>https://</code> белгісі сайттың шын екенін <b>кепілдемейді</b>: алаяқтар да оны қолданады.</li>',
+      '<li><b>Жеке деректер:</b> үй мекенжайын, телефонды, ЖСН-ді, құжаттардың суретін жарияламаймыз және бейтаныс адамдарға жібермейміз.</li>',
+      '<li>Бағдарламаларды тек <b>ресми дүкеннен</b> орнатамыз, жүйені жаңартып отырамыз.</li>',
+      '<li>Қоғамдық тегін Wi-Fi арқылы банк қосымшасына кірмейміз.</li>',
+      '<li>Досыңыздан күдікті хабар келсе, оған <b>басқа жолмен</b> (қоңырау шалып) хабарласып тексереміз.</li>',
+      '</ul>',
+      '<h2 class="t-h1">3. Интернеттегі агрессия</h2>',
+      '<ul>',
+      '<li><b>Кибербуллинг</b> — интернетте бір адамды жүйелі түрде қорлау, қорқыту, мазақ ету.</li>',
+      '<li><b>Троллинг</b> — жанжал тудыру үшін әдейі арандатушы хабарлама жазу.</li>',
+      '<li><b>Хейтинг</b> — адамға немесе топқа бағытталған негізсіз өшпенді пікірлер.</li>',
+      '<li><b>Кибершантаж</b> — «суретіңді/хатыңды жариялаймын» деп қорқытып, ақша немесе басқа нәрсе талап ету.</li>',
+      '<li><b>Жалған аккаунт</b> — басқа адамның атынан аккаунт ашып, оның атынан жазу.</li>',
+      '</ul>',
+      '<h3 class="t-h2">Агрессияға тап болсаңыз</h3>',
+      '<ol>',
+      '<li>Жауап бермеңіз, арандатуға ермеңіз.</li>',
+      '<li>Дәлел ретінде скриншот сақтаңыз.</li>',
+      '<li>Агрессорды бұғаттап, платформаға шағым жіберіңіз.</li>',
+      '<li>Ересектерге — ата-анаңызға, мұғалімге, мектеп психологына айтыңыз.</li>',
+      '<li>Шантажшыға ештеңе жібермеңіз және төлемеңіз. Қорқыту болса, ересектермен бірге полицияға жүгініңіз.</li>',
+      '</ol>',
+      '<h2 class="t-h1">4. Желілік этикет (нетикет)</h2>',
+      '<p><b>Нетикет</b> — интернетте қарым-қатынас жасаудың әдеп ережелері.</p>',
+      '<ul>',
+      '<li>Сыпайы болыңыз: экранның арғы жағында да тірі адам отыр.</li>',
+      '<li>Хабарламаны түгел БАС ӘРІППЕН жазбаңыз — бұл айғайлау деп қабылданады.</li>',
+      '<li>Спам мен жарнама жібермеңіз, топтық чатта тақырыптан ауытқымаңыз.</li>',
+      '<li>Басқа адамның суретін, хатын, деректерін оның рұқсатынсыз таратпаңыз.</li>',
+      '<li>Тексерілмеген ақпаратты (фейкті) таратпаңыз.</li>',
+      '<li>Түнде, демалыс уақытында хабарлама жібермеңіз.</li>',
+      '<li>Біреудің мәтінін, суретін пайдалансаңыз, авторын көрсетіңіз.</li>',
+      '</ul>',
+      '<h2 class="t-h1">5. Этикалық және құқықтық нормалар. Бұзудың салдары</h2>',
+      '<p><b>Этикалық норма</b> — жазылмаған мінез-құлық ережелері: сыпайылық, басқаның пікірін құрметтеу. Бұзсаңыз: беделіңіз түседі, достарыңыз сенбей қалады, топтан шығарады, платформа аккаунтты бұғаттауы мүмкін.</p>',
+      '<p><b>Құқықтық норма</b> — заңда жазылған ереже. Бұзсаңыз, заң бойынша жауапкершілік туады: тәртіптік (мектепте), әкімшілік (айыппұл), азаматтық (келтірілген зиянды өтеу), ауыр жағдайда — қылмыстық. Кәмелетке толмаған бала келтірген зиян үшін кейбір жағдайда оның ата-анасы жауап береді.</p>',
+      '<table class="t-table"><tr><th>Бұзушылық</th><th>Неге заңға қайшы</th></tr>',
+      '<tr><td>Алдап ақша немесе деректер алу</td><td>Алаяқтық — қылмыс</td></tr>',
+      '<tr><td>Бөгде аккаунтқа рұқсатсыз кіру</td><td>Компьютерлік ақпаратқа заңсыз қол жеткізу</td></tr>',
+      '<tr><td>Біреудің жеке деректерін, хатын, суретін рұқсатсыз тарату</td><td>Дербес деректерді қорғау туралы заңды бұзу, жеке өмірге қол сұғу</td></tr>',
+      '<tr><td>Басқаның шығармасын авторын көрсетпей пайдалану, пираттық</td><td>Авторлық құқықты бұзу</td></tr>',
+      '<tr><td>Жала жабу, қорлау, қорқыту</td><td>Адамның ар-намысы мен абыройына қол сұғу</td></tr>',
+      '</table>',
+      '<p><b>Цифрлық із</b> — интернеттегі әрекеттеріңізден қалатын ақпарат: жазбалар, суреттер, пікірлер, «лайктар». Жарияланған нәрсені біреу көшіріп үлгеруі мүмкін, сондықтан оны толық жою әрдайым мүмкін емес. Цифрлық із болашақта оқуға, жұмысқа түсуге әсер етуі мүмкін.</p>',
+    ].join('\n'),
+    ru: [
+      '<h1 class="t-title">Безопасность в сети. Сетевой этикет</h1>',
+      '<p class="t-sub">9.1.3.5 — соблюдать правила обеспечения безопасности пользователя в сети (интернет-мошенничество и агрессия)<br>9.1.3.6 — рассуждать о последствиях нарушения этических и правовых норм в сети</p>',
+      '<h2 class="t-h1">1. Интернет-мошенничество</h2>',
+      '<p><b>Интернет-мошенничество</b> — обман человека через интернет, чтобы завладеть его деньгами, личными данными или аккаунтом.</p>',
+      '<ul>',
+      '<li><b>Фишинг</b> — выманивание логина, пароля, данных банковской карты через поддельный сайт, письмо или сообщение. Поддельный сайт делают очень похожим на официальный.</li>',
+      '<li><b>Социальная инженерия</b> — обман, основанный на доверчивости, страхе или спешке человека. Например, звонят под видом «сотрудника банка» и просят SMS-код.</li>',
+      '<li><b>Фальшивые розыгрыши и подарки</b> — «Вы выиграли смартфон, оплатите только доставку».</li>',
+      '<li><b>Фальшивые интернет-магазины и объявления</b> — берут предоплату, но товар не отправляют.</li>',
+      '<li><b>Взломанный аккаунт</b> — с аккаунта друга приходит «займи денег» или «проголосуй по этой ссылке».</li>',
+      '</ul>',
+      '<h3 class="t-h2">Признаки мошенничества</h3>',
+      '<ul>',
+      '<li>Торопят или пугают: «в течение 24 часов», «ваш счёт будет заблокирован».</li>',
+      '<li>Слишком хорошее предложение: приз в розыгрыше, в котором вы не участвовали, «бесплатная» игровая валюта.</li>',
+      '<li>Просят SMS-код, пароль, номер карты, CVV-код.</li>',
+      '<li>Адрес отправителя или домен ссылки не совпадает с официальным: <code>qazpay-bonus.top</code>, <code>qazpai.kz</code>.</li>',
+      '<li>Просят открыть незнакомый файл: <code>.apk</code>, <code>.exe</code>.</li>',
+      '<li>Обращаются безлично («Уважаемый клиент»), в тексте много ошибок.</li>',
+      '</ul>',
+      '<h2 class="t-h1">2. Правила безопасности</h2>',
+      '<ul>',
+      '<li><b>Надёжный пароль:</b> не меньше 12 символов, заглавные и строчные буквы, цифры, знаки. Для каждого сайта — свой пароль. Пароль никому не сообщаем.</li>',
+      '<li><b>Двухфакторная аутентификация:</b> кроме пароля — второе подтверждение (SMS-код, код в приложении). Даже если пароль украдут, войти в аккаунт будет трудно.</li>',
+      '<li><b>SMS-код, PIN-код, CVV-код</b> никому не сообщаем. Сотрудник банка никогда их не спрашивает.</li>',
+      '<li><b>Проверяем ссылку:</b> точно ли домен совпадает с доменом официального сайта? Если есть сомнения, не нажимаем на ссылку, а сами открываем сайт или официальное приложение. Значок <code>https://</code> <b>не гарантирует</b>, что сайт настоящий: мошенники тоже им пользуются.</li>',
+      '<li><b>Личные данные:</b> не публикуем и не отправляем незнакомым домашний адрес, телефон, ИИН, фото документов.</li>',
+      '<li>Программы устанавливаем только из <b>официального магазина</b>, систему обновляем.</li>',
+      '<li>Через общественный бесплатный Wi-Fi не входим в банковское приложение.</li>',
+      '<li>Если от друга пришло подозрительное сообщение, проверяем, связавшись с ним <b>другим способом</b> (позвонив).</li>',
+      '</ul>',
+      '<h2 class="t-h1">3. Агрессия в интернете</h2>',
+      '<ul>',
+      '<li><b>Кибербуллинг</b> — систематическая травля человека в интернете: оскорбления, угрозы, насмешки.</li>',
+      '<li><b>Троллинг</b> — намеренные провокационные сообщения, чтобы вызвать конфликт.</li>',
+      '<li><b>Хейтинг</b> — необоснованные враждебные высказывания в адрес человека или группы.</li>',
+      '<li><b>Кибершантаж</b> — угрозы «опубликовать твоё фото/переписку», чтобы потребовать деньги или что-то другое.</li>',
+      '<li><b>Фейковый аккаунт</b> — аккаунт, созданный от имени другого человека, чтобы писать от его лица.</li>',
+      '</ul>',
+      '<h3 class="t-h2">Если вы столкнулись с агрессией</h3>',
+      '<ol>',
+      '<li>Не отвечайте, не поддавайтесь на провокацию.</li>',
+      '<li>Сохраните скриншот как доказательство.</li>',
+      '<li>Заблокируйте агрессора и отправьте жалобу платформе.</li>',
+      '<li>Расскажите взрослым — родителям, учителю, школьному психологу.</li>',
+      '<li>Ничего не отправляйте шантажисту и не платите. Если есть угрозы, вместе со взрослыми обратитесь в полицию.</li>',
+      '</ol>',
+      '<h2 class="t-h1">4. Сетевой этикет (нетикет)</h2>',
+      '<p><b>Нетикет</b> — правила вежливого общения в интернете.</p>',
+      '<ul>',
+      '<li>Будьте вежливы: по ту сторону экрана тоже живой человек.</li>',
+      '<li>Не пишите сообщения целиком ЗАГЛАВНЫМИ БУКВАМИ — это воспринимается как крик.</li>',
+      '<li>Не рассылайте спам и рекламу, в групповом чате не уходите от темы.</li>',
+      '<li>Не распространяйте чужие фото, переписку, данные без разрешения.</li>',
+      '<li>Не распространяйте непроверенную информацию (фейки).</li>',
+      '<li>Не пишите ночью и в нерабочее время.</li>',
+      '<li>Если используете чужой текст или фото, указывайте автора.</li>',
+      '</ul>',
+      '<h2 class="t-h1">5. Этические и правовые нормы. Последствия нарушений</h2>',
+      '<p><b>Этическая норма</b> — неписаное правило поведения: вежливость, уважение к чужому мнению. Если нарушить: падает репутация, друзья перестают доверять, исключают из группы, платформа может заблокировать аккаунт.</p>',
+      '<p><b>Правовая норма</b> — правило, записанное в законе. Если нарушить, наступает ответственность по закону: дисциплинарная (в школе), административная (штраф), гражданская (возмещение причинённого вреда), в тяжёлых случаях — уголовная. За вред, причинённый несовершеннолетним, в ряде случаев отвечают его родители.</p>',
+      '<table class="t-table"><tr><th>Нарушение</th><th>Почему противоречит закону</th></tr>',
+      '<tr><td>Обманом получить деньги или данные</td><td>Мошенничество — преступление</td></tr>',
+      '<tr><td>Войти в чужой аккаунт без разрешения</td><td>Неправомерный доступ к компьютерной информации</td></tr>',
+      '<tr><td>Распространить чужие личные данные, переписку, фото без разрешения</td><td>Нарушение закона о защите персональных данных, вмешательство в частную жизнь</td></tr>',
+      '<tr><td>Использовать чужое произведение без указания автора, пиратство</td><td>Нарушение авторского права</td></tr>',
+      '<tr><td>Клевета, оскорбления, угрозы</td><td>Посягательство на честь и достоинство человека</td></tr>',
+      '</table>',
+      '<p><b>Цифровой след</b> — информация, которая остаётся после ваших действий в интернете: посты, фото, комментарии, «лайки». Опубликованное кто-то может успеть скопировать, поэтому удалить его полностью удаётся не всегда. Цифровой след может повлиять на поступление в вуз и на работу в будущем.</p>',
+    ].join('\n'),
+  };
+
+  // ---------------- Банки тапсырмалар ----------------
+  var TERMS = [
+    [K('Фишинг', 'Фишинг'), K('Жалған сайт немесе хат арқылы логин, құпиясөз, карта деректерін алдап алу', 'Выманивание логина, пароля, данных карты через поддельный сайт или письмо')],
+    [K('Кибербуллинг', 'Кибербуллинг'), K('Интернетте бір адамды жүйелі түрде қорлау, қорқыту, мазақ ету', 'Систематическая травля человека в интернете: оскорбления, угрозы, насмешки')],
+    [K('Троллинг', 'Троллинг'), K('Жанжал тудыру үшін әдейі арандатушы хабарлама жазу', 'Намеренные провокационные сообщения, чтобы вызвать конфликт')],
+    [K('Спам', 'Спам'), K('Алушының келісімінсіз жаппай жіберілетін жарнама немесе хабарлама', 'Массовая рассылка рекламы или сообщений без согласия получателя')],
+    [K('Екі факторлы аутентификация', 'Двухфакторная аутентификация'), K('Құпиясөзден бөлек екінші растау (мысалы, SMS-код) арқылы кіру', 'Вход с дополнительным подтверждением кроме пароля (например, SMS-кодом)')],
+    [K('Цифрлық із', 'Цифровой след'), K('Интернеттегі әрекеттерден қалатын ақпарат: жазбалар, суреттер, пікірлер', 'Информация, которая остаётся после действий в интернете: посты, фото, комментарии')],
+    [K('Әлеуметтік инженерия', 'Социальная инженерия'), K('Адамның сенгіштігін, қорқынышын немесе асығыстығын пайдаланып алдау', 'Обман, основанный на доверчивости, страхе или спешке человека')],
+    [K('Нетикет', 'Нетикет'), K('Интернетте қарым-қатынас жасаудың әдеп ережелері', 'Правила вежливого общения в интернете')],
+    [K('Плагиат', 'Плагиат'), K('Біреудің жұмысын авторын көрсетпей өз атынан ұсыну', 'Выдача чужой работы за свою без указания автора')],
+    [K('Кибершантаж', 'Кибершантаж'), K('«Суретіңді жариялаймын» деп қорқытып, бірдеңе талап ету', 'Угрозы «опубликовать твоё фото», чтобы что-то потребовать')],
+  ];
+
+  // Бос орынды толтыру: мәтін бөліктері; {b: n} — n-бос орын. opts[0] — дұрыс жауап (көрсеткенде араласады).
+  var FILLS = [
+    {
+      kz: ['Сенімді құпиясөзде кемінде ', { b: 0 }, ' таңба болады. Банк қызметкері SMS-', { b: 1 }, ' ешқашан сұрамайды. Әр сайтқа ', { b: 2 }, ' құпиясөз қолданамыз. Құпиясөзден бөлек ', { b: 3 }, ' аутентификацияны қосамыз. Бейтаныс сілтемені баспас бұрын сайттың ', { b: 4 }, ' тексереміз. Бағдарламаларды тек ', { b: 5 }, ' дүкеннен орнатамыз.'],
+      ru: ['В надёжном пароле не меньше ', { b: 0 }, ' символов. Сотрудник банка никогда не спрашивает SMS-', { b: 1 }, '. Для каждого сайта используем ', { b: 2 }, ' пароль. Кроме пароля включаем ', { b: 3 }, ' аутентификацию. Прежде чем нажать на незнакомую ссылку, проверяем ', { b: 4 }, ' сайта. Программы устанавливаем только из ', { b: 5 }, ' магазина.'],
+      blanks: [
+        [K('12', '12'), K('4', '4'), K('6', '6')],
+        [K('кодты', 'код'), K('жаңалықты', 'новости'), K('сәлемдесуді', 'приветствие')],
+        [K('бөлек', 'отдельный'), K('бірдей', 'одинаковый'), K('қысқа', 'короткий')],
+        [K('екі факторлы', 'двухфакторную'), K('бір факторлы', 'однофакторную'), K('қарапайым', 'простую')],
+        [K('доменін', 'домен'), K('түсін', 'цвет'), K('суреттерін', 'картинки')],
+        [K('ресми', 'официального'), K('кез келген', 'любого'), K('бейтаныс', 'незнакомого')],
+      ],
+    },
+    {
+      kz: ['Интернетте бір адамды жүйелі түрде қорлау — ', { b: 0 }, '. Сізді қорласа, ', { b: 1 }, ' және дәлел ретінде ', { b: 2 }, ' сақтаңыз. Агрессорды ', { b: 3 }, ', платформаға шағым жіберіңіз. Бұл туралы міндетті түрде ', { b: 4 }, ' айтыңыз. Хабарламаны түгел БАС ӘРІППЕН жазу ', { b: 5 }, ' деп қабылданады.'],
+      ru: ['Систематическая травля человека в интернете — это ', { b: 0 }, '. Если вас оскорбляют, ', { b: 1 }, ' и сохраните ', { b: 2 }, ' как доказательство. ', { b: 3 }, ' агрессора и отправьте жалобу платформе. Обязательно расскажите об этом ', { b: 4 }, '. Сообщение, целиком написанное ЗАГЛАВНЫМИ БУКВАМИ, воспринимается как ', { b: 5 }, '.'],
+      blanks: [
+        [K('кибербуллинг', 'кибербуллинг'), K('спам', 'спам'), K('фишинг', 'фишинг')],
+        [K('жауап бермеңіз', 'не отвечайте'), K('дәл сондай сөзбен жауап қайтарыңыз', 'ответьте тем же'), K('бәрін жойып жіберіңіз', 'удалите всё')],
+        [K('скриншот', 'скриншот'), K('құпиясөз', 'пароль'), K('үй мекенжайын', 'домашний адрес')],
+        [K('бұғаттап', 'Заблокируйте'), K('досыңызға қосып', 'Добавьте в друзья'), K('мақтап', 'Похвалите')],
+        [K('ересектерге', 'взрослым'), K('ешкімге', 'никому'), K('агрессордың өзіне', 'самому агрессору')],
+        [K('айғайлау', 'крик'), K('сыпайылық', 'вежливость'), K('әзіл', 'шутка')],
+      ],
+    },
+  ];
+
+  var TF = [
+    [K('https:// белгісі бар сайт әрқашан қауіпсіз.', 'Сайт со значком https:// всегда безопасен.'), false,
+      K('Алаяқтар да https қолданады. Доменді тексеру керек.', 'Мошенники тоже используют https. Нужно проверять домен.')],
+    [K('Банк қызметкері SMS-кодты ешқашан сұрамайды.', 'Сотрудник банка никогда не спрашивает SMS-код.'), true,
+      K('SMS-кодты сұрайтын «банк қызметкері» — алаяқ.', '«Сотрудник банка», который спрашивает SMS-код, — мошенник.')],
+    [K('Бір құпиясөзді барлық сайтқа қолдану ыңғайлы әрі қауіпсіз.', 'Использовать один пароль для всех сайтов удобно и безопасно.'), false,
+      K('Бір сайттан құпиясөз ұрланса, барлық аккаунт қауіпке түседі.', 'Если пароль украдут с одного сайта, под угрозой окажутся все аккаунты.')],
+    [K('Интернетке жарияланған суретті кейін толық жоюға әрқашан болады.', 'Опубликованное в интернете фото всегда можно потом полностью удалить.'), false,
+      K('Суретті біреу көшіріп үлгеруі мүмкін — ол цифрлық ізде қалады.', 'Фото могут успеть скопировать — оно остаётся в цифровом следе.')],
+    [K('Кибербуллингке тап болғанда скриншот сақтау керек.', 'При кибербуллинге нужно сохранять скриншоты.'), true,
+      K('Скриншот — шағым жасағанда керек дәлел.', 'Скриншот — доказательство для жалобы.')],
+    [K('Досыңның аккаунтынан «қарыз бере тұршы» деген хабар келсе, оған қоңырау шалып тексеру керек.', 'Если с аккаунта друга пришло «займи денег», нужно позвонить ему и проверить.'), true,
+      K('Аккаунт бұзылған болуы мүмкін — басқа жолмен тексереміз.', 'Аккаунт мог быть взломан — проверяем другим способом.')],
+    [K('Біреудің суретін оның рұқсатынсыз жариялау — желілік этиканы бұзу.', 'Публиковать чужое фото без разрешения — нарушение сетевой этики.'), true,
+      K('Басқаның суреті мен деректерін рұқсатсыз таратпаймыз.', 'Чужие фото и данные без разрешения не распространяем.')],
+    [K('Интернеттегі мәтінді авторын көрсетпей рефератқа қосу әдепке де, заңға да қайшы емес.', 'Вставить текст из интернета в реферат без указания автора — не противоречит ни этике, ни закону.'), false,
+      K('Бұл — плагиат және авторлық құқықты бұзу.', 'Это плагиат и нарушение авторского права.')],
+    [K('Қоғамдық тегін Wi-Fi арқылы банк қосымшасына кіру қауіпсіз.', 'Входить в банковское приложение через общественный бесплатный Wi-Fi безопасно.'), false,
+      K('Ашық желіде деректерді ұстап алуы мүмкін.', 'В открытой сети данные могут перехватить.')],
+    [K('Троллға жауап бермеу — арандатуды тоқтатудың бір жолы.', 'Не отвечать троллю — один из способов остановить провокацию.'), true,
+      K('Тролль жауапты күтеді; жауап болмаса, жанжал өршімейді.', 'Тролль ждёт реакции; без ответа конфликт не разгорается.')],
+    [K('Ұтыс үшін бейтаныс адам карта нөмірі мен CVV-кодты сұраса, айтуға болады.', 'Если незнакомец просит номер карты и CVV-код ради розыгрыша, их можно сообщить.'), false,
+      K('CVV-кодты ешкімге айтпаймыз — бұл алаяқтық.', 'CVV-код никому не сообщаем — это мошенничество.')],
+    [K('Тексерілмеген ақпаратты (фейкті) тарату да зиян келтіруі мүмкін.', 'Распространение непроверенной информации (фейков) тоже может причинить вред.'), true,
+      K('Фейк дүрбелең тудырып, адамдарды адастырады.', 'Фейк вызывает панику и вводит людей в заблуждение.')],
+  ];
+
+  // Күдікті белгілерді табу: bad — күдікті бөлік.
+  var PHISH = [
+    {
+      head: K('Электрондық хат', 'Электронное письмо'),
+      parts: [
+        [K('Кімнен: QazPay Қолдау қызметі <support@qazpay-bonus.top>', 'От: Служба поддержки QazPay <support@qazpay-bonus.top>'), true, K('Домен ресми емес: ресми сайт — qazpay.kz.', 'Домен не официальный: официальный сайт — qazpay.kz.')],
+        [K('Тақырыбы: Шотыңыз бұғатталады!', 'Тема: Ваш счёт будет заблокирован!'), true, K('Қорқытады.', 'Запугивают.')],
+        [K('Құрметті клиент!', 'Уважаемый клиент!'), true, K('Атыңызды атамайды — жаппай таратылған хат.', 'Не называют по имени — массовая рассылка.')],
+        [K('Шотыңызда күдікті әрекет анықталды.', 'На вашем счёте обнаружена подозрительная активность.'), false, K('Бұл сөйлемнің өзі ештеңе талап етпейді.', 'Само по себе это предложение ничего не требует.')],
+        [K('24 сағат ішінде растамасаңыз, шот біржола жабылады.', 'Если не подтвердите в течение 24 часов, счёт будет закрыт навсегда.'), true, K('Асықтырады.', 'Торопят.')],
+        [K('Растау үшін сілтемеге өтіңіз: http://qazpay-bonus.top/login', 'Для подтверждения перейдите по ссылке: http://qazpay-bonus.top/login'), true, K('Сілтеме бөгде доменге апарады.', 'Ссылка ведёт на чужой домен.')],
+        [K('Сондай-ақ телефоныңызға келген SMS-кодты осы хатқа жауап ретінде жіберіңіз.', 'Также отправьте SMS-код из телефона в ответ на это письмо.'), true, K('SMS-кодты сұрайды.', 'Просят SMS-код.')],
+        [K('Құрметпен, QazPay командасы.', 'С уважением, команда QazPay.'), false, K('Қол қою — қалыпты бөлік.', 'Подпись — обычная часть письма.')],
+      ],
+    },
+    {
+      head: K('Мессенджердегі хабарлама', 'Сообщение в мессенджере'),
+      parts: [
+        [K('Бейтаныс нөмір: «Mega Prize» ұтыс ойыны', 'Незнакомый номер: розыгрыш «Mega Prize»'), true, K('Бейтаныс жіберуші, сіз бұл ұтысқа қатыспағансыз.', 'Незнакомый отправитель, вы не участвовали в этом розыгрыше.')],
+        [K('Құттықтаймыз! Сіз жаңа смартфон ұттыңыз!', 'Поздравляем! Вы выиграли новый смартфон!'), true, K('Тым жақсы ұсыныс.', 'Слишком хорошее предложение.')],
+        [K('Біз жеңімпаздарды ай сайын анықтаймыз.', 'Мы определяем победителей каждый месяц.'), false, K('Бұл сөйлемнің өзі ештеңе талап етпейді.', 'Само по себе это предложение ничего не требует.')],
+        [K('Сыйлықты алу үшін тек жеткізу ақысын — 2 990 ₸ төлеңіз.', 'Чтобы получить подарок, оплатите только доставку — 2 990 ₸.'), true, K('Алдын ала төлем сұрайды.', 'Просят предоплату.')],
+        [K('Төлем үшін карта нөмірін, мерзімін және CVV-кодты жазыңыз.', 'Для оплаты напишите номер карты, срок действия и CVV-код.'), true, K('Карта деректері мен CVV-кодты сұрайды.', 'Просят данные карты и CVV-код.')],
+        [K('Ұсыныс тек 1 сағатқа ғана жарамды!', 'Предложение действует всего 1 час!'), true, K('Асықтырады.', 'Торопят.')],
+        [K('Ұтыс ережесі мына файлда: prize_rules.apk', 'Правила розыгрыша в файле: prize_rules.apk'), true, K('.apk — орнатылатын бағдарлама, вирус болуы мүмкін.', '.apk — устанавливаемая программа, может быть вирусом.')],
+        [K('Сәттілік тілейміз!', 'Желаем удачи!'), false, K('Тілек — қалыпты бөлік.', 'Пожелание — обычная часть сообщения.')],
+      ],
+    },
+  ];
+
+  // Сілтемені тексеру: ресми сайт — qazpay.kz
+  var URLS = [
+    ['https://qazpay.kz/login', 0, K('Ресми домен qazpay.kz.', 'Официальный домен qazpay.kz.')],
+    ['https://my.qazpay.kz/cards', 0, K('my.qazpay.kz — ресми доменнің ішкі бөлімі (субдомен).', 'my.qazpay.kz — поддомен официального домена.')],
+    ['https://help.qazpay.kz', 0, K('help.qazpay.kz — ресми доменнің ішкі бөлімі.', 'help.qazpay.kz — поддомен официального домена.')],
+    ['https://qazpay-bonus.top/login', 1, K('Домен — qazpay-bonus.top, ресми емес.', 'Домен — qazpay-bonus.top, не официальный.')],
+    ['https://qazpai.kz/login', 1, K('Бір әріп ауыстырылған: qazpai, qazpay емес.', 'Заменена одна буква: qazpai, а не qazpay.')],
+    ['https://qazpay.kz.secure-login.top', 1, K('Нақты домен — secure-login.top; qazpay.kz тек алдына жазылған.', 'Настоящий домен — secure-login.top; qazpay.kz лишь приписан в начало.')],
+    ['http://qazpay-kz.com/sale', 1, K('Домен — qazpay-kz.com, ресми емес.', 'Домен — qazpay-kz.com, не официальный.')],
+    ['https://qazpay.kz-prize.net', 1, K('Нақты домен — kz-prize.net.', 'Настоящий домен — kz-prize.net.')],
+  ];
+
+  var SAFETY = [
+    [K('Екі факторлы аутентификацияны қосу', 'Включить двухфакторную аутентификацию'), 0],
+    [K('12 таңбадан ұзын, әріп, сан және белгісі бар құпиясөз жасау', 'Придумать пароль длиннее 12 символов с буквами, цифрами и знаками'), 0],
+    [K('Бағдарламаны тек ресми дүкеннен орнату', 'Устанавливать программы только из официального магазина'), 0],
+    [K('Күдікті сілтемені баспай, банк қосымшасын өзі ашу', 'Не нажимать на подозрительную ссылку, а самому открыть приложение банка'), 0],
+    [K('Қорлаған адамды бұғаттап, платформаға шағым жіберу', 'Заблокировать обидчика и отправить жалобу платформе'), 0],
+    [K('Бейтаныс адамға үй мекенжайын айтпау', 'Не сообщать незнакомцу домашний адрес'), 0],
+    [K('SMS-кодты «банк қызметкеріне» айту', 'Сообщить SMS-код «сотруднику банка»'), 1],
+    [K('Барлық сайтқа бір құпиясөз қолдану', 'Использовать один пароль для всех сайтов'), 1],
+    [K('Хатпен келген .apk файлды орнату', 'Установить .apk-файл, пришедший в письме'), 1],
+    [K('Интернеттегі бейтаныс таныспен кездесуге жалғыз бару', 'Пойти одному на встречу с незнакомцем из интернета'), 1],
+    [K('Жеке куәліктің суретін әлеуметтік желіге салу', 'Выложить фото удостоверения личности в соцсеть'), 1],
+    [K('Ұтыс үшін жеткізу ақысын алдын ала төлеу', 'Оплатить «доставку» приза заранее'), 1],
+  ];
+
+  // Құпиясөздерді әлсізден күштіге қарай реттеу (ұзындығы мен таңба түрлері анық өседі)
+  var PASSWORDS = [
+    ['1234', 'aigerim', 'Aigerim2010', 'Kitap#Taudan7-Kun!'],
+    ['0000', 'qwerty12', 'Samal_2009', 'Sary-Arqa#5Ozen!Tau'],
+    ['1111', 'dosym', 'Dosym2011', 'Alma!Bes7#Qala-Tun'],
+  ];
+
+  // Чат-тренажёр: әр қадамда opts[0] — дұрыс жауап
+  var CHATS = [
+    {
+      who: K('Ойындағы бейтаныс', 'Незнакомец в игре'),
+      steps: [
+        [K('Сәлем! Сен керемет ойнайды екенсің 😊 Нешедесің? Қай мектепте оқисың?', 'Привет! Ты классно играешь 😊 Сколько тебе лет? В какой школе учишься?'),
+          [K('Рақмет! Ол туралы айтпаймын, ойын туралы сөйлесейік.', 'Спасибо! Об этом не скажу, давай про игру.'),
+            K('14-темін, №25 мектепте оқимын.', 'Мне 14, учусь в школе №25.'),
+            K('Саған не керек, ақымақ?', 'Тебе какое дело, дурак?')],
+          K('Жеке деректерді бейтанысқа айтпаймыз, бірақ дөрекі болудың да қажеті жоқ.', 'Личные данные незнакомцу не сообщаем, но и грубить не нужно.')],
+        [K('Мен саған ойын валютасын тегін беремін! Тек аккаунтыңның логині мен құпиясөзін жаз.', 'Я подарю тебе игровую валюту бесплатно! Только напиши логин и пароль от аккаунта.'),
+          [K('Жоқ, құпиясөзімді ешкімге бермеймін.', 'Нет, свой пароль я никому не даю.'),
+            K('Жарайды, логин мен құпиясөзім мынау: …', 'Ладно, вот мой логин и пароль: …'),
+            K('Алдымен валютаны жібер, содан кейін айтамын.', 'Сначала пришли валюту, потом скажу.')],
+          K('«Тегін» сыйлық — аккаунтты ұрлаудың жиі тәсілі. Құпиясөзді ешкімге бермейміз.', '«Бесплатный» подарок — частый способ украсть аккаунт. Пароль никому не даём.')],
+        [K('Сен сараңсың ғой! Онда суретіңді жібер, әйтпесе барлығына сен туралы өтірік жазамын!', 'Жадина! Тогда пришли своё фото, иначе напишу про тебя всем гадости!'),
+          [K('Скриншот жасаймын, оны бұғаттап, ересектерге айтамын.', 'Сделаю скриншот, заблокирую его и расскажу взрослым.'),
+            K('Жарайды, суретімді жіберейін, тек ешкімге жазба.', 'Ладно, пришлю фото, только никому не пиши.'),
+            K('Мен де сен туралы өтірік жазамын!', 'А я тоже про тебя гадости напишу!')],
+          K('Бұл — шантаж. Талапты орындамаймыз, дәлел сақтап, бұғаттап, ересектерге айтамыз.', 'Это шантаж. Требование не выполняем, сохраняем доказательства, блокируем, рассказываем взрослым.')],
+      ],
+    },
+    {
+      who: K('«QazPay қауіпсіздік қызметі»', '«Служба безопасности QazPay»'),
+      steps: [
+        [K('Сәлеметсіз бе! QazPay қауіпсіздік қызметі. Картаңыздан қазір күдікті аударым жасалып жатыр.', 'Здравствуйте! Служба безопасности QazPay. С вашей карты сейчас проходит подозрительный перевод.'),
+          [K('Мен банктің ресми нөміріне өзім қоңырау шаламын.', 'Я сам(а) позвоню на официальный номер банка.'),
+            K('Не істеуім керек? Тез айтыңызшы!', 'Что мне делать? Скажите быстрее!'),
+            K('Картамның нөмірін тексеріңізші: 4400 …', 'Проверьте номер моей карты: 4400 …')],
+          K('Хабарласқан адамның кім екенін тексере алмаймыз. Банктің ресми нөміріне өзіміз хабарласамыз.', 'Мы не можем проверить, кто нам пишет. Сами связываемся с банком по официальному номеру.')],
+        [K('Аударымды тоқтату үшін қазір келген SMS-кодты айтыңыз.', 'Чтобы остановить перевод, назовите SMS-код, который сейчас пришёл.'),
+          [K('Кодты ешкімге айтпаймын. Сөйлесуді тоқтатамын.', 'Код никому не сообщаю. Прекращаю разговор.'),
+            K('Код: 4821', 'Код: 4821'),
+            K('Кодтың тек алғашқы екі санын айтайын.', 'Скажу только первые две цифры кода.')],
+          K('SMS-кодты банк ешқашан сұрамайды. Кодтың бір бөлігін де айтпаймыз.', 'Банк никогда не спрашивает SMS-код. Даже часть кода не называем.')],
+        [K('Сіз ақшаңыздан айырыласыз! Тез арада «қауіпсіз шотқа» аударыңыз!', 'Вы потеряете деньги! Срочно переведите их на «безопасный счёт»!'),
+          [K('Ата-анама айтып, банкке ресми нөмір арқылы бірге хабарласамыз.', 'Расскажу родителям, и вместе свяжемся с банком по официальному номеру.'),
+            K('Жарайды, ақшаны сіз айтқан шотқа аударайын.', 'Хорошо, переведу деньги на указанный вами счёт.'),
+            K('Сіз жіберген қосымшаны орнатайын.', 'Установлю приложение, которое вы прислали.')],
+          K('«Қауіпсіз шот» — алаяқтардың белгілі айласы. Ересектерге айтамыз.', '«Безопасный счёт» — известная уловка мошенников. Рассказываем взрослым.')],
+      ],
+    },
+  ];
+
+  // Топтық чатта нетикетті бұзған хабарламалар (bad)
+  var NETCHAT = [
+    [K('Айгерім', 'Айгерим'), '18:02', K('Сәлеметсіздер ме! Ертеңгі жобаның тапсырмасын кім біледі?', 'Всем привет! Кто знает задание по завтрашнему проекту?'), false, K('Сыпайы сұрақ.', 'Вежливый вопрос.')],
+    [K('Нұрлан', 'Нурлан'), '18:05', K('ОЙ, БӘРІҢ ЖАЛҚАУСЫҢДАР!!! ӨЗДЕРІҢ ІЗДЕҢДЕР!!!', 'ВЫ ВСЕ ЛЕНТЯИ!!! ИЩИТЕ САМИ!!!'), true, K('Бас әріппен «айғайлау» және қорлау.', '«Крик» заглавными буквами и оскорбление.')],
+    [K('Дана', 'Дана'), '18:07', K('Тапсырма күнделікте бар: 45-бет, 3-жаттығу.', 'Задание есть в дневнике: стр. 45, упр. 3.'), false, K('Пайдалы жауап.', 'Полезный ответ.')],
+    [K('Арман', 'Арман'), '18:09', K('Арзан ойын валютасы!!! Сілтемеге өтіңдер: bit.ly/xx7q', 'Дешёвая игровая валюта!!! Переходите по ссылке: bit.ly/xx7q'), true, K('Спам және тақырыпқа қатысы жоқ жарнама.', 'Спам и реклама не по теме.')],
+    [K('Нұрлан', 'Нурлан'), '18:12', K('Мына Дананың суретін қараңдар, күлкілі 😂 [сурет]', 'Гляньте на фото Даны, смешно 😂 [фото]'), true, K('Басқаның суретін рұқсатсыз тарату және мазақ ету.', 'Чужое фото без разрешения и насмешка.')],
+    [K('Айгерім', 'Айгерим'), '18:13', K('Рақмет, Дана! 🙏', 'Спасибо, Дана! 🙏'), false, K('Сыпайы алғыс.', 'Вежливая благодарность.')],
+    [K('Дана', 'Дана'), '18:15', K('Нұрлан, өтінемін, басқаның суретін рұқсатсыз жібермеші.', 'Нурлан, пожалуйста, не отправляй чужие фото без разрешения.'), false, K('Сыпайы түрде ескерту жасады.', 'Вежливо сделала замечание.')],
+    [K('Арман', 'Арман'), '18:20', K('Ертең тест болады деп естідім, бірақ нақты білмеймін — мұғалімнен сұрайық.', 'Слышал, что завтра тест, но точно не знаю — давайте спросим учителя.'), false, K('Ақпараттың тексерілмегенін ашық айтты.', 'Честно сказал, что информация не проверена.')],
+    [K('Тимур', 'Тимур'), '23:58', K('Естідіңдер ме? Ертең мектеп жабылады дейді, бәріне таратыңдар!!!', 'Слышали? Говорят, завтра школу закроют, разошлите всем!!!'), true, K('Тексерілмеген ақпаратты (фейкті) тарату.', 'Распространение непроверенной информации (фейка).')],
+    [K('Тимур', 'Тимур'), '02:47', K('Ертең бақылау жұмысы бар ма?', 'Завтра контрольная есть?'), true, K('Түнде хабарлама жіберу — бәрін оятады.', 'Сообщение глубокой ночью — всех будит.')],
+  ];
+
+  // Жағдаят талдау (9.1.3.6): ok — дұрыс тұжырым
+  var CASES = [
+    {
+      text: K('Ерлан сыныптасының суретін өңдеп, күлкілі мем жасады да, мектептің топтық чатына жіберді. Мем бірнеше сағатта көп чатқа тарап кетті.',
+        'Ерлан обработал фото одноклассника, сделал смешной мем и отправил в школьный групповой чат. За несколько часов мем разошёлся по многим чатам.'),
+      opts: [
+        [K('Сыныптасы психологиялық тұрғыдан зардап шегуі мүмкін.', 'Одноклассник может пострадать психологически.'), true],
+        [K('Ерланның беделі түсіп, достары оған сенбей қалуы мүмкін.', 'Репутация Ерлана может упасть, друзья перестанут ему доверять.'), true],
+        [K('Мектеп Ерланға тәртіптік шара қолдануы мүмкін.', 'Школа может применить к Ерлану дисциплинарные меры.'), true],
+        [K('Мем көшіріліп, Ерланның цифрлық ізінде қалады.', 'Мем скопируют, и он останется в цифровом следе Ерлана.'), true],
+        [K('Мем бір күннен кейін өзі жойылады, ешқандай салдар болмайды.', 'Через день мем сам исчезнет, последствий не будет.'), false],
+        [K('Бұл тек әзіл, сондықтан ешкім жауап бермейді.', 'Это просто шутка, поэтому никто не несёт ответственности.'), false],
+      ],
+    },
+    {
+      text: K('Әйгерім рефератын интернеттегі мақаладан көшіріп алып, бірнеше сөзін ауыстырды да, авторын көрсетпей өз атынан тапсырды.',
+        'Айгерим скопировала реферат из статьи в интернете, заменила несколько слов и сдала от своего имени, не указав автора.'),
+      opts: [
+        [K('Бұл — плагиат, авторлық құқықты бұзу.', 'Это плагиат, нарушение авторского права.'), true],
+        [K('Мұғалім жұмысты қабылдамауы мүмкін.', 'Учитель может не принять работу.'), true],
+        [K('Әйгерім тақырыпты өз бетімен түсінуді үйренбейді.', 'Айгерим не научится самостоятельно разбираться в теме.'), true],
+        [K('Интернеттегі мәтін ешкімге тиесілі емес, оны еркін пайдалануға болады.', 'Тексты в интернете ничьи, их можно свободно использовать.'), false],
+        [K('Бірнеше сөзді ауыстырса, мәтін Әйгерімдікі болып шығады.', 'Если заменить несколько слов, текст становится собственным.'), false],
+      ],
+    },
+    {
+      text: K('Данияр досының құпиясөзін біліп қойып, оның аккаунтына рұқсатсыз кірді, жеке хаттарын оқып, скриншоттарын басқаларға таратты.',
+        'Данияр узнал пароль друга, без разрешения вошёл в его аккаунт, прочитал личную переписку и разослал скриншоты другим.'),
+      opts: [
+        [K('Бөгде аккаунтқа рұқсатсыз кіру — құқық бұзушылық.', 'Вход в чужой аккаунт без разрешения — правонарушение.'), true],
+        [K('Жеке хаттарды тарату — жеке өмірге қол сұғу.', 'Распространение личной переписки — вмешательство в частную жизнь.'), true],
+        [K('Досы мен оның отбасы Даниярға шағымдана алады.', 'Друг и его семья могут подать на Данияра жалобу.'), true],
+        [K('Құпиясөзді білсе, аккаунтқа кіруге рұқсат бар деген сөз.', 'Если знаешь пароль, значит, входить в аккаунт разрешено.'), false],
+        [K('Скриншоттарды кейін жойса, ешқандай із қалмайды.', 'Если потом удалить скриншоты, никаких следов не останется.'), false],
+      ],
+    },
+  ];
+
+  // ---------------- Генератор ----------------
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function shuffle(a, r) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  function pick(a, n, r) { return shuffle(a, r).slice(0, n); }
+  function range(n) { var a = []; for (var i = 0; i < n; i++) a.push(i); return a; }
+  // Перестановка без неподвижных точек: в «Ретке келтір» ни один элемент не стоит на месте с самого начала
+  function derange(n, r) { for (;;) { var p = shuffle(range(n), r); if (p.every(function (v, i) { return v !== i; })) return p; } }
+
+  function generate(seed) {
+    var r = rng(seed), T = [];
+    // 1. Сәйкестендіру
+    var terms = pick(TERMS, 5, r), perm = shuffle(range(5), r);
+    T.push({ type: 'match', obj: '9.1.3.5', title: K('Терминді анықтамамен сәйкестендіріңіз', 'Сопоставьте термин и определение'),
+      left: terms.map(function (x) { return x[0]; }), right: perm.map(function (i) { return terms[i][1]; }),
+      key: range(5).map(function (i) { return perm.indexOf(i); }), max: 5 });
+    // 2. Бос орынды толтыру
+    var f = FILLS[Math.floor(r() * FILLS.length)];
+    var blanks = f.blanks.map(function (opts) { var p = shuffle(range(opts.length), r); return { opts: p.map(function (i) { return opts[i]; }), key: p.indexOf(0) }; });
+    T.push({ type: 'fill', obj: '9.1.3.5', title: K('Бос орындарды толтырыңыз', 'Заполните пропуски'), text: { kz: f.kz, ru: f.ru }, blanks: blanks, max: blanks.length });
+    // 3. Ақиқат / Жалған
+    var tf = pick(TF, 6, r);
+    T.push({ type: 'tf', obj: '9.1.3.5–9.1.3.6', title: K('Ақиқат па, жалған ба?', 'Правда или ложь?'),
+      items: tf.map(function (x) { return { s: x[0], v: x[1], why: x[2] }; }), max: 6 });
+    // 4. Фишингті әшкере ет
+    var ph = PHISH[Math.floor(r() * PHISH.length)], nb = ph.parts.filter(function (p) { return p[1]; }).length;
+    T.push({ type: 'hot', style: 'mail', obj: '9.1.3.5', title: K('Алаяқтың хатын әшкере етіңіз', 'Разоблачите письмо мошенника'), head: ph.head,
+      parts: ph.parts.map(function (p) { return { text: p[0], bad: p[1], why: p[2] }; }), nBad: nb, max: nb });
+    // 5. Сілтемені тексер
+    var urls = pick(URLS.slice(0, 3), 2, r).concat(pick(URLS.slice(3), 4, r));
+    urls = shuffle(urls, r);
+    T.push({ type: 'sort', obj: '9.1.3.5', title: K('Сілтемені тексеріңіз', 'Проверьте ссылку'), mono: true,
+      lead: K('QazPay банкінің ресми сайты — qazpay.kz. Әр сілтеме қайда апарады: ресми сайтқа ма, жалған сайтқа ма?', 'Официальный сайт банка QazPay — qazpay.kz. Куда ведёт каждая ссылка: на официальный сайт или на поддельный?'),
+      bins: [K('Ресми сайт', 'Официальный сайт'), K('Жалған сайт', 'Поддельный сайт')],
+      items: urls.map(function (u) { return { t: K(u[0], u[0]), bin: u[1], why: u[2] }; }), max: urls.length });
+    // 6. Топтастыру: қауіпсіз / қауіпті
+    var sf = shuffle(pick(SAFETY.slice(0, 6), 4, r).concat(pick(SAFETY.slice(6), 4, r)), r);
+    T.push({ type: 'sort', obj: '9.1.3.5', title: K('Қауіпсіз бе, қауіпті ме?', 'Безопасно или опасно?'),
+      lead: K('Әр әрекетті тиісті топқа жатқызыңыз.', 'Отнесите каждое действие к нужной группе.'),
+      bins: [K('Қауіпсіз әрекет', 'Безопасное действие'), K('Қауіпті әрекет', 'Опасное действие')],
+      items: sf.map(function (x) { return { t: x[0], bin: x[1] }; }), max: sf.length });
+    // 7. Ретке келтір: құпиясөздер
+    var pw = PASSWORDS[Math.floor(r() * PASSWORDS.length)], d = derange(4, r);
+    T.push({ type: 'order', obj: '9.1.3.5', title: K('Құпиясөздерді ретке келтіріңіз', 'Расставьте пароли по порядку'),
+      lead: K('Ең әлсізінен (жоғарыда) ең күштісіне (төменде) қарай орналастырыңыз. Жылжыту үшін ↑ ↓ батырмаларын басыңыз.', 'Расставьте от самого слабого (вверху) до самого надёжного (внизу). Перемещайте кнопками ↑ ↓.'),
+      items: pw, start: d, max: 4, why: K('Құпиясөз неғұрлым ұзын болса және онда таңба түрлері (кіші және бас әріптер, сандар, белгілер) көп болса, соғұрлым ол сенімді.', 'Чем длиннее пароль и чем больше в нём видов символов (строчные и заглавные буквы, цифры, знаки), тем он надёжнее.') });
+    // 8. Чат-тренажёр
+    var ch = CHATS[Math.floor(r() * CHATS.length)];
+    T.push({ type: 'chat', obj: '9.1.3.5', title: K('Чат-тренажёр: дұрыс жауапты таңдаңыз', 'Чат-тренажёр: выберите правильный ответ'), who: ch.who,
+      steps: ch.steps.map(function (s) { var p = shuffle(range(s[1].length), r); return { msg: s[0], opts: p.map(function (i) { return s[1][i]; }), key: p.indexOf(0), why: s[2] }; }), max: ch.steps.length });
+    // 9. Нетикетті бұзғанды тап
+    var nbad = NETCHAT.filter(function (m) { return m[3]; }).length;
+    T.push({ type: 'hot', style: 'chat', obj: '9.1.3.5', title: K('Нетикетті кім бұзды?', 'Кто нарушил нетикет?'), head: K('9 «Б» сыныбының чаты', 'Чат 9 «Б» класса'),
+      parts: NETCHAT.map(function (m) { return { who: m[0], time: m[1], text: m[2], bad: m[3], why: m[4] }; }), nBad: nbad, max: nbad });
+    // 10–11. Жағдаят талдау
+    pick(CASES, 2, r).forEach(function (c, n) {
+      var p = shuffle(range(c.opts.length), r), nok = c.opts.filter(function (o) { return o[1]; }).length;
+      T.push({ type: 'multi', obj: '9.1.3.6', title: K('Жағдаятты талдаңыз (' + (n + 1) + ')', 'Разберите ситуацию (' + (n + 1) + ')'), text: c.text,
+        q: K('Қандай салдарлар болуы мүмкін? Дұрыс тұжырымдардың барлығын белгілеңіз.', 'Какие последствия возможны? Отметьте все верные утверждения.'),
+        opts: p.map(function (i) { return { t: c.opts[i][0], ok: c.opts[i][1] }; }), nOk: nok, max: nok });
+    });
+    return T;
+  }
+
+  // ---------------- Бағалау ----------------
+  function empty(t) {
+    switch (t.type) {
+      case 'match': return t.left.map(function () { return null; });
+      case 'fill': return t.blanks.map(function () { return null; });
+      case 'tf': return t.items.map(function () { return null; });
+      case 'hot': return t.parts.map(function () { return false; });
+      case 'sort': return t.items.map(function () { return null; });
+      case 'order': return t.start.slice();
+      case 'chat': return t.steps.map(function () { return null; });
+      case 'multi': return t.opts.map(function () { return false; });
+    }
+  }
+  // Әр тармақ дұрыс па (талдау үшін); hot/multi үшін: белгіленгені дұрыс па
+  function score(t, a) {
+    var n = 0, i;
+    switch (t.type) {
+      case 'match': for (i = 0; i < t.key.length; i++) if (a[i] === t.key[i]) n++; return n;
+      case 'fill': for (i = 0; i < t.blanks.length; i++) if (a[i] === t.blanks[i].key) n++; return n;
+      case 'tf': for (i = 0; i < t.items.length; i++) if (a[i] === t.items[i].v) n++; return n;
+      case 'sort': for (i = 0; i < t.items.length; i++) if (a[i] === t.items[i].bin) n++; return n;
+      case 'order': for (i = 0; i < a.length; i++) if (a[i] === i) n++; return n;     // a[k] — k-орындағы элемент; дұрыс рет: 0, 1, 2, 3
+      case 'chat': for (i = 0; i < t.steps.length; i++) if (a[i] === t.steps[i].key) n++; return n;
+      case 'hot': case 'multi': {
+        var list = t.type === 'hot' ? t.parts : t.opts, good = 0, wrong = 0;
+        for (i = 0; i < list.length; i++) if (a[i]) { if (t.type === 'hot' ? list[i].bad : list[i].ok) good++; else wrong++; }
+        return Math.max(0, good - wrong);                                        // артық белгі балды азайтады
+      }
+    }
+  }
+  function touched(t, a) {
+    if (t.type === 'order') return a.some(function (v, i) { return v !== t.start[i]; });
+    if (t.type === 'hot' || t.type === 'multi') return a.some(Boolean);
+    return a.some(function (v) { return v !== null; });
+  }
+  function complete(t, a) {
+    if (t.type === 'order' || t.type === 'hot' || t.type === 'multi') return touched(t, a);
+    return a.every(function (v) { return v !== null; });
+  }
+  // Дұрыс жауап (тексеру үшін)
+  function perfect(t) {
+    switch (t.type) {
+      case 'match': return t.key.slice();
+      case 'fill': return t.blanks.map(function (b) { return b.key; });
+      case 'tf': return t.items.map(function (x) { return x.v; });
+      case 'sort': return t.items.map(function (x) { return x.bin; });
+      case 'order': return range(t.items.length);
+      case 'chat': return t.steps.map(function (s) { return s.key; });
+      case 'hot': return t.parts.map(function (p) { return p.bad; });
+      case 'multi': return t.opts.map(function (o) { return o.ok; });
+    }
+  }
+
+  window.CONTENT = { THEORY: THEORY, generate: generate, empty: empty, score: score, touched: touched, complete: complete, perfect: perfect,
+    BANKS: { TERMS: TERMS, FILLS: FILLS, TF: TF, PHISH: PHISH, URLS: URLS, SAFETY: SAFETY, PASSWORDS: PASSWORDS, CHATS: CHATS, NETCHAT: NETCHAT, CASES: CASES } };
+})();
+
+</script>
+<script>
+/* 9.1.3.5–9.1.3.6 «Желідегі қауіпсіздік. Желілік этикет»: веб-ресурс (теория → 11 тапсырма → нәтиже және талдау).
+ * Тіл: ҚАЗ / РУС батырмасы, кез келген уақытта; жауаптар тілге тәуелсіз (индекстер) сақталады.
+ * Толық экран режимі басынан бастап; MAX_VIOLATIONS-ші бұзушылықта жұмыс аяқталады;
+ * нәтиже RESULT_MIN минут көрінеді, содан кейін бастапқы бет ашылады (құпиясөзсіз). */
+(function () {
+  'use strict';
+  var STORE = 'qauipsizdik-9.1.3.5';
+  var WORK_MS = (window.WORK_MIN || 30) * 60 * 1000;
+  var RESULT_MS = (window.RESULT_MIN || 4) * 60 * 1000;
+  var MAX_VIOL = window.MAX_VIOLATIONS || 3;
+  var C = window.CONTENT;
+  var LANG = (function () { try { return localStorage.getItem('qauip-lang') === 'ru' ? 'ru' : 'kz'; } catch (e) { return 'kz'; } })();
+  var state = null, tasks = [], ticker = null, hideTimer = null, fsActive = false, ignoreUntil = 0;
+
+  var $ = function (id) { return document.getElementById(id); };
+  function T(kz, ru) { return LANG === 'kz' ? kz : ru; }
+  function L(o) { return o ? o[LANG] : ''; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
+  function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
+  function running() { return !!state && state.status === 'running'; }
+  function fmt(ms) { var s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function show(id) {
+    ['s-loading', 's-gate', 's-theory', 's-intro', 's-work', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    $('timers').hidden = !(running() && state.stage === 'work');
+    window.scrollTo(0, 0);
+  }
+  var LETTERS = 'ABCDEFGH';
+
+  // ---------- Толық экран және бұзушылықтар ----------
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function fsSupported() { var e = document.documentElement; return !!(e.requestFullscreen || e.webkitRequestFullscreen); }
+  function enterFullscreen() {
+    var e = document.documentElement, req = e.requestFullscreen || e.webkitRequestFullscreen;
+    if (!req || fsElement()) return Promise.resolve();
+    try {
+      return Promise.resolve(req.call(e, { navigationUI: 'hide' })).then(function () {
+        // тек Esc: Alt+Shift, Ctrl+Shift, Win+Бос орын (пернетақта тілін ауыстыру) жұмыс істейді
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock(['Escape']).catch(function () {});
+      }).catch(function () {});
+    } catch (err) { return Promise.resolve(); }
+  }
+  function exitFullscreen() { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (fsElement() && ex) { try { ex.call(document); } catch (e) {} } }
+  // Бір әрекет бірнеше оқиға тудырады (толық экраннан шығу + фокусты жоғалту) — бір рет санаймыз.
+  // Бет жабылғанда/қайта жүктелгенде браузер өзі толық экраннан шығады: бұл кейінге қалдырылып, бет ашылғанда бір рет есептеледі.
+  var violLock = 0, leaving = false;
+  function violation(reason) {
+    if (!running() || leaving || Date.now() < violLock) return;
+    violLock = Date.now() + 1500;
+    setTimeout(function () { if (running() && !leaving) countViolation(reason); }, 400);
+  }
+  function countViolation(reason) {
+    state.viol = (state.viol || 0) + 1;
+    state.lastViol = reason;
+    save();
+    if (state.viol >= MAX_VIOL) { finish(reason); return; }
+    renderBack();
+    $('m-back').hidden = false;
+  }
+  var REASONS = {
+    fs: { kz: 'Сіз толық экран режимінен шықтыңыз.', ru: 'Вы вышли из полноэкранного режима.' },
+    tab: { kz: 'Сіз басқа қойындыға немесе қосымшаға ауыстыңыз.', ru: 'Вы переключились на другую вкладку или приложение.' },
+    win: { kz: 'Сіз басқа терезеге немесе қосымшаға ауыстыңыз.', ru: 'Вы переключились на другое окно или приложение.' },
+    reload: { kz: 'Бет жабылды немесе қайта жүктелді.', ru: 'Страница была закрыта или перезагружена.' },
+    time: { kz: 'Уақыт бітті.', ru: 'Время вышло.' },
+  };
+  function renderBack() {
+    if (!state) return;
+    $('m-back-text').textContent = L(REASONS[state.lastViol]) + ' ' + T('Қалған мүмкіндік: ', 'Осталось попыток: ') + (MAX_VIOL - (state.viol || 0)) + '. ' +
+      T('Мүмкіндіктер біткенде жұмыс аяқталады. Батырманы басып, жұмысты жалғастырыңыз.', 'Когда попытки закончатся, работа завершится. Нажмите кнопку и продолжайте работу.');
+  }
+  function backToFullscreen() { enterFullscreen().then(function () { if (fsElement() || !fsSupported()) $('m-back').hidden = true; }); }
+  function onFullscreenChange() {
+    if (fsElement()) { fsActive = true; ignoreUntil = Date.now() + 1500; $('m-back').hidden = true; return; }
+    if (fsActive) { fsActive = false; violation('fs'); }
+  }
+  function onVisibility() { if (document.visibilityState === 'hidden') violation('tab'); }
+  function onBlur() {
+    if (!running() || Date.now() < ignoreUntil) return;
+    setTimeout(function () { if (!document.hasFocus() && document.visibilityState === 'visible') violation('win'); }, 400);
+  }
+  function warn(text) { $('warn-text').textContent = text; $('warn').hidden = false; clearTimeout(warn.t); warn.t = setTimeout(function () { $('warn').hidden = true; }, 5000); }
+  function onKey(e) {
+    if (!running()) return;
+    if (e.key === 'Escape') { warn(T('Толық экран режимінен шықпаңыз: бұл — ереже бұзу.', 'Не выходите из полноэкранного режима: это нарушение.')); e.preventDefault(); }
+    var k = (e.key || '').toLowerCase();
+    if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l', 'c', 'v'].indexOf(k) >= 0) ||
+        (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) { e.preventDefault(); warn(T('Жұмыс кезінде бұл әрекет қолжетімсіз.', 'Это действие недоступно во время работы.')); }
+  }
+  function onPageHide() { leaving = true; if (running()) { state.closedAt = Date.now(); save(); } }
+  function onBeforeUnload(e) {
+    if (!running()) return;
+    leaving = true; setTimeout(function () { leaving = false; }, 3000);
+    e.preventDefault(); e.returnValue = ''; return '';
+  }
+
+  // ---------- Кезеңдер ----------
+  function newSeed() { var a = new Uint32Array(1); (window.crypto || window.msCrypto).getRandomValues(a); return a[0] || 1; }
+  function startSession() {
+    if (state) return;
+    var fs = enterFullscreen(), seed = newSeed();
+    tasks = C.generate(seed);
+    state = { v: 1, seed: seed, status: 'running', stage: 'theory', startedAt: Date.now(), viol: 0, cur: 0, ans: tasks.map(C.empty) };
+    save();
+    ticker = setInterval(tick, 250);
+    fs.then(showTheory);
+  }
+  function showTheory() {
+    var during = running() && state.stage === 'work';
+    $('b-to-intro').hidden = during;
+    $('b-theory-back').hidden = !during;
+    $('t-end-text').hidden = during;
+    show('s-theory');
+  }
+  function begin() {
+    $('b-start').disabled = true;
+    enterFullscreen();
+    state.stage = 'work';
+    state.workStartedAt = Date.now();
+    state.endsAt = Date.now() + WORK_MS;
+    save();
+    renderTask();
+  }
+  function tick() {
+    if (!running() || state.stage !== 'work') return;
+    var left = state.endsAt - Date.now();
+    if (left <= 0) { finish('time'); return; }
+    $('tm').textContent = fmt(left);
+    $('tm-bar').style.width = (100 * left / WORK_MS) + '%';
+    $('timers').classList.toggle('low', left < 3 * 60 * 1000);
+  }
+  function resetToStart() { try { localStorage.removeItem(STORE); } catch (e) {} location.reload(); }
+
+  // ---------- Тапсырмалар ----------
+  function goTo(i) { if (!running() || i < 0 || i >= tasks.length) return; state.cur = i; save(); renderTask(); }
+  function set(i, a) { state.ans[i] = a; save(); renderNav(); }
+  function renderNav() {
+    var nav = $('nav'); nav.innerHTML = '';
+    tasks.forEach(function (t, i) {
+      var b = el('button', 'nav-btn' + (C.touched(t, state.ans[i]) ? ' done' : '') + (i === state.cur ? ' cur' : ''), String(i + 1));
+      b.title = L(t.title);
+      b.addEventListener('click', function () { goTo(i); });
+      nav.appendChild(b);
+    });
+  }
+  function renderTask() {
+    var i = state.cur, t = tasks[i], box = $('task');
+    box.innerHTML = '';
+    $('m-confirm').hidden = true;
+    box.appendChild(el('p', 'muted small', T('Тапсырма ', 'Задание ') + (i + 1) + ' / ' + tasks.length + ' · ' + T('оқу мақсаты ', 'цель ') + t.obj + ' · ' + T('ең жоғары балл: ', 'максимум баллов: ') + t.max));
+    box.appendChild(el('h2', 'task-title', L(t.title)));
+    var R = { match: rMatch, fill: rFill, tf: rTF, hot: rHot, sort: rSort, order: rOrder, chat: rChat, multi: rMulti };
+    R[t.type](t, state.ans[i], box, i);
+    $('b-prev').disabled = i === 0;
+    $('b-next').disabled = i === tasks.length - 1;
+    renderNav();
+    show('s-work');
+    tick();
+  }
+  function rerender() { var y = window.scrollY; renderTask(); window.scrollTo(0, y); }
+  function choose(text) { var o = el('option', null, text); return o; }
+
+  function rMatch(t, a, box, i) {
+    box.appendChild(el('p', 'lead', T('Әр терминге анықтаманың әрпін таңдаңыз.', 'Для каждого термина выберите букву определения.')));
+    var defs = el('ol', 'defs');
+    t.right.forEach(function (r, k) { var li = el('li'); li.appendChild(el('b', null, LETTERS[k] + ') ')); li.appendChild(document.createTextNode(L(r))); defs.appendChild(li); });
+    var rows = el('div', 'match');
+    t.left.forEach(function (l, k) {
+      var row = el('div', 'match-row');
+      row.appendChild(el('span', 'term', L(l)));
+      var sel = el('select');
+      sel.appendChild(choose('—'));
+      t.right.forEach(function (r, n) { var o = choose(LETTERS[n]); o.value = String(n); sel.appendChild(o); });
+      sel.firstChild.value = '';
+      sel.value = a[k] === null ? '' : String(a[k]);
+      sel.addEventListener('change', function () { var b = state.ans[i].slice(); b[k] = sel.value === '' ? null : Number(sel.value); set(i, b); });
+      row.appendChild(sel);
+      rows.appendChild(row);
+    });
+    box.appendChild(rows);
+    box.appendChild(defs);
+  }
+  function rFill(t, a, box, i) {
+    box.appendChild(el('p', 'lead', T('Әр бос орынға тізімнен дұрыс сөзді таңдаңыз.', 'В каждый пропуск выберите из списка подходящее слово.')));
+    var p = el('p', 'fill-text');
+    t.text[LANG].forEach(function (seg) {
+      if (typeof seg === 'string') { p.appendChild(document.createTextNode(seg)); return; }
+      var k = seg.b, sel = el('select', 'fill-sel' + (a[k] === null ? ' empty' : ''));
+      sel.appendChild(choose('……'));
+      sel.firstChild.value = '';
+      t.blanks[k].opts.forEach(function (o, n) { var op = choose(L(o)); op.value = String(n); sel.appendChild(op); });
+      sel.value = a[k] === null ? '' : String(a[k]);
+      sel.addEventListener('change', function () { var b = state.ans[i].slice(); b[k] = sel.value === '' ? null : Number(sel.value); set(i, b); sel.classList.toggle('empty', sel.value === ''); });
+      p.appendChild(sel);
+    });
+    box.appendChild(p);
+  }
+  function rTF(t, a, box, i) {
+    box.appendChild(el('p', 'lead', T('Әр тұжырымға «Ақиқат» немесе «Жалған» деп жауап беріңіз.', 'Для каждого утверждения выберите «Правда» или «Ложь».')));
+    t.items.forEach(function (it, k) {
+      var row = el('div', 'tf-row');
+      row.appendChild(el('span', 'tf-text', (k + 1) + '. ' + L(it.s)));
+      var g = el('span', 'seg');
+      [[true, T('Ақиқат', 'Правда')], [false, T('Жалған', 'Ложь')]].forEach(function (x) {
+        var b = el('button', 'seg-btn' + (a[k] === x[0] ? ' on' : ''), x[1]);
+        b.addEventListener('click', function () { var c = state.ans[i].slice(); c[k] = x[0]; set(i, c); rerender(); });
+        g.appendChild(b);
+      });
+      row.appendChild(g);
+      box.appendChild(row);
+    });
+  }
+  function rHot(t, a, box, i) {
+    var marked = a.filter(Boolean).length;
+    box.appendChild(el('p', 'lead', t.style === 'mail'
+      ? T('Хабарламада алаяқтықтың ' + t.nBad + ' белгісі бар. Күдікті жолдарды басып белгілеңіз (қайта басса — белгі алынады).', 'В сообщении ' + t.nBad + ' признаков мошенничества. Нажмите на подозрительные строки, чтобы отметить их (повторное нажатие снимает отметку).')
+      : T('Чатта ' + t.nBad + ' хабарлама нетикетті бұзады. Оларды басып белгілеңіз (қайта басса — белгі алынады).', 'В чате ' + t.nBad + ' сообщений нарушают нетикет. Нажмите на них, чтобы отметить (повторное нажатие снимает отметку).')));
+    box.appendChild(el('p', 'counter', T('Белгіленді: ', 'Отмечено: ') + marked + ' / ' + t.nBad));
+    var card = el('div', t.style === 'mail' ? 'mail' : 'chatlog');
+    card.appendChild(el('div', 'mail-head', L(t.head)));
+    t.parts.forEach(function (p, k) {
+      var b = el('button', (t.style === 'mail' ? 'mail-part' : 'chat-msg') + (a[k] ? ' marked' : ''));
+      if (t.style === 'chat') {
+        var h = el('span', 'chat-meta'); h.appendChild(el('b', null, L(p.who))); h.appendChild(el('span', 'chat-time', ' ' + p.time)); b.appendChild(h);
+        b.appendChild(el('span', 'chat-text', L(p.text)));
+      } else b.textContent = L(p.text);
+      b.setAttribute('aria-pressed', a[k] ? 'true' : 'false');
+      b.addEventListener('click', function () { var c = state.ans[i].slice(); c[k] = !c[k]; set(i, c); rerender(); });
+      card.appendChild(b);
+    });
+    box.appendChild(card);
+  }
+  function rSort(t, a, box, i) {
+    box.appendChild(el('p', 'lead', L(t.lead)));
+    t.items.forEach(function (it, k) {
+      var row = el('div', 'tf-row');
+      row.appendChild(el('span', 'tf-text' + (t.mono ? ' mono' : ''), L(it.t)));
+      var g = el('span', 'seg');
+      t.bins.forEach(function (bn, n) {
+        var b = el('button', 'seg-btn' + (a[k] === n ? ' on' : ''), L(bn));
+        b.addEventListener('click', function () { var c = state.ans[i].slice(); c[k] = n; set(i, c); rerender(); });
+        g.appendChild(b);
+      });
+      row.appendChild(g);
+      box.appendChild(row);
+    });
+  }
+  function rOrder(t, a, box, i) {
+    box.appendChild(el('p', 'lead', L(t.lead)));
+    var list = el('ol', 'order');
+    a.forEach(function (item, k) {
+      var li = el('li', 'order-row');
+      li.appendChild(el('span', 'order-n', String(k + 1)));
+      li.appendChild(el('code', 'order-text', t.items[item]));
+      [[-1, '↑'], [1, '↓']].forEach(function (x) {
+        var b = el('button', 'order-btn', x[1]);
+        b.disabled = k + x[0] < 0 || k + x[0] >= a.length;
+        b.setAttribute('aria-label', x[0] < 0 ? T('Жоғары', 'Вверх') : T('Төмен', 'Вниз'));
+        b.addEventListener('click', function () { var c = state.ans[i].slice(), j = k + x[0], tmp = c[k]; c[k] = c[j]; c[j] = tmp; set(i, c); rerender(); });
+        li.appendChild(b);
+      });
+      list.appendChild(li);
+    });
+    box.appendChild(el('p', 'order-end muted small', T('↑ ең әлсіз', '↑ самый слабый')));
+    box.appendChild(list);
+    box.appendChild(el('p', 'order-end muted small', T('↓ ең күшті', '↓ самый надёжный')));
+  }
+  function rChat(t, a, box, i) {
+    box.appendChild(el('p', 'lead', T('Сізге хабарлама келді. Әр қадамда ең дұрыс жауапты таңдаңыз — сонда келесі хабарлама шығады.', 'Вам пишут. На каждом шаге выберите самый правильный ответ — после этого придёт следующее сообщение.')));
+    var log = el('div', 'chatlog sim');
+    log.appendChild(el('div', 'mail-head', L(t.who)));
+    for (var k = 0; k < t.steps.length; k++) {
+      if (k > 0 && a[k - 1] === null) break;
+      (function (k) {
+        var s = t.steps[k];
+        log.appendChild(el('div', 'bubble in', L(s.msg)));
+        if (a[k] !== null) {
+          log.appendChild(el('div', 'bubble out', L(s.opts[a[k]])));
+          var ch = el('button', 'link chat-change', T('Жауапты өзгерту', 'Изменить ответ'));
+          // жауапты өзгерткенде келесі қадамдар қайта басталады
+          ch.addEventListener('click', function () { var c = state.ans[i].slice(); for (var m = k; m < c.length; m++) c[m] = null; set(i, c); rerender(); });
+          var wrap = el('div', 'chat-opts'); wrap.appendChild(ch); log.appendChild(wrap);
+          return;
+        }
+        var opts = el('div', 'chat-opts');
+        s.opts.forEach(function (o, n) {
+          var b = el('button', 'chat-opt' + (a[k] === n ? ' on' : ''), L(o));
+          b.addEventListener('click', function () { var c = state.ans[i].slice(); c[k] = n; set(i, c); rerender(); });
+          opts.appendChild(b);
+        });
+        log.appendChild(opts);
+      })(k);
+    }
+    box.appendChild(log);
+  }
+  function rMulti(t, a, box, i) {
+    box.appendChild(el('div', 'case', L(t.text)));
+    box.appendChild(el('p', 'lead', L(t.q) + ' ' + T('(Дұрыс тұжырым — ' + t.nOk + '; қате белгі балды азайтады.)', '(Верных утверждений — ' + t.nOk + '; лишняя отметка уменьшает балл.)')));
+    t.opts.forEach(function (o, k) {
+      var lab = el('label', 'check' + (a[k] ? ' on' : ''));
+      var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!a[k];
+      cb.addEventListener('change', function () { var c = state.ans[i].slice(); c[k] = cb.checked; set(i, c); lab.classList.toggle('on', cb.checked); });
+      lab.appendChild(cb);
+      lab.appendChild(el('span', null, L(o.t)));
+      box.appendChild(lab);
+    });
+  }
+
+  // ---------- Аяқтау және нәтиже ----------
+  function finish(reason) {
+    if (!running()) return;
+    state.status = 'finished';
+    state.reason = reason || null;
+    state.finishedAt = state.closedAt || Date.now();
+    state.scores = tasks.map(function (t, i) { return C.score(t, state.ans[i]); });
+    save();
+    clearInterval(ticker);
+    $('warn').hidden = true; $('m-back').hidden = true;
+    if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+    fsActive = false;
+    exitFullscreen();
+    renderResult();
+  }
+  function totals() {
+    var got = state.scores.reduce(function (s, x) { return s + x; }, 0), max = tasks.reduce(function (s, t) { return s + t.max; }, 0);
+    return { got: got, max: max };
+  }
+  function renderResult() {
+    var tt = totals();
+    $('r-score').textContent = tt.got + ' / ' + tt.max;
+    $('r-pct').textContent = Math.round(100 * tt.got / tt.max) + '%';
+    if (state.reason && state.reason !== 'done') {
+      $('r-reason').hidden = false;
+      $('r-reason').textContent = state.reason === 'time' ? L(REASONS.time) + ' ' + T('Жұмыс автоматты түрде тапсырылды.', 'Работа сдана автоматически.')
+        : T('Жұмыс автоматты түрде аяқталды: ', 'Работа завершена автоматически: ') + L(REASONS[state.reason]).toLowerCase() + ' ' + T('(' + MAX_VIOL + '-ші бұзушылық)', '(' + MAX_VIOL + '-е нарушение)');
+    } else $('r-reason').hidden = true;
+    var tb = $('r-table'); tb.innerHTML = '';
+    var table = el('table', 'res');
+    var hr = el('tr'); [T('№', '№'), T('Тапсырма', 'Задание'), T('Балл', 'Балл')].forEach(function (h) { hr.appendChild(el('th', null, h)); }); table.appendChild(hr);
+    tasks.forEach(function (t, i) {
+      var tr = el('tr', state.scores[i] === t.max ? 'ok' : state.scores[i] === 0 ? 'bad' : 'mid');
+      tr.appendChild(el('td', null, String(i + 1))); tr.appendChild(el('td', null, L(t.title))); tr.appendChild(el('td', null, state.scores[i] + ' / ' + t.max));
+      table.appendChild(tr);
+    });
+    tb.appendChild(table);
+    var start = state.workStartedAt || state.startedAt;
+    $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '');
+    var rv = $('r-review'); rv.innerHTML = '';
+    tasks.forEach(function (t, i) { rv.appendChild(review(t, state.ans[i], state.scores[i], i)); });
+    show('s-result');
+    scheduleReset();
+  }
+  function scheduleReset() {
+    clearInterval(hideTimer);
+    var upd = function () {
+      var left = state.finishedAt + RESULT_MS - Date.now();
+      if (left <= 0) { clearInterval(hideTimer); resetToStart(); return; }
+      $('r-hide').textContent = T('Бастапқы бет мына уақыттан кейін ашылады: ', 'Начальная страница откроется через ') + fmt(left) + '.';
+    };
+    upd();
+    hideTimer = setInterval(upd, 1000);
+  }
+  function mark(ok) { return el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓' : '✗'); }
+  function line(ok, main, extra) {
+    var d = el('div', 'rv-line ' + (ok ? 'ok' : 'bad'));
+    d.appendChild(mark(ok)); var s = el('span'); s.appendChild(document.createTextNode(' ' + main)); d.appendChild(s);
+    if (extra) d.appendChild(el('div', 'rv-why', extra));
+    return d;
+  }
+  function review(t, a, sc, i) {
+    var card = el('div', 'rv-card ' + (sc === t.max ? 'ok' : sc === 0 ? 'bad' : 'mid'));
+    card.appendChild(el('h3', null, (i + 1) + '. ' + L(t.title) + ' — ' + sc + ' / ' + t.max));
+    var you = T('Сіздің жауабыңыз: ', 'Ваш ответ: '), right = T('Дұрыс жауап: ', 'Правильный ответ: '), none = T('жауап жоқ', 'нет ответа');
+    switch (t.type) {
+      case 'match':
+        t.left.forEach(function (l, k) {
+          var ok = a[k] === t.key[k];
+          card.appendChild(line(ok, L(l) + ' — ' + L(t.right[t.key[k]]), ok ? null : you + (a[k] === null ? none : L(t.right[a[k]]))));
+        });
+        break;
+      case 'fill':
+        t.blanks.forEach(function (b, k) {
+          var ok = a[k] === b.key;
+          card.appendChild(line(ok, (k + 1) + ') ' + L(b.opts[b.key]), ok ? null : you + (a[k] === null ? none : L(b.opts[a[k]]))));
+        });
+        break;
+      case 'tf':
+        t.items.forEach(function (it, k) {
+          var ok = a[k] === it.v;
+          card.appendChild(line(ok, L(it.s) + ' — ' + (it.v ? T('Ақиқат', 'Правда') : T('Жалған', 'Ложь')), (ok ? '' : you + (a[k] === null ? none : a[k] ? T('Ақиқат', 'Правда') : T('Жалған', 'Ложь')) + '. ') + L(it.why)));
+        });
+        break;
+      case 'hot':
+        card.appendChild(el('p', 'muted small', T('Қызылмен — күдікті бөліктер. ✓ — сіз дұрыс шештіңіз, ✗ — қателестіңіз.', 'Красным — подозрительные части. ✓ — вы решили верно, ✗ — ошиблись.')));
+        t.parts.forEach(function (p, k) {
+          var ok = !!a[k] === p.bad, txt = (p.who ? L(p.who) + ' (' + p.time + '): ' : '') + L(p.text);
+          var d = line(ok, txt, (p.bad ? T('Күдікті: ', 'Подозрительно: ') : T('Қалыпты: ', 'Нормально: ')) + L(p.why) + (ok ? '' : ' ' + (a[k] ? T('(Сіз белгіледіңіз — артық.)', '(Вы отметили — лишнее.)') : T('(Сіз белгілемедіңіз.)', '(Вы не отметили.)'))));
+          if (p.bad) d.classList.add('hot');
+          card.appendChild(d);
+        });
+        break;
+      case 'sort':
+        t.items.forEach(function (it, k) {
+          var ok = a[k] === it.bin;
+          card.appendChild(line(ok, L(it.t) + ' — ' + L(t.bins[it.bin]), (ok ? '' : you + (a[k] === null ? none : L(t.bins[a[k]])) + '. ') + (it.why ? L(it.why) : '')));
+        });
+        break;
+      case 'order':
+        card.appendChild(el('p', 'muted small', right + t.items.join('  <  ')));
+        a.forEach(function (item, k) { card.appendChild(line(item === k, (k + 1) + '. ' + t.items[item], item === k ? null : right + t.items[k])); });
+        card.appendChild(el('p', 'rv-why', L(t.why)));
+        break;
+      case 'chat':
+        t.steps.forEach(function (s, k) {
+          var ok = a[k] === s.key;
+          card.appendChild(el('div', 'bubble in', L(s.msg)));
+          card.appendChild(line(ok, right + L(s.opts[s.key]), (ok ? '' : you + (a[k] === null ? none : L(s.opts[a[k]])) + '. ') + L(s.why)));
+        });
+        break;
+      case 'multi':
+        card.appendChild(el('div', 'case', L(t.text)));
+        t.opts.forEach(function (o, k) {
+          var ok = !!a[k] === o.ok;
+          card.appendChild(line(ok, L(o.t) + ' — ' + (o.ok ? T('дұрыс тұжырым', 'верно') : T('қате тұжырым', 'неверно')), ok ? null : (a[k] ? T('Сіз белгіледіңіз.', 'Вы отметили.') : T('Сіз белгілемедіңіз.', 'Вы не отметили.'))));
+        });
+        break;
+    }
+    return card;
+  }
+
+  // ---------- Тіл ----------
+  function setLang(l) {
+    LANG = l;
+    try { localStorage.setItem('qauip-lang', l); } catch (e) {}
+    document.documentElement.lang = l === 'kz' ? 'kk' : 'ru';
+    document.title = l === 'kz' ? 'Желідегі қауіпсіздік — 9.1.3.5–9.1.3.6' : 'Безопасность в сети — 9.1.3.5–9.1.3.6';
+    document.querySelectorAll('.lang-switch button').forEach(function (b) { var on = b.getAttribute('data-lang') === l; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    if (!state) return;
+    if (!$('s-work').hidden) rerender();
+    if (!$('s-result').hidden) renderResult();
+    if (!$('m-back').hidden) renderBack();
+    if (!$('m-confirm').hidden) confirmText();
+  }
+  function confirmText() {
+    var u = tasks.filter(function (t, i) { return !C.complete(t, state.ans[i]); }).length;
+    $('m-confirm-text').textContent = T('Жұмысты тапсырасыз ба?', 'Сдать работу?') + (u ? ' ' + T('Толық орындалмаған тапсырмалар: ', 'Не до конца выполненных заданий: ') + u + '.' : '') + ' ' + T('Тапсырғаннан кейін жауаптарды өзгертуге болмайды.', 'После сдачи ответы изменить нельзя.');
+  }
+
+  function init() {
+    $('theory-kz').innerHTML = C.THEORY.kz;
+    $('theory-ru').innerHTML = C.THEORY.ru;
+    document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 30); });
+    document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
+    setLang(LANG);
+    $('b-gate').addEventListener('click', startSession);
+    $('b-to-intro').addEventListener('click', function () { show('s-intro'); });
+    $('b-back-theory').addEventListener('click', showTheory);
+    $('b-theory-back').addEventListener('click', renderTask);
+    $('b-read').addEventListener('click', showTheory);
+    $('b-start').addEventListener('click', begin);
+    $('b-prev').addEventListener('click', function () { goTo(state.cur - 1); });
+    $('b-next').addEventListener('click', function () { goTo(state.cur + 1); });
+    $('b-finish').addEventListener('click', function () { confirmText(); $('m-confirm').hidden = false; });
+    $('b-finish-yes').addEventListener('click', function () { finish('done'); });
+    $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
+    $('b-back-fs').addEventListener('click', backToFullscreen);
+    $('b-restart').addEventListener('click', resetToStart);
+    $('warn').addEventListener('click', function () { $('warn').hidden = true; });
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    window.addEventListener('pagehide', onPageHide);
+    document.addEventListener('contextmenu', function (e) { if (running()) e.preventDefault(); });
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', function () { if (running()) { history.pushState(null, '', location.href); warn(T('Жұмыс кезінде артқа өтуге болмайды.', 'Переход назад во время работы недоступен.')); } });
+
+    state = load();
+    if (state && state.v === 1 && state.seed) tasks = C.generate(state.seed); else state = null;
+    if (state && state.status === 'running') {
+      // Бет жабылды немесе қайта жүктелді — бұл бұзушылық: жұмыс сол жерден жалғасады, MAX_VIOL-ші рет аяқталады
+      state.viol = (state.viol || 0) + 1; state.lastViol = 'reload';
+      if (state.viol >= MAX_VIOL) { finish('reload'); return; }
+      delete state.closedAt; save();
+      violLock = Date.now() + 1500;
+      ticker = setInterval(tick, 250);
+      if (state.stage === 'work') renderTask(); else showTheory();
+      renderBack();
+      $('m-back').hidden = false;
+      return;
+    }
+    if (state && state.status === 'finished') { renderResult(); return; }
+    state = null;
+    show('s-gate');
+  }
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>

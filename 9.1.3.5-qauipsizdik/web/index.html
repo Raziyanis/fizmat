@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Желідегі қауіпсіздік — 9.1.3.5–9.1.3.6</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><span class="lang-label">Тіл / Язык</span><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div id="timers" class="timers" hidden>
+    <div class="timer"><span><span class="lang-kz">Жұмыстың аяқталуына</span><span class="lang-ru">До конца работы</span></span><b id="tm"></b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Жүктелуде… / Загрузка…</p></section>
+
+    <section id="s-gate" hidden>
+      <h1><span class="lang-kz">Формативтік жұмыс: желідегі қауіпсіздік және желілік этикет</span><span class="lang-ru">Формативная работа: безопасность в сети и сетевой этикет</span></h1>
+      <p class="topic"><span class="lang-kz">9.1.3.5 — желідегі қауіпсіздік ережелерін сақтау (интернеттегі алаяқтық және агрессия); 9.1.3.6 — желідегі этикалық және құқықтық нормаларды бұзудың салдары</span><span class="lang-ru">9.1.3.5 — соблюдать правила безопасности в сети (интернет-мошенничество и агрессия); 9.1.3.6 — последствия нарушения этических и правовых норм в сети</span></p>
+      <p class="steps"><span class="lang-kz"><b>1. Теория</b> → 2. Тапсырмалар → 3. Нәтиже және талдау</span><span class="lang-ru"><b>1. Теория</b> → 2. Задания → 3. Результат и разбор</span></p>
+      <p class="note"><span class="lang-kz">Бүкіл жұмыс, теорияны оқуды қоса алғанда, <b>толық экран режимінде</b> жүреді. Одан шығуға, басқа қойындыға, терезеге немесе қосымшаға ауысуға және бетті қайта жүктеуге болмайды. Алғашқы екі бұзушылыққа ескерту шығады, <b>үшіншісінен</b> кейін жұмыс аяқталады.</span><span class="lang-ru">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</span></p>
+      <p class="note lang-note"><span class="lang-kz">Тілді кез келген уақытта ауыстыруға болады: жоғарғы оң жақ бұрыштағы <b>ҚАЗ / РУС</b> батырмалары. Жауаптар сақталады.</span><span class="lang-ru">Язык можно сменить в любой момент: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы сохраняются.</span></p>
+      <div class="buttons"><button id="b-gate" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
+    </section>
+
+    <section id="s-theory" class="theory" hidden>
+      <p class="steps"><span class="lang-kz"><b>1. Теория</b> → 2. Тапсырмалар → 3. Нәтиже</span><span class="lang-ru"><b>1. Теория</b> → 2. Задания → 3. Результат</span></p>
+      <div class="lang-kz" id="theory-kz"></div>
+      <div class="lang-ru" id="theory-ru"></div>
+      <div class="theory-end">
+        <p id="t-end-text"><span class="lang-kz">Теорияны оқыдыңыз ба? Енді — әртүрлі түрдегі <b>11 тапсырма</b>.</span><span class="lang-ru">Прочитали теорию? Дальше — <b>11 заданий</b> разных видов.</span></p>
+        <button id="b-to-intro" class="primary big"><span class="lang-kz">Жұмысқа өту →</span><span class="lang-ru">Перейти к работе →</span></button>
+        <button id="b-theory-back" class="primary big" hidden><span class="lang-kz">← Тапсырмаларға оралу</span><span class="lang-ru">← Вернуться к заданиям</span></button>
+      </div>
+    </section>
+
+    <section id="s-intro" hidden>
+      <h1><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h1>
+      <ul class="rules">
+        <li class="lang-kz"><b>11 тапсырма</b>, әрқайсысы әр түрлі: сәйкестендіру, бос орынды толтыру, ақиқат/жалған, алаяқтың хатын әшкере ету, сілтемені тексеру, топтастыру, ретке келтіру, чат-тренажёр, жағдаят талдау.</li>
+        <li class="lang-ru"><b>11 заданий</b> разных видов: сопоставление, заполнение пропусков, правда/ложь, разоблачение письма мошенника, проверка ссылок, группировка, упорядочивание, чат-тренажёр, разбор ситуаций.</li>
+        <li class="lang-kz">Жұмысқа — <b><span class="i-min"></span> минут</b>. Теорияға тапсырмалар кезінде де оралуға болады (таймер тоқтамайды).</li>
+        <li class="lang-ru">На работу — <b><span class="i-min"></span> минут</b>. К теории можно вернуться и во время заданий (таймер не останавливается).</li>
+        <li class="lang-kz">Әр дұрыс тармаққа — <b>1 балл</b>. «Тап», «белгіле» тапсырмаларында қате белгі балды азайтады.</li>
+        <li class="lang-ru">За каждый верный пункт — <b>1 балл</b>. В заданиях «найди», «отметь» лишняя отметка уменьшает балл.</li>
+        <li class="lang-kz">Жауаптар автоматты түрде сақталады, тапсырмалар арасында еркін ауысуға болады. Уақыт біткенде жұмыс өзі тапсырылады.</li>
+        <li class="lang-ru">Ответы сохраняются автоматически, между заданиями можно свободно переходить. Когда время выйдет, работа сдастся сама.</li>
+        <li class="lang-kz">Әр оқушының тапсырмалары әртүрлі.</li>
+        <li class="lang-ru">У каждого ученика свои задания.</li>
+        <li class="important lang-kz">Толық экран режимінен шығу, басқа терезеге ауысу, бетті қайта жүктеу — ереже бұзу. Алғашқы екеуіне ескерту, үшіншісінен кейін жұмыс аяқталады.</li>
+        <li class="important lang-ru">Выход из полноэкранного режима, переключение окна, перезагрузка страницы — нарушение. За первые два — предупреждение, после третьего работа завершится.</li>
+      </ul>
+      <div class="buttons">
+        <button id="b-back-theory"><span class="lang-kz">← Теорияны қайта оқу</span><span class="lang-ru">← Ещё раз прочитать теорию</span></button>
+        <button id="b-start" class="primary big"><span class="lang-kz">Жұмысты бастау</span><span class="lang-ru">Начать работу</span></button>
+      </div>
+    </section>
+
+    <section id="s-work" hidden>
+      <div id="nav" class="nav"></div>
+      <p class="muted small nav-legend"><span class="lang-kz">Көк — жауап берілген. Тапсырманы ашу үшін нөмірін басыңыз.</span><span class="lang-ru">Синий — есть ответ. Нажмите на номер, чтобы открыть задание.</span></p>
+      <div id="task"></div>
+      <div class="buttons work-buttons">
+        <button id="b-prev">← <span class="lang-kz">Артқа</span><span class="lang-ru">Назад</span></button>
+        <button id="b-next" class="primary"><span class="lang-kz">Келесі</span><span class="lang-ru">Далее</span> →</button>
+        <button id="b-read" class="link"><span class="lang-kz">Теорияны қарау</span><span class="lang-ru">Посмотреть теорию</span></button>
+        <span class="spacer"></span>
+        <button id="b-finish" class="danger-outline"><span class="lang-kz">Жұмысты тапсыру</span><span class="lang-ru">Сдать работу</span></button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p id="m-confirm-text"></p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger"><span class="lang-kz">Иә, тапсырамын</span><span class="lang-ru">Да, сдать</span></button>
+          <button id="b-finish-no"><span class="lang-kz">Жоқ, жалғастырамын</span><span class="lang-ru">Нет, продолжить</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p class="score"><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
+      <p id="r-pct" class="center muted"></p>
+      <div id="r-table" class="r-table"></div>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center"></p>
+      <h2><span class="lang-kz">Тапсырмаларды талдау</span><span class="lang-ru">Разбор заданий</span></h2>
+      <div id="r-review" class="review"></div>
+      <div class="teacher">
+        <button id="b-restart" class="primary"><span class="lang-kz">Осы компьютерде жаңа жұмыс</span><span class="lang-ru">Новая работа на этом компьютере</span></button>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <div id="m-back" class="back-fs" role="alertdialog" aria-modal="true" hidden>
+    <div class="back-box">
+      <h2><span class="lang-kz">Назар аударыңыз! Ереже бұзылды</span><span class="lang-ru">Внимание! Нарушение</span></h2>
+      <p id="m-back-text"></p>
+      <button id="b-back-fs" class="primary big"><span class="lang-kz">Толық экран режиміне оралу</span><span class="lang-ru">Вернуться в полноэкранный режим</span></button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="content.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
