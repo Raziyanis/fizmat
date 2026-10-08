@@ -10,7 +10,7 @@
   var MAX_VIOL = window.MAX_VIOLATIONS || 3;
   var BONUS_MS = (window.BONUS_MIN || 15) * 60 * 1000;
   var BONUS_N = window.BONUS_ATTEMPTS || 2;
-  var C = window.CONTENT;
+  var C = window.CONTENT, AI = window.AIGRADE;
   var LANG = (function () { try { return localStorage.getItem('qauip-lang') === 'ru' ? 'ru' : 'kz'; } catch (e) { return 'kz'; } })();
   var state = null, tasks = [], btasks = [], ticker = null, hideTimer = null, fsActive = false, ignoreUntil = 0;
 
@@ -339,7 +339,9 @@
     };
     ta.addEventListener('input', function () { var had = C.touched(t, W().st.ans[i]); W().st.ans[i] = ta.value; save(); upd(); if (had !== C.touched(t, ta.value)) renderNav(); });
     box.appendChild(ta); box.appendChild(cnt); upd();
-    box.appendChild(el('p', 'muted small', T('Жауап критерийлер бойынша автоматты тексеріліп, кеңес беріледі. Қорытынды бағаны мұғалім қояды.', 'Ответ автоматически проверяется по критериям, вы получите подсказки. Итоговую оценку ставит учитель.')));
+    box.appendChild(el('p', 'muted small', AI && AI.enabled()
+      ? T('Жұмыс аяқталған соң жауапты жасанды интеллект критерийлер бойынша тексеріп, пікір береді. Келіспесеңіз, мұғалімге айтыңыз — ол қарап, балды өзгерте алады.', 'После завершения ответ проверит искусственный интеллект по критериям и даст комментарии. Если не согласны — скажите учителю, он посмотрит и может изменить балл.')
+      : T('Жауап критерийлер бойынша автоматты тексеріліп, кеңес беріледі. Келіспесеңіз, мұғалімге айтыңыз.', 'Ответ автоматически проверяется по критериям, вы получите подсказки. Если не согласны — скажите учителю.')));
   }
 
   // Интернетсіз тексерудің қорытынды пікірі
@@ -370,7 +372,7 @@
     btasks.forEach(function (t, i) {
       if (t.type === 'text') {
         var pre = C.precheck(t, b.ans[i]), empty = !String(b.ans[i] || '').trim();
-        rec.text[i] = { pre: pre, status: empty ? 'empty' : 'auto' };
+        rec.text[i] = { pre: pre, ai: null, lang: LANG, status: empty ? 'empty' : (AI && AI.enabled() ? 'pending' : 'auto') };
         rec.scores[i] = pre.score;
       } else rec.scores[i] = C.score(t, b.ans[i]);
     });
@@ -381,6 +383,20 @@
     $('warn').hidden = true; $('m-back').hidden = true;
     fsActive = false; exitFullscreen();
     renderResult();
+    runAI();
+  }
+  // Жазбаша жауаптарды ЖИ-ге кезекпен жібереміз (тегін тарифтің лимиті үшін бір-бірден)
+  var aiBusy = false;
+  function runAI() {
+    if (aiBusy || !state || !state.bonus || !AI || !AI.enabled()) return;
+    var job = null;
+    state.bonus.forEach(function (rec) { Object.keys(rec.text).forEach(function (i) { if (!job && rec.text[i].status === 'pending') job = { rec: rec, i: Number(i) }; }); });
+    if (!job) return;
+    aiBusy = true;
+    var e = job.rec.text[job.i], t = recTasks(job.rec)[job.i];
+    AI.grade(t, job.rec.ans[job.i], e.lang).then(function (res) { e.ai = res; e.status = 'done'; job.rec.scores[job.i] = res.score; },
+      function (err) { e.status = 'error'; e.err = String(err && err.message || err); })
+      .then(function () { aiBusy = false; save(); if (!$('s-result').hidden) renderResult(); runAI(); });
   }
   function recTasks(rec) { return C.generateBonus(rec.seed, rec.n); }
   function recScore(rec) {
@@ -400,7 +416,7 @@
     var pin = el('input'); pin.type = 'password'; pin.placeholder = T('Мұғалімнің паролі', 'Пароль учителя'); pin.autocomplete = 'off';
     var ok = el('button', 'primary', T('Сақтау', 'Сохранить')), msg = el('span', 'muted small');
     ok.addEventListener('click', function () {
-      if (pin.value.trim() !== String(window.TEACHER_PIN || '2026')) { msg.textContent = T('Пароль қате', 'Неверный пароль'); return; }
+      if (pin.value.trim() !== String(window.TEACHER_PIN || '1212')) { msg.textContent = T('Пароль қате', 'Неверный пароль'); return; }
       rec.manual = rec.manual || {};
       rec.manual[i] = Number(sel.value);
       save(); renderResult();
@@ -467,7 +483,8 @@
     box.appendChild(el('p', 'stars', '★ ' + recScore(best) + ' / ' + recMax(best) + ' ' + T('(ең жақсы әрекет)', '(лучшая попытка)')));
     list.forEach(function (rec) {
       var det = el('details', 'bonus-att'); if (rec === list[list.length - 1]) det.open = true;
-      det.appendChild(el('summary', null, rec.n + T('-әрекет: ★ ', '-я попытка: ★ ') + recScore(rec) + ' / ' + recMax(rec) +
+      var pending = Object.keys(rec.text).some(function (i) { return rec.text[i].status === 'pending'; });
+      det.appendChild(el('summary', null, rec.n + T('-әрекет: ★ ', '-я попытка: ★ ') + recScore(rec) + ' / ' + recMax(rec) + (pending ? T(' · ЖИ тексеруде…', ' · ИИ проверяет…') : '') +
         (rec.reason && rec.reason !== 'done' ? ' · ' + (rec.reason === 'time' ? L(REASONS.time) : T('ереже бұзылғандықтан аяқталды', 'завершена из-за нарушений')) : '')));
       recTasks(rec).forEach(function (t, i) {
         var man = rec.manual && rec.manual[i] != null ? rec.manual[i] : null;
@@ -549,15 +566,19 @@
         card.appendChild(el('div', 'case', L(t.ctx)));
         if (t.kind === 'rewrite') card.appendChild(el('div', 'bubble in rude', L(t.rude)));
         card.appendChild(el('div', 'student-text', String(a || '').trim() || none));
-        var e = extra || {}, pre = e.pre || { crit: [] };
-        var src = e.status === 'empty' ? T('Жауап жазылмаған.', 'Ответ не написан.')
+        var e = extra || {}, ai = e.ai, pre = e.pre || { crit: [] };
+        var src = e.status === 'done' ? T('Жасанды интеллект бағасы. Келіспесеңіз, мұғалімге айтыңыз.', 'Оценка искусственного интеллекта. Если не согласны — скажите учителю.')
+          : e.status === 'pending' ? T('Жасанды интеллект тексеруде… Әзірге — автоматты баға.', 'Искусственный интеллект проверяет… Пока — автоматическая оценка.')
+          : e.status === 'error' ? T('ЖИ-ге қосылу мүмкін болмады (интернет немесе лимит). Автоматты баға көрсетілді.', 'Не удалось связаться с ИИ (интернет или лимит). Показана автоматическая оценка.')
+          : e.status === 'empty' ? T('Жауап жазылмаған.', 'Ответ не написан.')
           : T('Автоматты тексеру (кеңестерімен). Қорытынды бағаны мұғалім қояды.', 'Автоматическая проверка (с подсказками). Итоговую оценку ставит учитель.');
         card.appendChild(el('p', 'muted small', src));
         t.crit.forEach(function (c, k) {
-          var ok = !!pre.crit[k];
-          card.appendChild(line(ok, L(c), !ok && pre.hints && pre.hints[k] ? '💡 ' + L(pre.hints[k]) : null));
+          var ok = ai ? ai.crit[k] : !!pre.crit[k];
+          card.appendChild(line(ok, L(c), ai ? ai.comments[k] : (!ok && pre.hints && pre.hints[k] ? '💡 ' + L(pre.hints[k]) : null)));
         });
-        if (e.status !== 'empty') card.appendChild(el('div', 'ai-feedback', autoFeedback(t, pre)));
+        if (ai && ai.feedback) card.appendChild(el('div', 'ai-feedback', ai.feedback));
+        else if (e.status !== 'empty') card.appendChild(el('div', 'ai-feedback', autoFeedback(t, pre)));
         break;
       }
       case 'multi':
@@ -646,7 +667,7 @@
       $('m-back').hidden = false;
       return;
     }
-    if (state && state.status === 'finished') { renderResult(); return; }
+    if (state && state.status === 'finished') { renderResult(); runAI(); return; }
     state = null;
     show('s-gate');
   }
