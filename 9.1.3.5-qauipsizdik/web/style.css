@@ -494,3 +494,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .an-col ul { margin: 4px 0; padding-left: 20px; }
 .an-h { font-weight: 700; margin: 0; }
 @media (max-width: 600px) { .an-sw { grid-template-columns: 1fr; } }
+.an-final { margin-top: 16px; padding: 12px; border-top: 2px solid var(--line); text-align: center; }
+.an-final p { margin: 2px 0; }
+.an-final-h { font-weight: 700; font-size: 1.1rem; }
+.an-final-num { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1.1; }

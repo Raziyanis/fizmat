@@ -518,6 +518,10 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .an-col ul { margin: 4px 0; padding-left: 20px; }
 .an-h { font-weight: 700; margin: 0; }
 @media (max-width: 600px) { .an-sw { grid-template-columns: 1fr; } }
+.an-final { margin-top: 16px; padding: 12px; border-top: 2px solid var(--line); text-align: center; }
+.an-final p { margin: 2px 0; }
+.an-final-h { font-weight: 700; font-size: 1.1rem; }
+.an-final-num { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
 </style>
 </head>
 <body>
@@ -597,8 +601,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     <section id="s-result" hidden>
       <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
       <p id="r-reason" class="note" hidden></p>
-      <p class="score"><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
-      <p id="r-pct" class="center muted"></p>
+      <p class="score" hidden><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
+      <p id="r-pct" class="center muted" hidden></p>
       <div id="r-table" class="r-table"></div>
       <div id="r-time" class="time-box"></div>
       <div id="r-analysis" class="analysis"></div>
@@ -2087,6 +2091,13 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       box.appendChild(el('h3', null, T('Өзін-өзі бағалау мен нәтиже', 'Самооценка и результат')));
       var u3 = el('ul', 'small'); notes.forEach(function (n) { u3.appendChild(el('li', null, n)); }); box.appendChild(u3);
     }
+    // 5. Қорытынды балл: жинаған балл 10 балдық шкалаға пропорция бойынша ауыстырылады (бүтін санға дөңгелектенеді)
+    var tt = totals(), ten = tt.max ? 10 * tt.got / tt.max : 0, mark = Math.round(ten);
+    var fin = el('div', 'an-final');
+    fin.appendChild(el('p', 'an-final-h', T('Қорытынды балл', 'Итоговый балл')));
+    fin.appendChild(el('p', 'an-final-num', mark + ' / 10'));
+    fin.appendChild(el('p', 'muted small', T('Есептеу: ', 'Расчёт: ') + tt.got + ' × 10 : ' + tt.max + ' = ' + (Math.round(ten * 10) / 10).toString().replace('.', ',') + ' ≈ ' + mark));
+    box.appendChild(fin);
   }
   // Нәтиже бетінде: INSERT белгілерінің саны және «?» қойылған абзацтар (мұғалім нені қайта түсіндіру керегін көреді)
   function renderInsResult() {

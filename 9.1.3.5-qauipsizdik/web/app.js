@@ -661,6 +661,13 @@
       box.appendChild(el('h3', null, T('Өзін-өзі бағалау мен нәтиже', 'Самооценка и результат')));
       var u3 = el('ul', 'small'); notes.forEach(function (n) { u3.appendChild(el('li', null, n)); }); box.appendChild(u3);
     }
+    // 5. Қорытынды балл: жинаған балл 10 балдық шкалаға пропорция бойынша ауыстырылады (бүтін санға дөңгелектенеді)
+    var tt = totals(), ten = tt.max ? 10 * tt.got / tt.max : 0, mark = Math.round(ten);
+    var fin = el('div', 'an-final');
+    fin.appendChild(el('p', 'an-final-h', T('Қорытынды балл', 'Итоговый балл')));
+    fin.appendChild(el('p', 'an-final-num', mark + ' / 10'));
+    fin.appendChild(el('p', 'muted small', T('Есептеу: ', 'Расчёт: ') + tt.got + ' × 10 : ' + tt.max + ' = ' + (Math.round(ten * 10) / 10).toString().replace('.', ',') + ' ≈ ' + mark));
+    box.appendChild(fin);
   }
   // Нәтиже бетінде: INSERT белгілерінің саны және «?» қойылған абзацтар (мұғалім нені қайта түсіндіру керегін көреді)
   function renderInsResult() {
