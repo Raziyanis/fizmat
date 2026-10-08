@@ -121,7 +121,43 @@
     $('b-theory-back').hidden = !during;
     $('b-theory-result').hidden = !after;
     $('t-end-text').hidden = during || after;
+    renderTC();
     show('s-theory');
+  }
+  // «Тоқта да ойлан»: теорияның әр бөлімінен кейінгі сұрақ. Барлығына дұрыс жауап берілмейінше «Жұмысқа өту» жабық.
+  // state.tc[k] = { ok: true/false, tries: n } — нәтиже бетінде мұғалім «бірінші реттен дұрыс» санын көреді.
+  function tcDone() { return C.TC.every(function (_, k) { return state && state.tc && state.tc[k] && state.tc[k].ok; }); }
+  function renderTC() {
+    if (!state) return;
+    state.tc = state.tc || [];
+    document.querySelectorAll('.tc').forEach(function (box) {
+      var k = Number(box.getAttribute('data-tc')), q = C.TC[k], lang = box.closest('.lang-ru') ? 'ru' : 'kz', st = state.tc[k] || { ok: false, tries: 0 };
+      var tl = function (kz, ru) { return lang === 'kz' ? kz : ru; };
+      box.innerHTML = '';
+      box.className = 'tc' + (st.ok ? ' done' : '');
+      box.appendChild(el('p', 'tc-head', tl('🤔 Тоқта да ойлан', '🤔 Остановись и подумай')));
+      box.appendChild(el('p', 'tc-q', q[0][lang]));
+      var order = [0, 1, 2].sort(function (a, b) { return ((k * 7 + a * 3) % 5) - ((k * 7 + b * 3) % 5); });   // тұрақты аралас рет
+      var fb = el('p', 'tc-fb');
+      order.forEach(function (n) {
+        var b = el('button', 'tc-opt' + (st.ok && n === 0 ? ' right' : ''), q[1][n][lang]);
+        if (st.ok) b.disabled = true;
+        b.addEventListener('click', function () {
+          var cur = state.tc[k] || { ok: false, tries: 0 };
+          cur.tries++;
+          if (n === 0) { cur.ok = true; state.tc[k] = cur; save(); renderTC(); return; }
+          state.tc[k] = cur; save();
+          b.classList.add('wrong'); b.disabled = true;
+          fb.className = 'tc-fb bad'; fb.textContent = tl('Дұрыс емес. Бөлімді қайта оқып, тағы таңдаңыз.', 'Неверно. Перечитайте раздел и выберите ещё раз.');
+        });
+        box.appendChild(b);
+      });
+      if (st.ok) { fb.className = 'tc-fb ok'; fb.textContent = '✓ ' + q[2][lang]; }
+      box.appendChild(fb);
+    });
+    var done = C.TC.filter(function (_, k) { return state.tc[k] && state.tc[k].ok; }).length;
+    $('b-to-intro').disabled = !tcDone();
+    $('tc-progress').textContent = tcDone() ? '' : T('Жұмысқа өту үшін теориядағы барлық «🤔 Тоқта да ойлан» сұрақтарына жауап беріңіз: ', 'Чтобы перейти к работе, ответьте на все вопросы «🤔 Остановись и подумай» в теории: ') + done + ' / ' + C.TC.length;
   }
   function begin() {
     $('b-start').disabled = true;
@@ -163,7 +199,7 @@
     if (inBonus()) box.appendChild(el('p', 'bonus-badge', T('★ Қосымша деңгей · ', '★ Дополнительный уровень · ') + state.bcur.n + T('-әрекет / ', '-я попытка из ') + BONUS_N + T(' · балл негізгі бағаға қосылмайды', ' · баллы не входят в основную оценку')));
     box.appendChild(el('p', 'muted small', T('Тапсырма ', 'Задание ') + (i + 1) + ' / ' + w.tasks.length + ' · ' + T('оқу мақсаты ', 'цель ') + t.obj + ' · ' + T('ең жоғары балл: ', 'максимум баллов: ') + t.max));
     box.appendChild(el('h2', 'task-title', L(t.title)));
-    var R = { match: rMatch, fill: rFill, tf: rTF, hot: rHot, sort: rSort, order: rOrder, chat: rChat, multi: rMulti, text: rText };
+    var R = { match: rMatch, fill: rFill, tf: rTF, hot: rHot, sort: rSort, order: rOrder, chat: rChat, multi: rMulti, text: rText, read: rRead };
     R[t.type](t, w.st.ans[i], box, i);
     $('b-prev').disabled = i === 0;
     $('b-next').disabled = i === w.tasks.length - 1;
@@ -320,6 +356,23 @@
     });
   }
 
+  function rRead(t, a, box, i) {
+    box.appendChild(el('p', 'lead', T('Мәтінді мұқият оқып, сұрақтарға жауап беріңіз. Жауапты мәтіннен іздеңіз.', 'Внимательно прочитайте текст и ответьте на вопросы. Ищите ответ в тексте.')));
+    box.appendChild(el('div', 'read-text', L(t.text)));
+    t.qs.forEach(function (q, k) {
+      var wrap = el('div', 'read-q');
+      wrap.appendChild(el('span', 'lv', L(q.lv)));
+      wrap.appendChild(el('p', 'tc-q', (k + 1) + '. ' + L(q.q)));
+      q.opts.forEach(function (o, n) {
+        var lab = el('label', 'check' + (a[k] === n ? ' on' : ''));
+        var rb = el('input'); rb.type = 'radio'; rb.name = 'rq' + k; rb.checked = a[k] === n;
+        rb.addEventListener('change', function () { var c = W().st.ans[i].slice(); c[k] = n; set(i, c); rerender(); });
+        lab.appendChild(rb); lab.appendChild(el('span', null, L(o)));
+        wrap.appendChild(lab);
+      });
+      box.appendChild(wrap);
+    });
+  }
   function rText(t, a, box, i) {
     box.appendChild(el('div', 'case', L(t.ctx)));
     if (t.kind === 'rewrite') {
@@ -483,7 +536,9 @@
     });
     tb.appendChild(table);
     var start = state.workStartedAt || state.startedAt;
-    $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '');
+    var first = (state.tc || []).filter(function (x) { return x && x.ok && x.tries === 1; }).length;
+    $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '') +
+      ' · ' + T('Теорияны саналы оқу («Тоқта да ойлан»): бірінші реттен дұрыс — ', 'Осознанное чтение теории («Остановись и подумай»): верно с первого раза — ') + first + ' / ' + C.TC.length;
     renderBonus();
     var rv = $('r-review'); rv.innerHTML = '';
     tasks.forEach(function (t, i) {
@@ -590,6 +645,13 @@
           card.appendChild(line(ok, right + L(s.opts[s.key]), (ok ? '' : you + (a[k] === null ? none : L(s.opts[a[k]])) + '. ') + L(s.why)));
         });
         break;
+      case 'read':
+        card.appendChild(el('div', 'read-text small', L(t.text)));
+        t.qs.forEach(function (q, k) {
+          var ok = a[k] === q.key;
+          card.appendChild(line(ok, '[' + L(q.lv) + '] ' + L(q.q) + ' — ' + L(q.opts[q.key]), (ok ? '' : you + (a[k] == null ? none : L(q.opts[a[k]])) + '. ') + L(q.why)));
+        });
+        break;
       case 'text': {
         card.appendChild(el('div', 'case', L(t.ctx)));
         if (t.kind === 'rewrite') card.appendChild(el('div', 'bubble in rude', L(t.rude)));
@@ -644,7 +706,7 @@
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     setLang(LANG);
     $('b-gate').addEventListener('click', startSession);
-    $('b-to-intro').addEventListener('click', function () { show('s-intro'); });
+    $('b-to-intro').addEventListener('click', function () { if (tcDone()) show('s-intro'); });
     $('b-back-theory').addEventListener('click', showTheory);
     $('b-theory-back').addEventListener('click', renderTask);
     $('b-start').addEventListener('click', begin);

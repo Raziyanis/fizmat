@@ -23,11 +23,11 @@ function walk(x, where) {
   }
 }
 walk(C.BANKS, 'BANKS');
-['kz', 'ru'].forEach((l) => { if (!C.THEORY[l] || C.THEORY[l].length < 3000) fail('теория ' + l); });
+['kz', 'ru'].forEach((l) => { if (!C.THEORY[l] || C.THEORY[l].length < 3000) fail('теория ' + l); if ((C.THEORY[l].match(/class="tc"/g) || []).length !== C.TC.length) fail('теория ' + l + ': число «Тоқта да ойлан» не совпадает'); });
 const kinds = {};
 for (let seed = 1; seed <= 500; seed++) {
   const T = C.generate(seed * 2654435761 >>> 0);
-  if (T.length !== 13) fail('не 13 заданий');
+  if (T.length !== 15) fail('не 15 заданий');
   T.forEach((t, i) => {
     kinds[t.type] = (kinds[t.type] || 0) + 1;
     walk(t, 'task' + i);
@@ -71,8 +71,8 @@ for (let seed = 1; seed <= 300; seed++) {
   }));
   if (JSON.stringify(A[0].parts) === JSON.stringify(B[0].parts)) fail('попытки 1 и 2: одно и то же письмо');
   if (A[2].rude.kz === B[2].rude.kz) fail('попытки 1 и 2: одно и то же «Түзет»');
-  if ([A[2], B[2]].some((x) => x.rude.kz === M[11].rude.kz)) fail('доп. уровень повторяет «Түзет» из основной работы');
-  if ([A[3], B[3]].some((x) => x.ctx.kz === M[12].ctx.kz)) fail('доп. уровень повторяет «Пайымда» из основной работы');
+  if ([A[2], B[2]].some((x) => x.rude.kz === M.find((t) => t.kind === 'rewrite').rude.kz)) fail('доп. уровень повторяет «Түзет» из основной работы');
+  if ([A[3], B[3]].some((x) => x.ctx.kz === M.find((t) => t.kind === 'reason').ctx.kz)) fail('доп. уровень повторяет «Пайымда» из основной работы');
   if (A[3].ctx.kz === B[3].ctx.kz) fail('попытки 1 и 2: одна и та же ситуация «Пайымда»');
 }
 // Алдын ала тексеру: сыпайы жауап балл алады, дөрекі көшірме — жоқ

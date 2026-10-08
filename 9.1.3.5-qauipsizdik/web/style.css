@@ -437,3 +437,20 @@ select:focus { outline: none; border-color: var(--accent); }
 .teacher-fix { margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--line); }
 .teacher-fix .row input { width: 180px; }
 .teacher-mark { font-weight: 700; color: #9a5b00; margin: 4px 0; }
+
+/* ===== Саналы оқу ===== */
+.tc { margin: 18px 0 8px; padding: 12px 16px; border: 2px dashed #7aa7f0; border-radius: 12px; background: #f2f7ff; }
+.tc.done { border-style: solid; border-color: #9fd3b0; background: var(--ok-bg); }
+.tc-head { font-weight: 800; color: var(--accent); margin: 0 0 4px; }
+.tc-q { font-weight: 600; margin: 4px 0 8px; }
+.tc-opt { display: block; width: 100%; text-align: left; margin: 6px 0; padding: 8px 12px; }
+.tc-opt.right { border-color: var(--ok); color: var(--ok); font-weight: 700; opacity: 1; }
+.tc-opt.wrong { border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.tc-fb { margin: 6px 0 0; font-weight: 600; }
+.tc-fb.ok { color: var(--ok); }
+.tc-fb.bad { color: var(--bad); }
+.read-text { background: #fffdf5; border: 1px solid #ead9a8; border-radius: 10px; padding: 12px 16px; line-height: 1.6; margin: 6px 0 14px; }
+.read-text.small { font-size: 0.92rem; }
+.read-q { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+.lv { display: inline-block; font-size: 0.8rem; font-weight: 700; color: #6b4ea8; background: #f0eafb; border-radius: 999px; padding: 2px 10px; }
+#tc-progress:empty { display: none; }
