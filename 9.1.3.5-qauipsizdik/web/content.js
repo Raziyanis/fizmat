@@ -628,6 +628,8 @@
     // 13–14. Жазбаша жауап: «Түзет» (9.1.3.5) және «Пайымда» (9.1.3.6)
     T.push(rewriteTask(REWRITE[rwIndex(seed)], false));
     T.push(reasonTask(REASON[rsIndex(seed)], false));
+    // Нәтиже бетіндегі талдау үшін: әр тапсырма қай дағдыны тексереді
+    ['term', 'term', 'term', 'fraud', 'fraud', 'safe', 'safe', 'safe', 'eti', 'read', 'cons', 'cons', 'eti', 'cons'].forEach(function (k, i) { if (T[i]) T[i].skill = k; });
     return T;
   }
 

@@ -128,6 +128,7 @@
   // Тізім мен кесте — бір абзац. Барлығы белгіленбейінше «Жұмысқа өту» жабық. state.ins[k] — белгі.
   var INS = [['v', '✓', { kz: 'Білемін', ru: 'Знаю' }], ['n', '+', { kz: 'Жаңа ақпарат', ru: 'Новое' }], ['d', '−', { kz: 'Басқаша ойлағанмын', ru: 'Думал(а) иначе' }], ['q', '?', { kz: 'Түсінбедім', ru: 'Непонятно' }]];
   var insCount = 0;
+  var state0Sec = {};   // INSERT белгісі → теория бөлімінің нөмірі (1–5)
   function setupINS() {
     ['kz', 'ru'].forEach(function (lang) {
       var root = $('theory-' + lang), k = 0;
@@ -142,6 +143,8 @@
       units.forEach(function (blk) {
         var idx = k++, mini = blk.tagName === 'LI';
         blk.classList.add('ins-block'); blk.setAttribute('data-ins', idx);
+        var sec = 0; root.querySelectorAll('h2.t-h1').forEach(function (h) { if (h.compareDocumentPosition(blk) & 4) sec++; });
+        state0Sec[idx] = sec;
         var bar = el(mini ? 'span' : 'div', 'ins-bar' + (mini ? ' mini' : '')); bar.setAttribute('data-ins', idx);
         if (!mini) bar.appendChild(el('span', 'ins-label', lang === 'kz' ? 'Белгі:' : 'Пометка:'));
         INS.forEach(function (m) {
@@ -546,6 +549,7 @@
     tb.appendChild(table);
     var start = state.workStartedAt || state.startedAt;
     $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '');
+    renderAnalysis();
     renderInsResult();
     renderBonus();
     var rv = $('r-review'); rv.innerHTML = '';
@@ -584,6 +588,77 @@
       });
       box.appendChild(det);
     });
+  }
+  // Нәтиже бетіндегі жеке талдау: оқу мақсаттары, дағдылар, күшті және әлсіз жақтар, INSERT белгілерімен салыстыру
+  var SKILLS = [
+    ['term', K2('Негізгі ұғымдарды білу', 'Знание основных понятий'), []],
+    ['fraud', K2('Алаяқтықты тану (хат, сілтеме)', 'Распознавание мошенничества (письмо, ссылка)'), [1]],
+    ['safe', K2('Қауіпсіз әрекет ету', 'Безопасные действия'), [2, 3]],
+    ['eti', K2('Желілік этикет', 'Сетевой этикет'), [4]],
+    ['read', K2('Мәтінмен жұмыс', 'Работа с текстом'), []],
+    ['cons', K2('Нормаларды бұзудың салдарын пайымдау', 'Рассуждение о последствиях нарушений'), [5]],
+  ];
+  function K2(kz, ru) { return { kz: kz, ru: ru }; }
+  function taskScore(i) { return state.manual && state.manual[i] != null ? state.manual[i] : state.scores[i]; }
+  function pctOf(list) { var g = 0, m = 0; list.forEach(function (i) { g += taskScore(i) || 0; m += tasks[i].max; }); return { g: g, m: m, p: m ? Math.round(100 * g / m) : 0 }; }
+  function level(p) { return p >= 80 ? 'hi' : p >= 50 ? 'mid' : 'lo'; }
+  function secTitle(n) { var h = document.querySelectorAll('#theory-' + LANG + ' h2.t-h1')[n - 1]; return h ? h.textContent : String(n); }
+  function renderAnalysis() {
+    var box = $('r-analysis'); box.innerHTML = '';
+    box.appendChild(el('h2', null, T('Жеке талдау', 'Индивидуальный анализ')));
+    // 1. Оқу мақсаттары
+    var objs = ['9.1.3.5', '9.1.3.6'], ot = el('table', 'res an-obj');
+    var hr = el('tr'); [T('Оқу мақсаты', 'Цель обучения'), T('Балл', 'Балл'), T('Нәтиже', 'Результат')].forEach(function (h) { hr.appendChild(el('th', null, h)); }); ot.appendChild(hr);
+    var OBJ = { '9.1.3.5': T('желідегі қауіпсіздік ережелерін сақтау', 'соблюдать правила безопасности в сети'), '9.1.3.6': T('нормаларды бұзудың салдарын пайымдау', 'рассуждать о последствиях нарушения норм') };
+    var LV = { hi: T('Мақсатқа жетті', 'Цель достигнута'), mid: T('Мақсатқа ішінара жетті', 'Цель достигнута частично'), lo: T('Мақсатқа әлі жетпеді', 'Цель пока не достигнута') };
+    objs.forEach(function (o) {
+      var ids = []; tasks.forEach(function (t, i) { if (t.obj === o) ids.push(i); });
+      var r = pctOf(ids), tr = el('tr', level(r.p) === 'hi' ? 'ok' : level(r.p) === 'mid' ? 'mid' : 'bad');
+      tr.appendChild(el('td', null, o + ' — ' + OBJ[o])); tr.appendChild(el('td', null, r.g + ' / ' + r.m + ' (' + r.p + '%)')); tr.appendChild(el('td', null, LV[level(r.p)]));
+      ot.appendChild(tr);
+    });
+    box.appendChild(ot);
+    // 2. Дағдылар
+    box.appendChild(el('h3', null, T('Дағдылар бойынша', 'По умениям')));
+    var res = SKILLS.map(function (s) { var ids = []; tasks.forEach(function (t, i) { if (t.skill === s[0]) ids.push(i); }); return { s: s, ids: ids, r: pctOf(ids) }; }).filter(function (x) { return x.ids.length; });
+    res.forEach(function (x) {
+      var row = el('div', 'an-row an-' + level(x.r.p));
+      row.appendChild(el('span', 'an-name', L(x.s[1])));
+      var bar = el('span', 'an-bar'), fill = el('span', 'an-fill'); fill.style.width = x.r.p + '%'; bar.appendChild(fill); row.appendChild(bar);
+      row.appendChild(el('span', 'an-pct', x.r.p + '%'));
+      row.appendChild(el('span', 'an-tasks muted small', T('тапсырмалар: ', 'задания: ') + x.ids.map(function (i) { return i + 1; }).join(', ')));
+      box.appendChild(row);
+    });
+    // 3. Күшті жақтар және жетілдіру
+    var strong = res.filter(function (x) { return x.r.p >= 80; }), weak = res.filter(function (x) { return x.r.p < 60; });
+    var sw = el('div', 'an-sw');
+    var c1 = el('div', 'an-col'); c1.appendChild(el('p', 'an-h ok-t', T('👍 Күшті жақтарыңыз', '👍 Ваши сильные стороны')));
+    var u1 = el('ul'); (strong.length ? strong : [null]).forEach(function (x) { u1.appendChild(el('li', null, x ? L(x.s[1]) : T('Әзірге 80%-дан асқан дағды жоқ — бірақ әр тапсырма сізді алға жылжытады.', 'Пока нет умений выше 80% — но каждое задание продвигает вас вперёд.'))); }); c1.appendChild(u1);
+    var c2 = el('div', 'an-col'); c2.appendChild(el('p', 'an-h bad-t', T('📌 Не жетілдіру керек', '📌 Что улучшить')));
+    var u2 = el('ul');
+    if (!weak.length) u2.appendChild(el('li', null, T('Барлық дағды 60%-дан жоғары. Жарайсыз! Қосымша деңгейде өзіңізді сынап көріңіз.', 'Все умения выше 60%. Отлично! Попробуйте себя на дополнительном уровне.')));
+    weak.forEach(function (x) {
+      var tip = x.s[2].length ? T('Теорияны қайта қараңыз: ', 'Перечитайте теорию: ') + x.s[2].map(function (n) { return '«' + secTitle(n) + '»'; }).join(', ') + '.'
+        : x.s[0] === 'read' ? T('Мәтінді асықпай оқып, жауапты мәтіннен іздеңіз.', 'Читайте текст не спеша и ищите ответ в тексте.')
+        : T('Терминдер мен олардың анықтамаларын қайталаңыз (теориядағы қою әріппен жазылған сөздер).', 'Повторите термины и их определения (слова, выделенные жирным в теории).');
+      u2.appendChild(el('li', null, L(x.s[1]) + ' — ' + x.r.p + '%. ' + T('Төмендегі талдаудан ', 'Посмотрите в разборе ниже ' + (x.ids.length > 1 ? 'задания ' : 'задание ')) + x.ids.map(function (i) { return i + 1; }).join(', ') + T(x.ids.length > 1 ? '-тапсырмаларды қараңыз. ' : '-тапсырманы қараңыз. ', '. ') + tip));
+    });
+    c2.appendChild(u2); sw.appendChild(c1); sw.appendChild(c2); box.appendChild(sw);
+    // 4. Өзін-өзі бағалау (INSERT) мен нәтижені салыстыру
+    var ins = state.ins || {}, notes = [];
+    res.forEach(function (x) {
+      if (!x.s[2].length) return;
+      var marks = Object.keys(ins).filter(function (k) { return x.s[2].indexOf(state0Sec[k]) >= 0; }).map(function (k) { return ins[k]; });
+      if (!marks.length) return;
+      var known = marks.filter(function (m) { return m === 'v'; }).length / marks.length, unclear = marks.filter(function (m) { return m === 'q' || m === 'd'; }).length;
+      if (known >= 0.5 && x.r.p < 60) notes.push(T('«' + L(x.s[1]) + '»: теорияда көбін «✓ Білемін» деп белгіледіңіз, бірақ тапсырмаларда қате бар (' + x.r.p + '%). Білетін нәрсені де мұқият тексерген жөн.', '«' + L(x.s[1]) + '»: в теории вы чаще отмечали «✓ Знаю», но в заданиях есть ошибки (' + x.r.p + '%). Даже знакомое стоит проверять внимательно.'));
+      else if (unclear && x.r.p >= 80) notes.push(T('«' + L(x.s[1]) + '»: теорияда «?» немесе «−» белгісін қойғансыз, бірақ тапсырмаларды жақсы орындадыңыз (' + x.r.p + '%). Түсінбегеніңізді анықтап алдыңыз — жарайсыз!', '«' + L(x.s[1]) + '»: в теории вы ставили «?» или «−», но задания выполнили хорошо (' + x.r.p + '%). Вы разобрались в непонятном — отлично!'));
+      else if (unclear && x.r.p < 60) notes.push(T('«' + L(x.s[1]) + '»: теорияда «?» немесе «−» қойғансыз және тапсырмалар қиын болды (' + x.r.p + '%). Мұғалімнен сұраңыз.', '«' + L(x.s[1]) + '»: в теории вы ставили «?» или «−», и задания дались трудно (' + x.r.p + '%). Спросите учителя.'));
+    });
+    if (notes.length) {
+      box.appendChild(el('h3', null, T('Өзін-өзі бағалау мен нәтиже', 'Самооценка и результат')));
+      var u3 = el('ul', 'small'); notes.forEach(function (n) { u3.appendChild(el('li', null, n)); }); box.appendChild(u3);
+    }
   }
   // Нәтиже бетінде: INSERT белгілерінің саны және «?» қойылған абзацтар (мұғалім нені қайта түсіндіру керегін көреді)
   function renderInsResult() {

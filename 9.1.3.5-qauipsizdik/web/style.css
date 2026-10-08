@@ -474,3 +474,21 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .ins-block.mark-q { border-left-color: #8b3fb0; background: #f8f0fc; }
 .ins-res { max-width: 640px; margin: 12px auto 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
 .ins-res p { margin: 4px 0; }
+
+/* Жеке талдау */
+.analysis { max-width: 720px; margin: 20px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.analysis h2 { margin: 4px 0 10px; }
+.analysis h3 { margin: 14px 0 6px; font-size: 1.05rem; }
+.an-obj { width: 100%; }
+.an-row { display: grid; grid-template-columns: minmax(150px, 1.4fr) 2fr 48px; gap: 4px 10px; align-items: center; margin: 6px 0; }
+.an-tasks { grid-column: 1 / -1; margin-top: -4px; }
+.an-bar { height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.an-fill { display: block; height: 100%; border-radius: 6px; }
+.an-hi .an-fill { background: var(--ok); }
+.an-mid .an-fill { background: #d39a00; }
+.an-lo .an-fill { background: #c0392b; }
+.an-pct { font-weight: 700; text-align: right; }
+.an-sw { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.an-col ul { margin: 4px 0; padding-left: 20px; }
+.an-h { font-weight: 700; margin: 0; }
+@media (max-width: 600px) { .an-sw { grid-template-columns: 1fr; } }
