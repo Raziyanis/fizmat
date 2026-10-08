@@ -354,7 +354,7 @@
   }
   // ---------- Қосымша деңгей (★) ----------
   function startBonus() {
-    if (!state || state.status !== 'finished' || (state.bonus || []).length >= BONUS_N) return;
+    if (!state || state.status !== 'finished' || state.bonusClosed || (state.bonus || []).length >= BONUS_N) return;
     clearInterval(hideTimer);
     enterFullscreen();
     state.bonus = state.bonus || [];
@@ -372,7 +372,7 @@
     btasks.forEach(function (t, i) {
       if (t.type === 'text') {
         var pre = C.precheck(t, b.ans[i]), empty = !String(b.ans[i] || '').trim();
-        rec.text[i] = { pre: pre, ai: null, lang: LANG, status: empty ? 'empty' : (AI && AI.enabled() ? 'pending' : 'auto') };
+        rec.text[i] = { pre: pre, ai: null, status: empty ? 'empty' : 'auto' };
         rec.scores[i] = pre.score;
       } else rec.scores[i] = C.score(t, b.ans[i]);
     });
@@ -382,21 +382,28 @@
     clearInterval(ticker);
     $('warn').hidden = true; $('m-back').hidden = true;
     fsActive = false; exitFullscreen();
-    renderResult();
-    runAI();
+    if (state.bonus.length >= BONUS_N) aiCheck(); else renderResult();
   }
-  // Жазбаша жауаптарды ЖИ-ге кезекпен жібереміз (тегін тарифтің лимиті үшін бір-бірден)
+  // ЖИ-тексеру — бір оқушыға бір рет, соңында: барлық әрекеттің жазбаша жауаптары бір сұраумен
+  function aiItems() {
+    var out = [];
+    (state.bonus || []).forEach(function (rec) { var ts = recTasks(rec); Object.keys(rec.text).forEach(function (i) { if (rec.text[i].status !== 'empty') out.push({ rec: rec, i: Number(i), t: ts[i], text: rec.ans[i] }); }); });
+    return out;
+  }
+  function aiCanRun() { return !!(AI && AI.enabled() && state && !state.aiState && aiItems().length); }
   var aiBusy = false;
-  function runAI() {
-    if (aiBusy || !state || !state.bonus || !AI || !AI.enabled()) return;
-    var job = null;
-    state.bonus.forEach(function (rec) { Object.keys(rec.text).forEach(function (i) { if (!job && rec.text[i].status === 'pending') job = { rec: rec, i: Number(i) }; }); });
-    if (!job) return;
+  function aiCheck() {
+    if (!aiCanRun() && !(state && state.aiState === 'pending')) { renderResult(); return; }
+    if (aiBusy) return;
     aiBusy = true;
-    var e = job.rec.text[job.i], t = recTasks(job.rec)[job.i];
-    AI.grade(t, job.rec.ans[job.i], e.lang).then(function (res) { e.ai = res; e.status = 'done'; job.rec.scores[job.i] = res.score; },
-      function (err) { e.status = 'error'; e.err = String(err && err.message || err); })
-      .then(function () { aiBusy = false; save(); if (!$('s-result').hidden) renderResult(); runAI(); });
+    state.aiState = 'pending'; state.aiLang = state.aiLang || LANG; state.bonusClosed = true;
+    save(); renderResult();
+    var items = aiItems();
+    AI.gradeAll(items, state.aiLang).then(function (res) {
+      items.forEach(function (x, n) { var e = x.rec.text[x.i]; if (res[n]) { e.ai = res[n]; e.status = 'done'; x.rec.scores[x.i] = res[n].score; } });
+      state.aiState = 'done';
+    }, function (err) { state.aiState = 'error'; state.aiErr = String(err && err.message || err); })
+      .then(function () { aiBusy = false; save(); if (!$('s-result').hidden) renderResult(); });
   }
   function recTasks(rec) { return C.generateBonus(rec.seed, rec.n); }
   function recScore(rec) {
@@ -474,8 +481,13 @@
     scheduleReset();
   }
   function renderBonus() {
-    var list = state.bonus || [], left = BONUS_N - list.length;
+    var list = state.bonus || [], left = state.bonusClosed ? 0 : BONUS_N - list.length;
     $('b-bonus').hidden = left <= 0;
+    $('b-ai').hidden = !aiCanRun() || left <= 0;
+    $('r-ai-state').textContent = state.aiState === 'pending' ? T('🤖 Жасанды интеллект жауаптарды тексеруде…', '🤖 Искусственный интеллект проверяет ответы…')
+      : state.aiState === 'done' ? T('🤖 Жазбаша жауаптарды жасанды интеллект тексерді.', '🤖 Письменные ответы проверены искусственным интеллектом.')
+      : state.aiState === 'error' ? T('🤖 ЖИ-ге қосылу мүмкін болмады — автоматты баға қалды.', '🤖 Не удалось связаться с ИИ — осталась автоматическая оценка.')
+      : aiCanRun() ? T('🤖 Жазбаша жауаптарды жасанды интеллект соңында бір рет тексереді: екі әрекет аяқталғанда немесе «Аяқтау және ЖИ-ге тексерту» батырмасын басқанда.', '🤖 Письменные ответы ИИ проверит один раз в конце: после второй попытки или по кнопке «Завершить и проверить ИИ».') : '';
     $('r-bonus-left').textContent = left > 0 ? T('Қалған әрекет: ', 'Осталось попыток: ') + left + ' / ' + BONUS_N + '. ' + T('Бір әрекетке — ', 'На одну попытку — ') + Math.round(BONUS_MS / 60000) + T(' минут.', ' минут.') : T('Әрекеттер аяқталды.', 'Попытки закончились.');
     var box = $('r-bonus-list'); box.innerHTML = '';
     if (!list.length) return;
@@ -483,7 +495,7 @@
     box.appendChild(el('p', 'stars', '★ ' + recScore(best) + ' / ' + recMax(best) + ' ' + T('(ең жақсы әрекет)', '(лучшая попытка)')));
     list.forEach(function (rec) {
       var det = el('details', 'bonus-att'); if (rec === list[list.length - 1]) det.open = true;
-      var pending = Object.keys(rec.text).some(function (i) { return rec.text[i].status === 'pending'; });
+      var pending = state.aiState === 'pending';
       det.appendChild(el('summary', null, rec.n + T('-әрекет: ★ ', '-я попытка: ★ ') + recScore(rec) + ' / ' + recMax(rec) + (pending ? T(' · ЖИ тексеруде…', ' · ИИ проверяет…') : '') +
         (rec.reason && rec.reason !== 'done' ? ' · ' + (rec.reason === 'time' ? L(REASONS.time) : T('ереже бұзылғандықтан аяқталды', 'завершена из-за нарушений')) : '')));
       recTasks(rec).forEach(function (t, i) {
@@ -500,6 +512,7 @@
     var upd = function () {
       var left = (state.resultAt || state.finishedAt) + RESULT_MS - Date.now();
       if (left <= 0) { clearInterval(hideTimer); resetToStart(); return; }
+      if (left < 60000 && aiCanRun()) aiCheck();   // оқушы ештеңе баспаса — нәтиже жабылардан 1 минут бұрын тексереміз
       $('r-hide').textContent = T('Бастапқы бет мына уақыттан кейін ашылады: ', 'Начальная страница откроется через ') + fmt(left) + '.';
     };
     upd();
@@ -568,8 +581,7 @@
         card.appendChild(el('div', 'student-text', String(a || '').trim() || none));
         var e = extra || {}, ai = e.ai, pre = e.pre || { crit: [] };
         var src = e.status === 'done' ? T('Жасанды интеллект бағасы. Келіспесеңіз, мұғалімге айтыңыз.', 'Оценка искусственного интеллекта. Если не согласны — скажите учителю.')
-          : e.status === 'pending' ? T('Жасанды интеллект тексеруде… Әзірге — автоматты баға.', 'Искусственный интеллект проверяет… Пока — автоматическая оценка.')
-          : e.status === 'error' ? T('ЖИ-ге қосылу мүмкін болмады (интернет немесе лимит). Автоматты баға көрсетілді.', 'Не удалось связаться с ИИ (интернет или лимит). Показана автоматическая оценка.')
+          : state.aiState === 'pending' ? T('Жасанды интеллект тексеруде… Әзірге — автоматты баға.', 'Искусственный интеллект проверяет… Пока — автоматическая оценка.')
           : e.status === 'empty' ? T('Жауап жазылмаған.', 'Ответ не написан.')
           : T('Автоматты тексеру (кеңестерімен). Қорытынды бағаны мұғалім қояды.', 'Автоматическая проверка (с подсказками). Итоговую оценку ставит учитель.');
         card.appendChild(el('p', 'muted small', src));
@@ -627,6 +639,7 @@
     $('b-finish').addEventListener('click', function () { confirmText(); $('m-confirm').hidden = false; });
     $('b-finish-yes').addEventListener('click', function () { if (inBonus()) finishBonus('done'); else finish('done'); });
     $('b-bonus').addEventListener('click', startBonus);
+    $('b-ai').addEventListener('click', aiCheck);
     $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
     $('b-back-fs').addEventListener('click', backToFullscreen);
     $('b-restart').addEventListener('click', resetToStart);
@@ -667,7 +680,7 @@
       $('m-back').hidden = false;
       return;
     }
-    if (state && state.status === 'finished') { renderResult(); runAI(); return; }
+    if (state && state.status === 'finished') { renderResult(); if (state.aiState === 'pending') aiCheck(); return; }
     state = null;
     show('s-gate');
   }
