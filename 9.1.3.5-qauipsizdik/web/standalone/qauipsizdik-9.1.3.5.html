@@ -478,6 +478,23 @@ select:focus { outline: none; border-color: var(--accent); }
 .read-q { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
 .lv { display: inline-block; font-size: 0.8rem; font-weight: 700; color: #6b4ea8; background: #f0eafb; border-radius: 999px; padding: 2px 10px; }
 #tc-progress:empty { display: none; }
+
+/* ===== INSERT белгілері ===== */
+.ins-block { border-left: 4px solid transparent; padding-left: 8px; transition: background 0.2s; }
+.ins-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 2px 0 14px 12px; }
+.ins-label { font-size: 0.8rem; color: var(--muted); }
+.ins-btn { font-size: 0.8rem; padding: 3px 10px; border-radius: 999px; }
+.ins-btn.on { color: #fff; font-weight: 700; }
+.ins-btn.ins-v.on { background: var(--ok); border-color: var(--ok); }
+.ins-btn.ins-n.on { background: var(--accent); border-color: var(--accent); }
+.ins-btn.ins-d.on { background: #b5520f; border-color: #b5520f; }
+.ins-btn.ins-q.on { background: #8b3fb0; border-color: #8b3fb0; }
+.ins-block.mark-v { border-left-color: var(--ok); }
+.ins-block.mark-n { border-left-color: var(--accent); background: #f2f7ff; }
+.ins-block.mark-d { border-left-color: #b5520f; background: #fff7ef; }
+.ins-block.mark-q { border-left-color: #8b3fb0; background: #f8f0fc; }
+.ins-res { max-width: 640px; margin: 12px auto 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.ins-res p { margin: 4px 0; }
 </style>
 </head>
 <body>
@@ -561,6 +578,7 @@ select:focus { outline: none; border-color: var(--accent); }
       <p id="r-pct" class="center muted"></p>
       <div id="r-table" class="r-table"></div>
       <div id="r-time" class="time-box"></div>
+      <div id="r-ins" class="ins-res"></div>
       <p id="r-hide" class="muted small center"></p>
       <div id="r-bonus" class="bonus-box">
         <h2><span class="lang-kz">★ Қосымша деңгей</span><span class="lang-ru">★ Дополнительный уровень</span></h2>
@@ -766,40 +784,6 @@ select:focus { outline: none; border-color: var(--accent); }
       '</ol>',
     ].join('\n'),
   };
-
-  // «Тоқта да ойлан»: теорияның әр бөлімінен кейін бір сұрақ (opts[0] — дұрыс жауап)
-  ['kz', 'ru'].forEach(function (l) {
-    var parts = THEORY[l].split('<h2 class="t-h1">'), n = 0;
-    THEORY[l] = parts.map(function (p, i) { return i === 0 ? p : '<h2 class="t-h1">' + p + '<div class="tc" data-tc="' + (n++) + '"></div>'; }).join('');
-  });
-  var TC = [
-    [K('Фишинг дегеніміз не?', 'Что такое фишинг?'),
-      [K('Жалған сайт, хат немесе хабарлама арқылы логин, құпиясөз, карта деректерін алдап алу', 'Выманивание логина, пароля, данных карты через поддельный сайт, письмо или сообщение'),
-        K('Компьютерді бұзатын вирус түрі', 'Вид вируса, который ломает компьютер'),
-        K('Пайдалы жарнама хабарламасы', 'Полезное рекламное сообщение')],
-      K('Фишинг — алдау: жалған сайт пен хат ресмиге ұқсас жасалады.', 'Фишинг — это обман: поддельный сайт и письмо делают похожими на официальные.')],
-    [K('«Банк қызметкері» қоңырау шалып, SMS-кодты сұрады. Не істейсіз?', '«Сотрудник банка» звонит и просит SMS-код. Что делать?'),
-      [K('Кодты айтпаймын, банктің ресми нөміріне өзім хабарласамын', 'Не называю код, сам(а) звоню на официальный номер банка'),
-        K('Айтамын — ол банктен ғой', 'Назову — он же из банка'),
-        K('Кодтың жартысын ғана айтамын', 'Назову только половину кода')],
-      K('Банк SMS-кодты ешқашан сұрамайды.', 'Банк никогда не спрашивает SMS-код.')],
-    [K('Сізді интернетте қорлап жатыр. Алдымен не істеу керек?', 'Вас оскорбляют в интернете. Что сделать в первую очередь?'),
-      [K('Жауап бермей, скриншот сақтау', 'Не отвечать и сохранить скриншот'),
-        K('Дәл сондай сөзбен жауап беру', 'Ответить тем же'),
-        K('Ешкімге айтпай, шыдау', 'Никому не говорить и терпеть')],
-      K('Скриншот — дәлел; кейін бұғаттап, ересектерге айтамыз.', 'Скриншот — доказательство; затем блокируем и рассказываем взрослым.')],
-    [K('Хабарламаны түгел БАС ӘРІППЕН жазу нені білдіреді?', 'Что означает сообщение, целиком написанное ЗАГЛАВНЫМИ БУКВАМИ?'),
-      [K('Айғайлау', 'Крик'), K('Ерекше құрмет', 'Особое уважение'), K('Ресми хат', 'Официальное письмо')],
-      K('Бас әріппен жазу интернетте айғайлау деп қабылданады.', 'Заглавные буквы в интернете воспринимаются как крик.')],
-    [K('Цифрлық із дегеніміз не?', 'Что такое цифровой след?'),
-      [K('Интернеттегі әрекеттерден қалатын ақпарат: жазбалар, суреттер, пікірлер', 'Информация, которая остаётся после действий в интернете: посты, фото, комментарии'),
-        K('Тек браузердің тарихы', 'Только история браузера'),
-        K('Компьютердегі файлдар', 'Файлы на компьютере')],
-      K('Жарияланған нәрсені біреу көшіріп үлгеруі мүмкін — ол ізде қалады.', 'Опубликованное могут успеть скопировать — оно остаётся в следе.')],
-    [K('Қайсысы — факт?', 'Что из этого — факт?'),
-      [K('Хат 23:58-де жіберілген', 'Письмо отправлено в 23:58'), K('Бұл ең сенімді дүкен', 'Это самый надёжный магазин'), K('Меніңше, бұл жаңалық шын', 'По-моему, эта новость правдивая')],
-      K('Факт — тексеруге болатын нақты мәлімет; қалғандары — пікір.', 'Факт — конкретные сведения, которые можно проверить; остальное — мнения.')],
-  ];
 
   // ---------------- Банки тапсырмалар ----------------
   var TERMS = [
@@ -1357,8 +1341,8 @@ select:focus { outline: none; border-color: var(--accent); }
     }
   }
 
-  window.CONTENT = { THEORY: THEORY, TC: TC, generate: generate, generateBonus: generateBonus, precheck: precheck, empty: empty, score: score, touched: touched, complete: complete, perfect: perfect,
-    BANKS: { TERMS: TERMS, FILLS: FILLS, TF: TF, PHISH: PHISH, URLS: URLS, SAFETY: SAFETY, PASSWORDS: PASSWORDS, CHATS: CHATS, NETCHAT: NETCHAT, CASES: CASES, READS: READS, FACTOP: FACTOP, TC: TC, PHISH_HARD: PHISH_HARD, URLS_HARD: URLS_HARD, REWRITE: REWRITE, REASON: REASON, REASON_Q: REASON_Q, REWRITE_CRIT: REWRITE_CRIT, REASON_CRIT: REASON_CRIT, HINTS: HINTS } };
+  window.CONTENT = { THEORY: THEORY, generate: generate, generateBonus: generateBonus, precheck: precheck, empty: empty, score: score, touched: touched, complete: complete, perfect: perfect,
+    BANKS: { TERMS: TERMS, FILLS: FILLS, TF: TF, PHISH: PHISH, URLS: URLS, SAFETY: SAFETY, PASSWORDS: PASSWORDS, CHATS: CHATS, NETCHAT: NETCHAT, CASES: CASES, READS: READS, FACTOP: FACTOP, PHISH_HARD: PHISH_HARD, URLS_HARD: URLS_HARD, REWRITE: REWRITE, REASON: REASON, REASON_Q: REASON_Q, REWRITE_CRIT: REWRITE_CRIT, REASON_CRIT: REASON_CRIT, HINTS: HINTS } };
 })();
 
 </script>
@@ -1581,43 +1565,44 @@ select:focus { outline: none; border-color: var(--accent); }
     $('b-theory-back').hidden = !during;
     $('b-theory-result').hidden = !after;
     $('t-end-text').hidden = during || after;
-    renderTC();
+    renderINS();
     show('s-theory');
   }
-  // «Тоқта да ойлан»: теорияның әр бөлімінен кейінгі сұрақ. Барлығына дұрыс жауап берілмейінше «Жұмысқа өту» жабық.
-  // state.tc[k] = { ok: true/false, tries: n } — нәтиже бетінде мұғалім «бірінші реттен дұрыс» санын көреді.
-  function tcDone() { return C.TC.every(function (_, k) { return state && state.tc && state.tc[k] && state.tc[k].ok; }); }
-  function renderTC() {
-    if (!state) return;
-    state.tc = state.tc || [];
-    document.querySelectorAll('.tc').forEach(function (box) {
-      var k = Number(box.getAttribute('data-tc')), q = C.TC[k], lang = box.closest('.lang-ru') ? 'ru' : 'kz', st = state.tc[k] || { ok: false, tries: 0 };
-      var tl = function (kz, ru) { return lang === 'kz' ? kz : ru; };
-      box.innerHTML = '';
-      box.className = 'tc' + (st.ok ? ' done' : '');
-      box.appendChild(el('p', 'tc-head', tl('🤔 Тоқта да ойлан', '🤔 Остановись и подумай')));
-      box.appendChild(el('p', 'tc-q', q[0][lang]));
-      var order = [0, 1, 2].sort(function (a, b) { return ((k * 7 + a * 3) % 5) - ((k * 7 + b * 3) % 5); });   // тұрақты аралас рет
-      var fb = el('p', 'tc-fb');
-      order.forEach(function (n) {
-        var b = el('button', 'tc-opt' + (st.ok && n === 0 ? ' right' : ''), q[1][n][lang]);
-        if (st.ok) b.disabled = true;
-        b.addEventListener('click', function () {
-          var cur = state.tc[k] || { ok: false, tries: 0 };
-          cur.tries++;
-          if (n === 0) { cur.ok = true; state.tc[k] = cur; save(); renderTC(); return; }
-          state.tc[k] = cur; save();
-          b.classList.add('wrong'); b.disabled = true;
-          fb.className = 'tc-fb bad'; fb.textContent = tl('Дұрыс емес. Бөлімді қайта оқып, тағы таңдаңыз.', 'Неверно. Перечитайте раздел и выберите ещё раз.');
+  // INSERT: оқушы теорияның әр абзацын белгілейді (✓ білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім).
+  // Тізім мен кесте — бір абзац. Барлығы белгіленбейінше «Жұмысқа өту» жабық. state.ins[k] — белгі.
+  var INS = [['v', '✓', { kz: 'Білемін', ru: 'Знаю' }], ['n', '+', { kz: 'Жаңа ақпарат', ru: 'Новое' }], ['d', '−', { kz: 'Басқаша ойлағанмын', ru: 'Думал(а) иначе' }], ['q', '?', { kz: 'Түсінбедім', ru: 'Непонятно' }]];
+  var insCount = 0;
+  function setupINS() {
+    ['kz', 'ru'].forEach(function (lang) {
+      var root = $('theory-' + lang), k = 0;
+      root.querySelectorAll('p:not(.t-sub), ul, ol, table').forEach(function (blk) {
+        if (blk.closest('ul, ol') && blk.tagName !== 'UL' && blk.tagName !== 'OL' && blk.parentElement.closest('ul, ol')) return;
+        var idx = k++;
+        blk.classList.add('ins-block'); blk.setAttribute('data-ins', idx);
+        var bar = el('div', 'ins-bar'); bar.setAttribute('data-ins', idx);
+        bar.appendChild(el('span', 'ins-label', lang === 'kz' ? 'Белгі:' : 'Пометка:'));
+        INS.forEach(function (m) {
+          var b = el('button', 'ins-btn ins-' + m[0], m[1] + ' ' + m[2][lang]);
+          b.addEventListener('click', function () { if (!state) return; state.ins = state.ins || {}; state.ins[idx] = m[0]; save(); renderINS(); });
+          bar.appendChild(b);
         });
-        box.appendChild(b);
+        blk.parentNode.insertBefore(bar, blk.nextSibling);
       });
-      if (st.ok) { fb.className = 'tc-fb ok'; fb.textContent = '✓ ' + q[2][lang]; }
-      box.appendChild(fb);
+      insCount = k;
     });
-    var done = C.TC.filter(function (_, k) { return state.tc[k] && state.tc[k].ok; }).length;
-    $('b-to-intro').disabled = !tcDone();
-    $('tc-progress').textContent = tcDone() ? '' : T('Жұмысқа өту үшін теориядағы барлық «🤔 Тоқта да ойлан» сұрақтарына жауап беріңіз: ', 'Чтобы перейти к работе, ответьте на все вопросы «🤔 Остановись и подумай» в теории: ') + done + ' / ' + C.TC.length;
+  }
+  function insDone() { return !!state && insCount > 0 && Object.keys(state.ins || {}).length >= insCount; }
+  function renderINS() {
+    if (!state) return;
+    var ins = state.ins || {};
+    document.querySelectorAll('.ins-block, .ins-bar').forEach(function (e) {
+      var m = ins[e.getAttribute('data-ins')];
+      INS.forEach(function (x) { e.classList.toggle('mark-' + x[0], m === x[0]); });
+      if (e.classList.contains('ins-bar')) e.querySelectorAll('.ins-btn').forEach(function (b, n) { b.classList.toggle('on', INS[n][0] === m); });
+    });
+    var done = Object.keys(ins).length;
+    $('b-to-intro').disabled = !insDone();
+    $('tc-progress').textContent = insDone() ? '' : T('Жұмысқа өту үшін теорияның әр абзацын белгілеңіз (✓ білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім): ', 'Чтобы перейти к работе, отметьте каждый абзац теории (✓ знаю, + новое, − думал(а) иначе, ? непонятно): ') + done + ' / ' + insCount;
   }
   function begin() {
     $('b-start').disabled = true;
@@ -1996,9 +1981,8 @@ select:focus { outline: none; border-color: var(--accent); }
     });
     tb.appendChild(table);
     var start = state.workStartedAt || state.startedAt;
-    var first = (state.tc || []).filter(function (x) { return x && x.ok && x.tries === 1; }).length;
-    $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '') +
-      ' · ' + T('Теорияны саналы оқу («Тоқта да ойлан»): бірінші реттен дұрыс — ', 'Осознанное чтение теории («Остановись и подумай»): верно с первого раза — ') + first + ' / ' + C.TC.length;
+    $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '');
+    renderInsResult();
     renderBonus();
     var rv = $('r-review'); rv.innerHTML = '';
     tasks.forEach(function (t, i) {
@@ -2036,6 +2020,24 @@ select:focus { outline: none; border-color: var(--accent); }
       });
       box.appendChild(det);
     });
+  }
+  // Нәтиже бетінде: INSERT белгілерінің саны және «?» қойылған абзацтар (мұғалім нені қайта түсіндіру керегін көреді)
+  function renderInsResult() {
+    var ins = state.ins || {}, cnt = { v: 0, n: 0, d: 0, q: 0 }, box = $('r-ins');
+    Object.keys(ins).forEach(function (k) { cnt[ins[k]]++; });
+    box.innerHTML = '';
+    box.appendChild(el('p', null, T('Теорияны INSERT әдісімен оқу: ', 'Чтение теории по методу INSERT: ') + '✓ ' + cnt.v + ' · + ' + cnt.n + ' · − ' + cnt.d + ' · ? ' + cnt.q));
+    var qs = Object.keys(ins).filter(function (k) { return ins[k] === 'q' || ins[k] === 'd'; });
+    if (qs.length) {
+      box.appendChild(el('p', 'muted small', T('Түсінбеген (?) және басқаша ойлаған (−) абзацтары:', 'Непонятные (?) и «думал иначе» (−) абзацы:')));
+      var ul = el('ul', 'small');
+      qs.forEach(function (k) {
+        var blk = document.querySelector('#theory-' + LANG + ' .ins-block[data-ins="' + k + '"]');
+        var txt = blk ? blk.textContent.replace(/\s+/g, ' ').trim() : '';
+        ul.appendChild(el('li', null, (ins[k] === 'q' ? '? ' : '− ') + (txt.length > 110 ? txt.slice(0, 110) + '…' : txt)));
+      });
+      box.appendChild(ul);
+    }
   }
   function scheduleReset() {
     clearInterval(hideTimer);
@@ -2162,11 +2164,12 @@ select:focus { outline: none; border-color: var(--accent); }
   function init() {
     $('theory-kz').innerHTML = C.THEORY.kz;
     $('theory-ru').innerHTML = C.THEORY.ru;
+    setupINS();
     document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 30); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     setLang(LANG);
     $('b-gate').addEventListener('click', startSession);
-    $('b-to-intro').addEventListener('click', function () { if (tcDone()) show('s-intro'); });
+    $('b-to-intro').addEventListener('click', function () { if (insDone()) show('s-intro'); });
     $('b-back-theory').addEventListener('click', showTheory);
     $('b-theory-back').addEventListener('click', renderTask);
     $('b-start').addEventListener('click', begin);

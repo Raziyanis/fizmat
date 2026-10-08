@@ -121,43 +121,44 @@
     $('b-theory-back').hidden = !during;
     $('b-theory-result').hidden = !after;
     $('t-end-text').hidden = during || after;
-    renderTC();
+    renderINS();
     show('s-theory');
   }
-  // «Тоқта да ойлан»: теорияның әр бөлімінен кейінгі сұрақ. Барлығына дұрыс жауап берілмейінше «Жұмысқа өту» жабық.
-  // state.tc[k] = { ok: true/false, tries: n } — нәтиже бетінде мұғалім «бірінші реттен дұрыс» санын көреді.
-  function tcDone() { return C.TC.every(function (_, k) { return state && state.tc && state.tc[k] && state.tc[k].ok; }); }
-  function renderTC() {
-    if (!state) return;
-    state.tc = state.tc || [];
-    document.querySelectorAll('.tc').forEach(function (box) {
-      var k = Number(box.getAttribute('data-tc')), q = C.TC[k], lang = box.closest('.lang-ru') ? 'ru' : 'kz', st = state.tc[k] || { ok: false, tries: 0 };
-      var tl = function (kz, ru) { return lang === 'kz' ? kz : ru; };
-      box.innerHTML = '';
-      box.className = 'tc' + (st.ok ? ' done' : '');
-      box.appendChild(el('p', 'tc-head', tl('🤔 Тоқта да ойлан', '🤔 Остановись и подумай')));
-      box.appendChild(el('p', 'tc-q', q[0][lang]));
-      var order = [0, 1, 2].sort(function (a, b) { return ((k * 7 + a * 3) % 5) - ((k * 7 + b * 3) % 5); });   // тұрақты аралас рет
-      var fb = el('p', 'tc-fb');
-      order.forEach(function (n) {
-        var b = el('button', 'tc-opt' + (st.ok && n === 0 ? ' right' : ''), q[1][n][lang]);
-        if (st.ok) b.disabled = true;
-        b.addEventListener('click', function () {
-          var cur = state.tc[k] || { ok: false, tries: 0 };
-          cur.tries++;
-          if (n === 0) { cur.ok = true; state.tc[k] = cur; save(); renderTC(); return; }
-          state.tc[k] = cur; save();
-          b.classList.add('wrong'); b.disabled = true;
-          fb.className = 'tc-fb bad'; fb.textContent = tl('Дұрыс емес. Бөлімді қайта оқып, тағы таңдаңыз.', 'Неверно. Перечитайте раздел и выберите ещё раз.');
+  // INSERT: оқушы теорияның әр абзацын белгілейді (✓ білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім).
+  // Тізім мен кесте — бір абзац. Барлығы белгіленбейінше «Жұмысқа өту» жабық. state.ins[k] — белгі.
+  var INS = [['v', '✓', { kz: 'Білемін', ru: 'Знаю' }], ['n', '+', { kz: 'Жаңа ақпарат', ru: 'Новое' }], ['d', '−', { kz: 'Басқаша ойлағанмын', ru: 'Думал(а) иначе' }], ['q', '?', { kz: 'Түсінбедім', ru: 'Непонятно' }]];
+  var insCount = 0;
+  function setupINS() {
+    ['kz', 'ru'].forEach(function (lang) {
+      var root = $('theory-' + lang), k = 0;
+      root.querySelectorAll('p:not(.t-sub), ul, ol, table').forEach(function (blk) {
+        if (blk.closest('ul, ol') && blk.tagName !== 'UL' && blk.tagName !== 'OL' && blk.parentElement.closest('ul, ol')) return;
+        var idx = k++;
+        blk.classList.add('ins-block'); blk.setAttribute('data-ins', idx);
+        var bar = el('div', 'ins-bar'); bar.setAttribute('data-ins', idx);
+        bar.appendChild(el('span', 'ins-label', lang === 'kz' ? 'Белгі:' : 'Пометка:'));
+        INS.forEach(function (m) {
+          var b = el('button', 'ins-btn ins-' + m[0], m[1] + ' ' + m[2][lang]);
+          b.addEventListener('click', function () { if (!state) return; state.ins = state.ins || {}; state.ins[idx] = m[0]; save(); renderINS(); });
+          bar.appendChild(b);
         });
-        box.appendChild(b);
+        blk.parentNode.insertBefore(bar, blk.nextSibling);
       });
-      if (st.ok) { fb.className = 'tc-fb ok'; fb.textContent = '✓ ' + q[2][lang]; }
-      box.appendChild(fb);
+      insCount = k;
     });
-    var done = C.TC.filter(function (_, k) { return state.tc[k] && state.tc[k].ok; }).length;
-    $('b-to-intro').disabled = !tcDone();
-    $('tc-progress').textContent = tcDone() ? '' : T('Жұмысқа өту үшін теориядағы барлық «🤔 Тоқта да ойлан» сұрақтарына жауап беріңіз: ', 'Чтобы перейти к работе, ответьте на все вопросы «🤔 Остановись и подумай» в теории: ') + done + ' / ' + C.TC.length;
+  }
+  function insDone() { return !!state && insCount > 0 && Object.keys(state.ins || {}).length >= insCount; }
+  function renderINS() {
+    if (!state) return;
+    var ins = state.ins || {};
+    document.querySelectorAll('.ins-block, .ins-bar').forEach(function (e) {
+      var m = ins[e.getAttribute('data-ins')];
+      INS.forEach(function (x) { e.classList.toggle('mark-' + x[0], m === x[0]); });
+      if (e.classList.contains('ins-bar')) e.querySelectorAll('.ins-btn').forEach(function (b, n) { b.classList.toggle('on', INS[n][0] === m); });
+    });
+    var done = Object.keys(ins).length;
+    $('b-to-intro').disabled = !insDone();
+    $('tc-progress').textContent = insDone() ? '' : T('Жұмысқа өту үшін теорияның әр абзацын белгілеңіз (✓ білемін, + жаңа, − басқаша ойлағанмын, ? түсінбедім): ', 'Чтобы перейти к работе, отметьте каждый абзац теории (✓ знаю, + новое, − думал(а) иначе, ? непонятно): ') + done + ' / ' + insCount;
   }
   function begin() {
     $('b-start').disabled = true;
@@ -536,9 +537,8 @@
     });
     tb.appendChild(table);
     var start = state.workStartedAt || state.startedAt;
-    var first = (state.tc || []).filter(function (x) { return x && x.ok && x.tries === 1; }).length;
-    $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '') +
-      ' · ' + T('Теорияны саналы оқу («Тоқта да ойлан»): бірінші реттен дұрыс — ', 'Осознанное чтение теории («Остановись и подумай»): верно с первого раза — ') + first + ' / ' + C.TC.length;
+    $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '');
+    renderInsResult();
     renderBonus();
     var rv = $('r-review'); rv.innerHTML = '';
     tasks.forEach(function (t, i) {
@@ -576,6 +576,24 @@
       });
       box.appendChild(det);
     });
+  }
+  // Нәтиже бетінде: INSERT белгілерінің саны және «?» қойылған абзацтар (мұғалім нені қайта түсіндіру керегін көреді)
+  function renderInsResult() {
+    var ins = state.ins || {}, cnt = { v: 0, n: 0, d: 0, q: 0 }, box = $('r-ins');
+    Object.keys(ins).forEach(function (k) { cnt[ins[k]]++; });
+    box.innerHTML = '';
+    box.appendChild(el('p', null, T('Теорияны INSERT әдісімен оқу: ', 'Чтение теории по методу INSERT: ') + '✓ ' + cnt.v + ' · + ' + cnt.n + ' · − ' + cnt.d + ' · ? ' + cnt.q));
+    var qs = Object.keys(ins).filter(function (k) { return ins[k] === 'q' || ins[k] === 'd'; });
+    if (qs.length) {
+      box.appendChild(el('p', 'muted small', T('Түсінбеген (?) және басқаша ойлаған (−) абзацтары:', 'Непонятные (?) и «думал иначе» (−) абзацы:')));
+      var ul = el('ul', 'small');
+      qs.forEach(function (k) {
+        var blk = document.querySelector('#theory-' + LANG + ' .ins-block[data-ins="' + k + '"]');
+        var txt = blk ? blk.textContent.replace(/\s+/g, ' ').trim() : '';
+        ul.appendChild(el('li', null, (ins[k] === 'q' ? '? ' : '− ') + (txt.length > 110 ? txt.slice(0, 110) + '…' : txt)));
+      });
+      box.appendChild(ul);
+    }
   }
   function scheduleReset() {
     clearInterval(hideTimer);
@@ -702,11 +720,12 @@
   function init() {
     $('theory-kz').innerHTML = C.THEORY.kz;
     $('theory-ru').innerHTML = C.THEORY.ru;
+    setupINS();
     document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 30); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     setLang(LANG);
     $('b-gate').addEventListener('click', startSession);
-    $('b-to-intro').addEventListener('click', function () { if (tcDone()) show('s-intro'); });
+    $('b-to-intro').addEventListener('click', function () { if (insDone()) show('s-intro'); });
     $('b-back-theory').addEventListener('click', showTheory);
     $('b-theory-back').addEventListener('click', renderTask);
     $('b-start').addEventListener('click', begin);

@@ -454,3 +454,20 @@ select:focus { outline: none; border-color: var(--accent); }
 .read-q { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
 .lv { display: inline-block; font-size: 0.8rem; font-weight: 700; color: #6b4ea8; background: #f0eafb; border-radius: 999px; padding: 2px 10px; }
 #tc-progress:empty { display: none; }
+
+/* ===== INSERT белгілері ===== */
+.ins-block { border-left: 4px solid transparent; padding-left: 8px; transition: background 0.2s; }
+.ins-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 2px 0 14px 12px; }
+.ins-label { font-size: 0.8rem; color: var(--muted); }
+.ins-btn { font-size: 0.8rem; padding: 3px 10px; border-radius: 999px; }
+.ins-btn.on { color: #fff; font-weight: 700; }
+.ins-btn.ins-v.on { background: var(--ok); border-color: var(--ok); }
+.ins-btn.ins-n.on { background: var(--accent); border-color: var(--accent); }
+.ins-btn.ins-d.on { background: #b5520f; border-color: #b5520f; }
+.ins-btn.ins-q.on { background: #8b3fb0; border-color: #8b3fb0; }
+.ins-block.mark-v { border-left-color: var(--ok); }
+.ins-block.mark-n { border-left-color: var(--accent); background: #f2f7ff; }
+.ins-block.mark-d { border-left-color: #b5520f; background: #fff7ef; }
+.ins-block.mark-q { border-left-color: #8b3fb0; background: #f8f0fc; }
+.ins-res { max-width: 640px; margin: 12px auto 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.ins-res p { margin: 4px 0; }

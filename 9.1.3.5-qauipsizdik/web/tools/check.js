@@ -23,7 +23,10 @@ function walk(x, where) {
   }
 }
 walk(C.BANKS, 'BANKS');
-['kz', 'ru'].forEach((l) => { if (!C.THEORY[l] || C.THEORY[l].length < 3000) fail('теория ' + l); if ((C.THEORY[l].match(/class="tc"/g) || []).length !== C.TC.length) fail('теория ' + l + ': число «Тоқта да ойлан» не совпадает'); });
+// INSERT: абзацтар саны екі тілде бірдей болуы керек (белгі индекстері ортақ)
+const blocks = (h) => (h.match(/<p(?![^>]*t-sub)[ >]|<ul>|<ol>|<table/g) || []).length;
+if (blocks(C.THEORY.kz) !== blocks(C.THEORY.ru)) fail('теория: число абзацев kz и ru не совпадает');
+['kz', 'ru'].forEach((l) => { if (!C.THEORY[l] || C.THEORY[l].length < 3000) fail('теория ' + l);  });
 const kinds = {};
 for (let seed = 1; seed <= 500; seed++) {
   const T = C.generate(seed * 2654435761 >>> 0);
