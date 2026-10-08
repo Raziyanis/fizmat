@@ -9,7 +9,7 @@
  * Проверка ИИ (бесплатно): на aistudio.google.com нажмите «Get API key» и вставьте ключ в кавычки AI_KEY = "...". */
 window.AI_KEY = "";
 window.TEACHER_PIN = "1212";   // мұғалімнің паролі: жазбаша жауаптың балын қолмен өзгерту / пароль учителя: изменить балл вручную
-window.WORK_MIN = 30;          // время на задания, минут (теория не ограничена по времени)
+window.WORK_MIN = 35;          // время на задания, минут (теория не ограничена по времени)
 window.RESULT_MIN = 4;         // сколько минут виден результат, потом открывается начальная страница
 window.MAX_VIOLATIONS = 3;     // на каком нарушении (выход из полноэкранного режима, смена окна, перезагрузка) работа завершается
 window.BONUS_ATTEMPTS = 2;     // «Қосымша деңгей»: сколько попыток после сдачи работы
@@ -487,7 +487,7 @@ select:focus { outline: none; border-color: var(--accent); }
       <div class="lang-kz" id="theory-kz"></div>
       <div class="lang-ru" id="theory-ru"></div>
       <div class="theory-end">
-        <p id="t-end-text"><span class="lang-kz">Теорияны оқыдыңыз ба? Енді — әртүрлі түрдегі <b>11 тапсырма</b>.</span><span class="lang-ru">Прочитали теорию? Дальше — <b>11 заданий</b> разных видов.</span></p>
+        <p id="t-end-text"><span class="lang-kz">Теорияны оқыдыңыз ба? Енді — әртүрлі түрдегі <b>13 тапсырма</b>.</span><span class="lang-ru">Прочитали теорию? Дальше — <b>13 заданий</b> разных видов.</span></p>
         <button id="b-to-intro" class="primary big"><span class="lang-kz">Жұмысқа өту →</span><span class="lang-ru">Перейти к работе →</span></button>
         <button id="b-theory-back" class="primary big" hidden><span class="lang-kz">← Тапсырмаларға оралу</span><span class="lang-ru">← Вернуться к заданиям</span></button>
       </div>
@@ -496,10 +496,10 @@ select:focus { outline: none; border-color: var(--accent); }
     <section id="s-intro" hidden>
       <h1><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h1>
       <ul class="rules">
-        <li class="lang-kz"><b>11 тапсырма</b>, әрқайсысы әр түрлі: сәйкестендіру, бос орынды толтыру, ақиқат/жалған, алаяқтың хатын әшкере ету, сілтемені тексеру, топтастыру, ретке келтіру, чат-тренажёр, жағдаят талдау.</li>
-        <li class="lang-ru"><b>11 заданий</b> разных видов: сопоставление, заполнение пропусков, правда/ложь, разоблачение письма мошенника, проверка ссылок, группировка, упорядочивание, чат-тренажёр, разбор ситуаций.</li>
-        <li class="lang-kz">Жұмысқа — <b><span class="i-min"></span> минут</b>. Теорияға тапсырмалар кезінде де оралуға болады (таймер тоқтамайды).</li>
-        <li class="lang-ru">На работу — <b><span class="i-min"></span> минут</b>. К теории можно вернуться и во время заданий (таймер не останавливается).</li>
+        <li class="lang-kz"><b>13 тапсырма</b>, әрқайсысы әр түрлі: сәйкестендіру, бос орынды толтыру, ақиқат/жалған, алаяқтың хатын әшкере ету, сілтемені тексеру, топтастыру, ретке келтіру, чат-тренажёр, жағдаят талдау, «Түзет» және «Пайымда» (жазбаша жауап).</li>
+        <li class="lang-ru"><b>13 заданий</b> разных видов: сопоставление, заполнение пропусков, правда/ложь, разоблачение письма мошенника, проверка ссылок, группировка, упорядочивание, чат-тренажёр, разбор ситуаций, «Исправь» и «Порассуждай» (письменный ответ).</li>
+        <li class="lang-kz">Жұмысқа — <b><span class="i-min"></span> минут</b>. </li>
+        <li class="lang-ru">На работу — <b><span class="i-min"></span> минут</b>. </li>
         <li class="lang-kz">Әр дұрыс тармаққа — <b>1 балл</b>. «Тап», «белгіле» тапсырмаларында қате белгі балды азайтады.</li>
         <li class="lang-ru">За каждый верный пункт — <b>1 балл</b>. В заданиях «найди», «отметь» лишняя отметка уменьшает балл.</li>
         <li class="lang-kz">Жауаптар автоматты түрде сақталады, тапсырмалар арасында еркін ауысуға болады. Уақыт біткенде жұмыс өзі тапсырылады.</li>
@@ -522,7 +522,6 @@ select:focus { outline: none; border-color: var(--accent); }
       <div class="buttons work-buttons">
         <button id="b-prev">← <span class="lang-kz">Артқа</span><span class="lang-ru">Назад</span></button>
         <button id="b-next" class="primary"><span class="lang-kz">Келесі</span><span class="lang-ru">Далее</span> →</button>
-        <button id="b-read" class="link"><span class="lang-kz">Теорияны қарау</span><span class="lang-ru">Посмотреть теорию</span></button>
         <span class="spacer"></span>
         <button id="b-finish" class="danger-outline"><span class="lang-kz">Жұмысты тапсыру</span><span class="lang-ru">Сдать работу</span></button>
       </div>
@@ -1029,9 +1028,9 @@ select:focus { outline: none; border-color: var(--accent); }
     K('Дұрыс әрекетті ұсынады, ойын 4–5 сөйлеммен жүйелі жеткізеді', 'Предлагает правильные действия, связно излагает мысль в 4–5 предложениях'),
   ];
 
-  function generateBonus(seed, attempt) {
-    var r = rng((seed ^ (attempt * 0x9E3779B1)) >>> 0), T = [];
-    var ph = PHISH_HARD[(seed + attempt) % PHISH_HARD.length], nb = ph.parts.filter(function (p) { return p[1]; }).length;
+  function generateBonus(seed, attempt, mainSeed) {
+    var r = rng(((seed >>> 0) ^ (attempt * 0x9E3779B1)) >>> 0), T = [];
+    var ph = PHISH_HARD[((seed >>> 0) + attempt) % PHISH_HARD.length], nb = ph.parts.filter(function (p) { return p[1]; }).length;
     T.push({ type: 'hot', style: 'mail', obj: '9.1.3.5', title: K('★ Жасырын белгілерді табыңыз', '★ Найдите скрытые признаки'), head: ph.head,
       parts: ph.parts.map(function (p) { return { text: p[0], bad: p[1], why: p[2] }; }), nBad: nb, max: nb });
     var urls = shuffle(pick(URLS_HARD.slice(0, 3), 2, r).concat(pick(URLS_HARD.slice(3), 5, r)), r);
@@ -1039,13 +1038,21 @@ select:focus { outline: none; border-color: var(--accent); }
       lead: K('QazPay банкінің ресми сайты — qazpay.kz. Мұқият қараңыз: «@», «?», сызықша, ұқсас әріптер мен сандар.', 'Официальный сайт банка QazPay — qazpay.kz. Смотрите внимательно: «@», «?», дефисы, похожие буквы и цифры.'),
       bins: [K('Ресми сайт', 'Официальный сайт'), K('Жалған сайт', 'Поддельный сайт')],
       items: urls.map(function (u) { return { t: K(u[0], u[0]), bin: u[1], why: u[2] }; }), max: urls.length });
-    var rw = REWRITE[(seed + attempt) % REWRITE.length];
-    T.push({ type: 'text', kind: 'rewrite', obj: '9.1.3.5', title: K('★ Түзет: хабарламаны сыпайы етіп қайта жазыңыз', '★ Исправь: перепишите сообщение вежливо'),
-      ctx: rw.ctx, rude: rw.rude, gist: rw.gist, topic: rw.topic, crit: REWRITE_CRIT, minWords: 5, max: 3 });
-    var rs = REASON[(seed + attempt * 2) % REASON.length];
-    T.push({ type: 'text', kind: 'reason', obj: '9.1.3.6', title: K('★ Пайымда: жағдаятқа баға беріңіз', '★ Порассуждай: оцените ситуацию'),
-      ctx: rs.text, q: REASON_Q, crit: REASON_CRIT, minWords: 35, max: 4 });
+    // «Түзет» пен «Пайымда»: негізгі жұмыстағыдан және бір-бірінен әртүрлі жағдаят (mainSeed — негізгі жұмыстың seed-і)
+    var base = mainSeed == null ? seed : mainSeed;
+    T.push(rewriteTask(REWRITE[(rwIndex(base) + attempt) % REWRITE.length], true));
+    T.push(reasonTask(REASON[(rsIndex(base) + attempt) % REASON.length], true));
     return T;
+  }
+  function rwIndex(seed) { return (seed >>> 0) % REWRITE.length; }
+  function rsIndex(seed) { return ((seed >>> 0) >>> 3) % REASON.length; }
+  function rewriteTask(rw, star) {
+    return { type: 'text', kind: 'rewrite', obj: '9.1.3.5', title: star ? K('★ Түзет: хабарламаны сыпайы етіп қайта жазыңыз', '★ Исправь: перепишите сообщение вежливо') : K('Түзет: хабарламаны сыпайы етіп қайта жазыңыз', 'Исправь: перепишите сообщение вежливо'),
+      ctx: rw.ctx, rude: rw.rude, gist: rw.gist, topic: rw.topic, crit: REWRITE_CRIT, minWords: 5, max: 3 };
+  }
+  function reasonTask(rs, star) {
+    return { type: 'text', kind: 'reason', obj: '9.1.3.6', title: star ? K('★ Пайымда: жағдаятқа баға беріңіз', '★ Порассуждай: оцените ситуацию') : K('Пайымда: жағдаятқа баға беріңіз', 'Порассуждай: оцените ситуацию'),
+      ctx: rs.text, q: REASON_Q, crit: REASON_CRIT, minWords: 35, max: 4 };
   }
 
   // Ашық жауапты алдын ала (интернетсіз) тексеру: қарапайым белгілер бойынша. ЖИ қосылмаса немесе жауап бермесе қолданылады.
@@ -1160,6 +1167,9 @@ select:focus { outline: none; border-color: var(--accent); }
         q: K('Қандай салдарлар болуы мүмкін? Дұрыс тұжырымдардың барлығын белгілеңіз.', 'Какие последствия возможны? Отметьте все верные утверждения.'),
         opts: p.map(function (i) { return { t: c.opts[i][0], ok: c.opts[i][1] }; }), nOk: nok, max: nok });
     });
+    // 12–13. Жазбаша жауап: «Түзет» (9.1.3.5) және «Пайымда» (9.1.3.6)
+    T.push(rewriteTask(REWRITE[rwIndex(seed)], false));
+    T.push(reasonTask(REASON[rsIndex(seed)], false));
     return T;
   }
 
@@ -1681,7 +1691,7 @@ select:focus { outline: none; border-color: var(--accent); }
     enterFullscreen();
     state.bonus = state.bonus || [];
     var n = state.bonus.length + 1, seed = newSeed();
-    btasks = C.generateBonus(seed, n);
+    btasks = C.generateBonus(seed, n, state.seed);
     state.bcur = { n: n, seed: seed, ans: btasks.map(C.empty), cur: 0, viol: 0, startedAt: Date.now(), endsAt: Date.now() + BONUS_MS };
     state.status = 'bonus';
     save();
@@ -1709,7 +1719,9 @@ select:focus { outline: none; border-color: var(--accent); }
   // ЖИ-тексеру — бір оқушыға бір рет, соңында: барлық әрекеттің жазбаша жауаптары бір сұраумен
   function aiItems() {
     var out = [];
-    (state.bonus || []).forEach(function (rec) { var ts = recTasks(rec); Object.keys(rec.text).forEach(function (i) { if (rec.text[i].status !== 'empty') out.push({ rec: rec, i: Number(i), t: ts[i], text: rec.ans[i] }); }); });
+    [state].concat(state.bonus || []).forEach(function (rec) {
+      if (!rec.text) return; var ts = recTasks(rec); Object.keys(rec.text).forEach(function (i) { if (rec.text[i].status !== 'empty') out.push({ rec: rec, i: Number(i), t: ts[i], text: rec.ans[i] }); });
+    });
     return out;
   }
   function aiCanRun() { return !!(AI && AI.enabled() && state && !state.aiState && aiItems().length); }
@@ -1727,7 +1739,7 @@ select:focus { outline: none; border-color: var(--accent); }
     }, function (err) { state.aiState = 'error'; state.aiErr = String(err && err.message || err); })
       .then(function () { aiBusy = false; save(); if (!$('s-result').hidden) renderResult(); });
   }
-  function recTasks(rec) { return C.generateBonus(rec.seed, rec.n); }
+  function recTasks(rec) { return rec === state ? tasks : C.generateBonus(rec.seed, rec.n, state.seed); }
   function recScore(rec) {
     // мұғалім қолмен өзгерткен балл (rec.manual) автоматты балдың орнына есептеледі
     return rec.scores.reduce(function (s, x, i) { return s + (rec.manual && rec.manual[i] != null ? rec.manual[i] : x); }, 0);
@@ -1762,7 +1774,13 @@ select:focus { outline: none; border-color: var(--accent); }
     state.status = 'finished';
     state.reason = reason || null;
     state.finishedAt = state.closedAt || Date.now();
-    state.scores = tasks.map(function (t, i) { return C.score(t, state.ans[i]); });
+    state.text = {};
+    state.scores = tasks.map(function (t, i) {
+      if (t.type !== 'text') return C.score(t, state.ans[i]);
+      var pre = C.precheck(t, state.ans[i]);
+      state.text[i] = { pre: pre, ai: null, status: String(state.ans[i] || '').trim() ? 'auto' : 'empty' };
+      return pre.score;
+    });
     state.resultAt = Date.now();
     save();
     clearInterval(ticker);
@@ -1773,7 +1791,7 @@ select:focus { outline: none; border-color: var(--accent); }
     renderResult();
   }
   function totals() {
-    var got = state.scores.reduce(function (s, x) { return s + x; }, 0), max = tasks.reduce(function (s, t) { return s + t.max; }, 0);
+    var got = recScore(state), max = tasks.reduce(function (s, t) { return s + t.max; }, 0);
     return { got: got, max: max };
   }
   function renderResult() {
@@ -1790,7 +1808,8 @@ select:focus { outline: none; border-color: var(--accent); }
     var hr = el('tr'); [T('№', '№'), T('Тапсырма', 'Задание'), T('Балл', 'Балл')].forEach(function (h) { hr.appendChild(el('th', null, h)); }); table.appendChild(hr);
     tasks.forEach(function (t, i) {
       var tr = el('tr', state.scores[i] === t.max ? 'ok' : state.scores[i] === 0 ? 'bad' : 'mid');
-      tr.appendChild(el('td', null, String(i + 1))); tr.appendChild(el('td', null, L(t.title))); tr.appendChild(el('td', null, state.scores[i] + ' / ' + t.max));
+      var sc = state.manual && state.manual[i] != null ? state.manual[i] : state.scores[i];
+      tr.appendChild(el('td', null, String(i + 1))); tr.appendChild(el('td', null, L(t.title))); tr.appendChild(el('td', null, sc + ' / ' + t.max));
       table.appendChild(tr);
     });
     tb.appendChild(table);
@@ -1798,7 +1817,12 @@ select:focus { outline: none; border-color: var(--accent); }
     $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '');
     renderBonus();
     var rv = $('r-review'); rv.innerHTML = '';
-    tasks.forEach(function (t, i) { rv.appendChild(review(t, state.ans[i], state.scores[i], i)); });
+    tasks.forEach(function (t, i) {
+      var man = state.manual && state.manual[i] != null ? state.manual[i] : null;
+      var card = review(t, state.ans[i], man != null ? man : state.scores[i], i, state.text && state.text[i]);
+      if (t.type === 'text') card.appendChild(teacherBox(state, t, i));
+      rv.appendChild(card);
+    });
     show('s-result');
     scheduleReset();
   }
@@ -1954,7 +1978,6 @@ select:focus { outline: none; border-color: var(--accent); }
     $('b-to-intro').addEventListener('click', function () { show('s-intro'); });
     $('b-back-theory').addEventListener('click', showTheory);
     $('b-theory-back').addEventListener('click', renderTask);
-    $('b-read').addEventListener('click', showTheory);
     $('b-start').addEventListener('click', begin);
     $('b-prev').addEventListener('click', function () { goTo(W().st.cur - 1); });
     $('b-next').addEventListener('click', function () { goTo(W().st.cur + 1); });
@@ -1979,7 +2002,7 @@ select:focus { outline: none; border-color: var(--accent); }
     window.addEventListener('popstate', function () { if (running()) { history.pushState(null, '', location.href); warn(T('Жұмыс кезінде артқа өтуге болмайды.', 'Переход назад во время работы недоступен.')); } });
 
     state = load();
-    if (state && state.v === 1 && state.seed) { tasks = C.generate(state.seed); if (state.bcur) btasks = C.generateBonus(state.bcur.seed, state.bcur.n); } else state = null;
+    if (state && state.v === 1 && state.seed) { tasks = C.generate(state.seed); if (state.bcur) btasks = C.generateBonus(state.bcur.seed, state.bcur.n, state.seed); } else state = null;
     if (state && state.status === 'bonus') {
       // «Қосымша деңгей» кезінде бет қайта жүктелді — бұзушылық, әрекет сол жерден жалғасады
       state.bcur.viol++; state.lastViol = 'reload';

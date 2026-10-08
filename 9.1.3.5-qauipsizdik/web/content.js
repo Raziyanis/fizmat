@@ -456,9 +456,9 @@
     K('Дұрыс әрекетті ұсынады, ойын 4–5 сөйлеммен жүйелі жеткізеді', 'Предлагает правильные действия, связно излагает мысль в 4–5 предложениях'),
   ];
 
-  function generateBonus(seed, attempt) {
-    var r = rng((seed ^ (attempt * 0x9E3779B1)) >>> 0), T = [];
-    var ph = PHISH_HARD[(seed + attempt) % PHISH_HARD.length], nb = ph.parts.filter(function (p) { return p[1]; }).length;
+  function generateBonus(seed, attempt, mainSeed) {
+    var r = rng(((seed >>> 0) ^ (attempt * 0x9E3779B1)) >>> 0), T = [];
+    var ph = PHISH_HARD[((seed >>> 0) + attempt) % PHISH_HARD.length], nb = ph.parts.filter(function (p) { return p[1]; }).length;
     T.push({ type: 'hot', style: 'mail', obj: '9.1.3.5', title: K('★ Жасырын белгілерді табыңыз', '★ Найдите скрытые признаки'), head: ph.head,
       parts: ph.parts.map(function (p) { return { text: p[0], bad: p[1], why: p[2] }; }), nBad: nb, max: nb });
     var urls = shuffle(pick(URLS_HARD.slice(0, 3), 2, r).concat(pick(URLS_HARD.slice(3), 5, r)), r);
@@ -466,13 +466,21 @@
       lead: K('QazPay банкінің ресми сайты — qazpay.kz. Мұқият қараңыз: «@», «?», сызықша, ұқсас әріптер мен сандар.', 'Официальный сайт банка QazPay — qazpay.kz. Смотрите внимательно: «@», «?», дефисы, похожие буквы и цифры.'),
       bins: [K('Ресми сайт', 'Официальный сайт'), K('Жалған сайт', 'Поддельный сайт')],
       items: urls.map(function (u) { return { t: K(u[0], u[0]), bin: u[1], why: u[2] }; }), max: urls.length });
-    var rw = REWRITE[(seed + attempt) % REWRITE.length];
-    T.push({ type: 'text', kind: 'rewrite', obj: '9.1.3.5', title: K('★ Түзет: хабарламаны сыпайы етіп қайта жазыңыз', '★ Исправь: перепишите сообщение вежливо'),
-      ctx: rw.ctx, rude: rw.rude, gist: rw.gist, topic: rw.topic, crit: REWRITE_CRIT, minWords: 5, max: 3 });
-    var rs = REASON[(seed + attempt * 2) % REASON.length];
-    T.push({ type: 'text', kind: 'reason', obj: '9.1.3.6', title: K('★ Пайымда: жағдаятқа баға беріңіз', '★ Порассуждай: оцените ситуацию'),
-      ctx: rs.text, q: REASON_Q, crit: REASON_CRIT, minWords: 35, max: 4 });
+    // «Түзет» пен «Пайымда»: негізгі жұмыстағыдан және бір-бірінен әртүрлі жағдаят (mainSeed — негізгі жұмыстың seed-і)
+    var base = mainSeed == null ? seed : mainSeed;
+    T.push(rewriteTask(REWRITE[(rwIndex(base) + attempt) % REWRITE.length], true));
+    T.push(reasonTask(REASON[(rsIndex(base) + attempt) % REASON.length], true));
     return T;
+  }
+  function rwIndex(seed) { return (seed >>> 0) % REWRITE.length; }
+  function rsIndex(seed) { return ((seed >>> 0) >>> 3) % REASON.length; }
+  function rewriteTask(rw, star) {
+    return { type: 'text', kind: 'rewrite', obj: '9.1.3.5', title: star ? K('★ Түзет: хабарламаны сыпайы етіп қайта жазыңыз', '★ Исправь: перепишите сообщение вежливо') : K('Түзет: хабарламаны сыпайы етіп қайта жазыңыз', 'Исправь: перепишите сообщение вежливо'),
+      ctx: rw.ctx, rude: rw.rude, gist: rw.gist, topic: rw.topic, crit: REWRITE_CRIT, minWords: 5, max: 3 };
+  }
+  function reasonTask(rs, star) {
+    return { type: 'text', kind: 'reason', obj: '9.1.3.6', title: star ? K('★ Пайымда: жағдаятқа баға беріңіз', '★ Порассуждай: оцените ситуацию') : K('Пайымда: жағдаятқа баға беріңіз', 'Порассуждай: оцените ситуацию'),
+      ctx: rs.text, q: REASON_Q, crit: REASON_CRIT, minWords: 35, max: 4 };
   }
 
   // Ашық жауапты алдын ала (интернетсіз) тексеру: қарапайым белгілер бойынша. ЖИ қосылмаса немесе жауап бермесе қолданылады.
@@ -587,6 +595,9 @@
         q: K('Қандай салдарлар болуы мүмкін? Дұрыс тұжырымдардың барлығын белгілеңіз.', 'Какие последствия возможны? Отметьте все верные утверждения.'),
         opts: p.map(function (i) { return { t: c.opts[i][0], ok: c.opts[i][1] }; }), nOk: nok, max: nok });
     });
+    // 12–13. Жазбаша жауап: «Түзет» (9.1.3.5) және «Пайымда» (9.1.3.6)
+    T.push(rewriteTask(REWRITE[rwIndex(seed)], false));
+    T.push(reasonTask(REASON[rsIndex(seed)], false));
     return T;
   }
 

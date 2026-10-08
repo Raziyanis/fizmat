@@ -27,10 +27,15 @@ walk(C.BANKS, 'BANKS');
 const kinds = {};
 for (let seed = 1; seed <= 500; seed++) {
   const T = C.generate(seed * 2654435761 >>> 0);
-  if (T.length !== 11) fail('не 11 заданий');
+  if (T.length !== 13) fail('не 13 заданий');
   T.forEach((t, i) => {
     kinds[t.type] = (kinds[t.type] || 0) + 1;
     walk(t, 'task' + i);
+    if (t.type === 'text') {
+      kinds.text = (kinds.text || 0);
+      if (C.precheck(t, '').score !== 0 || C.complete(t, '')) fail('text: пустой ответ');
+      n++; return;
+    }
     const p = C.perfect(t), e = C.empty(t), max = C.score(t, p);
     if (max !== t.max) fail(`${t.type}: правильный ответ даёт ${max}, а не ${t.max}`);
     if (C.score(t, e) !== 0) fail(t.type + ': пустой ответ даёт баллы');
@@ -52,7 +57,7 @@ for (let seed = 1; seed <= 500; seed++) {
 // «Қосымша деңгей»: 2 әрекет, әр әрекетте тапсырмалар әртүрлі
 let nb = 0;
 for (let seed = 1; seed <= 300; seed++) {
-  const s0 = seed * 2654435761 >>> 0, A = C.generateBonus(s0, 1), B = C.generateBonus(s0, 2);
+  const s0 = seed * 2654435761 >>> 0, M = C.generate(s0), A = C.generateBonus(s0 ^ 777, 1, s0), B = C.generateBonus(s0 ^ 999, 2, s0);
   [A, B].forEach((T) => T.forEach((t, i) => {
     walk(t, 'bonus' + i);
     if (t.type === 'text') {
@@ -66,6 +71,8 @@ for (let seed = 1; seed <= 300; seed++) {
   }));
   if (JSON.stringify(A[0].parts) === JSON.stringify(B[0].parts)) fail('попытки 1 и 2: одно и то же письмо');
   if (A[2].rude.kz === B[2].rude.kz) fail('попытки 1 и 2: одно и то же «Түзет»');
+  if ([A[2], B[2]].some((x) => x.rude.kz === M[11].rude.kz)) fail('доп. уровень повторяет «Түзет» из основной работы');
+  if ([A[3], B[3]].some((x) => x.ctx.kz === M[12].ctx.kz)) fail('доп. уровень повторяет «Пайымда» из основной работы');
   if (A[3].ctx.kz === B[3].ctx.kz) fail('попытки 1 и 2: одна и та же ситуация «Пайымда»');
 }
 // Алдын ала тексеру: сыпайы жауап балл алады, дөрекі көшірме — жоқ
