@@ -433,3 +433,7 @@ select:focus { outline: none; border-color: var(--accent); }
 .answer-text:focus { outline: none; border-color: var(--accent); }
 .student-text { white-space: pre-wrap; background: #fff; border: 1px dashed var(--line); border-radius: 8px; padding: 8px 12px; margin: 6px 0; }
 .ai-feedback { background: #eef4ff; border-left: 4px solid var(--accent); border-radius: 6px; padding: 8px 12px; margin-top: 8px; }
+
+.teacher-fix { margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--line); }
+.teacher-fix .row input { width: 180px; }
+.teacher-mark { font-weight: 700; color: #9a5b00; margin: 4px 0; }
