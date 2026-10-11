@@ -356,6 +356,14 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 .tst.bad { background: var(--bad-bg); color: var(--bad); }
 .who-line { font-size: 20px; font-weight: 600; }
 .examples td { white-space: pre; }
+.work-top { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.work-top .nav { flex: 1; }
+.cheat-btn { border: 1px solid var(--accent); color: var(--accent); background: #eef3fd; font-weight: 600; white-space: nowrap; }
+.cheat-modal { position: fixed; inset: 0; background: rgba(20, 28, 40, 0.55); z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: 70px 16px 16px; overflow: auto; }
+.cheat-modal[hidden] { display: none; }
+.cheat-box { background: var(--card); border-radius: 10px; padding: 18px 20px; max-width: 1000px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+.cheat-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.cheat-head h2 { margin: 0; }
 </style>
 </head>
 <body>
@@ -373,7 +381,7 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
       <p class="topic"><span class="lang-kz">8.1.4.5 — циклді басқару нұсқауларын қолдану (continue, break, else)</span><span class="lang-ru">8.1.4.5 — использовать инструкции управления циклом (continue, break, else)</span></p>
 
       <h2><span class="lang-kz">Еске түсірейік</span><span class="lang-ru">Вспомним</span></h2>
-      <div class="cheat">
+      <div class="cheat" id="cheat">
         <div class="cheat-card">
           <h3>break</h3>
           <p><span class="lang-kz">Циклды <b>бірден тоқтатады</b>. Программа циклдан кейінгі жолдан жалғасады.</span><span class="lang-ru">Сразу <b>прекращает цикл</b>. Программа продолжается со строки после цикла.</span></p>
@@ -426,7 +434,7 @@ else:
     </section>
 
     <section id="s-work" hidden>
-      <div id="nav" class="nav"></div>
+      <div class="work-top"><div id="nav" class="nav"></div><button id="b-cheat" type="button" class="cheat-btn"><span class="lang-kz">📖 Шпаргалка</span><span class="lang-ru">📖 Шпаргалка</span></button></div>
       <p class="muted small nav-legend"><span class="lang-kz">Көк — код жазылған; жасыл — есеп шешілді; қызыл — тексеруде қате бар.</span><span class="lang-ru">Синий — код написан; зелёный — задача решена; красный — при проверке есть ошибки.</span></p>
       <p id="w-num" class="muted"></p>
       <h2 id="w-title" class="task-title"></h2>
@@ -488,6 +496,14 @@ else:
       </div>
     </section>
   </main>
+
+  <div id="m-cheat" class="cheat-modal" role="dialog" aria-modal="true" hidden>
+    <div class="cheat-box">
+      <div class="cheat-head"><h2><span class="lang-kz">Шпаргалка: break, continue, else</span><span class="lang-ru">Шпаргалка: break, continue, else</span></h2>
+        <button id="b-cheat-close" type="button" class="primary"><span class="lang-kz">✕ Жабу, есепке оралу</span><span class="lang-ru">✕ Закрыть, вернуться к задаче</span></button></div>
+      <div id="cheat-slot"></div>
+    </div>
+  </div>
 
   <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
 
@@ -2176,7 +2192,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
     state.finishedAt = state.closedAt || Date.now();
     save();
     clearInterval(ticker);
-    $('warn').hidden = true; $('m-back').hidden = true;
+    $('warn').hidden = true; $('m-back').hidden = true; $('m-cheat').hidden = true;
     if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
     fsActive = false;
     exitFullscreen();
@@ -2308,6 +2324,12 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
     applyLang();
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     $('b-start').addEventListener('click', start);
+    // Шпаргалку можно открыть в любой момент работы (окно поверх задачи; код и таймер не останавливаются)
+    $('cheat-slot').appendChild($('cheat').cloneNode(true)).removeAttribute('id');
+    $('b-cheat').addEventListener('click', function () { $('m-cheat').hidden = false; $('b-cheat-close').focus(); });
+    $('b-cheat-close').addEventListener('click', function () { $('m-cheat').hidden = true; $('c-code').focus({ preventScroll: true }); });
+    $('m-cheat').addEventListener('click', function (e) { if (e.target === $('m-cheat')) $('m-cheat').hidden = true; });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('m-cheat').hidden) $('m-cheat').hidden = true; });
     ['g-name', 'g-class'].forEach(function (id) { $(id).addEventListener('input', function () { $('g-err').hidden = true; }); $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') start(); }); });
     $('b-back-fs').addEventListener('click', function () { enterFullscreen().then(function () { if (fsElement() || !fsSupported()) $('m-back').hidden = true; }); });
     $('b-restart').addEventListener('click', resetToStart);

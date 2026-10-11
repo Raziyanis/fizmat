@@ -309,7 +309,7 @@
     state.finishedAt = state.closedAt || Date.now();
     save();
     clearInterval(ticker);
-    $('warn').hidden = true; $('m-back').hidden = true;
+    $('warn').hidden = true; $('m-back').hidden = true; $('m-cheat').hidden = true;
     if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
     fsActive = false;
     exitFullscreen();
@@ -441,6 +441,12 @@
     applyLang();
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     $('b-start').addEventListener('click', start);
+    // Шпаргалку можно открыть в любой момент работы (окно поверх задачи; код и таймер не останавливаются)
+    $('cheat-slot').appendChild($('cheat').cloneNode(true)).removeAttribute('id');
+    $('b-cheat').addEventListener('click', function () { $('m-cheat').hidden = false; $('b-cheat-close').focus(); });
+    $('b-cheat-close').addEventListener('click', function () { $('m-cheat').hidden = true; $('c-code').focus({ preventScroll: true }); });
+    $('m-cheat').addEventListener('click', function (e) { if (e.target === $('m-cheat')) $('m-cheat').hidden = true; });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('m-cheat').hidden) $('m-cheat').hidden = true; });
     ['g-name', 'g-class'].forEach(function (id) { $(id).addEventListener('input', function () { $('g-err').hidden = true; }); $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') start(); }); });
     $('b-back-fs').addEventListener('click', function () { enterFullscreen().then(function () { if (fsElement() || !fsSupported()) $('m-back').hidden = true; }); });
     $('b-restart').addEventListener('click', resetToStart);
