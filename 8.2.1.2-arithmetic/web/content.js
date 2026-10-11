@@ -124,6 +124,11 @@
     h.push('<div class="example"><p class="ex-title">' + t('8-мысал', 'Пример 8') + ': X + 1101₂ = 2A₁₆. ' + t('X-ті сегіздік жүйеде табыңыз.', 'Найдите X в восьмеричной системе.') + '</p><p>1101₂ = 13; 2A₁₆ = 2·16 + 10 = 42.</p><p>X = 42 − 13 = 29 = 3·8 + 5 = <b>35₈</b>.</p></div>');
     h.push('<div class="example"><p class="ex-title">' + t('9-мысал', 'Пример 9') + ': 110011₂ − 1110₂ ' + t('және', 'и') + ' 33₈ + 12₈ — ' + t('салыстырыңыз', 'сравните') + '.</p><p>110011₂ − 1110₂ = 51 − 14 = 37; 33₈ + 12₈ = 27 + 10 = 37.</p><p>37 = 37, ' + t('демек', 'значит') + ' <b>110011₂ − 1110₂ = 33₈ + 12₈</b>.</p></div>');
 
+    h.push('<p>' + t('Екілік, сегіздік және он алтылық сандарды ондық жүйеге аудармай-ақ бір жүйеге келтіруге болады: сегіздік цифр — 3 екілік цифр, он алтылық цифр — 4 екілік цифр. Содан кейін бағанмен есептейміз.', 'Двоичные, восьмеричные и шестнадцатеричные числа можно привести к одной системе без перевода в десятичную: восьмеричная цифра — 3 двоичные, шестнадцатеричная — 4 двоичные. Затем считаем столбиком.') + '</p>');
+    h.push('<p class="conv">' + convText(29, 8, 2, lang) + '</p>');
+    h.push(example(lang, t('10-мысал', 'Пример 10'), 13, 29, 2, '+'));
+    h.push('<p class="conv">' + convText(45, 2, 16, lang) + '</p>');
+    h.push(example(lang, t('11-мысал', 'Пример 11'), 709, 45, 16, '−'));
     h.push('<h2 class="t-h1">5. ' + t('Өзіңді тексер', 'Проверь себя') + '</h2>');
     h.push('<ul><li>' + t('Жауапты ондық жүйе арқылы тексеріңіз: сандарды ондыққа аударып, амалды орындап, нәтижені салыстырыңыз.', 'Проверяйте ответ через десятичную систему: переведите числа в десятичную, выполните действие и сравните.') + '</li>' +
       '<li>' + t('Азайтуды қосу арқылы тексеруге болады: айырма + азайтқыш = азайғыш.', 'Вычитание можно проверить сложением: разность + вычитаемое = уменьшаемое.') + '</li>' +
@@ -159,60 +164,79 @@
     var a = p[0], b = p[1], res = op === '+' ? a + b : a - b;
     return { type: 'input', kind: 'col', title: title, q: q, op: op, a: a, b: b, expr: N(B(a, q), q) + ' ' + (op === '+' ? '+' : '−') + ' ' + N(B(b, q), q),
       prompt: K('Есептеңіз. Жауапты ' + QN[q].kz + ' жүйеде жазыңыз.', 'Вычислите. Ответ запишите в ' + QN[q].ru + ' системе.'),
-      fields: [{ q: q, key: B(res, q), label: K('Жауабы', 'Ответ') }], max: 1 };
+      fields: [{ q: q, key: B(res, q), label: K('Жауабы', 'Ответ') }], max: 1, layout: null };
   }
-  // 7. Дұрыс жауапты таңда (жиі қателер — нұсқалар)
-  function noCarry(a, b, q) { var s = '', x = a, y = b; while (x || y) { s = B((x % q + y % q) % q, q) + s; x = Math.floor(x / q); y = Math.floor(y / q); } return s; }
+  // Бағанның макеті (app.js салады): rows — carry (ойдағы сан), digits (s: цифрлар, «*» — оқушы толтыратын ұяшық), cells (оқушы толтыратын қатар)
+  function padL(x, w) { while (x.length < w) x = ' ' + x; return x; }
+  function colLayout(it) {
+    var q = it.q, A = B(it.a, q), Bs = B(it.b, q), R = B(it.op === '+' ? it.a + it.b : it.a - it.b, q), sg = it.op === '+' ? '+' : '−';
+    var w = Math.max(A.length, Bs.length, R.length);
+    return { w: w, rows: [{ t: 'carry' }, { t: 'digits', s: padL(A, w) }, { t: 'digits', s: padL(Bs, w), op: sg }, { t: 'cells', role: 'res', line: true }] };
+  }
+  // 7. Жасырын цифрлар: A + B = C, A-да бір цифр, B-да бір цифр жасырылған (әр түрлі разрядта — шешімі біреу)
+  function starsTask(r, q) {
+    for (var t = 0; t < 300; t++) {
+      var p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 1, function (a, b) { return hasLetter(a) || hasLetter(b); });
+      var a = p[0], b = p[1], A = B(a, q), Bs = B(b, q), C2 = B(a + b, q), w = C2.length;
+      var pa = ri(r, 0, A.length - 1), pb = ri(r, 0, Bs.length - 1);
+      if (A.length - pa === Bs.length - pb) continue;                     // әр түрлі разряд
+      var As = A.slice(0, pa) + '*' + A.slice(pa + 1), Bstar = Bs.slice(0, pb) + '*' + Bs.slice(pb + 1);
+      return { type: 'input', kind: 'stars', title: K('Жасырын цифрларды табыңыз', 'Найдите скрытые цифры'), q: q, op: '+', a: a, b: b,
+        expr: N(As, q) + ' + ' + N(Bstar, q) + ' = ' + N(C2, q),
+        prompt: K('Жұлдызшалардың (*) орнына қай цифрлар тұруы керек? Бос ұяшықтарға жазыңыз.', 'Какие цифры стоят на месте звёздочек (*)? Впишите их в пустые клетки.'),
+        layout: { w: w, rows: [{ t: 'carry' }, { t: 'digits', s: padL(As, w) }, { t: 'digits', s: padL(Bstar, w), op: '+' }, { t: 'digits', s: padL(C2, w), line: true }] },
+        fields: [{ q: q, key: A[pa] + Bs[pb], label: K('Жасырын цифрлар', 'Скрытые цифры') }], max: 1 };
+    }
+  }
+  // 8. Қатені тап: оқушының жауабында жиі қате бар — дұрыс жауапты бағанмен жазу
+  function noCarry(a, b, q) { var s = '', x = a, y = b; while (x || y) { s = B((x % q + y % q) % q, q) + s; x = Math.floor(x / q); y = Math.floor(y / q); } return s.replace(/^0+(?=.)/, ''); }
   function tenCarry(a, b, q) { var s = '', x = a, y = b, c = 0; while (x || y || c) { var t = x % q + y % q + c; s = String(t >= 10 ? t - 10 : t) + s; c = t >= 10 ? 1 : 0; x = Math.floor(x / q); y = Math.floor(y / q); } return s; }   // «10-нан кейін көшіру» қатесі
-  function choiceTask(r) {
-    for (var k = 0; k < 200; k++) {
-      var q = r() < 0.5 ? 8 : 16, p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 2, function (a, b) { return hasLetter(a) || hasLetter(b); });
-      var a = p[0], b = p[1], right = B(a + b, q);
-      var opts = [right, noCarry(a, b, q), tenCarry(a, b, q), B(a + b + (q === 8 ? 8 : 16), q), B(a + b - 1, q)];
-      var uniq = opts.filter(function (o, i) { return o && o[0] !== '0' && opts.indexOf(o) === i; });
-      if (uniq.length < 4 || uniq[0] !== right) continue;
-      var four = [right].concat(shuffle(uniq.slice(1), r).slice(0, 3));
-      four = shuffle(four, r);
-      return { type: 'choice', title: K('Дұрыс жауапты табыңыз', 'Найдите верный ответ'), q: q, a: a, b: b, op: '+', expr: N(B(a, q), q) + ' + ' + N(B(b, q), q),
-        prompt: K('Төрт оқушы осы мысалды шығарды. Кімнің жауабы дұрыс?', 'Четыре ученика решили этот пример. Чей ответ верный?'),
-        opts: four.map(function (o) { return N(o, q); }), key: four.indexOf(right), max: 1 };
+  function noDec(a, b, q) { var s = '', x = a, y = b; while (x) { var da = x % q, db = y % q; s = B(da < db ? da + q - db : da - db, q) + s; x = Math.floor(x / q); y = Math.floor(y / q); } return s.replace(/^0+(?=.)/, ''); }   // қарызға алды, бірақ кемітпеді
+  var ERRS = {
+    ten: K('Қате: көшіру 10-нан кейін жасалған, ал көшіру шегі — жүйенің негізі ', 'Ошибка: перенос сделан после 10, а порог переноса — основание '),
+    nocarry: K('Қате: ойдағы бір келесі разрядқа қосылмаған.', 'Ошибка: единица «в уме» не прибавлена к следующему разряду.'),
+    nodec: K('Қате: қарызға алынды, бірақ сол жақтағы цифр 1-ге кемітілмеген.', 'Ошибка: заняли, но не уменьшили цифру слева на 1.'),
+  };
+  function fixTask(r, q, err) {
+    for (var t = 0; t < 400; t++) {
+      var op = err === 'nodec' ? '−' : '+';
+      var p = op === '+' ? (q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 2)) : (q === 8 ? pickSub(r, 8, 256, 511, 64, 255, 1) : pickSub(r, 16, 2048, 4095, 256, 2047, 1));
+      var a = p[0], b = p[1], right = B(op === '+' ? a + b : a - b, q);
+      var wrong = err === 'ten' ? tenCarry(a, b, q) : err === 'nocarry' ? noCarry(a, b, q) : noDec(a, b, q);
+      if (!wrong || wrong === right || wrong[0] === '0') continue;
+      if (err === 'ten' && !/[89]/.test(wrong) && q === 8) continue;    // қате көрініп тұрсын
+      var w = Math.max(B(a, q).length, B(b, q).length, right.length, wrong.length);
+      return { type: 'input', kind: 'fix', title: K('Қатені тауып, түзетіңіз', 'Найдите и исправьте ошибку'), q: q, op: op, a: a, b: b, wrong: wrong, err: err,
+        expr: N(B(a, q), q) + ' ' + op + ' ' + N(B(b, q), q) + ' = ' + N(wrong, q) + ' ✗',
+        prompt: K('Оқушы мысалды қате шығарды. Дұрыс жауапты төменгі ұяшықтарға бағанмен жазыңыз.', 'Ученик решил пример с ошибкой. Запишите верный ответ столбиком в нижние клетки.'),
+        layout: { w: w, rows: [{ t: 'carry' }, { t: 'digits', s: padL(B(a, q), w) }, { t: 'digits', s: padL(B(b, q), w), op: op }, { t: 'digits', s: padL(wrong, w), line: true, cls: 'wrong', side: K('оқушының жауабы', 'ответ ученика') }, { t: 'cells', role: 'res', side: K('дұрыс жауап', 'верный ответ') }] },
+        fields: [{ q: q, key: right, label: K('Дұрыс жауап', 'Верный ответ') }], max: 1 };
     }
   }
-  // 8. Жасырын цифрды табу: A + B = C, A-ның бір цифры жасырылған
-  function digitTask(r, qq) {
-    var q = qq || (r() < 0.5 ? 8 : 16), p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 1, function (a, b) { return hasLetter(a + b) || hasLetter(a); });
-    var a = p[0], b = p[1], A = B(a, q), pos = ri(r, 1, A.length - 1), hidden = A[pos];
-    return { type: 'input', kind: 'digit', title: K('Жасырын цифрды табыңыз', 'Найдите скрытую цифру'), q: q, a: a, b: b,
-      expr: N(A.slice(0, pos) + '*' + A.slice(pos + 1), q) + ' + ' + N(B(b, q), q) + ' = ' + N(B(a + b, q), q),
-      prompt: K('Жұлдызшаның (*) орнында қай цифр тұр?', 'Какая цифра стоит на месте звёздочки (*)?'),
-      fields: [{ q: q, key: hidden, label: K('Цифр', 'Цифра') }], max: 1, A: A };
-  }
-  // 9. Әр түрлі жүйедегі сандар → ондық жауап
-  function mixTask(r) {
-    var a = ri(r, 17, 63), b = ri(r, 9, 63), c = ri(r, 17, 255), minus = r() < 0.4;
-    if (minus && a + b - c <= 0) minus = false;
-    var res = minus ? a + b - c : a + b + c;
-    return { type: 'input', kind: 'mix', title: K('Әр түрлі санау жүйелері', 'Разные системы счисления'), vals: [a, b, c], minus: minus,
-      expr: N(B(a, 2), 2) + ' + ' + N(B(b, 8), 8) + (minus ? ' − ' : ' + ') + N(B(c, 16), 16),
-      prompt: K('Өрнектің мәнін табыңыз. Жауапты ондық жүйеде жазыңыз.', 'Найдите значение выражения. Ответ запишите в десятичной системе.'),
-      fields: [{ q: 10, key: String(res), label: K('Жауабы', 'Ответ') }], max: 1 };
-  }
-  // 10. Салыстыру
-  function cmpTask(r, rr) {
-    var rel = rr != null ? rr : ri(r, 0, 2);   // 0: <, 1: =, 2: >
-    for (var k = 0; k < 500; k++) {
-      var a = ri(r, 20, 63), b = ri(r, 5, 31), lop = r() < 0.5 ? '+' : '−';
-      if (lop === '−' && b >= a) continue;
-      var L = lop === '+' ? a + b : a - b, target = rel === 1 ? L : rel === 0 ? L + ri(r, 1, 6) : L - ri(r, 1, 6);
-      if (target < 8) continue;
-      var rop = r() < 0.5 ? '+' : '−', c, d;
-      if (rop === '+') { d = ri(r, 3, Math.max(3, target - 8)); c = target - d; } else { d = ri(r, 3, 40); c = target + d; }
-      if (c < 8 || d < 1 || c > 511) continue;
-      var R = rop === '+' ? c + d : c - d, sign = L < R ? '<' : L > R ? '>' : '=';
-      return { type: 'cmp', title: K('Салыстырыңыз', 'Сравните'), left: N(B(a, 2), 2) + ' ' + lop + ' ' + N(B(b, 2), 2), right: N(B(c, 8), 8) + ' ' + rop + ' ' + N(B(d, 8), 8),
-        lv: [a, b, lop, L], rv: [c, d, rop, R], key: ['<', '=', '>'].indexOf(sign),
-        prompt: K('Өрнектерді салыстырып, &lt;, &gt; немесе = белгісін таңдаңыз.', 'Сравните выражения и выберите знак &lt;, &gt; или =.'), max: 1 };
+  // 9–10. Әр түрлі жүйедегі сандар: екінші санды бірінші санның жүйесіне аударып (триада/тетрада), бағанмен есептеу
+  function convTask(r, q, bq, op) {
+    for (var t = 0; t < 400; t++) {
+      var a, b;
+      if (q === 2) { a = ri(r, 20, 63); b = ri(r, 9, 63); }            // a₂ ± b₈ → екілік
+      else { a = ri(r, 300, 4095); b = ri(r, 33, 255); }                // a₁₆ ± b₂ → он алтылық
+      if (op === '−' && b >= a) continue;
+      if (op === '+' ? carries(a, b, q) < 1 : borrows(a, b, q) < 1) continue;
+      var res = op === '+' ? a + b : a - b, A = B(a, q), R = B(res, q), Bq = B(b, q), w = Math.max(A.length, Bq.length, R.length);
+      return { type: 'input', kind: 'conv', title: q === 2 ? K('Екілік жүйеге аударып есептеңіз', 'Переведите в двоичную и вычислите') : K('Он алтылық жүйеге аударып есептеңіз', 'Переведите в шестнадцатеричную и вычислите'),
+        q: q, bq: bq, op: op, a: a, b: b,
+        expr: N(A, q) + ' ' + op + ' ' + N(B(b, bq), bq) + ' = ?' + sub(q),
+        prompt: q === 2 ? K('Сегіздік санды екілік жүйеге аударыңыз (әр цифр — 3 екілік цифр), содан кейін бағанмен есептеңіз. Жауап — екілік жүйеде.', 'Переведите восьмеричное число в двоичную (каждая цифра — 3 двоичные цифры), затем вычислите столбиком. Ответ — в двоичной системе.')
+          : K('Екілік санды он алтылық жүйеге аударыңыз (оңнан бастап 4 цифрдан топтаңыз), содан кейін бағанмен есептеңіз. Жауап — он алтылық жүйеде.', 'Переведите двоичное число в шестнадцатеричную (группы по 4 цифры справа), затем вычислите столбиком. Ответ — в шестнадцатеричной системе.'),
+        layout: { w: w, rows: [{ t: 'carry' }, { t: 'digits', s: padL(A, w) }, { t: 'cells', role: 'help', op: op, side: K(N(B(b, bq), bq) + ' = ?' + sub(q), N(B(b, bq), bq) + ' = ?' + sub(q)) }, { t: 'cells', role: 'res', line: true }] },
+        fields: [{ q: q, key: R, label: K('Жауабы', 'Ответ') }], max: 1 };
     }
+  }
+  function convText(b, bq, q, lang) {
+    var src = B(b, bq);
+    if (bq === 8) return N(src, 8) + ' = ' + src.split('').map(function (d) { return ('00' + B(dv(d), 2)).slice(-3); }).join(' ') + ' = ' + N(B(b, 2), 2) + (lang === 'kz' ? ' (әр цифр — 3 екілік цифр)' : ' (каждая цифра — 3 двоичные)');
+    var bits = src; while (bits.length % 4) bits = '0' + bits;
+    var groups = bits.match(/.{4}/g);
+    return N(src, 2) + ' = ' + groups.join(' ') + ' = ' + groups.map(function (g) { return B(parseInt(g, 2), 16); }).join('') + sub(16) + (lang === 'kz' ? ' (оңнан 4 цифрдан)' : ' (по 4 цифры справа)');
   }
   // ★1. Теңдеу: X + a₂ = b₁₆ → X ондық және сегіздік
   function eqTask(r) {
@@ -276,12 +300,13 @@
     T.push(col(8, '−', K('Сегіздік жүйеде азайту', 'Вычитание в восьмеричной системе')));
     T.push(col(16, '+', K('Он алтылық жүйеде қосу', 'Сложение в шестнадцатеричной системе')));
     T.push(col(16, '−', K('Он алтылық жүйеде азайту', 'Вычитание в шестнадцатеричной системе')));
-    T.push(group(four(function () { return choiceTask(r); }), PER));
-    var dq = shuffle([8, 8, 16, 16], r);
-    T.push(group(four(function (n) { return digitTask(r, dq[n]); }), PER));
-    T.push(group(four(function () { return mixTask(r); }), PER));
-    var rels = shuffle([0, 1, 2, ri(r, 0, 2)], r);
-    T.push(group(four(function (n) { return cmpTask(r, rels[n]); }), PER));
+    var sq = shuffle([8, 8, 16, 16], r);
+    T.push(group(four(function (n) { return starsTask(r, sq[n]); }), PER));
+    var fx = shuffle([[8, 'ten'], [16, 'nocarry'], [8, 'nodec'], [16, 'nodec']], r);
+    T.push(group(four(function (n) { return fixTask(r, fx[n][0], fx[n][1]); }), PER));
+    var o9 = shuffle(['+', '+', '−', '+'], r), o10 = shuffle(['+', '−', '−', '+'], r);
+    T.push(group(four(function (n) { return convTask(r, 2, 8, o9[n]); }), PER));
+    T.push(group(four(function (n) { return convTask(r, 16, 2, o10[n]); }), PER));
     T.push(group([eqTask(r)], 1));
     T.push(group([exprTask(r)], 1));
     T.push(group([baseTask(r)], 1));
@@ -313,10 +338,9 @@
     var kz = lang === 'kz', tr = function (a, b) { return kz ? a : b; };
     switch (t.kind || t.type) {
       case 'col': return columnHTML(t.a, t.b, t.q, t.op) + stepsHTML(t.a, t.b, t.q, t.op, lang) + '<p class="check">' + decCheck(t.a, t.b, t.q, t.op, lang) + '</p>';
-      case 'choice': return columnHTML(t.a, t.b, t.q, '+') + '<p class="check">' + decCheck(t.a, t.b, t.q, '+', lang) + '</p>';
-      case 'digit': return '<p>' + tr('Жасырын санды азайту арқылы табамыз: ', 'Скрытое число находим вычитанием: ') + N(B(t.a + t.b, t.q), t.q) + ' − ' + N(B(t.b, t.q), t.q) + ' = ' + N(t.A, t.q) + '. ' + tr('Жұлдызшаның орнында — ', 'На месте звёздочки — ') + '<b>' + t.fields[0].key + '</b>.</p>' + columnHTML(t.a + t.b, t.b, t.q, '−');
-      case 'mix': return '<p>' + N(B(t.vals[0], 2), 2) + ' = ' + t.vals[0] + '; ' + N(B(t.vals[1], 8), 8) + ' = ' + t.vals[1] + '; ' + N(B(t.vals[2], 16), 16) + ' = ' + t.vals[2] + '.</p><p>' + t.vals[0] + ' + ' + t.vals[1] + (t.minus ? ' − ' : ' + ') + t.vals[2] + ' = <b>' + t.fields[0].key + '</b>.</p>';
-      case 'cmp': return '<p>' + t.left + ' = ' + t.lv[0] + ' ' + t.lv[2] + ' ' + t.lv[1] + ' = ' + t.lv[3] + '</p><p>' + t.right + ' = ' + t.rv[0] + ' ' + t.rv[2] + ' ' + t.rv[1] + ' = ' + t.rv[3] + '</p><p>' + t.lv[3] + ' ' + ['&lt;', '=', '&gt;'][t.key] + ' ' + t.rv[3] + tr(', демек ', ', значит ') + '<b>' + t.left + ' ' + ['&lt;', '=', '&gt;'][t.key] + ' ' + t.right + '</b>.</p>';
+      case 'stars': return '<p>' + tr('Жасырын цифрлар: ', 'Скрытые цифры: ') + '<b>' + t.fields[0].key.split('').join(tr(' және ', ' и ')) + '</b>. ' + tr('Толық жазылуы:', 'Полная запись:') + '</p>' + columnHTML(t.a, t.b, t.q, '+') + '<p class="check">' + decCheck(t.a, t.b, t.q, '+', lang) + '</p>';
+      case 'fix': return '<p class="err">' + ERRS[t.err][lang] + (t.err === 'ten' ? t.q + '.' : '') + '</p>' + columnHTML(t.a, t.b, t.q, t.op) + stepsHTML(t.a, t.b, t.q, t.op, lang) + '<p class="check">' + decCheck(t.a, t.b, t.q, t.op, lang) + '</p>';
+      case 'conv': return '<p>' + convText(t.b, t.bq, t.q, lang) + '</p>' + columnHTML(t.a, t.b, t.q, t.op) + stepsHTML(t.a, t.b, t.q, t.op, lang) + '<p class="check">' + decCheck(t.a, t.b, t.q, t.op, lang) + '</p>';
       case 'eq': { var o = B(t.x, 8); return '<p>' + N(B(t.a, 2), 2) + ' = ' + t.a + '; ' + N(B(t.b, 16), 16) + ' = ' + t.b + '.</p><p>X = ' + t.b + ' − ' + t.a + ' = <b>' + t.x + '</b>; ' + t.x + ' = ' + o[0] + '·8 + ' + o[1] + ' → <b>' + N(o, 8) + '</b>.</p>'; }
       case 'expr': return '<p>' + N(B(t.vals[0], 8), 8) + ' = ' + t.vals[0] + '; ' + N(B(t.vals[1], 16), 16) + ' = ' + t.vals[1] + '; ' + N(B(t.vals[2], 2), 2) + ' = ' + t.vals[2] + '.</p><p>' + t.vals[0] + ' + ' + t.vals[1] + ' − ' + t.vals[2] + ' = <b>' + t.fields[0].key + '</b> = <b>' + N(t.fields[1].key, 2) + '</b>.</p>';
       case 'base': {
@@ -329,5 +353,5 @@
   }
 
   window.CONTENT = { K: K, theory: theory, generate: generate, empty: empty, score: score, touched: touched, complete: complete, norm: norm, fieldOk: fieldOk, iUnits: iUnits, iComplete: iComplete,
-    solution: solution, sub: sub, B: B, columnData: columnData, baseSols: baseSols, carries: carries, borrows: borrows };
+    solution: solution, sub: sub, B: B, colLayout: colLayout, columnData: columnData, baseSols: baseSols, carries: carries, borrows: borrows };
 })();

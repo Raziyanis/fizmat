@@ -166,7 +166,7 @@
       var body = el('div', 'item-body');
       if (it.type === 'cmp') rCmp(it, i, k, body);
       else {
-        if (it.kind === 'col') { rColumn(it, i, k, body); anyInput = true; }
+        if (it.kind === 'col' || it.layout) { rColumn(it, i, k, body); anyInput = true; }
         else {
           body.appendChild(html('p', 'expr', it.expr));
           if (it.type === 'choice') rChoice(it, i, k, body); else { rInput(it, i, k, body, t.items.length > 1); anyInput = true; }
@@ -262,69 +262,91 @@
     return null;
   }
   function rColumn(it, i, k, box) {
-    var q = it.q, f = it.fields[0], A = C.B(it.a, q), Bs = C.B(it.b, q);
-    var w = Math.max(A.length, Bs.length) + (it.op === '+' ? 1 : 0);
-    var pad = function (x) { while (x.length < w) x = ' ' + x; return x; };
-    var cur = (state.ans[i][k] && state.ans[i][k][0]) || '', cells = [], carries = [];
-    var ckey = i + '_' + k, cstr = (state.carry && state.carry[ckey]) || '';
-    var tbl = el('table', 'colin');
-    var row = function (cls) { var tr = el('tr', cls); tbl.appendChild(tr); return tr; };
+    var q = it.q, lay = it.layout || C.colLayout(it), w = lay.w;
+    state.carry = state.carry || {};
+    var base = i + '_' + k, graded = [], cur = (state.ans[i][k] && state.ans[i][k][0]) || '';
+    var tbl = el('table', 'colin'), lineNext = false;
     var td = function (tr, cls, txt) { var c = el('td', cls, txt == null ? '' : txt); tr.appendChild(c); return c; };
-    // ойдағы сан
-    var trc = row('c-row'); td(trc, 'op');
-    for (var j = 0; j < w; j++) { var ci = el('input', 'carry'); ci.maxLength = 1; ci.value = (cstr[j] && cstr[j] !== '_') ? cstr[j] : ''; ci.setAttribute('aria-label', T('ойдағы сан', 'в уме')); carries.push(ci); td(trc, '').appendChild(ci); }
-    td(trc, 'q');
-    var tra = row(''), trb = row(''), Ap = pad(A), Bp = pad(Bs);
-    td(tra, 'op'); for (j = 0; j < w; j++) td(tra, 'dg', Ap[j] === ' ' ? '' : Ap[j]); td(tra, 'q', String(q));
-    td(trb, 'op', it.op === '+' ? '+' : '−'); for (j = 0; j < w; j++) td(trb, 'dg', Bp[j] === ' ' ? '' : Bp[j]); td(trb, 'q', String(q));
-    var trr = row('r-row'); td(trr, 'op');
-    var curP = cur; while (curP.length < w) curP = ' ' + curP; curP = curP.slice(-w);
-    for (j = 0; j < w; j++) {
-      var ri = el('input', 'cell' + (j === w - 1 ? ' r-last' : '')); ri.maxLength = 1;
-      ri.value = (curP[j] && curP[j] !== ' ' && curP[j] !== '_') ? curP[j] : '';
-      ri.dataset.iq = q; ri.setAttribute('inputmode', q > 10 ? 'text' : 'numeric'); ri.setAttribute('autocomplete', 'off');
-      ri.setAttribute('aria-label', T('нәтиженің ', 'разряд результата ') + (w - j) + T('-разряды', ''));
-      cells.push(ri); td(trr, '').appendChild(ri);
-    }
-    td(trr, 'q', String(q));
-    var saveRes = function () {
-      var v = cells.map(function (c) { return c.value || '_'; }).join('').replace(/^_+/, '');
+    var mkCell = function (cls, val) {
+      var c = el('input', cls); c.maxLength = 1; c.value = val || ''; c.dataset.iq = q;
+      c.setAttribute('inputmode', q > 10 ? 'text' : 'numeric'); c.setAttribute('autocomplete', 'off');
+      return c;
+    };
+    var saveGraded = function () {
+      var v = graded.map(function (c) { return c.value || '_'; }).join('');
+      if (it.kind !== 'stars') v = v.replace(/^_+/, '');
       setItem(i, k, [v]);
     };
-    var saveCarry = function () {
-      state.carry = state.carry || {};
-      state.carry[ckey] = carries.map(function (c) { return c.value || '_'; }).join(''); save();
-    };
-    var wire = function (list, j, onChange, isRes) {
-      var c = list[j];
-      c._put = function (ch) {
-        if (allowed(q).indexOf(ch) < 0 && !(!isRes && ch === '1')) { hint(q); return; }
-        c.value = ch; onChange();
-        if (isRes && j > 0) list[j - 1].focus();   // келесі (сол жақтағы) разрядқа өтеміз
-      };
-      c._back = function () {
-        if (c.value) { c.value = ''; onChange(); }
-        else if (j < list.length - 1) { list[j + 1].focus(); list[j + 1].value = ''; onChange(); }
-      };
-      c.addEventListener('keydown', function (e) {
-        if (e.ctrlKey || e.metaKey || e.altKey) return;
-        if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); c._back(); return; }
-        if (e.key === 'ArrowLeft') { e.preventDefault(); if (j > 0) list[j - 1].focus(); return; }
-        if (e.key === 'ArrowRight') { e.preventDefault(); if (j < list.length - 1) list[j + 1].focus(); return; }
-        if (e.key === 'Tab' || e.key === 'Enter') return;
-        var ch = keyChar(e); e.preventDefault();
-        if (ch !== null) c._put(ch);
+    var saveAux = function (key, list) { return function () { state.carry[key] = list.map(function (c) { return c.value || '_'; }).join(''); save(); }; };
+    // ұяшықтар қатары: цифр енгізілгенде курсор солға өтеді (бағанмен оңнан солға есептейміз)
+    var wireRow = function (list, onChange, moveLeft) {
+      list.forEach(function (c, j) {
+        c._put = function (ch) {
+          if (allowed(q).indexOf(ch) < 0) { hint(q); return; }
+          c.value = ch; onChange();
+          if (moveLeft && j > 0) list[j - 1].focus();
+        };
+        c._back = function () {
+          if (c.value) { c.value = ''; onChange(); }
+          else if (moveLeft && j < list.length - 1) { list[j + 1].focus(); list[j + 1].value = ''; onChange(); }
+        };
+        c.addEventListener('keydown', function (e) {
+          if (e.ctrlKey || e.metaKey || e.altKey) return;
+          if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); c._back(); return; }
+          if (e.key === 'ArrowLeft') { e.preventDefault(); if (j > 0) list[j - 1].focus(); return; }
+          if (e.key === 'ArrowRight') { e.preventDefault(); if (j < list.length - 1) list[j + 1].focus(); return; }
+          if (e.key === 'Tab' || e.key === 'Enter') return;
+          var ch = keyChar(e); e.preventDefault();
+          if (ch !== null) c._put(ch);
+        });
+        c.addEventListener('input', function () {
+          var v = clean(c.value, q); c.value = v ? v.slice(-1) : ''; onChange();
+          if (moveLeft && v && j > 0) list[j - 1].focus();
+        });
+        c.addEventListener('focus', function () { lastInput = c; renderPad(q); try { c.select(); } catch (er) {} });
       });
-      c.addEventListener('input', function () {   // телефон, қою т.б.
-        var v = clean(c.value, q); c.value = v ? v.slice(-1) : ''; onChange();
-        if (isRes && v && j > 0) list[j - 1].focus();
-      });
-      c.addEventListener('focus', function () { lastInput = c; renderPad(q); try { c.select(); } catch (er) {} });
     };
-    for (j = 0; j < w; j++) { wire(cells, j, saveRes, true); wire(carries, j, saveCarry, false); }
+    var starVals = cur.split(''), starN = 0, starCells = [];
+    lay.rows.forEach(function (row, ri) {
+      var tr = el('tr', (row.cls || '') + (row.line ? ' line-top' : '') + (row.t === 'carry' ? ' c-row' : ''));
+      tbl.appendChild(tr);
+      td(tr, 'op', row.op || '');
+      var j;
+      if (row.t === 'carry') {
+        var ckey = base + '_c', cs = state.carry[ckey] || '', carr = [];
+        for (j = 0; j < w; j++) { var cc = mkCell('carry', cs[j] && cs[j] !== '_' ? cs[j] : ''); cc.setAttribute('aria-label', T('ойдағы сан', 'в уме')); carr.push(cc); td(tr, '').appendChild(cc); }
+        wireRow(carr, saveAux(ckey, carr), false);
+        td(tr, 'q');
+      } else if (row.t === 'digits') {
+        for (j = 0; j < w; j++) {
+          var ch = row.s[j], cell = td(tr, 'dg', ch === ' ' || ch === '*' ? '' : ch);
+          if (ch === '*') {
+            var v = starVals[starN++]; var sc = mkCell('cell star', v && v !== '_' ? v : '');
+            sc.setAttribute('aria-label', T('жасырын цифр', 'скрытая цифра')); starCells.push(sc); graded.push(sc); cell.appendChild(sc);
+          }
+        }
+        td(tr, 'q', String(q));
+      } else {
+        var list = [], isRes = row.role === 'res', hkey = base + '_h', hs = state.carry[hkey] || '';
+        var curP = cur; while (curP.length < w) curP = ' ' + curP; curP = curP.slice(-w);
+        for (j = 0; j < w; j++) {
+          var val = isRes ? (curP[j] !== ' ' && curP[j] !== '_' ? curP[j] : '') : (hs[j] && hs[j] !== '_' ? hs[j] : '');
+          var c = mkCell(isRes ? 'cell' + (j === w - 1 ? ' r-last' : '') : 'cell help', val);
+          c.setAttribute('aria-label', isRes ? T('нәтиже', 'результат') : T('аударылған сан', 'переведённое число'));
+          list.push(c); td(tr, '').appendChild(c);
+          if (isRes) graded.push(c);
+        }
+        wireRow(list, isRes ? saveGraded : saveAux(hkey, list), true);
+        td(tr, 'q', String(q));
+      }
+      if (row.side) td(tr, 'side', L(row.side));
+    });
+    if (starCells.length) { wireRow(starCells, saveGraded, false); starCells[starCells.length - 1].classList.add('r-last'); }
     box.appendChild(tbl);
-    box.appendChild(el('p', 'muted small col-hint', T('Нәтижені оң жақтан бастап әр ұяшыққа бір цифрдан жазыңыз. Жоғарғы кішкентай ұяшықтарға ойдағы санды жазып отыруға болады (бағаланбайды).',
-      'Записывайте результат справа налево, по одной цифре в клетку. В маленькие клетки сверху можно записывать число «в уме» (не оценивается).')));
+    var hintText = it.kind === 'stars' ? T('Жұлдызшалардың орнына цифрларды жазыңыз. Жоғарғы кішкентай ұяшықтарға ойдағы санды жазып отыруға болады (бағаланбайды).', 'Впишите цифры вместо звёздочек. В маленькие клетки сверху можно записывать число «в уме» (не оценивается).')
+      : it.kind === 'conv' ? T('Екінші қатарға аударылған санды жазыңыз (бағаланбайды, бірақ есептеуге көмектеседі), нәтижені — оң жақтан бастап әр ұяшыққа бір цифрдан.', 'Во вторую строку впишите переведённое число (не оценивается, но помогает считать), результат — справа налево, по одной цифре в клетку.')
+      : T('Нәтижені оң жақтан бастап әр ұяшыққа бір цифрдан жазыңыз. Жоғарғы кішкентай ұяшықтарға ойдағы санды жазып отыруға болады (бағаланбайды).', 'Записывайте результат справа налево, по одной цифре в клетку. В маленькие клетки сверху можно записывать число «в уме» (не оценивается).');
+    box.appendChild(el('p', 'muted small col-hint', hintText));
   }
   function hint(q) { warn(T('Бұл жүйеде тек мына цифрлар бар: ', 'В этой системе только цифры: ') + allowed(q).split('').join(' ')); }
   function renderPad(q) {
@@ -416,7 +438,7 @@
         it.fields.forEach(function (f, m) {
           var v = ia && ia[m], ok3 = C.fieldOk(f, v), p3 = el('p', 'rv-line ' + (ok3 ? 'ok' : 'bad'));
           p3.appendChild(el('span', ok3 ? 'rv-ok' : 'rv-bad', ok3 ? '✓ ' : '✗ '));
-          var lead = t.items.length > 1 ? pre + it.expr + (it.kind === 'digit' ? ' · * = ' : ' → ') : L(f.label).replace(/\s*=$/, '') + ' — ' + T('сіздің жауабыңыз: ', 'ваш ответ: ');
+          var lead = t.items.length > 1 ? pre + it.expr + (it.kind === 'stars' ? ' · * = ' : it.kind === 'fix' ? ' · ' + T('дұрысы', 'верно') + ': ' : ' → ') : L(f.label).replace(/\s*=$/, '') + ' — ' + T('сіздің жауабыңыз: ', 'ваш ответ: ');
           p3.appendChild(html('span', null, lead + '<b>' + (v || '—') + '</b>' + (ok3 ? '' : ' · ' + T('дұрыс: ', 'верно: ') + '<b>' + f.key + '</b>')));
           blk.appendChild(p3);
         });

@@ -597,3 +597,11 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .col-hint { margin: 2px 0 0; }
 .item.multi .col-hint { display: none; }
 .item.multi:first-of-type .col-hint, .task-head + .lead + .item .col-hint { display: block; }
+.colin tr.line-top td:not(.op):not(.q):not(.side) { border-top: 3px solid var(--text); padding-top: 4px; }
+.colin tr.r-row td { border-top: 0; }
+.colin tr.wrong td.dg { color: var(--bad); text-decoration: line-through; text-decoration-thickness: 2px; }
+.colin td.side { width: auto; padding-left: 14px; font: 600 0.9rem system-ui, sans-serif; color: var(--muted); white-space: nowrap; text-align: left; }
+.colin tr.wrong td.side { color: var(--bad); }
+.colin input.cell.star { border-color: #c2410c; background: #fffaf4; }
+.colin input.cell.help { border-style: dashed; border-color: #9db0c9; color: #3b5b8a; }
+.sol .err { color: var(--bad); font-weight: 600; }
