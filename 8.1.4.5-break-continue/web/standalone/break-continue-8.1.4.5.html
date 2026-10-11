@@ -377,29 +377,31 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
         <div class="cheat-card">
           <h3>break</h3>
           <p><span class="lang-kz">Циклды <b>бірден тоқтатады</b>. Программа циклдан кейінгі жолдан жалғасады.</span><span class="lang-ru">Сразу <b>прекращает цикл</b>. Программа продолжается со строки после цикла.</span></p>
-<pre class="code">while True:
-    x = int(input())
-    if x == 0:
+<pre class="code">for i in range(1, 100):
+    if i * i > 30:
         break
-    print(x * 2)</pre>
+    print(i, end=" ")
+# 1 2 3 4 5</pre>
         </div>
         <div class="cheat-card">
           <h3>continue</h3>
           <p><span class="lang-kz">Ағымдағы қадамның <b>қалған бөлігін өткізіп</b>, циклдың келесі қадамына өтеді.</span><span class="lang-ru">Пропускает <b>остаток текущего шага</b> и переходит к следующему шагу цикла.</span></p>
-<pre class="code">for i in range(1, 11):
-    if i % 3 == 0:
+<pre class="code">for ch in "informatika":
+    if ch in "aeiou":
         continue
-    print(i, end=" ")</pre>
+    print(ch, end="")
+# nfrmtk</pre>
         </div>
         <div class="cheat-card">
           <h3>for … else</h3>
           <p><span class="lang-kz"><b>else</b> бөлігі цикл <b>break-сіз</b> соңына дейін жеткенде ғана орындалады.</span><span class="lang-ru">Часть <b>else</b> выполняется, только если цикл дошёл до конца <b>без break</b>.</span></p>
-<pre class="code">for d in range(2, n):
-    if n % d == 0:
-        print("NO")
+<pre class="code">for ch in "python":
+    if ch == "z":
+        print("found")
         break
 else:
-    print("YES")</pre>
+    print("not found")
+# not found</pre>
         </div>
       </div>
 
