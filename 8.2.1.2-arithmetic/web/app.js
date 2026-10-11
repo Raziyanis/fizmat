@@ -38,8 +38,8 @@
     if (!req || fsElement()) return Promise.resolve();
     try {
       return Promise.resolve(req.call(e, { navigationUI: 'hide' })).then(function () {
-        // тек Esc ұсталады: пернетақта тілін ауыстыру (Alt+Shift, Win+Бос орын) жұмыс істей береді
-        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock(['Escape']).catch(function () {});
+        // Esc және Win пернесі ұсталады (Chrome/Edge, толық экранда). Жауап өрістері тілге тәуелсіз, сондықтан Win+Бос орын керек емес; Alt+Shift жұмыс істей береді
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock(['Escape', 'MetaLeft', 'MetaRight']).catch(function () {});
       }).catch(function () {});
     } catch (err) { return Promise.resolve(); }
   }
@@ -84,6 +84,7 @@
   function onKey(e) {
     if (!running()) return;
     if (e.key === 'Escape') { warn(T('Толық экран режимінен шықпаңыз: бұл — ереже бұзу.', 'Не выходите из полноэкранного режима: это нарушение.')); e.preventDefault(); }
+    if (e.key === 'Meta' || e.key === 'OS') { e.preventDefault(); warn(T('Жұмыс кезінде Windows мәзірін ашуға болмайды: бұл — ереже бұзу.', 'Во время работы нельзя открывать меню Windows: это нарушение.')); return; }
     var k = (e.code || '').replace(/^Key/, '').toLowerCase();
     if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l', 'c', 'v', 'x'].indexOf(k) >= 0) ||
         (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) { e.preventDefault(); warn(T('Жұмыс кезінде бұл әрекет қолжетімсіз.', 'Это действие недоступно во время работы.')); }
