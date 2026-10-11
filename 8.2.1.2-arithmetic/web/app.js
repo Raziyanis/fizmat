@@ -426,6 +426,16 @@
     LANG = lk;
     return p;
   }
+  // Скриптке жіберу. Жауап мәтіні: ok / dup / skip — қабылданды; error: … — скрипттегі қате; HTML (кіру беті) — қолжетімділік жабық.
+  function postResult(url, p) {
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p), redirect: 'follow' })
+      .then(function (r) { return r.text(); })
+      .then(function (txt) {
+        txt = String(txt || '').trim();
+        if (/^(ok|dup|skip)\b/.test(txt)) return txt;
+        var err = new Error(/^error:/.test(txt) ? txt : 'noaccess'); err.reply = txt; throw err;
+      });
+  }
   function queueResult() {
     if (!resultsUrl() || state.queued) return;
     var list = outbox(); list.push(payload()); setOutbox(list);
@@ -436,7 +446,7 @@
     if (!url || !list.length || sending) { renderSend(); return; }
     sending = true; renderSend();
     var p = list[0];
-    fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p) })
+    postResult(url, p)
       .then(function () {
         setOutbox(outbox().filter(function (x) { return x.id !== p.id; }));
         if (state && state.seed + '-' + state.startedAt === p.id) { state.sent = true; save(); }
@@ -583,9 +593,15 @@
     if (!urlOk(u)) { $('url-msg').textContent = T('Сілтеме https://script.google.com/macros/s/…/exec түрінде болуы керек.', 'Ссылка должна быть вида https://script.google.com/macros/s/…/exec'); return; }
     $('url-msg').textContent = T('Тексерілуде…', 'Проверка…');
     var p = { app: 'qosu-azaytu-8.2.1.2', id: 'test-' + Date.now(), seed: 0, lang: LANG, name: T('ТЕКСЕРУ (мұғалім)', 'ПРОВЕРКА (учитель)'), cls: '—', main: '0', mainMax: '10', star: '0', starMax: '6', time: '0:00', viol: 0, reasonText: '', tasks: [] };
-    fetch(u, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p) })
-      .then(function () { $('url-msg').textContent = T('Тексеру хаты жіберілді. Пошта мен кестені қараңыз: «ТЕКСЕРУ» деген жол пайда болуы керек.', 'Проверочное письмо отправлено. Проверьте почту и таблицу: там должна появиться строка «ПРОВЕРКА».'); },
-        function () { $('url-msg').textContent = T('Жіберу мүмкін болмады: интернетті және сілтемені тексеріңіз.', 'Не удалось отправить: проверьте интернет и ссылку.'); });
+    postResult(u, p).then(function (txt) {
+      $('url-msg').textContent = T('✓ Скрипт жауап берді («' + txt + '»): бәрі жұмыс істейді. Поштаны (Спам қалтасын да) және кестені қараңыз — «ТЕКСЕРУ» деген жол пайда болуы керек.',
+        '✓ Скрипт ответил («' + txt + '»): всё работает. Проверьте почту (и папку «Спам») и таблицу — там должна появиться строка «ПРОВЕРКА».');
+    }, function (e) {
+      $('url-msg').textContent = /^error:/.test(e.message)
+        ? T('✗ Скрипт қате қайтарды: ', '✗ Скрипт вернул ошибку: ') + e.message + T(' — скрипт редакторында setup функциясын іске қосып, рұқсат беріңіз, содан кейін жаңа нұсқаны жариялаңыз.', ' — запустите в редакторе функцию setup, разрешите доступ и разверните новую версию.')
+        : T('✗ Скрипт жауап бермеді немесе кіруді сұрайды. Жариялау баптауын тексеріңіз: «Кімнің атынан» — Мен, «Кімге қолжетімді» — Барлығы. Сілтеме /exec деп аяқталуы керек. Интернетті де тексеріңіз.',
+            '✗ Скрипт не ответил или требует входа в аккаунт. Проверьте развертывание: «Запуск от имени» — Я, «У кого есть доступ» — Все. Ссылка должна заканчиваться на /exec. Проверьте и интернет.');
+    });
   }
 
   // ---------- Іске қосу ----------
