@@ -567,3 +567,19 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .sol p { margin: 4px 0; }
 .review { display: flex; flex-direction: column; gap: 12px; }
 .no-back { background: var(--bad-bg); color: var(--bad); border-radius: 8px; padding: 8px 12px; font-weight: 600; }
+/* Тапсырмадағы 4 мысал */
+.item { display: flex; gap: 12px; align-items: flex-start; }
+.item.multi { border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 10px; }
+.item-no { font: 800 1.3rem/2.6 system-ui, sans-serif; color: var(--accent); min-width: 1.6em; }
+.item-body { flex: 1; min-width: 0; }
+.item.multi .expr { font-size: 1.4rem; margin: 0 0 8px; padding: 8px 14px; }
+.item.multi .cmp { padding: 10px; }
+.fields.compact .field { gap: 8px; }
+.item.multi .ans { font-size: 1.35rem; padding: 6px 10px; }
+.choices.row4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 0; }
+.choices.row4 .choice { flex-direction: column; gap: 2px; align-items: flex-start; padding: 8px 10px; }
+.choices.row4 .choice small { color: var(--muted); font-size: 0.8rem; }
+.choices.row4 .choice b { font-size: 1.2rem; }
+@media (max-width: 700px) { .choices.row4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rv-item { border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 6px; }
+.rv-item:first-of-type { border-top: 0; }

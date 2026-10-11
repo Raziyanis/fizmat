@@ -169,7 +169,7 @@
       var q = r() < 0.5 ? 8 : 16, p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 2, function (a, b) { return hasLetter(a) || hasLetter(b); });
       var a = p[0], b = p[1], right = B(a + b, q);
       var opts = [right, noCarry(a, b, q), tenCarry(a, b, q), B(a + b + (q === 8 ? 8 : 16), q), B(a + b - 1, q)];
-      var uniq = opts.filter(function (o, i) { return o && opts.indexOf(o) === i; });
+      var uniq = opts.filter(function (o, i) { return o && o[0] !== '0' && opts.indexOf(o) === i; });
       if (uniq.length < 4 || uniq[0] !== right) continue;
       var four = [right].concat(shuffle(uniq.slice(1), r).slice(0, 3));
       four = shuffle(four, r);
@@ -179,8 +179,8 @@
     }
   }
   // 8. Жасырын цифрды табу: A + B = C, A-ның бір цифры жасырылған
-  function digitTask(r) {
-    var q = r() < 0.5 ? 8 : 16, p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 1, function (a, b) { return hasLetter(a + b) || hasLetter(a); });
+  function digitTask(r, qq) {
+    var q = qq || (r() < 0.5 ? 8 : 16), p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 1, function (a, b) { return hasLetter(a + b) || hasLetter(a); });
     var a = p[0], b = p[1], A = B(a, q), pos = ri(r, 1, A.length - 1), hidden = A[pos];
     return { type: 'input', kind: 'digit', title: K('Жасырын цифрды табыңыз', 'Найдите скрытую цифру'), q: q, a: a, b: b,
       expr: N(A.slice(0, pos) + '*' + A.slice(pos + 1), q) + ' + ' + N(B(b, q), q) + ' = ' + N(B(a + b, q), q),
@@ -198,8 +198,8 @@
       fields: [{ q: 10, key: String(res), label: K('Жауабы', 'Ответ') }], max: 1 };
   }
   // 10. Салыстыру
-  function cmpTask(r) {
-    var rel = ri(r, 0, 2);   // 0: <, 1: =, 2: >
+  function cmpTask(r, rr) {
+    var rel = rr != null ? rr : ri(r, 0, 2);   // 0: <, 1: =, 2: >
     for (var k = 0; k < 500; k++) {
       var a = ri(r, 20, 63), b = ri(r, 5, 31), lop = r() < 0.5 ? '+' : '−';
       if (lop === '−' && b >= a) continue;
@@ -253,21 +253,38 @@
         fields: [{ q: 10, key: String(q), label: K('q (ондық жүйеде)', 'q (в десятичной)') }, { q: q, inputQ: 16, subText: 'q', key: B(u + v, q), label: K(B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =', B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =') }], max: 2 };
     }
   }
+  // Бір тапсырма — бірнеше мысал (негізгі тапсырмаларда 4 мысал, әрқайсысы 0,25 балл)
+  function group(items, per) {
+    var units = items.reduce(function (n, it) { return n + (it.type === 'input' ? it.fields.length : 1); }, 0);
+    return { type: 'group', title: items[0].title, prompt: items[0].prompt, star: !!items[0].star, items: items, per: per, units: units, max: units * per };
+  }
+  function four(make) {   // 4 әр түрлі мысал
+    var out = [], seen = {};
+    for (var k = 0; out.length < 4 && k < 200; k++) {
+      var it = make(out.length), id = it.expr || (it.left + '|' + it.right);
+      if (!seen[id]) { seen[id] = 1; out.push(it); }
+    }
+    return out;
+  }
+  var PER = 0.25;
   function generate(seed) {
     var r = rng(seed), T = [];
-    T.push(colTask(r, 2, '+', K('Екілік жүйеде қосу', 'Сложение в двоичной системе')));
-    T.push(colTask(r, 2, '−', K('Екілік жүйеде азайту', 'Вычитание в двоичной системе')));
-    T.push(colTask(r, 8, '+', K('Сегіздік жүйеде қосу', 'Сложение в восьмеричной системе')));
-    T.push(colTask(r, 8, '−', K('Сегіздік жүйеде азайту', 'Вычитание в восьмеричной системе')));
-    T.push(colTask(r, 16, '+', K('Он алтылық жүйеде қосу', 'Сложение в шестнадцатеричной системе')));
-    T.push(colTask(r, 16, '−', K('Он алтылық жүйеде азайту', 'Вычитание в шестнадцатеричной системе')));
-    T.push(choiceTask(r));
-    T.push(digitTask(r));
-    T.push(mixTask(r));
-    T.push(cmpTask(r));
-    T.push(eqTask(r));
-    T.push(exprTask(r));
-    T.push(baseTask(r));
+    var col = function (q, op, title) { return group(four(function () { return colTask(r, q, op, title); }), PER); };
+    T.push(col(2, '+', K('Екілік жүйеде қосу', 'Сложение в двоичной системе')));
+    T.push(col(2, '−', K('Екілік жүйеде азайту', 'Вычитание в двоичной системе')));
+    T.push(col(8, '+', K('Сегіздік жүйеде қосу', 'Сложение в восьмеричной системе')));
+    T.push(col(8, '−', K('Сегіздік жүйеде азайту', 'Вычитание в восьмеричной системе')));
+    T.push(col(16, '+', K('Он алтылық жүйеде қосу', 'Сложение в шестнадцатеричной системе')));
+    T.push(col(16, '−', K('Он алтылық жүйеде азайту', 'Вычитание в шестнадцатеричной системе')));
+    T.push(group(four(function () { return choiceTask(r); }), PER));
+    var dq = shuffle([8, 8, 16, 16], r);
+    T.push(group(four(function (n) { return digitTask(r, dq[n]); }), PER));
+    T.push(group(four(function () { return mixTask(r); }), PER));
+    var rels = shuffle([0, 1, 2, ri(r, 0, 2)], r);
+    T.push(group(four(function (n) { return cmpTask(r, rels[n]); }), PER));
+    T.push(group([eqTask(r)], 1));
+    T.push(group([exprTask(r)], 1));
+    T.push(group([baseTask(r)], 1));
     return T;
   }
 
@@ -277,14 +294,20 @@
     s = s.replace(/^0+(?=.)/, '');
     return s;
   }
-  function empty(t) { return t.type === 'input' ? t.fields.map(function () { return ''; }) : null; }
   function fieldOk(f, v) { return norm(v) !== '' && norm(v) === norm(f.key); }
-  function score(t, a) {
-    if (t.type === 'input') return t.fields.reduce(function (s, f, i) { return s + (a && fieldOk(f, a[i]) ? 1 : 0); }, 0);
-    return a === t.key ? 1 : 0;
+  // Бір мысал (item): input — жауап өрістері, choice/cmp — таңдалған нөмір
+  function iEmpty(it) { return it.type === 'input' ? it.fields.map(function () { return ''; }) : null; }
+  function iUnits(it, a) {   // дұрыс жауаптар саны
+    if (it.type === 'input') return it.fields.reduce(function (s, f, i) { return s + (a && fieldOk(f, a[i]) ? 1 : 0); }, 0);
+    return a === it.key ? 1 : 0;
   }
-  function touched(t, a) { return t.type === 'input' ? !!a && a.some(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
-  function complete(t, a) { return t.type === 'input' ? !!a && a.every(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
+  function iTouched(it, a) { return it.type === 'input' ? !!a && a.some(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
+  function iComplete(it, a) { return it.type === 'input' ? !!a && a.every(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
+  // Тапсырма (бірнеше мысал)
+  function empty(t) { return t.items.map(iEmpty); }
+  function score(t, a) { return t.per * t.items.reduce(function (s, it, k) { return s + iUnits(it, a && a[k]); }, 0); }
+  function touched(t, a) { return t.items.some(function (it, k) { return iTouched(it, a && a[k]); }); }
+  function complete(t, a) { return t.items.every(function (it, k) { return iComplete(it, a && a[k]); }); }
   // Талдаудағы түсіндірме (HTML)
   function solution(t, lang) {
     var kz = lang === 'kz', tr = function (a, b) { return kz ? a : b; };
@@ -305,6 +328,6 @@
     return '';
   }
 
-  window.CONTENT = { K: K, theory: theory, generate: generate, empty: empty, score: score, touched: touched, complete: complete, norm: norm, fieldOk: fieldOk,
+  window.CONTENT = { K: K, theory: theory, generate: generate, empty: empty, score: score, touched: touched, complete: complete, norm: norm, fieldOk: fieldOk, iUnits: iUnits, iComplete: iComplete,
     solution: solution, sub: sub, B: B, columnData: columnData, baseSols: baseSols, carries: carries, borrows: borrows };
 })();

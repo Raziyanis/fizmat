@@ -145,47 +145,67 @@
     tasks.forEach(function (t, i) { (isStar(t) ? r2 : r1).appendChild(mk(i)); });
     g1.appendChild(r1); g2.appendChild(r2); nav.appendChild(g1); nav.appendChild(g2);
   }
+  var LET = ['а', 'ә', 'б', 'в'], LETR = ['а', 'б', 'в', 'г'];
+  function itemLetter(k) { return (LANG === 'kz' ? LET : LETR)[k] || String(k + 1); }
+  function fs(x) { return String(Math.round(x * 100) / 100).replace('.', ','); }   // 0,25 → «0,25»
+  function setItem(i, k, v) { var a = state.ans[i].slice(); a[k] = v; state.ans[i] = a; save(); renderNav(); }
   function renderTask() {
     show('s-work');
     renderNav();
     var i = state.cur, t = tasks[i], box = $('task'); box.innerHTML = '';
     var head = el('div', 'task-head');
-    head.appendChild(el('span', 'task-no', (isStar(t) ? T('★ Қосымша ', '★ Доп. ') + navName(i).slice(1) : navName(i)) + ' · ' + t.max + ' ' + T('балл', t.max === 1 ? 'балл' : 'балла')));
+    head.appendChild(el('span', 'task-no', (isStar(t) ? T('★ Қосымша ', '★ Доп. ') + navName(i).slice(1) : navName(i)) + ' · ' + fs(t.max) + ' ' + T('балл', 'балла') +
+      (t.items.length > 1 ? ' · ' + t.items.length + T(' мысал, әрқайсысы ', ' примера, каждый по ') + fs(t.per) + T(' балл', ' балла') : '')));
     head.appendChild(el('h2', null, L(t.title)));
     box.appendChild(head);
     box.appendChild(html('p', 'lead', L(t.prompt)));
-    if (t.type === 'cmp') rCmp(t, i, box);
-    else {
-      box.appendChild(html('p', 'expr', t.expr));
-      if (t.type === 'choice') rChoice(t, i, box); else rInput(t, i, box);
+    var anyInput = false;
+    t.items.forEach(function (it, k) {
+      var wrap = el('div', 'item' + (t.items.length > 1 ? ' multi' : ''));
+      if (t.items.length > 1) wrap.appendChild(el('span', 'item-no', itemLetter(k) + ')'));
+      var body = el('div', 'item-body');
+      if (it.type === 'cmp') rCmp(it, i, k, body);
+      else {
+        body.appendChild(html('p', 'expr', it.expr));
+        if (it.type === 'choice') rChoice(it, i, k, body); else { rInput(it, i, k, body, t.items.length > 1); anyInput = true; }
+      }
+      wrap.appendChild(body);
+      box.appendChild(wrap);
+    });
+    if (anyInput) {
+      var pad = el('div', 'pad'); pad.id = 'pad'; box.appendChild(pad);
+      box.appendChild(el('p', 'muted small pad-note', ''));
+      var first = box.querySelector('input.ans'); lastInput = first; renderPad(+first.dataset.iq);
     }
     $('b-prev').disabled = i === 0;
     $('b-next').disabled = i === tasks.length - 1;
     $('m-confirm').hidden = true;
   }
-  function rChoice(t, i, box) {
-    var wrap = el('div', 'choices');
-    t.opts.forEach(function (o, n) {
-      var b = el('button', 'choice' + (state.ans[i] === n ? ' on' : ''));
-      b.appendChild(el('b', null, 'ABCD'[n] + ') ')); b.appendChild(document.createTextNode(T(['Айгерім', 'Нұрлан', 'Дана', 'Ерлан'][n], ['Айгерим', 'Нурлан', 'Дана', 'Ерлан'][n]) + ': ' + o));
-      b.addEventListener('click', function () { state.ans[i] = n; save(); renderTask(); });
+  var NAMES = { kz: ['Айгерім', 'Нұрлан', 'Дана', 'Ерлан'], ru: ['Айгерим', 'Нурлан', 'Дана', 'Ерлан'] };
+  function rChoice(it, i, k, box) {
+    var wrap = el('div', 'choices row4');
+    it.opts.forEach(function (o, n) {
+      var b = el('button', 'choice' + (state.ans[i][k] === n ? ' on' : ''));
+      b.appendChild(el('small', null, NAMES[LANG][n])); b.appendChild(el('b', null, o));
+      b.addEventListener('click', function () { setItem(i, k, n); rerender(); });
       wrap.appendChild(b);
     });
     box.appendChild(wrap);
   }
-  function rCmp(t, i, box) {
+  function rCmp(it, i, k, box) {
     var row = el('div', 'cmp');
-    row.appendChild(el('span', 'cmp-side', t.left));
+    row.appendChild(el('span', 'cmp-side', it.left));
     var mid = el('span', 'cmp-signs');
-    ['<', '=', '>'].forEach(function (s, n) {
-      var b = el('button', 'sign' + (state.ans[i] === n ? ' on' : ''), s);
-      b.addEventListener('click', function () { state.ans[i] = n; save(); renderTask(); });
+    ['<', '=', '>'].forEach(function (sg, n) {
+      var b = el('button', 'sign' + (state.ans[i][k] === n ? ' on' : ''), sg);
+      b.addEventListener('click', function () { setItem(i, k, n); rerender(); });
       mid.appendChild(b);
     });
     row.appendChild(mid);
-    row.appendChild(el('span', 'cmp-side', t.right));
+    row.appendChild(el('span', 'cmp-side', it.right));
     box.appendChild(row);
   }
+  function rerender() { var y = window.scrollY; renderTask(); window.scrollTo(0, y); }
   // Жауап өрісі: тек осы жүйенің цифрлары; A–F пернелері кез келген тілде латын әрпін жазады
   var CYR = { 'Ф': 'A', 'И': 'B', 'С': 'C', 'В': 'D', 'У': 'E', 'А': 'F' };
   function allowed(q) { return '0123456789ABCDEF'.slice(0, q); }
@@ -199,19 +219,21 @@
     try { inp.setSelectionRange(s + ch.length, s + ch.length); } catch (er) {}
     inp.dispatchEvent(new Event('input'));
   }
-  function rInput(t, i, box) {
-    var form = el('div', 'fields');
-    t.fields.forEach(function (f, k) {
+  function rInput(it, i, k, box, compact) {
+    var form = el('div', 'fields' + (compact ? ' compact' : ''));
+    it.fields.forEach(function (f, m) {
       var row = el('label', 'field');
-      row.appendChild(html('span', 'f-label', L(f.label)));
-      var inp = el('input', 'ans'); inp.type = 'text'; inp.value = state.ans[i][k] || '';
+      if (!compact) row.appendChild(html('span', 'f-label', L(f.label)));
+      var inp = el('input', 'ans'); inp.type = 'text'; inp.value = (state.ans[i][k] && state.ans[i][k][m]) || '';
       inp.setAttribute('autocomplete', 'off'); inp.setAttribute('spellcheck', 'false'); inp.setAttribute('autocapitalize', 'characters');
+      inp.setAttribute('aria-label', L(f.label));
       var iq = f.inputQ || f.q;   // ★3: q белгісіз, сондықтан барлық цифрға рұқсат (жүйені алдын ала көрсетпеу үшін)
+      inp.dataset.iq = iq;
       inp.setAttribute('inputmode', iq > 10 ? 'text' : 'numeric');
       inp.addEventListener('keydown', function (e) {
         if (e.ctrlKey || e.metaKey || e.altKey) return;
-        var m = /^(?:Digit|Numpad)(\d)$/.exec(e.code || '') , ch = null;
-        if (m) ch = m[1]; else { var l = /^Key([A-F])$/.exec(e.code || ''); if (l) ch = l[1]; else if (/^Key[G-Z]$/.test(e.code || '')) { e.preventDefault(); return; } }
+        var mm = /^(?:Digit|Numpad)(\d)$/.exec(e.code || ''), ch = null;
+        if (mm) ch = mm[1]; else { var l = /^Key([A-F])$/.exec(e.code || ''); if (l) ch = l[1]; else if (/^Key[G-Z]$/.test(e.code || '')) { e.preventDefault(); return; } }
         if (ch === null) return;
         e.preventDefault();
         if (allowed(iq).indexOf(ch) < 0) { hint(iq); return; }
@@ -220,7 +242,7 @@
       inp.addEventListener('input', function () {
         var c = clean(inp.value, iq);
         if (c !== inp.value) { var p = inp.selectionStart; inp.value = c; try { inp.setSelectionRange(Math.min(p, c.length), Math.min(p, c.length)); } catch (er) {} }
-        var a = state.ans[i].slice(); a[k] = c; state.ans[i] = a; save(); renderNav();
+        var cur = (state.ans[i][k] || it.fields.map(function () { return ''; })).slice(); cur[m] = c; setItem(i, k, cur);
       });
       inp.addEventListener('focus', function () { lastInput = inp; renderPad(iq); });
       row.appendChild(inp);
@@ -228,9 +250,6 @@
       form.appendChild(row);
     });
     box.appendChild(form);
-    box.appendChild(el('div', 'pad')); box.lastChild.id = 'pad';
-    box.appendChild(el('p', 'muted small pad-note', ''));
-    var first = form.querySelector('input'); lastInput = first; renderPad(t.fields[0].inputQ || t.fields[0].q);
   }
   function hint(q) { warn(T('Бұл жүйеде тек мына цифрлар бар: ', 'В этой системе только цифры: ') + allowed(q).split('').join(' ')); }
   function renderPad(q) {
@@ -277,8 +296,8 @@
   function renderResult() {
     show('s-result');
     var s = sums();
-    $('r-score').textContent = s.main + ' / ' + s.mainMax;
-    $('r-star').textContent = T('★ Қосымша тапсырма: ', '★ Дополнительное задание: ') + s.star + ' / ' + s.starMax + ' ' + T('балл', 'баллов');
+    $('r-score').textContent = fs(s.main) + ' / ' + fs(s.mainMax);
+    $('r-star').textContent = T('★ Қосымша тапсырма: ', '★ Дополнительное задание: ') + fs(s.star) + ' / ' + fs(s.starMax) + ' ' + T('балл', 'баллов');
     if (state.reason && state.reason !== 'done') {
       $('r-reason').hidden = false;
       $('r-reason').textContent = state.reason === 'time' ? L(REASONS.time) + ' ' + T('Жұмыс автоматты түрде тапсырылды.', 'Работа сдана автоматически.')
@@ -291,7 +310,7 @@
     [T('№', '№'), T('Тапсырма', 'Задание'), T('Балл', 'Балл')].forEach(function (h) { hr.appendChild(el('th', null, h)); }); table.appendChild(hr);
     tasks.forEach(function (t, i) {
       var tr = el('tr', state.scores[i] === t.max ? 'ok' : state.scores[i] === 0 ? 'bad' : 'mid');
-      tr.appendChild(el('td', null, navName(i))); tr.appendChild(el('td', null, L(t.title))); tr.appendChild(el('td', null, state.scores[i] + ' / ' + t.max));
+      tr.appendChild(el('td', null, navName(i))); tr.appendChild(el('td', null, L(t.title))); tr.appendChild(el('td', null, fs(state.scores[i]) + ' / ' + fs(t.max)));
       table.appendChild(tr);
     });
     tb.appendChild(table);
@@ -299,35 +318,41 @@
     tasks.forEach(function (t, i) { rv.appendChild(review(t, i)); });
     scheduleReset();
   }
-  function shown(t, a) {
-    if (t.type === 'choice') return a == null ? '—' : 'ABCD'[a] + ') ' + t.opts[a];
-    if (t.type === 'cmp') return a == null ? '—' : t.left + ' ' + ['<', '=', '>'][a] + ' ' + t.right;
-    return null;
-  }
   function review(t, i) {
-    var a = state.ans[i], sc = state.scores[i];
+    var a = state.ans[i] || [], sc = state.scores[i];
     var card = el('div', 'rv-card ' + (sc === t.max ? 'ok' : sc === 0 ? 'bad' : 'mid'));
-    card.appendChild(el('h3', null, navName(i) + '. ' + L(t.title) + ' — ' + sc + ' / ' + t.max));
-    if (t.type !== 'cmp') card.appendChild(html('p', 'expr small-expr', t.expr));
-    if (t.type === 'input') {
-      t.fields.forEach(function (f, k) {
-        var ok = C.fieldOk(f, a && a[k]);
-        var p = el('p', 'rv-line ' + (ok ? 'ok' : 'bad'));
-        p.appendChild(el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓' : '✗'));
-        p.appendChild(html('span', null, ' ' + (t.fields.length > 1 ? L(f.label).replace(/\s*=$/, '') + ' — ' + T('сіздің жауабыңыз: ', 'ваш ответ: ') : T('Сіздің жауабыңыз: ', 'Ваш ответ: ')) + '<b>' + ((a && a[k]) || '—') + '</b>' + (ok ? '' : ' · ' + T('дұрыс жауап: ', 'верный ответ: ') + '<b>' + f.key + '</b>')));
-        card.appendChild(p);
-      });
-    } else {
-      var ok = sc === 1, right = t.type === 'choice' ? 'ABCD'[t.key] + ') ' + t.opts[t.key] : t.left + ' ' + ['<', '=', '>'][t.key] + ' ' + t.right;
-      var p = el('p', 'rv-line ' + (ok ? 'ok' : 'bad'));
-      p.appendChild(el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓' : '✗'));
-      p.appendChild(html('span', null, ' ' + T('Сіздің жауабыңыз: ', 'Ваш ответ: ') + '<b>' + shown(t, a) + '</b>' + (ok ? '' : ' · ' + T('дұрыс жауап: ', 'верный ответ: ') + '<b>' + right + '</b>')));
-      card.appendChild(p);
-    }
-    var det = el('details', 'rv-sol'); if (sc < t.max) det.open = true;
-    det.appendChild(el('summary', null, T('Шешуі', 'Решение')));
-    det.appendChild(html('div', 'sol', C.solution(t, LANG)));
-    card.appendChild(det);
+    card.appendChild(el('h3', null, navName(i) + '. ' + L(t.title) + ' — ' + fs(sc) + ' / ' + fs(t.max)));
+    t.items.forEach(function (it, k) {
+      var ia = a[k], blk = el('div', 'rv-item');
+      var pre = t.items.length > 1 ? itemLetter(k) + ') ' : '';
+      if (it.type === 'cmp') {
+        var ok = ia === it.key, p = el('p', 'rv-line ' + (ok ? 'ok' : 'bad'));
+        p.appendChild(el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓ ' : '✗ '));
+        p.appendChild(html('span', null, pre + T('Сіздің жауабыңыз: ', 'Ваш ответ: ') + '<b>' + (ia == null ? '—' : it.left + ' ' + ['&lt;', '=', '&gt;'][ia] + ' ' + it.right) + '</b>' +
+          (ok ? '' : ' · ' + T('дұрыс: ', 'верно: ') + '<b>' + it.left + ' ' + ['&lt;', '=', '&gt;'][it.key] + ' ' + it.right + '</b>')));
+        blk.appendChild(p);
+      } else if (it.type === 'choice') {
+        var ok2 = ia === it.key, p2 = el('p', 'rv-line ' + (ok2 ? 'ok' : 'bad'));
+        p2.appendChild(el('span', ok2 ? 'rv-ok' : 'rv-bad', ok2 ? '✓ ' : '✗ '));
+        p2.appendChild(html('span', null, pre + it.expr + ' · ' + T('сіздің таңдауыңыз: ', 'ваш выбор: ') + '<b>' + (ia == null ? '—' : it.opts[ia]) + '</b>' + (ok2 ? '' : ' · ' + T('дұрыс: ', 'верно: ') + '<b>' + it.opts[it.key] + '</b>')));
+        blk.appendChild(p2);
+      } else {
+        if (t.items.length === 1) blk.appendChild(html('p', 'expr small-expr', it.expr));
+        it.fields.forEach(function (f, m) {
+          var v = ia && ia[m], ok3 = C.fieldOk(f, v), p3 = el('p', 'rv-line ' + (ok3 ? 'ok' : 'bad'));
+          p3.appendChild(el('span', ok3 ? 'rv-ok' : 'rv-bad', ok3 ? '✓ ' : '✗ '));
+          var lead = t.items.length > 1 ? pre + it.expr + (it.kind === 'digit' ? ' · * = ' : ' → ') : L(f.label).replace(/\s*=$/, '') + ' — ' + T('сіздің жауабыңыз: ', 'ваш ответ: ');
+          p3.appendChild(html('span', null, lead + '<b>' + (v || '—') + '</b>' + (ok3 ? '' : ' · ' + T('дұрыс: ', 'верно: ') + '<b>' + f.key + '</b>')));
+          blk.appendChild(p3);
+        });
+      }
+      var good = C.iUnits(it, ia) === (it.type === 'input' ? it.fields.length : 1);
+      var det = el('details', 'rv-sol'); if (!good) det.open = true;
+      det.appendChild(el('summary', null, T('Шешуі', 'Решение') + (pre ? ' ' + pre.trim() : '')));
+      det.appendChild(html('div', 'sol', C.solution(it, LANG)));
+      blk.appendChild(det);
+      card.appendChild(blk);
+    });
     return card;
   }
   function scheduleReset() {

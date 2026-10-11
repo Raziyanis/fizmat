@@ -583,6 +583,22 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .sol p { margin: 4px 0; }
 .review { display: flex; flex-direction: column; gap: 12px; }
 .no-back { background: var(--bad-bg); color: var(--bad); border-radius: 8px; padding: 8px 12px; font-weight: 600; }
+/* Тапсырмадағы 4 мысал */
+.item { display: flex; gap: 12px; align-items: flex-start; }
+.item.multi { border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 10px; }
+.item-no { font: 800 1.3rem/2.6 system-ui, sans-serif; color: var(--accent); min-width: 1.6em; }
+.item-body { flex: 1; min-width: 0; }
+.item.multi .expr { font-size: 1.4rem; margin: 0 0 8px; padding: 8px 14px; }
+.item.multi .cmp { padding: 10px; }
+.fields.compact .field { gap: 8px; }
+.item.multi .ans { font-size: 1.35rem; padding: 6px 10px; }
+.choices.row4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 0; }
+.choices.row4 .choice { flex-direction: column; gap: 2px; align-items: flex-start; padding: 8px 10px; }
+.choices.row4 .choice small { color: var(--muted); font-size: 0.8rem; }
+.choices.row4 .choice b { font-size: 1.2rem; }
+@media (max-width: 700px) { .choices.row4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rv-item { border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 6px; }
+.rv-item:first-of-type { border-top: 0; }
 </style>
 </head>
 <body>
@@ -851,7 +867,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       var q = r() < 0.5 ? 8 : 16, p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 2, function (a, b) { return hasLetter(a) || hasLetter(b); });
       var a = p[0], b = p[1], right = B(a + b, q);
       var opts = [right, noCarry(a, b, q), tenCarry(a, b, q), B(a + b + (q === 8 ? 8 : 16), q), B(a + b - 1, q)];
-      var uniq = opts.filter(function (o, i) { return o && opts.indexOf(o) === i; });
+      var uniq = opts.filter(function (o, i) { return o && o[0] !== '0' && opts.indexOf(o) === i; });
       if (uniq.length < 4 || uniq[0] !== right) continue;
       var four = [right].concat(shuffle(uniq.slice(1), r).slice(0, 3));
       four = shuffle(four, r);
@@ -861,8 +877,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     }
   }
   // 8. Жасырын цифрды табу: A + B = C, A-ның бір цифры жасырылған
-  function digitTask(r) {
-    var q = r() < 0.5 ? 8 : 16, p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 1, function (a, b) { return hasLetter(a + b) || hasLetter(a); });
+  function digitTask(r, qq) {
+    var q = qq || (r() < 0.5 ? 8 : 16), p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 1, function (a, b) { return hasLetter(a + b) || hasLetter(a); });
     var a = p[0], b = p[1], A = B(a, q), pos = ri(r, 1, A.length - 1), hidden = A[pos];
     return { type: 'input', kind: 'digit', title: K('Жасырын цифрды табыңыз', 'Найдите скрытую цифру'), q: q, a: a, b: b,
       expr: N(A.slice(0, pos) + '*' + A.slice(pos + 1), q) + ' + ' + N(B(b, q), q) + ' = ' + N(B(a + b, q), q),
@@ -880,8 +896,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       fields: [{ q: 10, key: String(res), label: K('Жауабы', 'Ответ') }], max: 1 };
   }
   // 10. Салыстыру
-  function cmpTask(r) {
-    var rel = ri(r, 0, 2);   // 0: <, 1: =, 2: >
+  function cmpTask(r, rr) {
+    var rel = rr != null ? rr : ri(r, 0, 2);   // 0: <, 1: =, 2: >
     for (var k = 0; k < 500; k++) {
       var a = ri(r, 20, 63), b = ri(r, 5, 31), lop = r() < 0.5 ? '+' : '−';
       if (lop === '−' && b >= a) continue;
@@ -935,21 +951,38 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
         fields: [{ q: 10, key: String(q), label: K('q (ондық жүйеде)', 'q (в десятичной)') }, { q: q, inputQ: 16, subText: 'q', key: B(u + v, q), label: K(B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =', B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =') }], max: 2 };
     }
   }
+  // Бір тапсырма — бірнеше мысал (негізгі тапсырмаларда 4 мысал, әрқайсысы 0,25 балл)
+  function group(items, per) {
+    var units = items.reduce(function (n, it) { return n + (it.type === 'input' ? it.fields.length : 1); }, 0);
+    return { type: 'group', title: items[0].title, prompt: items[0].prompt, star: !!items[0].star, items: items, per: per, units: units, max: units * per };
+  }
+  function four(make) {   // 4 әр түрлі мысал
+    var out = [], seen = {};
+    for (var k = 0; out.length < 4 && k < 200; k++) {
+      var it = make(out.length), id = it.expr || (it.left + '|' + it.right);
+      if (!seen[id]) { seen[id] = 1; out.push(it); }
+    }
+    return out;
+  }
+  var PER = 0.25;
   function generate(seed) {
     var r = rng(seed), T = [];
-    T.push(colTask(r, 2, '+', K('Екілік жүйеде қосу', 'Сложение в двоичной системе')));
-    T.push(colTask(r, 2, '−', K('Екілік жүйеде азайту', 'Вычитание в двоичной системе')));
-    T.push(colTask(r, 8, '+', K('Сегіздік жүйеде қосу', 'Сложение в восьмеричной системе')));
-    T.push(colTask(r, 8, '−', K('Сегіздік жүйеде азайту', 'Вычитание в восьмеричной системе')));
-    T.push(colTask(r, 16, '+', K('Он алтылық жүйеде қосу', 'Сложение в шестнадцатеричной системе')));
-    T.push(colTask(r, 16, '−', K('Он алтылық жүйеде азайту', 'Вычитание в шестнадцатеричной системе')));
-    T.push(choiceTask(r));
-    T.push(digitTask(r));
-    T.push(mixTask(r));
-    T.push(cmpTask(r));
-    T.push(eqTask(r));
-    T.push(exprTask(r));
-    T.push(baseTask(r));
+    var col = function (q, op, title) { return group(four(function () { return colTask(r, q, op, title); }), PER); };
+    T.push(col(2, '+', K('Екілік жүйеде қосу', 'Сложение в двоичной системе')));
+    T.push(col(2, '−', K('Екілік жүйеде азайту', 'Вычитание в двоичной системе')));
+    T.push(col(8, '+', K('Сегіздік жүйеде қосу', 'Сложение в восьмеричной системе')));
+    T.push(col(8, '−', K('Сегіздік жүйеде азайту', 'Вычитание в восьмеричной системе')));
+    T.push(col(16, '+', K('Он алтылық жүйеде қосу', 'Сложение в шестнадцатеричной системе')));
+    T.push(col(16, '−', K('Он алтылық жүйеде азайту', 'Вычитание в шестнадцатеричной системе')));
+    T.push(group(four(function () { return choiceTask(r); }), PER));
+    var dq = shuffle([8, 8, 16, 16], r);
+    T.push(group(four(function (n) { return digitTask(r, dq[n]); }), PER));
+    T.push(group(four(function () { return mixTask(r); }), PER));
+    var rels = shuffle([0, 1, 2, ri(r, 0, 2)], r);
+    T.push(group(four(function (n) { return cmpTask(r, rels[n]); }), PER));
+    T.push(group([eqTask(r)], 1));
+    T.push(group([exprTask(r)], 1));
+    T.push(group([baseTask(r)], 1));
     return T;
   }
 
@@ -959,14 +992,20 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     s = s.replace(/^0+(?=.)/, '');
     return s;
   }
-  function empty(t) { return t.type === 'input' ? t.fields.map(function () { return ''; }) : null; }
   function fieldOk(f, v) { return norm(v) !== '' && norm(v) === norm(f.key); }
-  function score(t, a) {
-    if (t.type === 'input') return t.fields.reduce(function (s, f, i) { return s + (a && fieldOk(f, a[i]) ? 1 : 0); }, 0);
-    return a === t.key ? 1 : 0;
+  // Бір мысал (item): input — жауап өрістері, choice/cmp — таңдалған нөмір
+  function iEmpty(it) { return it.type === 'input' ? it.fields.map(function () { return ''; }) : null; }
+  function iUnits(it, a) {   // дұрыс жауаптар саны
+    if (it.type === 'input') return it.fields.reduce(function (s, f, i) { return s + (a && fieldOk(f, a[i]) ? 1 : 0); }, 0);
+    return a === it.key ? 1 : 0;
   }
-  function touched(t, a) { return t.type === 'input' ? !!a && a.some(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
-  function complete(t, a) { return t.type === 'input' ? !!a && a.every(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
+  function iTouched(it, a) { return it.type === 'input' ? !!a && a.some(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
+  function iComplete(it, a) { return it.type === 'input' ? !!a && a.every(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
+  // Тапсырма (бірнеше мысал)
+  function empty(t) { return t.items.map(iEmpty); }
+  function score(t, a) { return t.per * t.items.reduce(function (s, it, k) { return s + iUnits(it, a && a[k]); }, 0); }
+  function touched(t, a) { return t.items.some(function (it, k) { return iTouched(it, a && a[k]); }); }
+  function complete(t, a) { return t.items.every(function (it, k) { return iComplete(it, a && a[k]); }); }
   // Талдаудағы түсіндірме (HTML)
   function solution(t, lang) {
     var kz = lang === 'kz', tr = function (a, b) { return kz ? a : b; };
@@ -987,7 +1026,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     return '';
   }
 
-  window.CONTENT = { K: K, theory: theory, generate: generate, empty: empty, score: score, touched: touched, complete: complete, norm: norm, fieldOk: fieldOk,
+  window.CONTENT = { K: K, theory: theory, generate: generate, empty: empty, score: score, touched: touched, complete: complete, norm: norm, fieldOk: fieldOk, iUnits: iUnits, iComplete: iComplete,
     solution: solution, sub: sub, B: B, columnData: columnData, baseSols: baseSols, carries: carries, borrows: borrows };
 })();
 
@@ -1140,47 +1179,67 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     tasks.forEach(function (t, i) { (isStar(t) ? r2 : r1).appendChild(mk(i)); });
     g1.appendChild(r1); g2.appendChild(r2); nav.appendChild(g1); nav.appendChild(g2);
   }
+  var LET = ['а', 'ә', 'б', 'в'], LETR = ['а', 'б', 'в', 'г'];
+  function itemLetter(k) { return (LANG === 'kz' ? LET : LETR)[k] || String(k + 1); }
+  function fs(x) { return String(Math.round(x * 100) / 100).replace('.', ','); }   // 0,25 → «0,25»
+  function setItem(i, k, v) { var a = state.ans[i].slice(); a[k] = v; state.ans[i] = a; save(); renderNav(); }
   function renderTask() {
     show('s-work');
     renderNav();
     var i = state.cur, t = tasks[i], box = $('task'); box.innerHTML = '';
     var head = el('div', 'task-head');
-    head.appendChild(el('span', 'task-no', (isStar(t) ? T('★ Қосымша ', '★ Доп. ') + navName(i).slice(1) : navName(i)) + ' · ' + t.max + ' ' + T('балл', t.max === 1 ? 'балл' : 'балла')));
+    head.appendChild(el('span', 'task-no', (isStar(t) ? T('★ Қосымша ', '★ Доп. ') + navName(i).slice(1) : navName(i)) + ' · ' + fs(t.max) + ' ' + T('балл', 'балла') +
+      (t.items.length > 1 ? ' · ' + t.items.length + T(' мысал, әрқайсысы ', ' примера, каждый по ') + fs(t.per) + T(' балл', ' балла') : '')));
     head.appendChild(el('h2', null, L(t.title)));
     box.appendChild(head);
     box.appendChild(html('p', 'lead', L(t.prompt)));
-    if (t.type === 'cmp') rCmp(t, i, box);
-    else {
-      box.appendChild(html('p', 'expr', t.expr));
-      if (t.type === 'choice') rChoice(t, i, box); else rInput(t, i, box);
+    var anyInput = false;
+    t.items.forEach(function (it, k) {
+      var wrap = el('div', 'item' + (t.items.length > 1 ? ' multi' : ''));
+      if (t.items.length > 1) wrap.appendChild(el('span', 'item-no', itemLetter(k) + ')'));
+      var body = el('div', 'item-body');
+      if (it.type === 'cmp') rCmp(it, i, k, body);
+      else {
+        body.appendChild(html('p', 'expr', it.expr));
+        if (it.type === 'choice') rChoice(it, i, k, body); else { rInput(it, i, k, body, t.items.length > 1); anyInput = true; }
+      }
+      wrap.appendChild(body);
+      box.appendChild(wrap);
+    });
+    if (anyInput) {
+      var pad = el('div', 'pad'); pad.id = 'pad'; box.appendChild(pad);
+      box.appendChild(el('p', 'muted small pad-note', ''));
+      var first = box.querySelector('input.ans'); lastInput = first; renderPad(+first.dataset.iq);
     }
     $('b-prev').disabled = i === 0;
     $('b-next').disabled = i === tasks.length - 1;
     $('m-confirm').hidden = true;
   }
-  function rChoice(t, i, box) {
-    var wrap = el('div', 'choices');
-    t.opts.forEach(function (o, n) {
-      var b = el('button', 'choice' + (state.ans[i] === n ? ' on' : ''));
-      b.appendChild(el('b', null, 'ABCD'[n] + ') ')); b.appendChild(document.createTextNode(T(['Айгерім', 'Нұрлан', 'Дана', 'Ерлан'][n], ['Айгерим', 'Нурлан', 'Дана', 'Ерлан'][n]) + ': ' + o));
-      b.addEventListener('click', function () { state.ans[i] = n; save(); renderTask(); });
+  var NAMES = { kz: ['Айгерім', 'Нұрлан', 'Дана', 'Ерлан'], ru: ['Айгерим', 'Нурлан', 'Дана', 'Ерлан'] };
+  function rChoice(it, i, k, box) {
+    var wrap = el('div', 'choices row4');
+    it.opts.forEach(function (o, n) {
+      var b = el('button', 'choice' + (state.ans[i][k] === n ? ' on' : ''));
+      b.appendChild(el('small', null, NAMES[LANG][n])); b.appendChild(el('b', null, o));
+      b.addEventListener('click', function () { setItem(i, k, n); rerender(); });
       wrap.appendChild(b);
     });
     box.appendChild(wrap);
   }
-  function rCmp(t, i, box) {
+  function rCmp(it, i, k, box) {
     var row = el('div', 'cmp');
-    row.appendChild(el('span', 'cmp-side', t.left));
+    row.appendChild(el('span', 'cmp-side', it.left));
     var mid = el('span', 'cmp-signs');
-    ['<', '=', '>'].forEach(function (s, n) {
-      var b = el('button', 'sign' + (state.ans[i] === n ? ' on' : ''), s);
-      b.addEventListener('click', function () { state.ans[i] = n; save(); renderTask(); });
+    ['<', '=', '>'].forEach(function (sg, n) {
+      var b = el('button', 'sign' + (state.ans[i][k] === n ? ' on' : ''), sg);
+      b.addEventListener('click', function () { setItem(i, k, n); rerender(); });
       mid.appendChild(b);
     });
     row.appendChild(mid);
-    row.appendChild(el('span', 'cmp-side', t.right));
+    row.appendChild(el('span', 'cmp-side', it.right));
     box.appendChild(row);
   }
+  function rerender() { var y = window.scrollY; renderTask(); window.scrollTo(0, y); }
   // Жауап өрісі: тек осы жүйенің цифрлары; A–F пернелері кез келген тілде латын әрпін жазады
   var CYR = { 'Ф': 'A', 'И': 'B', 'С': 'C', 'В': 'D', 'У': 'E', 'А': 'F' };
   function allowed(q) { return '0123456789ABCDEF'.slice(0, q); }
@@ -1194,19 +1253,21 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     try { inp.setSelectionRange(s + ch.length, s + ch.length); } catch (er) {}
     inp.dispatchEvent(new Event('input'));
   }
-  function rInput(t, i, box) {
-    var form = el('div', 'fields');
-    t.fields.forEach(function (f, k) {
+  function rInput(it, i, k, box, compact) {
+    var form = el('div', 'fields' + (compact ? ' compact' : ''));
+    it.fields.forEach(function (f, m) {
       var row = el('label', 'field');
-      row.appendChild(html('span', 'f-label', L(f.label)));
-      var inp = el('input', 'ans'); inp.type = 'text'; inp.value = state.ans[i][k] || '';
+      if (!compact) row.appendChild(html('span', 'f-label', L(f.label)));
+      var inp = el('input', 'ans'); inp.type = 'text'; inp.value = (state.ans[i][k] && state.ans[i][k][m]) || '';
       inp.setAttribute('autocomplete', 'off'); inp.setAttribute('spellcheck', 'false'); inp.setAttribute('autocapitalize', 'characters');
+      inp.setAttribute('aria-label', L(f.label));
       var iq = f.inputQ || f.q;   // ★3: q белгісіз, сондықтан барлық цифрға рұқсат (жүйені алдын ала көрсетпеу үшін)
+      inp.dataset.iq = iq;
       inp.setAttribute('inputmode', iq > 10 ? 'text' : 'numeric');
       inp.addEventListener('keydown', function (e) {
         if (e.ctrlKey || e.metaKey || e.altKey) return;
-        var m = /^(?:Digit|Numpad)(\d)$/.exec(e.code || '') , ch = null;
-        if (m) ch = m[1]; else { var l = /^Key([A-F])$/.exec(e.code || ''); if (l) ch = l[1]; else if (/^Key[G-Z]$/.test(e.code || '')) { e.preventDefault(); return; } }
+        var mm = /^(?:Digit|Numpad)(\d)$/.exec(e.code || ''), ch = null;
+        if (mm) ch = mm[1]; else { var l = /^Key([A-F])$/.exec(e.code || ''); if (l) ch = l[1]; else if (/^Key[G-Z]$/.test(e.code || '')) { e.preventDefault(); return; } }
         if (ch === null) return;
         e.preventDefault();
         if (allowed(iq).indexOf(ch) < 0) { hint(iq); return; }
@@ -1215,7 +1276,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       inp.addEventListener('input', function () {
         var c = clean(inp.value, iq);
         if (c !== inp.value) { var p = inp.selectionStart; inp.value = c; try { inp.setSelectionRange(Math.min(p, c.length), Math.min(p, c.length)); } catch (er) {} }
-        var a = state.ans[i].slice(); a[k] = c; state.ans[i] = a; save(); renderNav();
+        var cur = (state.ans[i][k] || it.fields.map(function () { return ''; })).slice(); cur[m] = c; setItem(i, k, cur);
       });
       inp.addEventListener('focus', function () { lastInput = inp; renderPad(iq); });
       row.appendChild(inp);
@@ -1223,9 +1284,6 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       form.appendChild(row);
     });
     box.appendChild(form);
-    box.appendChild(el('div', 'pad')); box.lastChild.id = 'pad';
-    box.appendChild(el('p', 'muted small pad-note', ''));
-    var first = form.querySelector('input'); lastInput = first; renderPad(t.fields[0].inputQ || t.fields[0].q);
   }
   function hint(q) { warn(T('Бұл жүйеде тек мына цифрлар бар: ', 'В этой системе только цифры: ') + allowed(q).split('').join(' ')); }
   function renderPad(q) {
@@ -1272,8 +1330,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
   function renderResult() {
     show('s-result');
     var s = sums();
-    $('r-score').textContent = s.main + ' / ' + s.mainMax;
-    $('r-star').textContent = T('★ Қосымша тапсырма: ', '★ Дополнительное задание: ') + s.star + ' / ' + s.starMax + ' ' + T('балл', 'баллов');
+    $('r-score').textContent = fs(s.main) + ' / ' + fs(s.mainMax);
+    $('r-star').textContent = T('★ Қосымша тапсырма: ', '★ Дополнительное задание: ') + fs(s.star) + ' / ' + fs(s.starMax) + ' ' + T('балл', 'баллов');
     if (state.reason && state.reason !== 'done') {
       $('r-reason').hidden = false;
       $('r-reason').textContent = state.reason === 'time' ? L(REASONS.time) + ' ' + T('Жұмыс автоматты түрде тапсырылды.', 'Работа сдана автоматически.')
@@ -1286,7 +1344,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     [T('№', '№'), T('Тапсырма', 'Задание'), T('Балл', 'Балл')].forEach(function (h) { hr.appendChild(el('th', null, h)); }); table.appendChild(hr);
     tasks.forEach(function (t, i) {
       var tr = el('tr', state.scores[i] === t.max ? 'ok' : state.scores[i] === 0 ? 'bad' : 'mid');
-      tr.appendChild(el('td', null, navName(i))); tr.appendChild(el('td', null, L(t.title))); tr.appendChild(el('td', null, state.scores[i] + ' / ' + t.max));
+      tr.appendChild(el('td', null, navName(i))); tr.appendChild(el('td', null, L(t.title))); tr.appendChild(el('td', null, fs(state.scores[i]) + ' / ' + fs(t.max)));
       table.appendChild(tr);
     });
     tb.appendChild(table);
@@ -1294,35 +1352,41 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     tasks.forEach(function (t, i) { rv.appendChild(review(t, i)); });
     scheduleReset();
   }
-  function shown(t, a) {
-    if (t.type === 'choice') return a == null ? '—' : 'ABCD'[a] + ') ' + t.opts[a];
-    if (t.type === 'cmp') return a == null ? '—' : t.left + ' ' + ['<', '=', '>'][a] + ' ' + t.right;
-    return null;
-  }
   function review(t, i) {
-    var a = state.ans[i], sc = state.scores[i];
+    var a = state.ans[i] || [], sc = state.scores[i];
     var card = el('div', 'rv-card ' + (sc === t.max ? 'ok' : sc === 0 ? 'bad' : 'mid'));
-    card.appendChild(el('h3', null, navName(i) + '. ' + L(t.title) + ' — ' + sc + ' / ' + t.max));
-    if (t.type !== 'cmp') card.appendChild(html('p', 'expr small-expr', t.expr));
-    if (t.type === 'input') {
-      t.fields.forEach(function (f, k) {
-        var ok = C.fieldOk(f, a && a[k]);
-        var p = el('p', 'rv-line ' + (ok ? 'ok' : 'bad'));
-        p.appendChild(el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓' : '✗'));
-        p.appendChild(html('span', null, ' ' + (t.fields.length > 1 ? L(f.label).replace(/\s*=$/, '') + ' — ' + T('сіздің жауабыңыз: ', 'ваш ответ: ') : T('Сіздің жауабыңыз: ', 'Ваш ответ: ')) + '<b>' + ((a && a[k]) || '—') + '</b>' + (ok ? '' : ' · ' + T('дұрыс жауап: ', 'верный ответ: ') + '<b>' + f.key + '</b>')));
-        card.appendChild(p);
-      });
-    } else {
-      var ok = sc === 1, right = t.type === 'choice' ? 'ABCD'[t.key] + ') ' + t.opts[t.key] : t.left + ' ' + ['<', '=', '>'][t.key] + ' ' + t.right;
-      var p = el('p', 'rv-line ' + (ok ? 'ok' : 'bad'));
-      p.appendChild(el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓' : '✗'));
-      p.appendChild(html('span', null, ' ' + T('Сіздің жауабыңыз: ', 'Ваш ответ: ') + '<b>' + shown(t, a) + '</b>' + (ok ? '' : ' · ' + T('дұрыс жауап: ', 'верный ответ: ') + '<b>' + right + '</b>')));
-      card.appendChild(p);
-    }
-    var det = el('details', 'rv-sol'); if (sc < t.max) det.open = true;
-    det.appendChild(el('summary', null, T('Шешуі', 'Решение')));
-    det.appendChild(html('div', 'sol', C.solution(t, LANG)));
-    card.appendChild(det);
+    card.appendChild(el('h3', null, navName(i) + '. ' + L(t.title) + ' — ' + fs(sc) + ' / ' + fs(t.max)));
+    t.items.forEach(function (it, k) {
+      var ia = a[k], blk = el('div', 'rv-item');
+      var pre = t.items.length > 1 ? itemLetter(k) + ') ' : '';
+      if (it.type === 'cmp') {
+        var ok = ia === it.key, p = el('p', 'rv-line ' + (ok ? 'ok' : 'bad'));
+        p.appendChild(el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓ ' : '✗ '));
+        p.appendChild(html('span', null, pre + T('Сіздің жауабыңыз: ', 'Ваш ответ: ') + '<b>' + (ia == null ? '—' : it.left + ' ' + ['&lt;', '=', '&gt;'][ia] + ' ' + it.right) + '</b>' +
+          (ok ? '' : ' · ' + T('дұрыс: ', 'верно: ') + '<b>' + it.left + ' ' + ['&lt;', '=', '&gt;'][it.key] + ' ' + it.right + '</b>')));
+        blk.appendChild(p);
+      } else if (it.type === 'choice') {
+        var ok2 = ia === it.key, p2 = el('p', 'rv-line ' + (ok2 ? 'ok' : 'bad'));
+        p2.appendChild(el('span', ok2 ? 'rv-ok' : 'rv-bad', ok2 ? '✓ ' : '✗ '));
+        p2.appendChild(html('span', null, pre + it.expr + ' · ' + T('сіздің таңдауыңыз: ', 'ваш выбор: ') + '<b>' + (ia == null ? '—' : it.opts[ia]) + '</b>' + (ok2 ? '' : ' · ' + T('дұрыс: ', 'верно: ') + '<b>' + it.opts[it.key] + '</b>')));
+        blk.appendChild(p2);
+      } else {
+        if (t.items.length === 1) blk.appendChild(html('p', 'expr small-expr', it.expr));
+        it.fields.forEach(function (f, m) {
+          var v = ia && ia[m], ok3 = C.fieldOk(f, v), p3 = el('p', 'rv-line ' + (ok3 ? 'ok' : 'bad'));
+          p3.appendChild(el('span', ok3 ? 'rv-ok' : 'rv-bad', ok3 ? '✓ ' : '✗ '));
+          var lead = t.items.length > 1 ? pre + it.expr + (it.kind === 'digit' ? ' · * = ' : ' → ') : L(f.label).replace(/\s*=$/, '') + ' — ' + T('сіздің жауабыңыз: ', 'ваш ответ: ');
+          p3.appendChild(html('span', null, lead + '<b>' + (v || '—') + '</b>' + (ok3 ? '' : ' · ' + T('дұрыс: ', 'верно: ') + '<b>' + f.key + '</b>')));
+          blk.appendChild(p3);
+        });
+      }
+      var good = C.iUnits(it, ia) === (it.type === 'input' ? it.fields.length : 1);
+      var det = el('details', 'rv-sol'); if (!good) det.open = true;
+      det.appendChild(el('summary', null, T('Шешуі', 'Решение') + (pre ? ' ' + pre.trim() : '')));
+      det.appendChild(html('div', 'sol', C.solution(it, LANG)));
+      blk.appendChild(det);
+      card.appendChild(blk);
+    });
     return card;
   }
   function scheduleReset() {
