@@ -34,7 +34,7 @@
   function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
   function running() { return !!state && state.status === 'running'; }
   function show(id) {
-    ['s-loading', 's-gate', 's-work', 's-eval', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['s-loading', 's-gate', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
     $('timers').hidden = !running() || id !== 's-work';
     window.scrollTo(0, 0);
   }
@@ -330,7 +330,7 @@
     next();
   }
   function tick() {
-    if (!running()) return;
+    if (!running() || state.stage === 'theory') return;
     var left = state.endsAt - Date.now();
     if (left <= 0) { finish({ k: 'time', min: window.WORK_MIN || 35 }); return; }
     $('tm-total').textContent = fmt(left);
@@ -361,7 +361,7 @@
     tbl.appendChild(total);
     $('r-table').innerHTML = ''; $('r-table').appendChild(tbl);
     var tb = $('r-time'); tb.innerHTML = '';
-    var used = Math.min(WORK_MS, Math.max(0, state.finishedAt - state.startedAt));
+    var used = state.startedAt ? Math.min(WORK_MS, Math.max(0, state.finishedAt - state.startedAt)) : 0;
     var p = el('p'); p.appendChild(document.createTextNode(L('Жұмыс уақыты: ', 'Время работы: '))); p.appendChild(el('b', null, fmt(used) + L(' / ', ' из ') + fmt(WORK_MS))); tb.appendChild(p);
     var p2 = el('p'); p2.appendChild(document.createTextNode(L('Бұзушылықтар: ', 'Нарушения: '))); p2.appendChild(el('b', null, String(state.viol || 0))); tb.appendChild(p2);
     var list = $('r-list'); list.innerHTML = '';
@@ -407,11 +407,19 @@
     if (!name || !cls) { $('g-err').hidden = false; return; }
     var fs = enterFullscreen(), seed = newSeed();
     code = CODE.generate(seed, LANG);
-    state = { v: 1, seed: seed, status: 'running', who: { name: name, cls: cls }, startedAt: Date.now(), endsAt: Date.now() + WORK_MS, viol: 0, cur: 0,
+    state = { v: 1, seed: seed, status: 'running', stage: 'theory', who: { name: name, cls: cls }, startedAt: null, endsAt: null, viol: 0, cur: 0,
       code: code.map(function () { return ''; }), stdin: code.map(function () { return null; }), checks: code.map(function () { return null; }) };
     save();
     ticker = setInterval(tick, 250);
-    fs.then(renderItem);
+    fs.then(function () { show('s-theory'); });
+  }
+  // Время на задачи начинается, когда ученик закончил читать теорию
+  function toWork() {
+    if (!running() || state.stage !== 'theory') return;
+    enterFullscreen();
+    state.stage = 'work'; state.startedAt = Date.now(); state.endsAt = Date.now() + WORK_MS;
+    save();
+    renderItem();
   }
   function resetToStart() {
     try { localStorage.removeItem(STORE); } catch (e) {}
@@ -442,7 +450,8 @@
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     $('b-start').addEventListener('click', start);
     // Шпаргалку можно открыть в любой момент работы (окно поверх задачи; код и таймер не останавливаются)
-    $('cheat-slot').appendChild($('cheat').cloneNode(true)).removeAttribute('id');
+    $('cheat-slot').appendChild($('theory').cloneNode(true)).removeAttribute('id');
+    $('b-to-work').addEventListener('click', toWork);
     $('b-cheat').addEventListener('click', function () { $('m-cheat').hidden = false; $('b-cheat-close').focus(); });
     $('b-cheat-close').addEventListener('click', function () { $('m-cheat').hidden = true; $('c-code').focus({ preventScroll: true }); });
     $('m-cheat').addEventListener('click', function (e) { if (e.target === $('m-cheat')) $('m-cheat').hidden = true; });
@@ -498,7 +507,7 @@
       delete state.closedAt; save();
       violLock = Date.now() + 1500;
       ticker = setInterval(tick, 250);
-      renderItem();
+      if (state.stage === 'theory') show('s-theory'); else renderItem();
       renderBack();
       $('m-back').hidden = false;
       return;

@@ -21,7 +21,167 @@
       <h1><span class="lang-kz">Циклді басқару: break, continue, else</span><span class="lang-ru">Управление циклом: break, continue, else</span></h1>
       <p class="topic"><span class="lang-kz">8.1.4.5 — циклді басқару нұсқауларын қолдану (continue, break, else)</span><span class="lang-ru">8.1.4.5 — использовать инструкции управления циклом (continue, break, else)</span></p>
 
-      <h2><span class="lang-kz">Еске түсірейік</span><span class="lang-ru">Вспомним</span></h2>
+      <p class="steps"><b><span class="lang-kz">1. Теория</span><span class="lang-ru">1. Теория</span></b> → <span class="lang-kz">2. Есептер</span><span class="lang-ru">2. Задачи</span></p>
+      <p class="note"><span class="lang-kz">Программалар осы беттің ішінде <b>Python 3</b>-те орындалады (Skulpt — браузерге арналған Python интерпретаторы). Интернет та, Python орнату да қажет емес.</span><span class="lang-ru">Программы выполняются прямо на этой странице на <b>Python 3</b> (Skulpt — интерпретатор Python для браузера). Ни интернет, ни установка Python не нужны.</span></p>
+
+      <h2><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h2>
+      <ul class="rules">
+        <li><span class="lang-kz">Алдымен <b>теорияны</b> оқыңыз (уақыт әлі жүрмейді). Жұмыс кезінде теорияны <b>«📖 Теория»</b> батырмасымен кез келген уақытта ашуға болады.</span><span class="lang-ru">Сначала прочитайте <b>теорию</b> (время ещё не идёт). Во время работы теорию можно открыть в любой момент кнопкой <b>«📖 Теория»</b>.</span></li>
+        <li><span class="lang-kz"><b>10 есеп</b> — жеңілден қиынға қарай: A деңгейі (1–4), B (5–7), C (8–10). Әр есепке Python-да программа жазыңыз.</span><span class="lang-ru"><b>10 задач</b> — от простого к сложному: уровень A (1–4), B (5–7), C (8–10). К каждой задаче напишите программу на Python.</span></li>
+        <li><span class="lang-kz">Есептер олимпиададағыдай: деректерді <b>input()</b> арқылы оқып, жауапты <b>print()</b> арқылы шығарыңыз. Әр есепте кіріс және шығыс деректердің мысалдары бар.</span><span class="lang-ru">Задачи — как на олимпиаде: данные читайте через <b>input()</b>, ответ выводите через <b>print()</b>. У каждой задачи есть примеры входных и выходных данных.</span></li>
+        <li><span class="lang-kz"><b>«▶ Іске қосу»</b> — программаны өз деректеріңізбен орындау. <b>«✓ Тексеру»</b> — 8 тестте тексеру (2 мысал + 6 жасырын тест).</span><span class="lang-ru"><b>«▶ Запустить»</b> — выполнить программу со своими данными. <b>«✓ Проверить»</b> — проверка на 8 тестах (2 примера + 6 скрытых).</span></li>
+        <li><span class="lang-kz">Есеп <b>1 балл</b>: 8 тесттің бәрінен өтсе және шартта көрсетілген нұсқаулар (<b>break</b>, <b>continue</b>, <b>else</b>) программада болса. Ең көбі — <b>10 балл</b>.</span><span class="lang-ru">Задача — <b>1 балл</b>: если пройдены все 8 тестов и в программе есть инструкции, указанные в условии (<b>break</b>, <b>continue</b>, <b>else</b>). Максимум — <b>10 баллов</b>.</span></li>
+        <li><span class="lang-kz">Уақыт — <b><span class="i-min"></span> минут</b>. Есептер арасында еркін ауысуға болады, код өздігінен сақталады. Балл жұмыс аяқталғанда <b>соңғы код</b> бойынша есептеледі.</span><span class="lang-ru">Время — <b><span class="i-min"></span> минут</b>. Между задачами можно свободно переходить, код сохраняется автоматически. Балл считается по <b>последней версии кода</b>, когда работа завершается.</span></li>
+        <li><span class="lang-kz">Кодты кез келген пернетақта тілінде жазуға болады: редактордың үстіндегі <b>«⌨ Латиница»</b> режимі пернелерге ағылшын әріптерін береді.</span><span class="lang-ru">Код можно писать при любой раскладке: режим <b>«⌨ Латиница»</b> над редактором вводит английские буквы и знаки.</span></li>
+        <li class="important"><span class="lang-kz">Жұмыс толық экранда жүреді. Одан шығу, басқа бетке не терезеге ауысу, бетті қайта жүктеу — бұзушылық. <b>Алғашқы екеуіне ескерту беріледі, үшіншісінде жұмыс аяқталады.</b></span><span class="lang-ru">Работа идёт в полноэкранном режиме. Выход из него, переход на другую вкладку или окно, перезагрузка страницы — нарушение. <b>За первые два — предупреждение, на третьем работа завершается.</b></span></li>
+      </ul>
+      <p id="i-nofs" class="note" hidden><span class="lang-kz">Бұл браузер толық экранды қолдамайды. Басқа беттерге ауыспаңыз.</span><span class="lang-ru">Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки.</span></p>
+
+      <div class="who">
+        <label><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
+        <label><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
+      </div>
+      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
+      <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Теорияны оқу (толық экранда)</span><span class="lang-ru">Читать теорию (на весь экран)</span></button></div>
+    </section>
+
+    <section id="s-theory" class="theory" hidden>
+      <p class="steps"><b><span class="lang-kz">1. Теория</span><span class="lang-ru">1. Теория</span></b> → <span class="lang-kz">2. Есептер</span><span class="lang-ru">2. Задачи</span></p>
+      <h1><span class="lang-kz">Циклді басқару: break, continue, else</span><span class="lang-ru">Управление циклом: break, continue, else</span></h1>
+      <div id="theory">
+<!--THEORY-->
+<h3 class="t-h"><span class="lang-kz">1. Циклді не үшін басқарамыз?</span><span class="lang-ru">1. Зачем управлять циклом?</span></h3>
+<p class="lang-kz">Әдетте цикл шарты жалған болғанша (while) немесе тізбектің барлық элементі біткенше (for) жұмыс істейді. Бірақ кейде циклды <b>ертерек тоқтату</b> немесе <b>бір қадамды өткізіп жіберу</b> керек болады. Ол үшін Python-да үш нұсқау бар:</p><p class="lang-ru">Обычно цикл работает, пока условие истинно (while) или пока не закончатся все элементы последовательности (for). Но иногда цикл нужно <b>остановить раньше</b> или <b>пропустить один шаг</b>. Для этого в Python есть три инструкции:</p>
+<table class="t-table"><tr><td><b>break</b></td><td><span class="lang-kz">циклды бірден тоқтатады</span><span class="lang-ru">сразу прекращает цикл</span></td></tr><tr><td><b>continue</b></td><td><span class="lang-kz">келесі қадамға өтеді</span><span class="lang-ru">переходит к следующему шагу</span></td></tr><tr><td><b>else</b></td><td><span class="lang-kz">цикл break-сіз аяқталса орындалады</span><span class="lang-ru">выполняется, если цикл закончился без break</span></td></tr></table>
+<h3 class="t-h"><span class="lang-kz">2. break — циклды тоқтату</span><span class="lang-ru">2. break — остановить цикл</span></h3>
+<p class="lang-kz"><code>break</code> орындалғанда цикл <b>бірден аяқталады</b>: қалған жолдар да, қалған қадамдар да орындалмайды. Программа циклдан кейінгі жолдан жалғасады. Әдетте <code>break</code> шартпен бірге жазылады: <code>if …: break</code>.</p><p class="lang-ru">Когда выполняется <code>break</code>, цикл <b>сразу заканчивается</b>: не выполняются ни оставшиеся строки, ни оставшиеся шаги. Программа продолжается со строки после цикла. Обычно <code>break</code> пишут вместе с условием: <code>if …: break</code>.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for i in range(1, 10):
+    if i == 4:
+        break
+    print(i)
+print(&quot;end&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1
+2
+3
+end</pre></div></div></div>
+<p class="lang-kz">range(1, 10) 9 қадамға есептелген, бірақ i = 4 болғанда break орындалды: 4 саны шықпады, цикл тоқтады, «end» шықты.</p><p class="lang-ru">range(1, 10) рассчитан на 9 шагов, но при i = 4 сработал break: число 4 не вывелось, цикл остановился, вывелось «end».</p>
+<h3 class="t-h"><span class="lang-kz">3. True және False — логикалық мәндер</span><span class="lang-ru">3. True и False — логические значения</span></h3>
+<p class="lang-kz">Python-да екі логикалық мән бар: <code>True</code> (ақиқат) және <code>False</code> (жалған). Бас әріппен жазылады: true, false деп жазсаңыз — қате. Кез келген салыстыру (<code>&gt;</code>, <code>&lt;</code>, <code>==</code>, <code>!=</code>, <code>&gt;=</code>, <code>&lt;=</code>) True немесе False береді. if пен while дәл осы мәнді тексереді: True — орындалады, False — орындалмайды.</p><p class="lang-ru">В Python два логических значения: <code>True</code> (истина) и <code>False</code> (ложь). Пишутся с большой буквы: true, false — ошибка. Любое сравнение (<code>&gt;</code>, <code>&lt;</code>, <code>==</code>, <code>!=</code>, <code>&gt;=</code>, <code>&lt;=</code>) даёт True или False. Именно это значение проверяют if и while: True — выполняется, False — нет.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>print(5 &gt; 3)
+print(5 == 3)
+x = 7
+print(x % 2 == 0)
+ok = x &gt; 0
+print(ok)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>True
+False
+False
+True</pre></div></div></div>
+<p class="lang-kz">True/False айнымалыда сақталуы мүмкін — оны <b>жалауша (флаг)</b> деп атайды. Цикл жалауша True болғанша жұмыс істейді, ал оны False қылсақ — тоқтайды. Бұл break-ке балама тәсіл: айырмасы — False қойылған соң қадамның қалған бөлігі орындалады, ал цикл келесі тексеруде тоқтайды.</p><p class="lang-ru">True/False можно хранить в переменной — её называют <b>флагом</b>. Цикл работает, пока флаг равен True, а когда мы делаем его False — останавливается. Это альтернатива break; разница: после False остаток шага выполняется, а цикл останавливается при следующей проверке условия.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>go = True
+n = 0
+while go:
+    n = n + 1
+    if n * n &gt; 20:
+        go = False
+    print(n, n * n)
+print(&quot;stop:&quot;, n)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1 1
+2 4
+3 9
+4 16
+5 25
+stop: 5</pre></div></div></div>
+<p class="lang-kz">n = 5 болғанда 25 &gt; 20, go = False болды, бірақ <code>print(n, n * n)</code> бәрібір орындалды (5 25). break болса, ол жол орындалмас еді.</p><p class="lang-ru">При n = 5: 25 &gt; 20, go стал False, но <code>print(n, n * n)</code> всё равно выполнился (5 25). С break эта строка не выполнилась бы.</p>
+<p class="lang-kz"><code>while True:</code> — шарты әрқашан True цикл, ал <code>while False:</code> бірде-бір рет орындалмайды.</p><p class="lang-ru"><code>while True:</code> — цикл, условие которого всегда True, а <code>while False:</code> не выполнится ни разу.</p>
+<h3 class="t-h"><span class="lang-kz">4. while True — шексіз цикл және break</span><span class="lang-ru">4. while True — бесконечный цикл и break</span></h3>
+<p class="lang-kz"><code>while True:</code> — шарты <b>әрқашан ақиқат</b> цикл. Ол өздігінен ешқашан тоқтамайды, сондықтан ішінде міндетті түрде <code>break</code> болуы керек. Бұл тәсіл қашан тоқтау керегі алдын ала белгісіз болғанда ыңғайлы: мысалы, деректерді белгілі бір мән келгенше енгізу.</p><p class="lang-ru"><code>while True:</code> — цикл, условие которого <b>всегда истинно</b>. Сам он никогда не остановится, поэтому внутри обязательно должен быть <code>break</code>. Такой приём удобен, когда заранее неизвестно, сколько будет шагов: например, ввод данных до определённого значения.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>while True:
+    word = input()
+    if word == &quot;stop&quot;:
+        break
+    print(word.upper())
+print(&quot;bye&quot;)</pre></div><div><div class="t-box inp"><div class="lbl"><span class="lang-kz">Кіріс</span><span class="lang-ru">Ввод</span></div><pre>cat
+dog
+stop
+fox</pre></div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>CAT
+DOG
+bye</pre></div></div></div>
+<p class="lang-kz">«stop» сөзі келгенде break орындалды, сондықтан одан кейінгі «fox» сөзі оқылмады. Тексеру (if … break) енгізуден кейін бірден тұр: «stop» сөзінің өзі өңделмейді.</p><p class="lang-ru">Когда пришло слово «stop», сработал break, поэтому следующее слово «fox» не было прочитано. Проверка (if … break) стоит сразу после ввода: само слово «stop» не обрабатывается.</p>
+<p class="lang-kz">Схемасы: <b>1) оқу → 2) тоқтау шартын тексеру (break) → 3) өңдеу.</b></p><p class="lang-ru">Схема: <b>1) прочитать → 2) проверить условие остановки (break) → 3) обработать.</b></p>
+<h3 class="t-h"><span class="lang-kz">5. continue — қадамды өткізіп жіберу</span><span class="lang-ru">5. continue — пропустить шаг</span></h3>
+<p class="lang-kz"><code>continue</code> орындалғанда <b>ағымдағы қадамның қалған бөлігі өткізіледі</b>, ал цикл тоқтамайды — бірден келесі қадамға өтеді. for циклында айнымалы келесі мәнді алады, while циклында шарт қайта тексеріледі.</p><p class="lang-ru">Когда выполняется <code>continue</code>, <b>остаток текущего шага пропускается</b>, но цикл не останавливается — сразу начинается следующий шаг. В цикле for переменная получает следующее значение, в цикле while заново проверяется условие.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for word in [&quot;sun&quot;, &quot;&quot;, &quot;sky&quot;, &quot;&quot;, &quot;sea&quot;]:
+    if word == &quot;&quot;:
+        continue
+    print(word)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>sun
+sky
+sea</pre></div></div></div>
+<p class="lang-kz">Бос жолдар ("") өткізілді, қалған сөздер шықты.</p><p class="lang-ru">Пустые строки ("") пропущены, остальные слова выведены.</p>
+<table class="t-table"><tr><th>word</th><th>word == ""</th><th><span class="lang-kz">Не болады</span><span class="lang-ru">Что происходит</span></th></tr><tr><td>"sun"</td><td>False</td><td>print → sun</td></tr><tr><td>""</td><td>True</td><td><span class="lang-kz">continue → print өткізілді</span><span class="lang-ru">continue → print пропущен</span></td></tr><tr><td>"sky"</td><td>False</td><td>print → sky</td></tr><tr><td>""</td><td>True</td><td><span class="lang-kz">continue → print өткізілді</span><span class="lang-ru">continue → print пропущен</span></td></tr><tr><td>"sea"</td><td>False</td><td>print → sea</td></tr></table>
+<h3 class="t-h"><span class="lang-kz">6. break пен continue айырмасы</span><span class="lang-ru">6. Чем отличаются break и continue</span></h3>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for i in range(1, 6):
+    if i == 3:
+        continue
+    print(i, end=&quot; &quot;)
+print()
+for i in range(1, 6):
+    if i == 3:
+        break
+    print(i, end=&quot; &quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1 2 4 5 
+1 2</pre></div></div></div>
+<p class="lang-kz">Бірінші циклда тек 3 саны өткізілді (continue), екіншісінде цикл 3-те мүлдем тоқтады (break).</p><p class="lang-ru">В первом цикле пропущено только число 3 (continue), во втором цикл на 3 полностью остановился (break).</p>
+<h3 class="t-h"><span class="lang-kz">7. Циклдағы else</span><span class="lang-ru">7. else в цикле</span></h3>
+<p class="lang-kz">for және while циклдарының <code>else</code> бөлігі болуы мүмкін. Ол цикл <b>break-сіз, қалыпты аяқталғанда</b> ғана орындалады. Егер цикл break арқылы тоқтаса, else орындалмайды. Сондықтан for … else іздеу есептеріне ыңғайлы: «таптым — break», «таппадым — else».</p><p class="lang-ru">У циклов for и while может быть часть <code>else</code>. Она выполняется, только если цикл <b>закончился обычным образом, без break</b>. Если цикл остановлен через break, else не выполняется. Поэтому for … else удобен в задачах поиска: «нашёл — break», «не нашёл — else».</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for x in [4, 8, 15, 16]:
+    if x % 5 == 0:
+        print(&quot;found:&quot;, x)
+        break
+else:
+    print(&quot;no multiples of 5&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>found: 15</pre></div></div></div>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for x in [4, 8, 16]:
+    if x % 5 == 0:
+        print(&quot;found:&quot;, x)
+        break
+else:
+    print(&quot;no multiples of 5&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>no multiples of 5</pre></div></div></div>
+<p class="lang-kz">Бірінші мысалда 15 табылды → break → else орындалмады. Екіншісінде 5-ке еселі сан жоқ → цикл соңына дейін жетті → else орындалды.</p><p class="lang-ru">В первом примере найдено 15 → break → else не выполнился. Во втором кратных 5 нет → цикл дошёл до конца → выполнился else.</p>
+<p class="lang-kz"><b>Назар аударыңыз:</b> else сөзі <code>for</code> (немесе <code>while</code>) сөзімен <b>бір деңгейде</b> жазылады, <code>if</code> астында емес. else-ті if-пен бір деңгейде жазсаңыз, ол циклдың емес, if-тің бөлігі болады.</p><p class="lang-ru"><b>Внимание:</b> слово else пишется <b>на одном уровне</b> с <code>for</code> (или <code>while</code>), а не под <code>if</code>. Если написать else на уровне if, это будет часть if, а не цикла.</p>
+<p class="lang-kz">while … else да осылай жұмыс істейді: шарт жалған болып, цикл өзі аяқталса — else орындалады.</p><p class="lang-ru">while … else работает так же: если условие стало ложным и цикл закончился сам — выполняется else.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>k = 3
+while k &gt; 0:
+    print(k)
+    k = k - 1
+else:
+    print(&quot;start!&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>3
+2
+1
+start!</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">8. Ішкі циклдағы break</span><span class="lang-ru">8. break во вложенном цикле</span></h3>
+<p class="lang-kz"><code>break</code> тек <b>өзі тұрған</b> циклды тоқтатады. Ішкі циклдағы break сыртқы циклды тоқтатпайды.</p><p class="lang-ru"><code>break</code> останавливает только <b>тот цикл, в котором стоит</b>. break во внутреннем цикле не останавливает внешний.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for i in range(1, 4):
+    for j in range(1, 4):
+        if j &gt; i:
+            break
+        print(i, j)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1 1
+2 1
+2 2
+3 1
+3 2
+3 3</pre></div></div></div>
+<p class="lang-kz">Екі циклды да тоқтату керек болса, жалауша (flag) айнымалысын қолданамыз: ішкі циклда found = True қойып, break жасаймыз; сыртқы циклда found тексеріп, тағы break жасаймыз.</p><p class="lang-ru">Если нужно остановить оба цикла, используем переменную-флаг: во внутреннем цикле ставим found = True и делаем break; во внешнем проверяем found и снова делаем break.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>found = False
+for i in range(1, 10):
+    for j in range(1, 10):
+        if i * j == 24:
+            print(i, j)
+            found = True
+            break
+    if found:
+        break</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>3 8</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">9. Жиі кездесетін қателер</span><span class="lang-ru">9. Частые ошибки</span></h3>
+<ul class="lang-kz"><li><b>break немесе continue циклдан тыс</b> — SyntaxError. Олар тек for немесе while ішінде жазылады.</li><li><b>while True ішінде break жоқ</b> — шексіз цикл, программа тоқтамайды.</li><li><b>while ішінде continue санауыштан бұрын тұр</b> — <code>i = i + 1</code> жолы өткізіледі, i өзгермейді, цикл шексіз болады. Санауышты continue-ден бұрын өзгертіңіз.</li><li><b>else if-пен бір деңгейде</b> — ол циклдың else-і емес, if-тің else-і болып шығады.</li><li><b>Тоқтау шарты өңдеуден кейін тексеріледі</b> — тоқтау мәні (мысалы, 0) де есептеліп кетеді. Алдымен тексеріп, сосын өңдеңіз.</li></ul><ul class="lang-ru"><li><b>break или continue вне цикла</b> — ошибка SyntaxError. Их пишут только внутри for или while.</li><li><b>В while True нет break</b> — бесконечный цикл, программа не остановится.</li><li><b>continue в while стоит до изменения счётчика</b> — строка <code>i = i + 1</code> пропускается, i не меняется, цикл становится бесконечным. Меняйте счётчик до continue.</li><li><b>else на уровне if</b> — получается else от if, а не от цикла.</li><li><b>Условие остановки проверяется после обработки</b> — значение-остановка (например, 0) тоже попадает в подсчёт. Сначала проверяйте, потом обрабатывайте.</li></ul>
+<h3 class="t-h"><span class="lang-kz">10. Қысқаша</span><span class="lang-ru">10. Коротко</span></h3>
+<table class="t-table"><tr><th></th><th><span class="lang-kz">Не істейді</span><span class="lang-ru">Что делает</span></th><th><span class="lang-kz">Қашан</span><span class="lang-ru">Когда</span></th></tr><tr><td><b>break</b></td><td><span class="lang-kz">циклды тоқтатады</span><span class="lang-ru">прекращает цикл</span></td><td><span class="lang-kz">жауап табылды, тоқтау мәні келді</span><span class="lang-ru">ответ найден, пришло значение-остановка</span></td></tr><tr><td><b>continue</b></td><td><span class="lang-kz">қадамның қалғанын өткізеді</span><span class="lang-ru">пропускает остаток шага</span></td><td><span class="lang-kz">бұл элементті өңдеудің қажеті жоқ</span><span class="lang-ru">этот элемент обрабатывать не нужно</span></td></tr><tr><td><b>while True</b></td><td><span class="lang-kz">шексіз цикл</span><span class="lang-ru">бесконечный цикл</span></td><td><span class="lang-kz">қадам саны белгісіз; ішінде break міндетті</span><span class="lang-ru">число шагов неизвестно; внутри обязателен break</span></td></tr><tr><td><b>for … else</b></td><td><span class="lang-kz">break болмаса орындалады</span><span class="lang-ru">выполняется, если не было break</span></td><td><span class="lang-kz">«табылмады» жағдайы</span><span class="lang-ru">случай «не найдено»</span></td></tr></table>
+<!--/THEORY-->
+      <h3 class="t-h"><span class="lang-kz">Шпаргалка</span><span class="lang-ru">Шпаргалка</span></h3>
       <div class="cheat" id="cheat">
         <div class="cheat-card">
           <h3>break</h3>
@@ -52,30 +212,26 @@ else:
     print("not found")
 # not found</pre>
         </div>
+        <div class="cheat-card">
+          <h3>while True / False</h3>
+          <p><span class="lang-kz"><b>while True</b> — өзі тоқтамайтын цикл, ішінде <b>break</b> міндетті. Жалауша <b>False</b> болса, цикл тоқтайды.</span><span class="lang-ru"><b>while True</b> — цикл, который сам не остановится, внутри обязателен <b>break</b>. Если флаг стал <b>False</b>, цикл останавливается.</span></p>
+<pre class="code">while True:
+    s = input()
+    if s == "stop":
+        break
+    print(s)</pre>
+        </div>
       </div>
 
-      <h2><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h2>
-      <ul class="rules">
-        <li><span class="lang-kz"><b>10 есеп</b> — жеңілден қиынға қарай: A деңгейі (1–4), B (5–7), C (8–10). Әр есепке Python-да программа жазыңыз.</span><span class="lang-ru"><b>10 задач</b> — от простого к сложному: уровень A (1–4), B (5–7), C (8–10). К каждой задаче напишите программу на Python.</span></li>
-        <li><span class="lang-kz">Есептер олимпиададағыдай: деректерді <b>input()</b> арқылы оқып, жауапты <b>print()</b> арқылы шығарыңыз. Әр есепте кіріс және шығыс деректердің мысалдары бар.</span><span class="lang-ru">Задачи — как на олимпиаде: данные читайте через <b>input()</b>, ответ выводите через <b>print()</b>. У каждой задачи есть примеры входных и выходных данных.</span></li>
-        <li><span class="lang-kz"><b>«▶ Іске қосу»</b> — программаны өз деректеріңізбен орындау. <b>«✓ Тексеру»</b> — 8 тестте тексеру (2 мысал + 6 жасырын тест).</span><span class="lang-ru"><b>«▶ Запустить»</b> — выполнить программу со своими данными. <b>«✓ Проверить»</b> — проверка на 8 тестах (2 примера + 6 скрытых).</span></li>
-        <li><span class="lang-kz">Есеп <b>1 балл</b>: 8 тесттің бәрінен өтсе және шартта көрсетілген нұсқаулар (<b>break</b>, <b>continue</b>, <b>else</b>) программада болса. Ең көбі — <b>10 балл</b>.</span><span class="lang-ru">Задача — <b>1 балл</b>: если пройдены все 8 тестов и в программе есть инструкции, указанные в условии (<b>break</b>, <b>continue</b>, <b>else</b>). Максимум — <b>10 баллов</b>.</span></li>
-        <li><span class="lang-kz">Уақыт — <b><span class="i-min"></span> минут</b>. Есептер арасында еркін ауысуға болады, код өздігінен сақталады. Балл жұмыс аяқталғанда <b>соңғы код</b> бойынша есептеледі.</span><span class="lang-ru">Время — <b><span class="i-min"></span> минут</b>. Между задачами можно свободно переходить, код сохраняется автоматически. Балл считается по <b>последней версии кода</b>, когда работа завершается.</span></li>
-        <li><span class="lang-kz">Кодты кез келген пернетақта тілінде жазуға болады: редактордың үстіндегі <b>«⌨ Латиница»</b> режимі пернелерге ағылшын әріптерін береді.</span><span class="lang-ru">Код можно писать при любой раскладке: режим <b>«⌨ Латиница»</b> над редактором вводит английские буквы и знаки.</span></li>
-        <li class="important"><span class="lang-kz">Жұмыс толық экранда жүреді. Одан шығу, басқа бетке не терезеге ауысу, бетті қайта жүктеу — бұзушылық. <b>Алғашқы екеуіне ескерту беріледі, үшіншісінде жұмыс аяқталады.</b></span><span class="lang-ru">Работа идёт в полноэкранном режиме. Выход из него, переход на другую вкладку или окно, перезагрузка страницы — нарушение. <b>За первые два — предупреждение, на третьем работа завершается.</b></span></li>
-      </ul>
-      <p id="i-nofs" class="note" hidden><span class="lang-kz">Бұл браузер толық экранды қолдамайды. Басқа беттерге ауыспаңыз.</span><span class="lang-ru">Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки.</span></p>
-
-      <div class="who">
-        <label><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
-        <label><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
       </div>
-      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
-      <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
+      <div class="theory-end" id="theory-end">
+        <p><span class="lang-kz">Теорияны оқыдыңыз ба? Енді — <b>10 есеп</b>. Уақыт (<b><span class="i-min"></span> минут</b>) батырманы басқанда басталады. Теорияға кейін де «📖 Теория» батырмасымен орала аласыз.</span><span class="lang-ru">Прочитали теорию? Дальше — <b>10 задач</b>. Время (<b><span class="i-min"></span> минут</b>) пойдёт после нажатия кнопки. К теории можно вернуться кнопкой «📖 Теория».</span></p>
+        <button id="b-to-work" class="primary big"><span class="lang-kz">Есептерге өту →</span><span class="lang-ru">Перейти к задачам →</span></button>
+      </div>
     </section>
 
     <section id="s-work" hidden>
-      <div class="work-top"><div id="nav" class="nav"></div><button id="b-cheat" type="button" class="cheat-btn"><span class="lang-kz">📖 Шпаргалка</span><span class="lang-ru">📖 Шпаргалка</span></button></div>
+      <div class="work-top"><div id="nav" class="nav"></div><button id="b-cheat" type="button" class="cheat-btn"><span class="lang-kz">📖 Теория</span><span class="lang-ru">📖 Теория</span></button></div>
       <p class="muted small nav-legend"><span class="lang-kz">Көк — код жазылған; жасыл — есеп шешілді; қызыл — тексеруде қате бар.</span><span class="lang-ru">Синий — код написан; зелёный — задача решена; красный — при проверке есть ошибки.</span></p>
       <p id="w-num" class="muted"></p>
       <h2 id="w-title" class="task-title"></h2>
@@ -140,7 +296,7 @@ else:
 
   <div id="m-cheat" class="cheat-modal" role="dialog" aria-modal="true" hidden>
     <div class="cheat-box">
-      <div class="cheat-head"><h2><span class="lang-kz">Шпаргалка: break, continue, else</span><span class="lang-ru">Шпаргалка: break, continue, else</span></h2>
+      <div class="cheat-head"><h2><span class="lang-kz">Теория</span><span class="lang-ru">Теория</span></h2>
         <button id="b-cheat-close" type="button" class="primary"><span class="lang-kz">✕ Жабу, есепке оралу</span><span class="lang-ru">✕ Закрыть, вернуться к задаче</span></button></div>
       <div id="cheat-slot"></div>
     </div>
