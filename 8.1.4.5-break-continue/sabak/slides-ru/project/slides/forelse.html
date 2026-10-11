@@ -1,0 +1,25 @@
+<section id="forelse" data-transition="fade" style="background:#F7F9FC; color:#1B2740; font-family:'Golos Text', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:32px">
+<h2 style="font-size:64px; font-weight:800">for … else — случай «не найдено»</h2>
+<p style="font-size:34px; color:#4A5568; width:1640px">else выполняется, только если цикл закончился <b>без break</b>. else — на уровне for, а не под if.</p>
+<div style="display:flex; gap:32px">
+<div style="flex:1; display:flex; flex-direction:column; gap:16px">
+<div style="background:#1B2740; border-radius:20px; padding:28px 36px">
+<p style="font-family:'JetBrains Mono', monospace; font-size:30px; color:#E6EDF7; line-height:1.45">for x in [4, 8, 15, 16]:<br>&#160;&#160;&#160;&#160;if x % 5 == 0:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;print("found:", x)<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#FFB86B">break</span><br><span style="color:#FFB86B">else</span>:<br>&#160;&#160;&#160;&#160;print("no multiples of 5")</p>
+</div>
+<div style="background:#E8F3EC; border:2px solid #2F8F5B; border-radius:20px; padding:20px 36px">
+<p style="font-family:'JetBrains Mono', monospace; font-size:32px">found: 15</p>
+<p style="font-size:28px; color:#4A5568">был break → else не выполнился</p>
+</div>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:16px">
+<div style="background:#1B2740; border-radius:20px; padding:28px 36px">
+<p style="font-family:'JetBrains Mono', monospace; font-size:30px; color:#E6EDF7; line-height:1.45">for x in [4, 8, 16]:<br>&#160;&#160;&#160;&#160;if x % 5 == 0:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;print("found:", x)<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#FFB86B">break</span><br><span style="color:#FFB86B">else</span>:<br>&#160;&#160;&#160;&#160;print("no multiples of 5")</p>
+</div>
+<div style="background:#E8F3EC; border:2px solid #2F8F5B; border-radius:20px; padding:20px 36px">
+<p style="font-family:'JetBrains Mono', monospace; font-size:32px">no multiples of 5</p>
+<p style="font-size:28px; color:#4A5568">break не было → выполнился else</p>
+</div>
+</div>
+</div>
+<aside>while … else работает так же: условие стало ложным и цикл закончился сам — выполняется else. Пример: k = 3; while k &gt; 0: print(k); k = k − 1; else: print("start!") → 3 2 1 start!</aside>
+</section>

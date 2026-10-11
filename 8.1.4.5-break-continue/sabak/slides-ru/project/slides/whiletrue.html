@@ -1,0 +1,21 @@
+<section id="whiletrue" data-transition="fade" style="background:#F7F9FC; color:#1B2740; font-family:'Golos Text', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:36px">
+<h2 style="font-size:64px; font-weight:800">while True + break</h2>
+<p style="font-size:34px; color:#4A5568; width:1640px">Цикл с всегда истинным условием сам не остановится — внутри обязателен break. Удобен, когда число шагов неизвестно.</p>
+<div style="display:flex; gap:32px; align-items:start">
+<div style="flex:3; background:#1B2740; border-radius:20px; padding:32px 40px">
+<p style="font-family:'JetBrains Mono', monospace; font-size:34px; color:#E6EDF7; line-height:1.45">while True:<br>&#160;&#160;&#160;&#160;word = input()<br>&#160;&#160;&#160;&#160;if word == "stop":<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#FFB86B">break</span><br>&#160;&#160;&#160;&#160;print(word.upper())<br>print("bye")</p>
+</div>
+<div style="flex:2; display:flex; gap:16px">
+<div style="flex:1; background:#FFF4E5; border:2px solid #D9822B; border-radius:20px; padding:24px 28px">
+<p style="font-size:26px; color:#8A4B0F; font-weight:600">Ввод</p>
+<p style="font-family:'JetBrains Mono', monospace; font-size:32px; line-height:1.45">cat<br>dog<br>stop<br>fox</p>
+</div>
+<div style="flex:1; background:#E8F3EC; border:2px solid #2F8F5B; border-radius:20px; padding:24px 28px">
+<p style="font-size:26px; color:#1F6B44; font-weight:600">Вывод</p>
+<p style="font-family:'JetBrains Mono', monospace; font-size:32px; line-height:1.45">CAT<br>DOG<br>bye</p>
+</div>
+</div>
+</div>
+<p style="font-size:34px; background:#E7EEFB; padding:20px 32px; border-radius:16px"><b>Схема:</b> 1) прочитать → 2) проверить условие остановки (break) → 3) обработать</p>
+<aside>Пришло «stop» — break: «fox» не прочитано, само слово «stop» не обработано. Проверка должна стоять сразу после ввода — иначе значение-остановка тоже попадёт в обработку.</aside>
+</section>

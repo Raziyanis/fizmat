@@ -1,0 +1,23 @@
+<section id="mistakes" data-transition="fade" style="background:#F7F9FC; color:#1B2740; font-family:'Golos Text', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:40px">
+<h2 style="font-size:64px; font-weight:800">Жиі кездесетін қателер</h2>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:28px">
+<div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; padding:32px; border:2px solid #CC2F2F; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">while True ішінде break жоқ</h3>
+<p style="font-size:30px">Шексіз цикл — программа тоқтамайды.</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; padding:32px; border:2px solid #CC2F2F; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">continue санауыштан бұрын</h3>
+<p style="font-size:30px">i = i + 1 өткізіледі → i өзгермейді → шексіз цикл.</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; padding:32px; border:2px solid #CC2F2F; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">else if-пен бір деңгейде</h3>
+<p style="font-size:30px">Ол циклдың емес, if-тің else-і болады — әр қадамда орындалады.</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; padding:32px; border:2px solid #CC2F2F; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">Тоқтау шарты өңдеуден кейін</h3>
+<p style="font-size:30px">Тоқтау мәні (мысалы, 0) де есептеліп кетеді. Алдымен тексеру, сосын өңдеу.</p>
+</div>
+</div>
+<p style="font-size:30px; color:#4A5568">break немесе continue циклдан тыс жазылса — SyntaxError.</p>
+<aside>Үлестірменің 2-тапсырмасы дәл осы қателерге арналған: бірінші үзіндіде continue санауыштан бұрын, екіншісінде else if-пен бір деңгейде.</aside>
+</section>

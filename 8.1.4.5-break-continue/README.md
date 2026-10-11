@@ -18,3 +18,13 @@ Python интерпретаторы (Skulpt, MIT, `web/vendor/LICENSE`) файл
 - Баптаулар `web/config.js`: `WORK_MIN` (80 минут), `RESULT_MIN`, `MAX_VIOLATIONS`.
 - Кілтті тексеру: `python3 web/tools/check.py` — үлгі шешімдер нағыз Python-да 300 нұсқаның барлық тестінде орындалады.
   Жинау: `python3 web/tools/build-theory.py && node web/tools/build-standalone.js`.
+
+## Сабаққа материалдар / Материалы к уроку (`sabak/`, қазақша және орысша)
+
+- `qmzh-8.1.4.5-kz.docx` / `ksp-8.1.4.5-ru.docx` — қысқа мерзімді жоспар, 80 минут (қосарланған сабақ): ұйымдастыру → еске түсіру →
+  жаңа тақырып → үлестірме (бекіту) → нұсқаулық → веб-ресурстағы формативтік жұмыс (35 минут) → рефлексия.
+- `ulestirme-8.1.4.5-kz.docx` / `razdatka-8.1.4.5-ru.docx` — шпаргалка; 1-тапсырма «Программа не шығарады?» (8 үзінді);
+  2-тапсырма «Қатені табыңыз» (2 үзінді); 3-тапсырма (қосымша); өзін-өзі бағалау.
+- `zhauap-kilti-8.1.4.5-kz.docx` / `otvety-8.1.4.5-ru.docx` — жауап кілті және түсіндірме.
+- `slides-kz/`, `slides-ru/` — презентация (15 слайд) файлдары.
+- Үзінділердің нәтижелері нағыз Python-да алынған: `python3 tools/sabak-examples.py && NODE_PATH=<docx> node tools/build-sabak.js`.

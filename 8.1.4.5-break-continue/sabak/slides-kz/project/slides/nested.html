@@ -1,0 +1,17 @@
+<section id="nested" data-transition="fade" style="background:#F7F9FC; color:#1B2740; font-family:'Golos Text', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:32px">
+<h2 style="font-size:64px; font-weight:800">Ішкі циклдағы break</h2>
+<p style="font-size:34px; color:#4A5568; width:1640px">break тек <b>өзі тұрған</b> циклды тоқтатады. Екеуін де тоқтату үшін — жалауша (flag).</p>
+<div style="display:flex; gap:32px; align-items:start">
+<div style="flex:3; background:#1B2740; border-radius:20px; padding:28px 36px">
+<p style="font-family:'JetBrains Mono', monospace; font-size:30px; color:#E6EDF7; line-height:1.45">found = False<br>for i in range(1, 10):<br>&#160;&#160;&#160;&#160;for j in range(1, 10):<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if i * j == 24:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;print(i, j)<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;found = True<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#FFB86B">break</span><br>&#160;&#160;&#160;&#160;if found:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#FFB86B">break</span></p>
+</div>
+<div style="flex:2; display:flex; flex-direction:column; gap:20px">
+<div style="background:#E8F3EC; border:2px solid #2F8F5B; border-radius:20px; padding:24px 36px">
+<p style="font-size:26px; color:#1F6B44; font-weight:600">Нәтиже</p>
+<p style="font-family:'JetBrains Mono', monospace; font-size:40px">3 8</p>
+</div>
+<p style="font-size:30px; color:#4A5568">Ішкі break → тек j бойынша цикл тоқтайды. Сыртқы break → found тексеріліп, i бойынша цикл да тоқтайды.</p>
+</div>
+</div>
+<aside>Екінші break болмаса, программа 4 6, 6 4, 8 3 жұптарын да шығарар еді. Бұл тәсіл 10-есепте (қосындысы S жұп) керек.</aside>
+</section>

@@ -1,0 +1,23 @@
+<section id="mistakes" data-transition="fade" style="background:#F7F9FC; color:#1B2740; font-family:'Golos Text', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; gap:40px">
+<h2 style="font-size:64px; font-weight:800">Частые ошибки</h2>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:28px">
+<div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; padding:32px; border:2px solid #CC2F2F; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">В while True нет break</h3>
+<p style="font-size:30px">Бесконечный цикл — программа не остановится.</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; padding:32px; border:2px solid #CC2F2F; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">continue до счётчика</h3>
+<p style="font-size:30px">i = i + 1 пропускается → i не меняется → бесконечный цикл.</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; padding:32px; border:2px solid #CC2F2F; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">else на уровне if</h3>
+<p style="font-size:30px">Это else от if, а не от цикла — выполняется на каждом шаге.</p>
+</div>
+<div style="display:flex; flex-direction:column; gap:12px; background:#FFFFFF; padding:32px; border:2px solid #CC2F2F; border-radius:20px">
+<h3 style="font-size:36px; font-weight:600; color:#A52222">Проверка после обработки</h3>
+<p style="font-size:30px">Значение-остановка (например, 0) тоже попадает в подсчёт. Сначала проверка, потом обработка.</p>
+</div>
+</div>
+<p style="font-size:30px; color:#4A5568">break или continue вне цикла — ошибка SyntaxError.</p>
+<aside>Задание 2 раздатки как раз про эти ошибки: в первом фрагменте continue стоит до счётчика, во втором else стоит на уровне if.</aside>
+</section>
