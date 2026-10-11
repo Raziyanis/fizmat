@@ -212,9 +212,12 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 .back-box { max-width: 560px; width: 100%; background: var(--card); border: 3px solid var(--bad); border-radius: 12px; padding: 24px; text-align: center; }
 .back-box h2 { color: var(--bad); margin-top: 0; }
 .code-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
-.kbd-lang { font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 2px solid #9aa4b2; color: #5f6b7a; background: #f3f5f8; white-space: nowrap; }
-.kbd-lang.en { border-color: #1a7f37; color: #1a7f37; background: #e8f5ec; }
-.kbd-lang.ru, .kbd-lang.kz { border-color: #c62828; color: #c62828; background: #fdecec; }
+.kbd-switch { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: #5f6b7a; }
+.kbd-switch button { padding: 4px 12px; border: 2px solid #c9d1dc; background: #f3f5f8; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.kbd-switch button.on { border-color: #1f6feb; background: #1f6feb; color: #fff; }
+.compiler-note { font-size: 14px; color: #5f6b7a; margin: 4px 0 6px; }
+.kz-letters { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 6px; }
+.kz-letters button { min-width: 36px; padding: 4px 8px; border: 1px solid #c9d1dc; background: #fff; border-radius: 6px; font-size: 16px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -519,8 +522,10 @@ print("Среднее арифметическое на и под главной
         </table>
         <div class="code-head">
           <label for="c-code" style="font-weight:bold;">Ваш код на Python:</label>
-          <span id="kbd-lang" class="kbd-lang" title="Раскладка клавиатуры / Пернетақта тілі / Keyboard layout">⌨ ?</span>
+          <span class="kbd-switch" role="group" aria-label="Язык ввода">⌨ <button type="button" data-kbd="kz">ҚАЗ</button><button type="button" data-kbd="ru">РУС</button><button type="button" data-kbd="en">ENG</button></span>
         </div>
+        <p class="compiler-note">Компилятор: <b>Python 3</b> (Skulpt — интерпретатор Python, встроен в этот файл, интернет не нужен). Язык ввода меняйте кнопками <b>ҚАЗ / РУС / ENG</b> — системную раскладку переключать не нужно. Код пишется на <b>ENG</b>.</p>
+        <div id="kz-letters" class="kz-letters" hidden></div>
         <textarea id="c-code" class="editor" spellcheck="false" autocomplete="off"></textarea>
         
         <div class="run-row">
@@ -2143,40 +2148,59 @@ function navRelative(dir) {
   }
 }
 
-// Индикатор раскладки: ҚАЗ / РУС / ENG — какой язык клавиатуры сейчас включён (код на Python пишется на ENG)
-const KBD = { en: '⌨ ENG ✓', ru: '⌨ РУС — переключите на ENG (Alt+Shift / Win+Space)', kz: '⌨ ҚАЗ — ENG-ке ауыстырыңыз (Alt+Shift / Win+Space)' };
-let kbdLang = null;
-function showKbd(l) {
-  if (!l || l === kbdLang) return;
-  kbdLang = l;
-  const e = $('kbd-lang'); e.textContent = KBD[l]; e.className = 'kbd-lang ' + l;
-}
-function kbdFromKey(e) {
+// Язык ввода внутри страницы: ҚАЗ / РУС / ENG. Клавиша вводит символ выбранной раскладки по своему месту на клавиатуре,
+// какая бы раскладка ни была включена в системе — переключать язык Windows/macOS не нужно (это выводит из полноэкранного режима).
+const RU = { KeyQ: 'й', KeyW: 'ц', KeyE: 'у', KeyR: 'к', KeyT: 'е', KeyY: 'н', KeyU: 'г', KeyI: 'ш', KeyO: 'щ', KeyP: 'з', BracketLeft: 'х', BracketRight: 'ъ',
+  KeyA: 'ф', KeyS: 'ы', KeyD: 'в', KeyF: 'а', KeyG: 'п', KeyH: 'р', KeyJ: 'о', KeyK: 'л', KeyL: 'д', Semicolon: 'ж', Quote: 'э',
+  KeyZ: 'я', KeyX: 'ч', KeyC: 'с', KeyV: 'м', KeyB: 'и', KeyN: 'т', KeyM: 'ь', Comma: 'б', Period: 'ю', Backquote: 'ё' };
+const US = { Backquote: '`~', Digit1: '1!', Digit2: '2@', Digit3: '3#', Digit4: '4$', Digit5: '5%', Digit6: '6^', Digit7: '7&', Digit8: '8*', Digit9: '9(', Digit0: '0)',
+  Minus: '-_', Equal: '=+', BracketLeft: '[{', BracketRight: ']}', Backslash: '\\|', IntlBackslash: '\\|', Semicolon: ';:', Quote: "'\"", Comma: ',<', Period: '.>', Slash: '/?' };
+const KZ_LETTERS = ['ә', 'і', 'ң', 'ғ', 'ү', 'ұ', 'қ', 'ө', 'һ'];
+let kbd = (() => { try { return localStorage.getItem('dm-kbd') || 'en'; } catch (e) { return 'en'; } })();
+function kbdChar(e) {
   if (e.ctrlKey || e.metaKey || e.altKey || !e.key || e.key.length !== 1) return null;
-  if (/[a-zA-Z]/.test(e.key)) return 'en';
-  if (/[әіңғүұқөһӘІҢҒҮҰҚӨҺ]/.test(e.key)) return 'kz';
-  if (/[а-яёА-ЯЁ]/.test(e.key)) return kbdLang === 'kz' ? 'kz' : (/^Digit/.test(e.code) ? 'kz' : 'ru');
-  return null;
+  const up = e.shiftKey !== (e.getModifierState && e.getModifierState('CapsLock'));
+  if (kbd !== 'en' && RU[e.code]) return up ? RU[e.code].toUpperCase() : RU[e.code];
+  if (kbd !== 'en' && e.code === 'Slash') return e.shiftKey ? ',' : '.';
+  const m = /^Key([A-Z])$/.exec(e.code || '');
+  if (m) return up ? m[1] : m[1].toLowerCase();
+  const p = US[e.code];
+  return p ? p.charAt(e.shiftKey ? 1 : 0) : null;
 }
-function kbdFromLayout() {   // Chrome/Edge: раскладку можно узнать ещё до первого нажатия
-  if (!navigator.keyboard || !navigator.keyboard.getLayoutMap) return;
-  navigator.keyboard.getLayoutMap().then(m => {
-    const q = m.get('KeyQ') || '', d2 = m.get('Digit2') || '';
-    if (/[a-z]/i.test(q)) showKbd('en');
-    else if (/[әіңғүұқөһ]/i.test(d2 + (m.get('Digit3') || '') + (m.get('Digit4') || ''))) showKbd('kz');
-    else if (/[а-яё]/i.test(q)) showKbd('ru');
-  }).catch(() => {});
+function insertText(ta, ch) { ta.setRangeText(ch, ta.selectionStart, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input')); }
+function setKbd(l) {
+  kbd = l;
+  try { localStorage.setItem('dm-kbd', l); } catch (e) {}
+  document.querySelectorAll('.kbd-switch button').forEach(b => b.classList.toggle('on', b.getAttribute('data-kbd') === l));
+  $('kz-letters').hidden = l !== 'kz';
 }
-function setupKbdIndicator() {
-  ['c-code', 'c-stdin'].forEach(id => {
-    $(id).addEventListener('keydown', e => showKbd(kbdFromKey(e)));
-    $(id).addEventListener('focus', kbdFromLayout);
+let lastTa = null;
+function setupKbdSwitch() {
+  document.querySelectorAll('.kbd-switch button').forEach(b => {
+    b.onmousedown = e => e.preventDefault();   // фокус остаётся в редакторе
+    b.onclick = () => { setKbd(b.getAttribute('data-kbd')); (lastTa || $('c-code')).focus(); };
   });
-  kbdFromLayout();
+  KZ_LETTERS.forEach(ch => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = ch;
+    b.onmousedown = e => e.preventDefault();
+    b.onclick = () => { const ta = lastTa || $('c-code'); ta.focus(); insertText(ta, ch); };
+    $('kz-letters').appendChild(b);
+  });
+  ['c-code', 'c-stdin'].forEach(id => {
+    const ta = $(id);
+    ta.addEventListener('focus', () => { lastTa = ta; });
+    ta.addEventListener('keydown', e => {
+      const ch = kbdChar(e);
+      if (ch === null || ch === e.key) return;
+      e.preventDefault();
+      insertText(ta, ch);
+    });
+  });
+  setKbd(kbd);
 }
 
 function setupCodeEditor() {
-  setupKbdIndicator();
+  setupKbdSwitch();
   $('b-run').onclick = () => runPython(false);$('b-check').onclick = () => runPython(true);
 
   $('c-code').oninput = () => {
