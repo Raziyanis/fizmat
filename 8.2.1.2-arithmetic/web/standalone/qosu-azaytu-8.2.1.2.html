@@ -9,6 +9,11 @@ window.WORK_MIN = 40;          // тапсырмаларға берілетін 
 window.RESULT_MIN = 4;         // нәтиже неше минут көрінеді, содан кейін бастапқы бет ашылады / сколько минут виден результат
 window.MAX_VIOLATIONS = 3;     // нешінші бұзушылықта жұмыс аяқталады / на каком нарушении работа завершается
 
+/* Нәтижелерді мұғалімнің поштасына жіберу (тегін, Google Apps Script). Баптау: README.md, «Нәтижелер мұғалімнің поштасына».
+ * Скрипттің веб-қосымша сілтемесін (…/exec) тырнақшаның ішіне қойыңыз. Бос болса — нәтиже ешқайда жіберілмейді.
+ * Отправка результатов на почту учителя: вставьте ссылку веб-приложения Apps Script (…/exec) в кавычки. */
+window.RESULTS_URL = "";
+
 </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
@@ -621,6 +626,19 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .colin input.cell.star { border-color: #c2410c; background: #fffaf4; }
 .colin input.cell.help { border-style: dashed; border-color: #9db0c9; color: #3b5b8a; }
 .sol .err { color: var(--bad); font-weight: 600; }
+
+/* Оқушының аты-жөні және нәтижені жіберу */
+.who { display: flex; flex-wrap: wrap; gap: 12px 20px; margin: 16px 0 4px; }
+.who label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+.who input { font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; width: 320px; max-width: 100%; }
+.who label:last-child input { width: 110px; text-transform: uppercase; }
+.who input:focus { outline: none; border-color: var(--accent); }
+.who-err { color: var(--bad); font-weight: 600; margin: 6px 0 0; }
+.r-who { text-align: center; font-size: 1.3rem; font-weight: 700; margin: 0; }
+.r-send { text-align: center; border-radius: 8px; padding: 6px 12px; max-width: 560px; margin: 8px auto 0; font-weight: 600; }
+.r-send.ok { background: var(--ok-bg); color: var(--ok); }
+.r-send.wait { background: #e7eefb; color: var(--accent); }
+.r-send.bad { background: var(--warn-bg); color: #8a5a00; }
 </style>
 </head>
 <body>
@@ -639,6 +657,13 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       <p class="steps"><span class="lang-kz"><b>1. Теория</b> → 2. Тапсырмалар → 3. Нәтиже және талдау</span><span class="lang-ru"><b>1. Теория</b> → 2. Задания → 3. Результат и разбор</span></p>
       <p class="note"><span class="lang-kz">Бүкіл жұмыс, теорияны оқуды қоса алғанда, <b>толық экран режимінде</b> жүреді. Одан шығуға, басқа қойындыға, терезеге немесе қосымшаға ауысуға және бетті қайта жүктеуге болмайды. Алғашқы екі бұзушылыққа ескерту шығады, <b>үшіншісінен</b> кейін жұмыс аяқталады.</span><span class="lang-ru">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</span></p>
       <p class="note lang-note"><span class="lang-kz">Тілді кез келген уақытта ауыстыруға болады: жоғарғы оң жақ бұрыштағы <b>ҚАЗ / РУС</b> батырмалары. Жауаптар сақталады.</span><span class="lang-ru">Язык можно сменить в любой момент: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы сохраняются.</span></p>
+      <div class="who">
+        <label><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span>
+          <input id="i-name" type="text" maxlength="60" autocomplete="off" spellcheck="false"></label>
+        <label><span class="lang-kz">Сынып</span><span class="lang-ru">Класс</span>
+          <input id="i-cls" type="text" maxlength="10" autocomplete="off" spellcheck="false" placeholder="8А"></label>
+      </div>
+      <p id="who-err" class="who-err" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
       <div class="buttons"><button id="b-gate" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
     </section>
 
@@ -696,6 +721,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 
     <section id="s-result" hidden>
       <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
+      <p id="r-who" class="r-who"></p>
+      <p id="r-send" class="r-send" hidden></p>
       <p id="r-reason" class="note" hidden></p>
       <p class="score"><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
       <p id="r-star" class="star-line"></p>
@@ -1178,11 +1205,17 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 
   // ---------- Кезеңдер ----------
   function newSeed() { var a = new Uint32Array(1); (window.crypto || window.msCrypto).getRandomValues(a); return a[0] || 1; }
+  function who() {
+    var n = $('i-name').value.replace(/\s+/g, ' ').trim(), c = $('i-cls').value.replace(/\s+/g, '').trim().toUpperCase();
+    return n.length >= 3 && c.length >= 1 ? { name: n, cls: c } : null;
+  }
   function startSession() {
     if (state) return;
+    var w = who();
+    if (!w) { $('who-err').hidden = false; (!$('i-name').value.trim() ? $('i-name') : $('i-cls')).focus(); return; }
     var fs = enterFullscreen(), seed = newSeed();
     tasks = C.generate(seed);
-    state = { v: 1, seed: seed, status: 'running', stage: 'theory', startedAt: Date.now(), viol: 0, cur: 0, ans: tasks.map(C.empty) };
+    state = { v: 1, seed: seed, student: w, status: 'running', stage: 'theory', startedAt: Date.now(), viol: 0, cur: 0, ans: tasks.map(C.empty) };
     save();
     ticker = setInterval(tick, 250);
     fs.then(function () { show('s-theory'); });
@@ -1464,7 +1497,67 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
     fsActive = false;
     exitFullscreen();
+    queueResult();
     renderResult();
+    flushOutbox();
+  }
+
+  // ---------- Нәтижені мұғалімге жіберу (Google Apps Script) ----------
+  // Интернет болмаса, нәтиже осы компьютерде сақталады (OUTBOX) және кейін өзі жіберіледі.
+  var OUTBOX = 'qosu-outbox-8.2.1.2', sending = false;
+  function resultsUrl() { var u = String(window.RESULTS_URL || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
+  function outbox() { try { return JSON.parse(localStorage.getItem(OUTBOX)) || []; } catch (e) { return []; } }
+  function setOutbox(list) { try { localStorage.setItem(OUTBOX, JSON.stringify(list)); } catch (e) {} }
+  function plain(h) { return String(h).replace(/<sub>q<\/sub>/g, 'q').replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'); }
+  function payload() {
+    var s = sums(), lk = LANG; LANG = 'kz';
+    var start = state.workStartedAt || state.startedAt;
+    var p = {
+      app: 'qosu-azaytu-8.2.1.2', id: state.seed + '-' + state.startedAt, seed: state.seed, lang: lk,
+      name: state.student ? state.student.name : '', cls: state.student ? state.student.cls : '',
+      main: fs(s.main), mainMax: fs(s.mainMax), star: fs(s.star), starMax: fs(s.starMax),
+      time: fmt(state.finishedAt - start), viol: state.viol || 0,
+      reasonText: state.reason && state.reason !== 'done' ? L(REASONS[state.reason]) : '',
+      tasks: tasks.map(function (t, i) {
+        var rows = [];
+        t.items.forEach(function (it, k) {
+          var a = state.ans[i] && state.ans[i][k];
+          it.fields.forEach(function (f, m) {
+            var v = a && a[m] ? String(a[m]).replace(/_/g, '?') : '';
+            rows.push({ no: ((t.items.length > 1 ? itemLetter(k) + ')' : '') + (it.fields.length > 1 ? ' ' + plain(L(f.label)) : '')).trim(), expr: plain(it.expr), answer: v, key: f.key, ok: C.fieldOk(f, a && a[m]) });
+          });
+        });
+        return { no: navName(i), title: L(t.title), score: fs(state.scores[i]), max: fs(t.max), items: rows };
+      }),
+    };
+    LANG = lk;
+    return p;
+  }
+  function queueResult() {
+    if (!resultsUrl() || state.queued) return;
+    var list = outbox(); list.push(payload()); setOutbox(list);
+    state.queued = true; state.sent = false; save();
+  }
+  function flushOutbox() {
+    var url = resultsUrl(), list = outbox();
+    if (!url || !list.length || sending) { renderSend(); return; }
+    sending = true; renderSend();
+    var p = list[0];
+    fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p) })
+      .then(function () {
+        setOutbox(outbox().filter(function (x) { return x.id !== p.id; }));
+        if (state && state.seed + '-' + state.startedAt === p.id) { state.sent = true; save(); }
+        sending = false; flushOutbox();
+      }, function () { sending = false; renderSend(); setTimeout(flushOutbox, 30000); });
+  }
+  function renderSend() {
+    var e = $('r-send'); if (!e) return;
+    if (!resultsUrl() || !state || state.status !== 'finished' || !state.queued) { e.hidden = true; return; }
+    e.hidden = false;
+    e.className = 'r-send ' + (state.sent ? 'ok' : sending ? 'wait' : 'bad');
+    e.textContent = state.sent ? T('✓ Нәтиже мұғалімге жіберілді.', '✓ Результат отправлен учителю.')
+      : sending ? T('Нәтиже мұғалімге жіберілуде…', 'Результат отправляется учителю…')
+      : T('Интернет жоқ: нәтиже осы компьютерде сақталды, интернет қосылғанда өзі жіберіледі.', 'Нет интернета: результат сохранён на этом компьютере и отправится сам, когда появится интернет.');
   }
   function sums() {
     var m = 0, mm = 0, s = 0, sm = 0;
@@ -1474,6 +1567,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
   function renderResult() {
     show('s-result');
     var s = sums();
+    $('r-who').textContent = state.student ? state.student.name + ' · ' + state.student.cls : '';
+    renderSend();
     $('r-score').textContent = fs(s.main) + ' / ' + fs(s.mainMax);
     $('r-star').textContent = T('★ Қосымша тапсырма: ', '★ Дополнительное задание: ') + fs(s.star) + ' / ' + fs(s.starMax) + ' ' + T('балл', 'баллов');
     if (state.reason && state.reason !== 'done') {
@@ -1572,6 +1667,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     setLang(LANG);
     $('b-gate').addEventListener('click', startSession);
+    ['i-name', 'i-cls'].forEach(function (id) { $(id).addEventListener('input', function () { $('who-err').hidden = true; }); $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') startSession(); }); });
+    window.addEventListener('online', flushOutbox);
     $('b-to-intro').addEventListener('click', toIntro);
     $('b-back-theory').addEventListener('click', backTheory);
     $('b-start').addEventListener('click', begin);
@@ -1609,9 +1706,10 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       $('m-back').hidden = false;
       return;
     }
-    if (state && state.status === 'finished') { renderResult(); return; }
+    if (state && state.status === 'finished') { renderResult(); flushOutbox(); return; }
     state = null;
     show('s-gate');
+    flushOutbox();   // алдыңғы оқушылардың жіберілмей қалған нәтижелері
   }
   document.addEventListener('DOMContentLoaded', init);
 })();

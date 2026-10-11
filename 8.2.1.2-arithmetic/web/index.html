@@ -24,6 +24,13 @@
       <p class="steps"><span class="lang-kz"><b>1. Теория</b> → 2. Тапсырмалар → 3. Нәтиже және талдау</span><span class="lang-ru"><b>1. Теория</b> → 2. Задания → 3. Результат и разбор</span></p>
       <p class="note"><span class="lang-kz">Бүкіл жұмыс, теорияны оқуды қоса алғанда, <b>толық экран режимінде</b> жүреді. Одан шығуға, басқа қойындыға, терезеге немесе қосымшаға ауысуға және бетті қайта жүктеуге болмайды. Алғашқы екі бұзушылыққа ескерту шығады, <b>үшіншісінен</b> кейін жұмыс аяқталады.</span><span class="lang-ru">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</span></p>
       <p class="note lang-note"><span class="lang-kz">Тілді кез келген уақытта ауыстыруға болады: жоғарғы оң жақ бұрыштағы <b>ҚАЗ / РУС</b> батырмалары. Жауаптар сақталады.</span><span class="lang-ru">Язык можно сменить в любой момент: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы сохраняются.</span></p>
+      <div class="who">
+        <label><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span>
+          <input id="i-name" type="text" maxlength="60" autocomplete="off" spellcheck="false"></label>
+        <label><span class="lang-kz">Сынып</span><span class="lang-ru">Класс</span>
+          <input id="i-cls" type="text" maxlength="10" autocomplete="off" spellcheck="false" placeholder="8А"></label>
+      </div>
+      <p id="who-err" class="who-err" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
       <div class="buttons"><button id="b-gate" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
     </section>
 
@@ -81,6 +88,8 @@
 
     <section id="s-result" hidden>
       <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
+      <p id="r-who" class="r-who"></p>
+      <p id="r-send" class="r-send" hidden></p>
       <p id="r-reason" class="note" hidden></p>
       <p class="score"><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
       <p id="r-star" class="star-line"></p>

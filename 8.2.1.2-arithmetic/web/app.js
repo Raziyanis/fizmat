@@ -98,11 +98,17 @@
 
   // ---------- Кезеңдер ----------
   function newSeed() { var a = new Uint32Array(1); (window.crypto || window.msCrypto).getRandomValues(a); return a[0] || 1; }
+  function who() {
+    var n = $('i-name').value.replace(/\s+/g, ' ').trim(), c = $('i-cls').value.replace(/\s+/g, '').trim().toUpperCase();
+    return n.length >= 3 && c.length >= 1 ? { name: n, cls: c } : null;
+  }
   function startSession() {
     if (state) return;
+    var w = who();
+    if (!w) { $('who-err').hidden = false; (!$('i-name').value.trim() ? $('i-name') : $('i-cls')).focus(); return; }
     var fs = enterFullscreen(), seed = newSeed();
     tasks = C.generate(seed);
-    state = { v: 1, seed: seed, status: 'running', stage: 'theory', startedAt: Date.now(), viol: 0, cur: 0, ans: tasks.map(C.empty) };
+    state = { v: 1, seed: seed, student: w, status: 'running', stage: 'theory', startedAt: Date.now(), viol: 0, cur: 0, ans: tasks.map(C.empty) };
     save();
     ticker = setInterval(tick, 250);
     fs.then(function () { show('s-theory'); });
@@ -384,7 +390,67 @@
     if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
     fsActive = false;
     exitFullscreen();
+    queueResult();
     renderResult();
+    flushOutbox();
+  }
+
+  // ---------- Нәтижені мұғалімге жіберу (Google Apps Script) ----------
+  // Интернет болмаса, нәтиже осы компьютерде сақталады (OUTBOX) және кейін өзі жіберіледі.
+  var OUTBOX = 'qosu-outbox-8.2.1.2', sending = false;
+  function resultsUrl() { var u = String(window.RESULTS_URL || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
+  function outbox() { try { return JSON.parse(localStorage.getItem(OUTBOX)) || []; } catch (e) { return []; } }
+  function setOutbox(list) { try { localStorage.setItem(OUTBOX, JSON.stringify(list)); } catch (e) {} }
+  function plain(h) { return String(h).replace(/<sub>q<\/sub>/g, 'q').replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'); }
+  function payload() {
+    var s = sums(), lk = LANG; LANG = 'kz';
+    var start = state.workStartedAt || state.startedAt;
+    var p = {
+      app: 'qosu-azaytu-8.2.1.2', id: state.seed + '-' + state.startedAt, seed: state.seed, lang: lk,
+      name: state.student ? state.student.name : '', cls: state.student ? state.student.cls : '',
+      main: fs(s.main), mainMax: fs(s.mainMax), star: fs(s.star), starMax: fs(s.starMax),
+      time: fmt(state.finishedAt - start), viol: state.viol || 0,
+      reasonText: state.reason && state.reason !== 'done' ? L(REASONS[state.reason]) : '',
+      tasks: tasks.map(function (t, i) {
+        var rows = [];
+        t.items.forEach(function (it, k) {
+          var a = state.ans[i] && state.ans[i][k];
+          it.fields.forEach(function (f, m) {
+            var v = a && a[m] ? String(a[m]).replace(/_/g, '?') : '';
+            rows.push({ no: ((t.items.length > 1 ? itemLetter(k) + ')' : '') + (it.fields.length > 1 ? ' ' + plain(L(f.label)) : '')).trim(), expr: plain(it.expr), answer: v, key: f.key, ok: C.fieldOk(f, a && a[m]) });
+          });
+        });
+        return { no: navName(i), title: L(t.title), score: fs(state.scores[i]), max: fs(t.max), items: rows };
+      }),
+    };
+    LANG = lk;
+    return p;
+  }
+  function queueResult() {
+    if (!resultsUrl() || state.queued) return;
+    var list = outbox(); list.push(payload()); setOutbox(list);
+    state.queued = true; state.sent = false; save();
+  }
+  function flushOutbox() {
+    var url = resultsUrl(), list = outbox();
+    if (!url || !list.length || sending) { renderSend(); return; }
+    sending = true; renderSend();
+    var p = list[0];
+    fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p) })
+      .then(function () {
+        setOutbox(outbox().filter(function (x) { return x.id !== p.id; }));
+        if (state && state.seed + '-' + state.startedAt === p.id) { state.sent = true; save(); }
+        sending = false; flushOutbox();
+      }, function () { sending = false; renderSend(); setTimeout(flushOutbox, 30000); });
+  }
+  function renderSend() {
+    var e = $('r-send'); if (!e) return;
+    if (!resultsUrl() || !state || state.status !== 'finished' || !state.queued) { e.hidden = true; return; }
+    e.hidden = false;
+    e.className = 'r-send ' + (state.sent ? 'ok' : sending ? 'wait' : 'bad');
+    e.textContent = state.sent ? T('✓ Нәтиже мұғалімге жіберілді.', '✓ Результат отправлен учителю.')
+      : sending ? T('Нәтиже мұғалімге жіберілуде…', 'Результат отправляется учителю…')
+      : T('Интернет жоқ: нәтиже осы компьютерде сақталды, интернет қосылғанда өзі жіберіледі.', 'Нет интернета: результат сохранён на этом компьютере и отправится сам, когда появится интернет.');
   }
   function sums() {
     var m = 0, mm = 0, s = 0, sm = 0;
@@ -394,6 +460,8 @@
   function renderResult() {
     show('s-result');
     var s = sums();
+    $('r-who').textContent = state.student ? state.student.name + ' · ' + state.student.cls : '';
+    renderSend();
     $('r-score').textContent = fs(s.main) + ' / ' + fs(s.mainMax);
     $('r-star').textContent = T('★ Қосымша тапсырма: ', '★ Дополнительное задание: ') + fs(s.star) + ' / ' + fs(s.starMax) + ' ' + T('балл', 'баллов');
     if (state.reason && state.reason !== 'done') {
@@ -492,6 +560,8 @@
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     setLang(LANG);
     $('b-gate').addEventListener('click', startSession);
+    ['i-name', 'i-cls'].forEach(function (id) { $(id).addEventListener('input', function () { $('who-err').hidden = true; }); $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') startSession(); }); });
+    window.addEventListener('online', flushOutbox);
     $('b-to-intro').addEventListener('click', toIntro);
     $('b-back-theory').addEventListener('click', backTheory);
     $('b-start').addEventListener('click', begin);
@@ -529,9 +599,10 @@
       $('m-back').hidden = false;
       return;
     }
-    if (state && state.status === 'finished') { renderResult(); return; }
+    if (state && state.status === 'finished') { renderResult(); flushOutbox(); return; }
     state = null;
     show('s-gate');
+    flushOutbox();   // алдыңғы оқушылардың жіберілмей қалған нәтижелері
   }
   document.addEventListener('DOMContentLoaded', init);
 })();
