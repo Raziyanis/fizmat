@@ -214,7 +214,7 @@
     var box = $('nav'); box.innerHTML = '';
     for (var k = 0; k < NQ; k++) {
       (function (i) {
-        var b = el('button', 'nav-btn' + navClass(i) + (i === state.cur ? ' cur' : ''), (i + 1) + code[i].level);
+        var b = el('button', 'nav-btn' + navClass(i) + (i === state.cur ? ' cur' : ''), String(i + 1));
         b.type = 'button';
         b.addEventListener('click', function () { goTo(i); });
         box.appendChild(b);
@@ -350,7 +350,7 @@
     tbl.appendChild(hr);
     code.forEach(function (tk, j) {
       var r = state.results[j], src = (state.code[j] || '').trim(), tr = el('tr', ok[j] ? 'ok' : 'bad');
-      tr.appendChild(el('td', null, (j + 1) + tk.level));
+      tr.appendChild(el('td', null, String(j + 1)));
       tr.appendChild(el('td', null, tk.title));
       tr.appendChild(el('td', null, src ? r.passed + ' / ' + r.total : L('код жоқ', 'нет кода')));
       tr.appendChild(el('td', null, !src ? '—' : r.missing && r.missing.length ? L('жоқ: ', 'нет: ') + needText(r.missing) : '✓ ' + needText(tk.need)));
@@ -371,7 +371,7 @@
   }
   function card(tk, j, r, ok) {
     var c = el('article', 'rv ' + (ok ? 'ok' : 'bad')), head = el('div', 'rv-head');
-    head.appendChild(el('span', 'rv-num', L('Есеп ', 'Задача ') + (j + 1) + ' (' + tk.level + ') — ' + tk.title));
+    head.appendChild(el('span', 'rv-num', L('Есеп ', 'Задача ') + (j + 1) + ' — ' + tk.title));
     head.appendChild(el('span', 'rv-badge', (ok ? L('✓ шешілді', '✓ решена') : L('✗ шешілмеді', '✗ не решена')) + ' · ' + L('тест ', 'тестов ') + r.passed + '/' + r.total));
     c.appendChild(head);
     c.appendChild(el('p', 'rv-q', tk.text));
