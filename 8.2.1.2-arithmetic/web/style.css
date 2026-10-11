@@ -628,3 +628,6 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .url-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .url-row input { flex: 1; min-width: 260px; font: 0.95rem ui-monospace, Consolas, monospace; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; }
 .r-send.none { background: #f1f3f6; color: var(--muted); font-weight: 500; font-size: 0.9rem; }
+.who select { font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; min-width: 110px; max-width: 100%; background: #fff; }
+.who #s-name { min-width: 320px; }
+.who select:focus { outline: none; border-color: var(--accent); }

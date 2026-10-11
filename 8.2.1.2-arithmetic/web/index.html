@@ -25,12 +25,16 @@
       <p class="note"><span class="lang-kz">Бүкіл жұмыс, теорияны оқуды қоса алғанда, <b>толық экран режимінде</b> жүреді. Одан шығуға, басқа қойындыға, терезеге немесе қосымшаға ауысуға және бетті қайта жүктеуге болмайды. Алғашқы екі бұзушылыққа ескерту шығады, <b>үшіншісінен</b> кейін жұмыс аяқталады.</span><span class="lang-ru">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</span></p>
       <p class="note lang-note"><span class="lang-kz">Тілді кез келген уақытта ауыстыруға болады: жоғарғы оң жақ бұрыштағы <b>ҚАЗ / РУС</b> батырмалары. Жауаптар сақталады.</span><span class="lang-ru">Язык можно сменить в любой момент: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы сохраняются.</span></p>
       <div class="who">
-        <label><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span>
+        <label id="w-cls-sel" hidden><span class="lang-kz">Сынып</span><span class="lang-ru">Класс</span>
+          <select id="s-cls"></select></label>
+        <label id="w-name-sel" hidden><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span>
+          <select id="s-name"></select></label>
+        <label id="w-name"><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span>
           <input id="i-name" type="text" maxlength="60" autocomplete="off" spellcheck="false"></label>
-        <label><span class="lang-kz">Сынып</span><span class="lang-ru">Класс</span>
+        <label id="w-cls"><span class="lang-kz">Сынып</span><span class="lang-ru">Класс</span>
           <input id="i-cls" type="text" maxlength="10" autocomplete="off" spellcheck="false" placeholder="8А"></label>
       </div>
-      <p id="who-err" class="who-err" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
+      <p id="who-err" class="who-err" hidden><span class="lang-kz">Сыныбыңызды және аты-жөніңізді көрсетіңіз.</span><span class="lang-ru">Укажите класс, фамилию и имя.</span></p>
       <div class="buttons"><button id="b-gate" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
           <p class="teacher-link"><button id="b-teacher" class="link" type="button"><span class="lang-kz">Мұғалімге: нәтижелерді поштаға жіберуді баптау</span><span class="lang-ru">Для учителя: настройка отправки результатов на почту</span></button></p>
     </section>

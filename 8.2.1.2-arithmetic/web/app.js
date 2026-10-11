@@ -98,14 +98,43 @@
 
   // ---------- Кезеңдер ----------
   function newSeed() { var a = new Uint32Array(1); (window.crypto || window.msCrypto).getRandomValues(a); return a[0] || 1; }
+  // Сынып тізімі берілсе — оқушы сыныбын және аты-жөнін тізімнен таңдайды; «Тізімде жоқ» — өзі жазады
+  var OTHER = '__other__';
+  function classList() { var c = window.CLASSES; return c && typeof c === 'object' && !Array.isArray(c) && Object.keys(c).length ? c : null; }
+  function setupWho() {
+    var cl = classList(); if (!cl) return;
+    $('w-cls-sel').hidden = false; $('w-cls').hidden = true;
+    var sc = $('s-cls'); sc.innerHTML = '';
+    var o0 = el('option', null, T('— таңдаңыз —', '— выберите —')); o0.value = ''; sc.appendChild(o0);
+    Object.keys(cl).forEach(function (k) { var o = el('option', null, k); o.value = k; sc.appendChild(o); });
+    sc.onchange = fillNames; fillNames();
+  }
+  function fillNames() {
+    var cl = classList(), sn = $('s-name'), c = $('s-cls').value, keep = sn.value; sn.innerHTML = '';
+    var o0 = el('option', null, c ? T('— аты-жөніңізді таңдаңыз —', '— выберите себя —') : T('— алдымен сыныпты таңдаңыз —', '— сначала выберите класс —')); o0.value = ''; sn.appendChild(o0);
+    if (c) {
+      (cl[c] || []).forEach(function (n) { var o = el('option', null, n); o.value = n; sn.appendChild(o); });
+      var oo = el('option', null, T('Тізімде жоқпын (өзім жазамын)', 'Меня нет в списке (впишу сам)')); oo.value = OTHER; sn.appendChild(oo);
+    }
+    sn.disabled = !c; $('w-name-sel').hidden = !c;   // аты-жөні тізімі сынып таңдалғаннан кейін шығады
+    if (keep && Array.prototype.some.call(sn.options, function (o) { return o.value === keep; })) sn.value = keep;
+    $('w-name').hidden = sn.value !== OTHER;
+    sn.onchange = function () { $('w-name').hidden = sn.value !== OTHER; $('who-err').hidden = true; if (sn.value === OTHER) $('i-name').focus(); };
+  }
   function who() {
+    var cl = classList();
+    if (cl) {
+      var c0 = $('s-cls').value, sel = $('s-name').value;
+      var n0 = sel === OTHER ? $('i-name').value.replace(/\s+/g, ' ').trim() : sel;
+      return c0 && n0 && n0.length >= 3 ? { name: n0, cls: c0 } : null;
+    }
     var n = $('i-name').value.replace(/\s+/g, ' ').trim(), c = $('i-cls').value.replace(/\s+/g, '').trim().toUpperCase();
     return n.length >= 3 && c.length >= 1 ? { name: n, cls: c } : null;
   }
   function startSession() {
     if (state) return;
     var w = who();
-    if (!w) { $('who-err').hidden = false; (!$('i-name').value.trim() ? $('i-name') : $('i-cls')).focus(); return; }
+    if (!w) { $('who-err').hidden = false; if (!classList()) (!$('i-name').value.trim() ? $('i-name') : $('i-cls')).focus(); return; }
     var fs = enterFullscreen(), seed = newSeed();
     tasks = C.generate(seed);
     state = { v: 1, seed: seed, student: w, status: 'running', stage: 'theory', startedAt: Date.now(), viol: 0, cur: 0, ans: tasks.map(C.empty) };
@@ -557,6 +586,7 @@
     document.documentElement.lang = l === 'kz' ? 'kk' : 'ru';
     document.title = l === 'kz' ? 'Санау жүйелерінде қосу және азайту — 8.2.1.2' : 'Сложение и вычитание в системах счисления — 8.2.1.2';
     document.querySelectorAll('.lang-switch button').forEach(function (b) { var on = b.getAttribute('data-lang') === l; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    if (classList() && $('s-cls')) { var cv = $('s-cls').value, nv = $('s-name').value; setupWho(); $('s-cls').value = cv; fillNames(); $('s-name').value = nv; $('w-name').hidden = nv !== OTHER; }
     if (!state) return;
     if (!$('s-work').hidden) { var y = window.scrollY; renderTask(); window.scrollTo(0, y); }
     if (!$('s-result').hidden) renderResult();
@@ -621,6 +651,7 @@
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     setLang(LANG);
     $('b-gate').addEventListener('click', startSession);
+    setupWho();
     $('b-teacher').addEventListener('click', showTeacher);
     $('b-teacher-back').addEventListener('click', function () { show('s-gate'); });
     $('b-gs-copy').addEventListener('click', function () { var ta = $('gs-code'); ta.select(); try { if (navigator.clipboard) navigator.clipboard.writeText(ta.value); else document.execCommand('copy'); } catch (e) { document.execCommand('copy'); } $('url-msg').textContent = ''; warn(T('Скрипт көшірілді.', 'Скрипт скопирован.')); });
