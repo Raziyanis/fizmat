@@ -55,11 +55,12 @@ function mail_(d) {
   h.push('<p style="font-size:18px;margin:4px 0"><b>' + d.main + ' / ' + d.mainMax + '</b> балл &nbsp;·&nbsp; ★ қосымша: <b>' + d.star + ' / ' + d.starMax + '</b></p>');
   h.push('<p style="color:#555;margin:4px 0">Уақыты: ' + esc_(d.time) + ' · бұзушылық: ' + d.viol + (d.reasonText ? ' · ' + esc_(d.reasonText) : '') + '</p>');
   h.push('<table cellpadding="4" style="border-collapse:collapse;font-family:Consolas,monospace;font-size:14px">');
-  h.push('<tr style="background:#e8eef7"><th align="left">№</th><th align="left">Мысал</th><th align="left">Оқушының жауабы</th><th align="left">Дұрыс жауап</th><th></th></tr>');
+  h.push('<tr style="background:#e8eef7"><th align="left">№</th><th align="left">Мысал</th><th align="left">Дұрыс жауап</th><th align="left">Оқушының жауабы</th><th align="left">Балл</th></tr>');
   d.tasks.forEach(function (t) {
     h.push('<tr style="background:#f5f6f8"><td colspan="5"><b>' + esc_(t.no + '. ' + t.title) + ' — ' + t.score + ' / ' + t.max + '</b></td></tr>');
     t.items.forEach(function (it) {
-      h.push('<tr><td>' + esc_(it.no) + '</td><td>' + esc_(it.expr) + '</td><td>' + esc_(it.answer || '—') + '</td><td>' + esc_(it.key) + '</td><td style="color:' + (it.ok ? '#1a7f37' : '#c62828') + '">' + (it.ok ? '✓' : '✗') + '</td></tr>');
+      var col = it.ok ? '#1a7f37' : '#c62828';
+      h.push('<tr><td>' + esc_(it.no) + '</td><td>' + esc_(it.expr) + '</td><td>' + esc_(it.key) + '</td><td style="color:' + col + '">' + esc_(it.answer || '—') + '</td><td style="color:' + col + ';white-space:nowrap">' + (it.ok ? '✓ ' : '✗ ') + esc_(it.pts != null ? it.pts + ' / ' + it.per : '') + '</td></tr>');
     });
   });
   h.push('</table>');

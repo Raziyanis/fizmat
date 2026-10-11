@@ -417,7 +417,7 @@
           var a = state.ans[i] && state.ans[i][k];
           it.fields.forEach(function (f, m) {
             var v = a && a[m] ? String(a[m]).replace(/_/g, '?') : '';
-            rows.push({ no: ((t.items.length > 1 ? itemLetter(k) + ')' : '') + (it.fields.length > 1 ? ' ' + plain(L(f.label)) : '')).trim(), expr: plain(it.expr), answer: v, key: f.key, ok: C.fieldOk(f, a && a[m]) });
+            rows.push({ no: ((t.items.length > 1 ? itemLetter(k) + ')' : '') + (it.fields.length > 1 ? ' ' + plain(L(f.label)) : '')).trim(), expr: plain(it.expr), answer: v, key: f.key, ok: C.fieldOk(f, a && a[m]), pts: fs(C.fieldOk(f, a && a[m]) ? t.per : 0), per: fs(t.per) });
           });
         });
         return { no: navName(i), title: L(t.title), score: fs(state.scores[i]), max: fs(t.max), items: rows };
