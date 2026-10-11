@@ -397,7 +397,7 @@
 
   // ---------- Нәтижені мұғалімге жіберу (Google Apps Script) ----------
   // Интернет болмаса, нәтиже осы компьютерде сақталады (OUTBOX) және кейін өзі жіберіледі.
-  var OUTBOX = 'qosu-outbox-8.2.1.2', sending = false;
+  var OUTBOX = 'qosu-outbox-8.2.1.2', sending = false, lastErr = '';
   function resultsUrl() { var u = String(window.RESULTS_URL || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
   function outbox() { try { return JSON.parse(localStorage.getItem(OUTBOX)) || []; } catch (e) { return []; } }
   function setOutbox(list) { try { localStorage.setItem(OUTBOX, JSON.stringify(list)); } catch (e) {} }
@@ -450,8 +450,8 @@
       .then(function () {
         setOutbox(outbox().filter(function (x) { return x.id !== p.id; }));
         if (state && state.seed + '-' + state.startedAt === p.id) { state.sent = true; save(); }
-        sending = false; flushOutbox();
-      }, function () { sending = false; renderSend(); setTimeout(flushOutbox, 30000); });
+        sending = false; lastErr = ''; flushOutbox();
+      }, function (e) { sending = false; lastErr = e && e.message || 'net'; renderSend(); setTimeout(flushOutbox, 30000); });
   }
   function renderSend() {
     var e = $('r-send'); if (!e) return;
@@ -466,6 +466,8 @@
     e.className = 'r-send ' + (state.sent ? 'ok' : sending ? 'wait' : 'bad');
     e.textContent = state.sent ? T('✓ Нәтиже мұғалімге жіберілді.', '✓ Результат отправлен учителю.')
       : sending ? T('Нәтиже мұғалімге жіберілуде…', 'Результат отправляется учителю…')
+      : /^error:/.test(lastErr) ? T('Нәтиже әзірге жіберілмеді: мұғалімнің скрипті қате қайтарды (', 'Результат пока не отправлен: скрипт учителя вернул ошибку (') + lastErr.slice(0, 160) + T('). Нәтиже осы компьютерде сақталды, кейін қайта жіберіледі.', '). Результат сохранён на этом компьютере и будет отправлен повторно.')
+      : lastErr === 'noaccess' ? T('Нәтиже әзірге жіберілмеді: мұғалімнің скриптіне кіру жабық (жариялау баптауы). Нәтиже осы компьютерде сақталды.', 'Результат пока не отправлен: скрипт учителя недоступен (настройка развертывания). Результат сохранён на этом компьютере.')
       : T('Интернет жоқ: нәтиже осы компьютерде сақталды, интернет қосылғанда өзі жіберіледі.', 'Нет интернета: результат сохранён на этом компьютере и отправится сам, когда появится интернет.');
   }
   function sums() {

@@ -37,13 +37,14 @@ function doPost(e) {
       // бір нәтиже екі рет келсе (интернет үзіліп, қайта жіберілсе) — қайталамаймыз
       var ids = sh.getRange(1, 13, Math.max(sh.getLastRow(), 1), 1).getValues().map(function (r) { return String(r[0]); });
       if (ids.indexOf(String(d.id)) >= 0) return out_('dup');
+      // алдымен хат: хат жіберілмесе, жол жазылмайды — оқушының беті кейін қайта жібереді
+      if (SEND_EMAIL) mail_(d);
       sh.appendRow([
         new Date(), safe_(d.cls), safe_(d.name), num_(d.main), num_(d.mainMax), num_(d.star), num_(d.starMax),
         safe_(d.time), num_(d.viol), safe_(d.reasonText), safe_(d.tasks.map(function (t) { return t.no + ': ' + t.score + '/' + t.max; }).join('; ')),
         safe_(d.lang), safe_(d.id), num_(d.seed),
       ]);
     } finally { lock.releaseLock(); }
-    if (SEND_EMAIL) mail_(d);
     return out_('ok');
   } catch (err) {
     return out_('error: ' + err);
