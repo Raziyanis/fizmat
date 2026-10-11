@@ -583,3 +583,17 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 @media (max-width: 700px) { .choices.row4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .rv-item { border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 6px; }
 .rv-item:first-of-type { border-top: 0; }
+/* Бағанмен жазу: ұяшықтар */
+.colin { border-collapse: collapse; margin: 4px 0 6px; font: 700 1.6rem/1.2 ui-monospace, "Consolas", "Courier New", monospace; }
+.colin td { width: 2.2rem; height: 2.4rem; text-align: center; padding: 1px; }
+.colin td.op { width: 1.6rem; color: var(--muted); }
+.colin td.q { width: auto; font-size: 0.8rem; padding-top: 14px; color: var(--muted); text-align: left; vertical-align: bottom; }
+.colin tr.c-row td { height: 1.8rem; }
+.colin tr.r-row td:not(.op):not(.q) { border-top: 3px solid var(--text); padding-top: 4px; }
+.colin input.cell { width: 2.1rem; height: 2.4rem; text-align: center; font: inherit; border: 2px solid #9db0c9; border-radius: 6px; padding: 0; text-transform: uppercase; background: #fff; }
+.colin input.cell:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px #dbe8ff; background: #f3f8ff; }
+.colin input.carry { width: 1.6rem; height: 1.5rem; text-align: center; font: 700 0.95rem ui-monospace, monospace; color: #c2410c; border: 1px dashed #e0b48a; border-radius: 4px; padding: 0; background: #fffaf4; }
+.colin input.carry:focus { outline: none; border-color: #c2410c; }
+.col-hint { margin: 2px 0 0; }
+.item.multi .col-hint { display: none; }
+.item.multi:first-of-type .col-hint, .task-head + .lead + .item .col-hint { display: block; }

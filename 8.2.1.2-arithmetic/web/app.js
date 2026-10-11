@@ -166,8 +166,11 @@
       var body = el('div', 'item-body');
       if (it.type === 'cmp') rCmp(it, i, k, body);
       else {
-        body.appendChild(html('p', 'expr', it.expr));
-        if (it.type === 'choice') rChoice(it, i, k, body); else { rInput(it, i, k, body, t.items.length > 1); anyInput = true; }
+        if (it.kind === 'col') { rColumn(it, i, k, body); anyInput = true; }
+        else {
+          body.appendChild(html('p', 'expr', it.expr));
+          if (it.type === 'choice') rChoice(it, i, k, body); else { rInput(it, i, k, body, t.items.length > 1); anyInput = true; }
+        }
       }
       wrap.appendChild(body);
       box.appendChild(wrap);
@@ -175,7 +178,7 @@
     if (anyInput) {
       var pad = el('div', 'pad'); pad.id = 'pad'; box.appendChild(pad);
       box.appendChild(el('p', 'muted small pad-note', ''));
-      var first = box.querySelector('input.ans'); lastInput = first; renderPad(+first.dataset.iq);
+      var first = box.querySelector('input.cell.r-last') || box.querySelector('input.ans'); lastInput = first; renderPad(+first.dataset.iq);
     }
     $('b-prev').disabled = i === 0;
     $('b-next').disabled = i === tasks.length - 1;
@@ -251,19 +254,91 @@
     });
     box.appendChild(form);
   }
+  // Бағанмен жазу: нәтиженің әр цифры — жеке ұяшық. Оңнан солға толтырылады (цифр енгізілгенде курсор солға өтеді).
+  // Жоғарғы қатар — ойдағы сан / қарыз белгісі үшін көмекші ұяшықтар (бағаланбайды).
+  function keyChar(e) {
+    var m = /^(?:Digit|Numpad)(\d)$/.exec(e.code || ''); if (m) return m[1];
+    var l = /^Key([A-F])$/.exec(e.code || ''); if (l) return l[1];
+    return null;
+  }
+  function rColumn(it, i, k, box) {
+    var q = it.q, f = it.fields[0], A = C.B(it.a, q), Bs = C.B(it.b, q);
+    var w = Math.max(A.length, Bs.length) + (it.op === '+' ? 1 : 0);
+    var pad = function (x) { while (x.length < w) x = ' ' + x; return x; };
+    var cur = (state.ans[i][k] && state.ans[i][k][0]) || '', cells = [], carries = [];
+    var ckey = i + '_' + k, cstr = (state.carry && state.carry[ckey]) || '';
+    var tbl = el('table', 'colin');
+    var row = function (cls) { var tr = el('tr', cls); tbl.appendChild(tr); return tr; };
+    var td = function (tr, cls, txt) { var c = el('td', cls, txt == null ? '' : txt); tr.appendChild(c); return c; };
+    // ойдағы сан
+    var trc = row('c-row'); td(trc, 'op');
+    for (var j = 0; j < w; j++) { var ci = el('input', 'carry'); ci.maxLength = 1; ci.value = (cstr[j] && cstr[j] !== '_') ? cstr[j] : ''; ci.setAttribute('aria-label', T('ойдағы сан', 'в уме')); carries.push(ci); td(trc, '').appendChild(ci); }
+    td(trc, 'q');
+    var tra = row(''), trb = row(''), Ap = pad(A), Bp = pad(Bs);
+    td(tra, 'op'); for (j = 0; j < w; j++) td(tra, 'dg', Ap[j] === ' ' ? '' : Ap[j]); td(tra, 'q', String(q));
+    td(trb, 'op', it.op === '+' ? '+' : '−'); for (j = 0; j < w; j++) td(trb, 'dg', Bp[j] === ' ' ? '' : Bp[j]); td(trb, 'q', String(q));
+    var trr = row('r-row'); td(trr, 'op');
+    var curP = cur; while (curP.length < w) curP = ' ' + curP; curP = curP.slice(-w);
+    for (j = 0; j < w; j++) {
+      var ri = el('input', 'cell' + (j === w - 1 ? ' r-last' : '')); ri.maxLength = 1;
+      ri.value = (curP[j] && curP[j] !== ' ' && curP[j] !== '_') ? curP[j] : '';
+      ri.dataset.iq = q; ri.setAttribute('inputmode', q > 10 ? 'text' : 'numeric'); ri.setAttribute('autocomplete', 'off');
+      ri.setAttribute('aria-label', T('нәтиженің ', 'разряд результата ') + (w - j) + T('-разряды', ''));
+      cells.push(ri); td(trr, '').appendChild(ri);
+    }
+    td(trr, 'q', String(q));
+    var saveRes = function () {
+      var v = cells.map(function (c) { return c.value || '_'; }).join('').replace(/^_+/, '');
+      setItem(i, k, [v]);
+    };
+    var saveCarry = function () {
+      state.carry = state.carry || {};
+      state.carry[ckey] = carries.map(function (c) { return c.value || '_'; }).join(''); save();
+    };
+    var wire = function (list, j, onChange, isRes) {
+      var c = list[j];
+      c._put = function (ch) {
+        if (allowed(q).indexOf(ch) < 0 && !(!isRes && ch === '1')) { hint(q); return; }
+        c.value = ch; onChange();
+        if (isRes && j > 0) list[j - 1].focus();   // келесі (сол жақтағы) разрядқа өтеміз
+      };
+      c._back = function () {
+        if (c.value) { c.value = ''; onChange(); }
+        else if (j < list.length - 1) { list[j + 1].focus(); list[j + 1].value = ''; onChange(); }
+      };
+      c.addEventListener('keydown', function (e) {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); c._back(); return; }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); if (j > 0) list[j - 1].focus(); return; }
+        if (e.key === 'ArrowRight') { e.preventDefault(); if (j < list.length - 1) list[j + 1].focus(); return; }
+        if (e.key === 'Tab' || e.key === 'Enter') return;
+        var ch = keyChar(e); e.preventDefault();
+        if (ch !== null) c._put(ch);
+      });
+      c.addEventListener('input', function () {   // телефон, қою т.б.
+        var v = clean(c.value, q); c.value = v ? v.slice(-1) : ''; onChange();
+        if (isRes && v && j > 0) list[j - 1].focus();
+      });
+      c.addEventListener('focus', function () { lastInput = c; renderPad(q); try { c.select(); } catch (er) {} });
+    };
+    for (j = 0; j < w; j++) { wire(cells, j, saveRes, true); wire(carries, j, saveCarry, false); }
+    box.appendChild(tbl);
+    box.appendChild(el('p', 'muted small col-hint', T('Нәтижені оң жақтан бастап әр ұяшыққа бір цифрдан жазыңыз. Жоғарғы кішкентай ұяшықтарға ойдағы санды жазып отыруға болады (бағаланбайды).',
+      'Записывайте результат справа налево, по одной цифре в клетку. В маленькие клетки сверху можно записывать число «в уме» (не оценивается).')));
+  }
   function hint(q) { warn(T('Бұл жүйеде тек мына цифрлар бар: ', 'В этой системе только цифры: ') + allowed(q).split('').join(' ')); }
   function renderPad(q) {
     var pad = $('pad'); if (!pad) return; pad.innerHTML = '';
     allowed(q).split('').forEach(function (d) {
       var b = el('button', 'key', d); b.type = 'button';
       b.addEventListener('mousedown', function (e) { e.preventDefault(); });
-      b.addEventListener('click', function () { if (lastInput) { lastInput.focus(); insertAt(lastInput, d); } });
+      b.addEventListener('click', function () { if (!lastInput) return; lastInput.focus(); if (lastInput._put) lastInput._put(d); else insertAt(lastInput, d); });
       pad.appendChild(b);
     });
     var bs = el('button', 'key wide', '⌫'); bs.type = 'button';
     bs.addEventListener('mousedown', function (e) { e.preventDefault(); });
     bs.addEventListener('click', function () {
-      if (!lastInput) return; var v = lastInput.value, s = lastInput.selectionStart == null ? v.length : lastInput.selectionStart, e = lastInput.selectionEnd == null ? s : lastInput.selectionEnd;
+      if (!lastInput) return; if (lastInput._back) { lastInput.focus(); lastInput._back(); return; } var v = lastInput.value, s = lastInput.selectionStart == null ? v.length : lastInput.selectionStart, e = lastInput.selectionEnd == null ? s : lastInput.selectionEnd;
       if (s === e && s > 0) s--;
       lastInput.value = v.slice(0, s) + v.slice(e); lastInput.focus(); try { lastInput.setSelectionRange(s, s); } catch (er) {} lastInput.dispatchEvent(new Event('input'));
     });
