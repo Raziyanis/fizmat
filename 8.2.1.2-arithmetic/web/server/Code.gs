@@ -8,7 +8,7 @@
  * Тегін: Google аккаунтының өз квотасы (жеке аккаунтқа тәулігіне шамамен 100 хат).
  */
 
-var EMAIL = 'raziya.baimurzayeva@fizmat.kz';   // хат қай поштаға келеді; бос болса — скрипт иесінің поштасы
+var EMAIL = 'raziya.baimurzayeva@fizmat.kz, Meruet.agadilova@fizmat.kz';   // хат қай пошталарға келеді (үтір арқылы); бос болса — скрипт иесінің поштасы
 var SEND_EMAIL = true;   // false — хат жібермей, тек кестеге жазу
 var SHEET_NAME = 'Нәтижелер';
 var SEND_PDF = true;      // хатқа есептің PDF нұсқасы тіркеледі / к письму прикладывается PDF
