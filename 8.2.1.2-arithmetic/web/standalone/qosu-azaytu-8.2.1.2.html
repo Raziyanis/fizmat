@@ -1,0 +1,1413 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <script>
+/* ===== БАПТАУЛАР / НАСТРОЙКИ =====
+ * Файлды Блокнотпен (Notepad) ашып, осы жолдарды өзгертуге болады. / Можно изменить в Блокноте. */
+window.WORK_MIN = 40;          // тапсырмаларға берілетін уақыт, минут (теория уақытпен шектелмейді) / время на задания, минут
+window.RESULT_MIN = 4;         // нәтиже неше минут көрінеді, содан кейін бастапқы бет ашылады / сколько минут виден результат
+window.MAX_VIOLATIONS = 3;     // нешінші бұзушылықта жұмыс аяқталады / на каком нарушении работа завершается
+
+</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Санау жүйелерінде қосу және азайту — 8.2.1.2</title>
+  <style>
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5f6b7a;
+  --line: #d9dee5;
+  --accent: #1f6feb;
+  --ok: #1a7f37;
+  --ok-bg: #e8f5ec;
+  --bad: #c62828;
+  --bad-bg: #fdecec;
+  --warn-bg: #fff4d6;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+h1 { font-size: 1.6rem; margin: 0 0 12px; }
+h2 { font-size: 1.2rem; margin: 24px 0 8px; }
+
+.topic { color: var(--muted); margin-top: 0; }
+.rules li { margin-bottom: 6px; }
+.rules li.important { background: var(--bad-bg); color: var(--bad); border-radius: 6px; padding: 6px 10px; margin-left: -10px; list-style-position: inside; }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+.center { text-align: center; }
+
+.note {
+  background: var(--warn-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+button {
+  font: inherit;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+button.big { font-size: 1.2rem; padding: 14px 40px; margin-top: 8px; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+
+.confirm {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--bad);
+  border-radius: 8px;
+  background: var(--bad-bg);
+}
+
+#s-test.changed { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-bg); }
+
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+.nav-btn { min-width: 44px; padding: 8px 0; font-weight: 700; border: 2px solid var(--line); }
+.nav-btn.done { background: #dbe8ff; border-color: #9dbcf5; }
+.nav-btn.skipped { background: var(--warn-bg); border-color: #e9c46a; }
+.nav-btn.cur { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.nav-legend { margin-top: -8px; }
+.saved { color: var(--accent); }
+
+.question { font-size: 1.5rem; font-weight: 600; margin: 8px 0 16px; }
+
+.answer {
+  width: 100%;
+  max-width: 360px;
+  font: 600 1.6rem/1.2 ui-monospace, "Consolas", monospace;
+  letter-spacing: 0.08em;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+.answer:focus { outline: none; border-color: var(--accent); }
+
+/* Таймеры закреплены сверху и видны всё время работы */
+.timers {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 32px;
+  padding: 10px 16px 14px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.timer { display: flex; align-items: baseline; gap: 10px; }
+.timer span { color: var(--muted); font-size: 0.95rem; }
+.timer b { font: 700 1.8rem/1 ui-monospace, "Consolas", monospace; }
+.timer.low b { color: var(--bad); }
+.bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: var(--line);
+}
+.bar div { height: 100%; width: 0; background: var(--accent); transition: width 0.25s linear; }
+
+.score {
+  text-align: center;
+  font-weight: 800;
+  line-height: 1;
+  margin: 24px 0 8px;
+}
+/* Балл — максимально крупно, чтобы учитель видел его издалека */
+.score-num { display: block; font-size: clamp(4rem, 15vw, 8rem); letter-spacing: -0.02em; }
+.time-box { max-width: 520px; margin: 16px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); text-align: center; }
+.time-box p { margin: 4px 0; font-size: 1.15rem; }
+.time-box p.small { font-size: 0.95rem; color: var(--muted); }
+.time-box p.left b { color: var(--accent); font-size: 1.5rem; }
+.count { font-size: 1.3rem; font-weight: 600; }
+.score-word { display: block; font-size: clamp(1.8rem, 6vw, 3rem); margin-top: 8px; }
+
+.table-wrap { overflow-x: auto; }
+.report { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.report th, .report td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.report th { background: var(--bg); }
+.report tr.ok td:last-child { color: var(--ok); background: var(--ok-bg); }
+.report tr.bad td:last-child { color: var(--bad); background: var(--bad-bg); }
+
+.warn {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: 90vw;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: var(--bad);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.demo {
+  background: var(--warn-bg);
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+/* Сброс результата учителем (автономный файл) */
+.teacher { margin-top: 32px; padding-top: 12px; border-top: 1px dashed var(--line); }
+button.link { border: 0; background: none; padding: 4px 0; color: var(--muted); font-size: 0.85rem; text-decoration: underline; }
+@media print { .teacher { display: none; } }
+
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.row input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; width: 200px; }
+
+/* ---------- Код жазатын формативтік жұмыс ---------- */
+main { max-width: 960px; }
+.nav-btn.ok { background: var(--ok-bg); border-color: #8fcfa3; color: var(--ok); }
+.nav-btn.bad { background: var(--bad-bg); border-color: #eea5a5; color: var(--bad); }
+.nav-btn.written { background: #dbe8ff; border-color: #9dbcf5; }
+.task-title { margin: 4px 0 8px; font-size: 1.35rem; }
+.task-text { font-size: 1.15rem; margin: 0 0 10px; }
+.io p { margin: 4px 0; }
+.examples { border-collapse: collapse; margin: 12px 0 16px; min-width: 60%; }
+.examples th, .examples td { border: 1px solid var(--line); padding: 6px 12px; text-align: left; vertical-align: top; }
+.examples th { background: var(--bg); }
+.examples td { font-family: ui-monospace, "Consolas", "Courier New", monospace; white-space: pre; }
+.code-label { display: block; font-weight: 700; margin: 8px 0 6px; }
+.editor, .stdin {
+  width: 100%; font: 500 1.05rem/1.5 ui-monospace, "Consolas", "Courier New", monospace;
+  padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; tab-size: 4; resize: vertical;
+  background: #fbfcfe; color: var(--text);
+}
+.editor { min-height: 260px; }
+.editor:focus, .stdin:focus { outline: none; border-color: var(--accent); }
+.run-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-top: 10px; }
+.run-in { flex: 1; min-width: 240px; }
+.run-row .buttons { margin-top: 0; }
+.run-result { margin-top: 12px; border-radius: 10px; padding: 12px 14px; border: 1px solid var(--line); background: var(--bg); }
+.run-result pre { margin: 6px 0; white-space: pre-wrap; font: 500 1rem/1.4 ui-monospace, "Consolas", monospace; }
+.run-result .ok { color: var(--ok); font-weight: 700; }
+.run-result .bad { color: var(--bad); font-weight: 700; }
+.nav-buttons { align-items: center; }
+.spacer { flex: 1; }
+button.danger-outline { border-color: var(--bad); color: var(--bad); }
+.rules li.important { list-style-position: inside; }
+
+.review { display: flex; flex-direction: column; gap: 14px; }
+.rv { border: 2px solid var(--line); border-left-width: 8px; border-radius: 10px; padding: 14px 16px; }
+.rv.ok { border-color: #b7dfc3; border-left-color: var(--ok); }
+.rv.bad { border-color: #f1c0c0; border-left-color: var(--bad); }
+.rv-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.rv-num { font-weight: 700; color: var(--muted); }
+.rv-badge { font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.rv.ok .rv-badge { color: var(--ok); background: var(--ok-bg); }
+.rv.bad .rv-badge { color: var(--bad); background: var(--bad-bg); }
+.rv-q { font-weight: 600; margin: 4px 0 10px; }
+.rv-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.rv-cols > div { min-width: 0; }
+.rv-cols pre { margin: 4px 0 0; font-size: 0.95rem; }
+.rv-err { color: var(--bad); margin: 8px 0 0; white-space: pre-wrap; font-family: ui-monospace, "Consolas", monospace; font-size: 0.95rem; }
+@media (max-width: 700px) { .rv-cols { grid-template-columns: 1fr; } }
+.code {
+  background: #1b2740; color: #f1f5fb; font: 500 0.98rem/1.5 ui-monospace, "Consolas", "Courier New", monospace;
+  padding: 12px 16px; border-radius: 10px; overflow-x: auto; margin: 4px 0 0; tab-size: 4; white-space: pre;
+}
+
+/* ---------- 8.1.4.3: теория, тест, задачи ---------- */
+.steps { color: var(--muted); margin: 0 0 12px; }
+.steps b { color: var(--accent); }
+.theory h1.t-title { font-size: 1.8rem; margin-bottom: 4px; }
+.theory .t-sub { color: var(--muted); font-style: italic; margin-top: 0; }
+.theory h2.t-h1 { font-size: 1.45rem; color: #1f3b73; margin: 28px 0 8px; border-bottom: 2px solid var(--line); padding-bottom: 4px; }
+.theory h3.t-h2 { font-size: 1.15rem; color: #1f3b73; margin: 20px 0 6px; }
+.theory p, .theory li { line-height: 1.55; }
+.theory code { background: #eef1f5; border-radius: 4px; padding: 1px 5px; font-family: ui-monospace, "Consolas", monospace; font-size: 0.95em; }
+.t-box { border-left: 6px solid var(--accent); background: #f3f6fa; border-radius: 6px; padding: 8px 14px; margin: 8px 0; }
+.t-box .lbl { font-weight: 700; font-size: 0.85rem; margin-bottom: 2px; }
+.t-box pre { margin: 0; font: 500 1rem/1.5 ui-monospace, "Consolas", "Courier New", monospace; white-space: pre; overflow-x: auto; }
+.t-box.out { border-left-color: var(--ok); background: #eaf6ee; }
+.t-box.inp { border-left-color: #b5520f; background: #fff8e6; }
+.t-pair { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+@media (max-width: 700px) { .t-pair { grid-template-columns: 1fr; } }
+.t-table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.95rem; }
+.t-table th, .t-table td { border: 1px solid #c7cfda; padding: 5px 8px; text-align: left; vertical-align: top; white-space: pre-wrap; }
+.t-table th { background: #e3eaf6; }
+.theory-end { margin-top: 28px; padding: 16px; border-radius: 10px; background: #eef4ff; border: 1px solid #c9d8f5; }
+
+.nav-groups { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 6px; }
+.nav-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.nav-groups .nav { margin: 0; }
+.nav-btn.answered { background: #dbe8ff; border-color: #9dbcf5; }
+.lvl { display: inline-block; font-weight: 700; padding: 1px 8px; border-radius: 999px; font-size: 0.85rem; margin-left: 6px; }
+.lvl-A { background: #e8f5ec; color: #1a7f37; } .lvl-B { background: #fff4d6; color: #8a5a00; } .lvl-C { background: #fdecec; color: #a52222; }
+
+.choices { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.choice { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; cursor: pointer; }
+.choice:has(input:checked) { border-color: var(--accent); background: #eef4ff; }
+.choice input { margin-top: 5px; width: 18px; height: 18px; flex: none; }
+.choice .letter { font-weight: 800; color: var(--accent); min-width: 1.4em; }
+.choice .opt { white-space: pre-wrap; }
+.choice .opt.mono { font-family: ui-monospace, "Consolas", monospace; white-space: pre; }
+.match { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.match-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.match-left { min-width: 190px; }
+.match-left code { font-size: 1.1rem; font-weight: 700; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+.match select { font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; background: #fff; min-width: 260px; max-width: 100%; }
+.saved { color: var(--accent); }
+
+.parts { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+.part { border: 1px solid var(--line); border-radius: 10px; padding: 10px 18px; text-align: center; background: var(--bg); }
+.part span { display: block; color: var(--muted); }
+.part b { font-size: 1.6rem; }
+.rv-opts { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.rv-opts li { display: flex; gap: 10px; padding: 6px 10px; border-radius: 8px; }
+.rv-opts li .opt { white-space: pre-wrap; }
+.rv-opts.mono li .opt { font-family: ui-monospace, "Consolas", monospace; white-space: pre; }
+.rv-opts li.right { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+.rv-opts li.wrong { background: var(--bad-bg); color: var(--bad); }
+.rv-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.rv-table th, .rv-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+.rv-table th { background: var(--bg); }
+.rv-table td.right { color: var(--ok); background: var(--ok-bg); }
+.rv-table td.wrong { color: var(--bad); background: var(--bad-bg); }
+
+/* Разбор вариантов: буква отдельно, код ровным блоком, пометка отдельной строкой */
+.rv-opts li { align-items: flex-start; }
+.rv-opts li .letter { font-weight: 800; min-width: 1.6em; }
+.rv-opt-body { display: flex; flex-direction: column; gap: 4px; }
+.rv-tag { display: inline-block; align-self: flex-start; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 0.85rem; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: #fff; border: 1px solid currentColor; }
+.hint { background: #fff4d6; border-radius: 8px; padding: 8px 12px; color: #6b4a00; margin: 6px 0; }
+.rv-cols.one { grid-template-columns: minmax(0, 1fr); }
+.rv-note { margin: 10px 0 4px; font-weight: 600; color: var(--muted); }
+
+.center-buttons { justify-content: center; }
+.part small { display: block; font-size: 0.85rem; }
+.rv-theory { margin: 8px 0 0; color: #8a5a00; background: #fff4d6; border-radius: 8px; padding: 6px 10px; }
+.rv-given { background: var(--bg); border-radius: 8px; padding: 8px 12px; margin: 6px 0 0; white-space: pre-wrap; font-family: inherit; }
+.rv-given.mono { font-family: ui-monospace, "Consolas", monospace; }
+
+/* Переключатель языка ҚАЗ / РУС — всегда виден */
+.lang-switch { position: fixed; top: 10px; right: 12px; z-index: 1001; display: flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.lang-switch button { border: 0; border-radius: 0; padding: 6px 14px; font-weight: 800; background: #fff; color: var(--accent); }
+.lang-switch button.on { background: var(--accent); color: #fff; }
+.lang-switch .lang-label { align-self: center; padding: 6px 10px 6px 14px; font-size: 0.85rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.lang-note { background: #e7eefb; }
+html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
+
+/* Окно после нарушения: вернуться в полноэкранный режим */
+.back-fs {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(20, 33, 61, 0.72);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.back-fs[hidden] { display: none; }
+.back-box {
+  max-width: 560px; width: 100%;
+  background: var(--card); border: 3px solid var(--bad); border-radius: 12px; padding: 24px;
+  text-align: center;
+}
+.back-box h2 { color: var(--bad); margin-top: 0; }
+.back-box p { font-size: 1.1rem; }
+
+/* Кнопка режима «Латиница» над редактором кода */
+.code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.kbd-btn { padding: 4px 12px; font-size: 0.9rem; border-radius: 999px; }
+.kbd-btn.on { background: #e7eefb; border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+/* ===== 9.1.3.5: тапсырма түрлері ===== */
+.lang-switch button { cursor: pointer; }
+.work-buttons { align-items: center; }
+button.link { border: 0; background: none; color: var(--accent); text-decoration: underline; padding: 8px 6px; }
+button.danger-outline { border-color: var(--bad); color: var(--bad); }
+.lead { font-weight: 600; margin: 4px 0 12px; }
+.counter { display: inline-block; font-weight: 700; color: var(--accent); background: #e7eefb; border-radius: 999px; padding: 2px 12px; margin: 0 0 10px; }
+select { font: inherit; padding: 6px 8px; border: 2px solid var(--line); border-radius: 8px; background: #fff; max-width: 100%; }
+select:focus { outline: none; border-color: var(--accent); }
+
+/* сәйкестендіру */
+.match { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.match-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.match-row .term { font-weight: 700; }
+.defs { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.defs li { padding: 6px 10px; border-left: 4px solid var(--accent); background: #f3f6fa; border-radius: 6px; }
+
+/* бос орын */
+.fill-text { font-size: 1.15rem; line-height: 2.4; }
+.fill-sel { margin: 0 4px; font-weight: 700; color: var(--accent); }
+.fill-sel.empty { color: var(--muted); border-style: dashed; }
+
+/* ақиқат/жалған, топтастыру */
+.tf-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; }
+.tf-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tf-text.mono { font-family: ui-monospace, "Consolas", monospace; font-weight: 600; }
+.seg { display: inline-flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; flex: none; }
+.seg-btn { border: 0; border-radius: 0; padding: 6px 14px; color: var(--accent); background: #fff; font-weight: 600; font-size: 0.95rem; }
+.seg-btn + .seg-btn { border-left: 2px solid var(--accent); }
+.seg-btn.on { background: var(--accent); color: #fff; }
+@media (max-width: 640px) { .tf-row, .match-row { flex-direction: column; align-items: stretch; } .seg { align-self: flex-end; } }
+
+/* хат және чат */
+.mail, .chatlog { border: 2px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+.mail-head { background: #eef1f5; padding: 8px 14px; font-weight: 700; color: var(--muted); }
+.mail-part { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 10px 14px; background: #fff; }
+.mail-part:hover, .chat-msg:hover { background: #f6f8fb; }
+.mail-part.marked, .chat-msg.marked { background: var(--bad-bg); box-shadow: inset 6px 0 0 var(--bad); color: var(--bad); font-weight: 600; }
+.chatlog { background: #eef3f8; }
+.chat-msg { display: block; width: calc(100% - 24px); margin: 10px 12px; text-align: left; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; background: #fff; }
+.chat-meta { display: block; font-size: 0.85rem; color: var(--muted); }
+.chat-meta b { color: var(--accent); }
+.chat-text { display: block; }
+.bubble { max-width: 80%; margin: 10px 12px; padding: 8px 12px; border-radius: 14px; }
+.bubble.in { background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.bubble.out { margin-left: auto; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.chat-opts { display: flex; flex-direction: column; gap: 6px; margin: 4px 12px 12px; align-items: flex-end; }
+.chat-opt { text-align: left; border: 2px solid var(--accent); color: var(--accent); background: #fff; border-radius: 14px; padding: 8px 12px; max-width: 85%; }
+.chat-opt.on { background: #dbe8ff; font-weight: 700; }
+
+/* ретке келтіру */
+.order { list-style: none; padding: 0; margin: 4px 0; display: flex; flex-direction: column; gap: 8px; }
+.order-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.order-n { font-weight: 700; color: var(--muted); width: 1.5em; }
+.order-text { flex: 1; font: 700 1.15rem/1.3 ui-monospace, "Consolas", monospace; overflow-wrap: anywhere; }
+.order-btn { padding: 6px 14px; font-weight: 700; }
+.order-end { margin: 4px 0; }
+
+/* жағдаят */
+.case { background: #fff8e6; border-left: 6px solid #b5520f; border-radius: 8px; padding: 10px 14px; margin: 6px 0 12px; }
+.check { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin-top: 3px; flex: none; }
+.check.on { border-color: var(--accent); background: #eef4ff; }
+
+/* нәтиже */
+.r-table { margin: 16px auto 0; max-width: 640px; }
+.res { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.res th, .res td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+.res th { background: var(--bg); }
+.res td:last-child { white-space: nowrap; font-weight: 700; }
+.res tr.ok td:last-child { color: var(--ok); background: var(--ok-bg); }
+.res tr.bad td:last-child { color: var(--bad); background: var(--bad-bg); }
+.res tr.mid td:last-child { background: var(--warn-bg); }
+.rv-card { border: 2px solid var(--line); border-left-width: 8px; border-radius: 10px; padding: 12px 16px; }
+.rv-card.ok { border-left-color: var(--ok); }
+.rv-card.bad { border-left-color: var(--bad); }
+.rv-card.mid { border-left-color: #e9a23b; }
+.rv-card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+.rv-line { padding: 6px 8px; border-radius: 6px; margin-bottom: 4px; }
+.rv-line.ok { background: var(--ok-bg); }
+.rv-line.bad { background: var(--bad-bg); }
+.rv-line.hot { box-shadow: inset 4px 0 0 var(--bad); }
+.rv-ok { color: var(--ok); font-weight: 800; }
+.rv-bad { color: var(--bad); font-weight: 800; }
+.rv-why { color: var(--muted); font-size: 0.92rem; margin-top: 2px; }
+.rv-card .bubble { max-width: 100%; margin: 8px 0 4px; }
+.chat-change { font-size: 0.85rem; padding: 0 4px; }
+
+/* ===== Қосымша деңгей және ашық жауаптар ===== */
+.bonus-box { margin-top: 20px; padding: 16px 18px; border: 2px solid #e9a23b; border-radius: 12px; background: #fffaf0; }
+.bonus-box h2 { margin-top: 0; color: #9a5b00; }
+.bonus-badge { display: inline-block; background: #fff1d6; color: #9a5b00; font-weight: 700; border-radius: 999px; padding: 4px 12px; margin: 0 0 6px; }
+.stars { font-size: 1.6rem; font-weight: 800; color: #9a5b00; margin: 8px 0; }
+.bonus-att { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; margin: 8px 0; background: #fff; }
+.bonus-att summary { font-weight: 700; cursor: pointer; }
+.bonus-att .rv-card { margin-top: 10px; }
+.bubble.rude { background: var(--bad-bg); border-color: #eea5a5; color: var(--bad); font-weight: 700; max-width: 100%; margin: 8px 0 12px; }
+.crit { background: #f3f6fa; border-radius: 8px; padding: 8px 14px; margin-bottom: 10px; font-size: 0.95rem; }
+.crit ul { margin: 6px 0 0; padding-left: 20px; }
+.answer-text { width: 100%; font: inherit; line-height: 1.5; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; resize: vertical; }
+.answer-text:focus { outline: none; border-color: var(--accent); }
+.student-text { white-space: pre-wrap; background: #fff; border: 1px dashed var(--line); border-radius: 8px; padding: 8px 12px; margin: 6px 0; }
+.ai-feedback { background: #eef4ff; border-left: 4px solid var(--accent); border-radius: 6px; padding: 8px 12px; margin-top: 8px; }
+
+.teacher-fix { margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--line); }
+.teacher-fix .row input { width: 180px; }
+.teacher-mark { font-weight: 700; color: #9a5b00; margin: 4px 0; }
+
+/* ===== Саналы оқу ===== */
+.tc { margin: 18px 0 8px; padding: 12px 16px; border: 2px dashed #7aa7f0; border-radius: 12px; background: #f2f7ff; }
+.tc.done { border-style: solid; border-color: #9fd3b0; background: var(--ok-bg); }
+.tc-head { font-weight: 800; color: var(--accent); margin: 0 0 4px; }
+.tc-q { font-weight: 600; margin: 4px 0 8px; }
+.tc-opt { display: block; width: 100%; text-align: left; margin: 6px 0; padding: 8px 12px; }
+.tc-opt.right { border-color: var(--ok); color: var(--ok); font-weight: 700; opacity: 1; }
+.tc-opt.wrong { border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.tc-fb { margin: 6px 0 0; font-weight: 600; }
+.tc-fb.ok { color: var(--ok); }
+.tc-fb.bad { color: var(--bad); }
+.read-text { background: #fffdf5; border: 1px solid #ead9a8; border-radius: 10px; padding: 12px 16px; line-height: 1.6; margin: 6px 0 14px; }
+.read-text.small { font-size: 0.92rem; }
+.read-q { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+.lv { display: inline-block; font-size: 0.8rem; font-weight: 700; color: #6b4ea8; background: #f0eafb; border-radius: 999px; padding: 2px 10px; }
+#tc-progress:empty { display: none; }
+
+/* ===== INSERT белгілері ===== */
+.ins-block { border-left: 4px solid transparent; padding-left: 8px; transition: background 0.2s; }
+.ins-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 2px 0 14px 12px; }
+.ins-bar.mini { display: inline-flex; gap: 4px; margin: 0 0 0 8px; vertical-align: middle; }
+.ins-bar.mini .ins-btn { padding: 0 8px; min-width: 28px; font-weight: 700; line-height: 1.5; }
+li.ins-block { margin-bottom: 6px; border-radius: 4px; }
+.ins-label { font-size: 0.8rem; color: var(--muted); }
+.ins-btn { font-size: 0.8rem; padding: 3px 10px; border-radius: 999px; }
+.ins-btn.on { color: #fff; font-weight: 700; }
+.ins-btn.ins-v.on { background: var(--ok); border-color: var(--ok); }
+.ins-btn.ins-n.on { background: var(--accent); border-color: var(--accent); }
+.ins-btn.ins-d.on { background: #b5520f; border-color: #b5520f; }
+.ins-btn.ins-q.on { background: #8b3fb0; border-color: #8b3fb0; }
+.ins-btn.ins-p.on { background: #0f7f86; border-color: #0f7f86; }
+.ins-block.mark-p { border-left-color: #0f7f86; background: #effafa; }
+.ins-block.mark-v { border-left-color: var(--ok); }
+.ins-block.mark-n { border-left-color: var(--accent); background: #f2f7ff; }
+.ins-block.mark-d { border-left-color: #b5520f; background: #fff7ef; }
+.ins-block.mark-q { border-left-color: #8b3fb0; background: #f8f0fc; }
+.ins-res { max-width: 640px; margin: 12px auto 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.ins-res p { margin: 4px 0; }
+
+/* Жеке талдау */
+.analysis { max-width: 720px; margin: 20px auto 0; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.analysis h2 { margin: 4px 0 10px; }
+.analysis h3 { margin: 14px 0 6px; font-size: 1.05rem; }
+.an-obj { width: 100%; }
+.an-row { display: grid; grid-template-columns: minmax(150px, 1.4fr) 2fr 48px; gap: 4px 10px; align-items: center; margin: 6px 0; }
+.an-tasks { grid-column: 1 / -1; margin-top: -4px; }
+.an-bar { height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.an-fill { display: block; height: 100%; border-radius: 6px; }
+.an-hi .an-fill { background: var(--ok); }
+.an-mid .an-fill { background: #d39a00; }
+.an-lo .an-fill { background: #c0392b; }
+.an-pct { font-weight: 700; text-align: right; }
+.an-sw { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.an-col ul { margin: 4px 0; padding-left: 20px; }
+.an-h { font-weight: 700; margin: 0; }
+@media (max-width: 600px) { .an-sw { grid-template-columns: 1fr; } }
+.an-final { margin-top: 16px; padding: 12px; border-top: 2px solid var(--line); text-align: center; }
+.an-final p { margin: 2px 0; }
+.an-final-h { font-weight: 700; font-size: 1.1rem; }
+.an-final-num { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
+.score-wrap { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 40px; margin-top: 8px; }
+.score-main { text-align: center; }
+.score-main .score { margin-top: 8px; }
+.r-ten { font-size: 1.4rem; font-weight: 700; color: var(--accent); margin: 6px 0 0; text-align: center; }
+.scale { font-size: 0.85rem; }
+.scale-h { margin: 0 0 4px; font-weight: 700; text-align: center; color: var(--muted); }
+.scale-t { border-collapse: collapse; }
+.scale-t th, .scale-t td { border: 1px solid var(--line); padding: 2px 12px; text-align: center; }
+.scale-t th { background: var(--bg); }
+.scale-t tr.on td { background: var(--accent); color: #fff; font-weight: 700; }
+.r-calc { display: block; font-size: 0.95rem; font-weight: 400; color: var(--muted); margin-top: 4px; }
+
+/* ===== 8.2.1.2: санау жүйелерінде қосу және азайту ===== */
+.theory .t-title { font-size: 1.6rem; margin: 0 0 6px; }
+.theory .t-sub { color: var(--muted); margin-top: 0; }
+.theory .t-h1 { font-size: 1.3rem; margin: 28px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--line); color: #1d3b7a; }
+.t-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
+.num16 { width: auto; font: 500 0.95rem/1.3 ui-monospace, "Consolas", monospace; }
+.num16 th, .num16 td { padding: 2px 10px; text-align: right; white-space: nowrap; }
+.rule li { margin-bottom: 4px; }
+.example { border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #fafcff; }
+.ex-title { font-weight: 700; margin: 0 0 6px; }
+.ex-body { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: flex-start; }
+.steps-list { margin: 0; padding-left: 22px; font-size: 0.95rem; flex: 1; min-width: 260px; }
+.check { color: var(--ok); font-size: 0.95rem; margin: 6px 0 0; }
+.colcalc { border-collapse: collapse; font: 600 1.35rem/1.25 ui-monospace, "Consolas", "Courier New", monospace; }
+.colcalc td { width: 1.15em; text-align: center; padding: 0 1px; }
+.colcalc td.op { color: var(--muted); }
+.colcalc td.q { font-size: 0.8rem; color: var(--muted); text-align: left; width: auto; padding-left: 2px; }
+.colcalc tr.marks td { font-size: 0.85rem; color: #c2410c; height: 1.1em; }
+.colcalc tr.res td { border-top: 2px solid var(--text); }
+.colcalc tr.res td.op, .colcalc tr.res td.q { border-top: 0; }
+@media (max-width: 600px) { .t-row { grid-template-columns: 1fr; } }
+
+.nav-group { margin-bottom: 8px; }
+.nav-group .nav { margin: 0; }
+.nav-btn.half { background: var(--warn-bg); border-color: #e9c46a; }
+.nav-btn.star { min-width: 52px; }
+.task-head h2 { margin: 2px 0 8px; font-size: 1.35rem; }
+.task-no { font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.expr { font: 700 1.7rem/1.4 system-ui, "Segoe UI", Arial, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; margin: 8px 0 16px; padding: 12px 16px; background: #f3f6fa; border-radius: 10px; overflow-x: auto; }
+.expr.small-expr { font-size: 1.15rem; padding: 6px 12px; margin: 4px 0 8px; }
+.fields { display: flex; flex-direction: column; gap: 12px; }
+.field { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.f-label { min-width: 180px; font-weight: 600; }
+.ans { font: 700 1.6rem/1.2 ui-monospace, "Consolas", monospace; letter-spacing: 0.08em; padding: 8px 12px; width: 260px; max-width: 100%; border: 2px solid var(--line); border-radius: 8px; text-transform: uppercase; }
+.ans:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px #dbe8ff; }
+.f-sub { font: 700 1.2rem ui-monospace, monospace; color: var(--muted); }
+.pad { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.key { min-width: 48px; padding: 8px 0; font: 700 1.2rem ui-monospace, monospace; }
+.key.wide { min-width: 72px; }
+.choices button.choice { text-align: left; font: inherit; font-size: 1.2rem; letter-spacing: 0.02em; }
+.choices button.choice.on { border-color: var(--accent); background: #eef4ff; }
+.cmp { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 18px; padding: 16px; background: #f3f6fa; border-radius: 10px; }
+.cmp-side { font: 700 1.5rem system-ui, "Segoe UI", Arial, sans-serif; letter-spacing: 0.03em; }
+.cmp-signs { display: flex; gap: 8px; }
+.sign { min-width: 64px; font: 800 1.6rem ui-monospace, monospace; padding: 8px 0; }
+.sign.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.star-line { text-align: center; font-size: 1.2rem; font-weight: 700; color: #8a5a00; background: #fff4d6; border-radius: 10px; padding: 8px 12px; max-width: 520px; margin: 8px auto 0; }
+.rv-card.mid { border-left-color: #e9a23b; }
+.rv-card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.rv-line { margin: 4px 0; }
+.rv-ok { color: var(--ok); font-weight: 800; }
+.rv-bad { color: var(--bad); font-weight: 800; }
+.rv-sol summary { cursor: pointer; color: var(--accent); font-weight: 600; margin-top: 6px; }
+.sol { padding: 8px 0 0; }
+.sol p { margin: 4px 0; }
+.review { display: flex; flex-direction: column; gap: 12px; }
+.no-back { background: var(--bad-bg); color: var(--bad); border-radius: 8px; padding: 8px 12px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><span class="lang-label">Тіл / Язык</span><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div id="timers" class="timers" hidden>
+    <div class="timer"><span><span class="lang-kz">Жұмыстың аяқталуына</span><span class="lang-ru">До конца работы</span></span><b id="tm"></b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">Жүктелуде… / Загрузка…</p></section>
+
+    <section id="s-gate" hidden>
+      <h1><span class="lang-kz">Формативтік жұмыс: санау жүйелерінде қосу және азайту</span><span class="lang-ru">Формативная работа: сложение и вычитание в системах счисления</span></h1>
+      <p class="topic"><span class="lang-kz">8.2.1.2 — екілік, сегіздік және он алтылық санау жүйелерінде арифметикалық амалдарды орындау</span><span class="lang-ru">8.2.1.2 — выполнять арифметические операции в двоичной, восьмеричной и шестнадцатеричной системах счисления</span></p>
+      <p class="steps"><span class="lang-kz"><b>1. Теория</b> → 2. Тапсырмалар → 3. Нәтиже және талдау</span><span class="lang-ru"><b>1. Теория</b> → 2. Задания → 3. Результат и разбор</span></p>
+      <p class="note"><span class="lang-kz">Бүкіл жұмыс, теорияны оқуды қоса алғанда, <b>толық экран режимінде</b> жүреді. Одан шығуға, басқа қойындыға, терезеге немесе қосымшаға ауысуға және бетті қайта жүктеуге болмайды. Алғашқы екі бұзушылыққа ескерту шығады, <b>үшіншісінен</b> кейін жұмыс аяқталады.</span><span class="lang-ru">Вся работа, включая чтение теории, идёт в <b>полноэкранном режиме</b>. Нельзя выходить из него, переключаться на другую вкладку, окно или приложение и перезагружать страницу. За первые два нарушения появится предупреждение, после <b>третьего</b> работа завершится.</span></p>
+      <p class="note lang-note"><span class="lang-kz">Тілді кез келген уақытта ауыстыруға болады: жоғарғы оң жақ бұрыштағы <b>ҚАЗ / РУС</b> батырмалары. Жауаптар сақталады.</span><span class="lang-ru">Язык можно сменить в любой момент: кнопки <b>ҚАЗ / РУС</b> в правом верхнем углу. Ответы сохраняются.</span></p>
+      <div class="buttons"><button id="b-gate" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
+    </section>
+
+    <section id="s-theory" class="theory" hidden>
+      <p class="steps"><span class="lang-kz"><b>1. Теория</b> → 2. Тапсырмалар → 3. Нәтиже</span><span class="lang-ru"><b>1. Теория</b> → 2. Задания → 3. Результат</span></p>
+      <div class="lang-kz" id="theory-kz"></div>
+      <div class="lang-ru" id="theory-ru"></div>
+      <div class="theory-end">
+        <p class="no-back"><span class="lang-kz">Теорияны мұқият оқыңыз: жұмыс басталғаннан кейін теорияға қайтуға болмайды.</span><span class="lang-ru">Читайте теорию внимательно: после начала работы вернуться к теории будет нельзя.</span></p>
+        <button id="b-to-intro" class="primary big"><span class="lang-kz">Жұмысқа өту →</span><span class="lang-ru">Перейти к работе →</span></button>
+      </div>
+    </section>
+
+    <section id="s-intro" hidden>
+      <h1><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h1>
+      <ul class="rules">
+        <li class="lang-kz"><b>10 негізгі тапсырма</b>, әрқайсысы — <b>1 балл</b> (барлығы 10 балл): екілік, сегіздік, он алтылық жүйеде қосу және азайту, дұрыс жауапты табу, жасырын цифр, әр түрлі жүйедегі сандар, салыстыру.</li>
+        <li class="lang-ru"><b>10 основных заданий</b>, каждое — <b>1 балл</b> (всего 10 баллов): сложение и вычитание в двоичной, восьмеричной, шестнадцатеричной системах, поиск верного ответа, скрытая цифра, числа в разных системах, сравнение.</li>
+        <li class="lang-kz"><b>★ Қосымша тапсырма — 6 балл</b>: үш күрделі есеп, әрқайсысында екі жауап (әр жауап — 1 балл). Оның балы бөлек көрсетіледі.</li>
+        <li class="lang-ru"><b>★ Дополнительное задание — 6 баллов</b>: три сложные задачи, в каждой два ответа (каждый — 1 балл). Его баллы показываются отдельно.</li>
+        <li class="lang-kz">Жұмысқа — <b><span class="i-min"></span> минут</b>. Тапсырмалар арасында еркін ауысуға болады, жауаптар өзі сақталады. Уақыт біткенде жұмыс өзі тапсырылады.</li>
+        <li class="lang-ru">На работу — <b><span class="i-min"></span> минут</b>. Между заданиями можно свободно переходить, ответы сохраняются сами. Когда время выйдет, работа сдастся сама.</li>
+        <li class="lang-kz">Жауапты өріске жазыңыз (санның индексін жазудың қажеті жоқ). A–F әріптері пернетақтаның тіліне қарамай латынша жазылады. Есептеулерді дәптерде жасаңыз.</li>
+        <li class="lang-ru">Ответ впишите в поле (индекс основания писать не нужно). Буквы A–F пишутся латиницей при любой раскладке. Вычисления делайте в тетради.</li>
+        <li class="lang-kz">Әр оқушының тапсырмалары әр түрлі.</li>
+        <li class="lang-ru">У каждого ученика свои задания.</li>
+        <li class="important lang-kz">Жұмыс басталғаннан кейін теорияға қайтуға болмайды.</li>
+        <li class="important lang-ru">После начала работы вернуться к теории нельзя.</li>
+        <li class="important lang-kz">Толық экран режимінен шығу, басқа терезеге ауысу, бетті қайта жүктеу — ереже бұзу. Алғашқы екеуіне ескерту, үшіншісінен кейін жұмыс аяқталады.</li>
+        <li class="important lang-ru">Выход из полноэкранного режима, переключение окна, перезагрузка страницы — нарушение. За первые два — предупреждение, после третьего работа завершится.</li>
+      </ul>
+      <div class="buttons">
+        <button id="b-back-theory"><span class="lang-kz">← Теорияны қайта оқу</span><span class="lang-ru">← Ещё раз прочитать теорию</span></button>
+        <button id="b-start" class="primary big"><span class="lang-kz">Жұмысты бастау</span><span class="lang-ru">Начать работу</span></button>
+      </div>
+    </section>
+
+    <section id="s-work" hidden>
+      <div id="nav"></div>
+      <div id="task"></div>
+      <div class="buttons work-buttons">
+        <button id="b-prev">← <span class="lang-kz">Артқа</span><span class="lang-ru">Назад</span></button>
+        <button id="b-next" class="primary"><span class="lang-kz">Келесі</span><span class="lang-ru">Далее</span> →</button>
+        <span class="spacer"></span>
+        <button id="b-finish" class="danger-outline"><span class="lang-kz">Жұмысты тапсыру</span><span class="lang-ru">Сдать работу</span></button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p id="m-confirm-text"></p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger"><span class="lang-kz">Иә, тапсырамын</span><span class="lang-ru">Да, сдать</span></button>
+          <button id="b-finish-no"><span class="lang-kz">Жоқ, жалғастырамын</span><span class="lang-ru">Нет, продолжить</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
+      <p id="r-reason" class="note" hidden></p>
+      <p class="score"><span id="r-score" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
+      <p id="r-star" class="star-line"></p>
+      <div id="r-table" class="r-table"></div>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center"></p>
+      <h2><span class="lang-kz">Тапсырмаларды талдау</span><span class="lang-ru">Разбор заданий</span></h2>
+      <div id="r-review" class="review"></div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <div id="m-back" class="back-fs" role="alertdialog" aria-modal="true" hidden>
+    <div class="back-box">
+      <h2><span class="lang-kz">Назар аударыңыз! Ереже бұзылды</span><span class="lang-ru">Внимание! Нарушение</span></h2>
+      <p id="m-back-text"></p>
+      <button id="b-back-fs" class="primary big"><span class="lang-kz">Толық экран режиміне оралу</span><span class="lang-ru">Вернуться в полноэкранный режим</span></button>
+    </div>
+  </div>
+
+<script>
+/* 8.2.1.2 «Позициялық санау жүйелерінде қосу және азайту»: теория, тапсырмаларды жасау (seed бойынша), тексеру.
+ * Барлық жауап есептеледі, қолмен жазылмайды. K(kz, ru) — екі тілдегі мәтін. */
+(function () {
+  'use strict';
+  function K(kz, ru) { return { kz: kz, ru: ru }; }
+  var SUBD = '₀₁₂₃₄₅₆₇₈₉';
+  function sub(q) { return String(q).split('').map(function (d) { return SUBD[+d]; }).join(''); }
+  function B(n, q) { return n.toString(q).toUpperCase(); }
+  function V(s, q) { return parseInt(s, q); }
+  function N(s, q) { return s + sub(q); }                       // 1011₂
+  function dv(c) { return parseInt(c, 36); }                    // цифрдың мәні (A = 10)
+  function dname(c) { var v = dv(c); return v >= 10 ? c + '(' + v + ')' : c; }
+
+  // ---------- Бағанмен қосу/азайту: кесте және қадамдар ----------
+  function columnData(a, b, q, op) {
+    var A = B(a, q), Bs = B(b, q), R = B(op === '+' ? a + b : a - b, q);
+    var w = Math.max(A.length, Bs.length, R.length);
+    var pad = function (s) { while (s.length < w) s = ' ' + s; return s; };
+    var Ap = pad(A), Bp = pad(Bs), Rp = pad(R), marks = [], steps = [], c = 0;
+    for (var k = 0; k < w; k++) marks.push(' ');
+    for (var i = w - 1, n = 1; i >= 0; i--, n++) {
+      var da = Ap[i] === ' ' ? 0 : dv(Ap[i]), db = Bp[i] === ' ' ? 0 : dv(Bp[i]);
+      if (Ap[i] === ' ' && Bp[i] === ' ' && c === 0) break;
+      if (op === '+') {
+        var s = da + db + c, parts = [dname(Ap[i] === ' ' ? '0' : Ap[i]), dname(Bp[i] === ' ' ? '0' : Bp[i])];
+        if (c) parts.push('1');
+        if (Ap[i] === ' ' && Bp[i] === ' ') {
+          steps.push(K(n + '-разряд: ойдағы 1-ді жазамыз.', n + '-й разряд: записываем единицу из «в уме».'));
+          break;
+        }
+        var lhs = parts.join(' + ') + ' = ' + s;
+        if (s >= q) {
+          steps.push(K(n + '-разряд: ' + lhs + ' ≥ ' + q + ' → ' + s + ' − ' + q + ' = ' + (s - q) + ', ' + B(s - q, q) + ' жазамыз, 1 ойда',
+                       n + '-й разряд: ' + lhs + ' ≥ ' + q + ' → ' + s + ' − ' + q + ' = ' + (s - q) + ', пишем ' + B(s - q, q) + ', 1 в уме'));
+          if (i > 0) marks[i - 1] = '1';
+          c = 1;
+        } else {
+          steps.push(K(n + '-разряд: ' + lhs + ' < ' + q + ' → ' + B(s, q) + ' жазамыз', n + '-й разряд: ' + lhs + ' < ' + q + ' → пишем ' + B(s, q)));
+          c = 0;
+        }
+      } else {
+        if (Ap[i] === ' ') break;
+        var Bd = dname(Bp[i] === ' ' ? '0' : Bp[i]), x = da - c, top = dname(Ap[i]) + (c ? ' − 1' : '');
+        if (x < db) {
+          var d = da + q - c - db, ex = da + ' + ' + q + (c ? ' − 1' : '') + ' − ' + db + ' = ' + d;
+          steps.push(K(n + '-разряд: ' + top + ' < ' + Bd + ' → сол жақтан 1 қарызға аламыз: ' + ex + ' → ' + B(d, q),
+                       n + '-й разряд: ' + top + ' < ' + Bd + ' → занимаем 1 слева: ' + ex + ' → ' + B(d, q)));
+          if (i > 0) marks[i - 1] = '•';
+          c = 1;
+        } else {
+          var e2 = top + ' − ' + Bd + ' = ' + (x - db);
+          steps.push(K(n + '-разряд: ' + e2 + ' → ' + B(x - db, q), n + '-й разряд: ' + e2 + ' → ' + B(x - db, q)));
+          c = 0;
+        }
+      }
+    }
+    return { a: Ap, b: Bp, r: Rp, marks: marks.join(''), op: op, q: q, steps: steps, R: R };
+  }
+  // HTML: бағанмен жазу (ойдағы бір / қарызға алу белгілері жоғарыда)
+  function columnHTML(a, b, q, op) {
+    var d = columnData(a, b, q, op), w = d.a.length;
+    var row = function (cls, first, s) {
+      var h = '<tr class="' + cls + '"><td class="op">' + first + '</td>';
+      for (var i = 0; i < w; i++) h += '<td>' + (s[i] === ' ' ? '' : s[i]) + '</td>';
+      return h + '<td class="q">' + sub(q) + '</td></tr>';
+    };
+    var marks = row('marks', '', d.marks).replace('<td class="q">' + sub(q) + '</td>', '<td class="q"></td>');
+    return '<table class="colcalc">' + marks + row('', '', d.a) + row('', op === '+' ? '+' : '−', d.b) + row('res', '', d.r) + '</table>';
+  }
+  function stepsHTML(a, b, q, op, lang) {
+    return '<ol class="steps-list">' + columnData(a, b, q, op).steps.map(function (s) { return '<li>' + s[lang] + '</li>'; }).join('') + '</ol>';
+  }
+  function decCheck(a, b, q, op, lang) {
+    var r = op === '+' ? a + b : a - b;
+    return (lang === 'kz' ? 'Тексеру: ' : 'Проверка: ') + N(B(a, q), q) + ' = ' + a + ', ' + N(B(b, q), q) + ' = ' + b + '; ' + a + ' ' + (op === '+' ? '+' : '−') + ' ' + b + ' = ' + r + ' = ' + N(B(r, q), q) + ' ✔';
+  }
+
+  // ---------- Теория ----------
+  function example(lang, title, a, b, q, op) {
+    return '<div class="example"><p class="ex-title">' + title + ': ' + N(B(a, q), q) + ' ' + (op === '+' ? '+' : '−') + ' ' + N(B(b, q), q) + '</p>' +
+      '<div class="ex-body">' + columnHTML(a, b, q, op) + stepsHTML(a, b, q, op, lang) + '</div><p class="check">' + decCheck(a, b, q, op, lang) + '</p></div>';
+  }
+  function table16() {
+    var h = '<table class="t-table num16"><tr><th>10</th><th>2</th><th>8</th><th>16</th></tr>';
+    for (var n = 0; n <= 16; n++) h += '<tr><td>' + n + '</td><td>' + B(n, 2) + '</td><td>' + B(n, 8) + '</td><td>' + B(n, 16) + '</td></tr>';
+    return h + '</table>';
+  }
+  function theory(lang) {
+    var kz = lang === 'kz', t = function (a, b) { return kz ? a : b; };
+    var h = [];
+    h.push('<h1 class="t-title">' + t('Позициялық санау жүйелерінде қосу және азайту', 'Сложение и вычитание в позиционных системах счисления') + '</h1>');
+    h.push('<p class="t-sub">8.2.1.2 — ' + t('екілік, сегіздік және он алтылық санау жүйелерінде арифметикалық амалдарды орындау', 'выполнять арифметические операции в двоичной, восьмеричной и шестнадцатеричной системах счисления') + '</p>');
+
+    h.push('<h2 class="t-h1">1. ' + t('Еске түсірейік', 'Вспомним') + '</h2>');
+    h.push('<p>' + t('Санау жүйесінің <b>негізі q</b> — қолданылатын цифрлар саны. Цифрлар: 0-ден q − 1-ге дейін. Екілік жүйеде — 0 және 1, сегіздікте — 0…7, он алтылықта — 0…9 және A = 10, B = 11, C = 12, D = 13, E = 14, F = 15.',
+      '<b>Основание q</b> системы счисления — количество используемых цифр. Цифры: от 0 до q − 1. В двоичной — 0 и 1, в восьмеричной — 0…7, в шестнадцатеричной — 0…9 и A = 10, B = 11, C = 12, D = 13, E = 14, F = 15.') + '</p>');
+    h.push('<div class="t-row">' + table16() + '<div><p>' + t('Санның негізі оның оң жағында төменгі индекспен жазылады: 1011₂, 657₈, 3AF₁₆.', 'Основание записывают нижним индексом справа от числа: 1011₂, 657₈, 3AF₁₆.') + '</p>' +
+      '<p>' + t('Ондық жүйеге аудару: әр цифрды негіздің дәрежесіне көбейтіп қосамыз. Мысалы, 657₈ = 6·64 + 5·8 + 7 = 431.', 'Перевод в десятичную: каждую цифру умножаем на степень основания и складываем. Например, 657₈ = 6·64 + 5·8 + 7 = 431.') + '</p>' +
+      '<p>' + t('Екілік ↔ сегіздік: әр сегіздік цифр — 3 екілік цифр (триада). Екілік ↔ он алтылық: әр он алтылық цифр — 4 екілік цифр (тетрада). Мысалы, 3A₁₆ = 0011 1010₂ = 111010₂.', 'Двоичная ↔ восьмеричная: каждая восьмеричная цифра — 3 двоичные (триада). Двоичная ↔ шестнадцатеричная: каждая шестнадцатеричная цифра — 4 двоичные (тетрада). Например, 3A₁₆ = 0011 1010₂ = 111010₂.') + '</p></div></div>');
+
+    h.push('<h2 class="t-h1">2. ' + t('Бағанмен қосу', 'Сложение столбиком') + '</h2>');
+    h.push('<p>' + t('Ондық жүйедегідей оң жақтан бастап разряд бойынша қосамыз. Әр разрядта екі цифрды және ойдағы санды қосып, S қосындысын (ондық жүйеде) табамыз:', 'Как в десятичной системе, складываем по разрядам, начиная справа. В каждом разряде складываем две цифры и число «в уме», получаем сумму S (считаем в десятичной):') + '</p>');
+    h.push('<ul class="rule"><li>' + t('<b>S &lt; q</b> — S-ті жазамыз, ештеңе көшпейді;', '<b>S &lt; q</b> — пишем S, ничего не переносим;') + '</li><li>' + t('<b>S ≥ q</b> — S − q жазамыз, ал <b>1-ді</b> келесі разрядқа көшіреміз («1 ойда»).', '<b>S ≥ q</b> — пишем S − q, а <b>1</b> переносим в следующий разряд («1 в уме»).') + '</li></ul>');
+    h.push('<p class="note">' + t('Көшіру шегі — 10 емес, санау жүйесінің негізі q: екілікте 2, сегіздікте 8, он алтылықта 16.', 'Порог переноса — не 10, а основание q: в двоичной 2, в восьмеричной 8, в шестнадцатеричной 16.') + '</p>');
+    h.push('<p>' + t('Екілік қосу кестесі: 0 + 0 = 0, 0 + 1 = 1, 1 + 1 = 10₂ («бір-нөл»), 1 + 1 + 1 = 11₂.', 'Таблица двоичного сложения: 0 + 0 = 0, 0 + 1 = 1, 1 + 1 = 10₂ («один-ноль»), 1 + 1 + 1 = 11₂.') + '</p>');
+    h.push(example(lang, t('1-мысал', 'Пример 1'), 11, 7, 2, '+'));
+    h.push(example(lang, t('2-мысал', 'Пример 2'), 431, 166, 8, '+'));
+    h.push(example(lang, t('3-мысал', 'Пример 3'), 943, 457, 16, '+'));
+    h.push('<p class="muted small">' + t('Жоғарыдағы кішкентай «1» — келесі разрядқа көшкен ойдағы бір.', 'Маленькая «1» сверху — единица «в уме», перенесённая в следующий разряд.') + '</p>');
+
+    h.push('<h2 class="t-h1">3. ' + t('Бағанмен азайту', 'Вычитание столбиком') + '</h2>');
+    h.push('<p>' + t('Оң жақтан бастап разряд бойынша азайтамыз. Жоғарғы цифр төменгі цифрдан кіші болса, сол жақтағы көршіден <b>1 қарызға аламыз</b>: көрші 1-ге кемиді, ал ағымдағы цифрға <b>q</b> қосылады (10 емес!).',
+      'Вычитаем по разрядам, начиная справа. Если верхняя цифра меньше нижней, <b>занимаем 1</b> у соседа слева: сосед уменьшается на 1, а к текущей цифре прибавляется <b>q</b> (не 10!).') + '</p>');
+    h.push('<p class="note">' + t('Жиі қате: қарызға алды, бірақ сол жақтағы цифрды 1-ге кемітуді ұмытты.', 'Частая ошибка: заняли, но забыли уменьшить цифру слева на 1.') + '</p>');
+    h.push(example(lang, t('4-мысал', 'Пример 4'), 50, 11, 2, '−'));
+    h.push(example(lang, t('5-мысал', 'Пример 5'), 323, 183, 8, '−'));
+    h.push(example(lang, t('6-мысал', 'Пример 6'), 2820, 1737, 16, '−'));
+    h.push('<p class="muted small">' + t('Жоғарыдағы «•» — 1 қарызға берген разряд (ол 1-ге кемиді).', '«•» сверху — разряд, у которого заняли 1 (он уменьшается на 1).') + '</p>');
+
+    h.push('<h2 class="t-h1">4. ' + t('Әр түрлі жүйедегі сандар', 'Числа в разных системах') + '</h2>');
+    h.push('<p>' + t('Сандар әр түрлі санау жүйесінде берілсе, алдымен оларды <b>бір жүйеге</b> (көбінесе ондық жүйеге) аударамыз, амалды орындаймыз, содан кейін жауапты қажетті жүйеге аударамыз.',
+      'Если числа даны в разных системах, сначала переводим их в <b>одну систему</b> (чаще всего в десятичную), выполняем действие, затем переводим ответ в нужную систему.') + '</p>');
+    h.push('<div class="example"><p class="ex-title">' + t('7-мысал', 'Пример 7') + ': 11010₂ + 27₈ + 1C₁₆ = ?₁₀</p><p>11010₂ = 16 + 8 + 2 = 26; 27₈ = 2·8 + 7 = 23; 1C₁₆ = 16 + 12 = 28.</p><p>26 + 23 + 28 = <b>77</b>.</p></div>');
+    h.push('<div class="example"><p class="ex-title">' + t('8-мысал', 'Пример 8') + ': X + 1101₂ = 2A₁₆. ' + t('X-ті сегіздік жүйеде табыңыз.', 'Найдите X в восьмеричной системе.') + '</p><p>1101₂ = 13; 2A₁₆ = 2·16 + 10 = 42.</p><p>X = 42 − 13 = 29 = 3·8 + 5 = <b>35₈</b>.</p></div>');
+    h.push('<div class="example"><p class="ex-title">' + t('9-мысал', 'Пример 9') + ': 110011₂ − 1110₂ ' + t('және', 'и') + ' 33₈ + 12₈ — ' + t('салыстырыңыз', 'сравните') + '.</p><p>110011₂ − 1110₂ = 51 − 14 = 37; 33₈ + 12₈ = 27 + 10 = 37.</p><p>37 = 37, ' + t('демек', 'значит') + ' <b>110011₂ − 1110₂ = 33₈ + 12₈</b>.</p></div>');
+
+    h.push('<h2 class="t-h1">5. ' + t('Өзіңді тексер', 'Проверь себя') + '</h2>');
+    h.push('<ul><li>' + t('Жауапты ондық жүйе арқылы тексеріңіз: сандарды ондыққа аударып, амалды орындап, нәтижені салыстырыңыз.', 'Проверяйте ответ через десятичную систему: переведите числа в десятичную, выполните действие и сравните.') + '</li>' +
+      '<li>' + t('Азайтуды қосу арқылы тексеруге болады: айырма + азайтқыш = азайғыш.', 'Вычитание можно проверить сложением: разность + вычитаемое = уменьшаемое.') + '</li>' +
+      '<li>' + t('Жауапта жүйеде жоқ цифр болмауы керек: сегіздік санда 8 және 9 болмайды, екілікте — тек 0 мен 1.', 'В ответе не должно быть «чужих» цифр: в восьмеричном числе нет 8 и 9, в двоичном — только 0 и 1.') + '</li></ul>');
+    return h.join('\n');
+  }
+
+  // ---------- Кездейсоқ сандар ----------
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function ri(r, lo, hi) { return lo + Math.floor(r() * (hi - lo + 1)); }
+  function carries(a, b, q) { var c = 0, n = 0; while (a || b || c) { var s = a % q + b % q + c; c = s >= q ? 1 : 0; n += c; a = Math.floor(a / q); b = Math.floor(b / q); } return n; }
+  function borrows(a, b, q) { var c = 0, n = 0; while (a) { var x = a % q - c - b % q; c = x < 0 ? 1 : 0; n += c; a = Math.floor(a / q); b = Math.floor(b / q); } return n; }
+  function hasLetter(n) { return /[A-F]/.test(B(n, 16)); }
+  function pickAdd(r, q, lo, hi, minC, cond) {
+    for (var k = 0; k < 500; k++) { var a = ri(r, lo, hi), b = ri(r, lo, hi); if (carries(a, b, q) >= minC && (!cond || cond(a, b))) return [a, b]; }
+    return [lo + 7, lo + 9];
+  }
+  function pickSub(r, q, alo, ahi, blo, bhi, minB, cond) {
+    for (var k = 0; k < 500; k++) { var a = ri(r, alo, ahi), b = ri(r, blo, Math.min(bhi, a - 1)); if (b > 0 && borrows(a, b, q) >= minB && (!cond || cond(a, b))) return [a, b]; }
+    return [ahi, blo];
+  }
+  function shuffle(arr, r) { for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)), t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; }
+  var QN = { 2: K('екілік', 'двоичной'), 8: K('сегіздік', 'восьмеричной'), 10: K('ондық', 'десятичной'), 16: K('он алтылық', 'шестнадцатеричной') };
+
+  // ---------- Тапсырмалар ----------
+  function colTask(r, q, op, title) {
+    var p = op === '+'
+      ? (q === 2 ? pickAdd(r, 2, 16, 63, 3) : q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 2, function (a, b) { return hasLetter(a) && hasLetter(b); }))
+      : (q === 2 ? pickSub(r, 2, 40, 63, 7, 31, 2) : q === 8 ? pickSub(r, 8, 256, 511, 64, 255, 2) : pickSub(r, 16, 2048, 4095, 256, 2047, 2, function (a, b) { return hasLetter(a) || hasLetter(b); }));
+    var a = p[0], b = p[1], res = op === '+' ? a + b : a - b;
+    return { type: 'input', kind: 'col', title: title, q: q, op: op, a: a, b: b, expr: N(B(a, q), q) + ' ' + (op === '+' ? '+' : '−') + ' ' + N(B(b, q), q),
+      prompt: K('Есептеңіз. Жауапты ' + QN[q].kz + ' жүйеде жазыңыз.', 'Вычислите. Ответ запишите в ' + QN[q].ru + ' системе.'),
+      fields: [{ q: q, key: B(res, q), label: K('Жауабы', 'Ответ') }], max: 1 };
+  }
+  // 7. Дұрыс жауапты таңда (жиі қателер — нұсқалар)
+  function noCarry(a, b, q) { var s = '', x = a, y = b; while (x || y) { s = B((x % q + y % q) % q, q) + s; x = Math.floor(x / q); y = Math.floor(y / q); } return s; }
+  function tenCarry(a, b, q) { var s = '', x = a, y = b, c = 0; while (x || y || c) { var t = x % q + y % q + c; s = String(t >= 10 ? t - 10 : t) + s; c = t >= 10 ? 1 : 0; x = Math.floor(x / q); y = Math.floor(y / q); } return s; }   // «10-нан кейін көшіру» қатесі
+  function choiceTask(r) {
+    for (var k = 0; k < 200; k++) {
+      var q = r() < 0.5 ? 8 : 16, p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 2, function (a, b) { return hasLetter(a) || hasLetter(b); });
+      var a = p[0], b = p[1], right = B(a + b, q);
+      var opts = [right, noCarry(a, b, q), tenCarry(a, b, q), B(a + b + (q === 8 ? 8 : 16), q), B(a + b - 1, q)];
+      var uniq = opts.filter(function (o, i) { return o && opts.indexOf(o) === i; });
+      if (uniq.length < 4 || uniq[0] !== right) continue;
+      var four = [right].concat(shuffle(uniq.slice(1), r).slice(0, 3));
+      four = shuffle(four, r);
+      return { type: 'choice', title: K('Дұрыс жауапты табыңыз', 'Найдите верный ответ'), q: q, a: a, b: b, op: '+', expr: N(B(a, q), q) + ' + ' + N(B(b, q), q),
+        prompt: K('Төрт оқушы осы мысалды шығарды. Кімнің жауабы дұрыс?', 'Четыре ученика решили этот пример. Чей ответ верный?'),
+        opts: four.map(function (o) { return N(o, q); }), key: four.indexOf(right), max: 1 };
+    }
+  }
+  // 8. Жасырын цифрды табу: A + B = C, A-ның бір цифры жасырылған
+  function digitTask(r) {
+    var q = r() < 0.5 ? 8 : 16, p = q === 8 ? pickAdd(r, 8, 64, 511, 2) : pickAdd(r, 16, 256, 4095, 1, function (a, b) { return hasLetter(a + b) || hasLetter(a); });
+    var a = p[0], b = p[1], A = B(a, q), pos = ri(r, 1, A.length - 1), hidden = A[pos];
+    return { type: 'input', kind: 'digit', title: K('Жасырын цифрды табыңыз', 'Найдите скрытую цифру'), q: q, a: a, b: b,
+      expr: N(A.slice(0, pos) + '*' + A.slice(pos + 1), q) + ' + ' + N(B(b, q), q) + ' = ' + N(B(a + b, q), q),
+      prompt: K('Жұлдызшаның (*) орнында қай цифр тұр?', 'Какая цифра стоит на месте звёздочки (*)?'),
+      fields: [{ q: q, key: hidden, label: K('Цифр', 'Цифра') }], max: 1, A: A };
+  }
+  // 9. Әр түрлі жүйедегі сандар → ондық жауап
+  function mixTask(r) {
+    var a = ri(r, 17, 63), b = ri(r, 9, 63), c = ri(r, 17, 255), minus = r() < 0.4;
+    if (minus && a + b - c <= 0) minus = false;
+    var res = minus ? a + b - c : a + b + c;
+    return { type: 'input', kind: 'mix', title: K('Әр түрлі санау жүйелері', 'Разные системы счисления'), vals: [a, b, c], minus: minus,
+      expr: N(B(a, 2), 2) + ' + ' + N(B(b, 8), 8) + (minus ? ' − ' : ' + ') + N(B(c, 16), 16),
+      prompt: K('Өрнектің мәнін табыңыз. Жауапты ондық жүйеде жазыңыз.', 'Найдите значение выражения. Ответ запишите в десятичной системе.'),
+      fields: [{ q: 10, key: String(res), label: K('Жауабы', 'Ответ') }], max: 1 };
+  }
+  // 10. Салыстыру
+  function cmpTask(r) {
+    var rel = ri(r, 0, 2);   // 0: <, 1: =, 2: >
+    for (var k = 0; k < 500; k++) {
+      var a = ri(r, 20, 63), b = ri(r, 5, 31), lop = r() < 0.5 ? '+' : '−';
+      if (lop === '−' && b >= a) continue;
+      var L = lop === '+' ? a + b : a - b, target = rel === 1 ? L : rel === 0 ? L + ri(r, 1, 6) : L - ri(r, 1, 6);
+      if (target < 8) continue;
+      var rop = r() < 0.5 ? '+' : '−', c, d;
+      if (rop === '+') { d = ri(r, 3, Math.max(3, target - 8)); c = target - d; } else { d = ri(r, 3, 40); c = target + d; }
+      if (c < 8 || d < 1 || c > 511) continue;
+      var R = rop === '+' ? c + d : c - d, sign = L < R ? '<' : L > R ? '>' : '=';
+      return { type: 'cmp', title: K('Салыстырыңыз', 'Сравните'), left: N(B(a, 2), 2) + ' ' + lop + ' ' + N(B(b, 2), 2), right: N(B(c, 8), 8) + ' ' + rop + ' ' + N(B(d, 8), 8),
+        lv: [a, b, lop, L], rv: [c, d, rop, R], key: ['<', '=', '>'].indexOf(sign),
+        prompt: K('Өрнектерді салыстырып, &lt;, &gt; немесе = белгісін таңдаңыз.', 'Сравните выражения и выберите знак &lt;, &gt; или =.'), max: 1 };
+    }
+  }
+  // ★1. Теңдеу: X + a₂ = b₁₆ → X ондық және сегіздік
+  function eqTask(r) {
+    var a = ri(r, 9, 31), x = ri(r, 12, 60), b = x + a;
+    return { type: 'input', kind: 'eq', star: true, title: K('★ Теңдеуді шешіңіз', '★ Решите уравнение'), a: a, b: b, x: x,
+      expr: 'X + ' + N(B(a, 2), 2) + ' = ' + N(B(b, 16), 16),
+      prompt: K('X-тің мәнін табыңыз: алдымен ондық жүйеде, содан кейін сегіздік жүйеде жазыңыз.', 'Найдите X: сначала запишите его в десятичной системе, затем в восьмеричной.'),
+      fields: [{ q: 10, key: String(x), label: K('X ондық жүйеде', 'X в десятичной') }, { q: 8, key: B(x, 8), label: K('X сегіздік жүйеде', 'X в восьмеричной') }], max: 2 };
+  }
+  // ★2. Өрнектің мәні: ондық, содан кейін екілік
+  function exprTask(r) {
+    var a = ri(r, 33, 127), b = ri(r, 10, 63), c = ri(r, 17, 80);
+    if (a + b - c < 8) c = a + b - ri(r, 8, 30);
+    var res = a + b - c;
+    return { type: 'input', kind: 'expr', star: true, title: K('★ Өрнектің мәнін табыңыз', '★ Найдите значение выражения'), vals: [a, b, c],
+      expr: N(B(a, 8), 8) + ' + ' + N(B(b, 16), 16) + ' − ' + N(B(c, 2), 2),
+      prompt: K('Өрнектің мәнін алдымен ондық жүйеде, содан кейін екілік жүйеде жазыңыз.', 'Запишите значение выражения сначала в десятичной системе, затем в двоичной.'),
+      fields: [{ q: 10, key: String(res), label: K('Ондық жүйеде', 'В десятичной') }, { q: 2, key: B(res, 2), label: K('Екілік жүйеде', 'В двоичной') }], max: 2 };
+  }
+  // ★3. Негізді табу: x_q + y_q = z_q, q = ?; сол жүйеде u_q + v_q = ?
+  function baseSols(xs, ys, zs) {
+    var mx = Math.max.apply(null, (xs + ys + zs).split('').map(dv)), out = [];
+    for (var q = Math.max(2, mx + 1); q <= 16; q++) if (V(xs, q) + V(ys, q) === V(zs, q)) out.push(q);
+    return out;
+  }
+  function baseTask(r) {
+    for (var k = 0; k < 1000; k++) {
+      var q = ri(r, 5, 9), x = ri(r, q + 1, q * q - 1), y = ri(r, q + 1, q * q - 1);
+      if (x + y >= q * q || carries(x, y, q) < 1) continue;
+      var xs = B(x, q), ys = B(y, q), zs = B(x + y, q), s = baseSols(xs, ys, zs);
+      if (s.length !== 1 || s[0] !== q) continue;
+      var u = ri(r, q + 1, q * q - 1), v = ri(r, q + 1, q * q - 1);
+      if (carries(u, v, q) < 1) continue;
+      return { type: 'input', kind: 'base', star: true, title: K('★ Санау жүйесінің негізін табыңыз', '★ Найдите основание системы счисления'), bq: q, x: x, y: y, u: u, v: v,
+        expr: xs + '<sub>q</sub> + ' + ys + '<sub>q</sub> = ' + zs + '<sub>q</sub>', html: true,
+        prompt: K('Теңдік q негізді жүйеде жазылған. q-ды табыңыз. Содан кейін сол жүйеде ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> қосындысын есептеңіз.',
+                  'Равенство записано в системе с основанием q. Найдите q. Затем в этой же системе вычислите ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub>.'),
+        fields: [{ q: 10, key: String(q), label: K('q (ондық жүйеде)', 'q (в десятичной)') }, { q: q, inputQ: 16, subText: 'q', key: B(u + v, q), label: K(B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =', B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =') }], max: 2 };
+    }
+  }
+  function generate(seed) {
+    var r = rng(seed), T = [];
+    T.push(colTask(r, 2, '+', K('Екілік жүйеде қосу', 'Сложение в двоичной системе')));
+    T.push(colTask(r, 2, '−', K('Екілік жүйеде азайту', 'Вычитание в двоичной системе')));
+    T.push(colTask(r, 8, '+', K('Сегіздік жүйеде қосу', 'Сложение в восьмеричной системе')));
+    T.push(colTask(r, 8, '−', K('Сегіздік жүйеде азайту', 'Вычитание в восьмеричной системе')));
+    T.push(colTask(r, 16, '+', K('Он алтылық жүйеде қосу', 'Сложение в шестнадцатеричной системе')));
+    T.push(colTask(r, 16, '−', K('Он алтылық жүйеде азайту', 'Вычитание в шестнадцатеричной системе')));
+    T.push(choiceTask(r));
+    T.push(digitTask(r));
+    T.push(mixTask(r));
+    T.push(cmpTask(r));
+    T.push(eqTask(r));
+    T.push(exprTask(r));
+    T.push(baseTask(r));
+    return T;
+  }
+
+  // ---------- Тексеру ----------
+  function norm(s) {   // бос орын, индекс, алдыңғы нөлдер алынады; әріптер — бас әріп
+    s = String(s == null ? '' : s).toUpperCase().replace(/[\s₀-₉]/g, '');
+    s = s.replace(/^0+(?=.)/, '');
+    return s;
+  }
+  function empty(t) { return t.type === 'input' ? t.fields.map(function () { return ''; }) : null; }
+  function fieldOk(f, v) { return norm(v) !== '' && norm(v) === norm(f.key); }
+  function score(t, a) {
+    if (t.type === 'input') return t.fields.reduce(function (s, f, i) { return s + (a && fieldOk(f, a[i]) ? 1 : 0); }, 0);
+    return a === t.key ? 1 : 0;
+  }
+  function touched(t, a) { return t.type === 'input' ? !!a && a.some(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
+  function complete(t, a) { return t.type === 'input' ? !!a && a.every(function (v) { return norm(v) !== ''; }) : a !== null && a !== undefined; }
+  // Талдаудағы түсіндірме (HTML)
+  function solution(t, lang) {
+    var kz = lang === 'kz', tr = function (a, b) { return kz ? a : b; };
+    switch (t.kind || t.type) {
+      case 'col': return columnHTML(t.a, t.b, t.q, t.op) + stepsHTML(t.a, t.b, t.q, t.op, lang) + '<p class="check">' + decCheck(t.a, t.b, t.q, t.op, lang) + '</p>';
+      case 'choice': return columnHTML(t.a, t.b, t.q, '+') + '<p class="check">' + decCheck(t.a, t.b, t.q, '+', lang) + '</p>';
+      case 'digit': return '<p>' + tr('Жасырын санды азайту арқылы табамыз: ', 'Скрытое число находим вычитанием: ') + N(B(t.a + t.b, t.q), t.q) + ' − ' + N(B(t.b, t.q), t.q) + ' = ' + N(t.A, t.q) + '. ' + tr('Жұлдызшаның орнында — ', 'На месте звёздочки — ') + '<b>' + t.fields[0].key + '</b>.</p>' + columnHTML(t.a + t.b, t.b, t.q, '−');
+      case 'mix': return '<p>' + N(B(t.vals[0], 2), 2) + ' = ' + t.vals[0] + '; ' + N(B(t.vals[1], 8), 8) + ' = ' + t.vals[1] + '; ' + N(B(t.vals[2], 16), 16) + ' = ' + t.vals[2] + '.</p><p>' + t.vals[0] + ' + ' + t.vals[1] + (t.minus ? ' − ' : ' + ') + t.vals[2] + ' = <b>' + t.fields[0].key + '</b>.</p>';
+      case 'cmp': return '<p>' + t.left + ' = ' + t.lv[0] + ' ' + t.lv[2] + ' ' + t.lv[1] + ' = ' + t.lv[3] + '</p><p>' + t.right + ' = ' + t.rv[0] + ' ' + t.rv[2] + ' ' + t.rv[1] + ' = ' + t.rv[3] + '</p><p>' + t.lv[3] + ' ' + ['&lt;', '=', '&gt;'][t.key] + ' ' + t.rv[3] + tr(', демек ', ', значит ') + '<b>' + t.left + ' ' + ['&lt;', '=', '&gt;'][t.key] + ' ' + t.right + '</b>.</p>';
+      case 'eq': { var o = B(t.x, 8); return '<p>' + N(B(t.a, 2), 2) + ' = ' + t.a + '; ' + N(B(t.b, 16), 16) + ' = ' + t.b + '.</p><p>X = ' + t.b + ' − ' + t.a + ' = <b>' + t.x + '</b>; ' + t.x + ' = ' + o[0] + '·8 + ' + o[1] + ' → <b>' + N(o, 8) + '</b>.</p>'; }
+      case 'expr': return '<p>' + N(B(t.vals[0], 8), 8) + ' = ' + t.vals[0] + '; ' + N(B(t.vals[1], 16), 16) + ' = ' + t.vals[1] + '; ' + N(B(t.vals[2], 2), 2) + ' = ' + t.vals[2] + '.</p><p>' + t.vals[0] + ' + ' + t.vals[1] + ' − ' + t.vals[2] + ' = <b>' + t.fields[0].key + '</b> = <b>' + N(t.fields[1].key, 2) + '</b>.</p>';
+      case 'base': {
+        var q = t.bq, xs = B(t.x, q), ys = B(t.y, q);
+        return '<p>' + tr('Цифрлар бойынша жазамыз: ', 'Распишем по цифрам: ') + xs[0] + '·q + ' + xs[1] + ' + ' + ys[0] + '·q + ' + ys[1] + ' = ' + B(t.x + t.y, q)[0] + '·q + ' + B(t.x + t.y, q)[1] + '. ' + tr('Осыдан ', 'Отсюда ') + '<b>q = ' + q + '</b> (' + tr('тексеру', 'проверка') + ': ' + t.x + ' + ' + t.y + ' = ' + (t.x + t.y) + ').</p>' +
+          '<p>' + tr('Енді ', 'Теперь ') + q + tr('-лік жүйеде қосамыз:', '-ичной системе складываем:') + '</p>' + columnHTML(t.u, t.v, q, '+') + stepsHTML(t.u, t.v, q, '+', lang);
+      }
+    }
+    return '';
+  }
+
+  window.CONTENT = { K: K, theory: theory, generate: generate, empty: empty, score: score, touched: touched, complete: complete, norm: norm, fieldOk: fieldOk,
+    solution: solution, sub: sub, B: B, columnData: columnData, baseSols: baseSols, carries: carries, borrows: borrows };
+})();
+
+</script>
+<script>
+/* 8.2.1.2 «Санау жүйелерінде қосу және азайту»: веб-ресурс (теория → 10 тапсырма + 3 қосымша тапсырма → нәтиже және талдау).
+ * Жұмыс кезінде теорияға қайтуға болмайды. Тіл: ҚАЗ / РУС батырмасы, кез келген уақытта.
+ * Толық экран басынан бастап; MAX_VIOLATIONS-ші бұзушылықта жұмыс аяқталады;
+ * нәтиже RESULT_MIN минут көрінеді, содан кейін бастапқы бет ашылады (құпиясөзсіз).
+ * Жауап өрістері пернетақтаның тіліне тәуелсіз: A–F пернелері қазақ/орыс тілінде де латын әрпін жазады. */
+(function () {
+  'use strict';
+  var STORE = 'qosu-azaytu-8.2.1.2';
+  var WORK_MS = (window.WORK_MIN || 40) * 60 * 1000;
+  var RESULT_MS = (window.RESULT_MIN || 4) * 60 * 1000;
+  var MAX_VIOL = window.MAX_VIOLATIONS || 3;
+  var C = window.CONTENT;
+  var LANG = (function () { try { return localStorage.getItem('qosu-lang') === 'ru' ? 'ru' : 'kz'; } catch (e) { return 'kz'; } })();
+  var state = null, tasks = [], ticker = null, hideTimer = null, fsActive = false, ignoreUntil = 0, lastInput = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+  function T(kz, ru) { return LANG === 'kz' ? kz : ru; }
+  function L(o) { return o ? o[LANG] : ''; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function html(tag, cls, h) { var e = el(tag, cls); e.innerHTML = h; return e; }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
+  function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
+  function running() { return !!state && state.status === 'running'; }
+  function fmt(ms) { var s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function isStar(t) { return !!t.star; }
+  function navName(i) { var n = tasks.filter(function (t) { return !isStar(t); }).length; return i < n ? String(i + 1) : '★' + (i - n + 1); }
+  function show(id) {
+    ['s-loading', 's-gate', 's-theory', 's-intro', 's-work', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    $('timers').hidden = !(id === 's-work' && running() && state.stage === 'work');
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- Толық экран және бұзушылықтар ----------
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function fsSupported() { var e = document.documentElement; return !!(e.requestFullscreen || e.webkitRequestFullscreen); }
+  function enterFullscreen() {
+    var e = document.documentElement, req = e.requestFullscreen || e.webkitRequestFullscreen;
+    if (!req || fsElement()) return Promise.resolve();
+    try {
+      return Promise.resolve(req.call(e, { navigationUI: 'hide' })).then(function () {
+        // тек Esc ұсталады: пернетақта тілін ауыстыру (Alt+Shift, Win+Бос орын) жұмыс істей береді
+        if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock(['Escape']).catch(function () {});
+      }).catch(function () {});
+    } catch (err) { return Promise.resolve(); }
+  }
+  function exitFullscreen() { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (fsElement() && ex) { try { ex.call(document); } catch (e) {} } }
+  // Бір әрекет бірнеше оқиға тудырады — бір рет санаймыз; бет жабылғанда/қайта жүктелгенде бет ашылғанда бір рет есептеледі
+  var violLock = 0, leaving = false;
+  function violation(reason) {
+    if (!running() || leaving || Date.now() < violLock) return;
+    violLock = Date.now() + 1500;
+    setTimeout(function () { if (running() && !leaving) countViolation(reason); }, 400);
+  }
+  function countViolation(reason) {
+    state.lastViol = reason;
+    state.viol = (state.viol || 0) + 1; save();
+    if (state.viol >= MAX_VIOL) { finish(reason); return; }
+    renderBack();
+    $('m-back').hidden = false;
+  }
+  var REASONS = {
+    fs: { kz: 'Сіз толық экран режимінен шықтыңыз.', ru: 'Вы вышли из полноэкранного режима.' },
+    tab: { kz: 'Сіз басқа қойындыға немесе қосымшаға ауыстыңыз.', ru: 'Вы переключились на другую вкладку или приложение.' },
+    win: { kz: 'Сіз басқа терезеге немесе қосымшаға ауыстыңыз.', ru: 'Вы переключились на другое окно или приложение.' },
+    reload: { kz: 'Бет жабылды немесе қайта жүктелді.', ru: 'Страница была закрыта или перезагружена.' },
+    time: { kz: 'Уақыт бітті.', ru: 'Время вышло.' },
+  };
+  function renderBack() {
+    if (!state) return;
+    $('m-back-text').textContent = L(REASONS[state.lastViol]) + ' ' + T('Қалған мүмкіндік: ', 'Осталось попыток: ') + (MAX_VIOL - (state.viol || 0)) + '. ' +
+      T('Мүмкіндіктер біткенде жұмыс аяқталады. Батырманы басып, жұмысты жалғастырыңыз.', 'Когда попытки закончатся, работа завершится. Нажмите кнопку и продолжайте работу.');
+  }
+  function backToFullscreen() { enterFullscreen().then(function () { if (fsElement() || !fsSupported()) $('m-back').hidden = true; }); }
+  function onFullscreenChange() {
+    if (fsElement()) { fsActive = true; ignoreUntil = Date.now() + 1500; $('m-back').hidden = true; return; }
+    if (fsActive) { fsActive = false; violation('fs'); }
+  }
+  function onVisibility() { if (document.visibilityState === 'hidden') violation('tab'); }
+  function onBlur() {
+    if (!running() || Date.now() < ignoreUntil) return;
+    setTimeout(function () { if (!document.hasFocus() && document.visibilityState === 'visible') violation('win'); }, 400);
+  }
+  function warn(text) { $('warn-text').textContent = text; $('warn').hidden = false; clearTimeout(warn.t); warn.t = setTimeout(function () { $('warn').hidden = true; }, 5000); }
+  function onKey(e) {
+    if (!running()) return;
+    if (e.key === 'Escape') { warn(T('Толық экран режимінен шықпаңыз: бұл — ереже бұзу.', 'Не выходите из полноэкранного режима: это нарушение.')); e.preventDefault(); }
+    var k = (e.code || '').replace(/^Key/, '').toLowerCase();
+    if (e.key === 'F5' || e.key === 'F11' || ((e.ctrlKey || e.metaKey) && ['r', 'p', 's', 'f', 'o', 'n', 't', 'w', 'l', 'c', 'v', 'x'].indexOf(k) >= 0) ||
+        (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) { e.preventDefault(); warn(T('Жұмыс кезінде бұл әрекет қолжетімсіз.', 'Это действие недоступно во время работы.')); }
+  }
+  function onPageHide() { leaving = true; if (running()) { state.closedAt = Date.now(); save(); } }
+  function onBeforeUnload(e) {
+    if (!running()) return;
+    leaving = true; setTimeout(function () { leaving = false; }, 3000);
+    e.preventDefault(); e.returnValue = ''; return '';
+  }
+
+  // ---------- Кезеңдер ----------
+  function newSeed() { var a = new Uint32Array(1); (window.crypto || window.msCrypto).getRandomValues(a); return a[0] || 1; }
+  function startSession() {
+    if (state) return;
+    var fs = enterFullscreen(), seed = newSeed();
+    tasks = C.generate(seed);
+    state = { v: 1, seed: seed, status: 'running', stage: 'theory', startedAt: Date.now(), viol: 0, cur: 0, ans: tasks.map(C.empty) };
+    save();
+    ticker = setInterval(tick, 250);
+    fs.then(function () { show('s-theory'); });
+  }
+  function toIntro() { state.stage = 'intro'; save(); show('s-intro'); }
+  function backTheory() { state.stage = 'theory'; save(); show('s-theory'); }
+  function begin() {
+    $('b-start').disabled = true;
+    enterFullscreen();
+    state.stage = 'work';
+    state.workStartedAt = Date.now();
+    state.endsAt = Date.now() + WORK_MS;
+    save();
+    renderTask();
+  }
+  function tick() {
+    if (!running() || state.stage !== 'work') return;
+    var left = state.endsAt - Date.now();
+    if (left <= 0) { finish('time'); return; }
+    $('tm').textContent = fmt(left);
+    $('tm-bar').style.width = (100 * left / WORK_MS) + '%';
+    $('timers').classList.toggle('low', left < 3 * 60 * 1000);
+  }
+  function resetToStart() { try { localStorage.removeItem(STORE); } catch (e) {} location.reload(); }
+
+  // ---------- Тапсырмалар ----------
+  function goTo(i) { if (!running() || i < 0 || i >= tasks.length) return; state.cur = i; save(); renderTask(); }
+  function renderNav() {
+    var nav = $('nav'); nav.innerHTML = '';
+    var mk = function (i) {
+      var t = tasks[i], b = el('button', 'nav-btn' + (isStar(t) ? ' star' : ''), navName(i));
+      if (C.complete(t, state.ans[i])) b.classList.add('done'); else if (C.touched(t, state.ans[i])) b.classList.add('half');
+      if (i === state.cur) b.classList.add('cur');
+      b.addEventListener('click', function () { goTo(i); });
+      return b;
+    };
+    var g1 = el('div', 'nav-group'), g2 = el('div', 'nav-group');
+    g1.appendChild(el('span', 'nav-label', T('Негізгі тапсырмалар (10 балл)', 'Основные задания (10 баллов)')));
+    g2.appendChild(el('span', 'nav-label', T('★ Қосымша тапсырма (6 балл)', '★ Дополнительное задание (6 баллов)')));
+    var r1 = el('div', 'nav'), r2 = el('div', 'nav');
+    tasks.forEach(function (t, i) { (isStar(t) ? r2 : r1).appendChild(mk(i)); });
+    g1.appendChild(r1); g2.appendChild(r2); nav.appendChild(g1); nav.appendChild(g2);
+  }
+  function renderTask() {
+    show('s-work');
+    renderNav();
+    var i = state.cur, t = tasks[i], box = $('task'); box.innerHTML = '';
+    var head = el('div', 'task-head');
+    head.appendChild(el('span', 'task-no', (isStar(t) ? T('★ Қосымша ', '★ Доп. ') + navName(i).slice(1) : navName(i)) + ' · ' + t.max + ' ' + T('балл', t.max === 1 ? 'балл' : 'балла')));
+    head.appendChild(el('h2', null, L(t.title)));
+    box.appendChild(head);
+    box.appendChild(html('p', 'lead', L(t.prompt)));
+    if (t.type === 'cmp') rCmp(t, i, box);
+    else {
+      box.appendChild(html('p', 'expr', t.expr));
+      if (t.type === 'choice') rChoice(t, i, box); else rInput(t, i, box);
+    }
+    $('b-prev').disabled = i === 0;
+    $('b-next').disabled = i === tasks.length - 1;
+    $('m-confirm').hidden = true;
+  }
+  function rChoice(t, i, box) {
+    var wrap = el('div', 'choices');
+    t.opts.forEach(function (o, n) {
+      var b = el('button', 'choice' + (state.ans[i] === n ? ' on' : ''));
+      b.appendChild(el('b', null, 'ABCD'[n] + ') ')); b.appendChild(document.createTextNode(T(['Айгерім', 'Нұрлан', 'Дана', 'Ерлан'][n], ['Айгерим', 'Нурлан', 'Дана', 'Ерлан'][n]) + ': ' + o));
+      b.addEventListener('click', function () { state.ans[i] = n; save(); renderTask(); });
+      wrap.appendChild(b);
+    });
+    box.appendChild(wrap);
+  }
+  function rCmp(t, i, box) {
+    var row = el('div', 'cmp');
+    row.appendChild(el('span', 'cmp-side', t.left));
+    var mid = el('span', 'cmp-signs');
+    ['<', '=', '>'].forEach(function (s, n) {
+      var b = el('button', 'sign' + (state.ans[i] === n ? ' on' : ''), s);
+      b.addEventListener('click', function () { state.ans[i] = n; save(); renderTask(); });
+      mid.appendChild(b);
+    });
+    row.appendChild(mid);
+    row.appendChild(el('span', 'cmp-side', t.right));
+    box.appendChild(row);
+  }
+  // Жауап өрісі: тек осы жүйенің цифрлары; A–F пернелері кез келген тілде латын әрпін жазады
+  var CYR = { 'Ф': 'A', 'И': 'B', 'С': 'C', 'В': 'D', 'У': 'E', 'А': 'F' };
+  function allowed(q) { return '0123456789ABCDEF'.slice(0, q); }
+  function clean(v, q) {
+    var ok = allowed(q);
+    return String(v).toUpperCase().split('').map(function (c) { return CYR[c] || c; }).filter(function (c) { return ok.indexOf(c) >= 0; }).join('').slice(0, 16);
+  }
+  function insertAt(inp, ch) {
+    var s = inp.selectionStart == null ? inp.value.length : inp.selectionStart, e = inp.selectionEnd == null ? s : inp.selectionEnd;
+    inp.value = inp.value.slice(0, s) + ch + inp.value.slice(e);
+    try { inp.setSelectionRange(s + ch.length, s + ch.length); } catch (er) {}
+    inp.dispatchEvent(new Event('input'));
+  }
+  function rInput(t, i, box) {
+    var form = el('div', 'fields');
+    t.fields.forEach(function (f, k) {
+      var row = el('label', 'field');
+      row.appendChild(html('span', 'f-label', L(f.label)));
+      var inp = el('input', 'ans'); inp.type = 'text'; inp.value = state.ans[i][k] || '';
+      inp.setAttribute('autocomplete', 'off'); inp.setAttribute('spellcheck', 'false'); inp.setAttribute('autocapitalize', 'characters');
+      var iq = f.inputQ || f.q;   // ★3: q белгісіз, сондықтан барлық цифрға рұқсат (жүйені алдын ала көрсетпеу үшін)
+      inp.setAttribute('inputmode', iq > 10 ? 'text' : 'numeric');
+      inp.addEventListener('keydown', function (e) {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        var m = /^(?:Digit|Numpad)(\d)$/.exec(e.code || '') , ch = null;
+        if (m) ch = m[1]; else { var l = /^Key([A-F])$/.exec(e.code || ''); if (l) ch = l[1]; else if (/^Key[G-Z]$/.test(e.code || '')) { e.preventDefault(); return; } }
+        if (ch === null) return;
+        e.preventDefault();
+        if (allowed(iq).indexOf(ch) < 0) { hint(iq); return; }
+        insertAt(inp, ch);
+      });
+      inp.addEventListener('input', function () {
+        var c = clean(inp.value, iq);
+        if (c !== inp.value) { var p = inp.selectionStart; inp.value = c; try { inp.setSelectionRange(Math.min(p, c.length), Math.min(p, c.length)); } catch (er) {} }
+        var a = state.ans[i].slice(); a[k] = c; state.ans[i] = a; save(); renderNav();
+      });
+      inp.addEventListener('focus', function () { lastInput = inp; renderPad(iq); });
+      row.appendChild(inp);
+      row.appendChild(el('span', 'f-sub', f.subText || C.sub(f.q)));
+      form.appendChild(row);
+    });
+    box.appendChild(form);
+    box.appendChild(el('div', 'pad')); box.lastChild.id = 'pad';
+    box.appendChild(el('p', 'muted small pad-note', ''));
+    var first = form.querySelector('input'); lastInput = first; renderPad(t.fields[0].inputQ || t.fields[0].q);
+  }
+  function hint(q) { warn(T('Бұл жүйеде тек мына цифрлар бар: ', 'В этой системе только цифры: ') + allowed(q).split('').join(' ')); }
+  function renderPad(q) {
+    var pad = $('pad'); if (!pad) return; pad.innerHTML = '';
+    allowed(q).split('').forEach(function (d) {
+      var b = el('button', 'key', d); b.type = 'button';
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      b.addEventListener('click', function () { if (lastInput) { lastInput.focus(); insertAt(lastInput, d); } });
+      pad.appendChild(b);
+    });
+    var bs = el('button', 'key wide', '⌫'); bs.type = 'button';
+    bs.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    bs.addEventListener('click', function () {
+      if (!lastInput) return; var v = lastInput.value, s = lastInput.selectionStart == null ? v.length : lastInput.selectionStart, e = lastInput.selectionEnd == null ? s : lastInput.selectionEnd;
+      if (s === e && s > 0) s--;
+      lastInput.value = v.slice(0, s) + v.slice(e); lastInput.focus(); try { lastInput.setSelectionRange(s, s); } catch (er) {} lastInput.dispatchEvent(new Event('input'));
+    });
+    pad.appendChild(bs);
+    var note = document.querySelector('.pad-note');
+    if (note) note.textContent = T('Цифрларды пернетақтадан немесе осы батырмалардан теріңіз. ', 'Набирайте цифры на клавиатуре или этими кнопками. ') + (q > 10 ? T('A–F әріптері пернетақтаның тіліне қарамай латынша жазылады.', 'Буквы A–F пишутся латиницей при любой раскладке.') : '');
+  }
+
+  // ---------- Аяқтау және нәтиже ----------
+  function finish(reason) {
+    if (!running()) return;
+    state.status = 'finished';
+    state.reason = reason || null;
+    state.finishedAt = state.closedAt || Date.now();
+    state.scores = tasks.map(function (t, i) { return C.score(t, state.ans[i]); });
+    state.resultAt = Date.now();
+    save();
+    clearInterval(ticker);
+    $('warn').hidden = true; $('m-back').hidden = true;
+    if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+    fsActive = false;
+    exitFullscreen();
+    renderResult();
+  }
+  function sums() {
+    var m = 0, mm = 0, s = 0, sm = 0;
+    tasks.forEach(function (t, i) { if (isStar(t)) { s += state.scores[i]; sm += t.max; } else { m += state.scores[i]; mm += t.max; } });
+    return { main: m, mainMax: mm, star: s, starMax: sm };
+  }
+  function renderResult() {
+    show('s-result');
+    var s = sums();
+    $('r-score').textContent = s.main + ' / ' + s.mainMax;
+    $('r-star').textContent = T('★ Қосымша тапсырма: ', '★ Дополнительное задание: ') + s.star + ' / ' + s.starMax + ' ' + T('балл', 'баллов');
+    if (state.reason && state.reason !== 'done') {
+      $('r-reason').hidden = false;
+      $('r-reason').textContent = state.reason === 'time' ? L(REASONS.time) + ' ' + T('Жұмыс автоматты түрде тапсырылды.', 'Работа сдана автоматически.')
+        : T('Жұмыс автоматты түрде аяқталды: ', 'Работа завершена автоматически: ') + L(REASONS[state.reason]).toLowerCase() + ' ' + T('(' + MAX_VIOL + '-ші бұзушылық)', '(' + MAX_VIOL + '-е нарушение)');
+    } else $('r-reason').hidden = true;
+    var start = state.workStartedAt || state.startedAt;
+    $('r-time').textContent = T('Жұмысқа жұмсалған уақыт: ', 'Время работы: ') + fmt(state.finishedAt - start) + (state.viol ? ' · ' + T('бұзушылықтар: ', 'нарушений: ') + state.viol : '');
+    var tb = $('r-table'); tb.innerHTML = '';
+    var table = el('table', 'res'), hr = el('tr');
+    [T('№', '№'), T('Тапсырма', 'Задание'), T('Балл', 'Балл')].forEach(function (h) { hr.appendChild(el('th', null, h)); }); table.appendChild(hr);
+    tasks.forEach(function (t, i) {
+      var tr = el('tr', state.scores[i] === t.max ? 'ok' : state.scores[i] === 0 ? 'bad' : 'mid');
+      tr.appendChild(el('td', null, navName(i))); tr.appendChild(el('td', null, L(t.title))); tr.appendChild(el('td', null, state.scores[i] + ' / ' + t.max));
+      table.appendChild(tr);
+    });
+    tb.appendChild(table);
+    var rv = $('r-review'); rv.innerHTML = '';
+    tasks.forEach(function (t, i) { rv.appendChild(review(t, i)); });
+    scheduleReset();
+  }
+  function shown(t, a) {
+    if (t.type === 'choice') return a == null ? '—' : 'ABCD'[a] + ') ' + t.opts[a];
+    if (t.type === 'cmp') return a == null ? '—' : t.left + ' ' + ['<', '=', '>'][a] + ' ' + t.right;
+    return null;
+  }
+  function review(t, i) {
+    var a = state.ans[i], sc = state.scores[i];
+    var card = el('div', 'rv-card ' + (sc === t.max ? 'ok' : sc === 0 ? 'bad' : 'mid'));
+    card.appendChild(el('h3', null, navName(i) + '. ' + L(t.title) + ' — ' + sc + ' / ' + t.max));
+    if (t.type !== 'cmp') card.appendChild(html('p', 'expr small-expr', t.expr));
+    if (t.type === 'input') {
+      t.fields.forEach(function (f, k) {
+        var ok = C.fieldOk(f, a && a[k]);
+        var p = el('p', 'rv-line ' + (ok ? 'ok' : 'bad'));
+        p.appendChild(el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓' : '✗'));
+        p.appendChild(html('span', null, ' ' + (t.fields.length > 1 ? L(f.label).replace(/\s*=$/, '') + ' — ' + T('сіздің жауабыңыз: ', 'ваш ответ: ') : T('Сіздің жауабыңыз: ', 'Ваш ответ: ')) + '<b>' + ((a && a[k]) || '—') + '</b>' + (ok ? '' : ' · ' + T('дұрыс жауап: ', 'верный ответ: ') + '<b>' + f.key + '</b>')));
+        card.appendChild(p);
+      });
+    } else {
+      var ok = sc === 1, right = t.type === 'choice' ? 'ABCD'[t.key] + ') ' + t.opts[t.key] : t.left + ' ' + ['<', '=', '>'][t.key] + ' ' + t.right;
+      var p = el('p', 'rv-line ' + (ok ? 'ok' : 'bad'));
+      p.appendChild(el('span', ok ? 'rv-ok' : 'rv-bad', ok ? '✓' : '✗'));
+      p.appendChild(html('span', null, ' ' + T('Сіздің жауабыңыз: ', 'Ваш ответ: ') + '<b>' + shown(t, a) + '</b>' + (ok ? '' : ' · ' + T('дұрыс жауап: ', 'верный ответ: ') + '<b>' + right + '</b>')));
+      card.appendChild(p);
+    }
+    var det = el('details', 'rv-sol'); if (sc < t.max) det.open = true;
+    det.appendChild(el('summary', null, T('Шешуі', 'Решение')));
+    det.appendChild(html('div', 'sol', C.solution(t, LANG)));
+    card.appendChild(det);
+    return card;
+  }
+  function scheduleReset() {
+    clearInterval(hideTimer);
+    var upd = function () {
+      var left = (state.resultAt || state.finishedAt) + RESULT_MS - Date.now();
+      if (left <= 0) { clearInterval(hideTimer); resetToStart(); return; }
+      $('r-hide').textContent = T('Бастапқы бет мына уақыттан кейін ашылады: ', 'Начальная страница откроется через ') + fmt(left) + '.';
+    };
+    upd();
+    hideTimer = setInterval(upd, 1000);
+  }
+
+  // ---------- Тіл ----------
+  function setLang(l) {
+    LANG = l;
+    try { localStorage.setItem('qosu-lang', l); } catch (e) {}
+    document.documentElement.lang = l === 'kz' ? 'kk' : 'ru';
+    document.title = l === 'kz' ? 'Санау жүйелерінде қосу және азайту — 8.2.1.2' : 'Сложение и вычитание в системах счисления — 8.2.1.2';
+    document.querySelectorAll('.lang-switch button').forEach(function (b) { var on = b.getAttribute('data-lang') === l; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    if (!state) return;
+    if (!$('s-work').hidden) { var y = window.scrollY; renderTask(); window.scrollTo(0, y); }
+    if (!$('s-result').hidden) renderResult();
+    if (!$('m-back').hidden) renderBack();
+    if (!$('m-confirm').hidden) confirmText();
+  }
+  function confirmText() {
+    var u = tasks.filter(function (t, i) { return !isStar(t) && !C.complete(t, state.ans[i]); }).length,
+        us = tasks.filter(function (t, i) { return isStar(t) && !C.complete(t, state.ans[i]); }).length;
+    $('m-confirm-text').textContent = T('Жұмысты тапсырасыз ба?', 'Сдать работу?') + (u ? ' ' + T('Жауап берілмеген негізгі тапсырмалар: ', 'Основных заданий без ответа: ') + u + '.' : '') +
+      (us ? ' ' + T('Толық орындалмаған қосымша тапсырмалар: ', 'Не до конца выполненных дополнительных: ') + us + '.' : '') + ' ' + T('Тапсырғаннан кейін жауаптарды өзгертуге болмайды.', 'После сдачи ответы изменить нельзя.');
+  }
+
+  // ---------- Іске қосу ----------
+  function init() {
+    $('theory-kz').innerHTML = C.theory('kz');
+    $('theory-ru').innerHTML = C.theory('ru');
+    document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 40); });
+    document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
+    setLang(LANG);
+    $('b-gate').addEventListener('click', startSession);
+    $('b-to-intro').addEventListener('click', toIntro);
+    $('b-back-theory').addEventListener('click', backTheory);
+    $('b-start').addEventListener('click', begin);
+    $('b-prev').addEventListener('click', function () { goTo(state.cur - 1); });
+    $('b-next').addEventListener('click', function () { goTo(state.cur + 1); });
+    $('b-finish').addEventListener('click', function () { confirmText(); $('m-confirm').hidden = false; });
+    $('b-finish-yes').addEventListener('click', function () { finish('done'); });
+    $('b-finish-no').addEventListener('click', function () { $('m-confirm').hidden = true; });
+    $('b-back-fs').addEventListener('click', backToFullscreen);
+    $('warn').addEventListener('click', function () { $('warn').hidden = true; });
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    window.addEventListener('pagehide', onPageHide);
+    document.addEventListener('contextmenu', function (e) { if (running()) e.preventDefault(); });
+    document.addEventListener('paste', function (e) { if (running()) e.preventDefault(); });
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', function () { if (running()) { history.pushState(null, '', location.href); warn(T('Жұмыс кезінде артқа өтуге болмайды.', 'Переход назад во время работы недоступен.')); } });
+
+    state = load();
+    if (state && state.v === 1 && state.seed) tasks = C.generate(state.seed); else state = null;
+    if (state && state.status === 'running') {
+      // Бет жабылды немесе қайта жүктелді — бұл бұзушылық: жұмыс сол жерден жалғасады, MAX_VIOL-ші рет аяқталады
+      state.viol = (state.viol || 0) + 1; state.lastViol = 'reload';
+      if (state.viol >= MAX_VIOL) { finish('reload'); return; }
+      delete state.closedAt; save();
+      violLock = Date.now() + 1500;
+      ticker = setInterval(tick, 250);
+      if (state.stage === 'work') renderTask(); else show(state.stage === 'intro' ? 's-intro' : 's-theory');
+      renderBack();
+      $('m-back').hidden = false;
+      return;
+    }
+    if (state && state.status === 'finished') { renderResult(); return; }
+    state = null;
+    show('s-gate');
+  }
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>
