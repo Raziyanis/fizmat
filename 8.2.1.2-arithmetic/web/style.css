@@ -627,3 +627,4 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .gs-box button { align-self: flex-start; }
 .url-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .url-row input { flex: 1; min-width: 260px; font: 0.95rem ui-monospace, Consolas, monospace; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; }
+.r-send.none { background: #f1f3f6; color: var(--muted); font-weight: 500; font-size: 0.9rem; }

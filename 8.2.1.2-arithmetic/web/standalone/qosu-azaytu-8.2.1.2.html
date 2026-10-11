@@ -648,6 +648,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .gs-box button { align-self: flex-start; }
 .url-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .url-row input { flex: 1; min-width: 260px; font: 0.95rem ui-monospace, Consolas, monospace; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; }
+.r-send.none { background: #f1f3f6; color: var(--muted); font-weight: 500; font-size: 0.9rem; }
 </style>
 </head>
 <body>
@@ -1590,7 +1591,13 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
   }
   function renderSend() {
     var e = $('r-send'); if (!e) return;
-    if (!resultsUrl() || !state || state.status !== 'finished' || !state.queued) { e.hidden = true; return; }
+    if (!state || state.status !== 'finished') { e.hidden = true; return; }
+    if (!resultsUrl()) {   // файлда сілтеме жоқ — мұғалімге көрінетін ескерту
+      e.hidden = false; e.className = 'r-send none';
+      e.textContent = T('Нәтиже мұғалімге жіберілмеді: бұл файлда жіберу бапталмаған (мұғалімге: бастапқы беттегі «Мұғалімге» сілтемесі).', 'Результат учителю не отправлен: в этом файле отправка не настроена (для учителя: ссылка «Для учителя» на начальной странице).');
+      return;
+    }
+    if (!state.queued) { e.hidden = true; return; }
     e.hidden = false;
     e.className = 'r-send ' + (state.sent ? 'ok' : sending ? 'wait' : 'bad');
     e.textContent = state.sent ? T('✓ Нәтиже мұғалімге жіберілді.', '✓ Результат отправлен учителю.')

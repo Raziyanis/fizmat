@@ -455,7 +455,13 @@
   }
   function renderSend() {
     var e = $('r-send'); if (!e) return;
-    if (!resultsUrl() || !state || state.status !== 'finished' || !state.queued) { e.hidden = true; return; }
+    if (!state || state.status !== 'finished') { e.hidden = true; return; }
+    if (!resultsUrl()) {   // файлда сілтеме жоқ — мұғалімге көрінетін ескерту
+      e.hidden = false; e.className = 'r-send none';
+      e.textContent = T('Нәтиже мұғалімге жіберілмеді: бұл файлда жіберу бапталмаған (мұғалімге: бастапқы беттегі «Мұғалімге» сілтемесі).', 'Результат учителю не отправлен: в этом файле отправка не настроена (для учителя: ссылка «Для учителя» на начальной странице).');
+      return;
+    }
+    if (!state.queued) { e.hidden = true; return; }
     e.hidden = false;
     e.className = 'r-send ' + (state.sent ? 'ok' : sending ? 'wait' : 'bad');
     e.textContent = state.sent ? T('✓ Нәтиже мұғалімге жіберілді.', '✓ Результат отправлен учителю.')
