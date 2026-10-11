@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>break, continue, else — 8.1.4.5</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><span class="lang-label">Тіл / Язык</span><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span><span class="lang-kz">Жұмыстың аяқталуына</span><span class="lang-ru">До конца работы</span></span><b id="tm-total"></b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">…</p></section>
+
+    <section id="s-gate" hidden>
+      <h1><span class="lang-kz">Циклді басқару: break, continue, else</span><span class="lang-ru">Управление циклом: break, continue, else</span></h1>
+      <p class="topic"><span class="lang-kz">8.1.4.5 — циклді басқару нұсқауларын қолдану (continue, break, else)</span><span class="lang-ru">8.1.4.5 — использовать инструкции управления циклом (continue, break, else)</span></p>
+
+      <h2><span class="lang-kz">Еске түсірейік</span><span class="lang-ru">Вспомним</span></h2>
+      <div class="cheat">
+        <div class="cheat-card">
+          <h3>break</h3>
+          <p><span class="lang-kz">Циклды <b>бірден тоқтатады</b>. Программа циклдан кейінгі жолдан жалғасады.</span><span class="lang-ru">Сразу <b>прекращает цикл</b>. Программа продолжается со строки после цикла.</span></p>
+<pre class="code">while True:
+    x = int(input())
+    if x == 0:
+        break
+    print(x * 2)</pre>
+        </div>
+        <div class="cheat-card">
+          <h3>continue</h3>
+          <p><span class="lang-kz">Ағымдағы қадамның <b>қалған бөлігін өткізіп</b>, циклдың келесі қадамына өтеді.</span><span class="lang-ru">Пропускает <b>остаток текущего шага</b> и переходит к следующему шагу цикла.</span></p>
+<pre class="code">for i in range(1, 11):
+    if i % 3 == 0:
+        continue
+    print(i, end=" ")</pre>
+        </div>
+        <div class="cheat-card">
+          <h3>for … else</h3>
+          <p><span class="lang-kz"><b>else</b> бөлігі цикл <b>break-сіз</b> соңына дейін жеткенде ғана орындалады.</span><span class="lang-ru">Часть <b>else</b> выполняется, только если цикл дошёл до конца <b>без break</b>.</span></p>
+<pre class="code">for d in range(2, n):
+    if n % d == 0:
+        print("NO")
+        break
+else:
+    print("YES")</pre>
+        </div>
+      </div>
+
+      <h2><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h2>
+      <ul class="rules">
+        <li><span class="lang-kz"><b>10 есеп</b> — жеңілден қиынға қарай: A деңгейі (1–4), B (5–7), C (8–10). Әр есепке Python-да программа жазыңыз.</span><span class="lang-ru"><b>10 задач</b> — от простого к сложному: уровень A (1–4), B (5–7), C (8–10). К каждой задаче напишите программу на Python.</span></li>
+        <li><span class="lang-kz">Есептер олимпиададағыдай: деректерді <b>input()</b> арқылы оқып, жауапты <b>print()</b> арқылы шығарыңыз. Әр есепте кіріс және шығыс деректердің мысалдары бар.</span><span class="lang-ru">Задачи — как на олимпиаде: данные читайте через <b>input()</b>, ответ выводите через <b>print()</b>. У каждой задачи есть примеры входных и выходных данных.</span></li>
+        <li><span class="lang-kz"><b>«▶ Іске қосу»</b> — программаны өз деректеріңізбен орындау. <b>«✓ Тексеру»</b> — 8 тестте тексеру (2 мысал + 6 жасырын тест).</span><span class="lang-ru"><b>«▶ Запустить»</b> — выполнить программу со своими данными. <b>«✓ Проверить»</b> — проверка на 8 тестах (2 примера + 6 скрытых).</span></li>
+        <li><span class="lang-kz">Есеп <b>1 балл</b>: 8 тесттің бәрінен өтсе және шартта көрсетілген нұсқаулар (<b>break</b>, <b>continue</b>, <b>else</b>) программада болса. Ең көбі — <b>10 балл</b>.</span><span class="lang-ru">Задача — <b>1 балл</b>: если пройдены все 8 тестов и в программе есть инструкции, указанные в условии (<b>break</b>, <b>continue</b>, <b>else</b>). Максимум — <b>10 баллов</b>.</span></li>
+        <li><span class="lang-kz">Уақыт — <b><span class="i-min"></span> минут</b>. Есептер арасында еркін ауысуға болады, код өздігінен сақталады. Балл жұмыс аяқталғанда <b>соңғы код</b> бойынша есептеледі.</span><span class="lang-ru">Время — <b><span class="i-min"></span> минут</b>. Между задачами можно свободно переходить, код сохраняется автоматически. Балл считается по <b>последней версии кода</b>, когда работа завершается.</span></li>
+        <li><span class="lang-kz">Кодты кез келген пернетақта тілінде жазуға болады: редактордың үстіндегі <b>«⌨ Латиница»</b> режимі пернелерге ағылшын әріптерін береді.</span><span class="lang-ru">Код можно писать при любой раскладке: режим <b>«⌨ Латиница»</b> над редактором вводит английские буквы и знаки.</span></li>
+        <li class="important"><span class="lang-kz">Жұмыс толық экранда жүреді. Одан шығу, басқа бетке не терезеге ауысу, бетті қайта жүктеу — бұзушылық. <b>Алғашқы екеуіне ескерту беріледі, үшіншісінде жұмыс аяқталады.</b></span><span class="lang-ru">Работа идёт в полноэкранном режиме. Выход из него, переход на другую вкладку или окно, перезагрузка страницы — нарушение. <b>За первые два — предупреждение, на третьем работа завершается.</b></span></li>
+      </ul>
+      <p id="i-nofs" class="note" hidden><span class="lang-kz">Бұл браузер толық экранды қолдамайды. Басқа беттерге ауыспаңыз.</span><span class="lang-ru">Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки.</span></p>
+
+      <div class="who">
+        <label><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
+        <label><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
+      </div>
+      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
+      <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
+    </section>
+
+    <section id="s-work" hidden>
+      <div id="nav" class="nav"></div>
+      <p class="muted small nav-legend"><span class="lang-kz">Көк — код жазылған; жасыл — есеп шешілді; қызыл — тексеруде қате бар.</span><span class="lang-ru">Синий — код написан; зелёный — задача решена; красный — при проверке есть ошибки.</span></p>
+      <p id="w-num" class="muted"></p>
+      <h2 id="w-title" class="task-title"></h2>
+      <p id="w-text" class="task-text"></p>
+      <p id="w-need" class="need"></p>
+      <div class="io">
+        <p><b><span class="lang-kz">Кіріс деректер:</span><span class="lang-ru">Входные данные:</span></b> <span id="c-in"></span></p>
+        <p><b><span class="lang-kz">Шығыс деректер:</span><span class="lang-ru">Выходные данные:</span></b> <span id="c-out"></span></p>
+      </div>
+      <table class="examples">
+        <thead><tr><th>№</th><th><span class="lang-kz">Кіріс</span><span class="lang-ru">Вход</span></th><th><span class="lang-kz">Шығыс</span><span class="lang-ru">Выход</span></th></tr></thead>
+        <tbody id="c-ex"></tbody>
+      </table>
+      <div class="code-head"><label class="code-label" for="c-code"><span class="lang-kz">Сіздің программаңыз:</span><span class="lang-ru">Ваша программа:</span></label><button id="b-kbd" type="button" class="kbd-btn"></button></div>
+      <textarea id="c-code" class="editor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off"></textarea>
+      <div class="run-row">
+        <div class="run-in">
+          <label for="c-stdin" class="small muted"><span class="lang-kz">Іске қосуға арналған кіріс деректер (өзгертуге болады):</span><span class="lang-ru">Входные данные для запуска (можно изменить):</span></label>
+          <textarea id="c-stdin" class="stdin" spellcheck="false" rows="3"></textarea>
+        </div>
+        <div class="buttons">
+          <button id="b-run"><span class="lang-kz">▶ Іске қосу</span><span class="lang-ru">▶ Запустить</span></button>
+          <button id="b-check" class="primary"><span class="lang-kz">✓ Тексеру</span><span class="lang-ru">✓ Проверить</span></button>
+        </div>
+      </div>
+      <div id="c-result" class="run-result" hidden></div>
+      <div class="buttons nav-buttons">
+        <button id="b-prev"><span class="lang-kz">← Артқа</span><span class="lang-ru">← Назад</span></button>
+        <button id="b-next" class="primary"><span class="lang-kz">Келесі →</span><span class="lang-ru">Далее →</span></button>
+        <span class="spacer"></span>
+        <button id="b-finish" class="danger-outline"><span class="lang-kz">Жұмысты аяқтау</span><span class="lang-ru">Завершить работу</span></button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p id="m-confirm-text"></p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger"><span class="lang-kz">Иә, аяқтау</span><span class="lang-ru">Да, завершить</span></button>
+          <button id="b-finish-no"><span class="lang-kz">Жоқ</span><span class="lang-ru">Нет</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-eval" hidden>
+      <h1><span class="lang-kz">Жұмыс тексерілуде…</span><span class="lang-ru">Работа проверяется…</span></h1>
+      <p id="e-progress" class="count"></p>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
+      <p id="r-who" class="center who-line"></p>
+      <p id="r-reason" class="note" hidden></p>
+      <p class="score"><span id="r-score-num" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
+      <div id="r-table" class="table-wrap"></div>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2><span class="lang-kz">Талдау</span><span class="lang-ru">Разбор</span></h2>
+      <div id="r-list" class="review"></div>
+      <div class="teacher">
+        <button id="b-restart" class="primary"><span class="lang-kz">Осы компьютерде жаңа жұмыс</span><span class="lang-ru">Новая работа на этом компьютере</span></button>
+      </div>
+    </section>
+  </main>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <div id="m-back" class="back-fs" role="alertdialog" aria-modal="true" hidden>
+    <div class="back-box">
+      <h2><span class="lang-kz">Назар аударыңыз! Бұзушылық</span><span class="lang-ru">Внимание! Нарушение</span></h2>
+      <p id="m-back-text"></p>
+      <button id="b-back-fs" class="primary big"><span class="lang-kz">Толық экранға оралу</span><span class="lang-ru">Вернуться в полноэкранный режим</span></button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="vendor/skulpt.min.js"></script>
+  <script src="vendor/skulpt-stdlib.js"></script>
+  <script src="tasks.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
