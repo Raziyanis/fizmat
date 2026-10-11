@@ -1867,6 +1867,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 var EMAIL = 'raziya.baimurzayeva@fizmat.kz';   // хат қай поштаға келеді; бос болса — скрипт иесінің поштасы
 var SEND_EMAIL = true;   // false — хат жібермей, тек кестеге жазу
 var SHEET_NAME = 'Нәтижелер';
+var SEND_PDF = true;      // хатқа есептің PDF нұсқасы тіркеледі / к письму прикладывается PDF
+var TIME_ZONE = 'Asia/Almaty';
 
 /** Бір рет қолмен іске қосыңыз: кесте жасалады, сілтемесі «Журналда» шығады. */
 function setup() {
@@ -1907,26 +1909,39 @@ function doPost(e) {
   }
 }
 
-function mail_(d) {
-  var to = EMAIL || Session.getEffectiveUser().getEmail();
-  var subj = '8.2.1.2 · ' + clip_(d.cls, 20) + ' · ' + clip_(d.name, 60) + ' — ' + d.main + ' / ' + d.mainMax + (d.starMax ? ' (★ ' + d.star + ' / ' + d.starMax + ')' : '');
-  var h = [];
-  h.push('<h2 style="margin:0 0 6px">' + esc_(d.name) + ', ' + esc_(d.cls) + '</h2>');
-  h.push('<p style="font-size:18px;margin:4px 0"><b>' + d.main + ' / ' + d.mainMax + '</b> балл &nbsp;·&nbsp; ★ қосымша: <b>' + d.star + ' / ' + d.starMax + '</b></p>');
-  h.push('<p style="color:#555;margin:4px 0">Уақыты: ' + esc_(d.time) + ' · бұзушылық: ' + d.viol + (d.reasonText ? ' · ' + esc_(d.reasonText) : '') + '</p>');
-  h.push('<table cellpadding="4" style="border-collapse:collapse;font-family:Consolas,monospace;font-size:14px">');
-  h.push('<tr style="background:#e8eef7"><th align="left">№</th><th align="left">Мысал</th><th align="left">Дұрыс жауап</th><th align="left">Оқушының жауабы</th><th align="left">Балл</th></tr>');
+// Есеп (HTML): хаттың мәтіні және PDF үшін ортақ. pdf = true — PDF-ке ыңғайлы белгілер (✓/✗ орнына +/−)
+function report_(d, pdf) {
+  var when = Utilities.formatDate(new Date(), TIME_ZONE, 'dd.MM.yyyy HH:mm');
+  var h = [], cell = 'border:1px solid #c9d1dc;padding:4px 6px;';
+  h.push('<h2 style="margin:0 0 6px;font-family:Arial,sans-serif">' + esc_(d.name) + ', ' + esc_(d.cls) + '</h2>');
+  h.push('<p style="font-family:Arial,sans-serif;font-size:16px;margin:4px 0">8.2.1.2 · Санау жүйелерінде қосу және азайту · ' + when + '</p>');
+  h.push('<p style="font-family:Arial,sans-serif;font-size:18px;margin:4px 0"><b>' + d.main + ' / ' + d.mainMax + '</b> балл &nbsp;·&nbsp; ★ қосымша: <b>' + d.star + ' / ' + d.starMax + '</b></p>');
+  h.push('<p style="font-family:Arial,sans-serif;color:#555;margin:4px 0 10px">Уақыты: ' + esc_(d.time) + ' · бұзушылық: ' + d.viol + (d.reasonText ? ' · ' + esc_(d.reasonText) : '') + '</p>');
+  h.push('<table cellpadding="4" style="border-collapse:collapse;font-family:Consolas,\'Courier New\',monospace;font-size:13px">');
+  h.push('<tr style="background:#e8eef7"><th align="left" style="' + cell + '">№</th><th align="left" style="' + cell + '">Мысал</th><th align="left" style="' + cell + '">Дұрыс жауап</th><th align="left" style="' + cell + '">Оқушының жауабы</th><th align="left" style="' + cell + '">Балл</th></tr>');
   d.tasks.forEach(function (t) {
-    h.push('<tr style="background:#f5f6f8"><td colspan="5"><b>' + esc_(t.no + '. ' + t.title) + ' — ' + t.score + ' / ' + t.max + '</b></td></tr>');
+    h.push('<tr style="background:#f5f6f8"><td colspan="5" style="' + cell + '"><b>' + esc_(t.no + '. ' + t.title) + ' — ' + t.score + ' / ' + t.max + '</b></td></tr>');
     t.items.forEach(function (it) {
-      var col = it.ok ? '#1a7f37' : '#c62828';
-      h.push('<tr><td>' + esc_(it.no) + '</td><td>' + esc_(it.expr) + '</td><td>' + esc_(it.key) + '</td><td style="color:' + col + '">' + esc_(it.answer || '—') + '</td><td style="color:' + col + ';white-space:nowrap">' + (it.ok ? '✓ ' : '✗ ') + esc_(it.pts != null ? it.pts + ' / ' + it.per : '') + '</td></tr>');
+      var col = it.ok ? '#1a7f37' : '#c62828', mark = pdf ? (it.ok ? '+ ' : '− ') : (it.ok ? '✓ ' : '✗ ');
+      h.push('<tr><td style="' + cell + '">' + esc_(it.no) + '</td><td style="' + cell + '">' + esc_(it.expr) + '</td><td style="' + cell + '">' + esc_(it.key) + '</td><td style="' + cell + 'color:' + col + '">' + esc_(it.answer || '—') + '</td><td style="' + cell + 'color:' + col + ';white-space:nowrap">' + mark + esc_(it.pts != null ? it.pts + ' / ' + it.per : '') + '</td></tr>');
     });
   });
   h.push('</table>');
-  MailApp.sendEmail({ to: to, subject: subj, htmlBody: h.join('\n') });
+  return h.join('\n');
 }
-
+function mail_(d) {
+  var to = EMAIL || Session.getEffectiveUser().getEmail();
+  var subj = '8.2.1.2 · ' + clip_(d.cls, 20) + ' · ' + clip_(d.name, 60) + ' — ' + d.main + ' / ' + d.mainMax + (d.starMax ? ' (★ ' + d.star + ' / ' + d.starMax + ')' : '');
+  var msg = { to: to, subject: subj, htmlBody: report_(d, false) };
+  if (SEND_PDF) {
+    try {   // PDF жасалмаса да, хат PDF-сіз кетеді
+      var fname = ('8.2.1.2_' + clip_(d.cls, 20) + '_' + clip_(d.name, 60)).replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_');
+      var page = '<html><head><meta charset="utf-8"></head><body style="margin:24px">' + report_(d, true) + '</body></html>';
+      msg.attachments = [Utilities.newBlob(page, 'text/html', fname + '.html').getAs('application/pdf').setName(fname + '.pdf')];
+    } catch (e) { msg.htmlBody += '<p style="color:#c62828">PDF жасалмады: ' + esc_(e) + '</p>'; }
+  }
+  MailApp.sendEmail(msg);
+}
 function book_() {
   var props = PropertiesService.getScriptProperties(), id = props.getProperty('SHEET_ID'), ss = null;
   if (id) { try { ss = SpreadsheetApp.openById(id); } catch (e) { ss = null; } }
