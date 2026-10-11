@@ -25,7 +25,7 @@
   function isStar(t) { return !!t.star; }
   function navName(i) { var n = tasks.filter(function (t) { return !isStar(t); }).length; return i < n ? String(i + 1) : '★' + (i - n + 1); }
   function show(id) {
-    ['s-loading', 's-gate', 's-theory', 's-intro', 's-work', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['s-loading', 's-gate', 's-teacher', 's-theory', 's-intro', 's-work', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
     $('timers').hidden = !(id === 's-work' && running() && state.stage === 'work');
     window.scrollTo(0, 0);
   }
@@ -552,14 +552,56 @@
       (us ? ' ' + T('Толық орындалмаған қосымша тапсырмалар: ', 'Не до конца выполненных дополнительных: ') + us + '.' : '') + ' ' + T('Тапсырғаннан кейін жауаптарды өзгертуге болмайды.', 'После сдачи ответы изменить нельзя.');
   }
 
+  // ---------- Мұғалімге: Apps Script және сілтемесі бар файлды жүктеп алу ----------
+  var PAGE_SRC = '';   // бет ашылған кездегі бастапқы HTML (скрипт DOM-ды өзгертпей тұрып)
+  function teacherStatus() {
+    var u = resultsUrl();
+    $('t-status').textContent = u ? T('Бұл файлда сілтеме бар — нәтижелер жіберіледі: ', 'В этом файле ссылка уже есть — результаты отправляются: ') + u
+      : T('Бұл файлда сілтеме әлі жоқ — нәтижелер жіберілмейді.', 'В этом файле ссылки пока нет — результаты не отправляются.');
+  }
+  function showTeacher() {
+    var src = document.getElementById('gs-src');
+    $('gs-code').value = src ? src.textContent.trim().replace(/<\\\/script/gi, '</script') : T('(скрипт тек жинақталған файлда бар)', '(скрипт есть только в собранном файле)');
+    $('i-url').value = String(window.RESULTS_URL || '');
+    teacherStatus(); $('url-msg').textContent = '';
+    show('s-teacher');
+  }
+  function urlOk(u) { return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u); }
+  function downloadConfigured() {
+    var u = $('i-url').value.trim();
+    if (!urlOk(u)) { $('url-msg').textContent = T('Сілтеме https://script.google.com/macros/s/…/exec түрінде болуы керек.', 'Ссылка должна быть вида https://script.google.com/macros/s/…/exec'); return; }
+    var html = PAGE_SRC.replace(/window\.RESULTS_URL = "[^"]*";/, 'window.RESULTS_URL = "' + u + '";');
+    if (html === PAGE_SRC && PAGE_SRC.indexOf(u) < 0) { $('url-msg').textContent = T('Файлды жасау мүмкін болмады.', 'Не удалось создать файл.'); return; }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+    a.download = 'qosu-azaytu-8.2.1.2.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    $('url-msg').textContent = T('Файл жүктелді (Жүктеулер қалтасында). Оқушыларға осы файлды беріңіз.', 'Файл скачан (папка «Загрузки»). Давайте ученикам этот файл.');
+  }
+  function testUrl() {
+    var u = $('i-url').value.trim();
+    if (!urlOk(u)) { $('url-msg').textContent = T('Сілтеме https://script.google.com/macros/s/…/exec түрінде болуы керек.', 'Ссылка должна быть вида https://script.google.com/macros/s/…/exec'); return; }
+    $('url-msg').textContent = T('Тексерілуде…', 'Проверка…');
+    var p = { app: 'qosu-azaytu-8.2.1.2', id: 'test-' + Date.now(), seed: 0, lang: LANG, name: T('ТЕКСЕРУ (мұғалім)', 'ПРОВЕРКА (учитель)'), cls: '—', main: '0', mainMax: '10', star: '0', starMax: '6', time: '0:00', viol: 0, reasonText: '', tasks: [] };
+    fetch(u, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p) })
+      .then(function () { $('url-msg').textContent = T('Тексеру хаты жіберілді. Пошта мен кестені қараңыз: «ТЕКСЕРУ» деген жол пайда болуы керек.', 'Проверочное письмо отправлено. Проверьте почту и таблицу: там должна появиться строка «ПРОВЕРКА».'); },
+        function () { $('url-msg').textContent = T('Жіберу мүмкін болмады: интернетті және сілтемені тексеріңіз.', 'Не удалось отправить: проверьте интернет и ссылку.'); });
+  }
+
   // ---------- Іске қосу ----------
   function init() {
+    PAGE_SRC = '<!doctype html>\n' + document.documentElement.outerHTML;
     $('theory-kz').innerHTML = C.theory('kz');
     $('theory-ru').innerHTML = C.theory('ru');
     document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 40); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     setLang(LANG);
     $('b-gate').addEventListener('click', startSession);
+    $('b-teacher').addEventListener('click', showTeacher);
+    $('b-teacher-back').addEventListener('click', function () { show('s-gate'); });
+    $('b-gs-copy').addEventListener('click', function () { var ta = $('gs-code'); ta.select(); try { if (navigator.clipboard) navigator.clipboard.writeText(ta.value); else document.execCommand('copy'); } catch (e) { document.execCommand('copy'); } $('url-msg').textContent = ''; warn(T('Скрипт көшірілді.', 'Скрипт скопирован.')); });
+    $('b-download').addEventListener('click', downloadConfigured);
+    $('b-test-url').addEventListener('click', testUrl);
     ['i-name', 'i-cls'].forEach(function (id) { $(id).addEventListener('input', function () { $('who-err').hidden = true; }); $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') startSession(); }); });
     window.addEventListener('online', flushOutbox);
     $('b-to-intro').addEventListener('click', toIntro);

@@ -639,6 +639,15 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .r-send.ok { background: var(--ok-bg); color: var(--ok); }
 .r-send.wait { background: #e7eefb; color: var(--accent); }
 .r-send.bad { background: var(--warn-bg); color: #8a5a00; }
+
+/* Мұғалімге: баптау беті */
+.teacher-link { margin: 18px 0 0; }
+.t-steps li { margin-bottom: 12px; }
+.gs-box { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.gs-box textarea { width: 100%; height: 180px; font: 0.8rem/1.4 ui-monospace, Consolas, monospace; border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: #fbfcfe; }
+.gs-box button { align-self: flex-start; }
+.url-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.url-row input { flex: 1; min-width: 260px; font: 0.95rem ui-monospace, Consolas, monospace; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -665,6 +674,25 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       </div>
       <p id="who-err" class="who-err" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
       <div class="buttons"><button id="b-gate" class="primary big"><span class="lang-kz">Бастау (толық экранда)</span><span class="lang-ru">Начать (на весь экран)</span></button></div>
+          <p class="teacher-link"><button id="b-teacher" class="link" type="button"><span class="lang-kz">Мұғалімге: нәтижелерді поштаға жіберуді баптау</span><span class="lang-ru">Для учителя: настройка отправки результатов на почту</span></button></p>
+    </section>
+
+    <section id="s-teacher" hidden>
+      <h1><span class="lang-kz">Нәтижелерді мұғалімнің поштасына жіберу</span><span class="lang-ru">Отправка результатов на почту учителя</span></h1>
+      <p id="t-status" class="note"></p>
+      <ol class="t-steps">
+        <li><span class="lang-kz"><a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> сайтын өз Google аккаунтыңызбен ашып, <b>Жаңа жоба</b> жасаңыз.</span><span class="lang-ru">Откройте <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> под своим Google-аккаунтом → <b>Новый проект</b>.</span></li>
+        <li><span class="lang-kz">Төмендегі скриптті көшіріп (<b>Көшіру</b> батырмасы), редактордағы бар мәтіннің орнына қойыңыз да, сақтаңыз (Ctrl+S). Пошта мекенжайы <code>var EMAIL</code> жолында.</span><span class="lang-ru">Скопируйте скрипт ниже (кнопка <b>Копировать</b>), вставьте вместо текста в редакторе и сохраните (Ctrl+S). Адрес почты — в строке <code>var EMAIL</code>.</span>
+          <div class="gs-box"><textarea id="gs-code" readonly spellcheck="false"></textarea><button id="b-gs-copy" type="button"><span class="lang-kz">Көшіру</span><span class="lang-ru">Копировать</span></button></div></li>
+        <li><span class="lang-kz">Жоғарыдан <b>setup</b> функциясын таңдап, <b>Іске қосу</b> батырмасын басыңыз, рұқсат беріңіз (кесте жасалады).</span><span class="lang-ru">Вверху выберите функцию <b>setup</b> → <b>Выполнить</b> → разрешите доступ (создастся таблица).</span></li>
+        <li><span class="lang-kz"><b>Жариялау → Жаңа жариялау → Веб-қосымша</b>: «Кімнің атынан» — <b>Мен</b>; «Кімге қолжетімді» — <b>Барлығы</b>. <b>…/exec</b> деп аяқталатын сілтемені көшіріңіз.</span><span class="lang-ru"><b>Начать развертывание → Новое развертывание → Веб-приложение</b>: «Запуск от имени» — <b>Я</b>; «У кого есть доступ» — <b>Все</b>. Скопируйте ссылку, которая заканчивается на <b>/exec</b>.</span></li>
+        <li><span class="lang-kz">Сілтемені осында қойып, баптаулары бар файлды жүктеп алыңыз. Оқушыларға <b>осы жаңа файлды</b> беріңіз.</span><span class="lang-ru">Вставьте ссылку сюда и скачайте настроенный файл. Ученикам давайте <b>этот новый файл</b>.</span>
+          <div class="url-row"><input id="i-url" type="text" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec">
+          <button id="b-test-url" type="button"><span class="lang-kz">Тексеру</span><span class="lang-ru">Проверить</span></button>
+          <button id="b-download" class="primary" type="button"><span class="lang-kz">Файлды жүктеп алу</span><span class="lang-ru">Скачать файл</span></button></div>
+          <p id="url-msg" class="muted small"></p></li>
+      </ol>
+      <div class="buttons"><button id="b-teacher-back" type="button">← <span class="lang-kz">Бастапқы бет</span><span class="lang-ru">Начальная страница</span></button></div>
     </section>
 
     <section id="s-theory" class="theory" hidden>
@@ -1132,7 +1160,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
   function isStar(t) { return !!t.star; }
   function navName(i) { var n = tasks.filter(function (t) { return !isStar(t); }).length; return i < n ? String(i + 1) : '★' + (i - n + 1); }
   function show(id) {
-    ['s-loading', 's-gate', 's-theory', 's-intro', 's-work', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['s-loading', 's-gate', 's-teacher', 's-theory', 's-intro', 's-work', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
     $('timers').hidden = !(id === 's-work' && running() && state.stage === 'work');
     window.scrollTo(0, 0);
   }
@@ -1659,14 +1687,56 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       (us ? ' ' + T('Толық орындалмаған қосымша тапсырмалар: ', 'Не до конца выполненных дополнительных: ') + us + '.' : '') + ' ' + T('Тапсырғаннан кейін жауаптарды өзгертуге болмайды.', 'После сдачи ответы изменить нельзя.');
   }
 
+  // ---------- Мұғалімге: Apps Script және сілтемесі бар файлды жүктеп алу ----------
+  var PAGE_SRC = '';   // бет ашылған кездегі бастапқы HTML (скрипт DOM-ды өзгертпей тұрып)
+  function teacherStatus() {
+    var u = resultsUrl();
+    $('t-status').textContent = u ? T('Бұл файлда сілтеме бар — нәтижелер жіберіледі: ', 'В этом файле ссылка уже есть — результаты отправляются: ') + u
+      : T('Бұл файлда сілтеме әлі жоқ — нәтижелер жіберілмейді.', 'В этом файле ссылки пока нет — результаты не отправляются.');
+  }
+  function showTeacher() {
+    var src = document.getElementById('gs-src');
+    $('gs-code').value = src ? src.textContent.trim().replace(/<\\\/script/gi, '<\/script') : T('(скрипт тек жинақталған файлда бар)', '(скрипт есть только в собранном файле)');
+    $('i-url').value = String(window.RESULTS_URL || '');
+    teacherStatus(); $('url-msg').textContent = '';
+    show('s-teacher');
+  }
+  function urlOk(u) { return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u); }
+  function downloadConfigured() {
+    var u = $('i-url').value.trim();
+    if (!urlOk(u)) { $('url-msg').textContent = T('Сілтеме https://script.google.com/macros/s/…/exec түрінде болуы керек.', 'Ссылка должна быть вида https://script.google.com/macros/s/…/exec'); return; }
+    var html = PAGE_SRC.replace(/window\.RESULTS_URL = "[^"]*";/, 'window.RESULTS_URL = "' + u + '";');
+    if (html === PAGE_SRC && PAGE_SRC.indexOf(u) < 0) { $('url-msg').textContent = T('Файлды жасау мүмкін болмады.', 'Не удалось создать файл.'); return; }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+    a.download = 'qosu-azaytu-8.2.1.2.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    $('url-msg').textContent = T('Файл жүктелді (Жүктеулер қалтасында). Оқушыларға осы файлды беріңіз.', 'Файл скачан (папка «Загрузки»). Давайте ученикам этот файл.');
+  }
+  function testUrl() {
+    var u = $('i-url').value.trim();
+    if (!urlOk(u)) { $('url-msg').textContent = T('Сілтеме https://script.google.com/macros/s/…/exec түрінде болуы керек.', 'Ссылка должна быть вида https://script.google.com/macros/s/…/exec'); return; }
+    $('url-msg').textContent = T('Тексерілуде…', 'Проверка…');
+    var p = { app: 'qosu-azaytu-8.2.1.2', id: 'test-' + Date.now(), seed: 0, lang: LANG, name: T('ТЕКСЕРУ (мұғалім)', 'ПРОВЕРКА (учитель)'), cls: '—', main: '0', mainMax: '10', star: '0', starMax: '6', time: '0:00', viol: 0, reasonText: '', tasks: [] };
+    fetch(u, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p) })
+      .then(function () { $('url-msg').textContent = T('Тексеру хаты жіберілді. Пошта мен кестені қараңыз: «ТЕКСЕРУ» деген жол пайда болуы керек.', 'Проверочное письмо отправлено. Проверьте почту и таблицу: там должна появиться строка «ПРОВЕРКА».'); },
+        function () { $('url-msg').textContent = T('Жіберу мүмкін болмады: интернетті және сілтемені тексеріңіз.', 'Не удалось отправить: проверьте интернет и ссылку.'); });
+  }
+
   // ---------- Іске қосу ----------
   function init() {
+    PAGE_SRC = '<!doctype html>\n' + document.documentElement.outerHTML;
     $('theory-kz').innerHTML = C.theory('kz');
     $('theory-ru').innerHTML = C.theory('ru');
     document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 40); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     setLang(LANG);
     $('b-gate').addEventListener('click', startSession);
+    $('b-teacher').addEventListener('click', showTeacher);
+    $('b-teacher-back').addEventListener('click', function () { show('s-gate'); });
+    $('b-gs-copy').addEventListener('click', function () { var ta = $('gs-code'); ta.select(); try { if (navigator.clipboard) navigator.clipboard.writeText(ta.value); else document.execCommand('copy'); } catch (e) { document.execCommand('copy'); } $('url-msg').textContent = ''; warn(T('Скрипт көшірілді.', 'Скрипт скопирован.')); });
+    $('b-download').addEventListener('click', downloadConfigured);
+    $('b-test-url').addEventListener('click', testUrl);
     ['i-name', 'i-cls'].forEach(function (id) { $(id).addEventListener('input', function () { $('who-err').hidden = true; }); $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') startSession(); }); });
     window.addEventListener('online', flushOutbox);
     $('b-to-intro').addEventListener('click', toIntro);
@@ -1713,6 +1783,104 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
   }
   document.addEventListener('DOMContentLoaded', init);
 })();
+
+</script>
+<script type="text/plain" id="gs-src">
+/**
+ * 8.2.1.2 «Санау жүйелерінде қосу және азайту» — оқушылардың нәтижелерін қабылдау.
+ * Google Apps Script, веб-қосымша ретінде жарияланады (README.md, «Нәтижелер мұғалімнің поштасына»).
+ *
+ * Әр оқушы жұмысты тапсырғанда веб-ресурс осы скриптке нәтижені жібереді. Скрипт:
+ *   1) Google Кестесіне («Нәтижелер» парағы) бір жол қосады;
+ *   2) мұғалімге хат жібереді: аты-жөні, сыныбы, балы және әр мысалға берген жауабы.
+ * Тегін: Google аккаунтының өз квотасы (жеке аккаунтқа тәулігіне шамамен 100 хат).
+ */
+
+var EMAIL = 'raziya.baimurzayeva@fizmat.kz';   // хат қай поштаға келеді; бос болса — скрипт иесінің поштасы
+var SEND_EMAIL = true;   // false — хат жібермей, тек кестеге жазу
+var SHEET_NAME = 'Нәтижелер';
+
+/** Бір рет қолмен іске қосыңыз: кесте жасалады, сілтемесі «Журналда» шығады. */
+function setup() {
+  var ss = book_();
+  Logger.log('Кесте: ' + ss.getUrl());
+  Logger.log('Хат мына поштаға келеді: ' + (EMAIL || Session.getEffectiveUser().getEmail()));
+}
+
+function doGet() {
+  return ContentService.createTextOutput('8.2.1.2: нәтижелерді қабылдау жұмыс істеп тұр.');
+}
+
+function doPost(e) {
+  try {
+    var d = JSON.parse(e.postData.contents);
+    if (!d || d.app !== 'qosu-azaytu-8.2.1.2') return out_('skip');
+    var lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    try {
+      var sh = sheet_();
+      // бір нәтиже екі рет келсе (интернет үзіліп, қайта жіберілсе) — қайталамаймыз
+      var ids = sh.getRange(1, 13, Math.max(sh.getLastRow(), 1), 1).getValues().map(function (r) { return String(r[0]); });
+      if (ids.indexOf(String(d.id)) >= 0) return out_('dup');
+      sh.appendRow([
+        new Date(), safe_(d.cls), safe_(d.name), num_(d.main), num_(d.mainMax), num_(d.star), num_(d.starMax),
+        safe_(d.time), num_(d.viol), safe_(d.reasonText), safe_(d.tasks.map(function (t) { return t.no + ': ' + t.score + '/' + t.max; }).join('; ')),
+        safe_(d.lang), safe_(d.id), num_(d.seed),
+      ]);
+    } finally { lock.releaseLock(); }
+    if (SEND_EMAIL) mail_(d);
+    return out_('ok');
+  } catch (err) {
+    return out_('error: ' + err);
+  }
+}
+
+function mail_(d) {
+  var to = EMAIL || Session.getEffectiveUser().getEmail();
+  var subj = '8.2.1.2 · ' + clip_(d.cls, 20) + ' · ' + clip_(d.name, 60) + ' — ' + d.main + ' / ' + d.mainMax + (d.starMax ? ' (★ ' + d.star + ' / ' + d.starMax + ')' : '');
+  var h = [];
+  h.push('<h2 style="margin:0 0 6px">' + esc_(d.name) + ', ' + esc_(d.cls) + '</h2>');
+  h.push('<p style="font-size:18px;margin:4px 0"><b>' + d.main + ' / ' + d.mainMax + '</b> балл &nbsp;·&nbsp; ★ қосымша: <b>' + d.star + ' / ' + d.starMax + '</b></p>');
+  h.push('<p style="color:#555;margin:4px 0">Уақыты: ' + esc_(d.time) + ' · бұзушылық: ' + d.viol + (d.reasonText ? ' · ' + esc_(d.reasonText) : '') + '</p>');
+  h.push('<table cellpadding="4" style="border-collapse:collapse;font-family:Consolas,monospace;font-size:14px">');
+  h.push('<tr style="background:#e8eef7"><th align="left">№</th><th align="left">Мысал</th><th align="left">Дұрыс жауап</th><th align="left">Оқушының жауабы</th><th align="left">Балл</th></tr>');
+  d.tasks.forEach(function (t) {
+    h.push('<tr style="background:#f5f6f8"><td colspan="5"><b>' + esc_(t.no + '. ' + t.title) + ' — ' + t.score + ' / ' + t.max + '</b></td></tr>');
+    t.items.forEach(function (it) {
+      var col = it.ok ? '#1a7f37' : '#c62828';
+      h.push('<tr><td>' + esc_(it.no) + '</td><td>' + esc_(it.expr) + '</td><td>' + esc_(it.key) + '</td><td style="color:' + col + '">' + esc_(it.answer || '—') + '</td><td style="color:' + col + ';white-space:nowrap">' + (it.ok ? '✓ ' : '✗ ') + esc_(it.pts != null ? it.pts + ' / ' + it.per : '') + '</td></tr>');
+    });
+  });
+  h.push('</table>');
+  MailApp.sendEmail({ to: to, subject: subj, htmlBody: h.join('\n') });
+}
+
+function book_() {
+  var props = PropertiesService.getScriptProperties(), id = props.getProperty('SHEET_ID'), ss = null;
+  if (id) { try { ss = SpreadsheetApp.openById(id); } catch (e) { ss = null; } }
+  if (!ss) {
+    ss = SpreadsheetApp.create('8.2.1.2 — нәтижелер (санау жүйелерінде қосу және азайту)');
+    props.setProperty('SHEET_ID', ss.getId());
+  }
+  return ss;
+}
+function sheet_() {
+  var ss = book_(), sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) {
+    sh = ss.getSheets()[0];
+    sh.setName(SHEET_NAME);
+    sh.appendRow(['Уақыты', 'Сынып', 'Аты-жөні', 'Балл', 'Макс.', '★ балл', '★ макс.', 'Жұмыс уақыты', 'Бұзушылық', 'Аяқталу себебі', 'Тапсырмалар бойынша', 'Тіл', 'ID', 'Нұсқа (seed)']);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 14).setFontWeight('bold');
+  }
+  return sh;
+}
+function out_(s) { return ContentService.createTextOutput(s); }
+function num_(x) { var n = Number(x); return isFinite(n) ? n : ''; }
+function clip_(s, n) { return String(s == null ? '' : s).slice(0, n); }
+// кестеде формула ретінде орындалмасын
+function safe_(s) { s = clip_(s, 2000); return /^[=+\-@]/.test(s) ? "'" + s : s; }
+function esc_(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
 </script>
 </body>

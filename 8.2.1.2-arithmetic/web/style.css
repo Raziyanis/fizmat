@@ -618,3 +618,12 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .r-send.ok { background: var(--ok-bg); color: var(--ok); }
 .r-send.wait { background: #e7eefb; color: var(--accent); }
 .r-send.bad { background: var(--warn-bg); color: #8a5a00; }
+
+/* Мұғалімге: баптау беті */
+.teacher-link { margin: 18px 0 0; }
+.t-steps li { margin-bottom: 12px; }
+.gs-box { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.gs-box textarea { width: 100%; height: 180px; font: 0.8rem/1.4 ui-monospace, Consolas, monospace; border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: #fbfcfe; }
+.gs-box button { align-self: flex-start; }
+.url-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.url-row input { flex: 1; min-width: 260px; font: 0.95rem ui-monospace, Consolas, monospace; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; }

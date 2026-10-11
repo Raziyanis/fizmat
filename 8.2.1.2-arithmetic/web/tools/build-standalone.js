@@ -11,6 +11,8 @@ let page = read('index.html')
   .replace('<link rel="stylesheet" href="style.css">', () => '<style>\n' + read('style.css') + '</style>')
   .replace('<script src="config.js"></script>', () => inline(read('config.js')))
   .replace(/  <script src="content\.js"><\/script>\s*<script src="app\.js"><\/script>/, () => [read('content.js'), read('app.js')].map(inline).join('\n'));
+// Мұғалімге арналған Apps Script мәтіні — сол файлдың ішінде (бір файл)
+page = page.replace('</body>', () => '<script type="text/plain" id="gs-src">\n' + read('server/Code.gs').replace(/<\/script/gi, '<\\/script') + '\n</script>\n</body>');
 if (/<script src=|<link rel="stylesheet"/.test(page)) throw new Error('сыртқы файлдар қалды');
 fs.mkdirSync(path.join(dir, 'standalone'), { recursive: true });
 fs.writeFileSync(path.join(dir, 'standalone', 'qosu-azaytu-8.2.1.2.html'), page);
