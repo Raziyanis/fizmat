@@ -211,6 +211,10 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 .back-fs[hidden] { display: none; }
 .back-box { max-width: 560px; width: 100%; background: var(--card); border: 3px solid var(--bad); border-radius: 12px; padding: 24px; text-align: center; }
 .back-box h2 { color: var(--bad); margin-top: 0; }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.kbd-lang { font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 2px solid #9aa4b2; color: #5f6b7a; background: #f3f5f8; white-space: nowrap; }
+.kbd-lang.en { border-color: #1a7f37; color: #1a7f37; background: #e8f5ec; }
+.kbd-lang.ru, .kbd-lang.kz { border-color: #c62828; color: #c62828; background: #fdecec; }
   </style>
 </head>
 <body>
@@ -515,6 +519,7 @@ print("Среднее арифметическое на и под главной
         </table>
         <div class="code-head">
           <label for="c-code" style="font-weight:bold;">Ваш код на Python:</label>
+          <span id="kbd-lang" class="kbd-lang" title="Раскладка клавиатуры / Пернетақта тілі / Keyboard layout">⌨ ?</span>
         </div>
         <textarea id="c-code" class="editor" spellcheck="false" autocomplete="off"></textarea>
         
@@ -2138,7 +2143,40 @@ function navRelative(dir) {
   }
 }
 
+// Индикатор раскладки: ҚАЗ / РУС / ENG — какой язык клавиатуры сейчас включён (код на Python пишется на ENG)
+const KBD = { en: '⌨ ENG ✓', ru: '⌨ РУС — переключите на ENG (Alt+Shift / Win+Space)', kz: '⌨ ҚАЗ — ENG-ке ауыстырыңыз (Alt+Shift / Win+Space)' };
+let kbdLang = null;
+function showKbd(l) {
+  if (!l || l === kbdLang) return;
+  kbdLang = l;
+  const e = $('kbd-lang'); e.textContent = KBD[l]; e.className = 'kbd-lang ' + l;
+}
+function kbdFromKey(e) {
+  if (e.ctrlKey || e.metaKey || e.altKey || !e.key || e.key.length !== 1) return null;
+  if (/[a-zA-Z]/.test(e.key)) return 'en';
+  if (/[әіңғүұқөһӘІҢҒҮҰҚӨҺ]/.test(e.key)) return 'kz';
+  if (/[а-яёА-ЯЁ]/.test(e.key)) return kbdLang === 'kz' ? 'kz' : (/^Digit/.test(e.code) ? 'kz' : 'ru');
+  return null;
+}
+function kbdFromLayout() {   // Chrome/Edge: раскладку можно узнать ещё до первого нажатия
+  if (!navigator.keyboard || !navigator.keyboard.getLayoutMap) return;
+  navigator.keyboard.getLayoutMap().then(m => {
+    const q = m.get('KeyQ') || '', d2 = m.get('Digit2') || '';
+    if (/[a-z]/i.test(q)) showKbd('en');
+    else if (/[әіңғүұқөһ]/i.test(d2 + (m.get('Digit3') || '') + (m.get('Digit4') || ''))) showKbd('kz');
+    else if (/[а-яё]/i.test(q)) showKbd('ru');
+  }).catch(() => {});
+}
+function setupKbdIndicator() {
+  ['c-code', 'c-stdin'].forEach(id => {
+    $(id).addEventListener('keydown', e => showKbd(kbdFromKey(e)));
+    $(id).addEventListener('focus', kbdFromLayout);
+  });
+  kbdFromLayout();
+}
+
 function setupCodeEditor() {
+  setupKbdIndicator();
   $('b-run').onclick = () => runPython(false);$('b-check').onclick = () => runPython(true);
 
   $('c-code').oninput = () => {
