@@ -16,7 +16,10 @@ var SHEET_NAME = 'Нәтижелер';
 function setup() {
   var ss = book_();
   Logger.log('Кесте: ' + ss.getUrl());
-  Logger.log('Хат мына поштаға келеді: ' + (EMAIL || Session.getEffectiveUser().getEmail()));
+  var to = EMAIL || Session.getEffectiveUser().getEmail();
+  // хат жіберуге рұқсат сұралады және бірден тексеріледі
+  MailApp.sendEmail(to, '8.2.1.2 — пошта жұмыс істейді', 'Бұл тексеру хаты. Оқушылардың нәтижелері осы поштаға келеді.\nЭто проверочное письмо: результаты учеников будут приходить на эту почту.\nКесте / таблица: ' + ss.getUrl());
+  Logger.log('Хат жіберілді / письмо отправлено: ' + to);
 }
 
 function doGet() {
