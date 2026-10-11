@@ -38,11 +38,32 @@
       <p id="i-nofs" class="note" hidden><span class="lang-kz">Бұл браузер толық экранды қолдамайды. Басқа беттерге ауыспаңыз.</span><span class="lang-ru">Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки.</span></p>
 
       <div class="who">
-        <label><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
-        <label><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
+        <label id="w-cls-sel" hidden><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><select id="s-cls"></select></label>
+        <label id="w-name-sel" hidden><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><select id="s-name"></select></label>
+        <label id="w-name"><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
+        <label id="w-cls"><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
       </div>
-      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
+      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Сыныбыңызды және аты-жөніңізді көрсетіңіз.</span><span class="lang-ru">Укажите класс, фамилию и имя.</span></p>
       <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Теорияны оқу (толық экранда)</span><span class="lang-ru">Читать теорию (на весь экран)</span></button></div>
+      <p class="teacher-link"><button id="b-teacher" class="link" type="button"><span class="lang-kz">Мұғалімге: нәтижелерді поштаға жіберуді баптау</span><span class="lang-ru">Для учителя: настройка отправки результатов на почту</span></button></p>
+    </section>
+
+    <section id="s-teacher" hidden>
+      <h1><span class="lang-kz">Нәтижелерді мұғалімнің поштасына жіберу</span><span class="lang-ru">Отправка результатов на почту учителя</span></h1>
+      <p id="t-status" class="note"></p>
+      <ol class="t-steps">
+        <li><span class="lang-kz"><a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> сайтын өз Google аккаунтыңызбен ашып, <b>Жаңа жоба</b> жасаңыз.</span><span class="lang-ru">Откройте <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> под своим Google-аккаунтом → <b>Новый проект</b>.</span></li>
+        <li><span class="lang-kz">Төмендегі скриптті көшіріп (<b>Көшіру</b> батырмасы), редактордағы бар мәтіннің орнына қойыңыз да, сақтаңыз (Ctrl+S). Пошта мекенжайы <code>var EMAIL</code> жолында.</span><span class="lang-ru">Скопируйте скрипт ниже (кнопка <b>Копировать</b>), вставьте вместо текста в редакторе и сохраните (Ctrl+S). Адрес почты — в строке <code>var EMAIL</code>.</span>
+          <div class="gs-box"><textarea id="gs-code" readonly spellcheck="false"></textarea><button id="b-gs-copy" type="button"><span class="lang-kz">Көшіру</span><span class="lang-ru">Копировать</span></button></div></li>
+        <li><span class="lang-kz">Жоғарыдан <b>setup</b> функциясын таңдап, <b>Іске қосу</b> батырмасын басыңыз, барлық рұқсатты беріңіз (кесте жасалады, тексеру хаты келеді).</span><span class="lang-ru">Вверху выберите функцию <b>setup</b> → <b>Выполнить</b> → разрешите все доступы (создастся таблица, придёт проверочное письмо).</span></li>
+        <li><span class="lang-kz"><b>Жариялау → Жаңа жариялау → Веб-қосымша</b>: «Кімнің атынан» — <b>Мен</b>; «Кімге қолжетімді» — <b>Барлығы</b>. <b>…/exec</b> деп аяқталатын сілтемені көшіріңіз.</span><span class="lang-ru"><b>Начать развертывание → Новое развертывание → Веб-приложение</b>: «Запуск от имени» — <b>Я</b>; «У кого есть доступ» — <b>Все</b>. Скопируйте ссылку, которая заканчивается на <b>/exec</b>.</span></li>
+        <li><span class="lang-kz">Сілтемені осында қойып, баптаулары бар файлды жүктеп алыңыз. Оқушыларға <b>осы жаңа файлды</b> беріңіз.</span><span class="lang-ru">Вставьте ссылку сюда и скачайте настроенный файл. Ученикам давайте <b>этот новый файл</b>.</span>
+          <div class="url-row"><input id="i-url" type="text" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec">
+          <button id="b-test-url" type="button"><span class="lang-kz">Тексеру</span><span class="lang-ru">Проверить</span></button>
+          <button id="b-download" class="primary" type="button"><span class="lang-kz">Файлды жүктеп алу</span><span class="lang-ru">Скачать файл</span></button></div>
+          <p id="url-msg" class="muted small"></p></li>
+      </ol>
+      <div class="buttons"><button id="b-teacher-back" type="button">← <span class="lang-kz">Бастапқы бет</span><span class="lang-ru">Начальная страница</span></button></div>
     </section>
 
     <section id="s-theory" class="theory" hidden>
@@ -281,6 +302,7 @@ else:
     <section id="s-result" hidden>
       <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
       <p id="r-who" class="center who-line"></p>
+      <p id="r-send" class="r-send" hidden></p>
       <p id="r-reason" class="note" hidden></p>
       <p class="score"><span id="r-score-num" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
       <div id="r-table" class="table-wrap"></div>

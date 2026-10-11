@@ -368,6 +368,20 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 .cheat-box p, .cheat-box li { line-height: 1.55; }
 .cheat-box code { background: #eef1f5; border-radius: 4px; padding: 1px 5px; font-family: ui-monospace, "Consolas", monospace; font-size: 0.95em; }
 .t-table td:first-child { white-space: nowrap; }
+.who select { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; min-width: 120px; background: #fff; }
+.who #s-name { min-width: 300px; }
+.r-send { text-align: center; border-radius: 8px; padding: 6px 12px; max-width: 620px; margin: 8px auto 0; font-weight: 600; }
+.r-send.ok { background: var(--ok-bg); color: var(--ok); }
+.r-send.wait { background: #e7eefb; color: var(--accent); }
+.r-send.bad { background: var(--warn-bg); color: #8a5a00; }
+.r-send.none { background: #f1f3f6; color: var(--muted); font-weight: 500; font-size: 0.9rem; }
+.teacher-link { margin: 18px 0 0; }
+.t-steps li { margin-bottom: 12px; }
+.gs-box { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.gs-box textarea { width: 100%; height: 180px; font: 0.8rem/1.4 ui-monospace, Consolas, monospace; border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: #fbfcfe; }
+.gs-box button { align-self: flex-start; }
+.url-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.url-row input { flex: 1; min-width: 260px; font: 0.95rem ui-monospace, Consolas, monospace; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -401,11 +415,32 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
       <p id="i-nofs" class="note" hidden><span class="lang-kz">Бұл браузер толық экранды қолдамайды. Басқа беттерге ауыспаңыз.</span><span class="lang-ru">Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки.</span></p>
 
       <div class="who">
-        <label><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
-        <label><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
+        <label id="w-cls-sel" hidden><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><select id="s-cls"></select></label>
+        <label id="w-name-sel" hidden><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><select id="s-name"></select></label>
+        <label id="w-name"><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
+        <label id="w-cls"><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
       </div>
-      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Аты-жөніңізді және сыныбыңызды жазыңыз.</span><span class="lang-ru">Впишите фамилию, имя и класс.</span></p>
+      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Сыныбыңызды және аты-жөніңізді көрсетіңіз.</span><span class="lang-ru">Укажите класс, фамилию и имя.</span></p>
       <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Теорияны оқу (толық экранда)</span><span class="lang-ru">Читать теорию (на весь экран)</span></button></div>
+      <p class="teacher-link"><button id="b-teacher" class="link" type="button"><span class="lang-kz">Мұғалімге: нәтижелерді поштаға жіберуді баптау</span><span class="lang-ru">Для учителя: настройка отправки результатов на почту</span></button></p>
+    </section>
+
+    <section id="s-teacher" hidden>
+      <h1><span class="lang-kz">Нәтижелерді мұғалімнің поштасына жіберу</span><span class="lang-ru">Отправка результатов на почту учителя</span></h1>
+      <p id="t-status" class="note"></p>
+      <ol class="t-steps">
+        <li><span class="lang-kz"><a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> сайтын өз Google аккаунтыңызбен ашып, <b>Жаңа жоба</b> жасаңыз.</span><span class="lang-ru">Откройте <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> под своим Google-аккаунтом → <b>Новый проект</b>.</span></li>
+        <li><span class="lang-kz">Төмендегі скриптті көшіріп (<b>Көшіру</b> батырмасы), редактордағы бар мәтіннің орнына қойыңыз да, сақтаңыз (Ctrl+S). Пошта мекенжайы <code>var EMAIL</code> жолында.</span><span class="lang-ru">Скопируйте скрипт ниже (кнопка <b>Копировать</b>), вставьте вместо текста в редакторе и сохраните (Ctrl+S). Адрес почты — в строке <code>var EMAIL</code>.</span>
+          <div class="gs-box"><textarea id="gs-code" readonly spellcheck="false"></textarea><button id="b-gs-copy" type="button"><span class="lang-kz">Көшіру</span><span class="lang-ru">Копировать</span></button></div></li>
+        <li><span class="lang-kz">Жоғарыдан <b>setup</b> функциясын таңдап, <b>Іске қосу</b> батырмасын басыңыз, барлық рұқсатты беріңіз (кесте жасалады, тексеру хаты келеді).</span><span class="lang-ru">Вверху выберите функцию <b>setup</b> → <b>Выполнить</b> → разрешите все доступы (создастся таблица, придёт проверочное письмо).</span></li>
+        <li><span class="lang-kz"><b>Жариялау → Жаңа жариялау → Веб-қосымша</b>: «Кімнің атынан» — <b>Мен</b>; «Кімге қолжетімді» — <b>Барлығы</b>. <b>…/exec</b> деп аяқталатын сілтемені көшіріңіз.</span><span class="lang-ru"><b>Начать развертывание → Новое развертывание → Веб-приложение</b>: «Запуск от имени» — <b>Я</b>; «У кого есть доступ» — <b>Все</b>. Скопируйте ссылку, которая заканчивается на <b>/exec</b>.</span></li>
+        <li><span class="lang-kz">Сілтемені осында қойып, баптаулары бар файлды жүктеп алыңыз. Оқушыларға <b>осы жаңа файлды</b> беріңіз.</span><span class="lang-ru">Вставьте ссылку сюда и скачайте настроенный файл. Ученикам давайте <b>этот новый файл</b>.</span>
+          <div class="url-row"><input id="i-url" type="text" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec">
+          <button id="b-test-url" type="button"><span class="lang-kz">Тексеру</span><span class="lang-ru">Проверить</span></button>
+          <button id="b-download" class="primary" type="button"><span class="lang-kz">Файлды жүктеп алу</span><span class="lang-ru">Скачать файл</span></button></div>
+          <p id="url-msg" class="muted small"></p></li>
+      </ol>
+      <div class="buttons"><button id="b-teacher-back" type="button">← <span class="lang-kz">Бастапқы бет</span><span class="lang-ru">Начальная страница</span></button></div>
     </section>
 
     <section id="s-theory" class="theory" hidden>
@@ -644,6 +679,7 @@ else:
     <section id="s-result" hidden>
       <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
       <p id="r-who" class="center who-line"></p>
+      <p id="r-send" class="r-send" hidden></p>
       <p id="r-reason" class="note" hidden></p>
       <p class="score"><span id="r-score-num" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
       <div id="r-table" class="table-wrap"></div>
@@ -680,6 +716,8 @@ else:
 window.WORK_MIN = 80;          // есептерге берілетін уақыт, минут / время на задачи, минут
 window.RESULT_MIN = 5;         // нәтиже неше минут көрінеді / сколько минут виден результат, затем открывается начальная страница
 window.MAX_VIOLATIONS = 3;     // нешінші бұзушылықта жұмыс аяқталады / на каком нарушении работа завершается
+window.RESULTS_URL = "";        // мұғалімнің Apps Script сілтемесі (…/exec) — нәтижелер поштаға жіберіледі / ссылка Apps Script учителя
+window.CLASSES = {};           // сынып тізімі: { "8A": ["Аты-жөні", …], … } — бос болса, оқушы аты-жөнін өзі жазады
 
 </script>
 <script>
@@ -2147,7 +2185,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
   function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
   function running() { return !!state && state.status === 'running'; }
   function show(id) {
-    ['s-loading', 's-gate', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['s-loading', 's-gate', 's-teacher', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
     $('timers').hidden = !running() || id !== 's-work';
     window.scrollTo(0, 0);
   }
@@ -2433,7 +2471,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
     var results = [], j = 0;
     var next = function () {
       $('e-progress').textContent = L('Тексерілген есеп: ', 'Проверено задач: ') + j + L(' / ', ' из ') + NQ;
-      if (j >= NQ) { state.results = results; state.status = 'finished'; save(); renderResult(); return; }
+      if (j >= NQ) { state.results = results; state.status = 'finished'; save(); queueResult(); renderResult(); flushOutbox(); return; }
       checkTask(j).then(function (res) {
         results.push({ passed: res.passed, total: res.total, fail: res.fail, missing: res.missing,
           details: res.details.map(function (d) { return { ok: d.ok, out: (d.out || '').slice(0, 500), error: d.error || null }; }) });
@@ -2480,6 +2518,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
     var list = $('r-list'); list.innerHTML = '';
     code.forEach(function (tk, j) { list.appendChild(card(tk, j, state.results[j], ok[j])); });
     show('s-result');
+    renderSend();
     scheduleLock();
   }
   function card(tk, j, r, ok) {
@@ -2514,10 +2553,148 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
 
   // ---------- Запуск ----------
   function newSeed() { var a = new Uint32Array(1); (window.crypto || window.msCrypto).getRandomValues(a); return a[0] || 1; }
+  // ---------- Оқушы: сынып тізімі берілсе — сыныбын, содан кейін аты-жөнін тізімнен таңдайды ----------
+  var OTHER = '__other__';
+  function classList() { var c = window.CLASSES; return c && typeof c === 'object' && !Array.isArray(c) && Object.keys(c).length ? c : null; }
+  function setupWho() {
+    var cl = classList(); if (!cl) return;
+    $('w-cls-sel').hidden = false; $('w-cls').hidden = true;
+    var sc = $('s-cls'), keep = sc.value; sc.innerHTML = '';
+    var o0 = el('option', null, L('— таңдаңыз —', '— выберите —')); o0.value = ''; sc.appendChild(o0);
+    Object.keys(cl).forEach(function (k) { var o = el('option', null, k); o.value = k; sc.appendChild(o); });
+    sc.value = keep; sc.onchange = function () { $('g-err').hidden = true; fillNames(); }; fillNames();
+  }
+  function fillNames() {
+    var cl = classList(), sn = $('s-name'), c = $('s-cls').value, keep = sn.value; sn.innerHTML = '';
+    var o0 = el('option', null, c ? L('— аты-жөніңізді таңдаңыз —', '— выберите себя —') : L('— алдымен сыныпты таңдаңыз —', '— сначала выберите класс —')); o0.value = ''; sn.appendChild(o0);
+    if (c) {
+      (cl[c] || []).forEach(function (n) { var o = el('option', null, n); o.value = n; sn.appendChild(o); });
+      var oo = el('option', null, L('Тізімде жоқпын (өзім жазамын)', 'Меня нет в списке (впишу сам)')); oo.value = OTHER; sn.appendChild(oo);
+    }
+    sn.disabled = !c; $('w-name-sel').hidden = !c;
+    if (keep && Array.prototype.some.call(sn.options, function (o) { return o.value === keep; })) sn.value = keep;
+    $('w-name').hidden = sn.value !== OTHER;
+    sn.onchange = function () { $('w-name').hidden = sn.value !== OTHER; $('g-err').hidden = true; if (sn.value === OTHER) $('g-name').focus(); };
+  }
+  function who() {
+    var cl = classList();
+    if (cl) {
+      var c0 = $('s-cls').value, sel = $('s-name').value;
+      var n0 = sel === OTHER ? $('g-name').value.replace(/\s+/g, ' ').trim() : sel;
+      return c0 && n0 ? { name: n0, cls: c0 } : null;
+    }
+    var n = $('g-name').value.trim().replace(/\s+/g, ' '), c = $('g-class').value.trim().toUpperCase();
+    return n && c ? { name: n, cls: c } : null;
+  }
+
+  // ---------- Нәтижені мұғалімге жіберу (Google Apps Script) ----------
+  // Интернет болмаса, нәтиже осы компьютерде сақталады (OUTBOX) және кейін өзі жіберіледі.
+  var OUTBOX = 'bce-8145-outbox', sending = false, lastErr = '';
+  function resultsUrl() { var u = String(window.RESULTS_URL || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
+  function outbox() { try { return JSON.parse(localStorage.getItem(OUTBOX)) || []; } catch (e) { return []; } }
+  function setOutbox(list) { try { localStorage.setItem(OUTBOX, JSON.stringify(list)); } catch (e) {} }
+  function payload() {
+    var ok = state.results.map(solved);
+    var used = state.startedAt ? Math.min(WORK_MS, Math.max(0, state.finishedAt - state.startedAt)) : 0;
+    return {
+      app: 'break-continue-8.1.4.5', id: state.seed + '-' + (state.startedAt || 0), seed: state.seed, lang: LANG,
+      name: state.who ? state.who.name : '', cls: state.who ? state.who.cls : '',
+      score: ok.filter(Boolean).length, max: NQ, time: fmt(used), viol: state.viol || 0, reasonText: reasonText(state.reason),
+      tasks: code.map(function (tk, j) {
+        var r = state.results[j], src = (state.code[j] || '').trim();
+        return { no: j + 1, title: tk.title, tests: src ? r.passed + ' / ' + r.total : L('код жоқ', 'нет кода'),
+          need: !src ? '—' : r.missing && r.missing.length ? L('жоқ: ', 'нет: ') + needText(r.missing) : '✓ ' + needText(tk.need),
+          pts: ok[j] ? 1 : 0, code: (state.code[j] || '').slice(0, 4000) };
+      }),
+    };
+  }
+  // Жауап: ok / dup / skip — қабылданды; error: … — скрипттегі қате; HTML (кіру беті) — қолжетімділік жабық
+  function postResult(url, p) {
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p), redirect: 'follow' })
+      .then(function (r) { return r.text(); })
+      .then(function (txt) {
+        txt = String(txt || '').trim();
+        if (/^(ok|dup|skip)\b/.test(txt)) return txt;
+        throw new Error(/^error:/.test(txt) ? txt : 'noaccess');
+      });
+  }
+  function queueResult() {
+    if (!resultsUrl() || state.queued) return;
+    var list = outbox(); list.push(payload()); setOutbox(list);
+    state.queued = true; state.sent = false; save();
+  }
+  function flushOutbox() {
+    var url = resultsUrl(), list = outbox();
+    if (!url || !list.length || sending) { renderSend(); return; }
+    sending = true; renderSend();
+    var p = list[0];
+    postResult(url, p).then(function () {
+      setOutbox(outbox().filter(function (x) { return x.id !== p.id; }));
+      if (state && state.seed + '-' + (state.startedAt || 0) === p.id) { state.sent = true; save(); }
+      sending = false; lastErr = ''; flushOutbox();
+    }, function (e) { sending = false; lastErr = e && e.message || 'net'; renderSend(); setTimeout(flushOutbox, 30000); });
+  }
+  function renderSend() {
+    var e = $('r-send'); if (!e) return;
+    if (!state || state.status !== 'finished') { e.hidden = true; return; }
+    if (!resultsUrl()) {
+      e.hidden = false; e.className = 'r-send none';
+      e.textContent = L('Нәтиже мұғалімге жіберілмеді: бұл файлда жіберу бапталмаған (мұғалімге: бастапқы беттегі сілтеме).', 'Результат учителю не отправлен: в этом файле отправка не настроена (для учителя: ссылка на начальной странице).');
+      return;
+    }
+    if (!state.queued) { e.hidden = true; return; }
+    e.hidden = false;
+    e.className = 'r-send ' + (state.sent ? 'ok' : sending ? 'wait' : 'bad');
+    e.textContent = state.sent ? L('✓ Нәтиже мұғалімге жіберілді.', '✓ Результат отправлен учителю.')
+      : sending ? L('Нәтиже мұғалімге жіберілуде…', 'Результат отправляется учителю…')
+      : /^error:/.test(lastErr) ? L('Нәтиже әзірге жіберілмеді: мұғалімнің скрипті қате қайтарды (', 'Результат пока не отправлен: скрипт учителя вернул ошибку (') + lastErr.slice(0, 160) + L('). Нәтиже сақталды, кейін қайта жіберіледі.', '). Результат сохранён и будет отправлен повторно.')
+      : lastErr === 'noaccess' ? L('Нәтиже әзірге жіберілмеді: мұғалімнің скриптіне кіру жабық (жариялау баптауы). Нәтиже сақталды.', 'Результат пока не отправлен: скрипт учителя недоступен (настройка развертывания). Результат сохранён.')
+      : L('Интернет жоқ: нәтиже осы компьютерде сақталды, интернет қосылғанда өзі жіберіледі.', 'Нет интернета: результат сохранён на этом компьютере и отправится сам, когда появится интернет.');
+  }
+
+  // ---------- Мұғалімге: Apps Script және сілтемесі бар файлды жүктеп алу ----------
+  var PAGE_SRC = '';
+  function showTeacher() {
+    var src = document.getElementById('gs-src');
+    $('gs-code').value = src ? src.textContent.trim().replace(/<\\\/script/gi, '<\/script') : L('(скрипт тек жинақталған файлда бар)', '(скрипт есть только в собранном файле)');
+    $('i-url').value = String(window.RESULTS_URL || '');
+    var u = resultsUrl();
+    $('t-status').textContent = u ? L('Бұл файлда сілтеме бар — нәтижелер жіберіледі: ', 'В этом файле ссылка уже есть — результаты отправляются: ') + u : L('Бұл файлда сілтеме әлі жоқ — нәтижелер жіберілмейді.', 'В этом файле ссылки пока нет — результаты не отправляются.');
+    $('url-msg').textContent = '';
+    show('s-teacher');
+  }
+  function urlOk(u) { return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u); }
+  var BAD_URL = ['Сілтеме https://script.google.com/macros/s/…/exec түрінде болуы керек.', 'Ссылка должна быть вида https://script.google.com/macros/s/…/exec'];
+  function downloadConfigured() {
+    var u = $('i-url').value.trim();
+    if (!urlOk(u)) { $('url-msg').textContent = L(BAD_URL[0], BAD_URL[1]); return; }
+    var html = PAGE_SRC.replace(/window\.RESULTS_URL = "[^"]*";/, 'window.RESULTS_URL = "' + u + '";');
+    if (html.indexOf(u) < 0) { $('url-msg').textContent = L('Файлды жасау мүмкін болмады.', 'Не удалось создать файл.'); return; }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+    a.download = 'break-continue-8.1.4.5.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    $('url-msg').textContent = L('Файл жүктелді (Жүктеулер қалтасында). Оқушыларға осы файлды беріңіз.', 'Файл скачан (папка «Загрузки»). Давайте ученикам этот файл.');
+  }
+  function testUrl() {
+    var u = $('i-url').value.trim();
+    if (!urlOk(u)) { $('url-msg').textContent = L(BAD_URL[0], BAD_URL[1]); return; }
+    $('url-msg').textContent = L('Тексерілуде…', 'Проверка…');
+    var p = { app: 'break-continue-8.1.4.5', id: 'test-' + Date.now(), seed: 0, lang: LANG, name: L('ТЕКСЕРУ (мұғалім)', 'ПРОВЕРКА (учитель)'), cls: '—', score: 0, max: NQ, time: '0:00', viol: 0, reasonText: '', tasks: [] };
+    postResult(u, p).then(function (txt) {
+      $('url-msg').textContent = L('✓ Скрипт жауап берді («' + txt + '»): бәрі жұмыс істейді. Поштаны (Спам қалтасын да) қараңыз — «ТЕКСЕРУ» деген хат келуі керек.', '✓ Скрипт ответил («' + txt + '»): всё работает. Проверьте почту (и «Спам») — должно прийти письмо «ПРОВЕРКА».');
+    }, function (e) {
+      $('url-msg').textContent = /^error:/.test(e.message)
+        ? L('✗ Скрипт қате қайтарды: ', '✗ Скрипт вернул ошибку: ') + e.message + L(' — редакторда setup функциясын іске қосып, рұқсат беріңіз, содан кейін жаңа нұсқаны жариялаңыз.', ' — запустите в редакторе setup, разрешите доступ и разверните новую версию.')
+        : L('✗ Скрипт жауап бермеді немесе кіруді сұрайды. Жариялау баптауы: «Кімнің атынан» — Мен, «Кімге қолжетімді» — Барлығы. Сілтеме /exec деп аяқталуы керек.', '✗ Скрипт не ответил или требует входа. Развертывание: «Запуск от имени» — Я, «У кого есть доступ» — Все. Ссылка должна заканчиваться на /exec.');
+    });
+  }
+
   function start() {
     if (state) return;
-    var name = $('g-name').value.trim().replace(/\s+/g, ' '), cls = $('g-class').value.trim();
-    if (!name || !cls) { $('g-err').hidden = false; return; }
+    var w = who();
+    if (!w) { $('g-err').hidden = false; return; }
+    var name = w.name, cls = w.cls;
     var fs = enterFullscreen(), seed = newSeed();
     code = CODE.generate(seed, LANG);
     state = { v: 1, seed: seed, status: 'running', stage: 'theory', who: { name: name, cls: cls }, startedAt: null, endsAt: null, viol: 0, cur: 0,
@@ -2551,6 +2728,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
     LANG = l;
     try { localStorage.setItem('bce-8145-lang', l); } catch (e) {}
     applyLang();
+    setupWho();
     if (state && state.seed) code = CODE.generate(state.seed, LANG);
     if (!$('s-work').hidden) { var keep = $('c-code').value, out = $('c-result').hidden; renderItem(); $('c-code').value = keep; $('c-result').hidden = out; }
     else if (!$('s-result').hidden) renderResult();
@@ -2559,7 +2737,15 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
   }
 
   function init() {
+    PAGE_SRC = '<!doctype html>\n' + document.documentElement.outerHTML;
     applyLang();
+    setupWho();
+    $('b-teacher').addEventListener('click', showTeacher);
+    $('b-teacher-back').addEventListener('click', function () { show('s-gate'); });
+    $('b-gs-copy').addEventListener('click', function () { var ta = $('gs-code'); ta.select(); try { if (navigator.clipboard) navigator.clipboard.writeText(ta.value); else document.execCommand('copy'); } catch (e) { document.execCommand('copy'); } warn(L('Скрипт көшірілді.', 'Скрипт скопирован.')); });
+    $('b-download').addEventListener('click', downloadConfigured);
+    $('b-test-url').addEventListener('click', testUrl);
+    if (outbox().length) setTimeout(flushOutbox, 1500);
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
     $('b-start').addEventListener('click', start);
     // Шпаргалку можно открыть в любой момент работы (окно поверх задачи; код и таймер не останавливаются)
@@ -2633,6 +2819,121 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
 
   document.addEventListener('DOMContentLoaded', init);
 })();
+
+</script>
+<script type="text/plain" id="gs-src">
+/**
+ * 8.1.4.5 «break, continue, else» — оқушылардың нәтижелерін қабылдау / приём результатов учеников.
+ * Google Apps Script, веб-қосымша ретінде жарияланады (README.md, «Нәтижелер мұғалімнің поштасына»).
+ *
+ * Оқушы жұмысты аяқтағанда веб-ресурс осы скриптке нәтижені жібереді. Скрипт:
+ *   1) мұғалімге хат жібереді: аты-жөні, сыныбы, балы, әр есеп бойынша тесттер, нұсқаулар және оқушының коды (+ PDF);
+ *   2) Google Кестесіне («Нәтижелер» парағы) бір жол қосады.
+ */
+
+var EMAIL = '';          // хат қай поштаға келеді (үтір арқылы бірнешеу); бос болса — скрипт иесінің поштасы
+var SEND_EMAIL = true;   // false — хат жібермей, тек кестеге жазу
+var SEND_PDF = true;     // хатқа есептің PDF нұсқасы тіркеледі / к письму прикладывается PDF
+var SHEET_NAME = 'Нәтижелер';
+var TIME_ZONE = 'Asia/Almaty';
+var APP = 'break-continue-8.1.4.5';
+
+/** Бір рет қолмен іске қосыңыз: кесте жасалады және тексеру хаты жіберіледі (рұқсаттар сұралады). */
+function setup() {
+  var ss = book_();
+  Logger.log('Кесте: ' + ss.getUrl());
+  var to = EMAIL || Session.getEffectiveUser().getEmail();
+  MailApp.sendEmail(to, '8.1.4.5 — пошта жұмыс істейді', 'Бұл тексеру хаты. Оқушылардың нәтижелері осы поштаға келеді.\nЭто проверочное письмо: результаты учеников будут приходить на эту почту.\nКесте / таблица: ' + ss.getUrl());
+  Logger.log('Хат жіберілді / письмо отправлено: ' + to);
+}
+
+function doGet() {
+  return ContentService.createTextOutput('8.1.4.5: нәтижелерді қабылдау жұмыс істеп тұр.');
+}
+
+function doPost(e) {
+  try {
+    var d = JSON.parse(e.postData.contents);
+    if (!d || d.app !== APP) return out_('skip');
+    var lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    try {
+      var sh = sheet_();
+      // бір нәтиже екі рет келсе (интернет үзіліп, қайта жіберілсе) — қайталамаймыз
+      var ids = sh.getRange(1, 10, Math.max(sh.getLastRow(), 1), 1).getValues().map(function (r) { return String(r[0]); });
+      if (ids.indexOf(String(d.id)) >= 0) return out_('dup');
+      // алдымен хат: хат жіберілмесе, жол жазылмайды — оқушының беті кейін қайта жібереді
+      if (SEND_EMAIL) mail_(d);
+      sh.appendRow([
+        new Date(), safe_(d.cls), safe_(d.name), num_(d.score), num_(d.max), safe_(d.time), num_(d.viol), safe_(d.reasonText),
+        safe_((d.tasks || []).map(function (t) { return t.no + ': ' + t.pts; }).join('; ')), safe_(d.id), safe_(d.lang), num_(d.seed),
+      ]);
+    } finally { lock.releaseLock(); }
+    return out_('ok');
+  } catch (err) {
+    return out_('error: ' + err);
+  }
+}
+
+// Есеп (HTML): хаттың мәтіні және PDF үшін ортақ. pdf = true — PDF-ке ыңғайлы белгілер (✓/✗ орнына +/−)
+function report_(d, pdf) {
+  var when = Utilities.formatDate(new Date(), TIME_ZONE, 'dd.MM.yyyy HH:mm');
+  var h = [], cell = 'border:1px solid #c9d1dc;padding:4px 6px;vertical-align:top;';
+  h.push('<h2 style="margin:0 0 6px;font-family:Arial,sans-serif">' + esc_(d.name) + ', ' + esc_(d.cls) + '</h2>');
+  h.push('<p style="font-family:Arial,sans-serif;font-size:16px;margin:4px 0">8.1.4.5 · break, continue, else · ' + when + '</p>');
+  h.push('<p style="font-family:Arial,sans-serif;font-size:18px;margin:4px 0"><b>' + d.score + ' / ' + d.max + '</b> балл</p>');
+  h.push('<p style="font-family:Arial,sans-serif;color:#555;margin:4px 0 10px">Уақыты / время: ' + esc_(d.time) + ' · бұзушылық / нарушения: ' + d.viol + (d.reasonText ? ' · ' + esc_(d.reasonText) : '') + '</p>');
+  h.push('<table cellpadding="4" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px">');
+  h.push('<tr style="background:#e8eef7"><th align="left" style="' + cell + '">№</th><th align="left" style="' + cell + '">Есеп / Задача</th><th align="left" style="' + cell + '">Тест</th><th align="left" style="' + cell + '">Нұсқау / Инструкции</th><th align="left" style="' + cell + '">Балл</th><th align="left" style="' + cell + '">Оқушының коды / Код ученика</th></tr>');
+  (d.tasks || []).forEach(function (t) {
+    var ok = t.pts > 0, col = ok ? '#1a7f37' : '#c62828', mark = pdf ? (ok ? '+ ' : '− ') : (ok ? '✓ ' : '✗ ');
+    h.push('<tr><td style="' + cell + '">' + esc_(t.no) + '</td><td style="' + cell + '">' + esc_(t.title) + '</td>' +
+      '<td style="' + cell + 'white-space:nowrap">' + esc_(t.tests) + '</td><td style="' + cell + '">' + esc_(t.need) + '</td>' +
+      '<td style="' + cell + 'color:' + col + ';white-space:nowrap">' + mark + t.pts + '</td>' +
+      '<td style="' + cell + '"><pre style="margin:0;font-family:Consolas,\'Courier New\',monospace;font-size:12px;white-space:pre-wrap">' + esc_(t.code || '—') + '</pre></td></tr>');
+  });
+  h.push('</table>');
+  return h.join('\n');
+}
+function mail_(d) {
+  var to = EMAIL || Session.getEffectiveUser().getEmail();
+  var subj = '8.1.4.5 · ' + clip_(d.cls, 20) + ' · ' + clip_(d.name, 60) + ' — ' + d.score + ' / ' + d.max;
+  var msg = { to: to, subject: subj, htmlBody: report_(d, false) };
+  if (SEND_PDF) {
+    try {   // PDF жасалмаса да, хат PDF-сіз кетеді
+      var fname = ('8.1.4.5_' + clip_(d.cls, 20) + '_' + clip_(d.name, 60)).replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_');
+      var page = '<html><head><meta charset="utf-8"></head><body style="margin:24px">' + report_(d, true) + '</body></html>';
+      msg.attachments = [Utilities.newBlob(page, 'text/html', fname + '.html').getAs('application/pdf').setName(fname + '.pdf')];
+    } catch (e) { msg.htmlBody += '<p style="color:#c62828">PDF жасалмады: ' + esc_(e) + '</p>'; }
+  }
+  MailApp.sendEmail(msg);
+}
+function book_() {
+  var props = PropertiesService.getScriptProperties(), id = props.getProperty('SHEET_ID'), ss = null;
+  if (id) { try { ss = SpreadsheetApp.openById(id); } catch (e) { ss = null; } }
+  if (!ss) {
+    ss = SpreadsheetApp.create('8.1.4.5 — нәтижелер (break, continue, else)');
+    props.setProperty('SHEET_ID', ss.getId());
+  }
+  return ss;
+}
+function sheet_() {
+  var ss = book_(), sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) {
+    sh = ss.getSheets()[0];
+    sh.setName(SHEET_NAME);
+    sh.appendRow(['Уақыты', 'Сынып', 'Аты-жөні', 'Балл', 'Макс.', 'Жұмыс уақыты', 'Бұзушылық', 'Аяқталу себебі', 'Есептер бойынша', 'ID', 'Тіл', 'Нұсқа (seed)']);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 12).setFontWeight('bold');
+  }
+  return sh;
+}
+function out_(s) { return ContentService.createTextOutput(s); }
+function num_(x) { var n = Number(x); return isFinite(n) ? n : ''; }
+function clip_(s, n) { return String(s == null ? '' : s).slice(0, n); }
+// кестеде формула ретінде орындалмасын
+function safe_(s) { s = clip_(s, 2000); return /^[=+\-@]/.test(s) ? "'" + s : s; }
+function esc_(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
 </script>
 </body>

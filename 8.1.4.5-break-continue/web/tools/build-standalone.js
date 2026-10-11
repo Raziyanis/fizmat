@@ -13,9 +13,10 @@ const scripts = [
   inline(read('vendor/skulpt-stdlib.js')),
   inline(read('tasks.js')), inline(read('app.js')),
 ].join('\n');
-const page = read('index.html')
+let page = read('index.html')
   .replace('<link rel="stylesheet" href="style.css">', () => '<style>\n' + read('style.css') + '</style>')
   .replace(/  <script src="config\.js"><\/script>[\s\S]*<script src="app\.js"><\/script>/, () => scripts);
+page = page.replace('</body>', () => '<script type="text/plain" id="gs-src">\n' + read('server/Code.gs').replace(/<\/script/gi, '<\\/script') + '\n</script>\n</body>');
 if (/<script src=|<link rel="stylesheet"/.test(page)) throw new Error('остались внешние файлы');
 fs.mkdirSync(path.join(dir, 'standalone'), { recursive: true });
 fs.writeFileSync(path.join(dir, 'standalone', 'break-continue-8.1.4.5.html'), page);
