@@ -1,6 +1,6 @@
-/* 10 олимпиадалық есеп / 10 олимпиадных задач: 8.1.4.5 — break, continue, else (циклді басқару нұсқаулары).
- * Уровни: A (1–4), B (5–7), C (8–10) — от простого к сложному.
- * CODE.generate(seed, lang) → 10 задач. Варианты, числа и тесты зависят от seed — у каждого ученика свои.
+/* 13 олимпиадалық есеп / 13 олимпиадных задач: 8.1.4.5 — break, continue, else (циклді басқару нұсқаулары).
+ * Уровни: A (1–4), B (5–7), C (8–13) — от простого к сложному.
+ * CODE.generate(seed, lang) → 13 задач. Варианты, числа и тесты зависят от seed — у каждого ученика свои.
  * В каждой задаче 8 тестов: 2 примера (видны ученику) + 6 скрытых. Ожидаемый ответ считает JS,
  * а tools/check.py сверяет его с образцом решения (solution), выполненным настоящим Python.
  * need — какие инструкции обязательно должны быть в программе: 'break', 'continue', 'else' (else цикла for/while).
@@ -249,6 +249,76 @@
         return { input: n + ' ' + s + '\n' + a.join(' '), output: f ? f.join(' ') : 'NO' };
       }),
       solution: 'n, s = map(int, input().split())\na = list(map(int, input().split()))\nfound = False\nfor i in range(n):\n    for j in range(i + 1, n):\n        if a[i] + a[j] == s:\n            print(i + 1, j + 1)\n            found = True\n            break\n    if found:\n        break\nif not found:\n    print("NO")' });
+
+    // ---------- C11. Сөздер / Слова — while True + continue + break ----------
+    var POOL = ['sun', 'sky', 'cat', 'tree', 'river', 'mountain', 'apple', 'go', 'to', 'python', 'code', 'loop', 'break', 'at', 'in', 'on',
+      'data', 'list', 'array', 'house', 'book', 'pen', 'school', 'green', 'blue', 'ab', 'ox', 'window', 'table', 'star', 'moon', 'computer'];
+    T.push({ level: 'C', need: ['continue', 'break'],
+      title: L('Ұзын сөздер', 'Длинные слова'),
+      text: L('Алдымен k саны, содан кейін сөздер енгізіледі, әрқайсысы жаңа жолдан. Енгізу end сөзімен аяқталады. ' +
+          'k-дан қысқа сөздерді continue арқылы өткізіп жіберіңіз. Қалған сөздердің санын және олардың ішіндегі ең ұзынын шығарыңыз ' +
+          '(ұзындығы бірдей бірнеше сөз болса — біріншісін). end келгенде циклды break арқылы тоқтатыңыз.',
+        'Сначала вводится число k, затем слова, каждое с новой строки. Ввод заканчивается словом end. ' +
+          'Слова короче k букв пропускайте инструкцией continue. Выведите количество остальных слов и самое длинное из них ' +
+          '(если таких несколько — первое). Когда придёт end, остановите цикл инструкцией break.'),
+      input: L('Бірінші жолда k (2 ≤ k ≤ 5). Әрі қарай кіші латын әріптерімен жазылған сөздер, әрқайсысы жаңа жолда; соңғы жол — end. Ұзындығы k-дан кем емес кемінде бір сөз бар.',
+        'В первой строке k (2 ≤ k ≤ 5). Далее слова из строчных латинских букв, каждое в отдельной строке; последняя строка — end. Хотя бы одно слово длиной не меньше k есть.'),
+      output: L('Сан және сөз бос орын арқылы.', 'Число и слово через пробел.'),
+      tests: tests(function (i) {
+        for (;;) {
+          var k = ri(2, 5), n = i === 7 ? 1 : ri(3, 10), w = [];
+          for (var q = 0; q < n; q++) w.push(pick(POOL));
+          var good = w.filter(function (x) { return x.length >= k; });
+          if (!good.length || (i < 7 && good.length === w.length)) continue;
+          var best = good.reduce(function (a, b) { return b.length > a.length ? b : a; });
+          return { input: k + '\n' + w.join('\n') + '\nend', output: good.length + ' ' + best };
+        }
+      }),
+      solution: 'k = int(input())\ncnt = 0\nbest = ""\nwhile True:\n    w = input()\n    if w == "end":\n        break\n    if len(w) < k:\n        continue\n    cnt = cnt + 1\n    if len(w) > len(best):\n        best = w\nprint(cnt, best)' });
+
+    // ---------- C12. Салым / Вклад — while … else + break ----------
+    T.push({ level: 'C', need: ['break', 'else'],
+      title: L('Банктегі салым', 'Вклад в банке'),
+      text: L('Салымда S теңге бар. Әр жылдың соңында банк қазіргі соманың P пайызын қосады, бөлшек бөлігі тасталады: S = S + S * P // 100. ' +
+          'Сома алғаш рет T-дан кем болмайтын жылдың нөмірін табыңыз. Y жыл ішінде жетпесе, NO шығарыңыз. ' +
+          'while … else қолданыңыз: мақсатқа жеткенде — break, Y жыл өтіп кетсе — else.',
+        'На вкладе S тенге. В конце каждого года банк добавляет P процентов от текущей суммы, дробная часть отбрасывается: S = S + S * P // 100. ' +
+          'Найдите номер года, когда сумма впервые станет не меньше T. Если за Y лет этого не произойдёт, выведите NO. ' +
+          'Используйте while … else: цель достигнута — break, прошло Y лет — else.'),
+      input: L('Бір жолда бос орын арқылы S, P, T, Y (1 ≤ S < T ≤ 10⁷, 1 ≤ P ≤ 30, 1 ≤ Y ≤ 30).', 'В одной строке через пробел S, P, T, Y (1 ≤ S < T ≤ 10⁷, 1 ≤ P ≤ 30, 1 ≤ Y ≤ 30).'),
+      output: L('Жыл нөмірі немесе NO сөзі.', 'Номер года или слово NO.'),
+      tests: tests(function (i) {
+        for (;;) {
+          var s = ri(100, 20000), p = ri(1, 30), y = i === 7 ? 1 : ri(3, 30), v = s, hist = [];
+          for (var q = 0; q < y; q++) { v = v + Math.floor(v * p / 100); hist.push(v); }
+          if (v <= s) continue;
+          var no = i === 1 || i === 4, t = no ? v + ri(1, 1000) : ri(s + 1, v);
+          if (t > 10000000) continue;
+          var yr = 0; for (q = 0; q < y; q++) if (hist[q] >= t) { yr = q + 1; break; }
+          return { input: s + ' ' + p + ' ' + t + ' ' + y, output: yr ? String(yr) : 'NO' };
+        }
+      }),
+      solution: 's, p, t, y = map(int, input().split())\nyear = 0\nwhile year < y:\n    year = year + 1\n    s = s + s * p // 100\n    if s >= t:\n        print(year)\n        break\nelse:\n    print("NO")' });
+
+    // ---------- C13. Алғашқы k жай сан / Первые k простых — for … else + break ----------
+    T.push({ level: 'C', need: ['break', 'else'],
+      title: L('Алғашқы k жай сан', 'Первые k простых чисел'),
+      text: L('a, b және k сандары берілген. a-дан b-ге дейінгі (екеуін де қоса) алғашқы k жай санды бір жолға бос орын арқылы шығарыңыз. ' +
+          'Жай сандар k-дан аз болса — барлығын шығарыңыз, мүлдем болмаса — NO. Санның жай екенін for … else арқылы тексеріңіз, ал k сан табылғанда сыртқы циклды break арқылы тоқтатыңыз.',
+        'Даны числа a, b и k. Выведите в одну строку через пробел первые k простых чисел от a до b включительно. ' +
+          'Если простых меньше k — выведите все, если их нет совсем — NO. Простоту числа проверяйте через for … else, а когда найдено k чисел, остановите внешний цикл инструкцией break.'),
+      input: L('Бір жолда бос орын арқылы a, b, k (2 ≤ a ≤ b ≤ 2000, b − a ≤ 200, 1 ≤ k ≤ 10).', 'В одной строке через пробел a, b, k (2 ≤ a ≤ b ≤ 2000, b − a ≤ 200, 1 ≤ k ≤ 10).'),
+      output: L('Сандар бір жолда немесе NO сөзі.', 'Числа в одной строке или слово NO.'),
+      tests: tests(function (i) {
+        var a, b, k;
+        if (i === 1) { a = pick([24, 90, 114, 200, 524, 888, 1130, 1328]); b = a + pick([1, 3, 4, 5]); k = ri(1, 5); }
+        else if (i === 7) { a = 2; b = ri(2, 30); k = ri(1, 10); }
+        else { a = ri(2, 1900); b = a + ri(5, 100); k = ri(1, 10); }
+        var o = [];
+        for (var x = a; x <= b && o.length < k; x++) if (isPrime(x)) o.push(x);
+        return { input: a + ' ' + b + ' ' + k, output: o.length ? o.join(' ') : 'NO' };
+      }),
+      solution: 'a, b, k = map(int, input().split())\ncnt = 0\nfor x in range(a, b + 1):\n    for d in range(2, x):\n        if x % d == 0:\n            break\n    else:\n        print(x, end=" ")\n        cnt = cnt + 1\n        if cnt == k:\n            break\nif cnt == 0:\n    print("NO")' });
 
     return T;
   }

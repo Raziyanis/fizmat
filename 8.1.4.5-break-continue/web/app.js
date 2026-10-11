@@ -1,5 +1,5 @@
-/* Веб-ресурс 8.1.4.5: 10 олимпиадных задач на break, continue, else (Python выполняется в браузере через Skulpt).
- * Балл: задача — 1, если пройдены все 8 тестов и в программе есть нужные инструкции. Максимум 10.
+/* Веб-ресурс 8.1.4.5: 13 олимпиадных задач на break, continue, else (Python выполняется в браузере через Skulpt).
+ * Балл: задача — 1, если пройдены все 8 тестов и в программе есть нужные инструкции. Максимум 13.
  * Полноэкранный режим; выход из него, смена вкладки или окна, перезагрузка страницы — нарушение
  * (первые — предупреждение, на MAX_VIOLATIONS-м работа завершается). Интернет и сервер не нужны. */
 (function () {
@@ -9,7 +9,7 @@
   var RESULT_MS = (window.RESULT_MIN || 5) * 60 * 1000;
   var MAX_VIOL = window.MAX_VIOLATIONS || 3;
   var STORE = 'bce-8145-state';
-  var RUN_LIMIT_MS = 1000, OUT_LIMIT = 20000, NQ = 10;
+  var RUN_LIMIT_MS = 1000, OUT_LIMIT = 20000, NQ = 13;
 
   var LANG = (function () { try { return localStorage.getItem('bce-8145-lang') === 'ru' ? 'ru' : 'kz'; } catch (e) { return 'kz'; } })();
   function L(kz, ru) { return LANG === 'kz' ? kz : ru; }

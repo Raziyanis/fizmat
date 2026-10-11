@@ -45,7 +45,7 @@ def main():
     assert p['noElse'] == ['else'] and p['ifElse'] == ['else'] and p['whileElse'] == [] and p['comment'] == ['break', 'continue'] and p['sameUpper'], p
     nt = 0
     for v in d['out']:
-        assert len(v['ru']) == 10 and [t['level'] for t in v['ru']] == ['A'] * 4 + ['B'] * 3 + ['C'] * 3
+        assert len(v['ru']) == 13 and [t['level'] for t in v['ru']] == ['A'] * 4 + ['B'] * 3 + ['C'] * 6
         assert all(m == [] for m in v['miss']), v['miss']
         for a, b in zip(v['ru'], v['kz']):
             assert a['tests'] == b['tests'] and a['solution'] == b['solution'] and a['need'] == b['need'] and a['text'] != b['text']
