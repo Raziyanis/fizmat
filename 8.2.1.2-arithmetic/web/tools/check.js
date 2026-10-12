@@ -16,7 +16,7 @@ for (let s = 1; s <= 2000; s++) {
   assert.strictEqual(T.filter((t) => t.star).reduce((a, t) => a + t.max, 0), 6, 'қосымша 6 балл');
   T.forEach((t, i) => {
     assert.ok(t && t.title && t.prompt && t.items.length, 'бос тапсырма ' + i);
-    if (!t.star) { assert.strictEqual(t.items.length, 4, '4 мысал'); assert.strictEqual(t.per, 0.25); }
+    if (!t.star) { assert.strictEqual(t.items.length, 2, '2 мысал'); assert.strictEqual(t.per, 0.5); }
     const ids = t.items.map((it) => it.expr || it.left + it.right); assert.strictEqual(new Set(ids).size, ids.length, 'мысалдар қайталанбайды');
     t.items.forEach((it) => {
       const k = it.kind || it.type; kinds[k] = (kinds[k] || 0) + 1; n++;

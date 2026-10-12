@@ -657,6 +657,14 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .who select { font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; min-width: 110px; max-width: 100%; background: #fff; }
 .who #s-name { min-width: 320px; }
 .who select:focus { outline: none; border-color: var(--accent); }
+.work-top { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.work-top #nav { flex: 1; }
+.theory-btn { border: 1px solid var(--accent); color: var(--accent); background: #eef3fd; font-weight: 600; white-space: nowrap; }
+.theory-modal { position: fixed; inset: 0; background: rgba(20, 28, 40, 0.55); z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: 64px 16px 16px; overflow: auto; }
+.theory-modal[hidden] { display: none; }
+.theory-box { background: var(--card); border-radius: 10px; padding: 18px 22px; max-width: 1000px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+.theory-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; position: sticky; top: -18px; background: var(--card); padding: 6px 0; }
+.theory-head h2 { margin: 0; }
 </style>
 </head>
 <body>
@@ -713,7 +721,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       <div class="lang-kz" id="theory-kz"></div>
       <div class="lang-ru" id="theory-ru"></div>
       <div class="theory-end">
-        <p class="no-back"><span class="lang-kz">Теорияны мұқият оқыңыз: жұмыс басталғаннан кейін теорияға қайтуға болмайды.</span><span class="lang-ru">Читайте теорию внимательно: после начала работы вернуться к теории будет нельзя.</span></p>
+        <p class="no-back"><span class="lang-kz">Жұмыс кезінде теорияға «📖 Теория» батырмасымен кез келген уақытта оралуға болады.</span><span class="lang-ru">Во время работы к теории можно вернуться в любой момент кнопкой «📖 Теория».</span></p>
         <button id="b-to-intro" class="primary big"><span class="lang-kz">Жұмысқа өту →</span><span class="lang-ru">Перейти к работе →</span></button>
       </div>
     </section>
@@ -721,8 +729,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     <section id="s-intro" hidden>
       <h1><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h1>
       <ul class="rules">
-        <li class="lang-kz"><b>10 негізгі тапсырма</b>, әрқайсысы — <b>1 балл</b> (барлығы 10 балл): екілік, сегіздік, он алтылық жүйеде қосу және азайту, дұрыс жауапты табу, жасырын цифр, әр түрлі жүйедегі сандар, салыстыру.</li>
-        <li class="lang-ru"><b>10 основных заданий</b>, каждое — <b>1 балл</b> (всего 10 баллов): сложение и вычитание в двоичной, восьмеричной, шестнадцатеричной системах, поиск верного ответа, скрытая цифра, числа в разных системах, сравнение.</li>
+        <li class="lang-kz"><b>10 негізгі тапсырма</b>, әрқайсысында <b>2 мысал</b> (әр мысал — 0,5 балл), тапсырма — <b>1 балл</b> (барлығы 10 балл): екілік, сегіздік, он алтылық жүйеде қосу және азайту, дұрыс жауапты табу, жасырын цифр, әр түрлі жүйедегі сандар, салыстыру.</li>
+        <li class="lang-ru"><b>10 основных заданий</b>, в каждом <b>2 примера</b> (пример — 0,5 балла), задание — <b>1 балл</b> (всего 10 баллов): сложение и вычитание в двоичной, восьмеричной, шестнадцатеричной системах, поиск верного ответа, скрытая цифра, числа в разных системах, сравнение.</li>
         <li class="lang-kz"><b>★ Қосымша тапсырма — 6 балл</b>: үш күрделі есеп, әрқайсысында екі жауап (әр жауап — 1 балл). Оның балы бөлек көрсетіледі.</li>
         <li class="lang-ru"><b>★ Дополнительное задание — 6 баллов</b>: три сложные задачи, в каждой два ответа (каждый — 1 балл). Его баллы показываются отдельно.</li>
         <li class="lang-kz">Жұмысқа — <b><span class="i-min"></span> минут</b>. Тапсырмалар арасында еркін ауысуға болады, жауаптар өзі сақталады. Уақыт біткенде жұмыс өзі тапсырылады.</li>
@@ -731,8 +739,8 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
         <li class="lang-ru">Ответ впишите в поле (индекс основания писать не нужно). Буквы A–F пишутся латиницей при любой раскладке. Вычисления делайте в тетради.</li>
         <li class="lang-kz">Әр оқушының тапсырмалары әр түрлі.</li>
         <li class="lang-ru">У каждого ученика свои задания.</li>
-        <li class="important lang-kz">Жұмыс басталғаннан кейін теорияға қайтуға болмайды.</li>
-        <li class="important lang-ru">После начала работы вернуться к теории нельзя.</li>
+        <li class="lang-kz">Жұмыс кезінде теорияны <b>«📖 Теория»</b> батырмасымен кез келген уақытта ашуға болады (уақыт тоқтамайды).</li>
+        <li class="lang-ru">Во время работы теорию можно открыть в любой момент кнопкой <b>«📖 Теория»</b> (время не останавливается).</li>
         <li class="important lang-kz">Толық экран режимінен шығу, басқа терезеге ауысу, бетті қайта жүктеу — ереже бұзу. Алғашқы екеуіне ескерту, үшіншісінен кейін жұмыс аяқталады.</li>
         <li class="important lang-ru">Выход из полноэкранного режима, переключение окна, перезагрузка страницы — нарушение. За первые два — предупреждение, после третьего работа завершится.</li>
       </ul>
@@ -743,7 +751,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     </section>
 
     <section id="s-work" hidden>
-      <div id="nav"></div>
+      <div class="work-top"><div id="nav"></div><button id="b-theory-open" type="button" class="theory-btn"><span class="lang-kz">📖 Теория</span><span class="lang-ru">📖 Теория</span></button></div>
       <div id="task"></div>
       <div class="buttons work-buttons">
         <button id="b-prev">← <span class="lang-kz">Артқа</span><span class="lang-ru">Назад</span></button>
@@ -774,6 +782,15 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
       <div id="r-review" class="review"></div>
     </section>
   </main>
+
+  <div id="m-theory" class="theory-modal" role="dialog" aria-modal="true" hidden>
+    <div class="theory-box">
+      <div class="theory-head"><h2><span class="lang-kz">Теория</span><span class="lang-ru">Теория</span></h2>
+        <button id="b-theory-close" type="button" class="primary"><span class="lang-kz">✕ Жабу, тапсырмаға оралу</span><span class="lang-ru">✕ Закрыть, вернуться к заданию</span></button></div>
+      <div class="theory lang-kz" id="mt-kz"></div>
+      <div class="theory lang-ru" id="mt-ru"></div>
+    </div>
+  </div>
 
   <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
 
@@ -1047,38 +1064,41 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
   // ★3. Негізді табу: x_q + y_q = z_q, q = ?; сол жүйеде u_q + v_q = ?
   function baseSols(xs, ys, zs) {
     var mx = Math.max.apply(null, (xs + ys + zs).split('').map(dv)), out = [];
-    for (var q = Math.max(2, mx + 1); q <= 16; q++) if (V(xs, q) + V(ys, q) === V(zs, q)) out.push(q);
+    [2, 8, 10, 16].forEach(function (q) { if (q > mx && V(xs, q) + V(ys, q) === V(zs, q)) out.push(q); });   // тек 2, 8, 10, 16 жүйелері
     return out;
   }
   function baseTask(r) {
-    for (var k = 0; k < 1000; k++) {
-      var q = ri(r, 5, 9), x = ri(r, q + 1, q * q - 1), y = ri(r, q + 1, q * q - 1);
+    var q = [8, 10, 16][ri(r, 0, 2)];
+    for (var k = 0; k < 5000; k++) {
+      var x = ri(r, q + 1, q * q - 1), y = ri(r, q + 1, q * q - 1);
       if (x + y >= q * q || carries(x, y, q) < 1) continue;
       var xs = B(x, q), ys = B(y, q), zs = B(x + y, q), s = baseSols(xs, ys, zs);
+      if (/[A-F]/.test(xs + ys + zs)) continue;                          // әріп болса, жауап бірден көрінеді
       if (s.length !== 1 || s[0] !== q) continue;
       var u = ri(r, q + 1, q * q - 1), v = ri(r, q + 1, q * q - 1);
       if (carries(u, v, q) < 1) continue;
       return { type: 'input', kind: 'base', star: true, title: K('★ Санау жүйесінің негізін табыңыз', '★ Найдите основание системы счисления'), bq: q, x: x, y: y, u: u, v: v,
         expr: xs + '<sub>q</sub> + ' + ys + '<sub>q</sub> = ' + zs + '<sub>q</sub>', html: true,
-        prompt: K('Теңдік q негізді жүйеде жазылған. q-ды табыңыз. Содан кейін сол жүйеде ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> қосындысын есептеңіз.',
-                  'Равенство записано в системе с основанием q. Найдите q. Затем в этой же системе вычислите ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub>.'),
+        prompt: K('Теңдік q негізді жүйеде жазылған (q — 2, 8, 10 немесе 16). q-ды табыңыз. Содан кейін сол жүйеде ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> қосындысын есептеңіз.',
+                  'Равенство записано в системе с основанием q (q — 2, 8, 10 или 16). Найдите q. Затем в этой же системе вычислите ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub>.'),
         fields: [{ q: 10, key: String(q), label: K('q (ондық жүйеде)', 'q (в десятичной)') }, { q: q, inputQ: 16, subText: 'q', key: B(u + v, q), label: K(B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =', B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =') }], max: 2 };
     }
   }
-  // Бір тапсырма — бірнеше мысал (негізгі тапсырмаларда 4 мысал, әрқайсысы 0,25 балл)
+  // Бір тапсырма — бірнеше мысал (негізгі тапсырмаларда 2 мысал, әрқайсысы 0,5 балл)
   function group(items, per) {
     var units = items.reduce(function (n, it) { return n + (it.type === 'input' ? it.fields.length : 1); }, 0);
     return { type: 'group', title: items[0].title, prompt: items[0].prompt, star: !!items[0].star, items: items, per: per, units: units, max: units * per };
   }
-  function four(make) {   // 4 әр түрлі мысал
+  var NEX = 2;
+  function four(make) {   // NEX әр түрлі мысал
     var out = [], seen = {};
-    for (var k = 0; out.length < 4 && k < 200; k++) {
+    for (var k = 0; out.length < NEX && k < 200; k++) {
       var it = make(out.length), id = it.expr || (it.left + '|' + it.right);
       if (!seen[id]) { seen[id] = 1; out.push(it); }
     }
     return out;
   }
-  var PER = 0.25;
+  var PER = 0.5;
   function generate(seed) {
     var r = rng(seed), T = [];
     var col = function (q, op, title) { return group(four(function () { return colTask(r, q, op, title); }), PER); };
@@ -1088,11 +1108,11 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
     T.push(col(8, '−', K('Сегіздік жүйеде азайту', 'Вычитание в восьмеричной системе')));
     T.push(col(16, '+', K('Он алтылық жүйеде қосу', 'Сложение в шестнадцатеричной системе')));
     T.push(col(16, '−', K('Он алтылық жүйеде азайту', 'Вычитание в шестнадцатеричной системе')));
-    var sq = shuffle([8, 8, 16, 16], r);
+    var sq = shuffle([8, 16], r);
     T.push(group(four(function (n) { return starsTask(r, sq[n]); }), PER));
-    var fx = shuffle([[8, 'ten'], [16, 'nocarry'], [8, 'nodec'], [16, 'nodec']], r);
+    var fx = shuffle([shuffle([[8, 'ten'], [16, 'nocarry']], r)[0], shuffle([[8, 'nodec'], [16, 'nodec']], r)[0]], r);   // бір қосу, бір азайту
     T.push(group(four(function (n) { return fixTask(r, fx[n][0], fx[n][1]); }), PER));
-    var o9 = shuffle(['+', '+', '−', '+'], r), o10 = shuffle(['+', '−', '−', '+'], r);
+    var o9 = shuffle(['+', '−'], r), o10 = shuffle(['+', '−'], r);
     T.push(group(four(function (n) { return convTask(r, 2, 8, o9[n]); }), PER));
     T.push(group(four(function (n) { return convTask(r, 16, 2, o10[n]); }), PER));
     T.push(group([eqTask(r)], 1));
@@ -1147,7 +1167,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 </script>
 <script>
 /* 8.2.1.2 «Санау жүйелерінде қосу және азайту»: веб-ресурс (теория → 10 тапсырма + 3 қосымша тапсырма → нәтиже және талдау).
- * Жұмыс кезінде теорияға қайтуға болмайды. Тіл: ҚАЗ / РУС батырмасы, кез келген уақытта.
+ * Жұмыс кезінде теорияны «📖 Теория» батырмасымен ашуға болады. Тіл: ҚАЗ / РУС батырмасы, кез келген уақытта.
  * Толық экран басынан бастап; MAX_VIOLATIONS-ші бұзушылықта жұмыс аяқталады;
  * нәтиже RESULT_MIN минут көрінеді, содан кейін бастапқы бет ашылады (құпиясөзсіз).
  * Жауап өрістері пернетақтаның тіліне тәуелсіз: A–F пернелері қазақ/орыс тілінде де латын әрпін жазады. */
@@ -1555,6 +1575,7 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 
   // ---------- Аяқтау және нәтиже ----------
   function finish(reason) {
+    $('m-theory').hidden = true;
     if (!running()) return;
     state.status = 'finished';
     state.reason = reason || null;
@@ -1794,6 +1815,12 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
   function init() {
     PAGE_SRC = '<!doctype html>\n' + document.documentElement.outerHTML;
     $('theory-kz').innerHTML = C.theory('kz');
+    $('mt-kz').innerHTML = C.theory('kz'); $('mt-ru').innerHTML = C.theory('ru');
+    // Теорияны жұмыс кезінде кез келген уақытта ашуға болады (уақыт тоқтамайды, бұзушылық емес)
+    $('b-theory-open').addEventListener('click', function () { $('m-theory').hidden = false; $('m-theory').scrollTop = 0; $('b-theory-close').focus(); });
+    $('b-theory-close').addEventListener('click', function () { $('m-theory').hidden = true; });
+    $('m-theory').addEventListener('click', function (e) { if (e.target === $('m-theory')) $('m-theory').hidden = true; });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('m-theory').hidden) $('m-theory').hidden = true; });
     $('theory-ru').innerHTML = C.theory('ru');
     document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 40); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });

@@ -1,5 +1,5 @@
 /* 8.2.1.2 «Санау жүйелерінде қосу және азайту»: веб-ресурс (теория → 10 тапсырма + 3 қосымша тапсырма → нәтиже және талдау).
- * Жұмыс кезінде теорияға қайтуға болмайды. Тіл: ҚАЗ / РУС батырмасы, кез келген уақытта.
+ * Жұмыс кезінде теорияны «📖 Теория» батырмасымен ашуға болады. Тіл: ҚАЗ / РУС батырмасы, кез келген уақытта.
  * Толық экран басынан бастап; MAX_VIOLATIONS-ші бұзушылықта жұмыс аяқталады;
  * нәтиже RESULT_MIN минут көрінеді, содан кейін бастапқы бет ашылады (құпиясөзсіз).
  * Жауап өрістері пернетақтаның тіліне тәуелсіз: A–F пернелері қазақ/орыс тілінде де латын әрпін жазады. */
@@ -407,6 +407,7 @@
 
   // ---------- Аяқтау және нәтиже ----------
   function finish(reason) {
+    $('m-theory').hidden = true;
     if (!running()) return;
     state.status = 'finished';
     state.reason = reason || null;
@@ -646,6 +647,12 @@
   function init() {
     PAGE_SRC = '<!doctype html>\n' + document.documentElement.outerHTML;
     $('theory-kz').innerHTML = C.theory('kz');
+    $('mt-kz').innerHTML = C.theory('kz'); $('mt-ru').innerHTML = C.theory('ru');
+    // Теорияны жұмыс кезінде кез келген уақытта ашуға болады (уақыт тоқтамайды, бұзушылық емес)
+    $('b-theory-open').addEventListener('click', function () { $('m-theory').hidden = false; $('m-theory').scrollTop = 0; $('b-theory-close').focus(); });
+    $('b-theory-close').addEventListener('click', function () { $('m-theory').hidden = true; });
+    $('m-theory').addEventListener('click', function (e) { if (e.target === $('m-theory')) $('m-theory').hidden = true; });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('m-theory').hidden) $('m-theory').hidden = true; });
     $('theory-ru').innerHTML = C.theory('ru');
     document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 40); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });

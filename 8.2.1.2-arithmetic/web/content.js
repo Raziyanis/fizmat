@@ -259,38 +259,41 @@
   // ★3. Негізді табу: x_q + y_q = z_q, q = ?; сол жүйеде u_q + v_q = ?
   function baseSols(xs, ys, zs) {
     var mx = Math.max.apply(null, (xs + ys + zs).split('').map(dv)), out = [];
-    for (var q = Math.max(2, mx + 1); q <= 16; q++) if (V(xs, q) + V(ys, q) === V(zs, q)) out.push(q);
+    [2, 8, 10, 16].forEach(function (q) { if (q > mx && V(xs, q) + V(ys, q) === V(zs, q)) out.push(q); });   // тек 2, 8, 10, 16 жүйелері
     return out;
   }
   function baseTask(r) {
-    for (var k = 0; k < 1000; k++) {
-      var q = ri(r, 5, 9), x = ri(r, q + 1, q * q - 1), y = ri(r, q + 1, q * q - 1);
+    var q = [8, 10, 16][ri(r, 0, 2)];
+    for (var k = 0; k < 5000; k++) {
+      var x = ri(r, q + 1, q * q - 1), y = ri(r, q + 1, q * q - 1);
       if (x + y >= q * q || carries(x, y, q) < 1) continue;
       var xs = B(x, q), ys = B(y, q), zs = B(x + y, q), s = baseSols(xs, ys, zs);
+      if (/[A-F]/.test(xs + ys + zs)) continue;                          // әріп болса, жауап бірден көрінеді
       if (s.length !== 1 || s[0] !== q) continue;
       var u = ri(r, q + 1, q * q - 1), v = ri(r, q + 1, q * q - 1);
       if (carries(u, v, q) < 1) continue;
       return { type: 'input', kind: 'base', star: true, title: K('★ Санау жүйесінің негізін табыңыз', '★ Найдите основание системы счисления'), bq: q, x: x, y: y, u: u, v: v,
         expr: xs + '<sub>q</sub> + ' + ys + '<sub>q</sub> = ' + zs + '<sub>q</sub>', html: true,
-        prompt: K('Теңдік q негізді жүйеде жазылған. q-ды табыңыз. Содан кейін сол жүйеде ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> қосындысын есептеңіз.',
-                  'Равенство записано в системе с основанием q. Найдите q. Затем в этой же системе вычислите ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub>.'),
+        prompt: K('Теңдік q негізді жүйеде жазылған (q — 2, 8, 10 немесе 16). q-ды табыңыз. Содан кейін сол жүйеде ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> қосындысын есептеңіз.',
+                  'Равенство записано в системе с основанием q (q — 2, 8, 10 или 16). Найдите q. Затем в этой же системе вычислите ' + B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub>.'),
         fields: [{ q: 10, key: String(q), label: K('q (ондық жүйеде)', 'q (в десятичной)') }, { q: q, inputQ: 16, subText: 'q', key: B(u + v, q), label: K(B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =', B(u, q) + '<sub>q</sub> + ' + B(v, q) + '<sub>q</sub> =') }], max: 2 };
     }
   }
-  // Бір тапсырма — бірнеше мысал (негізгі тапсырмаларда 4 мысал, әрқайсысы 0,25 балл)
+  // Бір тапсырма — бірнеше мысал (негізгі тапсырмаларда 2 мысал, әрқайсысы 0,5 балл)
   function group(items, per) {
     var units = items.reduce(function (n, it) { return n + (it.type === 'input' ? it.fields.length : 1); }, 0);
     return { type: 'group', title: items[0].title, prompt: items[0].prompt, star: !!items[0].star, items: items, per: per, units: units, max: units * per };
   }
-  function four(make) {   // 4 әр түрлі мысал
+  var NEX = 2;
+  function four(make) {   // NEX әр түрлі мысал
     var out = [], seen = {};
-    for (var k = 0; out.length < 4 && k < 200; k++) {
+    for (var k = 0; out.length < NEX && k < 200; k++) {
       var it = make(out.length), id = it.expr || (it.left + '|' + it.right);
       if (!seen[id]) { seen[id] = 1; out.push(it); }
     }
     return out;
   }
-  var PER = 0.25;
+  var PER = 0.5;
   function generate(seed) {
     var r = rng(seed), T = [];
     var col = function (q, op, title) { return group(four(function () { return colTask(r, q, op, title); }), PER); };
@@ -300,11 +303,11 @@
     T.push(col(8, '−', K('Сегіздік жүйеде азайту', 'Вычитание в восьмеричной системе')));
     T.push(col(16, '+', K('Он алтылық жүйеде қосу', 'Сложение в шестнадцатеричной системе')));
     T.push(col(16, '−', K('Он алтылық жүйеде азайту', 'Вычитание в шестнадцатеричной системе')));
-    var sq = shuffle([8, 8, 16, 16], r);
+    var sq = shuffle([8, 16], r);
     T.push(group(four(function (n) { return starsTask(r, sq[n]); }), PER));
-    var fx = shuffle([[8, 'ten'], [16, 'nocarry'], [8, 'nodec'], [16, 'nodec']], r);
+    var fx = shuffle([shuffle([[8, 'ten'], [16, 'nocarry']], r)[0], shuffle([[8, 'nodec'], [16, 'nodec']], r)[0]], r);   // бір қосу, бір азайту
     T.push(group(four(function (n) { return fixTask(r, fx[n][0], fx[n][1]); }), PER));
-    var o9 = shuffle(['+', '+', '−', '+'], r), o10 = shuffle(['+', '−', '−', '+'], r);
+    var o9 = shuffle(['+', '−'], r), o10 = shuffle(['+', '−'], r);
     T.push(group(four(function (n) { return convTask(r, 2, 8, o9[n]); }), PER));
     T.push(group(four(function (n) { return convTask(r, 16, 2, o10[n]); }), PER));
     T.push(group([eqTask(r)], 1));

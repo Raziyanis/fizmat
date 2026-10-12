@@ -631,3 +631,11 @@ li.ins-block { margin-bottom: 6px; border-radius: 4px; }
 .who select { font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; min-width: 110px; max-width: 100%; background: #fff; }
 .who #s-name { min-width: 320px; }
 .who select:focus { outline: none; border-color: var(--accent); }
+.work-top { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.work-top #nav { flex: 1; }
+.theory-btn { border: 1px solid var(--accent); color: var(--accent); background: #eef3fd; font-weight: 600; white-space: nowrap; }
+.theory-modal { position: fixed; inset: 0; background: rgba(20, 28, 40, 0.55); z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: 64px 16px 16px; overflow: auto; }
+.theory-modal[hidden] { display: none; }
+.theory-box { background: var(--card); border-radius: 10px; padding: 18px 22px; max-width: 1000px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+.theory-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; position: sticky; top: -18px; background: var(--card); padding: 6px 0; }
+.theory-head h2 { margin: 0; }

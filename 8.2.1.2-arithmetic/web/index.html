@@ -62,7 +62,7 @@
       <div class="lang-kz" id="theory-kz"></div>
       <div class="lang-ru" id="theory-ru"></div>
       <div class="theory-end">
-        <p class="no-back"><span class="lang-kz">Теорияны мұқият оқыңыз: жұмыс басталғаннан кейін теорияға қайтуға болмайды.</span><span class="lang-ru">Читайте теорию внимательно: после начала работы вернуться к теории будет нельзя.</span></p>
+        <p class="no-back"><span class="lang-kz">Жұмыс кезінде теорияға «📖 Теория» батырмасымен кез келген уақытта оралуға болады.</span><span class="lang-ru">Во время работы к теории можно вернуться в любой момент кнопкой «📖 Теория».</span></p>
         <button id="b-to-intro" class="primary big"><span class="lang-kz">Жұмысқа өту →</span><span class="lang-ru">Перейти к работе →</span></button>
       </div>
     </section>
@@ -70,8 +70,8 @@
     <section id="s-intro" hidden>
       <h1><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h1>
       <ul class="rules">
-        <li class="lang-kz"><b>10 негізгі тапсырма</b>, әрқайсысы — <b>1 балл</b> (барлығы 10 балл): екілік, сегіздік, он алтылық жүйеде қосу және азайту, дұрыс жауапты табу, жасырын цифр, әр түрлі жүйедегі сандар, салыстыру.</li>
-        <li class="lang-ru"><b>10 основных заданий</b>, каждое — <b>1 балл</b> (всего 10 баллов): сложение и вычитание в двоичной, восьмеричной, шестнадцатеричной системах, поиск верного ответа, скрытая цифра, числа в разных системах, сравнение.</li>
+        <li class="lang-kz"><b>10 негізгі тапсырма</b>, әрқайсысында <b>2 мысал</b> (әр мысал — 0,5 балл), тапсырма — <b>1 балл</b> (барлығы 10 балл): екілік, сегіздік, он алтылық жүйеде қосу және азайту, дұрыс жауапты табу, жасырын цифр, әр түрлі жүйедегі сандар, салыстыру.</li>
+        <li class="lang-ru"><b>10 основных заданий</b>, в каждом <b>2 примера</b> (пример — 0,5 балла), задание — <b>1 балл</b> (всего 10 баллов): сложение и вычитание в двоичной, восьмеричной, шестнадцатеричной системах, поиск верного ответа, скрытая цифра, числа в разных системах, сравнение.</li>
         <li class="lang-kz"><b>★ Қосымша тапсырма — 6 балл</b>: үш күрделі есеп, әрқайсысында екі жауап (әр жауап — 1 балл). Оның балы бөлек көрсетіледі.</li>
         <li class="lang-ru"><b>★ Дополнительное задание — 6 баллов</b>: три сложные задачи, в каждой два ответа (каждый — 1 балл). Его баллы показываются отдельно.</li>
         <li class="lang-kz">Жұмысқа — <b><span class="i-min"></span> минут</b>. Тапсырмалар арасында еркін ауысуға болады, жауаптар өзі сақталады. Уақыт біткенде жұмыс өзі тапсырылады.</li>
@@ -80,8 +80,8 @@
         <li class="lang-ru">Ответ впишите в поле (индекс основания писать не нужно). Буквы A–F пишутся латиницей при любой раскладке. Вычисления делайте в тетради.</li>
         <li class="lang-kz">Әр оқушының тапсырмалары әр түрлі.</li>
         <li class="lang-ru">У каждого ученика свои задания.</li>
-        <li class="important lang-kz">Жұмыс басталғаннан кейін теорияға қайтуға болмайды.</li>
-        <li class="important lang-ru">После начала работы вернуться к теории нельзя.</li>
+        <li class="lang-kz">Жұмыс кезінде теорияны <b>«📖 Теория»</b> батырмасымен кез келген уақытта ашуға болады (уақыт тоқтамайды).</li>
+        <li class="lang-ru">Во время работы теорию можно открыть в любой момент кнопкой <b>«📖 Теория»</b> (время не останавливается).</li>
         <li class="important lang-kz">Толық экран режимінен шығу, басқа терезеге ауысу, бетті қайта жүктеу — ереже бұзу. Алғашқы екеуіне ескерту, үшіншісінен кейін жұмыс аяқталады.</li>
         <li class="important lang-ru">Выход из полноэкранного режима, переключение окна, перезагрузка страницы — нарушение. За первые два — предупреждение, после третьего работа завершится.</li>
       </ul>
@@ -92,7 +92,7 @@
     </section>
 
     <section id="s-work" hidden>
-      <div id="nav"></div>
+      <div class="work-top"><div id="nav"></div><button id="b-theory-open" type="button" class="theory-btn"><span class="lang-kz">📖 Теория</span><span class="lang-ru">📖 Теория</span></button></div>
       <div id="task"></div>
       <div class="buttons work-buttons">
         <button id="b-prev">← <span class="lang-kz">Артқа</span><span class="lang-ru">Назад</span></button>
@@ -123,6 +123,15 @@
       <div id="r-review" class="review"></div>
     </section>
   </main>
+
+  <div id="m-theory" class="theory-modal" role="dialog" aria-modal="true" hidden>
+    <div class="theory-box">
+      <div class="theory-head"><h2><span class="lang-kz">Теория</span><span class="lang-ru">Теория</span></h2>
+        <button id="b-theory-close" type="button" class="primary"><span class="lang-kz">✕ Жабу, тапсырмаға оралу</span><span class="lang-ru">✕ Закрыть, вернуться к заданию</span></button></div>
+      <div class="theory lang-kz" id="mt-kz"></div>
+      <div class="theory lang-ru" id="mt-ru"></div>
+    </div>
+  </div>
 
   <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
 
