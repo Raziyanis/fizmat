@@ -113,7 +113,7 @@
         var b = a.map(function (x) { return x.slice(); }), t = b[p]; b[p] = b[q]; b[q] = t;
         return { input: inNM(a) + '\n' + p + ' ' + q, output: rows(b) };
       }),
-      solution: READ + 'p, q = map(int, input().split())\na[p], a[q] = a[q], a[p]\nfor row in a:\n    print(*row)' });
+      solution: READ + 'p, q = map(int, input().split())\na[p], a[q] = a[q], a[p]\nfor row in a:\n    for x in row:\n        print(x, end=" ")\n    print()' });
 
     // ---------- C9. Симметриялы матрица ----------
     T.push({ level: 'C', need: [], title: L('Симметриялы матрица', 'Симметричная матрица'),
@@ -139,7 +139,7 @@
         for (var p = 0; p < n; p++) { var row = []; for (var q = 0; q < m; q++) row.push(k++); if (p % 2) row.reverse(); a.push(row); }
         return { input: n + ' ' + m, output: rows(a) };
       }),
-      solution: 'n, m = map(int, input().split())\na = [[0] * m for i in range(n)]\nk = 1\nfor i in range(n):\n    if i % 2 == 0:\n        for j in range(m):\n            a[i][j] = k\n            k = k + 1\n    else:\n        for j in range(m - 1, -1, -1):\n            a[i][j] = k\n            k = k + 1\nfor row in a:\n    print(*row)' });
+      solution: 'n, m = map(int, input().split())\na = [[0] * m for i in range(n)]\nk = 1\nfor i in range(n):\n    if i % 2 == 0:\n        for j in range(m):\n            a[i][j] = k\n            k = k + 1\n    else:\n        for j in range(m - 1, -1, -1):\n            a[i][j] = k\n            k = k + 1\nfor row in a:\n    for x in row:\n        print(x, end=" ")\n    print()' });
 
     return T;
   }

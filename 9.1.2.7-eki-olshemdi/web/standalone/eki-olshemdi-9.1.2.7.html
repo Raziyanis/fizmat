@@ -484,13 +484,15 @@ print(a)</pre></div><div><div class="t-box out"><div class="lbl"><span class="la
 <p class="lang-kz"><code>a[1]</code> — бүкіл бір жол (тізім). <code>a[1][2]</code> — сол жолдың 2-элементі. Элементті кәдімгі айнымалы сияқты өзгертуге болады: <code>a[0][1] = 20</code>.</p><p class="lang-ru"><code>a[1]</code> — целая строка (список). <code>a[1][2]</code> — элемент 2 в этой строке. Элемент можно изменять, как обычную переменную: <code>a[0][1] = 20</code>.</p>
 <p class="lang-kz"><b>Есте сақтаңыз:</b> бірінші индекс — жол (жоғарыдан төмен), екінші — баған (солдан оңға). «Алдымен жол, сосын баған».</p><p class="lang-ru"><b>Запомните:</b> первый индекс — строка (сверху вниз), второй — столбец (слева направо). «Сначала строка, потом столбец».</p>
 <h3 class="t-h"><span class="lang-kz">3. Кестені экранға шығару</span><span class="lang-ru">3. Вывод таблицы на экран</span></h3>
-<p class="lang-kz"><code>print(a)</code> кестені жақшалармен бір жолға шығарады — оқуға ыңғайсыз. Кестені <b>жол-жолмен</b> шығару үшін цикл қолданамыз. Ең оңай тәсіл — <code>print(*row)</code>: жұлдызша жолдың элементтерін бос орын арқылы шығарады.</p><p class="lang-ru"><code>print(a)</code> выводит таблицу в одну строку со скобками — читать неудобно. Чтобы вывести таблицу <b>по строкам</b>, используем цикл. Самый простой способ — <code>print(*row)</code>: звёздочка выводит элементы строки через пробел.</p>
+<p class="lang-kz"><code>print(a)</code> кестені жақшалармен бір жолға шығарады — оқуға ыңғайсыз. Кестені <b>жол-жолмен</b> шығару үшін <b>ішкі цикл</b> қолданамыз: сыртқы цикл жолдарды алады, ішкі цикл сол жолдың сандарын бір жолға бос орын арқылы шығарады.</p><p class="lang-ru"><code>print(a)</code> выводит таблицу в одну строку со скобками — читать неудобно. Чтобы вывести таблицу <b>по строкам</b>, используем <b>вложенный цикл</b>: внешний цикл берёт строки, внутренний выводит числа этой строки в одну строку через пробел.</p>
 <div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
      [4, 5, 6]]
 for row in a:
-    print(*row)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1 2 3
+    for x in row:
+        print(x, end=&quot; &quot;)
+    print()</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1 2 3 
 4 5 6</pre></div></div></div>
-<p class="lang-kz">Индекстер арқылы — <b>ішкі цикл</b> (цикл ішіндегі цикл): сыртқы цикл жолдарды, ішкі цикл бағандарды аралайды.</p><p class="lang-ru">Через индексы — <b>вложенный цикл</b> (цикл внутри цикла): внешний цикл перебирает строки, внутренний — столбцы.</p>
+<p class="lang-kz">Дәл осыны <b>индекстер арқылы</b> да жазуға болады: <code>i</code> — жолдың нөмірі, <code>j</code> — бағанның нөмірі.</p><p class="lang-ru">То же самое можно записать <b>через индексы</b>: <code>i</code> — номер строки, <code>j</code> — номер столбца.</p>
 <div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
      [4, 5, 6]]
 for i in range(len(a)):
@@ -516,15 +518,19 @@ print(a)</pre></div><div><div class="t-box inp"><div class="lbl"><span class="la
 a = [[0] * m for i in range(n)]
 a[1][2] = 7
 for row in a:
-    print(*row)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>0 0 0 0
-0 0 7 0
+    for x in row:
+        print(x, end=&quot; &quot;)
+    print()</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>0 0 0 0 
+0 0 7 0 
 0 0 0 0</pre></div></div></div>
 <p class="lang-kz"><b>Назар аударыңыз — жиі қате!</b> <code>[[0] * m] * n</code> деп жазуға болмайды: онда барлық жол — <b>бір ғана тізім</b>, біреуін өзгертсеңіз, барлығы өзгереді:</p><p class="lang-ru"><b>Внимание — частая ошибка!</b> Нельзя писать <code>[[0] * m] * n</code>: тогда все строки — <b>один и тот же список</b>, и изменение одной меняет все:</p>
 <div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[0] * 4] * 3
 a[1][2] = 7
 for row in a:
-    print(*row)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>0 0 7 0
-0 0 7 0
+    for x in row:
+        print(x, end=&quot; &quot;)
+    print()</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>0 0 7 0 
+0 0 7 0 
 0 0 7 0</pre></div></div></div>
 <h3 class="t-h"><span class="lang-kz">6. Типтік есептер</span><span class="lang-ru">6. Типичные задачи</span></h3>
 <p class="lang-kz"><b>Барлық элементтердің қосындысы</b> — ішкі цикл және жинағыш айнымалы:</p><p class="lang-ru"><b>Сумма всех элементов</b> — вложенный цикл и переменная-накопитель:</p>
@@ -623,9 +629,9 @@ for i in range(n):
     s2 = s2 + a[i][n - 1 - i]
 print(s1, s2)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>15 15</pre></div></div></div>
 <h3 class="t-h"><span class="lang-kz">8. Жиі кездесетін қателер</span><span class="lang-ru">8. Частые ошибки</span></h3>
-<ul class="lang-kz"><li><b>IndexError: list index out of range</b> — индекс тым үлкен. Есте сақтаңыз: соңғы жол — <code>n - 1</code>, соңғы баған — <code>m - 1</code>.</li><li><b>Жол мен бағанды шатастыру</b> — <code>a[j][i]</code> емес, <code>a[i][j]</code>: алдымен жол, сосын баған.</li><li><b><code>[[0] * m] * n</code></b> — барлық жол бір тізім болып шығады. Дұрысы: <code>[[0] * m for i in range(n)]</code>.</li><li><b>Сандарды int-ке айналдыруды ұмыту</b> — <code>input().split()</code> мәтін береді; <code>map(int, …)</code> қажет.</li><li><b>Кестені print(a) арқылы шығару</b> — жауап жақшалармен шығады. Жол-жолмен шығарыңыз: <code>print(*row)</code>.</li></ul><ul class="lang-ru"><li><b>IndexError: list index out of range</b> — индекс слишком большой. Помните: последняя строка — <code>n - 1</code>, последний столбец — <code>m - 1</code>.</li><li><b>Путаница строки и столбца</b> — не <code>a[j][i]</code>, а <code>a[i][j]</code>: сначала строка, потом столбец.</li><li><b><code>[[0] * m] * n</code></b> — все строки оказываются одним списком. Правильно: <code>[[0] * m for i in range(n)]</code>.</li><li><b>Забыли превратить в int</b> — <code>input().split()</code> даёт строки; нужен <code>map(int, …)</code>.</li><li><b>Вывод таблицы через print(a)</b> — ответ выйдет со скобками. Выводите по строкам: <code>print(*row)</code>.</li></ul>
+<ul class="lang-kz"><li><b>IndexError: list index out of range</b> — индекс тым үлкен. Есте сақтаңыз: соңғы жол — <code>n - 1</code>, соңғы баған — <code>m - 1</code>.</li><li><b>Жол мен бағанды шатастыру</b> — <code>a[j][i]</code> емес, <code>a[i][j]</code>: алдымен жол, сосын баған.</li><li><b><code>[[0] * m] * n</code></b> — барлық жол бір тізім болып шығады. Дұрысы: <code>[[0] * m for i in range(n)]</code>.</li><li><b>Сандарды int-ке айналдыруды ұмыту</b> — <code>input().split()</code> мәтін береді; <code>map(int, …)</code> қажет.</li><li><b>Кестені print(a) арқылы шығару</b> — жауап жақшалармен шығады. Жол-жолмен, ішкі цикл арқылы шығарыңыз.</li></ul><ul class="lang-ru"><li><b>IndexError: list index out of range</b> — индекс слишком большой. Помните: последняя строка — <code>n - 1</code>, последний столбец — <code>m - 1</code>.</li><li><b>Путаница строки и столбца</b> — не <code>a[j][i]</code>, а <code>a[i][j]</code>: сначала строка, потом столбец.</li><li><b><code>[[0] * m] * n</code></b> — все строки оказываются одним списком. Правильно: <code>[[0] * m for i in range(n)]</code>.</li><li><b>Забыли превратить в int</b> — <code>input().split()</code> даёт строки; нужен <code>map(int, …)</code>.</li><li><b>Вывод таблицы через print(a)</b> — ответ выйдет со скобками. Выводите по строкам вложенным циклом.</li></ul>
 <h3 class="t-h"><span class="lang-kz">9. Шпаргалка</span><span class="lang-ru">9. Шпаргалка</span></h3>
-<table class="t-table"><tr><th><span class="lang-kz">Не істеу керек</span><span class="lang-ru">Что сделать</span></th><th>Код</th></tr><tr><td><span class="lang-kz">Жолдар саны</span><span class="lang-ru">число строк</span></td><td><code>len(a)</code></td></tr><tr><td><span class="lang-kz">Бағандар саны</span><span class="lang-ru">число столбцов</span></td><td><code>len(a[0])</code></td></tr><tr><td><span class="lang-kz">i-жол, j-баған элементі</span><span class="lang-ru">элемент строки i, столбца j</span></td><td><code>a[i][j]</code></td></tr><tr><td><span class="lang-kz">Кестені енгізу</span><span class="lang-ru">ввод таблицы</span></td><td><code>a = [list(map(int, input().split())) for i in range(n)]</code></td></tr><tr><td><span class="lang-kz">Нөлдер кестесі</span><span class="lang-ru">таблица из нулей</span></td><td><code>a = [[0] * m for i in range(n)]</code></td></tr><tr><td><span class="lang-kz">Жол-жолмен шығару</span><span class="lang-ru">вывод по строкам</span></td><td><code>for row in a: print(*row)</code></td></tr><tr><td><span class="lang-kz">Барлық элементтер</span><span class="lang-ru">все элементы</span></td><td><code>for i in range(n): for j in range(m): … a[i][j]</code></td></tr><tr><td><span class="lang-kz">Жұптардың қосындысы</span><span class="lang-ru">сумма чётных</span></td><td><code>if x % 2 == 0: s = s + x</code></td></tr><tr><td><span class="lang-kz">Тақтардың қосындысы</span><span class="lang-ru">сумма нечётных</span></td><td><code>if x % 2 != 0: s = s + x</code></td></tr><tr><td><span class="lang-kz">k-ға бөлінетіндер</span><span class="lang-ru">делящиеся на k</span></td><td><code>if x % k == 0: s = s + x</code></td></tr><tr><td><span class="lang-kz">Бас диагональ</span><span class="lang-ru">главная диагональ</span></td><td><code>a[i][i]</code></td></tr><tr><td><span class="lang-kz">Қосалқы диагональ</span><span class="lang-ru">побочная диагональ</span></td><td><code>a[i][n - 1 - i]</code></td></tr></table>
+<table class="t-table"><tr><th><span class="lang-kz">Не істеу керек</span><span class="lang-ru">Что сделать</span></th><th>Код</th></tr><tr><td><span class="lang-kz">Жолдар саны</span><span class="lang-ru">число строк</span></td><td><code>len(a)</code></td></tr><tr><td><span class="lang-kz">Бағандар саны</span><span class="lang-ru">число столбцов</span></td><td><code>len(a[0])</code></td></tr><tr><td><span class="lang-kz">i-жол, j-баған элементі</span><span class="lang-ru">элемент строки i, столбца j</span></td><td><code>a[i][j]</code></td></tr><tr><td><span class="lang-kz">Кестені енгізу</span><span class="lang-ru">ввод таблицы</span></td><td><code>a = [list(map(int, input().split())) for i in range(n)]</code></td></tr><tr><td><span class="lang-kz">Нөлдер кестесі</span><span class="lang-ru">таблица из нулей</span></td><td><code>a = [[0] * m for i in range(n)]</code></td></tr><tr><td><span class="lang-kz">Жол-жолмен шығару</span><span class="lang-ru">вывод по строкам</span></td><td><code>for row in a:</code> → <code>for x in row: print(x, end=" ")</code> → <code>print()</code></td></tr><tr><td><span class="lang-kz">Барлық элементтер</span><span class="lang-ru">все элементы</span></td><td><code>for i in range(n): for j in range(m): … a[i][j]</code></td></tr><tr><td><span class="lang-kz">Жұптардың қосындысы</span><span class="lang-ru">сумма чётных</span></td><td><code>if x % 2 == 0: s = s + x</code></td></tr><tr><td><span class="lang-kz">Тақтардың қосындысы</span><span class="lang-ru">сумма нечётных</span></td><td><code>if x % 2 != 0: s = s + x</code></td></tr><tr><td><span class="lang-kz">k-ға бөлінетіндер</span><span class="lang-ru">делящиеся на k</span></td><td><code>if x % k == 0: s = s + x</code></td></tr><tr><td><span class="lang-kz">Бас диагональ</span><span class="lang-ru">главная диагональ</span></td><td><code>a[i][i]</code></td></tr><tr><td><span class="lang-kz">Қосалқы диагональ</span><span class="lang-ru">побочная диагональ</span></td><td><code>a[i][n - 1 - i]</code></td></tr></table>
 <!--/THEORY-->
       </div>
       <div class="theory-end" id="theory-end">
@@ -1909,7 +1915,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
         var b = a.map(function (x) { return x.slice(); }), t = b[p]; b[p] = b[q]; b[q] = t;
         return { input: inNM(a) + '\n' + p + ' ' + q, output: rows(b) };
       }),
-      solution: READ + 'p, q = map(int, input().split())\na[p], a[q] = a[q], a[p]\nfor row in a:\n    print(*row)' });
+      solution: READ + 'p, q = map(int, input().split())\na[p], a[q] = a[q], a[p]\nfor row in a:\n    for x in row:\n        print(x, end=" ")\n    print()' });
 
     // ---------- C9. Симметриялы матрица ----------
     T.push({ level: 'C', need: [], title: L('Симметриялы матрица', 'Симметричная матрица'),
@@ -1935,7 +1941,7 @@ Sk.builtinFiles={"files":{"src/builtin/sys.js":"var $builtinmodule=function(){va
         for (var p = 0; p < n; p++) { var row = []; for (var q = 0; q < m; q++) row.push(k++); if (p % 2) row.reverse(); a.push(row); }
         return { input: n + ' ' + m, output: rows(a) };
       }),
-      solution: 'n, m = map(int, input().split())\na = [[0] * m for i in range(n)]\nk = 1\nfor i in range(n):\n    if i % 2 == 0:\n        for j in range(m):\n            a[i][j] = k\n            k = k + 1\n    else:\n        for j in range(m - 1, -1, -1):\n            a[i][j] = k\n            k = k + 1\nfor row in a:\n    print(*row)' });
+      solution: 'n, m = map(int, input().split())\na = [[0] * m for i in range(n)]\nk = 1\nfor i in range(n):\n    if i % 2 == 0:\n        for j in range(m):\n            a[i][j] = k\n            k = k + 1\n    else:\n        for j in range(m - 1, -1, -1):\n            a[i][j] = k\n            k = k + 1\nfor row in a:\n    for x in row:\n        print(x, end=" ")\n    print()' });
 
     return T;
   }
