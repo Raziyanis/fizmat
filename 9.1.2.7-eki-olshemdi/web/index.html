@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Екі өлшемді массивтер — 9.1.2.7</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><span class="lang-label">Тіл / Язык</span><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span><span class="lang-kz">Жұмыстың аяқталуына</span><span class="lang-ru">До конца работы</span></span><b id="tm-total"></b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">…</p></section>
+
+    <section id="s-gate" hidden>
+      <h1><span class="lang-kz">Екі өлшемді массивтер</span><span class="lang-ru">Двумерные массивы</span></h1>
+      <p class="topic"><span class="lang-kz">9.1.2.7 — екі өлшемді массивтерді қолдана отырып, Python бағдарламалау тілінде бағдарламалар жасау</span><span class="lang-ru">9.1.2.7 — создавать программы на языке программирования Python с использованием двумерных массивов</span></p>
+
+      <p class="steps"><b><span class="lang-kz">1. Теория</span><span class="lang-ru">1. Теория</span></b> → <span class="lang-kz">2. Есептер</span><span class="lang-ru">2. Задачи</span></p>
+      <p class="note"><span class="lang-kz">Программалар осы беттің ішінде <b>Python 3</b>-те орындалады (Skulpt — браузерге арналған Python интерпретаторы). Интернет та, Python орнату да қажет емес.</span><span class="lang-ru">Программы выполняются прямо на этой странице на <b>Python 3</b> (Skulpt — интерпретатор Python для браузера). Ни интернет, ни установка Python не нужны.</span></p>
+
+      <h2><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h2>
+      <ul class="rules">
+        <li><span class="lang-kz">Алдымен <b>теорияны</b> оқыңыз (уақыт әлі жүрмейді). Жұмыс кезінде теорияны <b>«📖 Теория»</b> батырмасымен кез келген уақытта ашуға болады.</span><span class="lang-ru">Сначала прочитайте <b>теорию</b> (время ещё не идёт). Во время работы теорию можно открыть в любой момент кнопкой <b>«📖 Теория»</b>.</span></li>
+        <li><span class="lang-kz"><b>10 есеп</b> — жеңілден қиынға қарай: A деңгейі (1–4), B (5–7), C (8–10). Әр есепке Python-да программа жазыңыз.</span><span class="lang-ru"><b>10 задач</b> — от простого к сложному: уровень A (1–4), B (5–7), C (8–10). К каждой задаче напишите программу на Python.</span></li>
+        <li><span class="lang-kz">Есептер олимпиададағыдай: деректерді <b>input()</b> арқылы оқып, жауапты <b>print()</b> арқылы шығарыңыз. Әр есепте кіріс және шығыс деректердің мысалдары бар.</span><span class="lang-ru">Задачи — как на олимпиаде: данные читайте через <b>input()</b>, ответ выводите через <b>print()</b>. У каждой задачи есть примеры входных и выходных данных.</span></li>
+        <li><span class="lang-kz"><b>«▶ Іске қосу»</b> — программаны өз деректеріңізбен орындау. <b>«✓ Тексеру»</b> — 8 тестте тексеру (2 мысал + 6 жасырын тест).</span><span class="lang-ru"><b>«▶ Запустить»</b> — выполнить программу со своими данными. <b>«✓ Проверить»</b> — проверка на 8 тестах (2 примера + 6 скрытых).</span></li>
+        <li><span class="lang-kz">Есеп <b>1 балл</b>: 8 тесттің бәрінен өтсе. Ең көбі — <b>10 балл</b>.</span><span class="lang-ru">Задача — <b>1 балл</b>: если пройдены все 8 тестов. Максимум — <b>10 баллов</b>.</span></li>
+        <li><span class="lang-kz">Уақыт — <b><span class="i-min"></span> минут</b>. Есептер арасында еркін ауысуға болады, код өздігінен сақталады. Балл жұмыс аяқталғанда <b>соңғы код</b> бойынша есептеледі.</span><span class="lang-ru">Время — <b><span class="i-min"></span> минут</b>. Между задачами можно свободно переходить, код сохраняется автоматически. Балл считается по <b>последней версии кода</b>, когда работа завершается.</span></li>
+        <li><span class="lang-kz">Кодты кез келген пернетақта тілінде жазуға болады: редактордың үстіндегі <b>«⌨ Латиница»</b> режимі пернелерге ағылшын әріптерін береді.</span><span class="lang-ru">Код можно писать при любой раскладке: режим <b>«⌨ Латиница»</b> над редактором вводит английские буквы и знаки.</span></li>
+        <li class="important"><span class="lang-kz">Жұмыс толық экранда жүреді. Одан шығу, басқа бетке не терезеге ауысу, бетті қайта жүктеу — бұзушылық. <b>Алғашқы екеуіне ескерту беріледі, үшіншісінде жұмыс аяқталады.</b></span><span class="lang-ru">Работа идёт в полноэкранном режиме. Выход из него, переход на другую вкладку или окно, перезагрузка страницы — нарушение. <b>За первые два — предупреждение, на третьем работа завершается.</b></span></li>
+      </ul>
+      <p id="i-nofs" class="note" hidden><span class="lang-kz">Бұл браузер толық экранды қолдамайды. Басқа беттерге ауыспаңыз.</span><span class="lang-ru">Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки.</span></p>
+
+      <div class="who">
+        <label id="w-cls-sel" hidden><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><select id="s-cls"></select></label>
+        <label id="w-name-sel" hidden><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><select id="s-name"></select></label>
+        <label id="w-name"><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
+        <label id="w-cls"><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="9A"></label>
+      </div>
+      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Сыныбыңызды және аты-жөніңізді көрсетіңіз.</span><span class="lang-ru">Укажите класс, фамилию и имя.</span></p>
+      <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Теорияны оқу (толық экранда)</span><span class="lang-ru">Читать теорию (на весь экран)</span></button></div>
+      <p class="teacher-link"><button id="b-teacher" class="link" type="button"><span class="lang-kz">Мұғалімге: нәтижелерді поштаға жіберуді баптау</span><span class="lang-ru">Для учителя: настройка отправки результатов на почту</span></button></p>
+    </section>
+
+    <section id="s-teacher" hidden>
+      <h1><span class="lang-kz">Нәтижелерді мұғалімнің поштасына жіберу</span><span class="lang-ru">Отправка результатов на почту учителя</span></h1>
+      <p id="t-status" class="note"></p>
+      <ol class="t-steps">
+        <li><span class="lang-kz"><a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> сайтын өз Google аккаунтыңызбен ашып, <b>Жаңа жоба</b> жасаңыз.</span><span class="lang-ru">Откройте <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> под своим Google-аккаунтом → <b>Новый проект</b>.</span></li>
+        <li><span class="lang-kz">Төмендегі скриптті көшіріп (<b>Көшіру</b> батырмасы), редактордағы бар мәтіннің орнына қойыңыз да, сақтаңыз (Ctrl+S). Пошта мекенжайы <code>var EMAIL</code> жолында.</span><span class="lang-ru">Скопируйте скрипт ниже (кнопка <b>Копировать</b>), вставьте вместо текста в редакторе и сохраните (Ctrl+S). Адрес почты — в строке <code>var EMAIL</code>.</span>
+          <div class="gs-box"><textarea id="gs-code" readonly spellcheck="false"></textarea><button id="b-gs-copy" type="button"><span class="lang-kz">Көшіру</span><span class="lang-ru">Копировать</span></button></div></li>
+        <li><span class="lang-kz">Жоғарыдан <b>setup</b> функциясын таңдап, <b>Іске қосу</b> батырмасын басыңыз, барлық рұқсатты беріңіз (кесте жасалады, тексеру хаты келеді).</span><span class="lang-ru">Вверху выберите функцию <b>setup</b> → <b>Выполнить</b> → разрешите все доступы (создастся таблица, придёт проверочное письмо).</span></li>
+        <li><span class="lang-kz"><b>Жариялау → Жаңа жариялау → Веб-қосымша</b>: «Кімнің атынан» — <b>Мен</b>; «Кімге қолжетімді» — <b>Барлығы</b>. <b>…/exec</b> деп аяқталатын сілтемені көшіріңіз.</span><span class="lang-ru"><b>Начать развертывание → Новое развертывание → Веб-приложение</b>: «Запуск от имени» — <b>Я</b>; «У кого есть доступ» — <b>Все</b>. Скопируйте ссылку, которая заканчивается на <b>/exec</b>.</span></li>
+        <li><span class="lang-kz">Сілтемені осында қойып, баптаулары бар файлды жүктеп алыңыз. Оқушыларға <b>осы жаңа файлды</b> беріңіз.</span><span class="lang-ru">Вставьте ссылку сюда и скачайте настроенный файл. Ученикам давайте <b>этот новый файл</b>.</span>
+          <div class="url-row"><input id="i-url" type="text" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec">
+          <button id="b-test-url" type="button"><span class="lang-kz">Тексеру</span><span class="lang-ru">Проверить</span></button>
+          <button id="b-download" class="primary" type="button"><span class="lang-kz">Файлды жүктеп алу</span><span class="lang-ru">Скачать файл</span></button></div>
+          <p id="url-msg" class="muted small"></p></li>
+      </ol>
+      <div class="buttons"><button id="b-teacher-back" type="button">← <span class="lang-kz">Бастапқы бет</span><span class="lang-ru">Начальная страница</span></button></div>
+    </section>
+
+    <section id="s-theory" class="theory" hidden>
+      <p class="steps"><b><span class="lang-kz">1. Теория</span><span class="lang-ru">1. Теория</span></b> → <span class="lang-kz">2. Есептер</span><span class="lang-ru">2. Задачи</span></p>
+      <h1><span class="lang-kz">Екі өлшемді массивтер</span><span class="lang-ru">Двумерные массивы</span></h1>
+      <div id="theory">
+<!--THEORY-->
+<h3 class="t-h"><span class="lang-kz">1. Екі өлшемді массив деген не?</span><span class="lang-ru">1. Что такое двумерный массив?</span></h3>
+<p class="lang-kz">Кәдімгі (бір өлшемді) тізім — бір қатарға тізілген сандар: <code>[5, 8, 2]</code>. Ал <b>екі өлшемді массив</b> — бұл <b>кесте</b>: оның <b>жолдары</b> мен <b>бағандары</b> бар. Өмірдегі мысалдар: сынып журналы (жол — оқушы, баған — күн), шахмат тақтасы, кинотеатрдағы орындар, Excel кестесі.</p><p class="lang-ru">Обычный (одномерный) список — числа в один ряд: <code>[5, 8, 2]</code>. А <b>двумерный массив</b> — это <b>таблица</b>: у неё есть <b>строки</b> и <b>столбцы</b>. Примеры из жизни: классный журнал (строка — ученик, столбец — дата), шахматная доска, места в кинотеатре, таблица Excel.</p>
+<p class="lang-kz">Python-да екі өлшемді массив — <b>тізімдердің тізімі</b>: үлкен тізімнің әр элементі — бір жол, ал жол — кәдімгі тізім. Мұндай кестені <b>матрица</b> деп те атайды.</p><p class="lang-ru">В Python двумерный массив — это <b>список списков</b>: каждый элемент большого списка — одна строка, а строка — обычный список. Такую таблицу ещё называют <b>матрицей</b>.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
+     [4, 5, 6]]
+print(a)
+print(len(a))
+print(len(a[0]))</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>[[1, 2, 3], [4, 5, 6]]
+2
+3</pre></div></div></div>
+<p class="lang-kz"><code>a</code> — 2 жолдан және 3 бағаннан тұратын кесте. <code>len(a)</code> — <b>жолдар саны</b> (2), <code>len(a[0])</code> — бірінші жолдың ұзындығы, яғни <b>бағандар саны</b> (3).</p><p class="lang-ru"><code>a</code> — таблица из 2 строк и 3 столбцов. <code>len(a)</code> — <b>число строк</b> (2), <code>len(a[0])</code> — длина первой строки, то есть <b>число столбцов</b> (3).</p>
+<div class="mx-wrap"><table class="mx"><tr><th></th><th class="mx-ci">j = 0</th><th class="mx-ci">j = 1</th><th class="mx-ci">j = 2</th></tr><tr><th class="mx-ri">i = 0</th><td class="">1</td><td class="">2</td><td class="">3</td></tr><tr><th class="mx-ri">i = 1</th><td class="">4</td><td class="">5</td><td class="">6</td></tr></table><p class="mx-cap"><span class="lang-kz">a кестесі: i — жолдың нөмірі, j — бағанның нөмірі</span><span class="lang-ru">Таблица a: i — номер строки, j — номер столбца</span></p></div>
+<h3 class="t-h"><span class="lang-kz">2. Элементке қалай қол жеткіземіз: a[i][j]</span><span class="lang-ru">2. Как обратиться к элементу: a[i][j]</span></h3>
+<p class="lang-kz">Элемент <b>екі индекспен</b> алынады: алдымен <b>жолдың</b> нөмірі <code>i</code>, содан кейін <b>бағанның</b> нөмірі <code>j</code>. Нөмірлеу, кәдімгі тізімдегідей, <b>0-ден</b> басталады.</p><p class="lang-ru">Элемент берут <b>по двум индексам</b>: сначала номер <b>строки</b> <code>i</code>, затем номер <b>столбца</b> <code>j</code>. Нумерация, как в обычном списке, начинается <b>с 0</b>.</p>
+<div class="mx-wrap"><table class="mx"><tr><th></th><th class="mx-ci">j = 0</th><th class="mx-ci">j = 1</th><th class="mx-ci">j = 2</th></tr><tr><th class="mx-ri">i = 0</th><td class="">1</td><td class="">2</td><td class="">3</td></tr><tr><th class="mx-ri">i = 1</th><td class="">4</td><td class="">5</td><td class="mx-hl">6</td></tr></table><p class="mx-cap"><span class="lang-kz">a[1][2] — 1-жол, 2-баған → 6</span><span class="lang-ru">a[1][2] — строка 1, столбец 2 → 6</span></p></div>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
+     [4, 5, 6]]
+print(a[1][2])
+print(a[0][0])
+print(a[1])
+a[0][1] = 20
+print(a)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>6
+1
+[4, 5, 6]
+[[1, 20, 3], [4, 5, 6]]</pre></div></div></div>
+<p class="lang-kz"><code>a[1]</code> — бүкіл бір жол (тізім). <code>a[1][2]</code> — сол жолдың 2-элементі. Элементті кәдімгі айнымалы сияқты өзгертуге болады: <code>a[0][1] = 20</code>.</p><p class="lang-ru"><code>a[1]</code> — целая строка (список). <code>a[1][2]</code> — элемент 2 в этой строке. Элемент можно изменять, как обычную переменную: <code>a[0][1] = 20</code>.</p>
+<p class="lang-kz"><b>Есте сақтаңыз:</b> бірінші индекс — жол (жоғарыдан төмен), екінші — баған (солдан оңға). «Алдымен жол, сосын баған».</p><p class="lang-ru"><b>Запомните:</b> первый индекс — строка (сверху вниз), второй — столбец (слева направо). «Сначала строка, потом столбец».</p>
+<h3 class="t-h"><span class="lang-kz">3. Кестені экранға шығару</span><span class="lang-ru">3. Вывод таблицы на экран</span></h3>
+<p class="lang-kz"><code>print(a)</code> кестені жақшалармен бір жолға шығарады — оқуға ыңғайсыз. Кестені <b>жол-жолмен</b> шығару үшін цикл қолданамыз. Ең оңай тәсіл — <code>print(*row)</code>: жұлдызша жолдың элементтерін бос орын арқылы шығарады.</p><p class="lang-ru"><code>print(a)</code> выводит таблицу в одну строку со скобками — читать неудобно. Чтобы вывести таблицу <b>по строкам</b>, используем цикл. Самый простой способ — <code>print(*row)</code>: звёздочка выводит элементы строки через пробел.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
+     [4, 5, 6]]
+for row in a:
+    print(*row)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1 2 3
+4 5 6</pre></div></div></div>
+<p class="lang-kz">Индекстер арқылы — <b>ішкі цикл</b> (цикл ішіндегі цикл): сыртқы цикл жолдарды, ішкі цикл бағандарды аралайды.</p><p class="lang-ru">Через индексы — <b>вложенный цикл</b> (цикл внутри цикла): внешний цикл перебирает строки, внутренний — столбцы.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
+     [4, 5, 6]]
+for i in range(len(a)):
+    for j in range(len(a[i])):
+        print(a[i][j], end=&quot; &quot;)
+    print()</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1 2 3 
+4 5 6</pre></div></div></div>
+<p class="lang-kz"><code>end=" "</code> — сандарды бір жолға бос орын арқылы шығарады, ал бос <code>print()</code> — келесі жолға көшіреді.</p><p class="lang-ru"><code>end=" "</code> выводит числа в одну строку через пробел, а пустой <code>print()</code> переводит на новую строку.</p>
+<h3 class="t-h"><span class="lang-kz">4. Кестені пернетақтадан енгізу</span><span class="lang-ru">4. Ввод таблицы с клавиатуры</span></h3>
+<p class="lang-kz">Есептерде деректер әдетте былай беріледі: бірінші жолда <b>n</b> (жолдар саны) және <b>m</b> (бағандар саны), содан кейін <b>n жол</b>, әр жолда <b>m сан</b>. Әр жолды <code>input().split()</code> арқылы оқып, санға айналдырып, кестеге қосамыз.</p><p class="lang-ru">В задачах данные обычно даются так: в первой строке <b>n</b> (число строк) и <b>m</b> (число столбцов), затем <b>n строк</b> по <b>m чисел</b>. Каждую строку читаем через <code>input().split()</code>, превращаем в числа и добавляем в таблицу.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>n, m = map(int, input().split())
+a = []
+for i in range(n):
+    row = list(map(int, input().split()))
+    a.append(row)
+print(a)</pre></div><div><div class="t-box inp"><div class="lbl"><span class="lang-kz">Кіріс</span><span class="lang-ru">Ввод</span></div><pre>2 3
+1 2 3
+4 5 6</pre></div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>[[1, 2, 3], [4, 5, 6]]</pre></div></div></div>
+<p class="lang-kz">Қысқа жазу (тізім генераторы): <code>a = [list(map(int, input().split())) for i in range(n)]</code> — дәл осыны істейді.</p><p class="lang-ru">Короткая запись (генератор списка): <code>a = [list(map(int, input().split())) for i in range(n)]</code> — делает то же самое.</p>
+<h3 class="t-h"><span class="lang-kz">5. Нөлдерден тұратын кестені құру</span><span class="lang-ru">5. Создание таблицы из нулей</span></h3>
+<p class="lang-kz">Кестені өзіміз толтырғымыз келсе, алдымен n жол, m бағаннан тұратын «бос» (нөлдер) кесте жасаймыз:</p><p class="lang-ru">Если таблицу нужно заполнить самим, сначала создаём «пустую» таблицу (из нулей) из n строк и m столбцов:</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>n, m = 3, 4
+a = [[0] * m for i in range(n)]
+a[1][2] = 7
+for row in a:
+    print(*row)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>0 0 0 0
+0 0 7 0
+0 0 0 0</pre></div></div></div>
+<p class="lang-kz"><b>Назар аударыңыз — жиі қате!</b> <code>[[0] * m] * n</code> деп жазуға болмайды: онда барлық жол — <b>бір ғана тізім</b>, біреуін өзгертсеңіз, барлығы өзгереді:</p><p class="lang-ru"><b>Внимание — частая ошибка!</b> Нельзя писать <code>[[0] * m] * n</code>: тогда все строки — <b>один и тот же список</b>, и изменение одной меняет все:</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[0] * 4] * 3
+a[1][2] = 7
+for row in a:
+    print(*row)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>0 0 7 0
+0 0 7 0
+0 0 7 0</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">6. Типтік есептер</span><span class="lang-ru">6. Типичные задачи</span></h3>
+<p class="lang-kz"><b>Барлық элементтердің қосындысы</b> — ішкі цикл және жинағыш айнымалы:</p><p class="lang-ru"><b>Сумма всех элементов</b> — вложенный цикл и переменная-накопитель:</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
+     [4, 5, 6]]
+s = 0
+for row in a:
+    for x in row:
+        s = s + x
+print(s)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>21</pre></div></div></div>
+<p class="lang-kz"><b>Әр жолдың қосындысы</b> — <code>sum(row)</code>. <b>Бағанның қосындысы</b> — бағанның нөмірі <code>j</code> бекітіледі, ал <code>i</code> барлық жолдарды аралайды:</p><p class="lang-ru"><b>Сумма каждой строки</b> — <code>sum(row)</code>. <b>Сумма столбца</b> — номер столбца <code>j</code> фиксируем, а <code>i</code> перебирает все строки:</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
+     [4, 5, 6]]
+for row in a:
+    print(sum(row), end=&quot; &quot;)
+print()
+for j in range(3):
+    s = 0
+    for i in range(2):
+        s = s + a[i][j]
+    print(s, end=&quot; &quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>6 15 
+5 7 9</pre></div></div></div>
+<p class="lang-kz"><b>Ең үлкен элемент және оның орны:</b></p><p class="lang-ru"><b>Наибольший элемент и его место:</b></p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[3, 9, 2],
+     [7, 1, 9]]
+mx = a[0][0]
+bi, bj = 0, 0
+for i in range(2):
+    for j in range(3):
+        if a[i][j] &gt; mx:
+            mx = a[i][j]
+            bi, bj = i, j
+print(mx, bi, bj)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>9 0 1</pre></div></div></div>
+<p class="lang-kz"><code>&gt;</code> белгісі тұрғандықтан, бірдей үлкен элементтер болса, <b>бірінші</b> табылғанының орны сақталады.</p><p class="lang-ru">Так как стоит знак <code>&gt;</code>, при одинаковых максимумах сохраняется место <b>первого</b> найденного.</p>
+<h3 class="t-h"><span class="lang-kz">7. Квадрат матрица және диагональдар</span><span class="lang-ru">7. Квадратная матрица и диагонали</span></h3>
+<p class="lang-kz">Жолдар мен бағандар саны тең болса (n × n), матрица <b>квадрат</b> деп аталады. <b>Бас диагональ</b> — жол нөмірі баған нөміріне тең элементтер: <code>a[i][i]</code>. <b>Қосалқы диагональ</b> — <code>a[i][n - 1 - i]</code>.</p><p class="lang-ru">Если число строк и столбцов одинаково (n × n), матрица называется <b>квадратной</b>. <b>Главная диагональ</b> — элементы, у которых номер строки равен номеру столбца: <code>a[i][i]</code>. <b>Побочная диагональ</b> — <code>a[i][n - 1 - i]</code>.</p>
+<div class="mx-wrap"><table class="mx"><tr><th></th><th class="mx-ci">j = 0</th><th class="mx-ci">j = 1</th><th class="mx-ci">j = 2</th></tr><tr><th class="mx-ri">i = 0</th><td class="mx-hl">1</td><td class="">2</td><td class="">3</td></tr><tr><th class="mx-ri">i = 1</th><td class="">4</td><td class="mx-hl">5</td><td class="">6</td></tr><tr><th class="mx-ri">i = 2</th><td class="">7</td><td class="">8</td><td class="mx-hl">9</td></tr></table><p class="mx-cap"><span class="lang-kz">Бас диагональ: a[0][0], a[1][1], a[2][2] → 1, 5, 9</span><span class="lang-ru">Главная диагональ: a[0][0], a[1][1], a[2][2] → 1, 5, 9</span></p></div>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = [[1, 2, 3],
+     [4, 5, 6],
+     [7, 8, 9]]
+n = 3
+s1 = 0
+s2 = 0
+for i in range(n):
+    s1 = s1 + a[i][i]
+    s2 = s2 + a[i][n - 1 - i]
+print(s1, s2)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>15 15</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">8. Жиі кездесетін қателер</span><span class="lang-ru">8. Частые ошибки</span></h3>
+<ul class="lang-kz"><li><b>IndexError: list index out of range</b> — индекс тым үлкен. Есте сақтаңыз: соңғы жол — <code>n - 1</code>, соңғы баған — <code>m - 1</code>.</li><li><b>Жол мен бағанды шатастыру</b> — <code>a[j][i]</code> емес, <code>a[i][j]</code>: алдымен жол, сосын баған.</li><li><b><code>[[0] * m] * n</code></b> — барлық жол бір тізім болып шығады. Дұрысы: <code>[[0] * m for i in range(n)]</code>.</li><li><b>Сандарды int-ке айналдыруды ұмыту</b> — <code>input().split()</code> мәтін береді; <code>map(int, …)</code> қажет.</li><li><b>Кестені print(a) арқылы шығару</b> — жауап жақшалармен шығады. Жол-жолмен шығарыңыз: <code>print(*row)</code>.</li></ul><ul class="lang-ru"><li><b>IndexError: list index out of range</b> — индекс слишком большой. Помните: последняя строка — <code>n - 1</code>, последний столбец — <code>m - 1</code>.</li><li><b>Путаница строки и столбца</b> — не <code>a[j][i]</code>, а <code>a[i][j]</code>: сначала строка, потом столбец.</li><li><b><code>[[0] * m] * n</code></b> — все строки оказываются одним списком. Правильно: <code>[[0] * m for i in range(n)]</code>.</li><li><b>Забыли превратить в int</b> — <code>input().split()</code> даёт строки; нужен <code>map(int, …)</code>.</li><li><b>Вывод таблицы через print(a)</b> — ответ выйдет со скобками. Выводите по строкам: <code>print(*row)</code>.</li></ul>
+<h3 class="t-h"><span class="lang-kz">9. Шпаргалка</span><span class="lang-ru">9. Шпаргалка</span></h3>
+<table class="t-table"><tr><th><span class="lang-kz">Не істеу керек</span><span class="lang-ru">Что сделать</span></th><th>Код</th></tr><tr><td><span class="lang-kz">Жолдар саны</span><span class="lang-ru">число строк</span></td><td><code>len(a)</code></td></tr><tr><td><span class="lang-kz">Бағандар саны</span><span class="lang-ru">число столбцов</span></td><td><code>len(a[0])</code></td></tr><tr><td><span class="lang-kz">i-жол, j-баған элементі</span><span class="lang-ru">элемент строки i, столбца j</span></td><td><code>a[i][j]</code></td></tr><tr><td><span class="lang-kz">Кестені енгізу</span><span class="lang-ru">ввод таблицы</span></td><td><code>a = [list(map(int, input().split())) for i in range(n)]</code></td></tr><tr><td><span class="lang-kz">Нөлдер кестесі</span><span class="lang-ru">таблица из нулей</span></td><td><code>a = [[0] * m for i in range(n)]</code></td></tr><tr><td><span class="lang-kz">Жол-жолмен шығару</span><span class="lang-ru">вывод по строкам</span></td><td><code>for row in a: print(*row)</code></td></tr><tr><td><span class="lang-kz">Барлық элементтер</span><span class="lang-ru">все элементы</span></td><td><code>for i in range(n): for j in range(m): … a[i][j]</code></td></tr><tr><td><span class="lang-kz">Бас диагональ</span><span class="lang-ru">главная диагональ</span></td><td><code>a[i][i]</code></td></tr><tr><td><span class="lang-kz">Қосалқы диагональ</span><span class="lang-ru">побочная диагональ</span></td><td><code>a[i][n - 1 - i]</code></td></tr></table>
+<!--/THEORY-->
+      </div>
+      <div class="theory-end" id="theory-end">
+        <p><span class="lang-kz">Теорияны оқыдыңыз ба? Енді — <b>10 есеп</b>. Уақыт (<b><span class="i-min"></span> минут</b>) батырманы басқанда басталады. Теорияға кейін де «📖 Теория» батырмасымен орала аласыз.</span><span class="lang-ru">Прочитали теорию? Дальше — <b>10 задач</b>. Время (<b><span class="i-min"></span> минут</b>) пойдёт после нажатия кнопки. К теории можно вернуться кнопкой «📖 Теория».</span></p>
+        <button id="b-to-work" class="primary big"><span class="lang-kz">Есептерге өту →</span><span class="lang-ru">Перейти к задачам →</span></button>
+      </div>
+    </section>
+
+    <section id="s-work" hidden>
+      <div class="work-top"><div id="nav" class="nav"></div><button id="b-cheat" type="button" class="cheat-btn"><span class="lang-kz">📖 Теория</span><span class="lang-ru">📖 Теория</span></button></div>
+      <p class="muted small nav-legend"><span class="lang-kz">Көк — код жазылған; жасыл — есеп шешілді; қызыл — тексеруде қате бар.</span><span class="lang-ru">Синий — код написан; зелёный — задача решена; красный — при проверке есть ошибки.</span></p>
+      <p id="w-num" class="muted"></p>
+      <h2 id="w-title" class="task-title"></h2>
+      <p id="w-text" class="task-text"></p>
+      <p id="w-need" class="need"></p>
+      <div class="io">
+        <p><b><span class="lang-kz">Кіріс деректер:</span><span class="lang-ru">Входные данные:</span></b> <span id="c-in"></span></p>
+        <p><b><span class="lang-kz">Шығыс деректер:</span><span class="lang-ru">Выходные данные:</span></b> <span id="c-out"></span></p>
+      </div>
+      <table class="examples">
+        <thead><tr><th>№</th><th><span class="lang-kz">Кіріс</span><span class="lang-ru">Вход</span></th><th><span class="lang-kz">Шығыс</span><span class="lang-ru">Выход</span></th></tr></thead>
+        <tbody id="c-ex"></tbody>
+      </table>
+      <div class="code-head"><label class="code-label" for="c-code"><span class="lang-kz">Сіздің программаңыз:</span><span class="lang-ru">Ваша программа:</span></label><button id="b-kbd" type="button" class="kbd-btn"></button></div>
+      <textarea id="c-code" class="editor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off"></textarea>
+      <div class="run-row">
+        <div class="run-in">
+          <label for="c-stdin" class="small muted"><span class="lang-kz">Іске қосуға арналған кіріс деректер (өзгертуге болады):</span><span class="lang-ru">Входные данные для запуска (можно изменить):</span></label>
+          <textarea id="c-stdin" class="stdin" spellcheck="false" rows="3"></textarea>
+        </div>
+        <div class="buttons">
+          <button id="b-run"><span class="lang-kz">▶ Іске қосу</span><span class="lang-ru">▶ Запустить</span></button>
+          <button id="b-check" class="primary"><span class="lang-kz">✓ Тексеру</span><span class="lang-ru">✓ Проверить</span></button>
+        </div>
+      </div>
+      <div id="c-result" class="run-result" hidden></div>
+      <div class="buttons nav-buttons">
+        <button id="b-prev"><span class="lang-kz">← Артқа</span><span class="lang-ru">← Назад</span></button>
+        <button id="b-next" class="primary"><span class="lang-kz">Келесі →</span><span class="lang-ru">Далее →</span></button>
+        <span class="spacer"></span>
+        <button id="b-finish" class="danger-outline"><span class="lang-kz">Жұмысты аяқтау</span><span class="lang-ru">Завершить работу</span></button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p id="m-confirm-text"></p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger"><span class="lang-kz">Иә, аяқтау</span><span class="lang-ru">Да, завершить</span></button>
+          <button id="b-finish-no"><span class="lang-kz">Жоқ</span><span class="lang-ru">Нет</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-eval" hidden>
+      <h1><span class="lang-kz">Жұмыс тексерілуде…</span><span class="lang-ru">Работа проверяется…</span></h1>
+      <p id="e-progress" class="count"></p>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
+      <p id="r-who" class="center who-line"></p>
+      <p id="r-send" class="r-send" hidden></p>
+      <p id="r-reason" class="note" hidden></p>
+      <p class="score"><span id="r-score-num" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
+      <div id="r-table" class="table-wrap"></div>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2><span class="lang-kz">Талдау</span><span class="lang-ru">Разбор</span></h2>
+      <div id="r-list" class="review"></div>
+      <div class="teacher">
+        <button id="b-restart" class="primary"><span class="lang-kz">Осы компьютерде жаңа жұмыс</span><span class="lang-ru">Новая работа на этом компьютере</span></button>
+      </div>
+    </section>
+  </main>
+
+  <div id="m-cheat" class="cheat-modal" role="dialog" aria-modal="true" hidden>
+    <div class="cheat-box">
+      <div class="cheat-head"><h2><span class="lang-kz">Теория</span><span class="lang-ru">Теория</span></h2>
+        <button id="b-cheat-close" type="button" class="primary"><span class="lang-kz">✕ Жабу, есепке оралу</span><span class="lang-ru">✕ Закрыть, вернуться к задаче</span></button></div>
+      <div id="cheat-slot"></div>
+    </div>
+  </div>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <div id="m-back" class="back-fs" role="alertdialog" aria-modal="true" hidden>
+    <div class="back-box">
+      <h2><span class="lang-kz">Назар аударыңыз! Бұзушылық</span><span class="lang-ru">Внимание! Нарушение</span></h2>
+      <p id="m-back-text"></p>
+      <button id="b-back-fs" class="primary big"><span class="lang-kz">Толық экранға оралу</span><span class="lang-ru">Вернуться в полноэкранный режим</span></button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="vendor/skulpt.min.js"></script>
+  <script src="vendor/skulpt-stdlib.js"></script>
+  <script src="tasks.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
