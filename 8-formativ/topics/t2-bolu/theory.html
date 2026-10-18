@@ -1,0 +1,18 @@
+<h3 class="t-h"><span class="lang-kz">1. Бүтін бөлу // және қалдық %</span><span class="lang-ru">1. Деление нацело // и остаток %</span></h3>
+<p class="lang-kz"><code>a // b</code> — бөліндінің бүтін бөлігі, <code>a % b</code> — бөлу қалдығы. <code>/</code> әрқашан бөлшек (float) береді.</p><p class="lang-ru"><code>a // b</code> — целая часть частного, <code>a % b</code> — остаток от деления. <code>/</code> всегда даёт дробное (float).</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>print(23 // 5, 23 % 5, 23 / 5)
+sec = 200
+print(sec // 60, sec % 60)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>4 3 4.6
+3 20</pre></div></div></div>
+<p class="lang-kz">Санның цифрлары: <code>n % 10</code> — соңғы цифр, <code>n // 10</code> — соңғы цифрды алып тастау. Сан жұп па — <code>n % 2 == 0</code>, k-ға бөліне ме — <code>n % k == 0</code>.</p><p class="lang-ru">Цифры числа: <code>n % 10</code> — последняя цифра, <code>n // 10</code> — отбросить последнюю цифру. Чётность — <code>n % 2 == 0</code>, делимость на k — <code>n % k == 0</code>.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>n = 5084
+print(n % 10, n // 10 % 10, n // 1000)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>4 8 5</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">2. Құрама шарттар: and, or, not</span><span class="lang-ru">2. Составные условия: and, or, not</span></h3>
+<table class="t-table"><tr><th></th><th><span class="lang-kz">Мағынасы</span><span class="lang-ru">Смысл</span></th><th><span class="lang-kz">Мысал</span><span class="lang-ru">Пример</span></th></tr><tr><td><b>and</b></td><td><span class="lang-kz">екеуі де ақиқат</span><span class="lang-ru">оба истинны</span></td><td><code>x &gt; 0 and x &lt; 10</code></td></tr><tr><td><b>or</b></td><td><span class="lang-kz">кем дегенде біреуі ақиқат</span><span class="lang-ru">хотя бы одно истинно</span></td><td><code>d == 6 or d == 7</code></td></tr><tr><td><b>not</b></td><td><span class="lang-kz">керісінше</span><span class="lang-ru">наоборот</span></td><td><code>not x % 3 == 0</code></td></tr></table>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>x = 14
+print(x &gt; 10 and x % 2 == 0)
+print(x &lt; 0 or x % 7 == 0)
+print(not x &gt; 10)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>True
+True
+False</pre></div></div></div>
+<p class="lang-kz">Аралықты Python-да қысқа жазуға болады: <code>0 &lt; x &lt; 10</code> — бұл <code>0 &lt; x and x &lt; 10</code> дегенмен бірдей.</p><p class="lang-ru">Диапазон в Python можно записать коротко: <code>0 &lt; x &lt; 10</code> — то же, что <code>0 &lt; x and x &lt; 10</code>.</p>

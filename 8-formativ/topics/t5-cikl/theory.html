@@ -1,0 +1,26 @@
+<h3 class="t-h"><span class="lang-kz">1. Алгоритм түрлері</span><span class="lang-ru">1. Виды алгоритмов</span></h3>
+<table class="t-table"><tr><th></th><th><span class="lang-kz">Құрылымы</span><span class="lang-ru">Структура</span></th><th>Python</th></tr><tr><td><span class="lang-kz">**Сызықтық</span><span class="lang-ru">Линейный**</span></td><td><span class="lang-kz">әрекеттер ретімен бір рет</span><span class="lang-ru">действия по порядку один раз</span></td><td><span class="lang-kz">меншіктеу, input, print</span><span class="lang-ru">присваивание, input, print</span></td></tr><tr><td><span class="lang-kz">**Тармақталған</span><span class="lang-ru">Разветвлённый**</span></td><td><span class="lang-kz">шартқа қарай бір жол таңдалады</span><span class="lang-ru">по условию выбирается путь</span></td><td><code>if</code>, <code>elif</code>, <code>else</code></td></tr><tr><td><span class="lang-kz">**Циклдік</span><span class="lang-ru">Циклический**</span></td><td><span class="lang-kz">әрекеттер қайталанады</span><span class="lang-ru">действия повторяются</span></td><td><code>for</code>, <code>while</code></td></tr></table>
+<h3 class="t-h"><span class="lang-kz">2. for және range</span><span class="lang-ru">2. for и range</span></h3>
+<p class="lang-kz"><code>range(a, b, s)</code> — a-дан бастап, s қадаммен, <b>b-ға жетпей</b> тоқтайтын сандар. <code>range(n)</code> = 0, 1, …, n−1. Қадам саны алдын ала белгілі болса — <code>for</code>.</p><p class="lang-ru"><code>range(a, b, s)</code> — числа от a с шагом s, <b>не доходя до b</b>. <code>range(n)</code> = 0, 1, …, n−1. Если число шагов известно заранее — <code>for</code>.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for i in range(10, 0, -3):
+    print(i, end=&quot; &quot;)
+print()
+print(list(range(4)))</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>10 7 4 1 
+[0, 1, 2, 3]</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">3. while</span><span class="lang-ru">3. while</span></h3>
+<p class="lang-kz"><code>while шарт:</code> — шарт ақиқат болғанша қайталайды. Қадам саны белгісіз болса ыңғайлы. Цикл ішінде шартқа әсер ететін айнымалы өзгеруі керек, әйтпесе цикл шексіз болады.</p><p class="lang-ru"><code>while условие:</code> — повторяет, пока условие истинно. Удобен, когда число шагов неизвестно. Внутри цикла переменная из условия должна меняться, иначе цикл станет бесконечным.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>money = 1000
+years = 0
+while money &lt; 1500:
+    money = money + money // 10
+    years += 1
+print(years, money)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>5 1610</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">4. Жинақтаушы және санауыш</span><span class="lang-ru">4. Накопитель и счётчик</span></h3>
+<p class="lang-kz">Қосынды үшін <code>s = 0</code>, көбейтінді үшін <code>p = 1</code>, санау үшін <code>c = 0</code> деп циклге дейін бастаймыз, ал цикл ішінде жаңартамыз.</p><p class="lang-ru">Для суммы до цикла пишем <code>s = 0</code>, для произведения <code>p = 1</code>, для подсчёта <code>c = 0</code>, а внутри цикла обновляем.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>s = 0
+c = 0
+for x in [4, 9, 12, 7, 30]:
+    if x % 3 == 0:
+        s += x
+        c += 1
+print(s, c)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>51 3</pre></div></div></div>

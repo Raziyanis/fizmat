@@ -1,0 +1,21 @@
+<h3 class="t-h"><span class="lang-kz">1. if … else</span><span class="lang-ru">1. if … else</span></h3>
+<p class="lang-kz">Шарт ақиқат болса — <code>if</code> блогы, жалған болса — <code>else</code> блогы орындалады. Блок <b>шегініспен</b> (4 бос орын) жазылады, шарттан кейін <b>қос нүкте</b> <code>:</code> қойылады. Салыстыру: <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code> (<code>=</code> — меншіктеу, салыстыру емес).</p><p class="lang-ru">Если условие истинно — выполняется блок <code>if</code>, если ложно — блок <code>else</code>. Блок пишется с <b>отступом</b> (4 пробела), после условия ставится <b>двоеточие</b> <code>:</code>. Сравнения: <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code> (<code>=</code> — присваивание, а не сравнение).</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>t = 38
+if t &gt; 37:
+    print(&quot;hot&quot;)
+else:
+    print(&quot;ok&quot;)
+print(&quot;done&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>hot
+done</pre></div></div></div>
+<p class="lang-kz"><code>else</code> міндетті емес: шарт жалған болса, <code>if</code> блогы жай ғана өткізіледі.</p><p class="lang-ru"><code>else</code> не обязателен: если условие ложно, блок <code>if</code> просто пропускается.</p>
+<h3 class="t-h"><span class="lang-kz">2. Кірістірілген if</span><span class="lang-ru">2. Вложенный if</span></h3>
+<p class="lang-kz"><code>if</code> ішіне тағы бір <code>if</code> жазуға болады. Ішкі шарт сыртқы шарт ақиқат болғанда ғана тексеріледі. Шегініс қай <code>else</code> қай <code>if</code>-ке жататынын көрсетеді.</p><p class="lang-ru">Внутри <code>if</code> можно написать ещё один <code>if</code>. Внутреннее условие проверяется, только если внешнее истинно. Отступ показывает, к какому <code>if</code> относится <code>else</code>.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>age = 15
+ticket = True
+if ticket:
+    if age &gt;= 16:
+        print(&quot;film 16+&quot;)
+    else:
+        print(&quot;cartoon&quot;)
+else:
+    print(&quot;buy a ticket&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>cartoon</pre></div></div></div>

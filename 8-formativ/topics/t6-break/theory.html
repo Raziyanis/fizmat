@@ -1,0 +1,32 @@
+<h3 class="t-h"><span class="lang-kz">1. Циклді басқару</span><span class="lang-ru">1. Управление циклом</span></h3>
+<table class="t-table"><tr><td><b>break</b></td><td><span class="lang-kz">циклды бірден тоқтатады</span><span class="lang-ru">сразу прекращает цикл</span></td></tr><tr><td><b>continue</b></td><td><span class="lang-kz">қадамның қалғанын өткізіп, келесі қадамға өтеді</span><span class="lang-ru">пропускает остаток шага и переходит к следующему</span></td></tr><tr><td><b>else</b></td><td><span class="lang-kz">цикл break-сіз аяқталса орындалады</span><span class="lang-ru">выполняется, если цикл закончился без break</span></td></tr></table>
+<h3 class="t-h"><span class="lang-kz">2. break</span><span class="lang-ru">2. break</span></h3>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for ch in &quot;python&quot;:
+    if ch == &quot;h&quot;:
+        break
+    print(ch, end=&quot; &quot;)
+print(&quot;|end&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>p y t |end</pre></div></div></div>
+<p class="lang-kz">Қадам саны белгісіз болса, <code>while True:</code> және ішінде <code>if …: break</code> жиі жазылады.</p><p class="lang-ru">Когда число шагов неизвестно, часто пишут <code>while True:</code> и внутри <code>if …: break</code>.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>total = 0
+while True:
+    w = int(input())
+    if w &lt; 0:
+        break
+    total += w
+print(total)</pre></div><div><div class="t-box inp"><div class="lbl"><span class="lang-kz">Кіріс</span><span class="lang-ru">Ввод</span></div><pre>5
+12
+3
+-1</pre></div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>20</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">3. continue</span><span class="lang-ru">3. continue</span></h3>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for ch in &quot;a1b2c3&quot;:
+    if ch in &quot;0123456789&quot;:
+        continue
+    print(ch, end=&quot;&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>abc</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">4. for … else, while … else</span><span class="lang-ru">4. for … else, while … else</span></h3>
+<p class="lang-kz"><code>else</code> циклмен бір деңгейде (if-пен емес!) жазылады. Ол цикл <b>break-сіз</b> соңына дейін жеткенде ғана орындалады — «табылмады» жағдайына ыңғайлы.</p><p class="lang-ru"><code>else</code> пишется на одном уровне с циклом (не с if!). Он выполняется, только если цикл дошёл до конца <b>без break</b> — удобно для случая «не найдено».</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for w in [&quot;cat&quot;, &quot;dog&quot;, &quot;owl&quot;]:
+    if len(w) &gt; 3:
+        print(&quot;long:&quot;, w)
+        break
+else:
+    print(&quot;no long words&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>no long words</pre></div></div></div>

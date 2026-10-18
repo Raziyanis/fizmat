@@ -1,0 +1,27 @@
+<h3 class="t-h"><span class="lang-kz">1. Айнымалы және деректер типтері</span><span class="lang-ru">1. Переменная и типы данных</span></h3>
+<p class="lang-kz"><b>Айнымалы</b> — мәнге берілген ат: <code>x = 5</code>. Әр мәннің <b>типі</b> бар, оны <code>type()</code> көрсетеді.</p><p class="lang-ru"><b>Переменная</b> — имя для значения: <code>x = 5</code>. У каждого значения есть <b>тип</b>, его показывает <code>type()</code>.</p>
+<table class="t-table"><tr><th>Тип</th><th><span class="lang-kz">Мысал</span><span class="lang-ru">Пример</span></th><th><span class="lang-kz">Мағынасы</span><span class="lang-ru">Смысл</span></th></tr><tr><td><b>int</b></td><td><code>7</code>, <code>-3</code></td><td><span class="lang-kz">бүтін сан</span><span class="lang-ru">целое число</span></td></tr><tr><td><b>float</b></td><td><code>2.5</code>, <code>-0.1</code></td><td><span class="lang-kz">бөлшек сан</span><span class="lang-ru">дробное число</span></td></tr><tr><td><b>str</b></td><td><code>"сәлем"</code>, <code>"7"</code></td><td><span class="lang-kz">мәтін (жол)</span><span class="lang-ru">текст (строка)</span></td></tr><tr><td><b>bool</b></td><td><code>True</code>, <code>False</code></td><td><span class="lang-kz">логикалық мән</span><span class="lang-ru">логическое значение</span></td></tr></table>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a = 7
+b = 2.5
+c = &quot;7&quot;
+print(type(a), type(b), type(c))
+print(c * 3)
+print(int(c) + a)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>&lt;class &#x27;int&#x27;&gt; &lt;class &#x27;float&#x27;&gt; &lt;class &#x27;str&#x27;&gt;
+777
+14</pre></div></div></div>
+<p class="lang-kz"><code>"7" * 3</code> жолды үш рет қайталайды, ал <code>int("7")</code> жолды санға айналдырады.</p><p class="lang-ru"><code>"7" * 3</code> повторяет строку три раза, а <code>int("7")</code> превращает строку в число.</p>
+<h3 class="t-h"><span class="lang-kz">2. Енгізу және шығару</span><span class="lang-ru">2. Ввод и вывод</span></h3>
+<p class="lang-kz"><code>input()</code> әрқашан <b>жол</b> қайтарады, сондықтан санды <code>int()</code> немесе <code>float()</code> арқылы түрлендіреміз. Бір жолдағы бірнеше санды <code>map</code> бөледі: <code>a, b = map(int, input().split())</code>. Тізім керек болса — <code>list(map(int, input().split()))</code>.</p><p class="lang-ru"><code>input()</code> всегда возвращает <b>строку</b>, поэтому число преобразуем через <code>int()</code> или <code>float()</code>. Несколько чисел из одной строки разбирает <code>map</code>: <code>a, b = map(int, input().split())</code>. Если нужен список — <code>list(map(int, input().split()))</code>.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>a, b = map(int, input().split())
+nums = list(map(int, input().split()))
+print(a - b)
+print(nums, len(nums))</pre></div><div><div class="t-box inp"><div class="lbl"><span class="lang-kz">Кіріс</span><span class="lang-ru">Ввод</span></div><pre>9 4
+3 8 1 6</pre></div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>5
+[3, 8, 1, 6] 4</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">3. f-жол</span><span class="lang-ru">3. f-строка</span></h3>
+<p class="lang-kz"><code>f"..."</code> жолының ішінде <code>{}</code> жақшасына айнымалы немесе өрнек жазылады. <code>{x:.2f}</code> — үтірден кейін 2 таңба.</p><p class="lang-ru">Внутри строки <code>f"..."</code> в скобках <code>{}</code> пишут переменную или выражение. <code>{x:.2f}</code> — 2 знака после точки.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>city = &quot;Almaty&quot;
+t = 21.456
+print(f&quot;{city}: {t:.2f} C&quot;)
+print(f&quot;{3} + {4} = {3 + 4}&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>Almaty: 21.46 C
+3 + 4 = 7</pre></div></div></div>

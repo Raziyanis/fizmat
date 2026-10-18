@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{{TITLE}}</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="lang-switch" role="group" aria-label="Тіл / Язык"><span class="lang-label">Тіл / Язык</span><button type="button" data-lang="kz">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div id="timers" class="timers" hidden>
+    <div id="tm-total-box" class="timer"><span><span class="lang-kz">Жұмыстың аяқталуына</span><span class="lang-ru">До конца работы</span></span><b id="tm-total"></b></div>
+    <div class="bar"><div id="tm-bar"></div></div>
+  </div>
+
+  <main>
+    <section id="s-loading"><p class="muted">…</p></section>
+
+    <section id="s-gate" hidden>
+      <h1><span class="lang-kz">{{H1_KZ}}</span><span class="lang-ru">{{H1_RU}}</span></h1>
+      <p class="topic"><span class="lang-kz">{{GOAL_KZ}}</span><span class="lang-ru">{{GOAL_RU}}</span></p>
+
+      <p class="steps"><b><span class="lang-kz">1. Теория</span><span class="lang-ru">1. Теория</span></b> → <span class="lang-kz">2. Тапсырмалар</span><span class="lang-ru">2. Задания</span></p>
+      <p class="note"><span class="lang-kz">Программалар осы беттің ішінде <b>Python 3</b>-те орындалады (Skulpt — браузерге арналған Python интерпретаторы). Интернет та, Python орнату да қажет емес.</span><span class="lang-ru">Программы выполняются прямо на этой странице на <b>Python 3</b> (Skulpt — интерпретатор Python для браузера). Ни интернет, ни установка Python не нужны.</span></p>
+
+      <h2><span class="lang-kz">Нұсқаулық</span><span class="lang-ru">Инструкция</span></h2>
+      <ul class="rules">
+        <li><span class="lang-kz">Алдымен <b>теорияны</b> оқыңыз (уақыт әлі жүрмейді). Жұмыс кезінде теорияны <b>«📖 Теория»</b> батырмасымен кез келген уақытта ашуға болады.</span><span class="lang-ru">Сначала прочитайте <b>теорию</b> (время ещё не идёт). Во время работы теорию можно открыть в любой момент кнопкой <b>«📖 Теория»</b>.</span></li>
+        <li><span class="lang-kz"><b>Формативтік жұмыс — 10 тапсырма, 10 балл.</b> 1–5 тапсырма — <b>тест</b>: бір дұрыс жауапты таңдаңыз. 6–10 тапсырма — <b>программа жазу</b>: жеңілден қиынға қарай.</span><span class="lang-ru"><b>Формативная работа — 10 заданий, 10 баллов.</b> Задания 1–5 — <b>тест</b>: выберите один верный ответ. Задания 6–10 — <b>написать программу</b>: от простого к сложному.</span></li>
+        <li><span class="lang-kz">Программа есептерінде деректерді <b>input()</b> арқылы оқып, жауапты <b>print()</b> арқылы шығарыңыз. Әр есепте кіріс және шығыс деректердің мысалдары бар.</span><span class="lang-ru">В задачах на программу данные читайте через <b>input()</b>, ответ выводите через <b>print()</b>. У каждой задачи есть примеры входных и выходных данных.</span></li>
+        <li><span class="lang-kz"><b>«▶ Іске қосу»</b> — программаны өз деректеріңізбен орындау. <b>«✓ Тексеру»</b> — 8 тестте тексеру (2 мысал + 6 жасырын тест).</span><span class="lang-ru"><b>«▶ Запустить»</b> — выполнить программу со своими данными. <b>«✓ Проверить»</b> — проверка на 8 тестах (2 примера + 6 скрытых).</span></li>
+        <li><span class="lang-kz">Әр тапсырма — <b>1 балл</b>: тестте — дұрыс жауап; программада — 8 тесттің бәрі өтсе. Ең көбі — <b>10 балл</b>.</span><span class="lang-ru">Каждое задание — <b>1 балл</b>: в тесте — верный ответ; в программе — пройдены все 8 тестов. Максимум — <b>10 баллов</b>.</span></li>
+        <li><span class="lang-kz">Уақыт — <b><span class="i-min"></span> минут</b>. Есептер арасында еркін ауысуға болады, код өздігінен сақталады. Балл жұмыс аяқталғанда <b>соңғы код</b> бойынша есептеледі.</span><span class="lang-ru">Время — <b><span class="i-min"></span> минут</b>. Между задачами можно свободно переходить, код сохраняется автоматически. Балл считается по <b>последней версии кода</b>, когда работа завершается.</span></li>
+        <li><span class="lang-kz">Кодты кез келген пернетақта тілінде жазуға болады: редактордың үстіндегі <b>«⌨ Латиница»</b> режимі пернелерге ағылшын әріптерін береді.</span><span class="lang-ru">Код можно писать при любой раскладке: режим <b>«⌨ Латиница»</b> над редактором вводит английские буквы и знаки.</span></li>
+        <li class="important"><span class="lang-kz">Жұмыс толық экранда жүреді. Одан шығу, басқа бетке не терезеге ауысу, бетті қайта жүктеу — бұзушылық. <b>Алғашқы екеуіне ескерту беріледі, үшіншісінде жұмыс аяқталады.</b></span><span class="lang-ru">Работа идёт в полноэкранном режиме. Выход из него, переход на другую вкладку или окно, перезагрузка страницы — нарушение. <b>За первые два — предупреждение, на третьем работа завершается.</b></span></li>
+      </ul>
+      <p id="i-nofs" class="note" hidden><span class="lang-kz">Бұл браузер толық экранды қолдамайды. Басқа беттерге ауыспаңыз.</span><span class="lang-ru">Этот браузер не поддерживает полноэкранный режим. Не переключайтесь на другие вкладки.</span></p>
+
+      <div class="who">
+        <label id="w-cls-sel" hidden><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><select id="s-cls"></select></label>
+        <label id="w-name-sel" hidden><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><select id="s-name"></select></label>
+        <label id="w-name"><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
+        <label id="w-cls"><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
+      </div>
+      <p id="g-err" class="bad-text" hidden><span class="lang-kz">Сыныбыңызды және аты-жөніңізді көрсетіңіз.</span><span class="lang-ru">Укажите класс, фамилию и имя.</span></p>
+      <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Теорияны оқу (толық экранда)</span><span class="lang-ru">Читать теорию (на весь экран)</span></button></div>
+      <p class="teacher-link"><button id="b-teacher" class="link" type="button"><span class="lang-kz">Мұғалімге: нәтижелерді поштаға жіберуді баптау</span><span class="lang-ru">Для учителя: настройка отправки результатов на почту</span></button></p>
+    </section>
+
+    <section id="s-teacher" hidden>
+      <h1><span class="lang-kz">Нәтижелерді мұғалімнің поштасына жіберу</span><span class="lang-ru">Отправка результатов на почту учителя</span></h1>
+      <p id="t-status" class="note"></p>
+      <ol class="t-steps">
+        <li><span class="lang-kz"><a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> сайтын өз Google аккаунтыңызбен ашып, <b>Жаңа жоба</b> жасаңыз.</span><span class="lang-ru">Откройте <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> под своим Google-аккаунтом → <b>Новый проект</b>.</span></li>
+        <li><span class="lang-kz">Төмендегі скриптті көшіріп (<b>Көшіру</b> батырмасы), редактордағы бар мәтіннің орнына қойыңыз да, сақтаңыз (Ctrl+S). Пошта мекенжайы <code>var EMAIL</code> жолында.</span><span class="lang-ru">Скопируйте скрипт ниже (кнопка <b>Копировать</b>), вставьте вместо текста в редакторе и сохраните (Ctrl+S). Адрес почты — в строке <code>var EMAIL</code>.</span>
+          <div class="gs-box"><textarea id="gs-code" readonly spellcheck="false"></textarea><button id="b-gs-copy" type="button"><span class="lang-kz">Көшіру</span><span class="lang-ru">Копировать</span></button></div></li>
+        <li><span class="lang-kz">Жоғарыдан <b>setup</b> функциясын таңдап, <b>Іске қосу</b> батырмасын басыңыз, барлық рұқсатты беріңіз (кесте жасалады, тексеру хаты келеді).</span><span class="lang-ru">Вверху выберите функцию <b>setup</b> → <b>Выполнить</b> → разрешите все доступы (создастся таблица, придёт проверочное письмо).</span></li>
+        <li><span class="lang-kz"><b>Жариялау → Жаңа жариялау → Веб-қосымша</b>: «Кімнің атынан» — <b>Мен</b>; «Кімге қолжетімді» — <b>Барлығы</b>. <b>…/exec</b> деп аяқталатын сілтемені көшіріңіз.</span><span class="lang-ru"><b>Начать развертывание → Новое развертывание → Веб-приложение</b>: «Запуск от имени» — <b>Я</b>; «У кого есть доступ» — <b>Все</b>. Скопируйте ссылку, которая заканчивается на <b>/exec</b>.</span></li>
+        <li><span class="lang-kz">Сілтемені осында қойып, баптаулары бар файлды жүктеп алыңыз. Оқушыларға <b>осы жаңа файлды</b> беріңіз.</span><span class="lang-ru">Вставьте ссылку сюда и скачайте настроенный файл. Ученикам давайте <b>этот новый файл</b>.</span>
+          <div class="url-row"><input id="i-url" type="text" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec">
+          <button id="b-test-url" type="button"><span class="lang-kz">Тексеру</span><span class="lang-ru">Проверить</span></button>
+          <button id="b-download" class="primary" type="button"><span class="lang-kz">Файлды жүктеп алу</span><span class="lang-ru">Скачать файл</span></button></div>
+          <p id="url-msg" class="muted small"></p></li>
+      </ol>
+      <div class="buttons"><button id="b-teacher-back" type="button">← <span class="lang-kz">Бастапқы бет</span><span class="lang-ru">Начальная страница</span></button></div>
+    </section>
+
+    <section id="s-theory" class="theory" hidden>
+      <p class="steps"><b><span class="lang-kz">1. Теория</span><span class="lang-ru">1. Теория</span></b> → <span class="lang-kz">2. Тапсырмалар</span><span class="lang-ru">2. Задания</span></p>
+      <h1><span class="lang-kz">{{H1_KZ}}</span><span class="lang-ru">{{H1_RU}}</span></h1>
+      <div id="theory">
+<!--THEORY-->
+<!--/THEORY-->
+      </div>
+      <div class="theory-end" id="theory-end">
+        <p><span class="lang-kz">Теорияны оқыдыңыз ба? Енді — <b>10 тапсырма</b>. Уақыт (<b><span class="i-min"></span> минут</b>) батырманы басқанда басталады. Теорияға кейін де «📖 Теория» батырмасымен орала аласыз.</span><span class="lang-ru">Прочитали теорию? Дальше — <b>10 заданий</b>. Время (<b><span class="i-min"></span> минут</b>) пойдёт после нажатия кнопки. К теории можно вернуться кнопкой «📖 Теория».</span></p>
+        <button id="b-to-work" class="primary big"><span class="lang-kz">Тапсырмаларға өту →</span><span class="lang-ru">Перейти к заданиям →</span></button>
+      </div>
+    </section>
+
+    <section id="s-work" hidden>
+      <div class="work-top"><div id="nav" class="nav"></div><button id="b-cheat" type="button" class="cheat-btn"><span class="lang-kz">📖 Теория</span><span class="lang-ru">📖 Теория</span></button></div>
+      <p class="muted small nav-legend"><span class="lang-kz">Көк — жауап берілген / код жазылған; жасыл — есеп шешілді; қызыл — тексеруде қате бар.</span><span class="lang-ru">Синий — ответ дан / код написан; зелёный — задача решена; красный — при проверке есть ошибки.</span></p>
+      <p id="w-num" class="muted"></p>
+      <h2 id="w-title" class="task-title"></h2>
+      <p id="w-text" class="task-text"></p>
+      <div id="q-body" hidden></div>
+      <div id="c-body">
+      <p id="w-need" class="need"></p>
+      <div class="io">
+        <p><b><span class="lang-kz">Кіріс деректер:</span><span class="lang-ru">Входные данные:</span></b> <span id="c-in"></span></p>
+        <p><b><span class="lang-kz">Шығыс деректер:</span><span class="lang-ru">Выходные данные:</span></b> <span id="c-out"></span></p>
+      </div>
+      <table class="examples">
+        <thead><tr><th>№</th><th><span class="lang-kz">Кіріс</span><span class="lang-ru">Вход</span></th><th><span class="lang-kz">Шығыс</span><span class="lang-ru">Выход</span></th></tr></thead>
+        <tbody id="c-ex"></tbody>
+      </table>
+      <div class="code-head"><label class="code-label" for="c-code"><span class="lang-kz">Сіздің программаңыз:</span><span class="lang-ru">Ваша программа:</span></label><button id="b-kbd" type="button" class="kbd-btn"></button></div>
+      <textarea id="c-code" class="editor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off"></textarea>
+      <div class="run-row">
+        <div class="run-in">
+          <label for="c-stdin" class="small muted"><span class="lang-kz">Іске қосуға арналған кіріс деректер (өзгертуге болады):</span><span class="lang-ru">Входные данные для запуска (можно изменить):</span></label>
+          <textarea id="c-stdin" class="stdin" spellcheck="false" rows="3"></textarea>
+        </div>
+        <div class="buttons">
+          <button id="b-run"><span class="lang-kz">▶ Іске қосу</span><span class="lang-ru">▶ Запустить</span></button>
+          <button id="b-check" class="primary"><span class="lang-kz">✓ Тексеру</span><span class="lang-ru">✓ Проверить</span></button>
+        </div>
+      </div>
+      <div id="c-result" class="run-result" hidden></div>
+      </div>
+      <div class="buttons nav-buttons">
+        <button id="b-prev"><span class="lang-kz">← Артқа</span><span class="lang-ru">← Назад</span></button>
+        <button id="b-next" class="primary"><span class="lang-kz">Келесі →</span><span class="lang-ru">Далее →</span></button>
+        <span class="spacer"></span>
+        <button id="b-finish" class="danger-outline"><span class="lang-kz">Жұмысты аяқтау</span><span class="lang-ru">Завершить работу</span></button>
+      </div>
+      <div id="m-confirm" class="confirm" hidden>
+        <p id="m-confirm-text"></p>
+        <div class="buttons">
+          <button id="b-finish-yes" class="danger"><span class="lang-kz">Иә, аяқтау</span><span class="lang-ru">Да, завершить</span></button>
+          <button id="b-finish-no"><span class="lang-kz">Жоқ</span><span class="lang-ru">Нет</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-eval" hidden>
+      <h1><span class="lang-kz">Жұмыс тексерілуде…</span><span class="lang-ru">Работа проверяется…</span></h1>
+      <p id="e-progress" class="count"></p>
+    </section>
+
+    <section id="s-result" hidden>
+      <h1><span class="lang-kz">Жұмыс аяқталды</span><span class="lang-ru">Работа завершена</span></h1>
+      <p id="r-who" class="center who-line"></p>
+      <p id="r-send" class="r-send" hidden></p>
+      <p id="r-reason" class="note" hidden></p>
+      <p class="score"><span id="r-score-num" class="score-num"></span> <span class="score-word"><span class="lang-kz">балл</span><span class="lang-ru">баллов</span></span></p>
+      <div id="r-table" class="table-wrap"></div>
+      <div id="r-time" class="time-box"></div>
+      <p id="r-hide" class="muted small center" hidden></p>
+      <h2><span class="lang-kz">Талдау</span><span class="lang-ru">Разбор</span></h2>
+      <div id="r-list" class="review"></div>
+      <div class="teacher">
+        <button id="b-restart" class="primary"><span class="lang-kz">Осы компьютерде жаңа жұмыс</span><span class="lang-ru">Новая работа на этом компьютере</span></button>
+      </div>
+    </section>
+  </main>
+
+  <div id="m-cheat" class="cheat-modal" role="dialog" aria-modal="true" hidden>
+    <div class="cheat-box">
+      <div class="cheat-head"><h2><span class="lang-kz">Теория</span><span class="lang-ru">Теория</span></h2>
+        <button id="b-cheat-close" type="button" class="primary"><span class="lang-kz">✕ Жабу, есепке оралу</span><span class="lang-ru">✕ Закрыть, вернуться к задаче</span></button></div>
+      <div id="cheat-slot"></div>
+    </div>
+  </div>
+
+  <div id="warn" class="warn" role="alert" hidden><span id="warn-text"></span></div>
+
+  <div id="m-back" class="back-fs" role="alertdialog" aria-modal="true" hidden>
+    <div class="back-box">
+      <h2><span class="lang-kz">Назар аударыңыз! Бұзушылық</span><span class="lang-ru">Внимание! Нарушение</span></h2>
+      <p id="m-back-text"></p>
+      <button id="b-back-fs" class="primary big"><span class="lang-kz">Толық экранға оралу</span><span class="lang-ru">Вернуться в полноэкранный режим</span></button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="vendor/skulpt.min.js"></script>
+  <script src="vendor/skulpt-stdlib.js"></script>
+  <script src="../topics/t1-tipter/topic.js"></script>
+  <script src="common.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<h3 class="t-h"><span class="lang-kz">1. Цикл ішіндегі цикл</span><span class="lang-ru">1. Цикл внутри цикла</span></h3>
+<p class="lang-kz">Сыртқы циклдың <b>әр қадамында</b> ішкі цикл <b>толығымен</b> орындалады. Сыртқы цикл n рет, ішкі m рет болса, ішкі блок n · m рет орындалады.</p><p class="lang-ru">На <b>каждом шаге</b> внешнего цикла внутренний выполняется <b>полностью</b>. Если внешний цикл — n шагов, а внутренний — m, внутренний блок выполнится n · m раз.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for i in range(1, 3):
+    for ch in &quot;xyz&quot;:
+        print(i, ch)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>1 x
+1 y
+1 z
+2 x
+2 y
+2 z</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">2. Кесте түрінде шығару</span><span class="lang-ru">2. Вывод в виде таблицы</span></h3>
+<p class="lang-kz">Ішкі цикл бір жолды <code>end=" "</code> арқылы шығарады, ал одан кейінгі бос <code>print()</code> жаңа жолға көшіреді.</p><p class="lang-ru">Внутренний цикл печатает одну строку через <code>end=" "</code>, а пустой <code>print()</code> после него переносит на новую строку.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for i in range(3):
+    for j in range(4):
+        print(i + j, end=&quot; &quot;)
+    print()</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>0 1 2 3 
+1 2 3 4 
+2 3 4 5</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">3. Ішкі цикл сыртқы айнымалыға тәуелді</span><span class="lang-ru">3. Внутренний цикл зависит от внешней переменной</span></h3>
+<p class="lang-kz">Ішкі циклдың шекарасында <code>i</code> болса, әр жолдың ұзындығы әртүрлі болады — сатылы фигуралар осылай салынады.</p><p class="lang-ru">Если в границе внутреннего цикла есть <code>i</code>, длина строк разная — так строят ступенчатые фигуры.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for i in range(4, 0, -1):
+    for j in range(i):
+        print(&quot;#&quot;, end=&quot;&quot;)
+    print()</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>####
+###
+##
+#</pre></div></div></div>

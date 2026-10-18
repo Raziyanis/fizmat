@@ -1,0 +1,18 @@
+<h3 class="t-h"><span class="lang-kz">1. Көп таңдау: if … elif … else</span><span class="lang-ru">1. Множественный выбор: if … elif … else</span></h3>
+<p class="lang-kz">Нұсқалар екіден көп болса, <code>elif</code> («әйтпесе, егер») қолданамыз. Шарттар <b>жоғарыдан төмен</b> тексеріледі; <b>бірінші ақиқат</b> шарттың блогы орындалады, қалғандары өткізіледі. Ешбірі ақиқат болмаса — <code>else</code>.</p><p class="lang-ru">Если вариантов больше двух, используем <code>elif</code> («иначе, если»). Условия проверяются <b>сверху вниз</b>; выполняется блок <b>первого истинного</b> условия, остальные пропускаются. Если ни одно не истинно — <code>else</code>.</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>speed = 75
+if speed &gt; 90:
+    print(&quot;fine&quot;)
+elif speed &gt; 60:
+    print(&quot;warning&quot;)
+else:
+    print(&quot;ok&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>warning</pre></div></div></div>
+<h3 class="t-h"><span class="lang-kz">2. Шарттардың реті маңызды</span><span class="lang-ru">2. Порядок условий важен</span></h3>
+<p class="lang-kz">Кең шартты бірінші жазсақ, тар шарт ешқашан тексерілмейді. Сондықтан шекараларды бір бағытта: үлкеннен кішіге (немесе керісінше) жазыңыз.</p><p class="lang-ru">Если первым поставить широкое условие, узкое никогда не проверится. Поэтому записывайте границы в одном направлении: от большего к меньшему (или наоборот).</p>
+<div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>speed = 95
+if speed &gt; 60:
+    print(&quot;warning&quot;)
+elif speed &gt; 90:
+    print(&quot;fine&quot;)</pre></div><div><div class="t-box out"><div class="lbl"><span class="lang-kz">Нәтиже</span><span class="lang-ru">Вывод</span></div><pre>warning</pre></div></div></div>
+<p class="lang-kz">95 &gt; 90 болса да, «fine» шықпады: бірінші шарт ақиқат болды, қалғаны тексерілмеді.</p><p class="lang-ru">Хотя 95 &gt; 90, «fine» не вывелось: первое условие оказалось истинным, остальные не проверялись.</p>
+<table class="t-table"><tr><th></th><th>if, if, if</th><th>if, elif, elif</th></tr><tr><td><span class="lang-kz">Тексеріледі</span><span class="lang-ru">Проверяются</span></td><td><span class="lang-kz">барлық шарт</span><span class="lang-ru">все условия</span></td><td><span class="lang-kz">бірінші ақиқатқа дейін</span><span class="lang-ru">до первого истинного</span></td></tr><tr><td><span class="lang-kz">Орындалады</span><span class="lang-ru">Выполняются</span></td><td><span class="lang-kz">бірнеше блок мүмкін</span><span class="lang-ru">может несколько блоков</span></td><td><span class="lang-kz">ең көбі бір блок</span><span class="lang-ru">не больше одного блока</span></td></tr></table>
