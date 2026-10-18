@@ -17,15 +17,57 @@ var APP = 'fizmat-formativ-';   // барлық формативтік жұмы�
 /** Бір рет қолмен іске қосыңыз: кесте жасалады және тексеру хаты жіберіледі (рұқсаттар сұралады). */
 function setup() {
   var ss = book_();
+  sheet_(); claimSheet_();
   Logger.log('Кесте: ' + ss.getUrl());
   var to = EMAIL || Session.getEffectiveUser().getEmail();
   MailApp.sendEmail(to, 'Формативтік жұмыстар (8-сынып) — пошта жұмыс істейді', 'Бұл тексеру хаты. Оқушылардың нәтижелері осы поштаға келеді.\nЭто проверочное письмо: результаты учеников будут приходить на эту почту.\nКесте / таблица: ' + ss.getUrl());
   Logger.log('Хат жіберілді / письмо отправлено: ' + to);
 }
 
-function doGet() {
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (p.a === 'claim') return claim_(p);
   return ContentService.createTextOutput('Формативтік жұмыстар: нәтижелерді қабылдау жұмыс істеп тұр.');
 }
+
+// Бір оқушы бір формативке LOCK_HOURS сағатта бір рет қана кіре алады (кез келген браузерден, кез келген компьютерден).
+// Оқушы әзілмен басқаның атын таңдап қойса — мұғалім «Кірулер» парағынан сол жолды өшіреді, сонда кіру қайта ашылады.
+var LOCK_HOURS = 24;
+var CLAIM_SHEET = 'Кірулер';
+function claim_(p) {
+  var cb = /^[A-Za-z_$][\w$]{0,40}$/.test(p.cb || '') ? p.cb : 'cb';
+  var res;
+  try {
+    if (String(p.app || '').indexOf(APP) !== 0) throw new Error('app');
+    var key = [p.app, norm_(p.cls), norm_(p.name)].join('|'), now = Date.now(), lim = LOCK_HOURS * 3600 * 1000;
+    var lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    try {
+      var sh = claimSheet_(), n = sh.getLastRow(), rows = n > 1 ? sh.getRange(2, 1, n - 1, 8).getValues() : [], found = null;
+      for (var i = rows.length - 1; i >= 0; i--) {
+        var r = rows[i], t = r[0] instanceof Date ? r[0].getTime() : 0;
+        if (r[6] === 'кірді / вошёл' && [r[1], norm_(r[2]), norm_(r[3])].join('|') === key && now - t < lim) { found = { at: t, id: String(r[4]) }; break; }
+      }
+      var ok = !found || found.id === String(p.wid);
+      if (!found || !ok) sh.appendRow([new Date(now), clip_(p.app, 60), safe_(p.cls), safe_(p.name), safe_(p.wid), safe_(p.ua), ok ? 'кірді / вошёл' : 'ҚАЙТА КІРУ ӘРЕКЕТІ / повторная попытка', found ? new Date(found.at) : '']);
+      res = ok ? { ok: true } : { ok: false, at: found.at, until: found.at + lim };
+    } finally { lock.releaseLock(); }
+  } catch (err) {
+    res = { ok: false, error: String(err) };
+  }
+  return ContentService.createTextOutput(cb + '(' + JSON.stringify(res) + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+function claimSheet_() {
+  var ss = book_(), sh = ss.getSheetByName(CLAIM_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(CLAIM_SHEET);
+    sh.appendRow(['Уақыты', 'Жұмыс', 'Сынып', 'Аты-жөні', 'ID', 'Браузер', 'Нәтиже', 'Алғашқы кіру']);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 8).setFontWeight('bold');
+  }
+  return sh;
+}
+function norm_(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim().toLowerCase(); }
 
 function doPost(e) {
   try {

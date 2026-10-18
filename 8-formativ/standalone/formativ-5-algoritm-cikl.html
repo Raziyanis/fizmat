@@ -382,6 +382,11 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 .gs-box button { align-self: flex-start; }
 .url-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .url-row input { flex: 1; min-width: 260px; font: 0.95rem ui-monospace, Consolas, monospace; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; }
+
+/* Бір рет кіру / Однократный вход */
+.lock-warn { margin: 14px 0 8px; padding: 10px 14px; border: 2px solid var(--bad); border-radius: 8px; background: var(--bad-bg); color: var(--bad); font-size: 15px; line-height: 1.45; }
+.lock-deny { margin: 10px 0; padding: 12px 14px; border-radius: 8px; background: var(--bad); color: #fff; font-weight: 600; font-size: 16px; line-height: 1.45; white-space: pre-line; }
+.lock-deny.wait { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad); font-weight: 500; }
 </style>
 </head>
 <body>
@@ -420,6 +425,11 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
         <label id="w-name"><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
         <label id="w-cls"><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
       </div>
+      <div class="lock-warn">
+        <span class="lang-kz">⚠ <b>Тек өз атыңызды таңдаңыз!</b> Таңдалған аты-жөні осы жұмысқа бекітіледі: осы оқушы бұл жұмысқа <b><span class="i-lock"></span> сағаттан кейін ғана</b> қайта кіре алады — басқа браузерден де, басқа компьютерден де. Әр кіру мұғалімге көрінеді.</span>
+        <span class="lang-ru">⚠ <b>Выбирайте только себя!</b> Выбранные фамилия и имя закрепляются за этой работой: этот ученик сможет снова войти в неё <b>только через <span class="i-lock"></span> ч</b> — ни из другого браузера, ни с другого компьютера. Каждый вход виден учителю.</span>
+      </div>
+      <p id="g-lock" class="lock-deny" hidden></p>
       <p id="g-err" class="bad-text" hidden><span class="lang-kz">Сыныбыңызды және аты-жөніңізді көрсетіңіз.</span><span class="lang-ru">Укажите класс, фамилию и имя.</span></p>
       <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Теорияны оқу (толық экранда)</span><span class="lang-ru">Читать теорию (на весь экран)</span></button></div>
       <p class="teacher-link"><button id="b-teacher" class="link" type="button"><span class="lang-kz">Мұғалімге: нәтижелерді поштаға жіберуді баптау</span><span class="lang-ru">Для учителя: настройка отправки результатов на почту</span></button></p>
@@ -574,7 +584,8 @@ window.WORK_MIN = 40;          // есептерге берілетін уақы
 window.RESULT_MIN = 5;         // нәтиже неше минут көрінеді / сколько минут виден результат, затем открывается начальная страница
 window.MAX_VIOLATIONS = 3;     // нешінші бұзушылықта жұмыс аяқталады / на каком нарушении работа завершается
 window.RESULTS_URL = "";        // мұғалімнің Apps Script сілтемесі (…/exec) — нәтижелер поштаға жіберіледі / ссылка Apps Script учителя
-window.CLASSES = {};           // сынып тізімі: { "8A": ["Аты-жөні", …], … } — бос болса, оқушы аты-жөнін өзі жазады
+window.CLASSES = {};
+window.LOCK_HOURS = 24;       // бір оқушы бір жұмысқа неше сағатта бір рет кіреді (0 — шектеу жоқ) / раз в сколько часов ученик может войти в работу (0 — без ограничения)           // сынып тізімі: { "8A": ["Аты-жөні", …], … } — бос болса, оқушы аты-жөнін өзі жазады
 
 </script>
 <script>
@@ -2255,7 +2266,7 @@ window.TOPIC = {
     var sc = $('s-cls'), keep = sc.value; sc.innerHTML = '';
     var o0 = el('option', null, L('— таңдаңыз —', '— выберите —')); o0.value = ''; sc.appendChild(o0);
     Object.keys(cl).forEach(function (k) { var o = el('option', null, k); o.value = k; sc.appendChild(o); });
-    sc.value = keep; sc.onchange = function () { $('g-err').hidden = true; fillNames(); }; fillNames();
+    sc.value = keep; sc.onchange = function () { $('g-err').hidden = true; lockMsg(''); fillNames(); }; fillNames();
   }
   function fillNames() {
     var cl = classList(), sn = $('s-name'), c = $('s-cls').value, keep = sn.value; sn.innerHTML = '';
@@ -2267,7 +2278,7 @@ window.TOPIC = {
     sn.disabled = !c; $('w-name-sel').hidden = !c;
     if (keep && Array.prototype.some.call(sn.options, function (o) { return o.value === keep; })) sn.value = keep;
     $('w-name').hidden = sn.value !== OTHER;
-    sn.onchange = function () { $('w-name').hidden = sn.value !== OTHER; $('g-err').hidden = true; if (sn.value === OTHER) $('g-name').focus(); };
+    sn.onchange = function () { $('w-name').hidden = sn.value !== OTHER; $('g-err').hidden = true; lockMsg(''); if (sn.value === OTHER) $('g-name').focus(); };
   }
   function who() {
     var cl = classList();
@@ -2386,12 +2397,56 @@ window.TOPIC = {
     });
   }
 
+  // ---------- Бір оқушы — бір кіру (LOCK_HOURS сағат) ----------
+  // Осы браузерде — localStorage; басқа браузер мен компьютерлер үшін — мұғалімнің скриптіндегі «Кірулер» парағы.
+  var CLAIMS = 'ff-claims';
+  function lockMs() { var h = Number(window.LOCK_HOURS); return (isFinite(h) && h > 0 ? h : 0) * 3600 * 1000; }
+  function claimKey(w) { return [TID, w.cls, w.name].join('|').replace(/\s+/g, ' ').toLowerCase(); }
+  function localClaims() { try { return JSON.parse(localStorage.getItem(CLAIMS)) || {}; } catch (e) { return {}; } }
+  function setLocalClaim(w, at) { var c = localClaims(), now = Date.now(); Object.keys(c).forEach(function (k) { if (now - c[k] > lockMs()) delete c[k]; }); c[claimKey(w)] = at; try { localStorage.setItem(CLAIMS, JSON.stringify(c)); } catch (e) {} }
+  function jsonp(url, params, ms) {
+    return new Promise(function (ok, fail) {
+      var cb = 'ffcb' + Date.now() + Math.floor(Math.random() * 1e6), s = document.createElement('script'), done = false;
+      function end() { done = true; try { delete window[cb]; } catch (e) { window[cb] = undefined; } if (s.parentNode) s.parentNode.removeChild(s); }
+      window[cb] = function (d) { if (done) return; end(); ok(d); };
+      params.cb = cb; params.t = Date.now();
+      s.src = url + '?' + Object.keys(params).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
+      s.onerror = function () { if (!done) { end(); fail(new Error('net')); } };
+      setTimeout(function () { if (!done) { end(); fail(new Error('timeout')); } }, ms);
+      document.head.appendChild(s);
+    });
+  }
+  function when(t) { var d = new Date(t), p = function (x) { return ('0' + x).slice(-2); }; return p(d.getDate()) + '.' + p(d.getMonth() + 1) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  function lockMsg(text, wait) { var m = $('g-lock'); m.textContent = text; m.classList.toggle('wait', !!wait); m.hidden = !text; }
+  function denyText(w, at, until) {
+    return L('⛔ Кіру жабық. «' + w.name + ', ' + w.cls + '» бұл жұмысты ' + when(at) + ' уақытында бастаған.\nҚайта кіру: ' + when(until) + ' кейін.\nБұл сіз болмасаңыз (біреу сіздің атыңызды таңдаған), мұғалімге айтыңыз.',
+      '⛔ Доступ закрыт. «' + w.name + ', ' + w.cls + '» уже начинал(а) эту работу ' + when(at) + '.\nСнова войти можно после ' + when(until) + '.\nЕсли это были не вы (кто-то выбрал ваше имя), скажите учителю.');
+  }
+  var claiming = false;
   function start() {
-    if (state) return;
+    if (state || claiming) return;
     var w = who();
     if (!w) { $('g-err').hidden = false; return; }
+    lockMsg('');
+    var lim = lockMs(), seed = newSeed();
+    if (!lim) return begin(w, seed);
+    var prev = localClaims()[claimKey(w)];
+    if (prev && Date.now() - prev < lim) { lockMsg(denyText(w, prev, prev + lim)); return; }
+    var url = resultsUrl();
+    if (!url) { setLocalClaim(w, Date.now()); return begin(w, seed); }
+    claiming = true; $('b-start').disabled = true;
+    lockMsg(L('Тексерілуде… (мұғалімнің скриптіне сұрау)', 'Проверка… (запрос к скрипту учителя)'), true);
+    jsonp(url, { a: 'claim', app: APP, cls: w.cls, name: w.name, wid: seed, ua: navigator.userAgent.slice(0, 120) }, 20000).then(function (d) {
+      if (d && d.ok) { lockMsg(''); setLocalClaim(w, Date.now()); begin(w, seed); }
+      else if (d && d.at) { setLocalClaim(w, d.at); lockMsg(denyText(w, d.at, d.until)); }
+      else lockMsg(L('⛔ Мұғалімнің скрипті қате қайтарды: ' + (d && d.error) + '. Мұғалімге айтыңыз.', '⛔ Скрипт учителя вернул ошибку: ' + (d && d.error) + '. Скажите учителю.'));
+    }, function () {
+      lockMsg(L('⛔ Интернет жоқ немесе мұғалімнің скрипті жауап бермеді — кіруді тексеру мүмкін емес. Интернетті тексеріп, батырманы қайта басыңыз.', '⛔ Нет интернета или скрипт учителя не ответил — проверить вход невозможно. Проверьте интернет и нажмите кнопку ещё раз.'));
+    }).then(function () { claiming = false; $('b-start').disabled = false; });
+  }
+  function begin(w, seed) {
     var name = w.name, cls = w.cls;
-    var fs = enterFullscreen(), seed = newSeed();
+    var fs = enterFullscreen();
     code = CODE.generate(seed, LANG);
     state = { v: 1, seed: seed, status: 'running', stage: 'theory', who: { name: name, cls: cls }, startedAt: null, endsAt: null, viol: 0, cur: 0,
       code: code.map(function () { return ''; }), ans: code.map(function () { return null; }), stdin: code.map(function () { return null; }), checks: code.map(function () { return null; }) };
@@ -2416,6 +2471,8 @@ window.TOPIC = {
     document.documentElement.lang = LANG === 'kz' ? 'kk' : 'ru';
     document.title = L(window.TOPIC.title.kz, window.TOPIC.title.ru);
     document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 35); });
+    document.querySelectorAll('.i-lock').forEach(function (e) { e.textContent = String(lockMs() / 3600000); });
+    document.querySelectorAll('.lock-warn').forEach(function (e) { e.hidden = !lockMs(); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { var on = b.getAttribute('data-lang') === LANG; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   }
   // Смена языка: код и таймер сохраняются; числа и тесты те же (зависят только от seed)
@@ -2537,15 +2594,57 @@ var APP = 'fizmat-formativ-';   // барлық формативтік жұмы�
 /** Бір рет қолмен іске қосыңыз: кесте жасалады және тексеру хаты жіберіледі (рұқсаттар сұралады). */
 function setup() {
   var ss = book_();
+  sheet_(); claimSheet_();
   Logger.log('Кесте: ' + ss.getUrl());
   var to = EMAIL || Session.getEffectiveUser().getEmail();
   MailApp.sendEmail(to, 'Формативтік жұмыстар (8-сынып) — пошта жұмыс істейді', 'Бұл тексеру хаты. Оқушылардың нәтижелері осы поштаға келеді.\nЭто проверочное письмо: результаты учеников будут приходить на эту почту.\nКесте / таблица: ' + ss.getUrl());
   Logger.log('Хат жіберілді / письмо отправлено: ' + to);
 }
 
-function doGet() {
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (p.a === 'claim') return claim_(p);
   return ContentService.createTextOutput('Формативтік жұмыстар: нәтижелерді қабылдау жұмыс істеп тұр.');
 }
+
+// Бір оқушы бір формативке LOCK_HOURS сағатта бір рет қана кіре алады (кез келген браузерден, кез келген компьютерден).
+// Оқушы әзілмен басқаның атын таңдап қойса — мұғалім «Кірулер» парағынан сол жолды өшіреді, сонда кіру қайта ашылады.
+var LOCK_HOURS = 24;
+var CLAIM_SHEET = 'Кірулер';
+function claim_(p) {
+  var cb = /^[A-Za-z_$][\w$]{0,40}$/.test(p.cb || '') ? p.cb : 'cb';
+  var res;
+  try {
+    if (String(p.app || '').indexOf(APP) !== 0) throw new Error('app');
+    var key = [p.app, norm_(p.cls), norm_(p.name)].join('|'), now = Date.now(), lim = LOCK_HOURS * 3600 * 1000;
+    var lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    try {
+      var sh = claimSheet_(), n = sh.getLastRow(), rows = n > 1 ? sh.getRange(2, 1, n - 1, 8).getValues() : [], found = null;
+      for (var i = rows.length - 1; i >= 0; i--) {
+        var r = rows[i], t = r[0] instanceof Date ? r[0].getTime() : 0;
+        if (r[6] === 'кірді / вошёл' && [r[1], norm_(r[2]), norm_(r[3])].join('|') === key && now - t < lim) { found = { at: t, id: String(r[4]) }; break; }
+      }
+      var ok = !found || found.id === String(p.wid);
+      if (!found || !ok) sh.appendRow([new Date(now), clip_(p.app, 60), safe_(p.cls), safe_(p.name), safe_(p.wid), safe_(p.ua), ok ? 'кірді / вошёл' : 'ҚАЙТА КІРУ ӘРЕКЕТІ / повторная попытка', found ? new Date(found.at) : '']);
+      res = ok ? { ok: true } : { ok: false, at: found.at, until: found.at + lim };
+    } finally { lock.releaseLock(); }
+  } catch (err) {
+    res = { ok: false, error: String(err) };
+  }
+  return ContentService.createTextOutput(cb + '(' + JSON.stringify(res) + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+function claimSheet_() {
+  var ss = book_(), sh = ss.getSheetByName(CLAIM_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(CLAIM_SHEET);
+    sh.appendRow(['Уақыты', 'Жұмыс', 'Сынып', 'Аты-жөні', 'ID', 'Браузер', 'Нәтиже', 'Алғашқы кіру']);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 8).setFontWeight('bold');
+  }
+  return sh;
+}
+function norm_(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim().toLowerCase(); }
 
 function doPost(e) {
   try {

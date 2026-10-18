@@ -374,3 +374,8 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 .gs-box button { align-self: flex-start; }
 .url-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .url-row input { flex: 1; min-width: 260px; font: 0.95rem ui-monospace, Consolas, monospace; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; }
+
+/* Бір рет кіру / Однократный вход */
+.lock-warn { margin: 14px 0 8px; padding: 10px 14px; border: 2px solid var(--bad); border-radius: 8px; background: var(--bad-bg); color: var(--bad); font-size: 15px; line-height: 1.45; }
+.lock-deny { margin: 10px 0; padding: 12px 14px; border-radius: 8px; background: var(--bad); color: #fff; font-weight: 600; font-size: 16px; line-height: 1.45; white-space: pre-line; }
+.lock-deny.wait { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad); font-weight: 500; }

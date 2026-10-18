@@ -450,7 +450,7 @@
     var sc = $('s-cls'), keep = sc.value; sc.innerHTML = '';
     var o0 = el('option', null, L('— таңдаңыз —', '— выберите —')); o0.value = ''; sc.appendChild(o0);
     Object.keys(cl).forEach(function (k) { var o = el('option', null, k); o.value = k; sc.appendChild(o); });
-    sc.value = keep; sc.onchange = function () { $('g-err').hidden = true; fillNames(); }; fillNames();
+    sc.value = keep; sc.onchange = function () { $('g-err').hidden = true; lockMsg(''); fillNames(); }; fillNames();
   }
   function fillNames() {
     var cl = classList(), sn = $('s-name'), c = $('s-cls').value, keep = sn.value; sn.innerHTML = '';
@@ -462,7 +462,7 @@
     sn.disabled = !c; $('w-name-sel').hidden = !c;
     if (keep && Array.prototype.some.call(sn.options, function (o) { return o.value === keep; })) sn.value = keep;
     $('w-name').hidden = sn.value !== OTHER;
-    sn.onchange = function () { $('w-name').hidden = sn.value !== OTHER; $('g-err').hidden = true; if (sn.value === OTHER) $('g-name').focus(); };
+    sn.onchange = function () { $('w-name').hidden = sn.value !== OTHER; $('g-err').hidden = true; lockMsg(''); if (sn.value === OTHER) $('g-name').focus(); };
   }
   function who() {
     var cl = classList();
@@ -581,12 +581,56 @@
     });
   }
 
+  // ---------- Бір оқушы — бір кіру (LOCK_HOURS сағат) ----------
+  // Осы браузерде — localStorage; басқа браузер мен компьютерлер үшін — мұғалімнің скриптіндегі «Кірулер» парағы.
+  var CLAIMS = 'ff-claims';
+  function lockMs() { var h = Number(window.LOCK_HOURS); return (isFinite(h) && h > 0 ? h : 0) * 3600 * 1000; }
+  function claimKey(w) { return [TID, w.cls, w.name].join('|').replace(/\s+/g, ' ').toLowerCase(); }
+  function localClaims() { try { return JSON.parse(localStorage.getItem(CLAIMS)) || {}; } catch (e) { return {}; } }
+  function setLocalClaim(w, at) { var c = localClaims(), now = Date.now(); Object.keys(c).forEach(function (k) { if (now - c[k] > lockMs()) delete c[k]; }); c[claimKey(w)] = at; try { localStorage.setItem(CLAIMS, JSON.stringify(c)); } catch (e) {} }
+  function jsonp(url, params, ms) {
+    return new Promise(function (ok, fail) {
+      var cb = 'ffcb' + Date.now() + Math.floor(Math.random() * 1e6), s = document.createElement('script'), done = false;
+      function end() { done = true; try { delete window[cb]; } catch (e) { window[cb] = undefined; } if (s.parentNode) s.parentNode.removeChild(s); }
+      window[cb] = function (d) { if (done) return; end(); ok(d); };
+      params.cb = cb; params.t = Date.now();
+      s.src = url + '?' + Object.keys(params).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
+      s.onerror = function () { if (!done) { end(); fail(new Error('net')); } };
+      setTimeout(function () { if (!done) { end(); fail(new Error('timeout')); } }, ms);
+      document.head.appendChild(s);
+    });
+  }
+  function when(t) { var d = new Date(t), p = function (x) { return ('0' + x).slice(-2); }; return p(d.getDate()) + '.' + p(d.getMonth() + 1) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+  function lockMsg(text, wait) { var m = $('g-lock'); m.textContent = text; m.classList.toggle('wait', !!wait); m.hidden = !text; }
+  function denyText(w, at, until) {
+    return L('⛔ Кіру жабық. «' + w.name + ', ' + w.cls + '» бұл жұмысты ' + when(at) + ' уақытында бастаған.\nҚайта кіру: ' + when(until) + ' кейін.\nБұл сіз болмасаңыз (біреу сіздің атыңызды таңдаған), мұғалімге айтыңыз.',
+      '⛔ Доступ закрыт. «' + w.name + ', ' + w.cls + '» уже начинал(а) эту работу ' + when(at) + '.\nСнова войти можно после ' + when(until) + '.\nЕсли это были не вы (кто-то выбрал ваше имя), скажите учителю.');
+  }
+  var claiming = false;
   function start() {
-    if (state) return;
+    if (state || claiming) return;
     var w = who();
     if (!w) { $('g-err').hidden = false; return; }
+    lockMsg('');
+    var lim = lockMs(), seed = newSeed();
+    if (!lim) return begin(w, seed);
+    var prev = localClaims()[claimKey(w)];
+    if (prev && Date.now() - prev < lim) { lockMsg(denyText(w, prev, prev + lim)); return; }
+    var url = resultsUrl();
+    if (!url) { setLocalClaim(w, Date.now()); return begin(w, seed); }
+    claiming = true; $('b-start').disabled = true;
+    lockMsg(L('Тексерілуде… (мұғалімнің скриптіне сұрау)', 'Проверка… (запрос к скрипту учителя)'), true);
+    jsonp(url, { a: 'claim', app: APP, cls: w.cls, name: w.name, wid: seed, ua: navigator.userAgent.slice(0, 120) }, 20000).then(function (d) {
+      if (d && d.ok) { lockMsg(''); setLocalClaim(w, Date.now()); begin(w, seed); }
+      else if (d && d.at) { setLocalClaim(w, d.at); lockMsg(denyText(w, d.at, d.until)); }
+      else lockMsg(L('⛔ Мұғалімнің скрипті қате қайтарды: ' + (d && d.error) + '. Мұғалімге айтыңыз.', '⛔ Скрипт учителя вернул ошибку: ' + (d && d.error) + '. Скажите учителю.'));
+    }, function () {
+      lockMsg(L('⛔ Интернет жоқ немесе мұғалімнің скрипті жауап бермеді — кіруді тексеру мүмкін емес. Интернетті тексеріп, батырманы қайта басыңыз.', '⛔ Нет интернета или скрипт учителя не ответил — проверить вход невозможно. Проверьте интернет и нажмите кнопку ещё раз.'));
+    }).then(function () { claiming = false; $('b-start').disabled = false; });
+  }
+  function begin(w, seed) {
     var name = w.name, cls = w.cls;
-    var fs = enterFullscreen(), seed = newSeed();
+    var fs = enterFullscreen();
     code = CODE.generate(seed, LANG);
     state = { v: 1, seed: seed, status: 'running', stage: 'theory', who: { name: name, cls: cls }, startedAt: null, endsAt: null, viol: 0, cur: 0,
       code: code.map(function () { return ''; }), ans: code.map(function () { return null; }), stdin: code.map(function () { return null; }), checks: code.map(function () { return null; }) };
@@ -611,6 +655,8 @@
     document.documentElement.lang = LANG === 'kz' ? 'kk' : 'ru';
     document.title = L(window.TOPIC.title.kz, window.TOPIC.title.ru);
     document.querySelectorAll('.i-min').forEach(function (e) { e.textContent = String(window.WORK_MIN || 35); });
+    document.querySelectorAll('.i-lock').forEach(function (e) { e.textContent = String(lockMs() / 3600000); });
+    document.querySelectorAll('.lock-warn').forEach(function (e) { e.hidden = !lockMs(); });
     document.querySelectorAll('.lang-switch button').forEach(function (b) { var on = b.getAttribute('data-lang') === LANG; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   }
   // Смена языка: код и таймер сохраняются; числа и тесты те же (зависят только от seed)

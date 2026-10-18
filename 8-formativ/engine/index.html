@@ -43,6 +43,11 @@
         <label id="w-name"><span class="lang-kz">Аты-жөніңіз</span><span class="lang-ru">Фамилия и имя</span><input id="g-name" type="text" maxlength="60" autocomplete="off"></label>
         <label id="w-cls"><span class="lang-kz">Сыныбыңыз</span><span class="lang-ru">Класс</span><input id="g-class" type="text" maxlength="10" autocomplete="off" placeholder="8A"></label>
       </div>
+      <div class="lock-warn">
+        <span class="lang-kz">⚠ <b>Тек өз атыңызды таңдаңыз!</b> Таңдалған аты-жөні осы жұмысқа бекітіледі: осы оқушы бұл жұмысқа <b><span class="i-lock"></span> сағаттан кейін ғана</b> қайта кіре алады — басқа браузерден де, басқа компьютерден де. Әр кіру мұғалімге көрінеді.</span>
+        <span class="lang-ru">⚠ <b>Выбирайте только себя!</b> Выбранные фамилия и имя закрепляются за этой работой: этот ученик сможет снова войти в неё <b>только через <span class="i-lock"></span> ч</b> — ни из другого браузера, ни с другого компьютера. Каждый вход виден учителю.</span>
+      </div>
+      <p id="g-lock" class="lock-deny" hidden></p>
       <p id="g-err" class="bad-text" hidden><span class="lang-kz">Сыныбыңызды және аты-жөніңізді көрсетіңіз.</span><span class="lang-ru">Укажите класс, фамилию и имя.</span></p>
       <div class="buttons"><button id="b-start" class="primary big"><span class="lang-kz">Теорияны оқу (толық экранда)</span><span class="lang-ru">Читать теорию (на весь экран)</span></button></div>
       <p class="teacher-link"><button id="b-teacher" class="link" type="button"><span class="lang-kz">Мұғалімге: нәтижелерді поштаға жіберуді баптау</span><span class="lang-ru">Для учителя: настройка отправки результатов на почту</span></button></p>
