@@ -387,6 +387,16 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 .lock-warn { margin: 14px 0 8px; padding: 10px 14px; border: 2px solid var(--bad); border-radius: 8px; background: var(--bad-bg); color: var(--bad); font-size: 15px; line-height: 1.45; }
 .lock-deny { margin: 10px 0; padding: 12px 14px; border-radius: 8px; background: var(--bad); color: #fff; font-weight: 600; font-size: 16px; line-height: 1.45; white-space: pre-line; }
 .lock-deny.wait { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad); font-weight: 500; }
+
+/* Общий файл: выбор темы */
+.topic-list { display: grid; gap: 10px; margin: 18px 0; }
+.topic-btn { display: flex; gap: 14px; align-items: center; text-align: left; padding: 12px 16px; border: 1px solid #c9d1dc; border-radius: 10px; background: #fff; cursor: pointer; font: inherit; }
+.topic-btn:hover, .topic-btn:focus-visible { border-color: #1a73e8; background: #eef4fe; }
+.topic-btn .tn { flex: none; width: 36px; height: 36px; border-radius: 50%; background: #1a73e8; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.topic-btn .tt { display: flex; flex-direction: column; gap: 2px; font-weight: 600; font-size: 17px; }
+.topic-btn small { font-weight: 400; font-size: 14px; color: #5f6b7a; }
+.back-topics { margin: 0 0 6px; }
+i[data-t] { font-style: normal; }
 </style>
 </head>
 <body>
@@ -459,7 +469,7 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
       <div id="theory">
 <!--THEORY-->
 <h3 class="t-h"><span class="lang-kz">1. Алгоритм түрлері</span><span class="lang-ru">1. Виды алгоритмов</span></h3>
-<table class="t-table"><tr><th></th><th><span class="lang-kz">Құрылымы</span><span class="lang-ru">Структура</span></th><th>Python</th></tr><tr><td><span class="lang-kz">**Сызықтық</span><span class="lang-ru">Линейный**</span></td><td><span class="lang-kz">әрекеттер ретімен бір рет</span><span class="lang-ru">действия по порядку один раз</span></td><td><span class="lang-kz">меншіктеу, input, print</span><span class="lang-ru">присваивание, input, print</span></td></tr><tr><td><span class="lang-kz">**Тармақталған</span><span class="lang-ru">Разветвлённый**</span></td><td><span class="lang-kz">шартқа қарай бір жол таңдалады</span><span class="lang-ru">по условию выбирается путь</span></td><td><code>if</code>, <code>elif</code>, <code>else</code></td></tr><tr><td><span class="lang-kz">**Циклдік</span><span class="lang-ru">Циклический**</span></td><td><span class="lang-kz">әрекеттер қайталанады</span><span class="lang-ru">действия повторяются</span></td><td><code>for</code>, <code>while</code></td></tr></table>
+<table class="t-table"><tr><th></th><th><span class="lang-kz">Құрылымы</span><span class="lang-ru">Структура</span></th><th>Python</th></tr><tr><td><span class="lang-kz"><b>Сызықтық</b></span><span class="lang-ru"><b>Линейный</b></span></td><td><span class="lang-kz">әрекеттер ретімен бір рет</span><span class="lang-ru">действия по порядку один раз</span></td><td><span class="lang-kz">меншіктеу, input, print</span><span class="lang-ru">присваивание, input, print</span></td></tr><tr><td><span class="lang-kz"><b>Тармақталған</b></span><span class="lang-ru"><b>Разветвлённый</b></span></td><td><span class="lang-kz">шартқа қарай бір жол таңдалады</span><span class="lang-ru">по условию выбирается путь</span></td><td><code>if</code>, <code>elif</code>, <code>else</code></td></tr><tr><td><span class="lang-kz"><b>Циклдік</b></span><span class="lang-ru"><b>Циклический</b></span></td><td><span class="lang-kz">әрекеттер қайталанады</span><span class="lang-ru">действия повторяются</span></td><td><code>for</code>, <code>while</code></td></tr></table>
 <h3 class="t-h"><span class="lang-kz">2. for және range</span><span class="lang-ru">2. for и range</span></h3>
 <p class="lang-kz"><code>range(a, b, s)</code> — a-дан бастап, s қадаммен, <b>b-ға жетпей</b> тоқтайтын сандар. <code>range(n)</code> = 0, 1, …, n−1. Қадам саны алдын ала белгілі болса — <code>for</code>.</p><p class="lang-ru"><code>range(a, b, s)</code> — числа от a с шагом s, <b>не доходя до b</b>. <code>range(n)</code> = 0, 1, …, n−1. Если число шагов известно заранее — <code>for</code>.</p>
 <div class="t-pair"><div class="t-box"><div class="lbl"><span class="lang-kz">Программа</span><span class="lang-ru">Программа</span></div><pre>for i in range(10, 0, -3):
@@ -1851,7 +1861,7 @@ window.TOPIC = {
   function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
   function running() { return !!state && state.status === 'running'; }
   function show(id) {
-    ['s-loading', 's-gate', 's-teacher', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['s-loading', 's-topics', 's-gate', 's-teacher', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { if ($(s)) $(s).hidden = s !== id; });
     $('timers').hidden = !running() || id !== 's-work';
     window.scrollTo(0, 0);
   }
@@ -2464,6 +2474,8 @@ window.TOPIC = {
   }
   function resetToStart() {
     try { localStorage.removeItem(STORE); } catch (e) {}
+    // Жалпы файлда — қайтадан тақырып таңдау беті / В общем файле — снова выбор темы
+    if (location.hash) try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     location.reload();
   }
 
@@ -2567,7 +2579,7 @@ window.TOPIC = {
     if (state && state.status === 'evaluating') { evaluateAll(); return; }
     if (state && state.status === 'finished') { renderResult(); return; }
     state = null;
-    show('s-gate');
+    show(window.CHOOSE_TOPIC ? 's-topics' : 's-gate');
   }
 
   document.addEventListener('DOMContentLoaded', init);

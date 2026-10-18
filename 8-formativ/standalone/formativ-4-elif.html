@@ -387,6 +387,16 @@ html[lang="ru"] .lang-kz, html[lang="kk"] .lang-ru { display: none; }
 .lock-warn { margin: 14px 0 8px; padding: 10px 14px; border: 2px solid var(--bad); border-radius: 8px; background: var(--bad-bg); color: var(--bad); font-size: 15px; line-height: 1.45; }
 .lock-deny { margin: 10px 0; padding: 12px 14px; border-radius: 8px; background: var(--bad); color: #fff; font-weight: 600; font-size: 16px; line-height: 1.45; white-space: pre-line; }
 .lock-deny.wait { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad); font-weight: 500; }
+
+/* Общий файл: выбор темы */
+.topic-list { display: grid; gap: 10px; margin: 18px 0; }
+.topic-btn { display: flex; gap: 14px; align-items: center; text-align: left; padding: 12px 16px; border: 1px solid #c9d1dc; border-radius: 10px; background: #fff; cursor: pointer; font: inherit; }
+.topic-btn:hover, .topic-btn:focus-visible { border-color: #1a73e8; background: #eef4fe; }
+.topic-btn .tn { flex: none; width: 36px; height: 36px; border-radius: 50%; background: #1a73e8; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.topic-btn .tt { display: flex; flex-direction: column; gap: 2px; font-weight: 600; font-size: 17px; }
+.topic-btn small { font-weight: 400; font-size: 14px; color: #5f6b7a; }
+.back-topics { margin: 0 0 6px; }
+i[data-t] { font-style: normal; }
 </style>
 </head>
 <body>
@@ -1844,7 +1854,7 @@ window.TOPIC = {
   function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
   function running() { return !!state && state.status === 'running'; }
   function show(id) {
-    ['s-loading', 's-gate', 's-teacher', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['s-loading', 's-topics', 's-gate', 's-teacher', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { if ($(s)) $(s).hidden = s !== id; });
     $('timers').hidden = !running() || id !== 's-work';
     window.scrollTo(0, 0);
   }
@@ -2457,6 +2467,8 @@ window.TOPIC = {
   }
   function resetToStart() {
     try { localStorage.removeItem(STORE); } catch (e) {}
+    // Жалпы файлда — қайтадан тақырып таңдау беті / В общем файле — снова выбор темы
+    if (location.hash) try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     location.reload();
   }
 
@@ -2560,7 +2572,7 @@ window.TOPIC = {
     if (state && state.status === 'evaluating') { evaluateAll(); return; }
     if (state && state.status === 'finished') { renderResult(); return; }
     state = null;
-    show('s-gate');
+    show(window.CHOOSE_TOPIC ? 's-topics' : 's-gate');
   }
 
   document.addEventListener('DOMContentLoaded', init);

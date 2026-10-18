@@ -35,7 +35,7 @@
   function load() { try { return JSON.parse(localStorage.getItem(STORE)); } catch (e) { return null; } }
   function running() { return !!state && state.status === 'running'; }
   function show(id) {
-    ['s-loading', 's-gate', 's-teacher', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['s-loading', 's-topics', 's-gate', 's-teacher', 's-theory', 's-work', 's-eval', 's-result'].forEach(function (s) { if ($(s)) $(s).hidden = s !== id; });
     $('timers').hidden = !running() || id !== 's-work';
     window.scrollTo(0, 0);
   }
@@ -648,6 +648,8 @@
   }
   function resetToStart() {
     try { localStorage.removeItem(STORE); } catch (e) {}
+    // Жалпы файлда — қайтадан тақырып таңдау беті / В общем файле — снова выбор темы
+    if (location.hash) try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     location.reload();
   }
 
@@ -751,7 +753,7 @@
     if (state && state.status === 'evaluating') { evaluateAll(); return; }
     if (state && state.status === 'finished') { renderResult(); return; }
     state = null;
-    show('s-gate');
+    show(window.CHOOSE_TOPIC ? 's-topics' : 's-gate');
   }
 
   document.addEventListener('DOMContentLoaded', init);
