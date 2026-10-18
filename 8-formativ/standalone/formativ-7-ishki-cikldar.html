@@ -2423,6 +2423,20 @@ window.TOPIC = {
       document.head.appendChild(s);
     });
   }
+  // Алдымен fetch (жауаптың мәтінін көріп, себебін анықтау үшін), болмаса — JSONP
+  function askClaim(url, params) {
+    var q = Object.assign({}, params, { cb: 'f', t: Date.now() });
+    var src = url + '?' + Object.keys(q).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(q[k]); }).join('&');
+    if (!window.fetch) return jsonp(url, params, 20000);
+    return fetch(src, { redirect: 'follow' }).then(function (r) { return r.text(); }, function () { return null; }).then(function (txt) {
+      if (txt == null) return jsonp(url, params, 20000);
+      var m = /^\s*f\((\{[\s\S]*\})\);?\s*$/.exec(txt);
+      if (m) return JSON.parse(m[1]);
+      var e = new Error(/қабылдау жұмыс істеп тұр/.test(txt) ? 'old' : /<html|<!doctype/i.test(txt) ? 'access' : 'bad');
+      e.detail = txt.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 140);
+      throw e;
+    });
+  }
   function when(t) { var d = new Date(t), p = function (x) { return ('0' + x).slice(-2); }; return p(d.getDate()) + '.' + p(d.getMonth() + 1) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
   function lockMsg(text, wait) { var m = $('g-lock'); m.textContent = text; m.classList.toggle('wait', !!wait); m.hidden = !text; }
   function denyText(w, at, until) {
@@ -2443,11 +2457,13 @@ window.TOPIC = {
     if (!url) { setLocalClaim(w, Date.now()); return begin(w, seed); }
     claiming = true; $('b-start').disabled = true;
     lockMsg(L('Тексерілуде… (мұғалімнің скриптіне сұрау)', 'Проверка… (запрос к скрипту учителя)'), true);
-    jsonp(url, { a: 'claim', app: APP, cls: w.cls, name: w.name, wid: seed, ua: navigator.userAgent.slice(0, 120) }, 20000).then(function (d) {
+    askClaim(url, { a: 'claim', app: APP, cls: w.cls, name: w.name, wid: seed, ua: navigator.userAgent.slice(0, 120) }, 20000).then(function (d) {
       if (d && d.ok) { lockMsg(''); setLocalClaim(w, Date.now()); begin(w, seed); }
       else if (d && d.at) { setLocalClaim(w, d.at); lockMsg(denyText(w, d.at, d.until)); }
       else lockMsg(L('⛔ Мұғалімнің скрипті қате қайтарды: ' + (d && d.error) + '. Мұғалімге айтыңыз.', '⛔ Скрипт учителя вернул ошибку: ' + (d && d.error) + '. Скажите учителю.'));
     }, function (e) {
+      if (e && e.message === 'access') return lockMsg(L('⛔ Мұғалімнің скрипті жабық (Google кіруді сұрайды). Мұғалімге айтыңыз: жариялауда «Кімге қолжетімді» — «Барлығы» болуы керек.', '⛔ Скрипт учителя закрыт (Google просит войти). Скажите учителю: в развертывании «У кого есть доступ» должно быть «Все».') + (e.detail ? '\n' + e.detail : ''));
+      if (e && e.message === 'bad') return lockMsg(L('⛔ Мұғалімнің скрипті күтпеген жауап берді. Мұғалімге айтыңыз.', '⛔ Скрипт учителя ответил неожиданно. Скажите учителю.') + (e.detail ? '\n' + e.detail : ''));
       if (e && e.message === 'old') return lockMsg(L('⛔ Мұғалімнің скрипті ескі нұсқа: онда кіруді тексеру жоқ. Мұғалімге айтыңыз — скриптті жаңартып, «Жаңа нұсқа» ретінде қайта жариялау керек.', '⛔ У учителя старая версия скрипта: в ней нет проверки входа. Скажите учителю — скрипт нужно обновить и переразвернуть как «Новая версия».'));
       lockMsg(L('⛔ Интернет жоқ немесе мұғалімнің скрипті жауап бермеді — кіруді тексеру мүмкін емес. Интернетті тексеріп, батырманы қайта басыңыз.', '⛔ Нет интернета или скрипт учителя не ответил — проверить вход невозможно. Проверьте интернет и нажмите кнопку ещё раз.'));
     }).then(function () { claiming = false; $('b-start').disabled = false; });
