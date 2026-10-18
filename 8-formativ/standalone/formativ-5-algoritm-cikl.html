@@ -2422,6 +2422,8 @@ window.TOPIC = {
       params.cb = cb; params.t = Date.now();
       s.src = url + '?' + Object.keys(params).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
       s.onerror = function () { if (!done) { end(); fail(new Error('net')); } };
+      // Скрипт жауап берді, бірақ кіруді тексермеді — мұғалімнің скрипті ескі нұсқа / ответил, но без проверки входа — старая версия скрипта
+      s.onload = function () { setTimeout(function () { if (!done) { end(); fail(new Error('old')); } }, 50); };
       setTimeout(function () { if (!done) { end(); fail(new Error('timeout')); } }, ms);
       document.head.appendChild(s);
     });
@@ -2450,7 +2452,8 @@ window.TOPIC = {
       if (d && d.ok) { lockMsg(''); setLocalClaim(w, Date.now()); begin(w, seed); }
       else if (d && d.at) { setLocalClaim(w, d.at); lockMsg(denyText(w, d.at, d.until)); }
       else lockMsg(L('⛔ Мұғалімнің скрипті қате қайтарды: ' + (d && d.error) + '. Мұғалімге айтыңыз.', '⛔ Скрипт учителя вернул ошибку: ' + (d && d.error) + '. Скажите учителю.'));
-    }, function () {
+    }, function (e) {
+      if (e && e.message === 'old') return lockMsg(L('⛔ Мұғалімнің скрипті ескі нұсқа: онда кіруді тексеру жоқ. Мұғалімге айтыңыз — скриптті жаңартып, «Жаңа нұсқа» ретінде қайта жариялау керек.', '⛔ У учителя старая версия скрипта: в ней нет проверки входа. Скажите учителю — скрипт нужно обновить и переразвернуть как «Новая версия».'));
       lockMsg(L('⛔ Интернет жоқ немесе мұғалімнің скрипті жауап бермеді — кіруді тексеру мүмкін емес. Интернетті тексеріп, батырманы қайта басыңыз.', '⛔ Нет интернета или скрипт учителя не ответил — проверить вход невозможно. Проверьте интернет и нажмите кнопку ещё раз.'));
     }).then(function () { claiming = false; $('b-start').disabled = false; });
   }
