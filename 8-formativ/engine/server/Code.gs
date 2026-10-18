@@ -13,6 +13,8 @@ var SEND_PDF = true;     // хатқа есептің PDF нұсқасы тір�
 var SHEET_NAME = 'Нәтижелер';
 var TIME_ZONE = 'Asia/Almaty';
 var APP = 'fizmat-formativ-';   // барлық формативтік жұмыстардың белгісі / метка всех формативок
+// Осы скрипт бұрын қабылдаған басқа веб-ресурстар да қабылданады / принимаются и прежние веб-ресурсы, отправлявшие на этот скрипт
+var OTHER_APPS = { 'break-continue-8.1.4.5': '8.1.4.5 break, continue, else (13 есеп)' };
 
 /** Бір рет қолмен іске қосыңыз: кесте жасалады және тексеру хаты жіберіледі (рұқсаттар сұралады). */
 function setup() {
@@ -72,7 +74,8 @@ function norm_(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim(
 function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
-    if (!d || String(d.app || '').indexOf(APP) !== 0) return out_('skip');
+    if (!d || (String(d.app || '').indexOf(APP) !== 0 && !OTHER_APPS[d.app])) return out_('skip');
+    if (!d.topic) d.topic = OTHER_APPS[d.app] || d.app;
     var lock = LockService.getScriptLock();
     lock.waitLock(20000);
     try {
