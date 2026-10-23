@@ -237,7 +237,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .xl-grid { border-collapse: collapse; font-family: var(--f-body); font-size: 1rem; font-variant-numeric: tabular-nums; }
 .xl-grid th { background: var(--head); color: var(--muted); font-weight: 400; font-size: .8rem; border: 1px solid var(--line); padding: 2px 6px; font-family: var(--f-mono); }
 .xl-grid th.xl-corner { width: 2rem; }
-.xl-grid td { border: 1px solid var(--line); min-width: 6.5rem; height: 2rem; padding: 2px 8px; cursor: cell; white-space: nowrap; background: var(--surface); }
+.xl-grid td { border: 1px solid var(--line); min-width: 5.2rem; height: 2rem; padding: 2px 8px; cursor: cell; white-space: nowrap; background: var(--surface); }
 .xl-grid td.n { text-align: right; }
 .xl-grid td.e { color: var(--bad); text-align: center; font-weight: 700; }
 .xl-grid td.f { background: color-mix(in srgb, var(--c) 7%, var(--surface)); font-weight: 700; }
@@ -415,7 +415,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
         <div><b>Формула</b><p>запись, которая начинается со знака <code>=</code>. В ячейке видно результат, а саму формулу — в строке <i>fx</i>.</p></div>
         <div><b>Функция</b><p>готовая команда с именем: СУММ, ABS, КОРЕНЬ… Она знает, как посчитать, нам нужно только дать ей данные.</p></div>
         <div><b>Аргументы</b><p>данные в скобках после имени функции. Несколько аргументов разделяют знаком <code>;</code>.</p></div>
-        <div><b>Ссылка на ячейку</b><p>адрес вроде <code>B3</code>: буква столбца + номер строки. Буквы — латинские.</p></div>
+        <div><b>Ссылка на ячейку</b><p>адрес ячейки, например <code>B3</code>: сначала буква столбца, потом номер строки. Буквы в адресе пишутся латиницей.</p></div>
         <div><b>Диапазон</b><p>группа ячеек через двоеточие: <code>A1:A5</code> — от A1 до A5.</p></div>
         <div><b>Результат</b><p>значение, которое функция возвращает в ячейку. Если что-то не так — код ошибки: <code>#ЧИСЛО!</code>, <code>#ИМЯ?</code>, <code>#ЗНАЧ!</code>.</p></div>
       </div>
@@ -452,7 +452,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Что это</th><th>Нужен?</th></tr><tr><td><code>число1</code></td><td>первое слагаемое: число, ячейка (A1) или диапазон (A1:A5)</td><td>да</td></tr><tr><td><code>число2; …</code></td><td>ещё слагаемые через «;». Квадратные скобки в синтаксисе значат «можно не писать»</td><td>нет</td></tr></table></div>
       <h3>Как записывают диапазоны</h3><div class="tablewrap"><table class="th-args"><tr><th>Запись</th><th>Какие ячейки</th><th></th></tr><tr><td><code>A1:A5</code></td><td>столбик: 5 ячеек от A1 вниз до A5</td><td>—</td></tr><tr><td><code>A1:D1</code></td><td>строка: 4 ячейки от A1 вправо до D1</td><td>—</td></tr><tr><td><code>A1:B3</code></td><td>прямоугольник: 2 столбца × 3 строки = 6 ячеек</td><td>—</td></tr><tr><td><code>A1:A3;C1:C3</code></td><td>две отдельные группы ячеек</td><td>—</td></tr></table></div>
       <h3>Примеры</h3>
-      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке D7.</p>
+      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке H10.</p>
       <div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><button type="button" class="tryf" data-f="=СУММ(2;3;5)" title="Открыть в таблице ниже">=СУММ(2;3;5)</button></td><td class="r">10</td><td>2 + 3 + 5</td></tr><tr><td><button type="button" class="tryf" data-f="=СУММ(10;-4)" title="Открыть в таблице ниже">=СУММ(10;-4)</button></td><td class="r">6</td><td>10 + (−4) = 6: минус уменьшает сумму</td></tr><tr><td><button type="button" class="tryf" data-f="=СУММ(1,5;2,5)" title="Открыть в таблице ниже">=СУММ(1,5;2,5)</button></td><td class="r">4</td><td>дробная часть пишется через запятую</td></tr><tr><td><code>=СУММ(A1:A5)</code></td><td class="r">сумма 5 ячеек</td><td>A1 + A2 + A3 + A4 + A5</td></tr><tr><td><code>=СУММ(A1:A3;C1:C3)</code></td><td class="r">сумма 6 ячеек</td><td>две группы ячеек через «;»</td></tr></table></div>
       <h3>Важно знать</h3>
       <ul><li><b>Пустые ячейки и текст</b> внутри диапазона СУММ пропускает: подпись «Итого» не испортит сумму.</li><li>Если поменять число в ячейке, СУММ <b>пересчитается сама</b>. Поэтому лучше писать адреса ячеек, а не сами числа.</li><li>Быстрый способ: кнопка <b>Σ Автосумма</b> на вкладке «Главная» сама вставляет СУММ и предлагает диапазон.</li><li>Частая ошибка: <code>=A1+A2+A3+A4+A5</code> тоже работает, но для 100 ячеек это неудобно. <code>=СУММ(A1:A100)</code> короче.</li></ul>
@@ -476,7 +476,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Что это</th><th>Нужен?</th></tr><tr><td><code>число</code></td><td>одно число, ячейка или выражение, например A1-B1</td><td>да</td></tr></table></div>
       
       <h3>Примеры</h3>
-      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке D7.</p>
+      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке H10.</p>
       <div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><button type="button" class="tryf" data-f="=ABS(-15)" title="Открыть в таблице ниже">=ABS(-15)</button></td><td class="r">15</td><td>минус убирается</td></tr><tr><td><button type="button" class="tryf" data-f="=ABS(15)" title="Открыть в таблице ниже">=ABS(15)</button></td><td class="r">15</td><td>положительное число не меняется</td></tr><tr><td><button type="button" class="tryf" data-f="=ABS(0)" title="Открыть в таблице ниже">=ABS(0)</button></td><td class="r">0</td><td>модуль нуля — ноль</td></tr><tr><td><button type="button" class="tryf" data-f="=ABS(3-10)" title="Открыть в таблице ниже">=ABS(3-10)</button></td><td class="r">7</td><td>сначала 3 − 10 = −7, потом модуль</td></tr><tr><td><button type="button" class="tryf" data-f="=ABS(-2,5)" title="Открыть в таблице ниже">=ABS(-2,5)</button></td><td class="r">2,5</td><td>с дробями работает так же</td></tr></table></div>
       <h3>Важно знать</h3>
       <ul><li>У ABS <b>ровно один</b> аргумент. <code>=ABS(-3;-5)</code> — ошибка.</li><li>Результат ABS <b>никогда не бывает отрицательным</b>.</li><li>Главное применение — <b>разница без знака</b>: <code>=ABS(A1-B1)</code> показывает, насколько числа отличаются, неважно, какое больше.</li><li>Если в ячейке текст, ABS выдаст ошибку <code>#ЗНАЧ!</code>.</li></ul>
@@ -502,7 +502,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Что это</th><th>Нужен?</th></tr><tr><td><code>число</code></td><td>число, из которого извлекаем корень; должно быть не меньше нуля</td><td>да</td></tr></table></div>
       
       <h3>Примеры</h3>
-      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке D7.</p>
+      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке H10.</p>
       <div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><button type="button" class="tryf" data-f="=КОРЕНЬ(81)" title="Открыть в таблице ниже">=КОРЕНЬ(81)</button></td><td class="r">9</td><td>9 · 9 = 81</td></tr><tr><td><button type="button" class="tryf" data-f="=КОРЕНЬ(2)" title="Открыть в таблице ниже">=КОРЕНЬ(2)</button></td><td class="r">≈ 1,4142</td><td>корень не всегда целый; таблица покажет дробь</td></tr><tr><td><button type="button" class="tryf" data-f="=КОРЕНЬ(0)" title="Открыть в таблице ниже">=КОРЕНЬ(0)</button></td><td class="r">0</td><td>0 · 0 = 0</td></tr><tr><td><button type="button" class="tryf" data-f="=КОРЕНЬ(-1)" title="Открыть в таблице ниже">=КОРЕНЬ(-1)</button></td><td class="r">#ЧИСЛО!</td><td>из отрицательного числа корень не извлекается</td></tr><tr><td><button type="button" class="tryf" data-f="=КОРЕНЬ(ABS(-49))" title="Открыть в таблице ниже">=КОРЕНЬ(ABS(-49))</button></td><td class="r">7</td><td>ABS убрал минус, потом корень</td></tr><tr><td><button type="button" class="tryf" data-f="=КОРЕНЬ(3*3+4*4)" title="Открыть в таблице ниже">=КОРЕНЬ(3*3+4*4)</button></td><td class="r">5</td><td>теорема Пифагора: гипотенуза при катетах 3 и 4</td></tr></table></div>
       <h3>Важно знать</h3>
       <ul><li>Таблица всегда возвращает <b>положительный</b> корень: <code>=КОРЕНЬ(9)</code> = 3, а не −3.</li><li>Отрицательное число внутри даёт ошибку <code>#ЧИСЛО!</code>. Исправление — <code>=КОРЕНЬ(ABS(A1))</code>.</li><li>Корень можно получить и через степень: <code>=СТЕПЕНЬ(16;0,5)</code> тоже равно 4.</li><li>Полезно помнить квадраты: 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144 — корни из них целые.</li></ul>
@@ -528,7 +528,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Что это</th><th>Нужен?</th></tr><tr><td><code>число</code></td><td>основание — что умножаем</td><td>да</td></tr><tr><td><code>степень</code></td><td>показатель — сколько раз число стоит в произведении</td><td>да</td></tr></table></div>
       
       <h3>Примеры</h3>
-      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке D7.</p>
+      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке H10.</p>
       <div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><button type="button" class="tryf" data-f="=СТЕПЕНЬ(2;3)" title="Открыть в таблице ниже">=СТЕПЕНЬ(2;3)</button></td><td class="r">8</td><td>2 · 2 · 2</td></tr><tr><td><button type="button" class="tryf" data-f="=СТЕПЕНЬ(3;2)" title="Открыть в таблице ниже">=СТЕПЕНЬ(3;2)</button></td><td class="r">9</td><td>3 · 3 — порядок аргументов важен</td></tr><tr><td><button type="button" class="tryf" data-f="=СТЕПЕНЬ(5;0)" title="Открыть в таблице ниже">=СТЕПЕНЬ(5;0)</button></td><td class="r">1</td><td>любое число, кроме нуля, в степени 0 равно 1</td></tr><tr><td><button type="button" class="tryf" data-f="=СТЕПЕНЬ(2;-1)" title="Открыть в таблице ниже">=СТЕПЕНЬ(2;-1)</button></td><td class="r">0,5</td><td>отрицательная степень: 1 / 2</td></tr><tr><td><button type="button" class="tryf" data-f="=СТЕПЕНЬ(16;0,5)" title="Открыть в таблице ниже">=СТЕПЕНЬ(16;0,5)</button></td><td class="r">4</td><td>степень 0,5 — это квадратный корень</td></tr><tr><td><code>=2^3</code></td><td class="r">8</td><td>знак ^ делает то же, что СТЕПЕНЬ</td></tr></table></div>
       <h3>Важно знать</h3>
       <ul><li>Аргументы разделяются <b>точкой с запятой</b>: <code>=СТЕПЕНЬ(2;3)</code>. С запятой <code>=СТЕПЕНЬ(2,3)</code> таблица прочитает одно число 2,3 и выдаст ошибку.</li><li>Вместо функции можно писать знак <code>^</code>: <code>=A1^2</code> то же самое, что <code>=СТЕПЕНЬ(A1;2)</code>.</li><li><code>=СТЕПЕНЬ(0;0)</code> в Excel даёт ошибку <code>#ЧИСЛО!</code>.</li><li>Отрицательное число в дробной степени, например <code>=СТЕПЕНЬ(-8;0,5)</code>, тоже даёт <code>#ЧИСЛО!</code>.</li></ul>
@@ -554,7 +554,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Что это</th><th>Нужен?</th></tr><tr><td><code>диапазон</code></td><td>где проверяем условие, например A1:A6</td><td>да</td></tr><tr><td><code>условие</code></td><td>какие ячейки подходят; пишется в кавычках: "&gt;0", "еда"</td><td>да</td></tr><tr><td><code>диапазон_суммирования</code></td><td>откуда брать числа для сложения. Если не указан — складывается сам диапазон</td><td>нет</td></tr></table></div>
       <h3>Какие бывают условия</h3><div class="tablewrap"><table class="th-args"><tr><th>Условие</th><th>Что подходит</th><th>Знак</th></tr><tr><td><code>"&gt;0"</code></td><td>больше нуля</td><td>&gt;</td></tr><tr><td><code>"&lt;0"</code></td><td>меньше нуля</td><td>&lt;</td></tr><tr><td><code>"&gt;=500"</code></td><td>больше или равно 500</td><td>&gt;=</td></tr><tr><td><code>"&lt;=100"</code></td><td>меньше или равно 100</td><td>&lt;=</td></tr><tr><td><code>"&lt;&gt;0"</code></td><td>не равно нулю</td><td>&lt;&gt;</td></tr><tr><td><code>5 или "5"</code></td><td>ровно 5</td><td>=</td></tr><tr><td><code>"еда"</code></td><td>ячейка с текстом «еда»</td><td>текст</td></tr></table></div>
       <h3>Примеры</h3>
-      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке D7.</p>
+      <p class="small-note">Нажми на формулу — она появится в таблице ниже, в ячейке H10.</p>
       <div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><code>=СУММЕСЛИ(A1:A6;"&gt;0")</code></td><td class="r">сумма положительных</td><td>берём только числа больше нуля</td></tr><tr><td><code>=СУММЕСЛИ(A1:A6;"&lt;0")</code></td><td class="r">сумма отрицательных</td><td>только числа меньше нуля</td></tr><tr><td><code>=СУММЕСЛИ(A1:A6;"&gt;=500")</code></td><td class="r">сумма чисел от 500</td><td>500 тоже подходит: знак ≥</td></tr><tr><td><code>=СУММЕСЛИ(A1:A5;"еда";B1:B5)</code></td><td class="r">сумма из B, где в A «еда»</td><td>проверяем столбец A, складываем столбец B</td></tr></table></div>
       <h3>Важно знать</h3>
       <ul><li>Условие <b>всегда в кавычках</b>, если в нём есть знак сравнения или текст: <code>"&gt;0"</code>, <code>"еда"</code>.</li><li>Для текста большие и маленькие буквы не различаются: «Еда» и «еда» — одно и то же.</li><li><code>диапазон</code> и <code>диапазон_суммирования</code> должны быть <b>одинакового размера</b>: A1:A5 и B1:B5.</li><li>Примеры с диапазонами попробуй в таблице ниже: «Карманные деньги» и «По категориям».</li></ul>
@@ -841,7 +841,7 @@ document.getElementById("fNext").addEventListener("click", () => {
 });
 
 /* Мини-таблица как в Excel: формулы СУММ, ABS, КОРЕНЬ, СТЕПЕНЬ, СУММЕСЛИ */
-const XL_COLS = ["A", "B", "C", "D"];
+const XL_COLS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 const XL_EN = { SUM: "СУММ", SQRT: "КОРЕНЬ", POWER: "СТЕПЕНЬ", SUMIF: "СУММЕСЛИ" };
 const XL_ERR = {
   "#ЧИСЛО!": "Ошибка #ЧИСЛО!: из отрицательного числа нельзя извлечь квадратный корень.",
@@ -1092,6 +1092,21 @@ const XL_ARGS = { "СУММ": "хотя бы одно значение", "ABS": 
 
 const XL_SHEETS = {
   sum: [
+    { name: "Три магазина", text: "Цены в трёх магазинах. Строка 7 складывает столбец (магазин), столбец E — строку (товар), E7 — весь прямоугольник B2:D6.",
+      cells: { A1: "Товар", B1: "Магазин 1", C1: "Магазин 2", D1: "Магазин 3", E1: "Всего",
+        A2: "Хлеб", B2: "250", C2: "230", D2: "270", A3: "Молоко", B3: "480", C3: "450", D3: "500", A4: "Яблоки", B4: "900", C4: "850", D4: "950",
+        A5: "Сыр", B5: "1500", C5: "1400", D5: "1650", A6: "Вода", B6: "200", C6: "180", D6: "220",
+        E2: "=СУММ(B2:D2)", E3: "=СУММ(B3:D3)", E4: "=СУММ(B4:D4)", E5: "=СУММ(B5:D5)", E6: "=СУММ(B6:D6)",
+        A7: "Итого", B7: "=СУММ(B2:B6)", C7: "=СУММ(C2:C6)", D7: "=СУММ(D2:D6)", E7: "=СУММ(B2:D6)" },
+      sel: "B7", rand: { keys: ["B2", "B3", "B4", "B5", "B6", "C2", "C3", "C4", "C5", "C6", "D2", "D3", "D4", "D5", "D6"], min: 100, max: 2000, step: 10 } },
+    { name: "Журнал баллов", text: "Баллы учеников за пять заданий (B–F). В столбце G — сумма по каждому ученику, в строке 7 — по каждому заданию.",
+      cells: { A1: "Ученик", B1: "Зад. 1", C1: "Зад. 2", D1: "Зад. 3", E1: "Зад. 4", F1: "Зад. 5", G1: "Сумма",
+        A2: "Айдана", B2: "8", C2: "10", D2: "7", E2: "9", F2: "10", A3: "Тимур", B3: "6", C3: "9", D3: "8", E3: "7", F3: "5",
+        A4: "Дана", B4: "10", C4: "10", D4: "9", E4: "8", F4: "10", A5: "Арман", B5: "7", C5: "6", D5: "9", E5: "10", F5: "8",
+        A6: "Мадина", B6: "9", C6: "8", D6: "10", E6: "6", F6: "9",
+        G2: "=СУММ(B2:F2)", G3: "=СУММ(B3:F3)", G4: "=СУММ(B4:F4)", G5: "=СУММ(B5:F5)", G6: "=СУММ(B6:F6)",
+        A7: "По заданию", B7: "=СУММ(B2:B6)", C7: "=СУММ(C2:C6)", D7: "=СУММ(D2:D6)", E7: "=СУММ(E2:E6)", F7: "=СУММ(F2:F6)", G7: "=СУММ(B2:F6)" },
+      sel: "G2", rand: { keys: ["B2", "B3", "B4", "B5", "B6", "C2", "C3", "C4", "C5", "C6", "D2", "D3", "D4", "D5", "D6", "E2", "E3", "E4", "E5", "E6", "F2", "F3", "F4", "F5", "F6"], min: 0, max: 10 } },
     { name: "Покупки", text: "Сколько стоит вся корзина? Формула в B6 складывает цены из B1:B5.",
       cells: { A1: "Хлеб", B1: "250", A2: "Молоко", B2: "480", A3: "Яблоки", B3: "900", A4: "Сыр", B4: "1500", A5: "Вода", B5: "200", A6: "Итого", B6: "=СУММ(B1:B5)" },
       sel: "B6", rand: { keys: ["B1", "B2", "B3", "B4", "B5"], min: 100, max: 2000, step: 10 } },
@@ -1106,6 +1121,14 @@ const XL_SHEETS = {
       sel: "C1", rand: { keys: ["A1", "A2", "A3", "B1", "B2"], min: 1, max: 50 } }
   ],
   abs: [
+    { name: "Неделя температур", text: "Температура утром и вечером за неделю. Строка 4 — простая разница (бывает с минусом), строка 5 — изменение через ABS.",
+      cells: { A1: "День", B1: "Пн", C1: "Вт", D1: "Ср", E1: "Чт", F1: "Пт", G1: "Сб", H1: "Вс",
+        A2: "Утром", B2: "-3", C2: "2", D2: "5", E2: "-1", F2: "4", G2: "8", H2: "6",
+        A3: "Вечером", B3: "4", C3: "-2", D3: "9", E3: "-6", F3: "4", G3: "3", H3: "10",
+        A4: "Разница", B4: "=B3-B2", C4: "=C3-C2", D4: "=D3-D2", E4: "=E3-E2", F4: "=F3-F2", G4: "=G3-G2", H4: "=H3-H2",
+        A5: "Изменение", B5: "=ABS(B3-B2)", C5: "=ABS(C3-C2)", D5: "=ABS(D3-D2)", E5: "=ABS(E3-E2)", F5: "=ABS(F3-F2)", G5: "=ABS(G3-G2)", H5: "=ABS(H3-H2)",
+        A6: "За неделю", B6: "=СУММ(B5:H5)" },
+      sel: "B5", rand: { keys: ["B2", "B3", "C2", "C3", "D2", "D3", "E2", "E3", "F2", "F3", "G2", "G3", "H2", "H3"], min: -15, max: 20 } },
     { name: "Модуль числа", text: "В столбце B — модуль чисел из столбца A. Минус исчезает, плюс остаётся.",
       cells: { A1: "-7", B1: "=ABS(A1)", A2: "15", B2: "=ABS(A2)", A3: "0", B3: "=ABS(A3)", A4: "-2,5", B4: "=ABS(A4)" },
       sel: "B1", rand: { keys: ["A1", "A2", "A3", "A4"], min: -50, max: 50 } },
@@ -1117,6 +1140,11 @@ const XL_SHEETS = {
       sel: "C2", rand: { keys: ["B1", "B2", "B3", "B4"], min: 1, max: 100 } }
   ],
   root: [
+    { name: "Таблица корней", text: "В строке 1 — числа, в строке 2 — их корни. Найди, где корень получается целым.",
+      cells: { A1: "Число", B1: "1", C1: "4", D1: "10", E1: "25", F1: "50", G1: "81", H1: "144",
+        A2: "Корень", B2: "=КОРЕНЬ(B1)", C2: "=КОРЕНЬ(C1)", D2: "=КОРЕНЬ(D1)", E2: "=КОРЕНЬ(E1)", F2: "=КОРЕНЬ(F1)", G2: "=КОРЕНЬ(G1)", H2: "=КОРЕНЬ(H1)",
+        A3: "Проверка", B3: "=B2*B2", C3: "=C2*C2", D3: "=D2*D2", E3: "=E2*E2", F3: "=F2*F2", G3: "=G2*G2", H3: "=H2*H2" },
+      sel: "B2", rand: { keys: ["B1", "C1", "D1", "E1", "F1", "G1", "H1"], min: 1, max: 200 } },
     { name: "Корень числа", text: "В столбце B — квадратный корень из чисел столбца A. Посмотри, что будет с −9.",
       cells: { A1: "25", B1: "=КОРЕНЬ(A1)", A2: "49", B2: "=КОРЕНЬ(A2)", A3: "2", B3: "=КОРЕНЬ(A3)", A4: "-9", B4: "=КОРЕНЬ(A4)" },
       sel: "B1", rand: { keys: ["A1", "A2", "A3"], pick: [1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 2, 10, 50] } },
@@ -1131,6 +1159,12 @@ const XL_SHEETS = {
       sel: "B2", rand: { keys: ["A1"], pick: [-4, -9, -16, -25, -36, -49, -64, -81, -100] } }
   ],
   pow: [
+    { name: "Таблица степеней", text: "В строке 1 — показатель степени. Ниже — степени чисел 2, 3 и 10. Сравни, как быстро растут числа.",
+      cells: { A1: "Степень", B1: "0", C1: "1", D1: "2", E1: "3", F1: "4", G1: "5", H1: "6",
+        A2: "2", B2: "=СТЕПЕНЬ(A2;B1)", C2: "=СТЕПЕНЬ(A2;C1)", D2: "=СТЕПЕНЬ(A2;D1)", E2: "=СТЕПЕНЬ(A2;E1)", F2: "=СТЕПЕНЬ(A2;F1)", G2: "=СТЕПЕНЬ(A2;G1)", H2: "=СТЕПЕНЬ(A2;H1)",
+        A3: "3", B3: "=СТЕПЕНЬ(A3;B1)", C3: "=СТЕПЕНЬ(A3;C1)", D3: "=СТЕПЕНЬ(A3;D1)", E3: "=СТЕПЕНЬ(A3;E1)", F3: "=СТЕПЕНЬ(A3;F1)", G3: "=СТЕПЕНЬ(A3;G1)", H3: "=СТЕПЕНЬ(A3;H1)",
+        A4: "10", B4: "=СТЕПЕНЬ(A4;B1)", C4: "=СТЕПЕНЬ(A4;C1)", D4: "=СТЕПЕНЬ(A4;D1)", E4: "=СТЕПЕНЬ(A4;E1)", F4: "=СТЕПЕНЬ(A4;F1)", G4: "=СТЕПЕНЬ(A4;G1)", H4: "=СТЕПЕНЬ(A4;H1)" },
+      sel: "E2", rand: { keys: ["A2", "A3", "A4"], min: 2, max: 9 } },
     { name: "Число и степень", text: "A — число, B — степень, C — результат. Обрати внимание на степень 0.",
       cells: { A1: "2", B1: "3", C1: "=СТЕПЕНЬ(A1;B1)", A2: "3", B2: "2", C2: "=СТЕПЕНЬ(A2;B2)", A3: "10", B3: "0", C3: "=СТЕПЕНЬ(A3;B3)", A4: "5", B4: "1", C4: "=СТЕПЕНЬ(A4;B4)" },
       sel: "C1", rand: { keys: ["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"], min: 0, max: 6 } },
@@ -1142,6 +1176,13 @@ const XL_SHEETS = {
       sel: "B6", rand: { keys: ["A2", "A3", "A4", "A5", "A6"], min: 1, max: 20 } }
   ],
   sif: [
+    { name: "Расходы за 3 недели", text: "Расходы по категориям за три недели (B–D). В строках 8–9 СУММЕСЛИ отдельно для каждой недели считает еду и игры.",
+      cells: { A1: "Категория", B1: "Неделя 1", C1: "Неделя 2", D1: "Неделя 3",
+        A2: "еда", B2: "800", C2: "650", D2: "900", A3: "транспорт", B3: "250", C3: "300", D3: "250", A4: "еда", B4: "1200", C4: "900", D4: "1100",
+        A5: "игры", B5: "2000", C5: "0", D5: "1500", A6: "еда", B6: "400", C6: "550", D6: "300",
+        A8: "Еда", B8: "=СУММЕСЛИ(A2:A6;\"еда\";B2:B6)", C8: "=СУММЕСЛИ(A2:A6;\"еда\";C2:C6)", D8: "=СУММЕСЛИ(A2:A6;\"еда\";D2:D6)", E8: "=СУММ(B8:D8)",
+        A9: "Игры", B9: "=СУММЕСЛИ(A2:A6;\"игры\";B2:B6)", C9: "=СУММЕСЛИ(A2:A6;\"игры\";C2:C6)", D9: "=СУММЕСЛИ(A2:A6;\"игры\";D2:D6)", E9: "=СУММ(B9:D9)", E7: "За 3 недели" },
+      sel: "B8", rand: { keys: ["B2", "B3", "B4", "B5", "B6", "C2", "C3", "C4", "C5", "C6", "D2", "D3", "D4", "D5", "D6"], min: 0, max: 2500, step: 50 } },
     { name: "Карманные деньги", text: "«+» получил, «−» потратил. D1 считает только полученное, D2 — только потраченное.",
       cells: { A1: "500", A2: "-200", A3: "300", A4: "-150", A5: "1000", A6: "-50", C1: "Получил", D1: "=СУММЕСЛИ(A1:A6;\">0\")", C2: "Потратил", D2: "=СУММЕСЛИ(A1:A6;\"<0\")" },
       sel: "D1", rand: { keys: ["A1", "A2", "A3", "A4", "A5", "A6"], min: -1000, max: 1000, step: 50 } },
@@ -1161,7 +1202,7 @@ const XL_SHEETS = {
 };
 
 function xlMount(root, examples) {
-  const ROWS = 7;
+  const ROWS = 10;
   const S = { cells: {}, cache: new Map(), sel: "A1", ex: 0, timer: null };
   root.innerHTML = `
     <div class="xl-top">
@@ -1349,7 +1390,7 @@ function xlMount(root, examples) {
       select(S.sel[0] + Math.min(r + 1, ROWS));
     }
   });
-  root.xlTry = f => { stopPlay(); S.cells.D7 = f; recalc(); select("D7"); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  root.xlTry = f => { stopPlay(); S.cells.H10 = f; recalc(); select("H10"); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
   load(0);
 }
 document.addEventListener("click", e => {
