@@ -2189,6 +2189,10 @@ function renderDescMine(box) {
   box.querySelector(".desc-sum").textContent = `Достигнуто дескрипторов: ${got} из ${st.length}.`;
 }
 window.__descStatus = descStatus;
+window.__prNow = () => {
+  const d = store.get("practice-l1", {}), t = [...TASKS_CELL, ...TASKS_PR].find(x => !(d[x.id] && (d[x.id].ever || d[x.id].ok)));
+  return t ? `${t.lv} · ${t.id}` : "всё решено";
+};
 
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
 const REF_KEY = "reflect-l1";
@@ -2287,7 +2291,7 @@ buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
 render();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
-window.__lessonInfo = { matchN: MT_CASES.length, Z: TASKS_CELL.map(t => t.id),
+window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, Z: TASKS_CELL.map(t => t.id),
   A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
 
 }
@@ -2312,6 +2316,9 @@ function lessonSummary() {
     z: cnt(info.Z), a: cnt(info.A), b: cnt(info.B), c: cnt(info.C),
     expOk: rf ? EXP[rf.exp] || "" : "", r0: rf ? MARK[rf.res[0]] || "" : "", r1: rf ? MARK[rf.res[1]] || "" : "", r2: rf ? MARK[rf.res[2]] || "" : "",
     use: rf ? rf.use || "" : "", note: rf ? rf.note || "" : "",
+    act: (() => { const a = Object.values(g("actual-l1") || {}); return a.filter(x => x && x.ok).length + "/" + info.actN; })(),
+    actFirst: Object.values(g("actual-l1") || {}).filter(x => x && x.first).length,
+    now: window.__prNow(),
     desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
   };
 }
@@ -2320,8 +2327,8 @@ function syncNow() { if (!me) return; gsr("saveProgress", lessonSummary()).then(
 function setNet(ok) { const n = document.getElementById("netState"); if (n) { n.textContent = ok ? "связь с учителем есть" : "нет связи — ответы отправятся позже"; n.className = "net " + (ok ? "on" : "off"); } }
 
 /* Вход: ученик сам вписывает класс, фамилию и имя */
-const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х" };
-function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[ABCEHKMOPTX]/g, ch => LAT2CYR[ch]); }
+const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", F: "Ф", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
+function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[A-Z]/g, ch => LAT2CYR[ch] || ch); }
 function normName(v) { return v.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" "); }
 function loginUI() {
   const ov = document.getElementById("login"), body = document.getElementById("loginBody");

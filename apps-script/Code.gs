@@ -7,7 +7,7 @@
 
 const SHEETS = {
   roster:   { name: "Ученики",   head: ["Класс", "Ученик"] },
-  progress: { name: "Прогресс",  head: ["ID", "Класс", "Ученик", "Этап", "Ожидания", "Какая функция", "С первой попытки", "Разминка «Ячейки»", "Уровень A", "Уровень B", "Уровень C", "Ожидания оправдались", "Все учащиеся", "Большинство", "Некоторые", "Где пригодится", "Комментарий", "Обновлено", "Дескрипторы"] },
+  progress: { name: "Прогресс",  head: ["ID", "Класс", "Ученик", "Этап", "Ожидания", "Какая функция", "С первой попытки", "Разминка «Ячейки»", "Уровень A", "Уровень B", "Уровень C", "Ожидания оправдались", "Все учащиеся", "Большинство", "Некоторые", "Где пригодится", "Комментарий", "Обновлено", "Дескрипторы", "Вспомним", "Вспомним с 1-й попытки", "Сейчас на"] },
   attempts: { name: "Попытки",   head: ["Время", "Класс", "Ученик", "Этап", "Задание", "Ответ", "Верно", "Подсказка ученику"] },
   board:    { name: "Доска",     head: ["Время", "ID вопроса", "Вопрос", "Класс", "Ученик", "Ответ"] },
   settings: { name: "Настройки", head: ["Параметр", "Значение"] }
@@ -76,17 +76,18 @@ function withLock_(fn) {
 function getRoster() {
   const map = {};
   rows_("roster").forEach(function (r) {
-    const c = String(r[0]).trim(), s = String(r[1]).trim();
+    const c = normClass_(r[0]), s = normName_(r[1]);
     if (c && s) (map[c] = map[c] || []).push(s);
   });
   Object.keys(map).forEach(function (c) { map[c].sort(function (a, b) { return a.localeCompare(b, "ru"); }); });
   return map;
 }
 
-/** Класс к виду «8А» (латинские A, B, C… → русские), имя — с заглавных букв. */
+/** Класс к виду «8А»: латинская буква → русская (A → А, F → Ф…), имя — с заглавных букв. */
 function normClass_(v) {
-  const map = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х" };
-  return String(v || "").toUpperCase().replace(/\s+/g, "").replace(/[ABCEHKMOPTX]/g, function (ch) { return map[ch]; }).slice(0, 20);
+  const map = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х",
+    D: "Д", F: "Ф", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
+  return String(v || "").toUpperCase().replace(/\s+/g, "").replace(/[A-Z]/g, function (ch) { return map[ch] || ch; }).slice(0, 20);
 }
 function normName_(v) {
   return String(v || "").trim().replace(/\s+/g, " ").split(" ").map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(" ").slice(0, 80);
@@ -144,7 +145,7 @@ function saveProgress(p) {
   if (!id) return false;
   const row = [id, clean_(p.cls, 20), clean_(p.name, 80), clean_(p.stage, 40), clean_(p.expect, 500),
     clean_(p.match, 10), Number(p.matchFirst) || 0, clean_(p.z, 10), clean_(p.a, 10), clean_(p.b, 10), clean_(p.c, 10),
-    clean_(p.expOk, 20), clean_(p.r0, 20), clean_(p.r1, 20), clean_(p.r2, 20), clean_(p.use, 500), clean_(p.note, 500), new Date(), clean_(p.desc, 60)];
+    clean_(p.expOk, 20), clean_(p.r0, 20), clean_(p.r1, 20), clean_(p.r2, 20), clean_(p.use, 500), clean_(p.note, 500), new Date(), clean_(p.desc, 60), clean_(p.act, 10), Number(p.actFirst) || 0, clean_(p.now, 30)];
   withLock_(function () {
     const sh = sheet_("progress");
     const n = sh.getLastRow();
@@ -223,28 +224,104 @@ function getTeacherData(pin, qid, since) {
   if (q && !seen[q.id]) questions.unshift({ id: q.id, text: q.text });
   const want = qid || (q ? q.id : (questions[0] && questions[0].id));
   const answers = board.filter(function (r) { return String(r[1]) === want; })
-    .map(function (r) { return { t: time_(r[0]), cls: String(r[3]), name: String(r[4]), text: String(r[5]) }; });
+    .map(function (r) { return { t: time_(r[0]), cls: normClass_(r[3]), name: String(r[4]), text: String(r[5]) }; });
   const att = rows_("attempts");
-  const attempts = att.slice(Math.max(0, att.length - 400)).map(function (r) {
-    return { t: time_(r[0]), cls: String(r[1]), name: String(r[2]), stage: String(r[3]), task: String(r[4]), answer: String(r[5]), ok: r[6] === "да", note: String(r[7]) };
+  const attempts = att.slice(Math.max(0, att.length - 3000)).map(function (r) {
+    return { t: time_(r[0]), cls: normClass_(r[1]), name: String(r[2]), stage: String(r[3]), task: String(r[4]), answer: String(r[5]), ok: r[6] === "да", note: String(r[7]) };
   });
   const now = Date.now();
   const progress = rows_("progress").map(function (r) {
     const upd = r[17] instanceof Date ? r[17].getTime() : 0;
-    return { cls: String(r[1]), name: String(r[2]), stage: String(r[3]), expect: String(r[4]), match: String(r[5]), matchFirst: r[6],
+    return { cls: normClass_(r[1]), name: String(r[2]), stage: String(r[3]), expect: String(r[4]), match: String(r[5]), matchFirst: r[6],
       z: String(r[7]), a: String(r[8]), b: String(r[9]), c: String(r[10]), expOk: String(r[11]), r0: String(r[12]), r1: String(r[13]), r2: String(r[14]),
-      use: String(r[15]), note: String(r[16]), t: time_(r[17]), desc: String(r[18] || ""), online: now - upd < 150000 };
+      use: String(r[15]), note: String(r[16]), t: time_(r[17]), date: r[17] instanceof Date ? Utilities.formatDate(r[17], Session.getScriptTimeZone(), "dd.MM.yyyy") : "", desc: String(r[18] || ""), act: String(r[19] || ""), actFirst: r[20] || 0, now: String(r[21] || ""), online: now - upd < 150000 };
   });
-  return { q: q, want: want, questions: questions, answers: answers, attempts: attempts, progress: progress, roster: getRoster() };
+  const allAnswers = board.slice(Math.max(0, board.length - 2000)).map(function (r) { return { t: time_(r[0]), q: String(r[2]), cls: normClass_(r[3]), name: String(r[4]), text: String(r[5]) }; });
+  return { q: q, want: want, questions: questions, answers: answers, allAnswers: allAnswers, attempts: attempts, progress: progress, roster: getRoster() };
 }
 
-/** Очистить ответы и попытки перед новым уроком (список учеников остаётся). */
-function clearLessonData(pin) {
+/* ---------- PDF-отчёты по ученикам ---------- */
+
+const DESC_ = [
+  ["Д1", "определяет адрес ячейки и диапазона", "Все"],
+  ["Д2", "выбирает функцию, подходящую для ситуации", "Все"],
+  ["Д3", "вычисляет сумму и модуль с помощью СУММ() и ABS()", "Все"],
+  ["Д4", "применяет КОРЕНЬ() и СТЕПЕНЬ(), правильно записывая аргументы", "Большинство"],
+  ["Д5", "суммирует значения по условию с помощью СУММЕСЛИ()", "Некоторые"],
+  ["Д6", "составляет формулу из нескольких вложенных функций", "Некоторые"]
+];
+
+function esc_(v) {
+  return String(v === null || v === undefined ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function folder_(cls) {
+  const props = PropertiesService.getScriptProperties();
+  let root = null;
+  const id = props.getProperty("PDF_FOLDER");
+  if (id) { try { root = DriveApp.getFolderById(id); } catch (e) { root = null; } }
+  if (!root) { root = DriveApp.createFolder("Урок «Математические функции» — отчёты"); props.setProperty("PDF_FOLDER", root.getId()); }
+  const it = root.getFoldersByName(cls);
+  return { root: root, cls: it.hasNext() ? it.next() : root.createFolder(cls) };
+}
+
+function studentHtml_(p, attempts, answers) {
+  const desc = String(p[18] || "");
+  const got = desc.indexOf(":") >= 0 ? desc.split(":")[1].trim().split(" ") : [];
+  const row = function (k, v) { return "<tr><th>" + esc_(k) + "</th><td>" + esc_(v) + "</td></tr>"; };
+  const bad = attempts.filter(function (a) { return a[6] !== "да"; });
+  let h = "<html><head><meta charset='utf-8'><style>body{font-family:Arial,sans-serif;font-size:11pt;color:#16212a}h1{font-size:18pt;margin:0 0 4pt}h2{font-size:13pt;margin:14pt 0 6pt;color:#1d7652}"
+    + "table{border-collapse:collapse;width:100%}th,td{border:1px solid #c9d3d9;padding:4pt 6pt;text-align:left;vertical-align:top}th{background:#eef2f4;width:38%}"
+    + ".ok{color:#1d7652;font-weight:bold}.no{color:#b3372b}.small{color:#5a6a76;font-size:9pt}</style></head><body>";
+  h += "<h1>" + esc_(p[2]) + ", " + esc_(p[1]) + "</h1><p class='small'>Урок «Математические функции» · 8 класс · отчёт сформирован " + esc_(Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd.MM.yyyy HH:mm")) + "</p>";
+  h += "<h2>Результаты урока</h2><table>" + row("Последний этап", p[3]) + row("Вспомним (актуализация)", (p[19] || "—") + ", с первой попытки: " + (p[20] || 0))
+    + row("Какая функция?", (p[5] || "—") + ", с первой попытки: " + (p[6] || 0)) + row("Разминка «Ячейки»", p[7]) + row("Уровень A", p[8]) + row("Уровень B", p[9]) + row("Уровень C", p[10])
+    + row("Сейчас на", p[21]) + "</table>";
+  h += "<h2>Критерии оценивания: дескрипторы</h2><table><tr><th>Дескриптор</th><td><b>Результат</b></td></tr>";
+  DESC_.forEach(function (d) { const ok = got.indexOf(d[0]) >= 0; h += "<tr><th>" + d[0] + " " + esc_(d[1]) + " (" + d[2] + ")</th><td class='" + (ok ? "ok" : "no") + "'>" + (ok ? "достигнут" : "пока нет") + "</td></tr>"; });
+  h += "</table>";
+  h += "<h2>Ожидания и самооценка</h2><table>" + row("Мои ожидания", p[4]) + row("Ожидания оправдались", p[11]) + row("Все учащиеся", p[12]) + row("Большинство", p[13]) + row("Некоторые", p[14])
+    + row("Где пригодится", p[15]) + row("Комментарий", p[16]) + "</table>";
+  if (answers.length) {
+    h += "<h2>Ответы на вопросы учителя</h2><table>";
+    answers.forEach(function (a) { h += row(a[2], a[5]); });
+    h += "</table>";
+  }
+  h += "<h2>Ошибки на уроке (" + bad.length + " из " + attempts.length + " попыток)</h2>";
+  if (bad.length) {
+    h += "<table><tr><th>Задание</th><td><b>Ответ ученика и подсказка</b></td></tr>";
+    bad.forEach(function (a) { h += "<tr><th>" + esc_(a[3]) + " · " + esc_(a[4]) + "</th><td>" + esc_(a[5]) + (a[7] ? "<br><span class='small'>" + esc_(a[7]) + "</span>" : "") + "</td></tr>"; });
+    h += "</table>";
+  } else h += "<p>Ошибок нет.</p>";
+  return h + "</body></html>";
+}
+
+function makePdf_(cls, name) {
+  const p = rows_("progress").filter(function (r) { return normClass_(r[1]) === cls && String(r[2]) === name; })[0];
+  if (!p) throw new Error("У ученика " + name + " ещё нет данных.");
+  const attempts = rows_("attempts").filter(function (r) { return normClass_(r[1]) === cls && String(r[2]) === name; });
+  const answers = rows_("board").filter(function (r) { return normClass_(r[3]) === cls && String(r[4]) === name; });
+  const pdf = Utilities.newBlob(studentHtml_(p, attempts, answers), "text/html", name + ".html").getAs("application/pdf").setName(name + ".pdf");
+  const f = folder_(cls);
+  const old = f.cls.getFilesByName(name + ".pdf");
+  while (old.hasNext()) old.next().setTrashed(true);
+  return { file: f.cls.createFile(pdf), folder: f.cls };
+}
+
+/** PDF одного ученика — в папку «отчёты/класс» на Google Диске учителя. */
+function makeStudentPdf(pin, cls, name) {
   checkPin_(pin);
-  ["progress", "attempts", "board"].forEach(function (k) {
-    const sh = sheet_(k), n = sh.getLastRow();
-    if (n > 1) sh.deleteRows(2, n - 1);
-  });
-  setQuestion_(null);
-  return true;
+  const r = makePdf_(normClass_(cls), String(name));
+  return { url: r.file.getUrl(), folder: r.folder.getUrl() };
+}
+
+/** PDF для всех учеников класса, у которых есть данные. */
+function makeClassPdfs(pin, cls) {
+  checkPin_(pin);
+  cls = normClass_(cls);
+  const names = rows_("progress").filter(function (r) { return normClass_(r[1]) === cls; }).map(function (r) { return String(r[2]); });
+  if (!names.length) throw new Error("В классе " + cls + " ещё нет данных.");
+  let folder = null;
+  names.forEach(function (n) { folder = makePdf_(cls, n).folder; });
+  return { count: names.length, folder: folder.getUrl() };
 }
