@@ -323,6 +323,16 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .lv:disabled { opacity: .5; cursor: not-allowed; }
 .lv:disabled .lv-name::after { content: " · закрыто"; font-family: var(--f-body); font-weight: 400; font-size: .8rem; }
 #lvNext:disabled { opacity: .5; cursor: not-allowed; }
+.mt-list { display: grid; gap: 12px; }
+.mt-card { display: grid; gap: 10px; }
+.mt-card.done { border-color: var(--c); }
+.mt-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.mt-opt { font-family: var(--f-mono); font-size: .95rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; }
+.mt-opt:hover:not(:disabled) { border-color: var(--c); color: var(--c); }
+.mt-opt.ok { background: var(--c); border-color: var(--c); color: var(--surface); }
+.mt-opt.bad { border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.mt-opt:disabled:not(.ok) { opacity: .45; }
+.mt-done { border: 2px solid var(--c); }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -339,8 +349,9 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="true"><b>1</b>Разгадай тему</button>
     <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>2</b>Тема и цель</button>
     <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>3</b>Новая тема</button>
-    <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>4</b>Практика</button>
-    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>5</b>Итоги урока</button>
+    <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>4</b>Какая функция?</button>
+    <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>5</b>Практика</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>6</b>Итоги урока</button>
   </div>
 
   <!-- Этап 1: разгадать тему -->
@@ -650,7 +661,29 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     </div>
   </div>
 
-  <!-- Этап 4: практика -->
+  <!-- Этап 4: какая функция подходит -->
+  <div class="panel" id="match" role="tabpanel" aria-labelledby="tab-match" hidden>
+    <div>
+      <h1>Какая функция подходит?</h1>
+      <p class="lead">Прочитай ситуацию и выбери функцию, которая её решает. Если ошибёшься — увидишь, почему эта функция не подходит, и сможешь выбрать снова.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="mtBar"></i></div><span class="pnum" id="mtNum"></span></div>
+      <p class="small" id="mtFirst"></p>
+    </section>
+    <div class="mt-list" id="mtList"></div>
+    <section class="block mt-done" id="mtDone" hidden>
+      <h2>Итог</h2>
+      <p class="plain" id="mtDoneText"></p>
+      <button class="btn" type="button" id="mtRetry">Пройти ещё раз</button>
+    </section>
+    <div class="next">
+      <button class="btn" type="button" data-go="learn">← Новая тема</button>
+      <button class="btn main" type="button" data-go="practice">Дальше: практика →</button>
+    </div>
+  </div>
+
+  <!-- Этап 5: практика -->
   <div class="panel" id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
     <div>
       <h1>Практика</h1>
@@ -668,7 +701,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     </section>
     <div class="panel" id="prTasks"></div>
     <div class="next">
-      <button class="btn" type="button" data-go="learn">← Новая тема</button>
+      <button class="btn" type="button" data-go="match">← Какая функция?</button>
       <button class="btn" type="button" id="lvNext"></button>
       <button class="btn main" type="button" data-go="reflect">В конце урока: итоги →</button>
     </div>
@@ -867,7 +900,7 @@ function unlock() {
 
 function show(id) {
   if (id === "reflect") fillReflect();
-  ["puzzle", "goal", "learn", "practice", "reflect"].forEach(p => {
+  ["puzzle", "goal", "learn", "match", "practice", "reflect"].forEach(p => {
     document.getElementById(p).hidden = p !== id;
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
@@ -908,6 +941,7 @@ function showExp(text) {
   document.getElementById("afterExp").hidden = !has;
   document.getElementById("tab-reflect").disabled = !has;
   document.getElementById("tab-learn").disabled = !has;
+  document.getElementById("tab-match").disabled = !has;
   document.getElementById("tab-practice").disabled = !has;
   document.getElementById("toLearn").hidden = !has;
 }
@@ -920,12 +954,12 @@ function showCard(i) {
   document.querySelectorAll(".fcard").forEach(c => { c.hidden = +c.dataset.card !== i; });
   document.querySelectorAll(".fpill").forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
   document.getElementById("fPrev").textContent = i === 0 ? "← Тема и цель" : "← Назад";
-  document.getElementById("fNext").textContent = i === 5 ? "Дальше: практика →" : "Дальше: " + F_NAMES[i + 1] + " →";
+  document.getElementById("fNext").textContent = i === 5 ? "Дальше: какая функция? →" : "Дальше: " + F_NAMES[i + 1] + " →";
 }
 document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
 document.getElementById("fPrev").addEventListener("click", () => { if (fCur === 0) show("goal"); else showCard(fCur - 1); });
 document.getElementById("fNext").addEventListener("click", () => {
-  if (fCur === 5) { show("practice"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
+  if (fCur === 5) { show("match"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
 });
 
 /* Мини-таблица как в Excel: формулы СУММ, ABS, КОРЕНЬ, СТЕПЕНЬ, СУММЕСЛИ */
@@ -1895,6 +1929,82 @@ function prBuild() {
   prRender();
 }
 prBuild();
+
+
+/* Какая функция подходит: ситуации из жизни */
+const MT_KEY = "match-l1";
+const MT_FNS = ["СУММ", "ABS", "КОРЕНЬ", "СТЕПЕНЬ", "СУММЕСЛИ"];
+const MT_WHAT = {
+  "СУММ": "СУММ складывает все числа подряд, без выбора.",
+  "ABS": "ABS только убирает минус у одного числа.",
+  "КОРЕНЬ": "КОРЕНЬ находит число, которое в квадрате даёт данное, — например, сторону квадрата по площади.",
+  "СТЕПЕНЬ": "СТЕПЕНЬ умножает число само на себя несколько раз.",
+  "СУММЕСЛИ": "СУММЕСЛИ складывает только те числа, которые подходят под условие."
+};
+const MT_CASES = [
+  { q: "Кассир считает, сколько стоят все покупки в чеке.", a: "СУММ", why: "Нужно сложить все цены без исключения.", f: "=СУММ(B2:B10)" },
+  { q: "Днём было +12°, ночью −5°. На сколько градусов отличается температура? Неважно, где больше.", a: "ABS", why: "Разница 12 − (−5) или −5 − 12 может получиться с минусом, а нужно расстояние между числами.", f: "=ABS(B1-B2)" },
+  { q: "Площадь квадратного огорода — 64 м². Какой длины одна его сторона?", a: "КОРЕНЬ", why: "Сторона квадрата — это число, которое в квадрате даёт площадь.", f: "=КОРЕНЬ(B1)" },
+  { q: "В таблице расходов семьи есть продукты, транспорт и кружки. Сколько денег ушло только на продукты?", a: "СУММЕСЛИ", why: "Складывать нужно не всё, а только строки с категорией «продукты».", f: "=СУММЕСЛИ(A2:A20;\"продукты\";B2:B20)" },
+  { q: "Ребро кубика — 4 см. Найди его объём.", a: "СТЕПЕНЬ", why: "Объём куба — ребро в третьей степени: 4 · 4 · 4.", f: "=СТЕПЕНЬ(B1;3)" },
+  { q: "Учитель складывает баллы ученика за все пять заданий СОР.", a: "СУММ", why: "Нужно сложить все баллы.", f: "=СУММ(B2:F2)" },
+  { q: "Загадано число 100, Айдана назвала 87. На сколько она ошиблась?", a: "ABS", why: "Ошибка — это расстояние между числами, оно не бывает отрицательным.", f: "=ABS(B2-B1)" },
+  { q: "В выписке по карте есть пополнения (+) и покупки (−). Сколько денег всего пришло на карту?", a: "СУММЕСЛИ", why: "Складывать нужно только положительные числа — условие \">0\".", f: "=СУММЕСЛИ(B2:B30;\">0\")" },
+  { q: "Количество бактерий удваивается каждый час. Сколько их станет через 10 часов, если сначала была одна?", a: "СТЕПЕНЬ", why: "Число 2 умножается само на себя 10 раз: 2¹⁰.", f: "=СТЕПЕНЬ(2;10)" },
+  { q: "Квадратный ковёр занимает 9 м² пола. Какова длина его стороны?", a: "КОРЕНЬ", why: "Сторона квадрата по площади — квадратный корень.", f: "=КОРЕНЬ(9)" }
+];
+function mtLoad() { return store.get(MT_KEY, {}); }
+function mtBuild() {
+  const d = mtLoad();
+  document.getElementById("mtList").innerHTML = MT_CASES.map((c, i) => `
+    <section class="block mt-card" id="mt-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${c.q}</p>
+      <div class="mt-opts" role="group" aria-label="Выбери функцию">
+        ${MT_FNS.map(f => `<button type="button" class="mt-opt" data-f="${f}">${f}</button>`).join("")}
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  MT_CASES.forEach((c, i) => {
+    const card = document.getElementById("mt-" + i), msg = card.querySelector(".tc-msg");
+    const show = (st, quiet) => {
+      card.querySelectorAll(".mt-opt").forEach(b => {
+        b.classList.toggle("ok", st.ok && b.dataset.f === c.a);
+        b.classList.toggle("bad", (st.wrong || []).includes(b.dataset.f));
+        b.disabled = !!st.ok;
+      });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ с первой попытки" : "✓ решено") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.innerHTML = `Верно: <b>${c.a}</b>. ${c.why} Формула: <code></code>`; msg.querySelector("code").textContent = c.f; }
+      else if (!quiet && st.wrong && st.wrong.length) { const w = st.wrong[st.wrong.length - 1]; msg.className = "tc-msg bad"; msg.textContent = `${w} не подходит: ${MT_WHAT[w]} Подумай, что нужно сделать в этой ситуации, и выбери снова.`; }
+    };
+    show(d[i] || {}, true);
+    card.querySelector(".mt-opts").addEventListener("click", e => {
+      const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      const all = mtLoad(), st = all[i] || { wrong: [] };
+      st.wrong = st.wrong || [];
+      if (b.dataset.f === c.a) { st.ok = true; st.first = st.wrong.length === 0; }
+      else if (!st.wrong.includes(b.dataset.f)) st.wrong.push(b.dataset.f);
+      all[i] = st; store.set(MT_KEY, all);
+      show(st); mtRender();
+    });
+  });
+  mtRender();
+}
+function mtRender() {
+  const d = mtLoad(), n = MT_CASES.length;
+  const ok = MT_CASES.filter((_, i) => d[i] && d[i].ok).length, first = MT_CASES.filter((_, i) => d[i] && d[i].first).length;
+  document.getElementById("mtBar").style.width = (ok / n * 100) + "%";
+  document.getElementById("mtNum").textContent = `Решено: ${ok} из ${n}`;
+  document.getElementById("mtFirst").textContent = ok ? `С первой попытки: ${first} из ${ok}` : "";
+  const done = ok === n;
+  document.getElementById("mtDone").hidden = !done;
+  if (done) document.getElementById("mtDoneText").textContent = first >= 8 ? `Отлично! ${first} из ${n} с первой попытки. Ты хорошо различаешь функции — переходи к практике.`
+    : first >= 5 ? `${first} из ${n} с первой попытки. Хорошо. Перечитай пояснения там, где ошибся, и переходи к практике.`
+    : `${first} из ${n} с первой попытки. Вернись в «Новую тему» и посмотри ещё раз раздел «Простыми словами» у каждой функции.`;
+}
+document.getElementById("mtRetry").addEventListener("click", () => { store.set(MT_KEY, {}); mtBuild(); document.getElementById("match").scrollIntoView({ behavior: "smooth" }); });
+mtBuild();
 
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
 const REF_KEY = "reflect-l1";
