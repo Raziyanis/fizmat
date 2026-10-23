@@ -15,6 +15,7 @@
   --c: #1d7652;       /* зелёный электронных таблиц */
   --bad: #b3372b;
   --refc: #2c58ad;   /* ячейки, на которые ссылается формула */
+  --tgt: #fff4cc; --tgtb: #d9a400;   /* ячейка для ответа в практике */
   --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
   --f-body: "PT Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "Consolas", monospace;
@@ -22,12 +23,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
-    --c: #4cc093; --bad: #f07b6e; --refc: #8aaaff; color-scheme: dark;
+    --c: #4cc093; --bad: #f07b6e; --refc: #8aaaff; --tgt: #3a3317; --tgtb: #e0b23a; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
-  --c: #4cc093; --bad: #f07b6e; --refc: #8aaaff; color-scheme: dark;
+  --c: #4cc093; --bad: #f07b6e; --refc: #8aaaff; --tgt: #3a3317; --tgtb: #e0b23a; color-scheme: dark;
 }
 [hidden] { display: none !important; }
 html.big { font-size: 125%; }
@@ -278,6 +279,32 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .err-table .tryf { display: inline-block; margin: 0 4px 4px 0; }
 .showex { display: block; margin-bottom: 6px; border: 0; background: var(--bad); color: var(--surface); border-radius: 4px; padding: 3px 10px; font-size: .85rem; font-weight: 700; }
 .showex:hover { filter: brightness(1.1); }
+.lv-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 560px) { .lv-tabs { grid-template-columns: minmax(0, 1fr); } }
+.lv { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 10px 12px; position: relative; }
+.lv .lv-name { font-weight: 700; font-family: var(--f-mono); }
+.lv small { color: var(--muted); }
+.lv .lv-c { position: absolute; top: 10px; right: 12px; font-family: var(--f-mono); font-size: .85rem; color: var(--muted); }
+.lv[aria-selected="true"] { border: 2px solid var(--c); padding: 9px 11px; }
+.lv.full .lv-c { color: var(--c); font-weight: 700; }
+.lv.full .lv-c::before { content: "✓ "; }
+.lv-desc { margin: 10px 0 0; }
+.task-card { display: grid; gap: 10px; }
+.task-card.done { border-color: var(--c); }
+.tc-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tc-id { font-family: var(--f-mono); font-weight: 700; background: var(--c); color: var(--surface); border-radius: 4px; padding: 1px 8px; }
+.tc-fn { font-family: var(--f-mono); font-size: .85rem; color: var(--c); font-weight: 700; }
+.tc-status { margin-left: auto; color: var(--c); font-weight: 700; }
+.tc-q { margin: 0; font-size: 1.12rem; font-weight: 700; }
+.tc-where { margin: 0; color: var(--muted); }
+.tc-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tc-msg { margin: 0; min-height: 1.4em; font-size: 1.02rem; }
+.tc-msg.ok { color: var(--c); font-weight: 700; }
+.tc-msg.bad { color: var(--bad); }
+.tc-hint { margin: 0; padding: 8px 12px; border-left: 3px solid var(--c); background: var(--bg); border-radius: 4px; }
+.xl-grid td.target { background: var(--tgt); box-shadow: inset 0 0 0 2px var(--tgtb); }
+.pr-note { margin: 0; font-size: .9rem; color: var(--muted); font-family: var(--f-mono); }
+.pr-note.full { color: var(--c); }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -294,7 +321,8 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="true"><b>1</b>Разгадай тему</button>
     <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>2</b>Тема и цель</button>
     <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>3</b>Новая тема</button>
-    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>4</b>Итоги урока</button>
+    <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>4</b>Практика</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>5</b>Итоги урока</button>
   </div>
 
   <!-- Этап 1: разгадать тему -->
@@ -604,7 +632,30 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     </div>
   </div>
 
-  <!-- Этап 4: итоги урока -->
+  <!-- Этап 4: практика -->
+  <div class="panel" id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+    <div>
+      <h1>Практика</h1>
+      <p class="lead">Задания на трёх уровнях — от простого к сложному. Начни с уровня A. Решил все задания уровня — переходи к следующему. Таблица проверяет формулу и на других числах, поэтому вписать готовый ответ не получится.</p>
+    </div>
+    <section class="block">
+      <div class="lv-tabs" role="tablist" aria-label="Уровни">
+        <button type="button" class="lv" data-lv="A" role="tab"><span class="lv-name">A · Базовый</span><small>для всех</small><span class="lv-c" id="lvcA"></span></button>
+        <button type="button" class="lv" data-lv="B" role="tab"><span class="lv-name">B · Средний</span><small>для большинства</small><span class="lv-c" id="lvcB"></span></button>
+        <button type="button" class="lv" data-lv="C" role="tab"><span class="lv-name">C · Высокий</span><small>для некоторых</small><span class="lv-c" id="lvcC"></span></button>
+      </div>
+      <p class="lv-desc" id="lvDesc"></p>
+      <div class="progress"><div class="pbar"><i id="prBar"></i></div><span class="pnum" id="prNum"></span></div>
+    </section>
+    <div class="panel" id="prTasks"></div>
+    <div class="next">
+      <button class="btn" type="button" data-go="learn">← Новая тема</button>
+      <button class="btn" type="button" id="lvNext"></button>
+      <button class="btn main" type="button" data-go="reflect">В конце урока: итоги →</button>
+    </div>
+  </div>
+
+  <!-- Этап 5: итоги урока -->
   <div class="panel" id="reflect" role="tabpanel" aria-labelledby="tab-reflect" hidden>
     <div>
       <h1>Итоги урока</h1>
@@ -797,7 +848,7 @@ function unlock() {
 
 function show(id) {
   if (id === "reflect") fillReflect();
-  ["puzzle", "goal", "learn", "reflect"].forEach(p => {
+  ["puzzle", "goal", "learn", "practice", "reflect"].forEach(p => {
     document.getElementById(p).hidden = p !== id;
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
@@ -838,6 +889,7 @@ function showExp(text) {
   document.getElementById("afterExp").hidden = !has;
   document.getElementById("tab-reflect").disabled = !has;
   document.getElementById("tab-learn").disabled = !has;
+  document.getElementById("tab-practice").disabled = !has;
   document.getElementById("toLearn").hidden = !has;
 }
 
@@ -849,12 +901,12 @@ function showCard(i) {
   document.querySelectorAll(".fcard").forEach(c => { c.hidden = +c.dataset.card !== i; });
   document.querySelectorAll(".fpill").forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
   document.getElementById("fPrev").textContent = i === 0 ? "← Тема и цель" : "← Назад";
-  document.getElementById("fNext").textContent = i === 5 ? "В конце урока: итоги →" : "Дальше: " + F_NAMES[i + 1] + " →";
+  document.getElementById("fNext").textContent = i === 5 ? "Дальше: практика →" : "Дальше: " + F_NAMES[i + 1] + " →";
 }
 document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
 document.getElementById("fPrev").addEventListener("click", () => { if (fCur === 0) show("goal"); else showCard(fCur - 1); });
 document.getElementById("fNext").addEventListener("click", () => {
-  if (fCur === 5) { show("reflect"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
+  if (fCur === 5) { show("practice"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
 });
 
 /* Мини-таблица как в Excel: формулы СУММ, ABS, КОРЕНЬ, СТЕПЕНЬ, СУММЕСЛИ */
@@ -1253,11 +1305,11 @@ const XL_SHEETS = {
   ]
 };
 
-function xlMount(root, examples) {
-  const ROWS = 10;
+function xlMount(root, examples, opts = {}) {
+  const ROWS = opts.rows || 10, COLS = XL_COLS.slice(0, opts.cols || XL_COLS.length);
   const S = { cells: {}, cache: new Map(), sel: "A1", ex: 0, timer: null };
   root.innerHTML = `
-    <div class="xl-top">
+    <div class="xl-top"${opts.task ? " hidden" : ""}>
       <div class="xl-ex">${examples.map((e, i) => `<button type="button" class="xl-chip" data-ex="${i}">${e.name}</button>`).join("")}</div>
       <div class="xl-act">
         <button type="button" class="btn xl-rand">Случайные числа</button>
@@ -1265,7 +1317,7 @@ function xlMount(root, examples) {
         <button type="button" class="btn xl-reset">Сбросить</button>
       </div>
     </div>
-    <p class="xl-text"></p>
+    <p class="xl-text"${opts.task ? " hidden" : ""}></p>
     <div class="xl-keys" aria-label="Вставить в формулу">
       <span class="xl-keys-lab">Вставить:</span>
       ${["=", "СУММ(", "ABS(", "КОРЕНЬ(", "СТЕПЕНЬ(", "СУММЕСЛИ(", ";", ":", ")", "\">0\"", "\"<0\""].map(k => `<button type="button" class="xl-key" data-ins="${k.replace(/"/g, "&quot;")}">${k.replace(/</g, "&lt;")}</button>`).join("")}
@@ -1276,8 +1328,8 @@ function xlMount(root, examples) {
       <input type="text" class="xl-in" autocomplete="off" spellcheck="false" aria-label="Строка формул">
     </div>
     <div class="xl-wrap"><table class="xl-grid">
-      <tr><th class="xl-corner"></th>${XL_COLS.map(c => `<th>${c}</th>`).join("")}</tr>
-      ${Array.from({ length: ROWS }, (_, r) => `<tr><th>${r + 1}</th>${XL_COLS.map(c => `<td tabindex="-1" data-k="${c}${r + 1}"></td>`).join("")}</tr>`).join("")}
+      <tr><th class="xl-corner"></th>${COLS.map(c => `<th>${c}</th>`).join("")}</tr>
+      ${Array.from({ length: ROWS }, (_, r) => `<tr><th>${r + 1}</th>${COLS.map(c => `<td tabindex="-1" data-k="${c}${r + 1}"></td>`).join("")}</tr>`).join("")}
     </table></div>
     <p class="xl-explain"></p>
     <p class="xl-hint">Нажми на ячейку — её содержимое появится в строке <b>fx</b>. <b>Пишешь формулу?</b> Щёлкни по ячейке, и её адрес вставится сам. Протяни мышью по нескольким ячейкам — вставится диапазон, например A1:A5. Раскладку менять не нужно.</p>`;
@@ -1294,7 +1346,7 @@ function xlMount(root, examples) {
       const k = td.dataset.k, v = xlEvalCell(S, k, new Set());
       const isF = String(S.cells[k] ?? "").trim().startsWith("=");
       td.textContent = xlFmt(v);
-      td.className = (typeof v === "number" ? "n" : v instanceof XErr ? "e" : "") + (isF ? " f" : "") + (refs.has(k) ? " ref" : "") + (k === S.sel ? " sel" : "");
+      td.className = (typeof v === "number" ? "n" : v instanceof XErr ? "e" : "") + (isF ? " f" : "") + (refs.has(k) ? " ref" : "") + (opts.targets && opts.targets.includes(k) ? " target" : "") + (k === S.sel ? " sel" : "");
       td.tabIndex = k === S.sel ? 0 : -1;
     });
     $(".xl-name").textContent = S.sel;
@@ -1377,7 +1429,12 @@ function xlMount(root, examples) {
   $(".xl-reset").addEventListener("click", () => { stopPlay(); load(S.ex); });
   /* Режим указания: пока пишется формула, щелчок по ячейке вставляет её адрес, протягивание — диапазон */
   let point = null, pointed = false;
-  const editingFormula = () => document.activeElement === inp && inp.value.trim().startsWith("=");
+  /* Как в Excel: адрес вставляется, только если курсор стоит там, где ожидается ссылка (после = ( ; : + - * / ^) */
+  const editingFormula = () => {
+    if (document.activeElement !== inp || !inp.value.trim().startsWith("=")) return false;
+    const before = inp.value.slice(0, inp.selectionStart).replace(/\s+$/, "");
+    return /[=(;:+\-*\/^]$/.test(before);
+  };
   function rangeText(a, b) {
     if (a === b) return a;
     const c1 = Math.min(a.charCodeAt(0), b.charCodeAt(0)), c2 = Math.max(a.charCodeAt(0), b.charCodeAt(0));
@@ -1388,6 +1445,7 @@ function xlMount(root, examples) {
     inp.value = inp.value.slice(0, start) + txt + inp.value.slice(start + oldLen);
     inp.setSelectionRange(start + txt.length, start + txt.length);
     S.cells[S.sel] = inp.value; recalc(); render();
+    if (opts.onChange) opts.onChange();
   }
   grid.addEventListener("mousedown", e => {
     const td = e.target.closest("td[data-k]");
@@ -1426,16 +1484,16 @@ function xlMount(root, examples) {
   });
   grid.addEventListener("dblclick", e => { if (e.target.closest("td[data-k]")) { inp.focus(); inp.select(); } });
   grid.addEventListener("keydown", e => {
-    const k = S.sel, c = XL_COLS.indexOf(k[0]), r = +k.slice(1);
+    const k = S.sel, c = COLS.indexOf(k[0]), r = +k.slice(1);
     const mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
     if (mv) {
       e.preventDefault();
-      const nc = Math.min(Math.max(c + mv[0], 0), XL_COLS.length - 1), nr = Math.min(Math.max(r + mv[1], 1), ROWS);
-      select(XL_COLS[nc] + nr, true);
+      const nc = Math.min(Math.max(c + mv[0], 0), COLS.length - 1), nr = Math.min(Math.max(r + mv[1], 1), ROWS);
+      select(COLS[nc] + nr, true);
     } else if (e.key === "Enter" || e.key === "F2") { e.preventDefault(); inp.focus(); }
   });
   inp.addEventListener("focus", stopPlay);
-  inp.addEventListener("input", () => { S.cells[S.sel] = inp.value; recalc(); render(); });
+  inp.addEventListener("input", () => { S.cells[S.sel] = inp.value; recalc(); render(); if (opts.onChange) opts.onChange(); });
   inp.addEventListener("keydown", e => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -1443,6 +1501,9 @@ function xlMount(root, examples) {
       select(S.sel[0] + Math.min(r + 1, ROWS));
     }
   });
+  root.xlState = S;
+  root.xlSet = (k, v) => { S.cells[k] = v; recalc(); if (k === S.sel) inp.value = v; render(); };
+  root.xlReset = () => load(S.ex);
   root.xlLoad = i => { stopPlay(); load(i); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
   root.xlTry = f => { stopPlay(); S.cells.H10 = f; recalc(); select("H10"); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
   load(0);
@@ -1455,6 +1516,192 @@ document.addEventListener("click", e => {
   if (xl && xl.xlTry) xl.xlTry(b.dataset.f);
 });
 document.querySelectorAll(".xl[data-sheet]").forEach(el => xlMount(el, XL_SHEETS[el.dataset.sheet]));
+
+/* Практика: задания трёх уровней с автопроверкой формулы на других числах */
+const PR_KEY = "practice-l1";
+const LEVELS_PR = {
+  A: { name: "A · Базовый", who: "для всех", desc: "Одна функция, данные уже в таблице. Нужно только правильно записать формулу." },
+  B: { name: "B · Средний", who: "для большинства", desc: "Функция с двумя аргументами, несколько формул или формула из двух частей." },
+  C: { name: "C · Высокий", who: "для некоторых", desc: "Условия, вложенные функции и задачи, где нужно самому придумать формулу." }
+};
+const TASKS_PR = [
+  { id: "A1", lv: "A", fn: "СУММ", q: "Сколько стоит вся корзина? Найди общую стоимость покупок.",
+    cells: { A1: "Товар", B1: "Цена", A2: "Хлеб", B2: "250", A3: "Молоко", B3: "480", A4: "Яблоки", B4: "900", A5: "Сыр", B5: "1500", A6: "Вода", B6: "200", A7: "Итого" },
+    ref: { B7: "=СУММ(B2:B6)" }, must: { B7: ["СУММ"] },
+    vary: { keys: ["B2", "B3", "B4", "B5", "B6"], min: 100, max: 2000, step: 10 },
+    hint: "Выдели B7, нажми кнопку «СУММ(», протяни мышью от B2 до B6 и нажми «)»." },
+  { id: "A2", lv: "A", fn: "ABS", q: "Утром было −4°, вечером 7°. На сколько градусов изменилась температура? Ответ должен быть без минуса.",
+    cells: { A1: "Утром", B1: "-4", A2: "Вечером", B2: "7", A3: "Изменение" },
+    ref: { B3: "=ABS(B2-B1)" }, must: { B3: ["ABS"] },
+    vary: { keys: ["B1", "B2"], min: -20, max: 30 },
+    hint: "Разница — это B2-B1. Убери минус с помощью ABS: =ABS(B2-B1)." },
+  { id: "A3", lv: "A", fn: "КОРЕНЬ", q: "Площадь квадратной площадки — 144 м². Найди длину её стороны.",
+    cells: { A1: "Площадь, м²", B1: "144", A2: "Сторона, м" },
+    ref: { B2: "=КОРЕНЬ(B1)" }, must: { B2: ["КОРЕНЬ"] },
+    vary: { keys: ["B1"], pick: [16, 25, 49, 81, 100, 169, 225, 30, 200] },
+    hint: "Сторона квадрата — это корень из площади. Запиши =КОРЕНЬ( и щёлкни по ячейке с площадью." },
+
+  { id: "B1", lv: "B", fn: "СТЕПЕНЬ", q: "Ребро кубика — 5 см. Найди его объём. Объём куба — ребро в третьей степени.",
+    cells: { A1: "Ребро, см", B1: "5", A2: "Объём, см³" },
+    ref: { B2: "=СТЕПЕНЬ(B1;3)" }, must: { B2: ["СТЕПЕНЬ"] },
+    vary: { keys: ["B1"], min: 1, max: 20 },
+    hint: "У СТЕПЕНЬ два аргумента через «;»: что возводим и в какую степень. =СТЕПЕНЬ(B1;3)." },
+  { id: "B2", lv: "B", fn: "ABS", q: "Загадано число 50. Найди, на сколько ошибся каждый ученик. Неважно, назвал он больше или меньше.",
+    cells: { A1: "Загадано", B1: "50", C1: "Ошибка", A2: "Айдана", B2: "42", A3: "Тимур", B3: "61", A4: "Дана", B4: "55" },
+    ref: { C2: "=ABS(B2-B1)", C3: "=ABS(B3-B1)", C4: "=ABS(B4-B1)" }, must: { C2: ["ABS"], C3: ["ABS"], C4: ["ABS"] },
+    vary: { keys: ["B1", "B2", "B3", "B4"], min: 1, max: 100 },
+    hint: "В C2: =ABS(B2-B1). В C3 и C4 — так же, только со своей строкой: B3 и B4." },
+  { id: "B3", lv: "B", fn: "СТЕПЕНЬ", q: "Есть две квадратные комнаты со сторонами 4 м и 6 м. Найди их общую площадь одной формулой.",
+    cells: { A1: "Сторона 1, м", B1: "4", A2: "Сторона 2, м", B2: "6", A3: "Общая площадь" },
+    ref: { B3: "=СТЕПЕНЬ(B1;2)+СТЕПЕНЬ(B2;2)" }, must: { B3: ["СТЕПЕНЬ"] },
+    vary: { keys: ["B1", "B2"], min: 1, max: 15 },
+    hint: "Площадь квадрата — сторона во второй степени. Сложи площади двух комнат: =СТЕПЕНЬ(B1;2)+…" },
+
+  { id: "C1", lv: "C", fn: "СУММЕСЛИ + ABS", q: "Карманные деньги за неделю: «+» получил, «−» потратил. Найди, сколько получено и сколько потрачено. Потраченное запиши без минуса.",
+    cells: { A1: "Операция", A2: "500", A3: "-200", A4: "300", A5: "-150", A6: "1000", A7: "-50", C1: "Получил", C2: "Потратил" },
+    ref: { D1: "=СУММЕСЛИ(A2:A7;\">0\")", D2: "=ABS(СУММЕСЛИ(A2:A7;\"<0\"))" }, must: { D1: ["СУММЕСЛИ"], D2: ["СУММЕСЛИ", "ABS"] },
+    vary: { keys: ["A2", "A3", "A4", "A5", "A6", "A7"], min: -1000, max: 1000, step: 50 },
+    hint: "D1: сложи числа больше нуля — условие \">0\". D2: сложи числа меньше нуля и убери минус: =ABS(СУММЕСЛИ(…))." },
+  { id: "C2", lv: "C", fn: "СУММЕСЛИ", q: "Сколько денег ушло только на еду? Категории — в столбце A, суммы — в столбце B.",
+    cells: { A1: "Категория", B1: "Сумма", A2: "еда", B2: "800", A3: "транспорт", B3: "250", A4: "еда", B4: "1200", A5: "игры", B5: "2000", A6: "еда", B6: "400", A7: "транспорт", B7: "300", D1: "На еду" },
+    ref: { E1: "=СУММЕСЛИ(A2:A7;\"еда\";B2:B7)" }, must: { E1: ["СУММЕСЛИ"] },
+    vary: { keys: ["B2", "B3", "B4", "B5", "B6", "B7"], min: 100, max: 2500, step: 50 },
+    hint: "Три аргумента: где ищем (A2:A7); что ищем (\"еда\"); что складываем (B2:B7)." },
+  { id: "C3", lv: "C", fn: "КОРЕНЬ + СТЕПЕНЬ", q: "Экран планшета: ширина 30 см, высота 40 см. Найди диагональ одной формулой.",
+    cells: { A1: "Ширина, см", B1: "30", A2: "Высота, см", B2: "40", A3: "Диагональ, см" },
+    ref: { B3: "=КОРЕНЬ(СТЕПЕНЬ(B1;2)+СТЕПЕНЬ(B2;2))" }, must: { B3: ["КОРЕНЬ", "СТЕПЕНЬ"] },
+    vary: { keys: ["B1", "B2"], min: 5, max: 60 },
+    hint: "Теорема Пифагора: диагональ = корень из (ширина² + высота²). Внутри КОРЕНЬ сложи две СТЕПЕНЬ." }
+];
+
+function prLoad() { return store.get(PR_KEY, {}); }
+function prSave(d) { store.set(PR_KEY, d); }
+function prCalls(n, out) {
+  if (!n) return out;
+  if (n.t === "call") { out.add(n.f); n.args.forEach(a => prCalls(a, out)); }
+  else if (n.t === "bin") { prCalls(n.l, out); prCalls(n.r, out); }
+  else if (n.a) prCalls(n.a, out);
+  return out;
+}
+function prEval(cells, k, f) {
+  const S = { cells: { ...cells, [k]: f }, cache: new Map() };
+  return xlEvalCell(S, k, new Set());
+}
+const prSame = (a, b) => typeof a === "number" && typeof b === "number" && Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
+function prRandom(v) {
+  if (v.pick) return v.pick[Math.floor(Math.random() * v.pick.length)];
+  const step = v.step || 1, n = Math.floor((v.max - v.min) / step) + 1;
+  return v.min + Math.floor(Math.random() * n) * step;
+}
+
+/* Проверка: формула, нужная функция, верный результат и тот же результат на других числах */
+function prCheck(t, S) {
+  for (const k of Object.keys(t.ref)) {
+    const raw = String(S.cells[k] ?? "").trim();
+    if (!raw) return { ok: false, cell: k, msg: `Ячейка ${k} пустая. Впиши туда формулу.` };
+    if (!raw.startsWith("=")) return { ok: false, cell: k, msg: `В ячейке ${k} просто число или текст. Нужна формула — она начинается со знака «=».` };
+    let ast;
+    try { ast = xlParse(raw.slice(1)); } catch (e) {
+      if (!(e instanceof XSyntax)) throw e;
+      return { ok: false, cell: k, msg: `Ошибка в записи формулы в ${k}: ${e.message}` };
+    }
+    const used = prCalls(ast, new Set());
+    const miss = t.must[k].filter(f => !used.has(f));
+    if (miss.length) return { ok: false, cell: k, msg: `В формуле в ${k} нужна функция ${miss.join(" и ")}. Задание проверяет именно её.` };
+    const mine = xlEvalCell({ cells: S.cells, cache: new Map() }, k, new Set());
+    if (mine instanceof XErr) return { ok: false, cell: k, msg: `Формула в ${k} выдаёт ${mine.code}. ` + (XL_ERR[mine.code] || "Проверь, как она записана.") };
+    const want = prEval(S.cells, k, t.ref[k]);
+    if (!prSame(mine, want)) return { ok: false, cell: k, msg: `В ${k} получилось ${xlFmt(mine)}, а должно быть другое число. Проверь, те ли ячейки взяты в формулу.` };
+    for (let i = 0; i < 4; i++) {
+      const cells = { ...S.cells };
+      t.vary.keys.forEach(key => { cells[key] = String(prRandom(t.vary)); });
+      const a = prEval(cells, k, raw), b = prEval(cells, k, t.ref[k]);
+      if (b instanceof XErr) continue;
+      if (!prSame(a, b)) return { ok: false, cell: k, msg: `Для этих чисел ответ совпал, но с другими числами формула в ${k} ошибается. Скорее всего, в ней стоят готовые числа вместо адресов ячеек.` };
+    }
+  }
+  return { ok: true };
+}
+
+function prRender() {
+  const d = prLoad();
+  const solved = TASKS_PR.filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("prBar").style.width = (solved / TASKS_PR.length * 100) + "%";
+  document.getElementById("prNum").textContent = `Решено: ${solved} из ${TASKS_PR.length}`;
+  Object.keys(LEVELS_PR).forEach(lv => {
+    const list = TASKS_PR.filter(t => t.lv === lv), ok = list.filter(t => d[t.id] && d[t.id].ok).length;
+    document.getElementById("lvc" + lv).textContent = `${ok}/${list.length}`;
+    document.querySelector(`.lv[data-lv="${lv}"]`).classList.toggle("full", ok === list.length);
+  });
+}
+function prShowLevel(lv) {
+  document.querySelectorAll(".lv").forEach(b => b.setAttribute("aria-selected", b.dataset.lv === lv));
+  document.querySelectorAll(".task-card").forEach(c => { c.hidden = c.dataset.lv !== lv; });
+  document.getElementById("lvDesc").textContent = LEVELS_PR[lv].desc;
+  const order = Object.keys(LEVELS_PR), nx = order[order.indexOf(lv) + 1];
+  const btn = document.getElementById("lvNext");
+  btn.hidden = !nx; if (nx) { btn.dataset.lv = nx; btn.textContent = `Перейти на уровень ${LEVELS_PR[nx].name} →`; }
+  store.set("practice-lv", lv);
+}
+
+function prBuild() {
+  const box = document.getElementById("prTasks");
+  box.innerHTML = TASKS_PR.map(t => `
+    <section class="block task-card" data-lv="${t.lv}" id="pt-${t.id}" hidden>
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">${t.fn}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <p class="tc-where">Формулу записывай в ${Object.keys(t.ref).length > 1 ? "ячейки" : "ячейку"} <b>${Object.keys(t.ref).join(", ")}</b> — ${Object.keys(t.ref).length > 1 ? "они подсвечены" : "она подсвечена"} жёлтым.</p>
+      <div class="xl xl-task"></div>
+      <div class="tc-actions">
+        <button type="button" class="btn main tc-check">Проверить</button>
+        <button type="button" class="btn tc-hintbtn">Подсказка</button>
+        <button type="button" class="btn tc-reset">Начать заново</button>
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join("");
+  const d = prLoad();
+  TASKS_PR.forEach(t => {
+    const card = document.getElementById("pt-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg");
+    const targets = Object.keys(t.ref);
+    const setStatus = ok => {
+      card.classList.toggle("done", ok);
+      card.querySelector(".tc-status").textContent = ok ? "✓ решено" : "";
+    };
+    xlMount(root, [{ name: t.id, text: "", cells: t.cells, sel: targets[0] }], {
+      task: true, cols: 5, rows: 8, targets,
+      onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; }
+    });
+    const saved = d[t.id];
+    if (saved && saved.f) { Object.entries(saved.f).forEach(([k, v]) => root.xlSet(k, v)); setStatus(!!saved.ok); }
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = prCheck(t, root.xlState);
+      const all = prLoad();
+      const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
+      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      all[t.id] = { ok: r.ok, f, tries };
+      prSave(all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad");
+      msg.textContent = r.ok ? "Верно! Формула работает и с другими числами." : r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(r.ok);
+      prRender();
+      if (r.ok && TASKS_PR.filter(x => x.lv === t.lv).every(x => (prLoad()[x.id] || {}).ok)) {
+        msg.textContent += t.lv === "C" ? " Ты решил все уровни!" : ` Уровень ${t.lv} пройден — можно переходить дальше.`;
+      }
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => {
+      root.xlReset(); msg.textContent = ""; card.querySelector(".tc-hint").hidden = true;
+      const all = prLoad(); delete all[t.id]; prSave(all); setStatus(false); prRender();
+    });
+  });
+  document.querySelectorAll(".lv").forEach(b => b.addEventListener("click", () => prShowLevel(b.dataset.lv)));
+  document.getElementById("lvNext").addEventListener("click", e => { prShowLevel(e.currentTarget.dataset.lv); document.getElementById("practice").scrollIntoView({ behavior: "smooth" }); });
+  prShowLevel(store.get("practice-lv", "A"));
+  prRender();
+}
+prBuild();
 
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
 const REF_KEY = "reflect-l1";
@@ -1486,6 +1733,14 @@ function fillReflect() {
     }
   }
   document.getElementById("useReq").hidden = !wantsUse();
+  const pd = prLoad();
+  document.querySelectorAll("#refRes .rr").forEach((el, i) => {
+    const lv = "ABC"[i], list = TASKS_PR.filter(t => t.lv === lv), ok = list.filter(t => pd[t.id] && pd[t.id].ok).length;
+    let n = el.querySelector(".pr-note");
+    if (!n) { n = document.createElement("p"); n.className = "pr-note"; el.insertBefore(n, el.querySelector("fieldset")); }
+    n.textContent = `Практика, уровень ${lv}: решено ${ok} из ${list.length}`;
+    n.classList.toggle("full", ok === list.length);
+  });
   if (saved) showSummary(saved);
 }
 /* Ученик в начале спрашивал «где пригодится / зачем» — тогда пример обязателен */
