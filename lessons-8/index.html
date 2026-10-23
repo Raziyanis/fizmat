@@ -4,17 +4,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=PT+Sans:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: список уроков слева как столбец номеров строк в таблице, справа карточка урока с этапами */
+/* Layout: один урок, этапы показываются по одному, как слайды */
 :root {
   --bg: #f3f6f7;
   --surface: #ffffff;
   --ink: #16212a;
   --muted: #5a6a76;
   --line: #d7e0e5;
-  --sheet: #1d7652;   /* электронные таблицы */
-  --py: #2c58ad;      /* Python */
-  --ctrl: #a8600f;    /* контроль */
-  --focus: #2c58ad;
+  --c: #1d7652;      /* электронные таблицы */
+  --warn: #a8600f;
   --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
   --f-body: "PT Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "Consolas", monospace;
@@ -22,676 +20,217 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #283641;
-    --sheet: #4cc093; --py: #8aaaff; --ctrl: #eea24b; --focus: #8aaaff; color-scheme: dark;
+    --c: #4cc093; --warn: #eea24b; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #283641;
-  --sheet: #4cc093; --py: #8aaaff; --ctrl: #eea24b; --focus: #8aaaff; color-scheme: dark;
+  --c: #4cc093; --warn: #eea24b; color-scheme: dark;
 }
 html.big { font-size: 125%; }
-body {
-  background: var(--bg); color: var(--ink);
-  font-family: var(--f-body); font-size: 1rem; line-height: 1.5;
-}
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 1rem; line-height: 1.5; }
 .wrap {
-  max-width: 1180px; margin: 0 auto;
+  max-width: 920px; margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 20px 48px;
 }
-header.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-.brand { display: flex; flex-direction: column; gap: 2px; }
-.brand .eyebrow { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.brand h1 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 1.35rem; text-wrap: balance; }
+.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+.eyebrow { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .tools { display: flex; gap: 8px; flex-wrap: wrap; }
 button { font: inherit; cursor: pointer; }
-.btn {
-  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
-  padding: 7px 12px; border-radius: 6px; font-size: .9rem;
-}
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 7px 12px; border-radius: 6px; font-size: .9rem; }
 .btn:hover { border-color: var(--muted); }
-.btn[aria-pressed="true"] { border-color: var(--ink); }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.btn.main { background: var(--c); border-color: var(--c); color: var(--surface); font-weight: 700; }
+:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
 
-.layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 24px; align-items: start; }
-@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+h1 { margin: 0 0 6px; font-family: var(--f-display); font-weight: 500; font-size: clamp(1.5rem, 4vw, 2.3rem); line-height: 1.2; text-wrap: balance; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { font-size: .8rem; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+.chip.on { background: color-mix(in srgb, var(--c) 13%, var(--surface)); border-color: transparent; color: var(--c); font-weight: 700; }
 
-/* Список уроков */
-nav.lessons { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-@media (min-width: 861px) { nav.lessons { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow-y: auto; } }
-.sec-title { margin: 0; padding: 10px 12px; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--bg); border-bottom: 1px solid var(--line); }
-.sec-title + ul + .sec-title, ul + .sec-title { border-top: 1px solid var(--line); }
-nav ul { list-style: none; margin: 0; padding: 0; }
-.l-item {
-  width: 100%; display: grid; grid-template-columns: 2.2rem minmax(0, 1fr) auto; align-items: center; gap: 8px;
-  text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--ink);
-  padding: 8px 12px 8px 0;
-}
-li:last-child .l-item { border-bottom: 0; }
-.l-item .num {
-  font-family: var(--f-mono); font-size: .8rem; color: var(--muted); text-align: right;
-  border-right: 1px solid var(--line); padding-right: 8px; align-self: stretch; display: flex; align-items: center; justify-content: flex-end;
-  font-variant-numeric: tabular-nums;
-}
-.l-item .name { font-size: .92rem; line-height: 1.3; }
-.l-item:hover { background: var(--bg); }
-.l-item[aria-current="true"] { background: var(--bg); box-shadow: inset 3px 0 0 var(--cur, var(--ink)); }
-.l-item[aria-current="true"] .num { color: var(--ink); font-weight: 600; }
-.mins { font-family: var(--f-mono); font-size: .72rem; padding: 1px 6px; border-radius: 4px; color: var(--c); border: 1px solid currentColor; white-space: nowrap; }
-
-.t-sheet { --c: var(--sheet); }
-.t-py { --c: var(--py); }
-.t-ctrl { --c: var(--ctrl); }
-
-/* Карточка урока */
-main { min-width: 0; }
-.lesson-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { font-size: .8rem; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--c, var(--muted)) 13%, var(--surface)); color: var(--c, var(--muted)); font-weight: 700; }
-.chip.plain { background: var(--surface); border: 1px solid var(--line); color: var(--muted); font-weight: 400; }
-.lesson-head h2 { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: clamp(1.4rem, 3.2vw, 2.1rem); line-height: 1.2; text-wrap: balance; }
-
-.steps { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
-.step {
-  background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted);
-  padding: 8px 4px 9px; margin-right: 14px; font-size: .95rem; display: flex; gap: 8px; align-items: baseline;
-}
+.steps { display: flex; gap: 18px; border-bottom: 1px solid var(--line); margin-bottom: 18px; flex-wrap: wrap; }
+.step { background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 8px 2px 9px; font-size: .98rem; display: flex; gap: 8px; align-items: baseline; }
 .step b { font-family: var(--f-mono); font-weight: 600; font-size: .8rem; }
-.step[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--c, var(--ink)); font-weight: 700; }
-.step[disabled] { cursor: default; opacity: .55; }
-.step[disabled] small { font-size: .72rem; }
+.step[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--c); font-weight: 700; }
 
 .panel { display: grid; gap: 16px; }
 .block { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; min-width: 0; }
-.block h3 { margin: 0 0 12px; font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.block h2 { margin: 0 0 12px; font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .goal { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: baseline; }
-.goal + .goal { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
 .code { font-family: var(--f-mono); font-weight: 600; color: var(--c); font-size: .92rem; white-space: nowrap; }
-.goal p { margin: 0; font-size: 1.08rem; }
+.goal p { margin: 0; font-size: 1.1rem; }
 
-.results { display: grid; gap: 0; }
 .res { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
 .res:first-child { border-top: 0; padding-top: 0; }
-.res .who { font-weight: 700; display: flex; flex-direction: column; gap: 4px; }
-.res .who .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
-.res .who .bar i { display: block; height: 100%; background: var(--c); }
-.res p { margin: 0; font-size: 1.04rem; }
+.who { font-weight: 700; display: flex; flex-direction: column; gap: 4px; }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--c); }
+.res p { margin: 0; font-size: 1.05rem; }
 @media (max-width: 520px) { .res { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
 
 code, .mono { font-family: var(--f-mono); font-size: .9em; }
-:not(pre) > code { background: var(--bg); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; white-space: nowrap; }
-pre { margin: 10px 0 0; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; overflow-x: auto; font-size: .9rem; line-height: 1.45; }
+code { background: var(--bg); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; white-space: nowrap; }
 
-/* Организационный момент */
 .org-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-@media (max-width: 980px) { .org-grid { grid-template-columns: minmax(0, 1fr); } }
-.screen { border-color: var(--c); border-width: 2px; }
-.screen .act { font-family: var(--f-display); font-weight: 500; font-size: 1.3rem; margin: 0 0 10px; line-height: 1.25; text-wrap: balance; }
-.screen .prompt { font-size: 1.12rem; }
-.screen .prompt p { margin: 0 0 10px; }
-.screen .prompt p:last-child { margin-bottom: 0; }
-.screen table { border-collapse: collapse; font-family: var(--f-mono); font-size: .92rem; margin-top: 6px; }
-.screen td, .screen th { border: 1px solid var(--line); padding: 4px 10px; text-align: center; }
-.screen th { color: var(--muted); font-weight: 400; background: var(--bg); }
-.tablewrap { overflow-x: auto; }
-.reveal { margin-top: 12px; }
+@media (max-width: 820px) { .org-grid { grid-template-columns: minmax(0, 1fr); } }
+.screen { border: 2px solid var(--c); }
+.act { font-family: var(--f-display); font-weight: 500; font-size: 1.3rem; margin: 0 0 10px; line-height: 1.25; }
+.screen p { margin: 0 0 10px; font-size: 1.12rem; }
+.sheet { border-collapse: collapse; font-family: var(--f-mono); font-size: .95rem; margin: 4px 0 12px; font-variant-numeric: tabular-nums; }
+.sheet td, .sheet th { border: 1px solid var(--line); padding: 4px 12px; text-align: right; }
+.sheet th { color: var(--muted); font-weight: 400; background: var(--bg); text-align: center; }
 .reveal summary { cursor: pointer; color: var(--c); font-weight: 700; }
-.reveal div { margin-top: 8px; }
-
-.plan { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.plan li { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr); gap: 10px; }
-.plan .t { font-family: var(--f-mono); font-size: .82rem; color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
-
-.prep { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.prep label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; }
-.prep input { margin-top: 4px; width: 1.05rem; height: 1.05rem; accent-color: var(--c); }
-.prep input:checked + span { color: var(--muted); text-decoration: line-through; }
-.prep-count { font-family: var(--f-mono); font-size: .8rem; color: var(--muted); margin-top: 10px; }
-
-.timer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.timer output { font-family: var(--f-mono); font-size: 2.2rem; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 6ch; }
-.timer output.done { color: var(--ctrl); }
-.timer .btn { padding: 6px 10px; }
+.reveal div { margin-top: 8px; font-size: 1.05rem; }
 
 .side { display: grid; gap: 16px; }
-.note { font-size: .86rem; color: var(--muted); margin-top: 28px; max-width: 70ch; }
-.note p { margin: 0 0 6px; }
+.timer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.timer output { font-family: var(--f-mono); font-size: 2.2rem; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 5ch; }
+.timer output.done { color: var(--warn); }
+.prep { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.prep label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; cursor: pointer; }
+.prep input { margin-top: 4px; width: 1.05rem; height: 1.05rem; accent-color: var(--c); }
+.prep input:checked + span { color: var(--muted); text-decoration: line-through; }
+.small { font-family: var(--f-mono); font-size: .8rem; color: var(--muted); margin: 10px 0 0; }
 
-.next { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
-@media (prefers-reduced-motion: no-preference) { .panel { animation: in .18s ease-out; } @keyframes in { from { transform: translateY(4px); } to { transform: none; } } }
+.plan { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.plan li { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: 10px; }
+.plan .t { font-family: var(--f-mono); font-size: .82rem; color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
+
+.next { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 </style>
 
 <div class="wrap">
-  <header class="top">
-    <div class="brand">
-      <span class="eyebrow">Информатика · 8 класс · 17 уроков</span>
-      <h1>Электронные таблицы и массивы в Python</h1>
-    </div>
+  <div class="top">
+    <span class="eyebrow">Информатика · 8 класс · Урок 1</span>
     <div class="tools">
-      <button class="btn" id="bigBtn" type="button" aria-pressed="false">Крупный шрифт для проектора</button>
+      <button class="btn" id="bigBtn" type="button" aria-pressed="false">Крупный шрифт</button>
       <button class="btn" id="fsBtn" type="button">Во весь экран</button>
     </div>
-  </header>
-
-  <div class="layout">
-    <nav class="lessons" id="nav" aria-label="Уроки"></nav>
-    <main id="main" aria-live="polite"></main>
   </div>
 
-  <div class="note">
-    <p>Порядок уроков предложенный: двумерные массивы идут перед диагоналями, повторение стоит перед СОЧ. Номера уроков и время меняются в массиве <code>LESSONS</code> в начале скрипта.</p>
-    <p>Требуют уточнения по учебной программе: код цели для урока «Главная и побочная диагонали» (в исходном плане указан 8.2.2.2, как у логических функций) и код цели для урока «Множество».</p>
+  <h1>Математические функции: СУММ(), ABS(), КОРЕНЬ()</h1>
+  <div class="meta">
+    <span class="chip on">Электронные таблицы</span>
+    <span class="chip">40 минут</span>
+    <span class="chip">Раздел: решение задач в электронных таблицах</span>
   </div>
-</div>
 
-<script>
-const S = "sheet", P = "py", C = "ctrl";
-const G = {
-  "8.2.2.1": "использовать математические функции (СУММ(); ABS(); КОРЕНЬ(); СТЕПЕНЬ(); СУММЕСЛИ()) в электронных таблицах",
-  "8.2.1.2": "создавать программы на языке программирования Python с использованием одномерных массивов; использовать различные методы работы со списками",
-  "8.2.1.4": "познакомиться с кортежами, их особенностями, методами и практическим применением",
-  "8.2.2.2": "использовать функции обработки логических операций (ЕСЛИ(), И(), ИЛИ(), НЕ()) в электронных таблицах",
-  "8.2.1.6": "преобразовывать списки и кортежи в словари",
-  "set": "использовать методы, применяемые к множествам",
-  "8.2.2.3": "использовать статистические функции (СРЗНАЧ(), МАКС(), МИН()) в электронных таблицах",
-  "8.2.2.2d": "создавать программы на языке программирования Python с использованием двумерных массивов; изменять данные в разных диагоналях",
-  "8.3.3.1": "объяснять, что модель искусственного интеллекта использует признаки данных для построения предсказаний или классификации",
-  "8.2.2.4": "создавать программы на языке программирования Python с использованием двумерных массивов",
-  "8.3.2.1": "применять электронные таблицы для моделирования и анализа реальных процессов на основе данных и объяснять зависимость результата модели от их качества и полноты",
-  "8.2.2.6": "применять алгоритмы сортировки"
-};
-const goal = (k, label) => ({ code: label || k, text: G[k] });
+  <div class="steps" role="tablist" aria-label="Этапы урока">
+    <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="true"><b>1</b>Тема и цель</button>
+    <button type="button" class="step" role="tab" id="tab-org" aria-controls="org" aria-selected="false"><b>2</b>Организационный момент</button>
+  </div>
 
-const SECTIONS = [
-  { id: 1, title: "Раздел 1 · Электронные таблицы и одномерные массивы" },
-  { id: 2, title: "Раздел 2 · Двумерные массивы и моделирование" }
-];
-
-const LESSONS = [
-  { sec: 1, track: S, min: 40, title: "Математические функции: СУММ(), ABS(), КОРЕНЬ()",
-    goals: [goal("8.2.2.1")],
-    results: {
-      all: "записывают формулу <code>=СУММ(A1:A10)</code> и находят сумму диапазона ячеек.",
-      most: "применяют <code>ABS()</code> и <code>КОРЕНЬ()</code> к значениям ячеек и объясняют полученный результат.",
-      some: "составляют вложенную формулу, например <code>=КОРЕНЬ(ABS(A1))</code>, и объясняют, зачем нужна каждая функция."
-    },
-    org: {
-      name: "Кто быстрее: класс или формула",
-      screen: `<p>Сложите в уме восемь чисел. У вас 20 секунд.</p>
-        <div class="tablewrap"><table><tr><th></th><th>A</th></tr>
-        <tr><th>1</th><td>17</td></tr><tr><th>2</th><td>−8</td></tr><tr><th>3</th><td>25</td></tr><tr><th>4</th><td>−13</td></tr>
-        <tr><th>5</th><td>40</td></tr><tr><th>6</th><td>9</td></tr><tr><th>7</th><td>−6</td></tr><tr><th>8</th><td>36</td></tr></table></div>
-        <p>Вопрос на урок: что покажет таблица, если ввести <code>=КОРЕНЬ(-9)</code>?</p>`,
-      answer: "Сумма равна 100. <code>=КОРЕНЬ(-9)</code> возвращает ошибку <code>#ЧИСЛО!</code>: корень из отрицательного числа не вычисляется. Это мостик к функции <code>ABS()</code>.",
-      prep: ["Файл-заготовка с этими числами в столбце A на каждом компьютере", "Таблица с отрицательными числами для работы с ABS()", "Электронные таблицы открыты до звонка"]
-    }
-  },
-  { sec: 1, track: P, min: 80, title: "Одномерный массив. Список list и его методы",
-    goals: [goal("8.2.1.2")],
-    results: {
-      all: "создают список и обращаются к элементу по индексу: <code>a[0]</code>, <code>a[-1]</code>.",
-      most: "применяют методы <code>append()</code>, <code>insert()</code>, <code>remove()</code>, <code>pop()</code>, <code>sort()</code> и предсказывают, как изменится список.",
-      some: "обрабатывают список в цикле <code>for</code> и решают задачу с условием (например, подсчёт чётных элементов)."
-    },
-    org: {
-      name: "Живая очередь",
-      screen: `<p>Пять человек встают в очередь у доски. Каждый держит карточку с числом.</p>
-        <p>Класс отвечает: у кого индекс <b>0</b>? У кого индекс <b>−1</b>? Что станет с очередью, если «выполнить» <code>append(7)</code>, а потом <code>pop(0)</code>?</p>
-        <pre>queue = [12, 5, 8, 3, 10]</pre>`,
-      answer: "Индекс 0 у первого (12), индекс −1 у последнего (10). После <code>append(7)</code>: [12, 5, 8, 3, 10, 7]. После <code>pop(0)</code>: [5, 8, 3, 10, 7].",
-      prep: ["Пять карточек формата A4 с числами 12, 5, 8, 3, 10 и одна запасная с числом 7", "Среда Python запущена на всех компьютерах", "Файл-заготовка со списком queue"]
-    }
-  },
-  { sec: 1, track: S, min: 40, title: "Математические функции: СТЕПЕНЬ(), СУММЕСЛИ()",
-    goals: [goal("8.2.2.1")],
-    results: {
-      all: "вычисляют степень числа формулой <code>=СТЕПЕНЬ(A1;2)</code>.",
-      most: "суммируют значения по условию с помощью <code>СУММЕСЛИ()</code>, например расходы только одной категории.",
-      some: "сравнивают <code>=СТЕПЕНЬ(A1;0,5)</code> и <code>=КОРЕНЬ(A1)</code> и объясняют, почему результаты совпадают."
-    },
-    org: {
-      name: "Легенда о шахматной доске",
-      screen: `<p>Мудрец попросил награду: на первую клетку доски одно зерно, на вторую два, на третью четыре, и на каждую следующую вдвое больше.</p>
-        <p>Как вы думаете, сколько зёрен окажется на 64-й клетке? Запишите свою догадку.</p>`,
-      answer: "На 64-й клетке 2<sup>63</sup> зёрен, это число из 19 цифр. В таблице это одна формула: <code>=СТЕПЕНЬ(2;63)</code>. Проверим её в начале практической части.",
-      prep: ["Листочки или стикеры для записи догадок", "Заготовка «Шахматная доска»: номера клеток 1–64 в столбце A", "Таблица покупок с категориями для СУММЕСЛИ()"]
-    }
-  },
-  { sec: 1, track: P, min: 80, title: "Кортеж tuple",
-    goals: [goal("8.2.1.4")],
-    results: {
-      all: "создают кортеж и обращаются к его элементам по индексу.",
-      most: "объясняют, чем кортеж отличается от списка, и используют <code>len()</code>, <code>count()</code>, <code>index()</code>.",
-      some: "выбирают между списком и кортежем для конкретной задачи и обосновывают выбор; используют распаковку <code>x, y = point</code>."
-    },
-    org: {
-      name: "Меняется или нет?",
-      screen: `<p>Разложите данные на две группы: <b>может меняться</b> и <b>не меняется</b>.</p>
-        <p>Дни недели · список покупок · координаты школы · дата твоего рождения · оценки за четверть · цвета светофора · очередь в столовой</p>
-        <p>Что ответит Python?</p>
-        <pre>days = ("пн", "вт", "ср")
-days[0] = "вс"</pre>`,
-      answer: "Python выдаст ошибку <code>TypeError: 'tuple' object does not support item assignment</code>. Кортеж нельзя изменить после создания, поэтому он подходит для данных из группы «не меняется».",
-      prep: ["Семь карточек с данными для сортировки на доске (или слайд)", "Две подписи на доске: «может меняться» / «не меняется»", "Среда Python запущена"]
-    }
-  },
-  { sec: 1, track: S, min: 40, title: "Логические функции: ЕСЛИ(), И(), ИЛИ(), НЕ()",
-    goals: [goal("8.2.2.2")],
-    results: {
-      all: "записывают формулу <code>ЕСЛИ()</code> с одним условием, например «зачёт / незачёт».",
-      most: "объединяют несколько условий с помощью <code>И()</code> и <code>ИЛИ()</code>.",
-      some: "строят вложенную формулу <code>ЕСЛИ()</code> и применяют <code>НЕ()</code> для обратного условия."
-    },
-    org: {
-      name: "Пропустят в зал или нет?",
-      screen: `<p>Правило кинотеатра: на фильм 12+ пропускают, если <b>возраст ≥ 12 И есть билет</b>.</p>
-        <div class="tablewrap"><table><tr><th>Зритель</th><th>Возраст</th><th>Билет</th></tr>
-        <tr><td>Айдана</td><td>13</td><td>да</td></tr><tr><td>Тимур</td><td>11</td><td>да</td></tr>
-        <tr><td>Дана</td><td>14</td><td>нет</td></tr><tr><td>Арман</td><td>12</td><td>да</td></tr></table></div>
-        <p>Если зрителя пропустят, встаньте. Если нет, сидите.</p>`,
-      answer: "Пропустят Айдану и Армана: у них оба условия ИСТИНА. Формула для ячейки: <code>=ЕСЛИ(И(B2>=12;C2=\"да\");\"пропустить\";\"нет\")</code>.",
-      prep: ["Слайд или таблица с четырьмя зрителями", "Тот же список зрителей в файле-заготовке", "Электронные таблицы открыты"]
-    }
-  },
-  { sec: 1, track: P, min: 80, title: "Словарь dict",
-    goals: [goal("8.2.1.6")],
-    results: {
-      all: "создают словарь и получают значение по ключу <code>d[\"ключ\"]</code>.",
-      most: "добавляют и изменяют пары, перебирают <code>keys()</code>, <code>values()</code>, <code>items()</code>.",
-      some: "преобразуют два списка в словарь через <code>dict(zip(a, b))</code> и список кортежей через <code>dict()</code>."
-    },
-    org: {
-      name: "Мини-словарь",
-      screen: `<p>Учитель называет слово на казахском — класс называет перевод.</p>
-        <pre>words = {
-    "мектеп": "школа",
-    "кітап": "книга",
-    "дәптер": "тетрадь",
-    "сынып": "класс",
-    "мұғалім": "учитель"
-}</pre>
-        <p>Что здесь ключ, а что значение? Можно ли найти слово по переводу так же быстро?</p>`,
-      answer: "Ключи — казахские слова, значения — переводы. Python ищет быстро только по ключу; чтобы искать по переводу, нужен второй словарь, где ключ и значение поменяны местами.",
-      prep: ["Пять карточек: на одной стороне слово, на другой перевод", "Файл-заготовка со словарём words", "Среда Python запущена"]
-    }
-  },
-  { sec: 1, track: C, min: 40, title: "СОР 2",
-    goals: [{ code: "СОР", text: "суммативное оценивание за раздел: цели 8.2.2.1, 8.2.1.2, 8.2.1.4, 8.2.2.2, 8.2.1.6 (состав целей — по спецификации СОР)" }],
-    results: {
-      all: "выполняют задания базового уровня по электронным таблицам и спискам.",
-      most: "выполняют задания на кортежи, словари и логические функции.",
-      some: "выполняют задания повышенного уровня полностью и без подсказок."
-    },
-    resultsNote: "Критерии оценивания и дескрипторы — по спецификации СОР 2.",
-    org: {
-      name: "Инструктаж перед работой",
-      screen: `<p>Время работы — <b>30 минут</b>.</p>
-        <p>Сохраняйте файлы в папку <span class="mono">СОР2_Фамилия</span>.</p>
-        <p>Телефоны — на край парты экраном вниз. Вопросы — поднятой рукой.</p>
-        <p>Сначала прочитайте все задания, потом начинайте с того, в котором уверены.</p>`,
-      answer: "Время на экране можно поменять под ваш вариант СОР; таймер в правой колонке запускается отдельно.",
-      prep: ["Варианты заданий распечатаны (или открыты на компьютерах)", "Папки для сохранения созданы на всех компьютерах", "Листы с критериями оценивания для учеников", "Рассадка по вариантам продумана"]
-    }
-  },
-  { sec: 1, track: P, min: 80, title: "Множество set",
-    goals: [goal("set", "код уточнить")],
-    results: {
-      all: "создают множество и удаляют повторы из списка через <code>set()</code>.",
-      most: "используют <code>add()</code>, <code>discard()</code>, <code>remove()</code> и проверку <code>in</code>.",
-      some: "применяют объединение <code>|</code>, пересечение <code>&amp;</code> и разность <code>-</code> для решения задачи."
-    },
-    org: {
-      name: "Кружки по интересам",
-      screen: `<p>На доске два круга: <b>Футбол</b> и <b>Робототехника</b>.</p>
-        <p>Наклейте стикер со своим именем в нужный круг, в оба сразу или за пределами кругов.</p>
-        <p>Кто ходит в оба кружка? Кто хотя бы в один? Кто только в футбол?</p>`,
-      answer: "Оба кружка — пересечение <code>football &amp; robots</code>. Хотя бы один — объединение <code>football | robots</code>. Только футбол — разность <code>football - robots</code>.",
-      prep: ["Два больших пересекающихся круга на доске", "Стикеры по числу учеников", "Среда Python запущена"]
-    }
-  },
-
-  { sec: 2, track: S, min: 40, title: "Статистические функции: СРЗНАЧ(), МАКС(), МИН()",
-    goals: [goal("8.2.2.3")],
-    results: {
-      all: "находят среднее, наибольшее и наименьшее значение диапазона.",
-      most: "делают вывод по данным: какое значение типичное, какие выделяются.",
-      some: "объясняют, почему пустая ячейка и ячейка с нулём по-разному влияют на <code>СРЗНАЧ()</code>."
-    },
-    org: {
-      name: "Сколько минут до школы?",
-      screen: `<p>Назовите, сколько минут вы добираетесь до школы. Учитель записывает ответы в таблицу.</p>
-        <p>Кто живёт ближе всех? Кто дальше всех? Какое время «обычное» для нашего класса?</p>`,
-      answer: "Эти три вопроса — функции <code>МИН()</code>, <code>МАКС()</code> и <code>СРЗНАЧ()</code>. На данных класса посчитаем их в практической части.",
-      prep: ["Пустая таблица на проекторе для ввода ответов", "Таблица сохраняется и раздаётся ученикам для практики", "Электронные таблицы открыты"]
-    }
-  },
-  { sec: 2, track: P, min: 80, title: "Двумерные массивы",
-    goals: [goal("8.2.2.4")],
-    results: {
-      all: "создают двумерный список и обращаются к элементу <code>m[i][j]</code>.",
-      most: "выводят матрицу построчно с помощью вложенных циклов.",
-      some: "заполняют матрицу по правилу и находят сумму каждой строки."
-    },
-    org: {
-      name: "Билет в кинозал",
-      screen: `<p>В зале 3 ряда по 4 места. Программист нумерует ряды и места с нуля.</p>
-        <div class="tablewrap"><table><tr><th></th><th>0</th><th>1</th><th>2</th><th>3</th></tr>
-        <tr><th>0</th><td>.</td><td>.</td><td>.</td><td>.</td></tr>
-        <tr><th>1</th><td>.</td><td>.</td><td>★</td><td>.</td></tr>
-        <tr><th>2</th><td>.</td><td>.</td><td>.</td><td>.</td></tr></table></div>
-        <p>Как записать место со звездой? Где сидит тот, у кого билет <code>hall[2][0]</code>?</p>`,
-      answer: "Звезда — <code>hall[1][2]</code>: ряд 1, место 2. Билет <code>hall[2][0]</code> — последний ряд, крайнее левое место. Первый индекс — строка, второй — столбец.",
-      prep: ["Схема зала на слайде или на доске", "Можно рассадить класс как «зал» и назвать координаты парт", "Среда Python запущена"]
-    }
-  },
-  { sec: 2, track: S, min: 40, title: "Моделирование процессов в электронных таблицах",
-    goals: [goal("8.3.2.1")],
-    results: {
-      all: "меняют исходные данные в готовой модели и наблюдают, как меняется результат.",
-      most: "строят диаграмму по результатам модели и описывают зависимость.",
-      some: "объясняют, как пропуски и ошибки в исходных данных искажают результат модели."
-    },
-    org: {
-      name: "Копилка",
-      screen: `<p>Каждый день вы откладываете <b>200 тенге</b>.</p>
-        <p>Сколько будет через месяц? Через год? Запишите догадку.</p>
-        <p>А если неделю не откладывать? А если в таблице одна ячейка останется пустой?</p>`,
-      answer: "Через 30 дней — 6 000 тенге, через 365 дней — 73 000 тенге. Пропущенная неделя уменьшает итог на 1 400 тенге. Последний вопрос — о главном на уроке: модель считает правильно только по полным данным.",
-      prep: ["Стикеры для записи догадок", "Заготовка модели «Копилка»: день, взнос, накоплено", "Электронные таблицы открыты"]
-    }
-  },
-  { sec: 2, track: P, min: 80, title: "Главная и побочная диагонали",
-    goals: [goal("8.2.2.2d", "код уточнить")],
-    results: {
-      all: "находят элементы главной диагонали по условию <code>i == j</code>.",
-      most: "находят элементы побочной диагонали по условию <code>i + j == n - 1</code> и изменяют их.",
-      some: "меняют диагонали местами или находят сумму элементов выше главной диагонали."
-    },
-    org: {
-      name: "Крестики-нолики",
-      screen: `<p>Крестик выиграл по диагонали. Назовите индексы клеток каждой диагонали.</p>
-        <div class="tablewrap"><table><tr><th></th><th>0</th><th>1</th><th>2</th></tr>
-        <tr><th>0</th><td>X</td><td></td><td>O</td></tr>
-        <tr><th>1</th><td></td><td>X</td><td>O</td></tr>
-        <tr><th>2</th><td></td><td></td><td>X</td></tr></table></div>
-        <p>Какая закономерность у индексов на одной диагонали? А на другой?</p>`,
-      answer: "Главная диагональ: [0][0], [1][1], [2][2] — индексы равны, <code>i == j</code>. Побочная: [0][2], [1][1], [2][0] — сумма индексов равна 2, то есть <code>i + j == n - 1</code>.",
-      prep: ["Сетка 3×3 с индексами на доске", "Маркеры двух цветов для двух диагоналей", "Среда Python запущена"]
-    }
-  },
-  { sec: 2, track: S, min: 40, title: "Модели ИИ: признаки, предсказание, классификация",
-    goals: [goal("8.3.3.1")],
-    results: {
-      all: "называют признаки объекта в наборе данных.",
-      most: "объясняют, как модель по признакам относит объект к одному из классов.",
-      some: "находят признак, который не помогает классификации, и объясняют, как он влияет на предсказание."
-    },
-    org: {
-      name: "Угадай по признакам",
-      screen: `<p>Учитель называет признаки по одному. Поднимите руку, как только догадаетесь.</p>
-        <p>1) живое · 2) четыре лапы · 3) живёт дома · 4) мурлычет</p>
-        <p>После какого признака вы были уверены? Какой признак оказался решающим?</p>`,
-      answer: "Обычно класс уверен только после «мурлычет»: первые признаки подходят многим животным. Модель ИИ работает так же: чем точнее признаки, тем увереннее классификация.",
-      prep: ["Две-три загадки с признаками (можно придумать свои)", "Таблица-заготовка: объекты в строках, признаки в столбцах", "Электронные таблицы открыты"]
-    }
-  },
-  { sec: 2, track: P, min: 80, title: "Сортировка методом пузырька",
-    goals: [goal("8.2.2.6")],
-    results: {
-      all: "описывают шаг алгоритма: сравнить два соседних элемента и поменять их, если порядок неверный.",
-      most: "реализуют сортировку пузырьком вложенными циклами.",
-      some: "считают число обменов и останавливают сортировку, если за проход не было ни одного обмена."
-    },
-    org: {
-      name: "Живая сортировка",
-      screen: `<p>Шесть человек с карточками встают в ряд. Правило одно: <b>сравни себя с соседом справа, и если твоё число больше — поменяйтесь местами</b>.</p>
-        <pre>[7, 3, 9, 1, 6, 4]</pre>
-        <p>Класс следит: какое число «всплывёт» в конец после первого прохода?</p>`,
-      answer: "После первого прохода в конце окажется 9 — самое большое число: [3, 7, 1, 6, 4, 9]. Каждый проход ставит на место ещё один наибольший элемент.",
-      prep: ["Шесть карточек A4 с числами 7, 3, 9, 1, 6, 4", "Место у доски для шести человек", "Среда Python запущена"]
-    }
-  },
-  { sec: 2, track: P, min: 80, title: "Практикум: массивы",
-    goals: [goal("8.2.1.2"), goal("8.2.2.4"), goal("8.2.2.6")],
-    results: {
-      all: "решают задачи уровня A: создание и вывод одномерных и двумерных списков.",
-      most: "решают задачи уровня B: обработка массивов с условием, работа с диагоналями.",
-      some: "решают задачи уровня C: комбинированные задачи с сортировкой и матрицами."
-    },
-    org: {
-      name: "Выбери свой старт",
-      screen: `<p>Сегодня три уровня задач: <b>A</b>, <b>B</b> и <b>C</b>.</p>
-        <p>Оцените себя: насколько вы уверены в списках, двумерных массивах и сортировке? Выберите уровень, с которого начнёте.</p>
-        <p>Решили две задачи уровня — переходите на следующий.</p>`,
-      answer: "Выбор уровня записывается в лист самооценки. В конце урока ученик сравнивает, с какого уровня начал и до какого дошёл.",
-      prep: ["Карточки задач трёх уровней (A, B, C)", "Лист самооценки на каждого ученика", "Среда Python запущена"]
-    }
-  },
-  { sec: 2, track: S, min: 40, title: "Повторение",
-    goals: [{ code: "Повторение", text: "повторить работу с функциями электронных таблиц, одномерными и двумерными массивами и сортировкой перед СОЧ" }],
-    results: {
-      all: "вспоминают синтаксис списков, двумерных массивов и функций таблиц.",
-      most: "находят и исправляют ошибки в коде и формулах.",
-      some: "объясняют, какую структуру данных выбрать для задачи и почему."
-    },
-    org: {
-      name: "Найди ошибку",
-      screen: `<p>В каждом фрагменте одна ошибка. Найдите её.</p>
-        <pre>a = [1, 2, 3]
-print(a[3])</pre>
-        <pre>for x in a
-    print(x)</pre>
-        <pre>m = [[1, 2], [3, 4]]
-print(m[1, 0])</pre>`,
-      answer: "1) Индекса 3 нет, последний — 2: <code>IndexError</code>. 2) После <code>for x in a</code> нужно двоеточие. 3) Обращение к элементу пишется <code>m[1][0]</code>, а не <code>m[1, 0]</code>.",
-      prep: ["Три фрагмента кода на слайде", "Можно добавить формулу таблицы с ошибкой, например <code>=СУММ(A1:A5</code>", "Список тем СОЧ для учеников"]
-    }
-  },
-  { sec: 2, track: C, min: 40, title: "СОЧ",
-    goals: [{ code: "СОЧ", text: "суммативное оценивание за четверть: цели 8.2.2.3, 8.2.2.4, 8.3.2.1, 8.3.3.1, 8.2.2.6 (состав целей — по спецификации СОЧ)" }],
-    results: {
-      all: "выполняют задания базового уровня по таблицам и двумерным массивам.",
-      most: "выполняют задания на моделирование и сортировку.",
-      some: "выполняют задания повышенного уровня полностью и без подсказок."
-    },
-    resultsNote: "Критерии оценивания и дескрипторы — по спецификации СОЧ.",
-    org: {
-      name: "Инструктаж перед работой",
-      screen: `<p>Время работы — <b>35 минут</b>.</p>
-        <p>Сохраняйте файлы в папку <span class="mono">СОЧ_Фамилия</span>.</p>
-        <p>Телефоны — на край парты экраном вниз. Вопросы — поднятой рукой.</p>
-        <p>Сначала прочитайте все задания, потом начинайте с того, в котором уверены.</p>`,
-      answer: "Время на экране можно поменять под ваш вариант СОЧ.",
-      prep: ["Варианты заданий распечатаны (или открыты на компьютерах)", "Папки для сохранения созданы", "Листы с критериями оценивания", "Рассадка по вариантам продумана"]
-    }
-  }
-];
-
-LESSONS.forEach((l, i) => { l.n = i + 1; });
-
-const TRACK = {
-  sheet: { label: "Электронные таблицы", env: "электронные таблицы открыты" },
-  py:    { label: "Python", env: "среда Python запущена" },
-  ctrl:  { label: "Контроль", env: "задания и папки для сохранения готовы" }
-};
-
-/* Тайминг организационного момента: 40 минут → 3 мин, 80 минут → 5 мин */
-function orgPlan(l) {
-  const long = l.min === 80;
-  const total = long ? 5 : 3;
-  const rows = l.track === C
-    ? [["0:00–0:30", "Приветствие, отметка отсутствующих."],
-       ["0:30–1:00", "Проверка рабочего места: " + TRACK[l.track].env + "."],
-       ["1:00–3:00", "Инструктаж: время, правила, порядок сдачи. Ответы на вопросы до начала работы."]]
-    : long
-    ? [["0:00–0:30", "Приветствие, отметка отсутствующих."],
-       ["0:30–1:00", "Проверка рабочего места: " + TRACK[l.track].env + "."],
-       ["1:00–4:00", "Разминка «" + l.org.name + "»: задание на экране, ученики отвечают."],
-       ["4:00–5:00", "Разбор ответа и переход к теме и цели урока."]]
-    : [["0:00–0:30", "Приветствие, отметка отсутствующих, проверка рабочего места."],
-       ["0:30–2:30", "Разминка «" + l.org.name + "»: задание на экране."],
-       ["2:30–3:00", "Короткий разбор и переход к теме урока."]];
-  return { total, rows };
-}
-
-const STEPS = [
-  { id: "goal", label: "Тема и цель" },
-  { id: "org", label: "Организационный момент" }
-];
-const LATER = ["Актуализация", "Новый материал", "Практика", "Рефлексия"];
-
-const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
-};
-
-let cur = 1, step = "goal";
-let timerSec = 0, timerLeft = 0, timerId = null;
-
-function renderNav() {
-  const nav = document.getElementById("nav");
-  nav.innerHTML = SECTIONS.map(s => `
-    <h2 class="sec-title">${s.title}</h2>
-    <ul>${LESSONS.filter(l => l.sec === s.id).map(l => `
-      <li><button type="button" class="l-item t-${l.track}" data-n="${l.n}" style="--cur: var(--${l.track})">
-        <span class="num">${l.n}</span>
-        <span class="name">${l.title}</span>
-        <span class="mins">${l.min}′</span>
-      </button></li>`).join("")}
-    </ul>`).join("");
-  nav.addEventListener("click", e => {
-    const b = e.target.closest(".l-item");
-    if (b) { open(+b.dataset.n, "goal"); if (window.innerWidth <= 860) document.getElementById("main").scrollIntoView({ behavior: "smooth" }); }
-  });
-}
-
-function goalBlock(l) {
-  const res = l.results;
-  const row = (who, w, text) => `<div class="res"><div class="who">${who}<span class="bar" aria-hidden="true"><i style="width:${w}%"></i></span></div><p>${text}</p></div>`;
-  return `
+  <!-- Этап 1 -->
+  <div class="panel" id="goal" role="tabpanel" aria-labelledby="tab-goal">
     <section class="block">
-      <h3>Цель обучения</h3>
-      ${l.goals.map(g => `<div class="goal"><span class="code">${g.code}</span><p>${g.text}</p></div>`).join("")}
+      <h2>Цель обучения</h2>
+      <div class="goal"><span class="code">8.2.2.1</span><p>использовать математические функции (СУММ(); ABS(); КОРЕНЬ(); СТЕПЕНЬ(); СУММЕСЛИ()) в электронных таблицах</p></div>
     </section>
     <section class="block">
-      <h3>Ожидаемые результаты · к концу урока</h3>
-      <div class="results">
-        ${row("Все учащиеся", 100, res.all)}
-        ${row("Большинство", 70, res.most)}
-        ${row("Некоторые", 35, res.some)}
-      </div>
-      ${l.resultsNote ? `<p class="prep-count">${l.resultsNote}</p>` : ""}
+      <h2>Цель урока</h2>
+      <p style="margin:0;font-size:1.08rem">научиться находить сумму диапазона, модуль числа и квадратный корень с помощью функций СУММ(), ABS() и КОРЕНЬ().</p>
     </section>
-    <div class="next">
-      <span></span>
-      <button class="btn" type="button" data-go="org">Дальше: организационный момент →</button>
-    </div>`;
-}
+    <section class="block">
+      <h2>Ожидаемые результаты · к концу урока</h2>
+      <div class="res"><div class="who">Все учащиеся<span class="bar"><i style="width:100%"></i></span></div><p>записывают формулу <code>=СУММ(A1:A8)</code> и находят сумму диапазона ячеек.</p></div>
+      <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>применяют <code>ABS()</code> и <code>КОРЕНЬ()</code> к значениям ячеек и объясняют результат.</p></div>
+      <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>составляют вложенную формулу <code>=КОРЕНЬ(ABS(A2))</code> и объясняют, зачем нужна каждая функция.</p></div>
+    </section>
+    <div class="next"><span></span><button class="btn main" type="button" data-go="org">Дальше: организационный момент →</button></div>
+  </div>
 
-function orgBlock(l) {
-  const plan = orgPlan(l);
-  const key = "prep-" + l.n;
-  const done = store.get(key, []);
-  const prep = l.org.prep.map((p, i) => `
-    <li><label for="p${l.n}-${i}"><input type="checkbox" id="p${l.n}-${i}" data-i="${i}" ${done.includes(i) ? "checked" : ""}><span>${p}</span></label></li>`).join("");
-  return `
+  <!-- Этап 2 -->
+  <div class="panel" id="org" role="tabpanel" aria-labelledby="tab-org" hidden>
     <div class="org-grid">
       <section class="block screen">
-        <h3>На экране для класса · ${plan.total} мин</h3>
-        <p class="act">${l.org.name}</p>
-        <div class="prompt">${l.org.screen}</div>
-        <details class="reveal"><summary>Показать ответ</summary><div>${l.org.answer}</div></details>
+        <h2>На экране для класса · 3 мин</h2>
+        <p class="act">Кто быстрее: класс или формула?</p>
+        <p>Сложите в уме восемь чисел. У вас 20 секунд.</p>
+        <table class="sheet">
+          <tr><th></th><th>A</th></tr>
+          <tr><th>1</th><td>17</td></tr><tr><th>2</th><td>−8</td></tr><tr><th>3</th><td>25</td></tr><tr><th>4</th><td>−13</td></tr>
+          <tr><th>5</th><td>40</td></tr><tr><th>6</th><td>9</td></tr><tr><th>7</th><td>−6</td></tr><tr><th>8</th><td>36</td></tr>
+        </table>
+        <p>Вопрос на урок: что покажет таблица, если ввести <code>=КОРЕНЬ(-9)</code>?</p>
+        <details class="reveal"><summary>Показать ответ</summary>
+          <div>Сумма равна 100. <code>=КОРЕНЬ(-9)</code> возвращает ошибку <code>#ЧИСЛО!</code>: корень из отрицательного числа не вычисляется. Как это исправить, узнаем с помощью функции <code>ABS()</code>.</div>
+        </details>
       </section>
       <div class="side">
         <section class="block">
-          <h3>Таймер</h3>
+          <h2>Таймер</h2>
           <div class="timer">
-            <output id="tOut">${fmt(plan.total * 60)}</output>
+            <output id="tOut">3:00</output>
             <button class="btn" type="button" id="tStart">Старт</button>
             <button class="btn" type="button" id="tReset">Сброс</button>
           </div>
         </section>
         <section class="block">
-          <h3>Учителю подготовить</h3>
-          <ul class="prep" id="prep" data-key="${key}">${prep}</ul>
-          <p class="prep-count" id="prepCount"></p>
+          <h2>Учителю подготовить</h2>
+          <ul class="prep" id="prep">
+            <li><label for="p0"><input type="checkbox" id="p0"><span>Файл-заготовка с числами в столбце A на каждом компьютере</span></label></li>
+            <li><label for="p1"><input type="checkbox" id="p1"><span>Таблица с отрицательными числами для работы с ABS()</span></label></li>
+            <li><label for="p2"><input type="checkbox" id="p2"><span>Электронные таблицы открыты до звонка</span></label></li>
+            <li><label for="p3"><input type="checkbox" id="p3"><span>Задание выведено на проектор</span></label></li>
+          </ul>
+          <p class="small" id="prepCount"></p>
         </section>
       </div>
     </div>
     <section class="block">
-      <h3>Ход организационного момента</h3>
-      <ol class="plan">${plan.rows.map(r => `<li><span class="t">${r[0]}</span><span>${r[1]}</span></li>`).join("")}</ol>
+      <h2>Ход организационного момента</h2>
+      <ol class="plan">
+        <li><span class="t">0:00–0:30</span><span>Приветствие, отметка отсутствующих, проверка рабочих мест.</span></li>
+        <li><span class="t">0:30–2:30</span><span>Разминка: 20 секунд класс считает устно, затем учитель вводит <code>=СУММ(A1:A8)</code> и показывает результат. Ученики отвечают на вопрос про <code>КОРЕНЬ(-9)</code>.</span></li>
+        <li><span class="t">2:30–3:00</span><span>Разбор ответа и переход к теме и цели урока.</span></li>
+      </ol>
     </section>
-    <div class="next">
-      <button class="btn" type="button" data-go="goal">← Тема и цель</button>
-      ${l.n < LESSONS.length ? `<button class="btn" type="button" data-lesson="${l.n + 1}">Следующий урок →</button>` : "<span></span>"}
-    </div>`;
-}
+    <div class="next"><button class="btn" type="button" data-go="goal">← Тема и цель</button><span></span></div>
+  </div>
+</div>
 
-function fmt(s) { const m = Math.floor(s / 60), r = s % 60; return m + ":" + String(r).padStart(2, "0"); }
+<script>
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
 
-function stopTimer() { clearInterval(timerId); timerId = null; }
-
-function bindOrg(l) {
-  const plan = orgPlan(l);
-  timerSec = plan.total * 60; timerLeft = timerSec; stopTimer();
-  const out = document.getElementById("tOut"), start = document.getElementById("tStart"), reset = document.getElementById("tReset");
-  start.addEventListener("click", () => {
-    if (timerId) { stopTimer(); start.textContent = "Продолжить"; return; }
-    if (timerLeft <= 0) timerLeft = timerSec;
-    out.classList.remove("done");
-    start.textContent = "Пауза";
-    timerId = setInterval(() => {
-      timerLeft--; out.textContent = fmt(Math.max(timerLeft, 0));
-      if (timerLeft <= 0) { stopTimer(); out.classList.add("done"); out.textContent = "Время!"; start.textContent = "Старт"; }
-    }, 1000);
+function show(id) {
+  ["goal", "org"].forEach(p => {
+    document.getElementById(p).hidden = p !== id;
+    document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
-  reset.addEventListener("click", () => { stopTimer(); timerLeft = timerSec; out.textContent = fmt(timerSec); out.classList.remove("done"); start.textContent = "Старт"; });
-
-  const prep = document.getElementById("prep"), count = document.getElementById("prepCount");
-  const upd = () => {
-    const boxes = [...prep.querySelectorAll("input")];
-    const on = boxes.filter(b => b.checked).map(b => +b.dataset.i);
-    count.textContent = "Готово " + on.length + " из " + boxes.length;
-    return on;
-  };
-  upd();
-  prep.addEventListener("change", () => store.set(prep.dataset.key, upd()));
 }
+document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => show(b.getAttribute("aria-controls"))));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); window.scrollTo({ top: 0, behavior: "smooth" }); }));
 
-function open(n, s) {
-  cur = n; step = s || "goal";
-  const l = LESSONS[n - 1];
-  document.querySelectorAll(".l-item").forEach(b => b.setAttribute("aria-current", +b.dataset.n === n ? "true" : "false"));
-  const sec = SECTIONS.find(x => x.id === l.sec);
-  const main = document.getElementById("main");
-  main.className = "t-" + l.track;
-  main.innerHTML = `
-    <div class="lesson-head">
-      <div class="chips">
-        <span class="chip plain">Урок ${l.n} из ${LESSONS.length}</span>
-        <span class="chip">${TRACK[l.track].label}</span>
-        <span class="chip plain">${l.min} минут</span>
-        <span class="chip plain">${sec.title.replace(/ · .*/, "")}</span>
-      </div>
-      <h2>${l.title}</h2>
-    </div>
-    <div class="steps" role="tablist" aria-label="Этапы урока">
-      ${STEPS.map((x, i) => `<button type="button" class="step" role="tab" data-step="${x.id}" aria-selected="${x.id === step}"><b>${i + 1}</b>${x.label}</button>`).join("")}
-      ${LATER.map((x, i) => `<button type="button" class="step" disabled><b>${i + 3}</b>${x} <small>· позже</small></button>`).join("")}
-    </div>
-    <div class="panel" role="tabpanel">${step === "goal" ? goalBlock(l) : orgBlock(l)}</div>`;
-  if (step === "org") bindOrg(l); else stopTimer();
-  try { history.replaceState(null, "", "#l" + n); } catch (e) {}
-  store.set("last", n);
-}
-
-document.getElementById("main").addEventListener("click", e => {
-  const st = e.target.closest("[data-step]"); if (st && !st.disabled) return open(cur, st.dataset.step);
-  const go = e.target.closest("[data-go]"); if (go) return open(cur, go.dataset.go);
-  const nx = e.target.closest("[data-lesson]"); if (nx) { open(+nx.dataset.lesson, "goal"); window.scrollTo({ top: 0, behavior: "smooth" }); }
+const TOTAL = 180;
+let left = TOTAL, id = null;
+const out = document.getElementById("tOut"), startBtn = document.getElementById("tStart");
+const fmt = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+function stop() { clearInterval(id); id = null; }
+startBtn.addEventListener("click", () => {
+  if (id) { stop(); startBtn.textContent = "Продолжить"; return; }
+  if (left <= 0) left = TOTAL;
+  out.classList.remove("done"); startBtn.textContent = "Пауза";
+  id = setInterval(() => {
+    left--; out.textContent = fmt(Math.max(left, 0));
+    if (left <= 0) { stop(); out.classList.add("done"); out.textContent = "Время!"; startBtn.textContent = "Старт"; }
+  }, 1000);
 });
+document.getElementById("tReset").addEventListener("click", () => { stop(); left = TOTAL; out.textContent = fmt(TOTAL); out.classList.remove("done"); startBtn.textContent = "Старт"; });
+
+const boxes = [...document.querySelectorAll("#prep input")];
+const saved = store.get("prep-l1", []);
+boxes.forEach((b, i) => { b.checked = saved.includes(i); });
+function count() {
+  const on = boxes.map((b, i) => b.checked ? i : -1).filter(i => i >= 0);
+  document.getElementById("prepCount").textContent = "Готово " + on.length + " из " + boxes.length;
+  return on;
+}
+count();
+document.getElementById("prep").addEventListener("change", () => store.set("prep-l1", count()));
 
 const bigBtn = document.getElementById("bigBtn");
 function setBig(on) { document.documentElement.classList.toggle("big", on); bigBtn.setAttribute("aria-pressed", on); store.set("big", on); }
@@ -699,15 +238,9 @@ bigBtn.addEventListener("click", () => setBig(!document.documentElement.classLis
 setBig(store.get("big", false));
 
 document.getElementById("fsBtn").addEventListener("click", () => {
-  const el = document.documentElement;
   try {
     if (document.fullscreenElement) document.exitFullscreen();
-    else if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
   } catch (e) {}
 });
-
-renderNav();
-const fromHash = /^#l(\d{1,2})$/.exec(location.hash || "");
-const start = fromHash && +fromHash[1] >= 1 && +fromHash[1] <= LESSONS.length ? +fromHash[1] : store.get("last", 1);
-open(Math.min(Math.max(start, 1), LESSONS.length), "goal");
 </script>
