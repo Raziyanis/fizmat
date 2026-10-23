@@ -143,6 +143,25 @@ code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); borde
 textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05rem; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); resize: vertical; }
 .exp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 10px; }
 .mine { margin: 0 0 10px; font-size: 1.1rem; padding: 10px 14px; background: var(--bg); border-left: 3px solid var(--c); border-radius: 4px; white-space: pre-wrap; }
+.seg { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
+.seg label { cursor: pointer; }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg span { display: inline-block; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.seg input:checked + span { background: var(--c); border-color: var(--c); color: var(--surface); font-weight: 700; }
+.seg input:focus-visible + span { outline: 2px solid var(--c); outline-offset: 2px; }
+.rr { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid var(--line); }
+.rr:first-child { border-top: 0; padding-top: 0; }
+.rr .lvl { font-weight: 700; }
+.rr p { margin: 0; }
+.summary { border: 2px solid var(--c); }
+.sumrow { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 12px; padding: 6px 0; }
+@media (max-width: 520px) { .sumrow { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+.mark { font-weight: 700; }
+.mark.m2 { color: var(--c); }
+.mark.m1 { color: var(--ink); }
+.mark.m0 { color: var(--bad); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -158,6 +177,7 @@ textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05re
   <div class="steps" role="tablist" aria-label="Этапы урока">
     <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="true"><b>1</b>Разгадай тему</button>
     <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>2</b>Тема и цель</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>3</b>Итоги урока</button>
   </div>
 
   <!-- Этап 1: разгадать тему -->
@@ -254,7 +274,53 @@ textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05re
       <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>сложить только те числа, которые подходят под условие, с помощью <code>=СУММЕСЛИ(A1:A10;"&gt;0")</code> и составить формулу из двух функций, например <code>=КОРЕНЬ(ABS(A1))</code>, и объяснить, зачем тут ABS.</p></div>
     </section>
     </div>
-    <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><span></span></div>
+    <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><button class="btn" type="button" data-go="reflect" id="toReflect" hidden>В конце урока: итоги →</button></div>
+  </div>
+
+  <!-- Этап 3: итоги урока -->
+  <div class="panel" id="reflect" role="tabpanel" aria-labelledby="tab-reflect" hidden>
+    <div>
+      <h1>Итоги урока</h1>
+      <p class="lead">Вернись к тому, что ты написал в начале урока, и честно отметь, что получилось.</p>
+    </div>
+
+    <section class="block">
+      <h2>Мои ожидания · в начале урока</h2>
+      <p class="mine" id="refExp"></p>
+      <fieldset class="seg" id="segExp">
+        <legend>Мои ожидания оправдались?</legend>
+        <label><input type="radio" name="r-exp" id="r-exp-2" value="2"><span>Да</span></label>
+        <label><input type="radio" name="r-exp" id="r-exp-1" value="1"><span>Частично</span></label>
+        <label><input type="radio" name="r-exp" id="r-exp-0" value="0"><span>Нет</span></label>
+      </fieldset>
+    </section>
+
+    <section class="block">
+      <h2>Цель урока</h2>
+      <p class="plain" id="refGoal"></p>
+    </section>
+
+    <section class="block">
+      <h2>Ожидаемые результаты · достиг ли я?</h2>
+      <div id="refRes"></div>
+    </section>
+
+    <section class="block">
+      <h2>Мой комментарий</h2>
+      <label for="refNote" class="q">Что получилось лучше всего? Что было трудно?</label>
+      <textarea id="refNote" rows="3" placeholder="Например: легко было с СУММ, трудно с СУММЕСЛИ…"></textarea>
+      <div class="exp-actions">
+        <button class="btn main" type="button" id="refSave">Сохранить итог</button>
+        <span class="msg" id="refMsg" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="block summary" id="refSummary" hidden>
+      <h2>Мой итог</h2>
+      <div id="refSumBody"></div>
+    </section>
+
+    <div class="next"><button class="btn" type="button" data-go="goal">← Тема и цель</button><span></span></div>
   </div>
 </div>
 
@@ -396,7 +462,8 @@ function unlock() {
 }
 
 function show(id) {
-  ["puzzle", "goal"].forEach(p => {
+  if (id === "reflect") fillReflect();
+  ["puzzle", "goal", "reflect"].forEach(p => {
     document.getElementById(p).hidden = p !== id;
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
@@ -405,7 +472,9 @@ document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () =
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => show(b.dataset.go)));
 
 document.getElementById("resetBtn").addEventListener("click", () => {
-  solved = new Set(); store.del(KEY); store.del(EXP_KEY); unlocked = false;
+  solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
+  refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refSummary").hidden = true;
+  document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
   expText.value = ""; showExp("");
   document.getElementById("tab-goal").disabled = true;
   document.getElementById("guessIn").value = "";
@@ -433,7 +502,63 @@ function showExp(text) {
   document.getElementById("expSaved").hidden = !has;
   document.getElementById("expShow").textContent = text || "";
   document.getElementById("afterExp").hidden = !has;
+  document.getElementById("tab-reflect").disabled = !has;
+  document.getElementById("toReflect").hidden = !has;
 }
+
+/* Итоги урока: ожидания, цель и самооценка по каждому результату */
+const REF_KEY = "reflect-l1";
+const LEVELS = ["Все учащиеся", "Большинство", "Некоторые"];
+const MARK = { "2": "Получилось", "1": "Частично", "0": "Пока нет" };
+const EXP_MARK = { "2": "Да", "1": "Частично", "0": "Нет" };
+let refBuilt = false;
+function fillReflect() {
+  const saved = store.get(REF_KEY, null);
+  document.getElementById("refExp").textContent = store.get(EXP_KEY, "");
+  document.getElementById("refGoal").textContent = document.querySelector("#afterExp .plain").textContent;
+  if (!refBuilt) {
+    const texts = [...document.querySelectorAll("#afterExp .res p")].map(p => p.innerHTML);
+    document.getElementById("refRes").innerHTML = texts.map((t, i) => `
+      <div class="rr">
+        <span class="lvl">${LEVELS[i]}</span>
+        <p>Я смогу ${t}</p>
+        <fieldset class="seg"><legend class="sr">Достиг ли я: ${LEVELS[i]}</legend>
+          ${["2", "1", "0"].map(v => `<label><input type="radio" name="r-res-${i}" id="r-res-${i}-${v}" value="${v}"><span>${MARK[v]}</span></label>`).join("")}
+        </fieldset>
+      </div>`).join("");
+    refBuilt = true;
+    if (saved) {
+      const set = (name, v) => { const el = document.querySelector(`input[name="${name}"][value="${v}"]`); if (el) el.checked = true; };
+      if (saved.exp != null) set("r-exp", saved.exp);
+      (saved.res || []).forEach((v, i) => { if (v != null) set("r-res-" + i, v); });
+      document.getElementById("refNote").value = saved.note || "";
+    }
+  }
+  if (saved) showSummary(saved);
+}
+function val(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : null; }
+function showSummary(s) {
+  const rows = [`<div class="sumrow"><span>Ожидания</span><span class="mark m${s.exp}">${EXP_MARK[s.exp]}</span></div>`]
+    .concat(s.res.map((v, i) => `<div class="sumrow"><span>${LEVELS[i]}</span><span class="mark m${v}">${MARK[v]}</span></div>`));
+  const got = s.res.filter(v => v === "2").length;
+  let next = got === 3 ? "Все цели достигнуты. Отличная работа!"
+    : s.res[0] !== "2" ? "Вернись к заданиям на СУММ и ABS и спроси учителя, что непонятно."
+    : "Хороший результат. На следующем уроке потренируйся в том, что отмечено «Частично» или «Пока нет».";
+  const note = s.note ? `<p class="mine" style="margin-top:10px"></p>` : "";
+  const body = document.getElementById("refSumBody");
+  body.innerHTML = rows.join("") + note + `<p class="plain" style="margin-top:10px">${next}</p>`;
+  if (s.note) body.querySelector(".mine").textContent = s.note;
+  document.getElementById("refSummary").hidden = false;
+}
+document.getElementById("refSave").addEventListener("click", () => {
+  const s = { exp: val("r-exp"), res: [0, 1, 2].map(i => val("r-res-" + i)), note: document.getElementById("refNote").value.trim() };
+  const msg = document.getElementById("refMsg");
+  if (s.exp === null || s.res.includes(null)) { msg.className = "msg bad"; msg.textContent = "Ответь на все вопросы: ожидания и три результата."; return; }
+  store.set(REF_KEY, s);
+  msg.className = "msg ok"; msg.textContent = "Сохранено.";
+  showSummary(s);
+  document.getElementById("refSummary").scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
 document.querySelectorAll(".starter").forEach(b => b.addEventListener("click", () => {
   const s = b.textContent.replace("…", " ");
   expText.value = (expText.value.trim() ? expText.value.trim() + "\n" : "") + s;
