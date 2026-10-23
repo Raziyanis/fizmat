@@ -143,6 +143,7 @@ table.pg { border-collapse: collapse; width: 100%; font-size: .92rem; }
     <div class="ask-row">
       <textarea id="qIn" rows="2" maxlength="300" placeholder="Например: где в жизни пригодится СУММЕСЛИ?"></textarea>
       <button class="btn main" type="button" id="openQ">Открыть вопрос</button>
+      <button class="btn" type="button" id="openBreak">Физминутка для всех · 1 мин</button>
     </div>
     <div class="presets" id="presets"></div>
     <p class="err" id="askErr" aria-live="polite"></p>
@@ -167,7 +168,7 @@ table.pg { border-collapse: collapse; width: 100%; font-size: .92rem; }
     <div class="bar">
       <label><input type="checkbox" id="onlyBad"> только ошибки</label>
       <label for="stageSel">Этап:</label>
-      <select id="stageSel"><option value="">все</option><option>3. Вспомним</option><option>5. Какая функция?</option><option>6. Практика</option></select>
+      <select id="stageSel"><option value="">все</option><option>3. Вспомним</option><option>5. Какая функция?</option><option>6. Практика</option><option>8. Домашнее задание</option></select>
       <label for="taskSel">Задание:</label><select id="taskSel"><option value="">все</option></select>
     </div>
     <div class="feed" id="feed"></div>
@@ -237,6 +238,7 @@ el("openQ").onclick = () => {
     .catch(e => { el("askErr").textContent = e.message; });
 };
 el("closeQ").onclick = () => gsr("closeQuestion", PIN).then(refresh);
+el("openBreak").onclick = () => { el("askErr").textContent = ""; gsr("openBreak", PIN).then(refresh).catch(e => { el("askErr").textContent = e.message; }); };
 el("qSel").onchange = () => { qWanted = el("qSel").value; refresh(); };
 ["clsSel", "onlyBad", "stageSel", "taskSel", "lessonSel"].forEach(id => el(id).addEventListener("change", render));
 el("bigBtn").onclick = () => document.documentElement.classList.toggle("big");
@@ -265,7 +267,7 @@ function render() {
   if (cs.options.length - 1 !== classes.length) { cs.innerHTML = '<option value="">все классы</option>'; classes.forEach(c => cs.appendChild(new Option(c, c))); cs.value = cur; }
   // открытый вопрос
   el("liveBox").hidden = !(d.q && d.q.open);
-  if (d.q && d.q.open) el("liveText").textContent = d.q.text;
+  if (d.q && d.q.open) el("liveText").textContent = d.q.type === "break" ? "Физминутка (у учеников идёт таймер; закройте, когда все закончат)" : d.q.text;
   // доска
   const qs = el("qSel"); qs.innerHTML = "";
   d.questions.forEach(q => qs.appendChild(new Option((d.q && d.q.id === q.id && d.q.open ? "● " : "") + q.text, q.id)));
@@ -301,12 +303,12 @@ function render() {
   // прогресс
   const seenIds = new Set(d.progress.map(p => p.cls + "|" + p.name));
   const absent = [];
-  Object.keys(d.roster || {}).forEach(c => d.roster[c].forEach(n => { if (!seenIds.has(c + "|" + n)) absent.push({ cls: c, name: n, absent: true, stage: "не входил", desc: "", now: "", act: "", match: "", z: "", a: "", b: "", c: "", expOk: "", r0: "", r1: "", r2: "", expect: "", t: "" }); }));
+  Object.keys(d.roster || {}).forEach(c => d.roster[c].forEach(n => { if (!seenIds.has(c + "|" + n)) absent.push({ cls: c, name: n, absent: true, stage: "не входил", desc: "", hw: "", now: "", act: "", match: "", z: "", a: "", b: "", c: "", expOk: "", r0: "", r1: "", r2: "", expect: "", t: "" }); }));
   const pg = byClass(d.progress.concat(absent)).sort((a, b) => a.cls.localeCompare(b.cls, "ru", { numeric: true }) || a.name.localeCompare(b.name, "ru"));
   const inList = pg.filter(p => !p.absent);
   el("nProg").textContent = pg.length ? `(${inList.filter(p => p.online).length} онлайн · вошли ${inList.length} из ${pg.length})` : "";
   const T = el("pg"); T.innerHTML = "";
-  const head = ["Ученик", "Класс", "Этап", "Сейчас на", "Вспомним", "Какая функция", "Разминка", "A", "B", "C", "Дескрипторы", "Ожидания оправдались", "Все", "Большинство", "Некоторые", "Ожидания", "Обновлено"];
+  const head = ["Ученик", "Класс", "Этап", "Сейчас на", "Вспомним", "Какая функция", "Разминка", "A", "B", "C", "Дескрипторы", "ДЗ", "Ожидания оправдались", "Все", "Большинство", "Некоторые", "Ожидания", "Обновлено"];
   const hr = node("tr"); head.forEach(h => hr.appendChild(node("th", "", h))); T.appendChild(hr);
   const mk = v => v === "Получилось" || v === "Да" ? "m2" : v === "Частично" ? "m1" : v ? "m0" : "";
   pg.forEach(p => {
@@ -320,6 +322,7 @@ function render() {
     tr.appendChild(node("td", full(p.match), p.match + (p.match ? " (1-я попытка: " + p.matchFirst + ")" : "")));
     [p.z, p.a, p.b, p.c].forEach(v => tr.appendChild(node("td", full(v), v)));
     tr.appendChild(node("td", "num" + (/^6\/6/.test(p.desc || "") ? " full" : ""), p.desc || ""));
+    tr.appendChild(node("td", full(p.hw), p.hw || ""));
     [p.expOk, p.r0, p.r1, p.r2].forEach(v => tr.appendChild(node("td", mk(v), v)));
     tr.appendChild(node("td", "clip", p.expect)); tr.appendChild(node("td", "num", p.t));
     T.appendChild(tr);
@@ -456,7 +459,7 @@ function renderStudent() {
   box.appendChild(node("p", "state", `${p.online ? "сейчас в уроке" : "обновлено " + (p.date || "") + " " + p.t} · этап: ${p.stage}`));
   const tiles = node("div", "tiles");
   [["Сейчас на", p.now || "—"], ["Вспомним", p.act ? `${p.act} · 1-я: ${p.actFirst}` : "—"], ["Какая функция", p.match ? `${p.match} · 1-я: ${p.matchFirst}` : "—"],
-   ["Разминка", p.z], ["Уровень A", p.a], ["Уровень B", p.b], ["Уровень C", p.c], ["Дескрипторы", (p.desc || "—").split(":")[0]]].forEach(([k, v]) => {
+   ["Разминка", p.z], ["Уровень A", p.a], ["Уровень B", p.b], ["Уровень C", p.c], ["Дескрипторы", (p.desc || "—").split(":")[0]], ["Домашнее задание", p.hw]].forEach(([k, v]) => {
     const t = node("div", "tile"); t.appendChild(node("span", "tile-k", k)); t.appendChild(node("span", "tile-v", v || "—")); tiles.appendChild(t); });
   box.appendChild(tiles);
   const grid = node("div", "an-grid");

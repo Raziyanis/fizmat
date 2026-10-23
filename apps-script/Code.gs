@@ -7,7 +7,7 @@
 
 const SHEETS = {
   roster:   { name: "Ученики",   head: ["Класс", "Ученик"] },
-  progress: { name: "Прогресс",  head: ["ID", "Класс", "Ученик", "Этап", "Ожидания", "Какая функция", "С первой попытки", "Разминка «Ячейки»", "Уровень A", "Уровень B", "Уровень C", "Ожидания оправдались", "Все учащиеся", "Большинство", "Некоторые", "Где пригодится", "Комментарий", "Обновлено", "Дескрипторы", "Вспомним", "Вспомним с 1-й попытки", "Сейчас на"] },
+  progress: { name: "Прогресс",  head: ["ID", "Класс", "Ученик", "Этап", "Ожидания", "Какая функция", "С первой попытки", "Разминка «Ячейки»", "Уровень A", "Уровень B", "Уровень C", "Ожидания оправдались", "Все учащиеся", "Большинство", "Некоторые", "Где пригодится", "Комментарий", "Обновлено", "Дескрипторы", "Вспомним", "Вспомним с 1-й попытки", "Сейчас на", "Домашнее задание"] },
   attempts: { name: "Попытки",   head: ["Время", "Класс", "Ученик", "Этап", "Задание", "Ответ", "Верно", "Подсказка ученику"] },
   board:    { name: "Доска",     head: ["Время", "ID вопроса", "Вопрос", "Класс", "Ученик", "Ответ"] },
   settings: { name: "Настройки", head: ["Параметр", "Значение"] }
@@ -145,7 +145,7 @@ function saveProgress(p) {
   if (!id) return false;
   const row = [id, clean_(p.cls, 20), clean_(p.name, 80), clean_(p.stage, 40), clean_(p.expect, 500),
     clean_(p.match, 10), Number(p.matchFirst) || 0, clean_(p.z, 10), clean_(p.a, 10), clean_(p.b, 10), clean_(p.c, 10),
-    clean_(p.expOk, 20), clean_(p.r0, 20), clean_(p.r1, 20), clean_(p.r2, 20), clean_(p.use, 500), clean_(p.note, 500), new Date(), clean_(p.desc, 60), clean_(p.act, 10), Number(p.actFirst) || 0, clean_(p.now, 30)];
+    clean_(p.expOk, 20), clean_(p.r0, 20), clean_(p.r1, 20), clean_(p.r2, 20), clean_(p.use, 500), clean_(p.note, 500), new Date(), clean_(p.desc, 60), clean_(p.act, 10), Number(p.actFirst) || 0, clean_(p.now, 30), clean_(p.hw, 10)];
   withLock_(function () {
     const sh = sheet_("progress");
     const n = sh.getLastRow();
@@ -205,6 +205,14 @@ function openQuestion(pin, text) {
   return q;
 }
 
+/** Физминутка у всех учеников: окно с упражнениями на минуту. */
+function openBreak(pin) {
+  checkPin_(pin);
+  const q = { id: "B" + Date.now(), type: "break", text: "Физминутка", open: true };
+  setQuestion_(q);
+  return q;
+}
+
 function closeQuestion(pin) {
   checkPin_(pin);
   const q = getQuestion();
@@ -221,8 +229,8 @@ function getTeacherData(pin, qid, since) {
     if (!seen[id]) { seen[id] = true; questions.push({ id: id, text: String(board[i][2]) }); }
   }
   const q = getQuestion();
-  if (q && !seen[q.id]) questions.unshift({ id: q.id, text: q.text });
-  const want = qid || (q ? q.id : (questions[0] && questions[0].id));
+  if (q && !seen[q.id] && q.type !== "break") questions.unshift({ id: q.id, text: q.text });
+  const want = qid || (q && q.type !== "break" ? q.id : (questions[0] && questions[0].id));
   const answers = board.filter(function (r) { return String(r[1]) === want; })
     .map(function (r) { return { t: time_(r[0]), cls: normClass_(r[3]), name: String(r[4]), text: String(r[5]) }; });
   const att = rows_("attempts");
@@ -234,7 +242,7 @@ function getTeacherData(pin, qid, since) {
     const upd = r[17] instanceof Date ? r[17].getTime() : 0;
     return { cls: normClass_(r[1]), name: String(r[2]), stage: String(r[3]), expect: String(r[4]), match: String(r[5]), matchFirst: r[6],
       z: String(r[7]), a: String(r[8]), b: String(r[9]), c: String(r[10]), expOk: String(r[11]), r0: String(r[12]), r1: String(r[13]), r2: String(r[14]),
-      use: String(r[15]), note: String(r[16]), t: time_(r[17]), date: r[17] instanceof Date ? Utilities.formatDate(r[17], Session.getScriptTimeZone(), "dd.MM.yyyy") : "", desc: String(r[18] || ""), act: String(r[19] || ""), actFirst: r[20] || 0, now: String(r[21] || ""), online: now - upd < 150000 };
+      use: String(r[15]), note: String(r[16]), t: time_(r[17]), date: r[17] instanceof Date ? Utilities.formatDate(r[17], Session.getScriptTimeZone(), "dd.MM.yyyy") : "", desc: String(r[18] || ""), act: String(r[19] || ""), actFirst: r[20] || 0, now: String(r[21] || ""), hw: String(r[22] || ""), online: now - upd < 150000 };
   });
   const allAnswers = board.slice(Math.max(0, board.length - 2000)).map(function (r) { return { t: time_(r[0]), q: String(r[2]), cls: normClass_(r[3]), name: String(r[4]), text: String(r[5]) }; });
   return { q: q, want: want, questions: questions, answers: answers, allAnswers: allAnswers, attempts: attempts, progress: progress, roster: getRoster() };
@@ -280,6 +288,7 @@ function studentHtml_(p, attempts, answers) {
   h += "<h2>Критерии оценивания: дескрипторы</h2><table><tr><th>Дескриптор</th><td><b>Результат</b></td></tr>";
   DESC_.forEach(function (d) { const ok = got.indexOf(d[0]) >= 0; h += "<tr><th>" + d[0] + " " + esc_(d[1]) + " (" + d[2] + ")</th><td class='" + (ok ? "ok" : "no") + "'>" + (ok ? "достигнут" : "пока нет") + "</td></tr>"; });
   h += "</table>";
+  h = h.replace("</table><h2>Критерии", row("Домашнее задание", p[22] || "—") + "</table><h2>Критерии");
   h += "<h2>Ожидания и самооценка</h2><table>" + row("Мои ожидания", p[4]) + row("Ожидания оправдались", p[11]) + row("Все учащиеся", p[12]) + row("Большинство", p[13]) + row("Некоторые", p[14])
     + row("Где пригодится", p[15]) + row("Комментарий", p[16]) + "</table>";
   if (answers.length) {

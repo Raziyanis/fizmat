@@ -361,6 +361,14 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .crit tr.d-ok td:last-child { color: var(--c); font-weight: 700; }
 .crit tr.d-no td:last-child { color: var(--muted); }
 .desc-sum { margin-bottom: 8px; font-weight: 700; }
+.demo-bar { position: fixed; z-index: 40; left: 0; right: 0; top: env(safe-area-inset-top, 0px); background: var(--warn, #a8600f); color: #fff; text-align: center; padding: 6px max(16px, env(safe-area-inset-right, 0px)) 6px max(16px, env(safe-area-inset-left, 0px)); font-weight: 700; font-size: .9rem; }
+.demo-bar .linkbtn { color: #fff; }
+.brk { text-align: center; justify-items: center; }
+.brk-step { margin: 0; font-family: var(--f-mono); color: var(--c); font-weight: 700; }
+.brk-text { margin: 0; font-family: var(--f-display); font-size: 1.35rem; line-height: 1.3; max-width: 30ch; }
+.brk-timer { display: flex; align-items: baseline; gap: 6px; font-family: var(--f-mono); }
+.brk-timer output { font-size: 3.4rem; font-weight: 700; color: var(--c); font-variant-numeric: tabular-nums; }
+.brk .pbar { width: 100%; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -369,6 +377,8 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     <span class="eyebrow">Информатика · 8 класс · Электронные таблицы</span>
     <div class="tools">
       <span class="who" id="who" hidden>Ученик: <b id="whoName"></b> · <span id="netState" class="net"></span> <button type="button" class="linkbtn" id="whoChange">Сменить</button><span class="small" id="whoHint" hidden> Чтобы войти другим учеником, обнови страницу.</span></span>
+      <button class="btn" id="breakBtn" type="button">Физминутка · 1 мин</button>
+      <button class="btn" id="demoBtn" type="button" aria-pressed="false">Режим учителя</button>
       <button class="btn" id="bigBtn" type="button" aria-pressed="false">Крупный шрифт</button>
       <button class="btn" id="fsBtn" type="button">Во весь экран</button>
     </div>
@@ -382,6 +392,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>5</b>Какая функция?</button>
     <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>6</b>Практика</button>
     <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>7</b>Итоги урока</button>
+    <button type="button" class="step" role="tab" id="tab-hw" aria-controls="hw" aria-selected="false" disabled><b>8</b>Домашнее задание</button>
   </div>
 
   <!-- Этап 1: разгадать тему -->
@@ -736,6 +747,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     </section>
     <div class="next">
       <button class="btn" type="button" data-go="learn">← Новая тема</button>
+      <button class="btn" type="button" id="breakBtn2">Физминутка · 1 мин</button>
       <button class="btn main" type="button" data-go="practice">Дальше: практика →</button>
     </div>
   </div>
@@ -819,7 +831,34 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <div id="refSumBody"></div>
     </section>
 
-    <div class="next"><button class="btn" type="button" data-go="goal">← Тема и цель</button><span></span></div>
+    <div class="next"><button class="btn" type="button" data-go="goal">← Тема и цель</button><button class="btn main" type="button" data-go="hw">Домашнее задание →</button></div>
+  </div>
+
+  <!-- Этап 8: домашнее задание -->
+  <div class="panel" id="hw" role="tabpanel" aria-labelledby="tab-hw" hidden>
+    <div>
+      <h1>Домашнее задание</h1>
+      <p class="lead">Выбери задание своего уровня — можно и все три. Открой урок дома по той же ссылке: таблица проверит формулу так же, как на уроке.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="hwBar"></i></div><span class="pnum" id="hwNum"></span></div>
+      <p class="small">Обязательно: задание уровня, на котором ты закончил практику. Задания выше — по желанию.</p>
+    </section>
+    <div class="panel" id="hwTasks"></div>
+    <div class="next"><button class="btn" type="button" data-go="reflect">← Итоги урока</button><span></span></div>
+  </div>
+</div>
+
+<div class="demo-bar" id="demoBar" hidden>Режим учителя: все этапы и задания открыты. Ответы в этом режиме не сохраняются в прогресс ученика. <button type="button" class="linkbtn" id="demoOff">Выключить</button></div>
+
+<div class="overlay" id="breakOv" hidden>
+  <div class="lg-card brk" role="dialog" aria-modal="true" aria-labelledby="brkTitle">
+    <p class="eyebrow" id="brkTitle">Физминутка · отдохни от экрана</p>
+    <p class="brk-step" id="brkStep"></p>
+    <p class="brk-text" id="brkText"></p>
+    <div class="brk-timer"><output id="brkTime">15</output><span>сек</span></div>
+    <div class="pbar"><i id="brkBar"></i></div>
+    <div class="lg-row"><button type="button" class="btn" id="brkSkip">Пропустить упражнение</button><button type="button" class="btn" id="brkEnd">Закончить</button></div>
   </div>
 </div>
 
@@ -986,7 +1025,7 @@ function unlock() {
 function show(id) {
   if (window.__onStage) window.__onStage(id);
   if (id === "reflect") fillReflect();
-  ["puzzle", "goal", "actual", "learn", "match", "practice", "reflect"].forEach(p => {
+  ["puzzle", "goal", "actual", "learn", "match", "practice", "reflect", "hw"].forEach(p => {
     document.getElementById(p).hidden = p !== id;
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
@@ -1030,7 +1069,9 @@ function showExp(text) {
   document.getElementById("tab-learn").disabled = !has;
   document.getElementById("tab-match").disabled = !has;
   document.getElementById("tab-practice").disabled = !has;
+  document.getElementById("tab-hw").disabled = !has;
   document.getElementById("toLearn").hidden = !has;
+  if (window.__demo) window.__applyDemo();
 }
 
 /* Новая тема: карточки функций по одной и живые примеры */
@@ -1908,6 +1949,7 @@ function prCheck(t, S) {
 function prAll() { return [...TASKS_CELL, ...TASKS_PR]; }
 /* Задание открывается, когда решено предыдущее; уровень — когда открыто его первое задание */
 function prUnlocked(id) {
+  if (window.__demo) return true;
   const order = prAll(), i = order.findIndex(t => t.id === id), d = prLoad();
   return i <= 0 || !!(d[order[i - 1].id] && d[order[i - 1].id].ever);
 }
@@ -1945,7 +1987,7 @@ function prRender() {
 }
 function prShowLevel(lv) {
   document.querySelectorAll(".lv").forEach(b => b.setAttribute("aria-selected", b.dataset.lv === lv));
-  document.querySelectorAll(".task-card").forEach(c => { c.hidden = c.dataset.lv !== lv; });
+  document.querySelectorAll("#prTasks .task-card").forEach(c => { c.hidden = c.dataset.lv !== lv; });
   document.getElementById("lvDesc").textContent = LEVELS_PR[lv].desc;
   const order = Object.keys(LEVELS_PR), nx = order[order.indexOf(lv) + 1];
   const btn = document.getElementById("lvNext");
@@ -2194,6 +2236,114 @@ window.__prNow = () => {
   return t ? `${t.lv} · ${t.id}` : "всё решено";
 };
 
+/* Физминутка: 4 упражнения по 15 секунд */
+const BREAK = [
+  ["Глаза", "Посмотри вдаль, в окно, а потом на кончик носа. Повтори несколько раз."],
+  ["Восьмёрка", "Не поворачивая головы, нарисуй глазами большую восьмёрку. Потом в другую сторону."],
+  ["Кисти рук", "Сожми кулаки и разожми. Покрути кистями в одну и в другую сторону."],
+  ["Потянись", "Встань, подними руки вверх и потянись. Медленно наклони голову вправо и влево."]
+];
+let brkTimer = null, brkI = 0, brkLeft = 0;
+function breakStep(i) {
+  brkI = i;
+  if (i >= BREAK.length) return breakEnd();
+  document.getElementById("brkStep").textContent = `${i + 1} из ${BREAK.length} · ${BREAK[i][0]}`;
+  document.getElementById("brkText").textContent = BREAK[i][1];
+  brkLeft = 15; breakTick();
+}
+function breakTick() {
+  document.getElementById("brkTime").textContent = brkLeft;
+  document.getElementById("brkBar").style.width = ((brkI * 15 + (15 - brkLeft)) / (BREAK.length * 15) * 100) + "%";
+}
+function breakStart() {
+  clearInterval(brkTimer);
+  document.getElementById("breakOv").hidden = false;
+  breakStep(0);
+  brkTimer = setInterval(() => { brkLeft--; if (brkLeft < 0) breakStep(brkI + 1); else breakTick(); }, 1000);
+}
+function breakEnd() {
+  clearInterval(brkTimer); brkTimer = null;
+  document.getElementById("breakOv").hidden = true;
+  if (window.__onBreakEnd) window.__onBreakEnd();
+}
+window.__breakStart = breakStart;
+["breakBtn", "breakBtn2"].forEach(id => document.getElementById(id).addEventListener("click", breakStart));
+document.getElementById("brkSkip").addEventListener("click", () => breakStep(brkI + 1));
+document.getElementById("brkEnd").addEventListener("click", breakEnd);
+
+/* Домашнее задание: по одному заданию на уровень, проверка как в практике */
+const HW_KEY = "hw-l1";
+const TASKS_HW = [
+  { id: "H1", lv: "A", fn: "СУММ", q: "Расходы семьи на продукты за неделю записаны в таблицу. Найди, сколько потрачено за всю неделю.",
+    cells: { A1: "День", B1: "Расход, тг", A2: "Пн", B2: "3200", A3: "Вт", B3: "1500", A4: "Ср", B4: "2800", A5: "Чт", B5: "900", A6: "Пт", B6: "4100", A7: "Сб", B7: "5600", A8: "Вс", B8: "2300", A9: "За неделю" },
+    ref: { B9: "=СУММ(B2:B8)" }, must: { B9: ["СУММ"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6", "B7", "B8"], min: 500, max: 6000, step: 100 },
+    hint: "Сложи все расходы с понедельника по воскресенье: =СУММ( и диапазон B2:B8." },
+  { id: "H2", lv: "B", fn: "СТЕПЕНЬ", q: "В квартире три квадратные комнаты со сторонами 3, 4 и 5 м. Найди их общую площадь одной формулой.",
+    cells: { A1: "Комната", B1: "Сторона, м", A2: "Спальня", B2: "3", A3: "Детская", B3: "4", A4: "Зал", B4: "5", A5: "Общая площадь" },
+    ref: { B5: "=СТЕПЕНЬ(B2;2)+СТЕПЕНЬ(B3;2)+СТЕПЕНЬ(B4;2)" }, must: { B5: ["СТЕПЕНЬ"] }, vary: { keys: ["B2", "B3", "B4"], min: 2, max: 9 },
+    hint: "Площадь квадратной комнаты — сторона во второй степени. Сложи три площади." },
+  { id: "H3", lv: "C", fn: "СУММЕСЛИ + ABS", q: "Температура за неделю — в столбце B. Найди, сколько всего «морозных» градусов: сложи отрицательные температуры и запиши ответ без минуса.",
+    cells: { A1: "День", B1: "Температура", A2: "Пн", B2: "-5", A3: "Вт", B3: "2", A4: "Ср", B4: "-8", A5: "Чт", B5: "-1", A6: "Пт", B6: "4", A7: "Сб", B7: "-3", A8: "Вс", B8: "6", A9: "Мороз, °" },
+    ref: { B9: "=ABS(СУММЕСЛИ(B2:B8;\"<0\"))" }, must: { B9: ["СУММЕСЛИ", "ABS"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6", "B7", "B8"], min: -15, max: 15 },
+    hint: "Сначала СУММЕСЛИ с условием \"<0\", потом убери минус: =ABS(СУММЕСЛИ(…))." }
+];
+function hwRender() {
+  const d = store.get(HW_KEY, {}), ok = TASKS_HW.filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("hwBar").style.width = (ok / TASKS_HW.length * 100) + "%";
+  document.getElementById("hwNum").textContent = `Сделано: ${ok} из ${TASKS_HW.length}`;
+}
+(function hwBuild() {
+  const box = document.getElementById("hwTasks");
+  box.innerHTML = TASKS_HW.map(t => `
+    <section class="block task-card" id="hw-${t.id}">
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">Уровень ${t.lv} · ${t.fn}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <p class="tc-where">Формулу записывай в ячейку <b>${Object.keys(t.ref).join(", ")}</b> — она подсвечена жёлтым.</p>
+      <div class="xl xl-task"></div>
+      <div class="tc-actions"><button type="button" class="btn main tc-check">Проверить</button><button type="button" class="btn tc-hintbtn">Подсказка</button><button type="button" class="btn tc-reset">Начать заново</button></div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join("");
+  const d = store.get(HW_KEY, {});
+  TASKS_HW.forEach(t => {
+    const card = document.getElementById("hw-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg"), targets = Object.keys(t.ref);
+    const setStatus = ok => { card.classList.toggle("done", ok); card.querySelector(".tc-status").textContent = ok ? "✓ сделано" : ""; };
+    xlMount(root, [{ name: t.id, text: "", cells: t.cells, sel: targets[0] }], { task: true, cols: 5, rows: 9, targets, onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; } });
+    if (d[t.id] && d[t.id].f) { Object.entries(d[t.id].f).forEach(([k, v]) => root.xlSet(k, v)); setStatus(!!d[t.id].ok); }
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = prCheck(t, root.xlState), all = store.get(HW_KEY, {});
+      const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
+      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      if (window.__onAttempt) window.__onAttempt("8. Домашнее задание", t.id + " · " + t.fn, targets.map(k => k + ": " + f[k]).join("   "), r.ok, r.ok ? "" : r.msg);
+      all[t.id] = { ok: r.ok, f, tries }; store.set(HW_KEY, all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.ok ? "Верно! Формула работает и с другими числами." : r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(r.ok); hwRender();
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => { root.xlReset(); msg.textContent = ""; const all = store.get(HW_KEY, {}); delete all[t.id]; store.set(HW_KEY, all); setStatus(false); hwRender(); });
+  });
+  hwRender();
+})();
+
+/* Режим учителя: открыть все этапы и задания для показа на проекторе */
+window.__applyDemo = () => {
+  document.querySelectorAll(".step").forEach(b => { b.disabled = false; });
+  document.getElementById("afterExp").hidden = false;
+  document.getElementById("toLearn").hidden = false;
+  if (typeof prLocks === "function") prLocks();
+};
+function setDemo(on) {
+  window.__demo = on;
+  document.getElementById("demoBar").hidden = !on;
+  document.getElementById("demoBtn").setAttribute("aria-pressed", on);
+  if (on) window.__applyDemo();
+  else { showExp(store.get(EXP_KEY, "")); unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n)); document.getElementById("tab-goal").disabled = !unlocked; prLocks(); }
+}
+window.__setDemo = setDemo;
+document.getElementById("demoBtn").addEventListener("click", () => setDemo(!window.__demo));
+document.getElementById("demoOff").addEventListener("click", () => setDemo(false));
+
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
 const REF_KEY = "reflect-l1";
 const LEVELS = ["Все учащиеся", "Большинство", "Некоторые"];
@@ -2296,7 +2446,7 @@ window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, Z: TASKS
 
 }
 /* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
-const STAGES = { puzzle: "1. Разгадка темы", goal: "2. Тема и цель", actual: "3. Вспомним", learn: "4. Новая тема", match: "5. Какая функция?", practice: "6. Практика", reflect: "7. Итоги" };
+const STAGES = { puzzle: "1. Разгадка темы", goal: "2. Тема и цель", actual: "3. Вспомним", learn: "4. Новая тема", match: "5. Какая функция?", practice: "6. Практика", reflect: "7. Итоги", hw: "8. Домашнее задание" };
 let me = null, curStage = "puzzle", syncTimer = null;
 const gsr = (fn, ...args) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
@@ -2319,6 +2469,7 @@ function lessonSummary() {
     act: (() => { const a = Object.values(g("actual-l1") || {}); return a.filter(x => x && x.ok).length + "/" + info.actN; })(),
     actFirst: Object.values(g("actual-l1") || {}).filter(x => x && x.first).length,
     now: window.__prNow(),
+    hw: (() => { const h = g("hw-l1") || {}; return Object.values(h).filter(x => x && x.ok).length + "/3"; })(),
     desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
   };
 }
@@ -2381,6 +2532,14 @@ function pollQuestion() {
     setNet(true);
     const answered = lsGet(NS + "answered", []);
     const modal = document.getElementById("qModal");
+    if (q && q.open && q.type === "break") {
+      if (!answered.includes(q.id) && shownQ !== q.id) {
+        shownQ = q.id;
+        window.__onBreakEnd = () => { const a = lsGet(NS + "answered", []); if (!a.includes(q.id)) { a.push(q.id); lsSet(NS + "answered", a); } shownQ = null; };
+        window.__breakStart();
+      }
+      return;
+    }
     if (q && q.open && !answered.includes(q.id)) {
       if (shownQ !== q.id) {
         shownQ = q.id;
@@ -2408,14 +2567,31 @@ function sendAnswer() {
 }
 function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 3500); }
 
+function demoBoot() {
+  const ov = document.getElementById("login"), body = document.getElementById("loginBody");
+  ov.hidden = false;
+  body.innerHTML = `<p class="lg-q">Режим учителя</p><label class="lg-l" for="dmPin">PIN учителя</label><input id="dmPin" class="lg-in" type="password" autocomplete="off">
+    <p class="lg-err" id="dmErr" aria-live="polite"></p><button type="button" class="btn main lg-big" id="dmGo">Открыть урок целиком</button>`;
+  const go = () => {
+    document.getElementById("dmErr").textContent = "Проверяю…";
+    gsr("teacherLogin", document.getElementById("dmPin").value.trim()).then(() => {
+      ov.hidden = true; NS = "demo:"; startLesson(); window.__setDemo(true);
+      document.getElementById("demoOff").hidden = true;
+    }).catch(e => { document.getElementById("dmErr").textContent = (e && e.message) || "Неверный PIN."; });
+  };
+  document.getElementById("dmGo").onclick = go;
+  document.getElementById("dmPin").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+}
 function onlineBoot() {
+  document.getElementById("demoBtn").hidden = true;
   window.__onStore = syncSoon;
   window.__onStage = id => { curStage = id; syncSoon(); };
   window.__onAttempt = (stage, task, answer, ok, note) => { if (me) gsr("logAttempt", { id: me.id, cls: me.cls, name: me.name, stage, task, answer: String(answer), ok: !!ok, note: note || "" }).catch(() => setNet(false)); };
   document.getElementById("qSend").addEventListener("click", sendAnswer);
   document.getElementById("qAns").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) sendAnswer(); });
   document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
-  loginUI();
+  const boot = loc => { if (loc && loc.parameter && loc.parameter.mode === "demo") demoBoot(); else loginUI(); };
+  try { google.script.url.getLocation(boot); } catch (e) { boot(null); }
 }
 if (ONLINE) onlineBoot(); else startLesson();
 
