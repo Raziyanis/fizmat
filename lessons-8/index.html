@@ -316,6 +316,13 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .cg-answer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .cg-answer label { font-weight: 700; }
 .cg-in { font: inherit; font-family: var(--f-mono); font-size: 1.1rem; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 12rem; max-width: 100%; }
+.task-card.locked { opacity: .6; border-style: dashed; }
+.task-card.locked > :not(.tc-head):not(.tc-lock):not(.tc-q) { display: none; }
+.tc-lock { margin: 0; font-weight: 700; color: var(--muted); }
+.tc-lock:empty { display: none; }
+.lv:disabled { opacity: .5; cursor: not-allowed; }
+.lv:disabled .lv-name::after { content: " · закрыто"; font-family: var(--f-body); font-weight: 400; font-size: .8rem; }
+#lvNext:disabled { opacity: .5; cursor: not-allowed; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -1655,7 +1662,7 @@ function cellBuild(box) {
     card.querySelector(".tc-check").addEventListener("click", () => {
       const r = cellCheck(t, st, inp ? inp.value : "");
       const all = prLoad(), tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
-      all[t.id] = { ok: r.ok, tries }; prSave(all);
+      all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), tries }; prSave(all);
       msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.msg;
       if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
       card.classList.toggle("done", r.ok); card.querySelector(".tc-status").textContent = r.ok ? "✓ решено" : "";
@@ -1777,6 +1784,31 @@ function prCheck(t, S) {
 }
 
 function prAll() { return [...TASKS_CELL, ...TASKS_PR]; }
+/* Задание открывается, когда решено предыдущее; уровень — когда открыто его первое задание */
+function prUnlocked(id) {
+  const order = prAll(), i = order.findIndex(t => t.id === id), d = prLoad();
+  return i <= 0 || !!(d[order[i - 1].id] && d[order[i - 1].id].ever);
+}
+function prLocks() {
+  const order = prAll();
+  order.forEach((t, i) => {
+    const card = document.getElementById("pt-" + t.id); if (!card) return;
+    const open = prUnlocked(t.id);
+    card.classList.toggle("locked", !open);
+    card.inert = !open;
+    let l = card.querySelector(".tc-lock");
+    if (!l) { l = document.createElement("p"); l.className = "tc-lock"; card.querySelector(".tc-head").after(l); }
+    l.textContent = open ? "" : `Закрыто. Откроется, когда будет решено задание ${order[i - 1].id}.`;
+  });
+  document.querySelectorAll(".lv").forEach(b => {
+    const first = order.find(t => t.lv === b.dataset.lv);
+    const open = first && prUnlocked(first.id);
+    b.disabled = !open;
+    b.title = open ? "" : "Уровень откроется, когда будут решены все задания предыдущего уровня";
+  });
+  const nx = document.getElementById("lvNext");
+  if (nx && !nx.hidden) { const first = order.find(t => t.lv === nx.dataset.lv); nx.disabled = !(first && prUnlocked(first.id)); }
+}
 function prRender() {
   const d = prLoad();
   const solved = prAll().filter(t => d[t.id] && d[t.id].ok).length;
@@ -1787,6 +1819,7 @@ function prRender() {
     document.getElementById("lvc" + lv).textContent = `${ok}/${list.length}`;
     document.querySelector(`.lv[data-lv="${lv}"]`).classList.toggle("full", ok === list.length);
   });
+  prLocks();
 }
 function prShowLevel(lv) {
   document.querySelectorAll(".lv").forEach(b => b.setAttribute("aria-selected", b.dataset.lv === lv));
@@ -1796,6 +1829,7 @@ function prShowLevel(lv) {
   const btn = document.getElementById("lvNext");
   btn.hidden = !nx; if (nx) { btn.dataset.lv = nx; btn.textContent = `Перейти на уровень ${LEVELS_PR[nx].name} →`; }
   store.set("practice-lv", lv);
+  prLocks();
 }
 
 function prBuild() {
@@ -1834,7 +1868,7 @@ function prBuild() {
       const all = prLoad();
       const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
       const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
-      all[t.id] = { ok: r.ok, f, tries };
+      all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), f, tries };
       prSave(all);
       msg.className = "tc-msg " + (r.ok ? "ok" : "bad");
       msg.textContent = r.ok ? "Верно! Формула работает и с другими числами." : r.msg;
@@ -1848,12 +1882,16 @@ function prBuild() {
     card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
     card.querySelector(".tc-reset").addEventListener("click", () => {
       root.xlReset(); msg.textContent = ""; card.querySelector(".tc-hint").hidden = true;
-      const all = prLoad(); delete all[t.id]; prSave(all); setStatus(false); prRender();
+      const all = prLoad(); all[t.id] = { ok: false, ever: !!(all[t.id] && all[t.id].ever) }; prSave(all); setStatus(false); prRender();
     });
   });
   document.querySelectorAll(".lv").forEach(b => b.addEventListener("click", () => prShowLevel(b.dataset.lv)));
   document.getElementById("lvNext").addEventListener("click", e => { prShowLevel(e.currentTarget.dataset.lv); document.getElementById("practice").scrollIntoView({ behavior: "smooth" }); });
-  prShowLevel(store.get("practice-lv", "0"));
+  {
+    const want = store.get("practice-lv", "0"), first = prAll().find(t => t.lv === want);
+    const cur = prAll().find(t => prUnlocked(t.id) && !(prLoad()[t.id] || {}).ever) || prAll()[prAll().length - 1];
+    prShowLevel(first && prUnlocked(first.id) ? want : cur.lv);
+  }
   prRender();
 }
 prBuild();
