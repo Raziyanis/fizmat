@@ -273,6 +273,9 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .xl-key { font-family: var(--f-mono); font-size: .85rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 4px; padding: 3px 8px; }
 .xl-key:hover { border-color: var(--c); color: var(--c); }
 .xl-grid { user-select: none; }
+.err-table td.ecode { font-family: var(--f-mono); font-weight: 700; color: var(--bad); white-space: nowrap; }
+.err-table td.eex { display: table-cell; }
+.err-table .tryf { display: inline-block; margin: 0 4px 4px 0; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -435,7 +438,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <button type="button" class="fpill" data-f="2" aria-selected="false">3 · КОРЕНЬ</button>
       <button type="button" class="fpill" data-f="3" aria-selected="false">4 · СТЕПЕНЬ</button>
       <button type="button" class="fpill" data-f="4" aria-selected="false">5 · СУММЕСЛИ</button>
-      <button type="button" class="fpill" data-f="5" aria-selected="false">Шпаргалка</button>
+      <button type="button" class="fpill" data-f="5" aria-selected="false">Шпаргалка и ошибки</button>
     </div>
 
     <!-- СУММ -->
@@ -566,7 +569,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 
     <!-- Шпаргалка -->
     <section class="block fcard" data-card="5" hidden>
-      <p class="fname">Шпаргалка</p>
+      <p class="fname">Шпаргалка и ошибки</p>
       <div class="tablewrap">
         <table class="cheat">
           <tr><th>Функция</th><th>Что делает</th><th>Пример</th><th>Ответ</th></tr>
@@ -578,6 +581,18 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
         </table>
       </div>
       <p class="remember"><b>Три частые ошибки:</b> забыли знак <code>=</code> в начале; поставили запятую вместо <code>;</code> между числами; забыли кавычки вокруг условия в СУММЕСЛИ.</p>
+      <h3 class="th-h">Ошибки и почему они возникают</h3>
+      <p class="small-note">Нажми на пример — он откроется в песочнице ниже, в ячейке H10, с подробным пояснением.</p>
+      <div class="tablewrap"><table class="th-ex err-table"><tr><th>Ошибка</th><th>Что значит</th><th>Почему возникает</th><th>Пример</th><th>Как исправить</th></tr>
+<tr><td class="ecode">#ЧИСЛО!</td><td>число нельзя вычислить</td><td>Корень из отрицательного числа; 0 в степени 0; отрицательное число в дробной степени; результат слишком большой для таблицы.</td><td class="eex"><button type="button" class="tryf" data-f="=КОРЕНЬ(-9)">=КОРЕНЬ(-9)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(0;0)">=СТЕПЕНЬ(0;0)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(-8;0,5)">=СТЕПЕНЬ(-8;0,5)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(10;400)">=СТЕПЕНЬ(10;400)</button></td><td>Проверить знак и величину чисел. Минус под корнем убрать через ABS: <code>=КОРЕНЬ(ABS(A1))</code>.</td></tr>
+<tr><td class="ecode">#ИМЯ?</td><td>таблица не узнала слово в формуле</td><td>Опечатка в имени функции; английское имя в русской версии; русская буква в адресе ячейки; текст в условии СУММЕСЛИ без кавычек.</td><td class="eex"><button type="button" class="tryf" data-f="=СУМ(1;2)">=СУМ(1;2)</button><button type="button" class="tryf" data-f="=SUM(1;2)">=SUM(1;2)</button><button type="button" class="tryf" data-f="=А1+1">=А1+1</button><button type="button" class="tryf" data-f="=СУММЕСЛИ(A1:A5;еда)">=СУММЕСЛИ(A1:A5;еда)</button></td><td>Проверить написание. Функции вставлять кнопками, ячейки выбирать мышью, текст условия брать в кавычки: <code>"еда"</code>.</td></tr>
+<tr><td class="ecode">#ЗНАЧ!</td><td>неподходящий тип данных</td><td>В вычислении участвует текст, а нужно число. Например, к подписи прибавляют число или берут модуль слова.</td><td class="eex"><button type="button" class="tryf" data-f="=&quot;текст&quot;+1">="текст"+1</button><button type="button" class="tryf" data-f="=ABS(&quot;пять&quot;)">=ABS("пять")</button></td><td>Проверить, что в ячейках формулы стоят числа. Помнить: СУММ текст в диапазоне пропускает, а знак <code>+</code> — нет.</td></tr>
+<tr><td class="ecode">#ДЕЛ/0!</td><td>деление на ноль</td><td>Делитель равен нулю или ячейка-делитель пустая (пустая ячейка считается нулём). Ноль в отрицательной степени — тоже деление на ноль.</td><td class="eex"><button type="button" class="tryf" data-f="=10/0">=10/0</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(0;-1)">=СТЕПЕНЬ(0;-1)</button></td><td>Проверить делитель и заполнить пустые ячейки.</td></tr>
+<tr><td class="ecode">Ошибка записи</td><td>формула записана неправильно</td><td>Не хватает скобки; запятая вместо «;»; неверное число аргументов. В Excel такую формулу не дадут ввести — появится окно с сообщением. В нашей таблице ячейка покажет <code>#ОШИБКА</code> и подскажет причину.</td><td class="eex"><button type="button" class="tryf" data-f="=СТЕПЕНЬ(2,3)">=СТЕПЕНЬ(2,3)</button><button type="button" class="tryf" data-f="=СУММ(1;2">=СУММ(1;2</button><button type="button" class="tryf" data-f="=ABS(-3;-5)">=ABS(-3;-5)</button></td><td>Сверить формулу с синтаксисом функции: каждая <code>(</code> закрыта <code>)</code>, аргументы разделены <code>;</code>.</td></tr>
+<tr><td class="ecode">Циклическая ссылка</td><td>формула ссылается на свою ячейку</td><td>В формулу попал адрес той же ячейки, где она записана. В Excel это не код ошибки, а предупреждение; в ячейке обычно остаётся 0. В нашей таблице для наглядности — <code>#ЦИКЛ!</code>.</td><td class="eex"><button type="button" class="tryf" data-f="=H10+1">=H10+1</button></td><td>Убрать из формулы адрес этой ячейки.</td></tr>
+<tr><td class="ecode">#ССЫЛКА!</td><td>ссылка на несуществующую ячейку</td><td>В Excel удалили строку или столбец, на которые ссылалась формула. В нашей учебной таблице удалять строки нельзя, поэтому эта ошибка здесь не появится.</td><td class="eex">—</td><td>Отменить удаление (Ctrl+Z) или заново указать ячейки в формуле.</td></tr>
+<tr><td class="ecode">#####</td><td>это не ошибка</td><td>Число не помещается в ширину столбца, и Excel показывает решётки.</td><td class="eex">—</td><td>Расширить столбец: потянуть границу заголовка столбца или дважды щёлкнуть по ней.</td></tr>
+</table></div>
       <div class="tryxl"><span class="trylab">Песочница: все функции вместе</span><div class="xl" data-sheet="all"></div></div>
     </section>
 
@@ -825,7 +840,7 @@ function showExp(text) {
 }
 
 /* Новая тема: карточки функций по одной и живые примеры */
-const F_NAMES = ["СУММ", "ABS", "КОРЕНЬ", "СТЕПЕНЬ", "СУММЕСЛИ", "Шпаргалка"];
+const F_NAMES = ["СУММ", "ABS", "КОРЕНЬ", "СТЕПЕНЬ", "СУММЕСЛИ", "Шпаргалка и ошибки"];
 let fCur = 0;
 function showCard(i) {
   fCur = i;
@@ -844,11 +859,11 @@ document.getElementById("fNext").addEventListener("click", () => {
 const XL_COLS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 const XL_EN = { SUM: "СУММ", SQRT: "КОРЕНЬ", POWER: "СТЕПЕНЬ", SUMIF: "СУММЕСЛИ" };
 const XL_ERR = {
-  "#ЧИСЛО!": "Ошибка #ЧИСЛО!: из отрицательного числа нельзя извлечь квадратный корень.",
-  "#ИМЯ?": "Ошибка #ИМЯ?: таблица не знает такое имя. Проверь, как написана функция или адрес ячейки.",
-  "#ЗНАЧ!": "Ошибка #ЗНАЧ!: в вычислении участвует текст, а нужны числа.",
-  "#ДЕЛ/0!": "Ошибка #ДЕЛ/0!: на ноль делить нельзя.",
-  "#ЦИКЛ!": "Формула ссылается сама на себя, так считать нельзя."
+  "#ЧИСЛО!": "Почему: такое число посчитать нельзя — корень из отрицательного числа, 0 в степени 0, отрицательное число в дробной степени или слишком большой результат. Как исправить: проверь знак и величину чисел; минус под корнем убирает ABS.",
+  "#ИМЯ?": "Почему: таблица не узнала слово в формуле — опечатка в имени функции, английское название, русская буква в адресе ячейки или текст в условии без кавычек. Как исправить: проверь написание или вставь функцию кнопкой «Вставить».",
+  "#ЗНАЧ!": "Почему: в вычислении участвует текст, а нужно число. Например, к подписи «Хлеб» прибавляют 1. Как исправить: проверь, что в ячейках, на которые ссылается формула, стоят числа.",
+  "#ДЕЛ/0!": "Почему: делить на ноль нельзя. Пустая ячейка в делителе тоже считается нулём. Как исправить: проверь делитель.",
+  "#ЦИКЛ!": "Почему: формула ссылается на свою же ячейку, и посчитать её невозможно. В Excel появится предупреждение о циклической ссылке. Как исправить: убери из формулы адрес этой ячейки."
 };
 class XErr { constructor(code) { this.code = code; } }
 class XSyntax extends Error {}
@@ -1261,7 +1276,7 @@ function xlMount(root, examples) {
     if (!parsed) {
       try { parsed = xlParse(t.slice(1)); } catch (e) {
         if (!(e instanceof XSyntax)) throw e;
-        box.classList.add("bad"); box.textContent = "Ошибка в записи формулы: " + e.message; return;
+        box.classList.add("bad"); box.textContent = "Ошибка в записи формулы: " + e.message + " В Excel такую формулу не дадут ввести: появится окно с сообщением о проблеме в формуле."; return;
       }
     }
     const v = xlEvalCell(S, S.sel, new Set());
@@ -1270,6 +1285,7 @@ function xlMount(root, examples) {
       const call = xlFind(parsed, n => n.t === "call" && XL_ARGS[n.f] && (() => { try { xlCall(S, n, new Set()); return false; } catch (e) { return e instanceof XArity; } })());
       box.classList.add("bad");
       box.textContent = call ? `У функции ${call.f} должно быть ${XL_ARGS[call.f]}.` + (t.includes(",") ? " Похоже, вместо «;» стоит запятая." : "") : "Ошибка в записи формулы.";
+      box.textContent += " В Excel такую формулу не дадут ввести: появится окно с сообщением о проблеме в формуле.";
       return;
     }
     lines.push(`<span class="xl-step">Подставляем значения:</span> <code></code> → <b></b>`);
