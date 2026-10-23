@@ -4,33 +4,34 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=PT+Sans:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: один урок, этапы показываются по одному, как слайды */
+/* Layout: тема спрятана в строках таблицы; задания открывают буквы, после разгадки открывается тема и цель */
 :root {
   --bg: #f3f6f7;
   --surface: #ffffff;
   --ink: #16212a;
   --muted: #5a6a76;
   --line: #d7e0e5;
-  --c: #1d7652;      /* электронные таблицы */
-  --warn: #a8600f;
+  --head: #e9eef1;    /* заголовки строк и столбцов таблицы */
+  --c: #1d7652;       /* зелёный электронных таблиц */
+  --bad: #b3372b;
   --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
   --f-body: "PT Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "Consolas", monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #283641;
-    --c: #4cc093; --warn: #eea24b; color-scheme: dark;
+    --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
+    --c: #4cc093; --bad: #f07b6e; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #283641;
-  --c: #4cc093; --warn: #eea24b; color-scheme: dark;
+  --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
+  --c: #4cc093; --bad: #f07b6e; color-scheme: dark;
 }
 html.big { font-size: 125%; }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 1rem; line-height: 1.5; }
 .wrap {
-  max-width: 920px; margin: 0 auto;
+  max-width: 1000px; margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 20px 48px;
@@ -44,23 +45,76 @@ button { font: inherit; cursor: pointer; }
 .btn.main { background: var(--c); border-color: var(--c); color: var(--surface); font-weight: 700; }
 :focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
 
-h1 { margin: 0 0 6px; font-family: var(--f-display); font-weight: 500; font-size: clamp(1.5rem, 4vw, 2.3rem); line-height: 1.2; text-wrap: balance; }
-.meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.chip { font-size: .8rem; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
-.chip.on { background: color-mix(in srgb, var(--c) 13%, var(--surface)); border-color: transparent; color: var(--c); font-weight: 700; }
+h1 { margin: 0 0 6px; font-family: var(--f-display); font-weight: 500; font-size: clamp(1.4rem, 3.6vw, 2.1rem); line-height: 1.2; text-wrap: balance; }
+.lead { margin: 0 0 18px; color: var(--muted); max-width: 65ch; }
 
 .steps { display: flex; gap: 18px; border-bottom: 1px solid var(--line); margin-bottom: 18px; flex-wrap: wrap; }
 .step { background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 8px 2px 9px; font-size: .98rem; display: flex; gap: 8px; align-items: baseline; }
 .step b { font-family: var(--f-mono); font-weight: 600; font-size: .8rem; }
 .step[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--c); font-weight: 700; }
+.step[disabled] { cursor: not-allowed; opacity: .5; }
 
 .panel { display: grid; gap: 16px; }
 .block { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; min-width: 0; }
 .block h2 { margin: 0 0 12px; font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* Лист с зашифрованной темой */
+.sheetwrap { overflow-x: auto; padding-bottom: 4px; }
+.grid { border-collapse: collapse; font-family: var(--f-mono); }
+.grid th { background: var(--head); color: var(--muted); font-weight: 400; font-size: .75rem; border: 1px solid var(--line); padding: 2px 0; width: 2.6rem; }
+.grid th.rh { width: 2rem; }
+.grid td { border: 1px solid var(--line); width: 2.6rem; height: 3.2rem; text-align: center; vertical-align: middle; padding: 0; position: relative; }
+.grid td.gap { background: var(--bg); border-color: transparent; }
+.cell { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+.cell .ch { font-family: var(--f-display); font-size: 1.35rem; font-weight: 700; color: var(--line); line-height: 1; }
+.cell .no { font-size: .66rem; color: var(--muted); margin-top: 3px; }
+td.open { background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
+td.open .ch { color: var(--c); }
+@media (prefers-reduced-motion: no-preference) { td.flip .ch { animation: flip .45s ease-out; } @keyframes flip { from { transform: rotateX(90deg); } to { transform: none; } } }
+.progress { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.pbar { flex: 1 1 200px; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.pbar i { display: block; height: 100%; width: 0; background: var(--c); transition: width .3s; }
+.pnum { font-family: var(--f-mono); font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.guess { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.guess label { font-weight: 700; }
+.guess input { flex: 1 1 240px; min-width: 0; }
+
+input[type="text"] {
+  font: inherit; font-family: var(--f-mono); padding: 7px 10px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+}
+input.wrong { border-color: var(--bad); }
+@media (prefers-reduced-motion: no-preference) { input.wrong { animation: shake .3s; } @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } } }
+.msg { font-size: .9rem; min-height: 1.4em; margin: 6px 0 0; }
+.msg.bad { color: var(--bad); }
+.msg.ok { color: var(--c); font-weight: 700; }
+
+/* Задания */
+.tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.task { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; background: var(--surface); }
+.task.done { border-color: var(--c); background: color-mix(in srgb, var(--c) 6%, var(--surface)); }
+.task .hd { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.task .tn { font-family: var(--f-mono); font-size: .8rem; color: var(--muted); }
+.task .fn { font-size: .75rem; font-weight: 700; letter-spacing: .05em; color: var(--c); }
+.formula { font-family: var(--f-mono); font-size: 1.05rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; overflow-x: auto; white-space: nowrap; }
+.formula::before { content: "fx"; color: var(--muted); font-style: italic; font-size: .8rem; margin-right: 8px; }
+.mini { border-collapse: collapse; font-family: var(--f-mono); font-size: .85rem; }
+.mini th, .mini td { border: 1px solid var(--line); padding: 2px 10px; text-align: right; }
+.mini th { background: var(--head); color: var(--muted); font-weight: 400; text-align: center; }
+.row { display: flex; gap: 8px; }
+.row input { flex: 1 1 auto; min-width: 0; width: 6rem; }
+.task details summary { cursor: pointer; font-size: .85rem; color: var(--muted); }
+.task details p { margin: 6px 0 0; font-size: .9rem; }
+.task .got { font-size: .9rem; color: var(--c); font-weight: 700; }
+
+/* Тема и цель */
+.reveal-title { font-family: var(--f-display); font-weight: 500; font-size: clamp(1.3rem, 3.2vw, 1.9rem); line-height: 1.25; margin: 0 0 10px; text-wrap: balance; }
+.fns { display: flex; flex-wrap: wrap; gap: 8px; }
+.fns code { font-size: 1rem; padding: 3px 10px; }
 .goal { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: baseline; }
 .code { font-family: var(--f-mono); font-weight: 600; color: var(--c); font-size: .92rem; white-space: nowrap; }
-.goal p { margin: 0; font-size: 1.1rem; }
-
+.goal p, .plain { margin: 0; font-size: 1.08rem; }
 .res { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
 .res:first-child { border-top: 0; padding-top: 0; }
 .who { font-weight: 700; display: flex; flex-direction: column; gap: 4px; }
@@ -68,179 +122,246 @@ h1 { margin: 0 0 6px; font-family: var(--f-display); font-weight: 500; font-size
 .bar i { display: block; height: 100%; background: var(--c); }
 .res p { margin: 0; font-size: 1.05rem; }
 @media (max-width: 520px) { .res { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
-
-code, .mono { font-family: var(--f-mono); font-size: .9em; }
-code { background: var(--bg); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; white-space: nowrap; }
-
-.org-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-@media (max-width: 820px) { .org-grid { grid-template-columns: minmax(0, 1fr); } }
-.screen { border: 2px solid var(--c); }
-.act { font-family: var(--f-display); font-weight: 500; font-size: 1.3rem; margin: 0 0 10px; line-height: 1.25; }
-.screen p { margin: 0 0 10px; font-size: 1.12rem; }
-.sheet { border-collapse: collapse; font-family: var(--f-mono); font-size: .95rem; margin: 4px 0 12px; font-variant-numeric: tabular-nums; }
-.sheet td, .sheet th { border: 1px solid var(--line); padding: 4px 12px; text-align: right; }
-.sheet th { color: var(--muted); font-weight: 400; background: var(--bg); text-align: center; }
-.reveal summary { cursor: pointer; color: var(--c); font-weight: 700; }
-.reveal div { margin-top: 8px; font-size: 1.05rem; }
-
-.side { display: grid; gap: 16px; }
-.timer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.timer output { font-family: var(--f-mono); font-size: 2.2rem; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 5ch; }
-.timer output.done { color: var(--warn); }
-.prep { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.prep label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; cursor: pointer; }
-.prep input { margin-top: 4px; width: 1.05rem; height: 1.05rem; accent-color: var(--c); }
-.prep input:checked + span { color: var(--muted); text-decoration: line-through; }
-.small { font-family: var(--f-mono); font-size: .8rem; color: var(--muted); margin: 10px 0 0; }
-
-.plan { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.plan li { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: 10px; }
-.plan .t { font-family: var(--f-mono); font-size: .82rem; color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
-
+code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; white-space: nowrap; }
 .next { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
 <div class="wrap">
   <div class="top">
-    <span class="eyebrow">Информатика · 8 класс · Урок 1</span>
+    <span class="eyebrow">Информатика · 8 класс · Электронные таблицы</span>
     <div class="tools">
       <button class="btn" id="bigBtn" type="button" aria-pressed="false">Крупный шрифт</button>
       <button class="btn" id="fsBtn" type="button">Во весь экран</button>
     </div>
   </div>
 
-  <h1>Математические функции: СУММ(), ABS(), КОРЕНЬ()</h1>
-  <div class="meta">
-    <span class="chip on">Электронные таблицы</span>
-    <span class="chip">40 минут</span>
-    <span class="chip">Раздел: решение задач в электронных таблицах</span>
-  </div>
-
   <div class="steps" role="tablist" aria-label="Этапы урока">
-    <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="true"><b>1</b>Тема и цель</button>
-    <button type="button" class="step" role="tab" id="tab-org" aria-controls="org" aria-selected="false"><b>2</b>Организационный момент</button>
+    <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="true"><b>1</b>Разгадай тему</button>
+    <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>2</b>Тема и цель</button>
   </div>
 
-  <!-- Этап 1 -->
-  <div class="panel" id="goal" role="tabpanel" aria-labelledby="tab-goal">
+  <!-- Этап 1: разгадать тему -->
+  <div class="panel" id="puzzle" role="tabpanel" aria-labelledby="tab-puzzle">
+    <div>
+      <h1>Какая тема сегодня?</h1>
+      <p class="lead">Тема урока спрятана в ячейках таблицы. Номер под ячейкой — это номер задания. Решите задание, и буква откроется во всех ячейках с этим номером.</p>
+    </div>
+
+    <section class="block">
+      <h2>Лист «Тема»</h2>
+      <div class="sheetwrap"><table class="grid" id="grid"></table></div>
+      <div class="progress">
+        <div class="pbar"><i id="pbar"></i></div>
+        <span class="pnum" id="pnum"></span>
+      </div>
+      <div class="guess">
+        <label for="guessIn">Уже догадались?</label>
+        <input type="text" id="guessIn" placeholder="Впишите тему целиком" autocomplete="off">
+        <button class="btn" type="button" id="guessBtn">Проверить тему</button>
+      </div>
+      <p class="msg" id="guessMsg" aria-live="polite"></p>
+    </section>
+
+    <section class="block">
+      <h2>Задания · что вернёт формула?</h2>
+      <div class="tasks" id="tasks"></div>
+    </section>
+    <button class="reset" type="button" id="resetBtn">Начать заново</button>
+  </div>
+
+  <!-- Этап 2: тема и цель -->
+  <div class="panel" id="goal" role="tabpanel" aria-labelledby="tab-goal" hidden>
+    <section class="block">
+      <h2>Тема урока</h2>
+      <p class="reveal-title">Математические функции в электронных таблицах</p>
+      <div class="fns"><code>СУММ()</code><code>ABS()</code><code>КОРЕНЬ()</code><code>СТЕПЕНЬ()</code><code>СУММЕСЛИ()</code></div>
+    </section>
     <section class="block">
       <h2>Цель обучения</h2>
       <div class="goal"><span class="code">8.2.2.1</span><p>использовать математические функции (СУММ(); ABS(); КОРЕНЬ(); СТЕПЕНЬ(); СУММЕСЛИ()) в электронных таблицах</p></div>
     </section>
     <section class="block">
       <h2>Цель урока</h2>
-      <p style="margin:0;font-size:1.08rem">научиться находить сумму диапазона, модуль числа и квадратный корень с помощью функций СУММ(), ABS() и КОРЕНЬ().</p>
+      <p class="plain">научиться выполнять вычисления в электронных таблицах с помощью функций СУММ(), ABS(), КОРЕНЬ(), СТЕПЕНЬ() и СУММЕСЛИ().</p>
     </section>
     <section class="block">
       <h2>Ожидаемые результаты · к концу урока</h2>
-      <div class="res"><div class="who">Все учащиеся<span class="bar"><i style="width:100%"></i></span></div><p>записывают формулу <code>=СУММ(A1:A8)</code> и находят сумму диапазона ячеек.</p></div>
-      <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>применяют <code>ABS()</code> и <code>КОРЕНЬ()</code> к значениям ячеек и объясняют результат.</p></div>
-      <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>составляют вложенную формулу <code>=КОРЕНЬ(ABS(A2))</code> и объясняют, зачем нужна каждая функция.</p></div>
+      <div class="res"><div class="who">Все учащиеся<span class="bar"><i style="width:100%"></i></span></div><p>находят сумму диапазона с помощью <code>СУММ()</code> и модуль числа с помощью <code>ABS()</code>.</p></div>
+      <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>применяют <code>КОРЕНЬ()</code> и <code>СТЕПЕНЬ()</code>, правильно записывая аргументы через точку с запятой: <code>=СТЕПЕНЬ(A1;2)</code>.</p></div>
+      <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>суммируют значения по условию с помощью <code>СУММЕСЛИ()</code> и составляют вложенные формулы, например <code>=КОРЕНЬ(ABS(A1))</code>.</p></div>
     </section>
-    <div class="next"><span></span><button class="btn main" type="button" data-go="org">Дальше: организационный момент →</button></div>
-  </div>
-
-  <!-- Этап 2 -->
-  <div class="panel" id="org" role="tabpanel" aria-labelledby="tab-org" hidden>
-    <div class="org-grid">
-      <section class="block screen">
-        <h2>На экране для класса · 3 мин</h2>
-        <p class="act">Кто быстрее: класс или формула?</p>
-        <p>Сложите в уме восемь чисел. У вас 20 секунд.</p>
-        <table class="sheet">
-          <tr><th></th><th>A</th></tr>
-          <tr><th>1</th><td>17</td></tr><tr><th>2</th><td>−8</td></tr><tr><th>3</th><td>25</td></tr><tr><th>4</th><td>−13</td></tr>
-          <tr><th>5</th><td>40</td></tr><tr><th>6</th><td>9</td></tr><tr><th>7</th><td>−6</td></tr><tr><th>8</th><td>36</td></tr>
-        </table>
-        <p>Вопрос на урок: что покажет таблица, если ввести <code>=КОРЕНЬ(-9)</code>?</p>
-        <details class="reveal"><summary>Показать ответ</summary>
-          <div>Сумма равна 100. <code>=КОРЕНЬ(-9)</code> возвращает ошибку <code>#ЧИСЛО!</code>: корень из отрицательного числа не вычисляется. Как это исправить, узнаем с помощью функции <code>ABS()</code>.</div>
-        </details>
-      </section>
-      <div class="side">
-        <section class="block">
-          <h2>Таймер</h2>
-          <div class="timer">
-            <output id="tOut">3:00</output>
-            <button class="btn" type="button" id="tStart">Старт</button>
-            <button class="btn" type="button" id="tReset">Сброс</button>
-          </div>
-        </section>
-        <section class="block">
-          <h2>Учителю подготовить</h2>
-          <ul class="prep" id="prep">
-            <li><label for="p0"><input type="checkbox" id="p0"><span>Файл-заготовка с числами в столбце A на каждом компьютере</span></label></li>
-            <li><label for="p1"><input type="checkbox" id="p1"><span>Таблица с отрицательными числами для работы с ABS()</span></label></li>
-            <li><label for="p2"><input type="checkbox" id="p2"><span>Электронные таблицы открыты до звонка</span></label></li>
-            <li><label for="p3"><input type="checkbox" id="p3"><span>Задание выведено на проектор</span></label></li>
-          </ul>
-          <p class="small" id="prepCount"></p>
-        </section>
-      </div>
-    </div>
-    <section class="block">
-      <h2>Ход организационного момента</h2>
-      <ol class="plan">
-        <li><span class="t">0:00–0:30</span><span>Приветствие, отметка отсутствующих, проверка рабочих мест.</span></li>
-        <li><span class="t">0:30–2:30</span><span>Разминка: 20 секунд класс считает устно, затем учитель вводит <code>=СУММ(A1:A8)</code> и показывает результат. Ученики отвечают на вопрос про <code>КОРЕНЬ(-9)</code>.</span></li>
-        <li><span class="t">2:30–3:00</span><span>Разбор ответа и переход к теме и цели урока.</span></li>
-      </ol>
-    </section>
-    <div class="next"><button class="btn" type="button" data-go="goal">← Тема и цель</button><span></span></div>
+    <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><span></span></div>
   </div>
 </div>
 
 <script>
+/* Тема в двух строках листа; каждой букве соответствует номер задания */
+const ROWS = ["МАТЕМАТИЧЕСКИЕ", "ФУНКЦИИ"];
+const TASKS = [
+  { n: 1,  fn: "СУММ",     f: "=СУММ(5;10;15)",                ans: 30, letter: "М", hint: "СУММ складывает все свои аргументы." },
+  { n: 2,  fn: "СУММ",     f: "=СУММ(1;2;3;4)",                ans: 10, letter: "И", hint: "СУММ складывает все свои аргументы." },
+  { n: 3,  fn: "ABS",      f: "=ABS(-12)",                     ans: 12, letter: "А", hint: "ABS возвращает модуль числа — число без знака минус." },
+  { n: 4,  fn: "ABS",      f: "=ABS(4-20)",                    ans: 16, letter: "Ч", hint: "Сначала вычислите 4 − 20, потом возьмите модуль." },
+  { n: 5,  fn: "КОРЕНЬ",   f: "=КОРЕНЬ(49)",                   ans: 7,  letter: "Т", hint: "КОРЕНЬ возвращает квадратный корень: какое число в квадрате даёт 49?" },
+  { n: 6,  fn: "КОРЕНЬ",   f: "=КОРЕНЬ(81)",                   ans: 9,  letter: "С", hint: "Какое число, умноженное само на себя, даёт 81?" },
+  { n: 7,  fn: "СТЕПЕНЬ",  f: "=СТЕПЕНЬ(2;3)",                 ans: 8,  letter: "Е", hint: "СТЕПЕНЬ(число;показатель): 2 · 2 · 2." },
+  { n: 8,  fn: "СТЕПЕНЬ",  f: "=СТЕПЕНЬ(5;2)",                 ans: 25, letter: "К", hint: "Число 5 во второй степени." },
+  { n: 9,  fn: "СТЕПЕНЬ",  f: "=СТЕПЕНЬ(10;0)",                ans: 1,  letter: "У", hint: "Любое число, кроме нуля, в нулевой степени равно…" },
+  { n: 10, fn: "КОРЕНЬ + СТЕПЕНЬ", f: "=КОРЕНЬ(СТЕПЕНЬ(6;2))", ans: 6,  letter: "Ф", hint: "Сначала внутренняя функция: 6 в квадрате. Потом корень из результата." },
+  { n: 11, fn: "СУММЕСЛИ", f: "=СУММЕСЛИ(A1:A4;\">0\")",        ans: 13, letter: "Н", hint: "СУММЕСЛИ складывает только те ячейки, которые подходят под условие. Здесь условие — больше нуля.",
+    table: [5, -2, 8, -6] },
+  { n: 12, fn: "СУММ + ABS + КОРЕНЬ", f: "=СУММ(ABS(-6);КОРЕНЬ(16))", ans: 10, letter: "Ц", hint: "Вычислите ABS(-6) и КОРЕНЬ(16), потом сложите." }
+];
+const BY_LETTER = Object.fromEntries(TASKS.map(t => [t.letter, t]));
+const ANSWER = ROWS.join("");
+const COLS = "ABCDEFGHIJKLMN";
+const KEY = "topic-l1";
+
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
 };
 
+let solved = new Set(store.get(KEY, []));
+
+function buildGrid() {
+  const width = Math.max(...ROWS.map(r => r.length));
+  let html = "<tr><th class=\"rh\"></th>" + [...COLS.slice(0, width)].map(c => `<th>${c}</th>`).join("") + "</tr>";
+  ROWS.forEach((row, ri) => {
+    html += `<tr><th class="rh">${ri + 1}</th>`;
+    for (let i = 0; i < width; i++) {
+      const ch = row[i];
+      if (!ch) { html += "<td class=\"gap\"></td>"; continue; }
+      const t = BY_LETTER[ch];
+      html += `<td data-n="${t.n}" aria-label="ячейка ${COLS[i]}${ri + 1}, задание ${t.n}"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
+    }
+    html += "</tr>";
+  });
+  document.getElementById("grid").innerHTML = html;
+}
+
+function buildTasks() {
+  document.getElementById("tasks").innerHTML = TASKS.map(t => `
+    <div class="task" id="task-${t.n}">
+      <div class="hd"><span class="tn">Задание ${t.n}</span><span class="fn">${t.fn}</span></div>
+      ${t.table ? `<table class="mini"><tr><th></th><th>A</th></tr>${t.table.map((v, i) => `<tr><th>${i + 1}</th><td>${v}</td></tr>`).join("")}</table>` : ""}
+      <div class="formula">${t.f.replace(/</g, "&lt;")}</div>
+      <div class="row">
+        <input type="text" inputmode="numeric" id="in-${t.n}" aria-label="Ответ к заданию ${t.n}" placeholder="Ответ" autocomplete="off">
+        <button class="btn" type="button" data-check="${t.n}">Проверить</button>
+      </div>
+      <details><summary>Подсказка</summary><p>${t.hint}</p></details>
+      <p class="msg" id="msg-${t.n}" aria-live="polite"></p>
+    </div>`).join("");
+}
+
+function render(animateN) {
+  document.querySelectorAll("#grid td[data-n]").forEach(td => {
+    const n = +td.dataset.n;
+    const open = solved.has(n);
+    td.classList.toggle("open", open);
+    td.querySelector(".ch").textContent = open ? TASKS[n - 1].letter : "?";
+    if (open && n === animateN) { td.classList.remove("flip"); void td.offsetWidth; td.classList.add("flip"); }
+  });
+  TASKS.forEach(t => {
+    const box = document.getElementById("task-" + t.n);
+    const done = solved.has(t.n);
+    box.classList.toggle("done", done);
+    const inp = document.getElementById("in-" + t.n);
+    const btn = box.querySelector("[data-check]");
+    inp.disabled = done; btn.disabled = done;
+    if (done) { inp.value = t.ans; document.getElementById("msg-" + t.n).innerHTML = `<span class="got">Верно! Открыта буква «${t.letter}»</span>`; }
+  });
+  const total = ANSWER.length;
+  const open = [...ANSWER].filter(ch => solved.has(BY_LETTER[ch].n)).length;
+  document.getElementById("pbar").style.width = (open / total * 100) + "%";
+  document.getElementById("pnum").textContent = `Открыто букв: ${open} из ${total}`;
+  if (open === total) unlock();
+}
+
+function check(n) {
+  const t = TASKS[n - 1];
+  const inp = document.getElementById("in-" + n);
+  const msg = document.getElementById("msg-" + n);
+  const v = parseFloat(inp.value.trim().replace(",", ".").replace("−", "-"));
+  inp.classList.remove("wrong");
+  if (Number.isNaN(v)) { msg.className = "msg bad"; msg.textContent = "Впишите число."; return; }
+  if (v === t.ans) {
+    solved.add(n); store.set(KEY, [...solved]);
+    msg.className = "msg ok";
+    render(n);
+  } else {
+    void inp.offsetWidth; inp.classList.add("wrong");
+    msg.className = "msg bad"; msg.textContent = "Не то. Откройте подсказку и попробуйте ещё раз.";
+  }
+}
+
+document.getElementById("tasks").addEventListener("click", e => {
+  const b = e.target.closest("[data-check]"); if (b) check(+b.dataset.check);
+});
+document.getElementById("tasks").addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id && e.target.id.startsWith("in-")) check(+e.target.id.slice(3));
+});
+
+function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯA-Z]/g, ""); }
+function guess() {
+  const inp = document.getElementById("guessIn"), msg = document.getElementById("guessMsg");
+  inp.classList.remove("wrong");
+  if (norm(inp.value) === ANSWER) {
+    TASKS.forEach(t => solved.add(t.n)); store.set(KEY, [...solved]);
+    msg.className = "msg ok"; msg.textContent = "Верно! Тема открыта.";
+    render();
+  } else {
+    void inp.offsetWidth; inp.classList.add("wrong");
+    msg.className = "msg bad"; msg.textContent = "Пока не то. Откройте ещё несколько букв.";
+  }
+}
+document.getElementById("guessBtn").addEventListener("click", guess);
+document.getElementById("guessIn").addEventListener("keydown", e => { if (e.key === "Enter") guess(); });
+
+let unlocked = false;
+function unlock() {
+  const tab = document.getElementById("tab-goal");
+  tab.disabled = false;
+  if (unlocked) return;
+  unlocked = true;
+  document.getElementById("guessMsg").className = "msg ok";
+  document.getElementById("guessMsg").textContent = "Тема разгадана! Открываем тему и цель урока…";
+  setTimeout(() => { show("goal"); window.scrollTo({ top: 0, behavior: "smooth" }); }, 1400);
+}
+
 function show(id) {
-  ["goal", "org"].forEach(p => {
+  ["puzzle", "goal"].forEach(p => {
     document.getElementById(p).hidden = p !== id;
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
 }
-document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => show(b.getAttribute("aria-controls"))));
-document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => { if (!b.disabled) show(b.getAttribute("aria-controls")); }));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => show(b.dataset.go)));
 
-const TOTAL = 180;
-let left = TOTAL, id = null;
-const out = document.getElementById("tOut"), startBtn = document.getElementById("tStart");
-const fmt = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-function stop() { clearInterval(id); id = null; }
-startBtn.addEventListener("click", () => {
-  if (id) { stop(); startBtn.textContent = "Продолжить"; return; }
-  if (left <= 0) left = TOTAL;
-  out.classList.remove("done"); startBtn.textContent = "Пауза";
-  id = setInterval(() => {
-    left--; out.textContent = fmt(Math.max(left, 0));
-    if (left <= 0) { stop(); out.classList.add("done"); out.textContent = "Время!"; startBtn.textContent = "Старт"; }
-  }, 1000);
+document.getElementById("resetBtn").addEventListener("click", () => {
+  solved = new Set(); store.del(KEY); unlocked = false;
+  document.getElementById("tab-goal").disabled = true;
+  document.getElementById("guessIn").value = "";
+  document.getElementById("guessMsg").textContent = "";
+  buildTasks(); render(); show("puzzle");
 });
-document.getElementById("tReset").addEventListener("click", () => { stop(); left = TOTAL; out.textContent = fmt(TOTAL); out.classList.remove("done"); startBtn.textContent = "Старт"; });
-
-const boxes = [...document.querySelectorAll("#prep input")];
-const saved = store.get("prep-l1", []);
-boxes.forEach((b, i) => { b.checked = saved.includes(i); });
-function count() {
-  const on = boxes.map((b, i) => b.checked ? i : -1).filter(i => i >= 0);
-  document.getElementById("prepCount").textContent = "Готово " + on.length + " из " + boxes.length;
-  return on;
-}
-count();
-document.getElementById("prep").addEventListener("change", () => store.set("prep-l1", count()));
 
 const bigBtn = document.getElementById("bigBtn");
 function setBig(on) { document.documentElement.classList.toggle("big", on); bigBtn.setAttribute("aria-pressed", on); store.set("big", on); }
 bigBtn.addEventListener("click", () => setBig(!document.documentElement.classList.contains("big")));
 setBig(store.get("big", false));
-
 document.getElementById("fsBtn").addEventListener("click", () => {
   try {
     if (document.fullscreenElement) document.exitFullscreen();
     else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
   } catch (e) {}
 });
+
+buildGrid(); buildTasks();
+unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+render();
+if (unlocked) document.getElementById("tab-goal").disabled = false;
 </script>
