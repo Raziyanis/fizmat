@@ -29,6 +29,7 @@ function setup() {
   });
   const st = ss.getSheetByName(SHEETS.settings.name);
   if (st.getLastRow() < 2) st.appendRow(["PIN учителя", "1234"]);
+  if (st.getLastRow() < 3) st.appendRow(["Проверять список учеников (да/нет)", "да"]);
 }
 
 function doGet(e) {
@@ -91,14 +92,51 @@ function normName_(v) {
   return String(v || "").trim().replace(/\s+/g, " ").split(" ").map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(" ").slice(0, 80);
 }
 
+/** Ключ для сравнения имён: без регистра, ё = е, порядок слов не важен. */
+function key_(name) {
+  return normName_(name).toLowerCase().replace(/ё/g, "е").split(" ").sort().join(" ");
+}
+
+function lev_(a, b) {
+  const d = [];
+  for (let i = 0; i <= a.length; i++) { d[i] = [i]; }
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+
+/** Проверять ли ученика по списку (лист «Настройки», B3: да/нет). */
+function checkRoster_() {
+  return String(sheet_("settings").getRange("B3").getValue()).trim().toLowerCase() !== "нет";
+}
+
+/**
+ * Вход ученика. Если список на листе «Ученики» заполнен и проверка включена,
+ * пускает только тех, кто есть в списке; при опечатке предлагает похожее имя.
+ */
 function registerStudent(cls, name) {
   cls = normClass_(clean_(cls, 20).replace(/^'/, ""));
   name = normName_(clean_(name, 80).replace(/^'/, ""));
   if (!/^\d{1,2}[А-ЯЁ]?$/.test(cls)) throw new Error("Класс пишется так: цифра и буква, например 8А.");
   if (name.split(" ").length < 2) throw new Error("Впиши фамилию и имя через пробел.");
+  const roster = getRoster();
+  const hasList = Object.keys(roster).length > 0;
+  if (hasList && checkRoster_()) {
+    const list = roster[cls];
+    if (!list || !list.length) throw new Error("Класса " + cls + " нет в списке. Проверь, как написан класс.");
+    const k = key_(name);
+    const hit = list.filter(function (s) { return key_(s) === k; })[0];
+    if (hit) return { id: cls + " | " + hit, cls: cls, name: hit };
+    let best = null, bd = 99;
+    list.forEach(function (s) { const dd = lev_(key_(s), k); if (dd < bd) { bd = dd; best = s; } });
+    if (best && (bd <= 2 || (bd <= 3 && k.length >= 12))) return { suggest: best, cls: cls };
+    throw new Error("Тебя нет в списке класса " + cls + ". Проверь, как написаны фамилия и имя, или скажи учителю.");
+  }
   withLock_(function () {
     const list = getRoster()[cls] || [];
-    if (!list.some(function (s) { return s.toLowerCase() === name.toLowerCase(); })) sheet_("roster").appendRow([cls, name]);
+    if (!list.some(function (s) { return key_(s) === key_(name); })) sheet_("roster").appendRow([cls, name]);
   });
   return { id: cls + " | " + name, cls: cls, name: name };
 }
@@ -199,7 +237,7 @@ function getTeacherData(pin, qid, since) {
       z: String(r[7]), a: String(r[8]), b: String(r[9]), c: String(r[10]), expOk: String(r[11]), r0: String(r[12]), r1: String(r[13]), r2: String(r[14]),
       use: String(r[15]), note: String(r[16]), t: time_(r[17]), online: now - upd < 150000 };
   });
-  return { q: q, want: want, questions: questions, answers: answers, attempts: attempts, progress: progress };
+  return { q: q, want: want, questions: questions, answers: answers, attempts: attempts, progress: progress, roster: getRoster() };
 }
 
 /** Очистить ответы и попытки перед новым уроком (список учеников остаётся). */

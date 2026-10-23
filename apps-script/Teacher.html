@@ -90,6 +90,7 @@ table.pg { border-collapse: collapse; width: 100%; font-size: .92rem; }
 .pg .off { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--line); margin-right: 6px; }
 .m2 { color: var(--c); font-weight: 700; } .m1 { color: var(--ink); } .m0 { color: var(--bad); font-weight: 700; }
 .clip { max-width: 22rem; }
+.pg tr.absent td { color: var(--muted); font-style: italic; }
 </style>
 </head>
 <body>
@@ -214,7 +215,7 @@ function render() {
   if (!DATA) return;
   const d = DATA;
   // классы
-  const classes = [...new Set(d.progress.map(p => p.cls).concat(d.attempts.map(a => a.cls)))].filter(Boolean).sort((a, b) => a.localeCompare(b, "ru", { numeric: true }));
+  const classes = [...new Set(d.progress.map(p => p.cls).concat(d.attempts.map(a => a.cls)).concat(Object.keys(d.roster || {})))].filter(Boolean).sort((a, b) => a.localeCompare(b, "ru", { numeric: true }));
   const cs = el("clsSel"), cur = cs.value;
   if (cs.options.length - 1 !== classes.length) { cs.innerHTML = '<option value="">все классы</option>'; classes.forEach(c => cs.appendChild(new Option(c, c))); cs.value = cur; }
   // открытый вопрос
@@ -253,14 +254,18 @@ function render() {
   const key = el("lessonSel").value;
   wall(el("lessonWall"), byClass(d.progress).filter(p => p[key]).map(p => ({ name: p.name, cls: p.cls, t: p.t, text: p[key] })), "Пока никто не ответил.");
   // прогресс
-  const pg = byClass(d.progress).slice().sort((a, b) => a.cls.localeCompare(b.cls, "ru") || a.name.localeCompare(b.name, "ru"));
-  el("nProg").textContent = pg.length ? "(" + pg.filter(p => p.online).length + " онлайн)" : "";
+  const seenIds = new Set(d.progress.map(p => p.cls + "|" + p.name));
+  const absent = [];
+  Object.keys(d.roster || {}).forEach(c => d.roster[c].forEach(n => { if (!seenIds.has(c + "|" + n)) absent.push({ cls: c, name: n, absent: true, stage: "не входил", match: "", z: "", a: "", b: "", c: "", expOk: "", r0: "", r1: "", r2: "", expect: "", t: "" }); }));
+  const pg = byClass(d.progress.concat(absent)).sort((a, b) => a.cls.localeCompare(b.cls, "ru", { numeric: true }) || a.name.localeCompare(b.name, "ru"));
+  const inList = pg.filter(p => !p.absent);
+  el("nProg").textContent = pg.length ? `(${inList.filter(p => p.online).length} онлайн · вошли ${inList.length} из ${pg.length})` : "";
   const T = el("pg"); T.innerHTML = "";
   const head = ["Ученик", "Класс", "Этап", "Какая функция", "Разминка", "A", "B", "C", "Ожидания оправдались", "Все", "Большинство", "Некоторые", "Ожидания", "Обновлено"];
   const hr = node("tr"); head.forEach(h => hr.appendChild(node("th", "", h))); T.appendChild(hr);
   const mk = v => v === "Получилось" || v === "Да" ? "m2" : v === "Частично" ? "m1" : v ? "m0" : "";
   pg.forEach(p => {
-    const tr = node("tr");
+    const tr = node("tr", p.absent ? "absent" : "");
     const n = node("td"); n.appendChild(node("span", p.online ? "on" : "off")); n.appendChild(document.createTextNode(p.name)); tr.appendChild(n);
     tr.appendChild(node("td", "", p.cls)); tr.appendChild(node("td", "", p.stage));
     const full = v => { const [a, b] = String(v).split("/"); return a && a === b ? "num full" : "num"; };
