@@ -135,6 +135,14 @@ code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); borde
 .ex-cell.open { background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
 .ex-cell.open b { color: var(--c); }
 .arrow { color: var(--muted); }
+.expect { border: 2px solid var(--c); }
+.expect .q { display: block; font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+.starters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.starter { border: 1px dashed var(--c); background: none; color: var(--c); border-radius: 999px; padding: 4px 12px; font-size: .9rem; }
+.starter:hover { background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05rem; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); resize: vertical; }
+.exp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 10px; }
+.mine { margin: 0 0 10px; font-size: 1.1rem; padding: 10px 14px; background: var(--bg); border-left: 3px solid var(--c); border-radius: 4px; white-space: pre-wrap; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -207,6 +215,30 @@ code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); borde
       <p class="reveal-title">Математические функции в электронных таблицах</p>
       <div class="fns"><code>СУММ()</code><code>ABS()</code><code>КОРЕНЬ()</code><code>СТЕПЕНЬ()</code><code>СУММЕСЛИ()</code></div>
     </section>
+    <section class="block expect" id="expect">
+      <h2>Мои ожидания от урока</h2>
+      <div id="expForm">
+        <label for="expText" class="q">Тема открыта. Чему ты хочешь научиться на этом уроке? Что ты уже знаешь об этих функциях?</label>
+        <div class="starters" aria-label="Начало фразы">
+          <button type="button" class="starter">Я хочу научиться…</button>
+          <button type="button" class="starter">Я уже знаю…</button>
+          <button type="button" class="starter">Мне интересно, зачем…</button>
+          <button type="button" class="starter">Хочу понять, где пригодится…</button>
+        </div>
+        <textarea id="expText" rows="3" placeholder="Например: хочу научиться считать корень в таблице…"></textarea>
+        <div class="exp-actions">
+          <button class="btn main" type="button" id="expSave">Сохранить и увидеть цель урока</button>
+          <span class="msg" id="expMsg" aria-live="polite"></span>
+        </div>
+      </div>
+      <div id="expSaved" hidden>
+        <p class="mine" id="expShow"></p>
+        <button class="btn" type="button" id="expEdit">Изменить</button>
+        <p class="small">В конце урока сравнишь свои ожидания с тем, что получилось.</p>
+      </div>
+    </section>
+
+    <div class="panel" id="afterExp" hidden>
     <section class="block">
       <h2>Цель обучения</h2>
       <div class="goal"><span class="code">8.2.2.1</span><p>использовать математические функции (СУММ(); ABS(); КОРЕНЬ(); СТЕПЕНЬ(); СУММЕСЛИ()) в электронных таблицах</p></div>
@@ -221,6 +253,7 @@ code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); borde
       <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>применяют <code>КОРЕНЬ()</code> и <code>СТЕПЕНЬ()</code>, правильно записывая аргументы через точку с запятой: <code>=СТЕПЕНЬ(A1;2)</code>.</p></div>
       <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>суммируют значения по условию с помощью <code>СУММЕСЛИ()</code> и составляют вложенные формулы, например <code>=КОРЕНЬ(ABS(A1))</code>.</p></div>
     </section>
+    </div>
     <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><span></span></div>
   </div>
 </div>
@@ -372,7 +405,8 @@ document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () =
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => show(b.dataset.go)));
 
 document.getElementById("resetBtn").addEventListener("click", () => {
-  solved = new Set(); store.del(KEY); unlocked = false;
+  solved = new Set(); store.del(KEY); store.del(EXP_KEY); unlocked = false;
+  expText.value = ""; showExp("");
   document.getElementById("tab-goal").disabled = true;
   document.getElementById("guessIn").value = "";
   document.getElementById("guessMsg").textContent = "";
@@ -389,6 +423,38 @@ document.getElementById("fsBtn").addEventListener("click", () => {
     else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
   } catch (e) {}
 });
+
+/* Ожидания ученика: пока хранятся только в его браузере */
+const EXP_KEY = "expect-l1";
+const expText = document.getElementById("expText");
+function showExp(text) {
+  const has = !!text;
+  document.getElementById("expForm").hidden = has;
+  document.getElementById("expSaved").hidden = !has;
+  document.getElementById("expShow").textContent = text || "";
+  document.getElementById("afterExp").hidden = !has;
+}
+document.querySelectorAll(".starter").forEach(b => b.addEventListener("click", () => {
+  const s = b.textContent.replace("…", " ");
+  expText.value = (expText.value.trim() ? expText.value.trim() + "\n" : "") + s;
+  expText.focus();
+  expText.setSelectionRange(expText.value.length, expText.value.length);
+}));
+document.getElementById("expSave").addEventListener("click", () => {
+  const v = expText.value.trim();
+  const msg = document.getElementById("expMsg");
+  if (v.length < 5) { msg.className = "msg bad"; msg.textContent = "Напиши хотя бы одно предложение."; return; }
+  msg.textContent = "";
+  store.set(EXP_KEY, v);
+  showExp(v);
+});
+document.getElementById("expEdit").addEventListener("click", () => {
+  expText.value = store.get(EXP_KEY, "");
+  document.getElementById("expForm").hidden = false;
+  document.getElementById("expSaved").hidden = true;
+  expText.focus();
+});
+showExp(store.get(EXP_KEY, ""));
 
 buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
