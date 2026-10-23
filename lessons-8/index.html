@@ -1017,6 +1017,7 @@ function unlock() {
   tab.disabled = false;
   if (unlocked) return;
   unlocked = true;
+  setTimeout(() => showExp(store.get(EXP_KEY, "")), 0);  // после загрузки остальных частей урока
   document.getElementById("guessMsg").className = "msg ok";
   document.getElementById("guessMsg").textContent = "Тема разгадана! Открываем тему и цель урока…";
   setTimeout(() => { show("goal"); window.scrollTo({ top: 0, behavior: "smooth" }); }, 1400);
@@ -1059,7 +1060,8 @@ document.getElementById("fsBtn").addEventListener("click", () => {
 const EXP_KEY = "expect-l1";
 const expText = document.getElementById("expText");
 function showExp(text) {
-  const has = !!text;
+  // этапы 3–8 открыты, только когда тема разгадана и ожидания записаны
+  const has = !!text && [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
   document.getElementById("expForm").hidden = has;
   document.getElementById("expSaved").hidden = !has;
   document.getElementById("expShow").textContent = text || "";
