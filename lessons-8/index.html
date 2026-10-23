@@ -14,6 +14,7 @@
   --head: #e9eef1;    /* заголовки строк и столбцов таблицы */
   --c: #1d7652;       /* зелёный электронных таблиц */
   --bad: #b3372b;
+  --refc: #2c58ad;   /* ячейки, на которые ссылается формула */
   --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
   --f-body: "PT Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "Consolas", monospace;
@@ -21,13 +22,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
-    --c: #4cc093; --bad: #f07b6e; color-scheme: dark;
+    --c: #4cc093; --bad: #f07b6e; --refc: #8aaaff; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
-  --c: #4cc093; --bad: #f07b6e; color-scheme: dark;
+  --c: #4cc093; --bad: #f07b6e; --refc: #8aaaff; color-scheme: dark;
 }
+[hidden] { display: none !important; }
 html.big { font-size: 125%; }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 1rem; line-height: 1.5; }
 .wrap {
@@ -217,6 +219,37 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .cheat { border-collapse: collapse; width: 100%; font-size: 1rem; }
 .cheat th, .cheat td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
 .cheat th { background: var(--head); color: var(--muted); font-weight: 700; font-size: .85rem; }
+.tryxl { border: 1px dashed var(--c); border-radius: 8px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.xl { display: grid; gap: 10px; min-width: 0; }
+.xl-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+.xl-ex, .xl-act { display: flex; flex-wrap: wrap; gap: 6px; }
+.xl-chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 4px 12px; font-size: .88rem; }
+.xl-chip[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 15%, var(--surface)); border-color: var(--c); color: var(--c); font-weight: 700; }
+.xl-act .btn { padding: 4px 10px; font-size: .85rem; }
+.xl-play[aria-pressed="true"] { border-color: var(--c); color: var(--c); }
+.xl-text { margin: 0; font-size: 1.02rem; }
+.xl-bar { display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); min-width: 0; }
+.xl-name { font-family: var(--f-mono); font-size: .9rem; padding: 6px 10px; min-width: 3.2rem; border-right: 1px solid var(--line); background: var(--head); display: flex; align-items: center; justify-content: center; }
+.xl-fx { font-style: italic; color: var(--muted); padding: 6px 10px; border-right: 1px solid var(--line); display: flex; align-items: center; font-family: Georgia, serif; }
+.xl-in { flex: 1; min-width: 0; border: 0; font-family: var(--f-mono); font-size: 1.05rem; padding: 6px 10px; background: transparent; color: var(--ink); }
+.xl-in:focus { outline: 2px solid var(--c); outline-offset: -2px; }
+.xl-wrap { overflow-x: auto; }
+.xl-grid { border-collapse: collapse; font-family: var(--f-body); font-size: 1rem; font-variant-numeric: tabular-nums; }
+.xl-grid th { background: var(--head); color: var(--muted); font-weight: 400; font-size: .8rem; border: 1px solid var(--line); padding: 2px 6px; font-family: var(--f-mono); }
+.xl-grid th.xl-corner { width: 2rem; }
+.xl-grid td { border: 1px solid var(--line); min-width: 6.5rem; height: 2rem; padding: 2px 8px; cursor: cell; white-space: nowrap; background: var(--surface); }
+.xl-grid td.n { text-align: right; }
+.xl-grid td.e { color: var(--bad); text-align: center; font-weight: 700; }
+.xl-grid td.f { background: color-mix(in srgb, var(--c) 7%, var(--surface)); font-weight: 700; }
+.xl-grid td.ref { background: color-mix(in srgb, var(--refc) 16%, var(--surface)); box-shadow: inset 0 0 0 1px var(--refc); }
+.xl-grid td.sel { outline: 2px solid var(--c); outline-offset: -2px; }
+.xl-grid td:focus { outline: 2px solid var(--c); outline-offset: -2px; }
+.xl-explain { margin: 0; font-size: 1.02rem; padding: 8px 12px; background: var(--bg); border-radius: 6px; }
+.xl-explain code { white-space: normal; word-break: break-word; }
+.xl-explain.bad { color: var(--bad); }
+.xl-why { display: block; margin-top: 4px; }
+.xl-step { color: var(--muted); }
+.xl-hint { margin: 0; font-size: .85rem; color: var(--muted); }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -366,19 +399,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <p class="fname"><code>СУММ()</code> — складывает</p>
       <p class="simple"><b>Простыми словами:</b> как кассир в магазине. Пробивает всё, что лежит в корзине, и называет общую сумму.</p>
       <p class="how"><span>Как записать:</span> <code>=СУММ(A1:A5)</code></p>
-      <div class="try">
-        <span class="trylab">Попробуй: поменяй числа в ячейках</span>
-        <table class="mini live">
-          <tr><th></th><th>A</th></tr>
-          <tr><th>1</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum1" value="5" aria-label="A1"></td></tr>
-          <tr><th>2</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum2" value="12" aria-label="A2"></td></tr>
-          <tr><th>3</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum3" value="-3" aria-label="A3"></td></tr>
-          <tr><th>4</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum4" value="8" aria-label="A4"></td></tr>
-          <tr><th>5</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum5" value="10" aria-label="A5"></td></tr>
-          <tr class="resrow"><th>6</th><td><span class="fx">=СУММ(A1:A5)</span><output id="sumOut"></output></td></tr>
-        </table>
-        <p class="explain" id="sumExp"></p>
-      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="sum"></div></div>
       <p class="use"><b>Где пригодится:</b> посчитать стоимость всех покупок, сумму баллов за четверть, бюджет класса на экскурсию.</p>
       <p class="remember"><b>Запомни:</b> СУММ сама пересчитывает ответ, если поменять число в ячейке. В этом и сила формул.</p>
     </section>
@@ -388,12 +409,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <p class="fname"><code>ABS()</code> — убирает минус</p>
       <p class="simple"><b>Простыми словами:</b> сколько шагов до нуля. Идёшь ты вперёд или назад, пройденное расстояние не бывает отрицательным. Это <b>модуль</b> числа из математики.</p>
       <p class="how"><span>Как записать:</span> <code>=ABS(A1)</code></p>
-      <div class="try">
-        <label class="trylab" for="absIn">Попробуй: впиши число от −10 до 10</label>
-        <div class="inline"><span class="fx">=ABS(</span><input type="text" inputmode="decimal" id="absIn" value="-7" class="num"><span class="fx">)</span> <span class="eq">=</span> <output id="absOut" class="big"></output></div>
-        <div class="line" id="absLine" aria-hidden="true"></div>
-        <p class="explain" id="absExp"></p>
-      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="abs"></div></div>
       <p class="use"><b>Где пригодится:</b> узнать, насколько догадка отличается от правильного ответа (неважно, в большую или меньшую сторону), на сколько градусов изменилась температура, разницу в росте двух людей.</p>
       <p class="remember"><b>Запомни:</b> ABS ничего не меняет у положительных чисел: <code>=ABS(7)</code> тоже равно 7.</p>
     </section>
@@ -403,12 +419,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <p class="fname"><code>КОРЕНЬ()</code> — квадратный корень</p>
       <p class="simple"><b>Простыми словами:</b> есть квадрат из клеток. Известно, сколько в нём клеток всего. КОРЕНЬ узнаёт, сколько клеток в одной стороне.</p>
       <p class="how"><span>Как записать:</span> <code>=КОРЕНЬ(A1)</code></p>
-      <div class="try">
-        <label class="trylab" for="rootIn">Попробуй: сколько клеток во всём квадрате? (попробуй 16, 49, 100 и −9)</label>
-        <div class="inline"><span class="fx">=КОРЕНЬ(</span><input type="text" inputmode="decimal" id="rootIn" value="25" class="num"><span class="fx">)</span> <span class="eq">=</span> <output id="rootOut" class="big"></output></div>
-        <div class="sq" id="rootSq" aria-hidden="true"></div>
-        <p class="explain" id="rootExp"></p>
-      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="root"></div></div>
       <p class="use"><b>Где пригодится:</b> узнать сторону квадратной комнаты или участка по площади; в геометрии — по теореме Пифагора найти диагональ экрана или расстояние по прямой.</p>
       <p class="remember"><b>Запомни:</b> из отрицательного числа корень не извлекается, и таблица покажет ошибку <code>#ЧИСЛО!</code>. Поможет ABS: <code>=КОРЕНЬ(ABS(A1))</code>.</p>
     </section>
@@ -418,11 +429,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <p class="fname"><code>СТЕПЕНЬ()</code> — умножает число само на себя</p>
       <p class="simple"><b>Простыми словами:</b> у функции два числа. Первое — <b>что</b> умножаем, второе — <b>сколько раз</b> оно встречается в умножении.</p>
       <p class="how"><span>Как записать:</span> <code>=СТЕПЕНЬ(число;степень)</code></p>
-      <div class="try">
-        <span class="trylab">Попробуй: поменяй оба числа</span>
-        <div class="inline"><span class="fx">=СТЕПЕНЬ(</span><input type="text" inputmode="decimal" id="powA" value="2" class="num" aria-label="число"><span class="fx">;</span><input type="text" inputmode="numeric" id="powB" value="3" class="num" aria-label="степень"><span class="fx">)</span> <span class="eq">=</span> <output id="powOut" class="big"></output></div>
-        <p class="explain" id="powExp"></p>
-      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="pow"></div></div>
       <p class="use"><b>Где пригодится:</b> площадь квадрата — <code>=СТЕПЕНЬ(сторона;2)</code>, объём куба — <code>=СТЕПЕНЬ(ребро;3)</code>; сколько станет чего-то, если оно удваивается каждый день.</p>
       <p class="remember"><b>Запомни:</b> порядок важен. <code>=СТЕПЕНЬ(2;3)</code> это 2·2·2 = 8, а <code>=СТЕПЕНЬ(3;2)</code> это 3·3 = 9.</p>
     </section>
@@ -432,16 +439,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <p class="fname"><code>СУММЕСЛИ()</code> — складывает только нужное</p>
       <p class="simple"><b>Простыми словами:</b> это СУММ с фильтром. Как если бы кассир пробивал только фрукты, а остальное пропускал. Сначала указываем, <b>где искать</b>, потом <b>условие в кавычках</b>.</p>
       <p class="how"><span>Как записать:</span> <code>=СУММЕСЛИ(A1:A6;"&gt;0")</code></p>
-      <div class="try">
-        <label class="trylab" for="sifCond">Попробуй: выбери условие. Карманные деньги за неделю: «+» получил, «−» потратил</label>
-        <select id="sifCond">
-          <option value="&gt;0">"&gt;0" — сколько получил</option>
-          <option value="&lt;0">"&lt;0" — сколько потратил</option>
-          <option value="&gt;=500">"&gt;=500" — только крупные суммы от 500</option>
-        </select>
-        <table class="mini live" id="sifTable"></table>
-        <p class="explain" id="sifExp"></p>
-      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="sif"></div></div>
       <p class="use"><b>Где пригодится:</b> из всех расходов посчитать только те, что больше заданной суммы; отдельно сложить доходы и отдельно расходы в семейном бюджете.</p>
       <p class="remember"><b>Запомни:</b> условие всегда пишем в кавычках: <code>"&gt;0"</code>, <code>"&lt;100"</code>, <code>"&gt;=500"</code>.</p>
     </section>
@@ -460,6 +458,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
         </table>
       </div>
       <p class="remember"><b>Три частые ошибки:</b> забыли знак <code>=</code> в начале; поставили запятую вместо <code>;</code> между числами; забыли кавычки вокруг условия в СУММЕСЛИ.</p>
+      <div class="tryxl"><span class="trylab">Песочница: все функции вместе</span><div class="xl" data-sheet="all"></div></div>
     </section>
 
     <div class="next">
@@ -721,78 +720,464 @@ document.getElementById("fNext").addEventListener("click", () => {
   if (fCur === 5) { show("reflect"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
 });
 
-const num = s => { const v = parseFloat(String(s).trim().replace(",", ".").replace("−", "-")); return Number.isNaN(v) ? null : v; };
-const fmtN = v => (Math.round(v * 100) / 100).toLocaleString("ru-RU").replace("-", "−");
+/* Мини-таблица как в Excel: формулы СУММ, ABS, КОРЕНЬ, СТЕПЕНЬ, СУММЕСЛИ */
+const XL_COLS = ["A", "B", "C", "D"];
+const XL_EN = { SUM: "СУММ", SQRT: "КОРЕНЬ", POWER: "СТЕПЕНЬ", SUMIF: "СУММЕСЛИ" };
+const XL_ERR = {
+  "#ЧИСЛО!": "Ошибка #ЧИСЛО!: из отрицательного числа нельзя извлечь квадратный корень.",
+  "#ИМЯ?": "Ошибка #ИМЯ?: таблица не знает такое имя. Проверь, как написана функция или адрес ячейки.",
+  "#ЗНАЧ!": "Ошибка #ЗНАЧ!: в вычислении участвует текст, а нужны числа.",
+  "#ДЕЛ/0!": "Ошибка #ДЕЛ/0!: на ноль делить нельзя.",
+  "#ЦИКЛ!": "Формула ссылается сама на себя, так считать нельзя."
+};
+class XErr { constructor(code) { this.code = code; } }
+class XSyntax extends Error {}
+class XArity extends Error {}
 
-function calcSum() {
-  const vals = [1, 2, 3, 4, 5].map(i => num(document.getElementById("sum" + i).value));
-  const ok = vals.map(v => v === null ? 0 : v);
-  const total = ok.reduce((a, b) => a + b, 0);
-  document.getElementById("sumOut").textContent = fmtN(total);
-  document.getElementById("sumExp").textContent = ok.map(fmtN).join(" + ").replace(/\+ −/g, "− ") + " = " + fmtN(total);
+function xlNum(s) {
+  const t = String(s).trim().replace("−", "-");
+  return /^-?\d+([.,]\d+)?$/.test(t) ? parseFloat(t.replace(",", ".")) : null;
 }
-document.querySelectorAll(".sumIn").forEach(i => i.addEventListener("input", calcSum));
+function xlFmt(v) {
+  if (v === null || v === undefined) return "";
+  if (v instanceof XErr) return v.code;
+  if (typeof v === "number") return v.toLocaleString("ru-RU", { maximumFractionDigits: 4 }).replace("−", "-");
+  return String(v);
+}
 
-function calcAbs() {
-  const v = num(document.getElementById("absIn").value);
-  const out = document.getElementById("absOut"), exp = document.getElementById("absExp"), line = document.getElementById("absLine");
-  if (v === null) { out.textContent = "?"; exp.textContent = "Впиши число."; line.innerHTML = ""; return; }
-  out.textContent = fmtN(Math.abs(v));
-  exp.textContent = v < 0 ? `От нуля до ${fmtN(v)} — ${fmtN(-v)} шагов назад. Шаги не бывают отрицательными, поэтому ответ ${fmtN(-v)}.`
-    : v > 0 ? `Число и так положительное — ABS оставляет его как есть.` : "От нуля до нуля — 0 шагов.";
-  const r = Math.round(v);
-  let html = "";
-  for (let k = -10; k <= 10; k++) {
-    const inside = (r < 0 && k >= r && k <= 0) || (r > 0 && k <= r && k >= 0);
-    html += `<span class="tick${inside ? " on" : ""}${k === 0 ? " zero" : ""}${k === r ? " end" : ""}"><i></i><small>${k % 5 === 0 || k === r ? fmtN(k) : ""}</small></span>`;
+function xlTokens(src) {
+  const t = []; let i = 0, m;
+  while (i < src.length) {
+    const c = src[i], rest = src.slice(i);
+    if (/\s/.test(c)) { i++; continue; }
+    if ((m = /^\d+(?:[.,]\d+)?/.exec(rest))) { t.push({ k: "num", v: parseFloat(m[0].replace(",", ".")) }); i += m[0].length; continue; }
+    if (c === '"') {
+      const j = src.indexOf('"', i + 1);
+      if (j < 0) throw new XSyntax("Не закрыта кавычка. Условие пишется так: \">0\".");
+      t.push({ k: "str", v: src.slice(i + 1, j) }); i = j + 1; continue;
+    }
+    if ((m = /^\$?([A-Za-z])\$?(\d+)(?![A-Za-zА-Яа-яЁё0-9_(])/.exec(rest))) { t.push({ k: "ref", v: m[1].toUpperCase() + m[2] }); i += m[0].length; continue; }
+    if ((m = /^\$?([А-Яа-яЁё])\$?(\d+)(?![A-Za-zА-Яа-яЁё0-9_(])/.exec(rest))) { t.push({ k: "badref", v: m[0] }); i += m[0].length; continue; }
+    if ((m = /^[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё0-9_.]*/.exec(rest))) { t.push({ k: "id", v: m[0].toUpperCase() }); i += m[0].length; continue; }
+    if ("+-*/^();:,".includes(c)) { t.push({ k: c }); i++; continue; }
+    throw new XSyntax(`Непонятный символ «${c}».`);
   }
-  line.innerHTML = Math.abs(v) <= 10 ? html : "";
+  return t;
 }
-document.getElementById("absIn").addEventListener("input", calcAbs);
 
-function calcRoot() {
-  const v = num(document.getElementById("rootIn").value);
-  const out = document.getElementById("rootOut"), exp = document.getElementById("rootExp"), sq = document.getElementById("rootSq");
-  out.classList.remove("err"); sq.innerHTML = "";
-  if (v === null) { out.textContent = "?"; exp.textContent = "Впиши число."; return; }
-  if (v < 0) { out.textContent = "#ЧИСЛО!"; out.classList.add("err"); exp.textContent = "Квадрата с отрицательным числом клеток не бывает, поэтому таблица показывает ошибку."; return; }
-  const s = Math.sqrt(v);
-  out.textContent = fmtN(s);
-  if (Number.isInteger(s)) {
-    exp.textContent = `Квадрат ${s} на ${s} состоит из ${fmtN(v)} клеток. Проверка: ${s} · ${s} = ${fmtN(v)}.`;
-    if (s >= 1 && s <= 12) { sq.style.setProperty("--n", s); sq.innerHTML = "<i></i>".repeat(s * s); }
-  } else {
-    exp.textContent = `Из ${fmtN(v)} клеток ровный квадрат не сложить, но таблица всё равно сосчитает: сторона примерно ${fmtN(s)}.`;
+function xlParse(src) {
+  const toks = xlTokens(src); let p = 0;
+  const peek = () => toks[p];
+  const COMMA = "Между аргументами функции ставится точка с запятой «;», а не запятая.";
+  function expr() { let n = term(); while (peek() && (peek().k === "+" || peek().k === "-")) { const op = toks[p++].k; n = { t: "bin", op, l: n, r: term() }; } return n; }
+  function term() { let n = power(); while (peek() && (peek().k === "*" || peek().k === "/")) { const op = toks[p++].k; n = { t: "bin", op, l: n, r: power() }; } return n; }
+  function power() { let n = unary(); while (peek() && peek().k === "^") { p++; n = { t: "bin", op: "^", l: n, r: unary() }; } return n; }
+  function unary() {
+    const x = peek();
+    if (x && (x.k === "-" || x.k === "+")) { p++; const a = unary(); return x.k === "-" ? { t: "neg", a } : a; }
+    return primary();
   }
+  function primary() {
+    const x = toks[p++];
+    if (!x) throw new XSyntax("Формула оборвалась: в конце чего-то не хватает.");
+    if (x.k === "num") return { t: "num", v: x.v };
+    if (x.k === "str") return { t: "str", v: x.v };
+    if (x.k === "badref" || (x.k === "ref" && peek() && peek().k === ":" && toks[p + 1] && toks[p + 1].k === "badref")) {
+      if (peek() && peek().k === ":") { p++; const y = toks[p++]; if (!y || (y.k !== "ref" && y.k !== "badref")) throw new XSyntax("После двоеточия нужен адрес ячейки, например A5."); return { t: "badref", v: x.k === "badref" ? x.v : y.v }; }
+      return { t: "badref", v: x.v };
+    }
+    if (x.k === "ref") {
+      if (peek() && peek().k === ":") {
+        p++; const y = toks[p++];
+        if (!y || y.k !== "ref") throw new XSyntax("После двоеточия нужен адрес ячейки, например A5.");
+        return { t: "range", a: x.v, b: y.v };
+      }
+      return { t: "ref", v: x.v };
+    }
+    if (x.k === "id") {
+      if (!peek() || peek().k !== "(") return { t: "name", v: x.v };
+      p++; const args = [];
+      if (peek() && peek().k === ")") { p++; return { t: "call", f: x.v, args }; }
+      for (;;) {
+        args.push(expr());
+        const y = peek();
+        if (y && y.k === ";") { p++; continue; }
+        if (y && y.k === ",") throw new XSyntax(COMMA);
+        if (!y || y.k !== ")") throw new XSyntax("Не хватает закрывающей скобки «)».");
+        p++; break;
+      }
+      return { t: "call", f: x.v, args };
+    }
+    if (x.k === "(") {
+      const a = expr();
+      if (!peek() || peek().k !== ")") throw new XSyntax("Не хватает закрывающей скобки «)».");
+      p++; return { t: "paren", a };
+    }
+    if (x.k === ",") throw new XSyntax(COMMA);
+    throw new XSyntax(`Лишний знак «${x.k}».`);
+  }
+  if (!toks.length) throw new XSyntax("После знака = нужно написать формулу.");
+  const ast = expr();
+  if (p < toks.length) {
+    const y = toks[p];
+    throw new XSyntax(y.k === ")" ? "Лишняя закрывающая скобка «)»." : y.k === ";" ? "Знак «;» ставится только внутри скобок функции." : y.k === "," ? COMMA : "Лишние символы в конце формулы.");
+  }
+  return ast;
 }
-document.getElementById("rootIn").addEventListener("input", calcRoot);
 
-function calcPow() {
-  const a = num(document.getElementById("powA").value), b = num(document.getElementById("powB").value);
-  const out = document.getElementById("powOut"), exp = document.getElementById("powExp");
-  if (a === null || b === null) { out.textContent = "?"; exp.textContent = "Впиши оба числа."; return; }
-  const r = Math.pow(a, b);
-  out.textContent = Number.isFinite(r) ? fmtN(r) : "—";
-  if (b === 0) exp.textContent = "Любое число (кроме нуля) в нулевой степени равно 1. Так договорились математики.";
-  else if (b === 1) exp.textContent = `Число в первой степени — это оно само: ${fmtN(a)}.`;
-  else if (Number.isInteger(b) && b > 1 && b <= 10) exp.textContent = `${fmtN(a)} встречается в умножении ${b} ${b >= 2 && b <= 4 ? "раза" : "раз"}: ` + Array(b).fill(fmtN(a)).join(" · ") + " = " + fmtN(r);
-  else exp.textContent = "Для такой степени расписать умножение длинно, но таблица считает сама.";
+function xlRange(a, b) {
+  const c1 = a.charCodeAt(0), c2 = b.charCodeAt(0), r1 = +a.slice(1), r2 = +b.slice(1);
+  const keys = [];
+  for (let r = Math.min(r1, r2); r <= Math.max(r1, r2) && keys.length < 400; r++)
+    for (let c = Math.min(c1, c2); c <= Math.max(c1, c2); c++) keys.push(String.fromCharCode(c) + r);
+  return keys;
 }
-["powA", "powB"].forEach(id => document.getElementById(id).addEventListener("input", calcPow));
+function xlCmp(op, a, b) { return op === ">" ? a > b : op === "<" ? a < b : op === ">=" ? a >= b : op === "<=" ? a <= b : op === "<>" ? a !== b : a === b; }
+function xlCrit(c) {
+  if (typeof c === "number") return x => x === c;
+  const m = /^(<=|>=|<>|<|>|=)?(.*)$/.exec(String(c === null ? "" : c).trim());
+  const op = m[1] || "=", rhs = m[2].trim(), n = xlNum(rhs);
+  if (n !== null) return x => typeof x === "number" && xlCmp(op, x, n);
+  const low = rhs.toLowerCase();
+  return x => { const s = x === null ? "" : String(x).toLowerCase(); return op === "<>" ? s !== low : op === "=" ? s === low : false; };
+}
 
-const SIF = [500, -200, 300, -150, 1000, -50];
-function calcSif() {
-  const cond = document.getElementById("sifCond").value;
-  const test = { ">0": v => v > 0, "<0": v => v < 0, ">=500": v => v >= 500 }[cond];
-  let total = 0, picked = [];
-  const rows = SIF.map((v, i) => { const m = test(v); if (m) { total += v; picked.push(v); } return `<tr class="${m ? "hit" : "miss"}"><th>${i + 1}</th><td>${fmtN(v)}</td><td class="mk">${m ? "✓ берём" : "пропускаем"}</td></tr>`; });
-  const safe = cond.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  document.getElementById("sifTable").innerHTML = `<tr><th></th><th>A</th><th></th></tr>` + rows.join("") +
-    `<tr class="resrow"><th>7</th><td colspan="2"><span class="fx">=СУММЕСЛИ(A1:A6;"${safe}")</span><output>${fmtN(total)}</output></td></tr>`;
-  document.getElementById("sifExp").textContent = "Складываем только отмеченные: " + picked.map(fmtN).join(" + ").replace(/\+ −/g, "− ") + " = " + fmtN(total);
+function xlEvalCell(S, k, st) {
+  if (S.cache.has(k)) return S.cache.get(k);
+  const raw = String(S.cells[k] ?? "").trim();
+  let v;
+  if (raw === "") v = null;
+  else if (raw[0] === "=") {
+    if (st.has(k)) return new XErr("#ЦИКЛ!");
+    st.add(k);
+    try { v = xlEv(S, xlParse(raw.slice(1)), st); if (v && v.arr) v = new XErr("#ЗНАЧ!"); }
+    catch (e) { if (e instanceof XSyntax || e instanceof XArity) v = new XErr("#ОШИБКА"); else throw e; }
+    st.delete(k);
+  } else { const n = xlNum(raw); v = n === null ? raw : n; }
+  S.cache.set(k, v);
+  return v;
 }
-document.getElementById("sifCond").addEventListener("change", calcSif);
-calcSum(); calcAbs(); calcRoot(); calcPow(); calcSif();
+function xlToNum(v) {
+  if (v instanceof XErr) return v;
+  if (v === null) return 0;
+  if (typeof v === "number") return v;
+  return new XErr("#ЗНАЧ!");
+}
+function xlEv(S, n, st) {
+  switch (n.t) {
+    case "num": case "str": return n.v;
+    case "ref": return xlEvalCell(S, n.v, st);
+    case "range": return { arr: xlRange(n.a, n.b).map(k => xlEvalCell(S, k, st)) };
+    case "name": case "badref": return new XErr("#ИМЯ?");
+    case "paren": return xlEv(S, n.a, st);
+    case "neg": { const a = xlToNum(xlEv(S, n.a, st)); return a instanceof XErr ? a : -a; }
+    case "bin": {
+      const a = xlToNum(xlEv(S, n.l, st)), b = xlToNum(xlEv(S, n.r, st));
+      if (a instanceof XErr) return a;
+      if (b instanceof XErr) return b;
+      if (n.op === "+") return a + b;
+      if (n.op === "-") return a - b;
+      if (n.op === "*") return a * b;
+      if (n.op === "/") return b === 0 ? new XErr("#ДЕЛ/0!") : a / b;
+      if (a === 0 && b < 0) return new XErr("#ДЕЛ/0!");
+      const r = Math.pow(a, b);
+      return Number.isFinite(r) ? r : new XErr("#ЧИСЛО!");
+    }
+    case "call": return xlCall(S, n, st);
+  }
+  return new XErr("#ЗНАЧ!");
+}
+function xlCall(S, n, st) {
+  const f = n.f;
+  const need = (lo, hi) => { if (n.args.length < lo || n.args.length > hi) throw new XArity(f); };
+  const one = i => xlToNum(xlEv(S, n.args[i], st));
+  if (f === "СУММ") {
+    need(1, 255);
+    let s = 0;
+    for (const a of n.args) {
+      const v = xlEv(S, a, st);
+      if (v && v.arr) { for (const x of v.arr) { if (x instanceof XErr) return x; if (typeof x === "number") s += x; } }
+      else { const x = xlToNum(v); if (x instanceof XErr) return x; s += x; }
+    }
+    return s;
+  }
+  if (f === "ABS") { need(1, 1); const x = one(0); return x instanceof XErr ? x : Math.abs(x); }
+  if (f === "КОРЕНЬ") { need(1, 1); const x = one(0); if (x instanceof XErr) return x; return x < 0 ? new XErr("#ЧИСЛО!") : Math.sqrt(x); }
+  if (f === "СТЕПЕНЬ") {
+    need(2, 2);
+    const a = one(0), b = one(1);
+    if (a instanceof XErr) return a;
+    if (b instanceof XErr) return b;
+    if (a === 0 && b < 0) return new XErr("#ДЕЛ/0!");
+    const r = Math.pow(a, b);
+    return Number.isFinite(r) ? r : new XErr("#ЧИСЛО!");
+  }
+  if (f === "СУММЕСЛИ") {
+    need(2, 3);
+    const r = xlEv(S, n.args[0], st);
+    if (!(r && r.arr)) return new XErr("#ЗНАЧ!");
+    const c = xlEv(S, n.args[1], st);
+    if (c instanceof XErr) return c;
+    if (c && c.arr) return new XErr("#ЗНАЧ!");
+    const test = xlCrit(c);
+    const sr = n.args[2] ? xlEv(S, n.args[2], st) : r;
+    if (!(sr && sr.arr)) return new XErr("#ЗНАЧ!");
+    let s = 0;
+    for (let i = 0; i < r.arr.length; i++) {
+      if (!test(r.arr[i])) continue;
+      const y = sr.arr[i];
+      if (y instanceof XErr) return y;
+      if (typeof y === "number") s += y;
+    }
+    return s;
+  }
+  return new XErr("#ИМЯ?");
+}
+
+/* Подстановка значений вместо адресов: =СУММ(B1:B5) → =СУММ({250; 480; …}) */
+function xlShow(S, n) {
+  const val = v => v instanceof XErr ? v.code : v === null ? "0" : typeof v === "number" ? xlFmt(v) : `«${v}»`;
+  switch (n.t) {
+    case "num": return xlFmt(n.v);
+    case "str": return `"${n.v}"`;
+    case "ref": return val(xlEvalCell(S, n.v, new Set()));
+    case "range": return "{" + xlRange(n.a, n.b).map(k => xlEvalCell(S, k, new Set())).filter(v => v !== null).map(val).join("; ") + "}";
+    case "name": case "badref": return n.v;
+    case "paren": return "(" + xlShow(S, n.a) + ")";
+    case "neg": return "-" + xlShow(S, n.a);
+    case "bin": return xlShow(S, n.l) + " " + n.op + " " + xlShow(S, n.r);
+    case "call": return n.f + "(" + n.args.map(a => xlShow(S, a)).join("; ") + ")";
+  }
+  return "";
+}
+function xlRefs(n, out) {
+  if (!n) return out;
+  if (n.t === "ref") out.add(n.v);
+  else if (n.t === "range") xlRange(n.a, n.b).forEach(k => out.add(k));
+  else if (n.t === "paren" || n.t === "neg") xlRefs(n.a, out);
+  else if (n.t === "bin") { xlRefs(n.l, out); xlRefs(n.r, out); }
+  else if (n.t === "call") n.args.forEach(a => xlRefs(a, out));
+  return out;
+}
+function xlFind(n, pred) {
+  if (!n) return null;
+  if (pred(n)) return n;
+  const kids = n.t === "bin" ? [n.l, n.r] : n.t === "call" ? n.args : n.a ? [n.a] : [];
+  for (const k of kids) { const r = xlFind(k, pred); if (r) return r; }
+  return null;
+}
+const XL_ARGS = { "СУММ": "хотя бы одно значение", "ABS": "ровно одно число", "КОРЕНЬ": "ровно одно число", "СТЕПЕНЬ": "два числа через «;»: число и степень", "СУММЕСЛИ": "диапазон и условие через «;» (и, если нужно, диапазон для сложения)" };
+
+const XL_SHEETS = {
+  sum: [
+    { name: "Покупки", text: "Сколько стоит вся корзина? Формула в B6 складывает цены из B1:B5.",
+      cells: { A1: "Хлеб", B1: "250", A2: "Молоко", B2: "480", A3: "Яблоки", B3: "900", A4: "Сыр", B4: "1500", A5: "Вода", B5: "200", A6: "Итого", B6: "=СУММ(B1:B5)" },
+      sel: "B6", rand: { keys: ["B1", "B2", "B3", "B4", "B5"], min: 100, max: 2000, step: 10 } },
+    { name: "Баллы", text: "Сумма баллов за пять заданий.",
+      cells: { A1: "Задание 1", B1: "8", A2: "Задание 2", B2: "10", A3: "Задание 3", B3: "7", A4: "Задание 4", B4: "9", A5: "Задание 5", B5: "10", A6: "Всего", B6: "=СУММ(B1:B5)" },
+      sel: "B6", rand: { keys: ["B1", "B2", "B3", "B4", "B5"], min: 0, max: 10 } },
+    { name: "С минусом", text: "Отрицательные числа СУММ тоже складывает: минус уменьшает сумму.",
+      cells: { A1: "5", A2: "12", A3: "-3", A4: "8", A5: "10", A6: "=СУММ(A1:A5)" },
+      sel: "A6", rand: { keys: ["A1", "A2", "A3", "A4", "A5"], min: -20, max: 20 } },
+    { name: "Несколько частей", text: "Через «;» можно перечислить несколько диапазонов и чисел сразу.",
+      cells: { A1: "4", A2: "6", A3: "10", B1: "20", B2: "30", C1: "=СУММ(A1:A3;B1:B2;100)" },
+      sel: "C1", rand: { keys: ["A1", "A2", "A3", "B1", "B2"], min: 1, max: 50 } }
+  ],
+  abs: [
+    { name: "Модуль числа", text: "В столбце B — модуль чисел из столбца A. Минус исчезает, плюс остаётся.",
+      cells: { A1: "-7", B1: "=ABS(A1)", A2: "15", B2: "=ABS(A2)", A3: "0", B3: "=ABS(A3)", A4: "-2,5", B4: "=ABS(A4)" },
+      sel: "B1", rand: { keys: ["A1", "A2", "A3", "A4"], min: -50, max: 50 } },
+    { name: "Температура", text: "Насколько изменилась температура? Простая разница даёт минус, ABS — число градусов.",
+      cells: { A1: "Утром", B1: "18", A2: "Вечером", B2: "11", A3: "Разница", B3: "=B2-B1", A4: "Изменение", B4: "=ABS(B2-B1)" },
+      sel: "B4", rand: { keys: ["B1", "B2"], min: -15, max: 30 } },
+    { name: "Кто ближе?", text: "Загадано число в B1. На сколько ошибся каждый — неважно, назвал больше или меньше.",
+      cells: { A1: "Загадано", B1: "50", A2: "Айдана", B2: "42", C2: "=ABS(B2-B1)", A3: "Тимур", B3: "61", C3: "=ABS(B3-B1)", A4: "Дана", B4: "50", C4: "=ABS(B4-B1)" },
+      sel: "C2", rand: { keys: ["B1", "B2", "B3", "B4"], min: 1, max: 100 } }
+  ],
+  root: [
+    { name: "Корень числа", text: "В столбце B — квадратный корень из чисел столбца A. Посмотри, что будет с −9.",
+      cells: { A1: "25", B1: "=КОРЕНЬ(A1)", A2: "49", B2: "=КОРЕНЬ(A2)", A3: "2", B3: "=КОРЕНЬ(A3)", A4: "-9", B4: "=КОРЕНЬ(A4)" },
+      sel: "B1", rand: { keys: ["A1", "A2", "A3"], pick: [1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 2, 10, 50] } },
+    { name: "Сторона комнаты", text: "Квадратная комната площадью 36 м². Какой длины стена?",
+      cells: { A1: "Площадь, м²", B1: "36", A2: "Сторона, м", B2: "=КОРЕНЬ(B1)" },
+      sel: "B2", rand: { keys: ["B1"], pick: [9, 16, 25, 36, 49, 64, 81, 100] } },
+    { name: "Теорема Пифагора", text: "Катеты 3 и 4. Гипотенуза — корень из суммы квадратов катетов.",
+      cells: { A1: "Катет a", B1: "3", A2: "Катет b", B2: "4", A3: "Гипотенуза", B3: "=КОРЕНЬ(B1*B1+B2*B2)" },
+      sel: "B3", rand: { keys: ["B1", "B2"], min: 1, max: 20 } },
+    { name: "Минус под корнем", text: "Из −16 корень не извлечь. ABS убирает минус, и формула работает.",
+      cells: { A1: "-16", B1: "=КОРЕНЬ(A1)", B2: "=КОРЕНЬ(ABS(A1))" },
+      sel: "B2", rand: { keys: ["A1"], pick: [-4, -9, -16, -25, -36, -49, -64, -81, -100] } }
+  ],
+  pow: [
+    { name: "Число и степень", text: "A — число, B — степень, C — результат. Обрати внимание на степень 0.",
+      cells: { A1: "2", B1: "3", C1: "=СТЕПЕНЬ(A1;B1)", A2: "3", B2: "2", C2: "=СТЕПЕНЬ(A2;B2)", A3: "10", B3: "0", C3: "=СТЕПЕНЬ(A3;B3)", A4: "5", B4: "1", C4: "=СТЕПЕНЬ(A4;B4)" },
+      sel: "C1", rand: { keys: ["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"], min: 0, max: 6 } },
+    { name: "Квадрат и куб", text: "Площадь квадрата — сторона во 2-й степени, объём куба — ребро в 3-й.",
+      cells: { A1: "Сторона квадрата", B1: "7", A2: "Площадь", B2: "=СТЕПЕНЬ(B1;2)", A3: "Ребро куба", B3: "3", A4: "Объём", B4: "=СТЕПЕНЬ(B3;3)" },
+      sel: "B2", rand: { keys: ["B1", "B3"], min: 1, max: 12 } },
+    { name: "Удвоение", text: "Каждый день количество удваивается. Сколько будет в день из столбца A?",
+      cells: { A1: "День", B1: "Сколько", A2: "1", B2: "=СТЕПЕНЬ(2;A2)", A3: "2", B3: "=СТЕПЕНЬ(2;A3)", A4: "3", B4: "=СТЕПЕНЬ(2;A4)", A5: "5", B5: "=СТЕПЕНЬ(2;A5)", A6: "10", B6: "=СТЕПЕНЬ(2;A6)" },
+      sel: "B6", rand: { keys: ["A2", "A3", "A4", "A5", "A6"], min: 1, max: 20 } }
+  ],
+  sif: [
+    { name: "Карманные деньги", text: "«+» получил, «−» потратил. D1 считает только полученное, D2 — только потраченное.",
+      cells: { A1: "500", A2: "-200", A3: "300", A4: "-150", A5: "1000", A6: "-50", C1: "Получил", D1: "=СУММЕСЛИ(A1:A6;\">0\")", C2: "Потратил", D2: "=СУММЕСЛИ(A1:A6;\"<0\")" },
+      sel: "D1", rand: { keys: ["A1", "A2", "A3", "A4", "A5", "A6"], min: -1000, max: 1000, step: 50 } },
+    { name: "По категориям", text: "Сколько ушло только на еду? Ищем «еда» в столбце A, складываем числа из столбца B.",
+      cells: { A1: "еда", B1: "800", A2: "транспорт", B2: "250", A3: "еда", B3: "1200", A4: "игры", B4: "2000", A5: "еда", B5: "400", A6: "Еда всего", B6: "=СУММЕСЛИ(A1:A5;\"еда\";B1:B5)" },
+      sel: "B6", rand: { keys: ["B1", "B2", "B3", "B4", "B5"], min: 100, max: 2500, step: 50 } },
+    { name: "Только крупные", text: "Складываем только покупки от 500 и больше.",
+      cells: { A1: "350", A2: "1200", A3: "90", A4: "500", A5: "2400", A6: "410", B1: "=СУММЕСЛИ(A1:A6;\">=500\")" },
+      sel: "B1", rand: { keys: ["A1", "A2", "A3", "A4", "A5", "A6"], min: 50, max: 3000, step: 10 } }
+  ],
+  all: [
+    { name: "Все пять функций", text: "В столбце B — по одной формуле на каждую функцию. Нажми на ячейку и посмотри формулу.",
+      cells: { A1: "16", A2: "-5", A3: "3", A4: "250", A5: "-100", B1: "=СУММ(A1:A5)", C1: "сумма всех", B2: "=ABS(A2)", C2: "модуль A2", B3: "=КОРЕНЬ(A1)", C3: "корень из A1", B4: "=СТЕПЕНЬ(A3;2)", C4: "A3 в квадрате", B5: "=СУММЕСЛИ(A1:A5;\">0\")", C5: "сумма положительных" },
+      sel: "B1", rand: { keys: ["A1", "A2", "A3", "A4", "A5"], min: -50, max: 100 } },
+    { name: "Пустой лист", text: "Чистый лист: впиши свои числа и формулы.", cells: {}, sel: "A1" }
+  ]
+};
+
+function xlMount(root, examples) {
+  const ROWS = 7;
+  const S = { cells: {}, cache: new Map(), sel: "A1", ex: 0, timer: null };
+  root.innerHTML = `
+    <div class="xl-top">
+      <div class="xl-ex">${examples.map((e, i) => `<button type="button" class="xl-chip" data-ex="${i}">${e.name}</button>`).join("")}</div>
+      <div class="xl-act">
+        <button type="button" class="btn xl-rand">Случайные числа</button>
+        <button type="button" class="btn xl-play" aria-pressed="false">▶ Автопоказ</button>
+        <button type="button" class="btn xl-reset">Сбросить</button>
+      </div>
+    </div>
+    <p class="xl-text"></p>
+    <div class="xl-bar">
+      <span class="xl-name" aria-live="polite"></span>
+      <span class="xl-fx">fx</span>
+      <input type="text" class="xl-in" autocomplete="off" spellcheck="false" aria-label="Строка формул">
+    </div>
+    <div class="xl-wrap"><table class="xl-grid">
+      <tr><th class="xl-corner"></th>${XL_COLS.map(c => `<th>${c}</th>`).join("")}</tr>
+      ${Array.from({ length: ROWS }, (_, r) => `<tr><th>${r + 1}</th>${XL_COLS.map(c => `<td tabindex="-1" data-k="${c}${r + 1}"></td>`).join("")}</tr>`).join("")}
+    </table></div>
+    <p class="xl-explain"></p>
+    <p class="xl-hint">Нажми на любую ячейку: её содержимое появится в строке <b>fx</b>. Там можно менять числа и формулы — таблица сразу пересчитает.</p>`;
+  const $ = s => root.querySelector(s);
+  const inp = $(".xl-in"), grid = $(".xl-grid"), playBtn = $(".xl-play");
+
+  function recalc() { S.cache = new Map(); }
+  function render() {
+    let refs = new Set();
+    const raw = String(S.cells[S.sel] ?? "");
+    let ast = null;
+    if (raw.trim().startsWith("=")) { try { ast = xlParse(raw.trim().slice(1)); refs = xlRefs(ast, new Set()); } catch (e) { if (!(e instanceof XSyntax)) throw e; } }
+    grid.querySelectorAll("td").forEach(td => {
+      const k = td.dataset.k, v = xlEvalCell(S, k, new Set());
+      const isF = String(S.cells[k] ?? "").trim().startsWith("=");
+      td.textContent = xlFmt(v);
+      td.className = (typeof v === "number" ? "n" : v instanceof XErr ? "e" : "") + (isF ? " f" : "") + (refs.has(k) ? " ref" : "") + (k === S.sel ? " sel" : "");
+      td.tabIndex = k === S.sel ? 0 : -1;
+    });
+    $(".xl-name").textContent = S.sel;
+    explain(raw, ast);
+  }
+  function explain(raw, ast) {
+    const box = $(".xl-explain");
+    box.className = "xl-explain";
+    const t = raw.trim();
+    if (!t) { box.textContent = "Ячейка пустая. Впиши число или формулу в строку fx."; return; }
+    if (!t.startsWith("=")) {
+      box.textContent = xlNum(t) !== null ? `В ячейке просто число ${xlFmt(xlNum(t))}. Поменяй его, и формулы, которые на него ссылаются, пересчитаются.` : "В ячейке текст — подпись. Формулы его не складывают.";
+      return;
+    }
+    let parsed = ast;
+    if (!parsed) {
+      try { parsed = xlParse(t.slice(1)); } catch (e) {
+        if (!(e instanceof XSyntax)) throw e;
+        box.classList.add("bad"); box.textContent = "Ошибка в записи формулы: " + e.message; return;
+      }
+    }
+    const v = xlEvalCell(S, S.sel, new Set());
+    const lines = [];
+    if (v instanceof XErr && v.code === "#ОШИБКА") {
+      const call = xlFind(parsed, n => n.t === "call" && XL_ARGS[n.f] && (() => { try { xlCall(S, n, new Set()); return false; } catch (e) { return e instanceof XArity; } })());
+      box.classList.add("bad");
+      box.textContent = call ? `У функции ${call.f} должно быть ${XL_ARGS[call.f]}.` + (t.includes(",") ? " Похоже, вместо «;» стоит запятая." : "") : "Ошибка в записи формулы.";
+      return;
+    }
+    lines.push(`<span class="xl-step">Подставляем значения:</span> <code></code> → <b></b>`);
+    box.innerHTML = lines.join("");
+    box.querySelector("code").textContent = "=" + xlShow(S, parsed);
+    box.querySelector("b").textContent = xlFmt(v);
+    if (v instanceof XErr) {
+      box.classList.add("bad");
+      const p = document.createElement("span");
+      p.className = "xl-why";
+      const en = xlFind(parsed, n => n.t === "call" && XL_EN[n.f]);
+      const bad = xlFind(parsed, n => n.t === "badref");
+      p.textContent = en ? `В русской версии эта функция называется ${XL_EN[en.f]}.` : bad ? `В адресе «${bad.v}» буква набрана по-русски. Адреса ячеек пишут латинскими буквами: A1, B2.` : (XL_ERR[v.code] || "");
+      box.appendChild(p);
+    }
+  }
+  function select(k, focusCell) {
+    S.sel = k;
+    inp.value = S.cells[k] ?? "";
+    render();
+    if (focusCell) grid.querySelector(`td[data-k="${k}"]`).focus();
+  }
+  function load(i) {
+    S.ex = i;
+    const e = examples[i];
+    S.cells = { ...e.cells };
+    recalc();
+    root.querySelectorAll(".xl-chip").forEach(c => c.setAttribute("aria-pressed", +c.dataset.ex === i));
+    $(".xl-text").textContent = e.text;
+    $(".xl-rand").hidden = !e.rand;
+    select(e.sel);
+  }
+  function randomize() {
+    const r = examples[S.ex].rand; if (!r) return;
+    r.keys.forEach(k => {
+      let v;
+      if (r.pick) v = r.pick[Math.floor(Math.random() * r.pick.length)];
+      else { const step = r.step || 1; const n = Math.floor((r.max - r.min) / step) + 1; v = r.min + Math.floor(Math.random() * n) * step; }
+      S.cells[k] = String(v);
+    });
+    recalc(); inp.value = S.cells[S.sel] ?? ""; render();
+  }
+  function stopPlay() { clearInterval(S.timer); S.timer = null; playBtn.setAttribute("aria-pressed", "false"); playBtn.textContent = "▶ Автопоказ"; }
+  playBtn.addEventListener("click", () => {
+    if (S.timer) return stopPlay();
+    playBtn.setAttribute("aria-pressed", "true"); playBtn.textContent = "■ Стоп";
+    const step = () => { if (examples[S.ex].rand && Math.random() < .5) randomize(); else load((S.ex + 1) % examples.length); };
+    step(); S.timer = setInterval(step, 3500);
+  });
+  root.querySelector(".xl-ex").addEventListener("click", e => { const b = e.target.closest("[data-ex]"); if (b) { stopPlay(); load(+b.dataset.ex); } });
+  $(".xl-rand").addEventListener("click", () => { stopPlay(); randomize(); });
+  $(".xl-reset").addEventListener("click", () => { stopPlay(); load(S.ex); });
+  grid.addEventListener("click", e => { const td = e.target.closest("td[data-k]"); if (td) { stopPlay(); select(td.dataset.k); } });
+  grid.addEventListener("dblclick", e => { if (e.target.closest("td[data-k]")) { inp.focus(); inp.select(); } });
+  grid.addEventListener("keydown", e => {
+    const k = S.sel, c = XL_COLS.indexOf(k[0]), r = +k.slice(1);
+    const mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+    if (mv) {
+      e.preventDefault();
+      const nc = Math.min(Math.max(c + mv[0], 0), XL_COLS.length - 1), nr = Math.min(Math.max(r + mv[1], 1), ROWS);
+      select(XL_COLS[nc] + nr, true);
+    } else if (e.key === "Enter" || e.key === "F2") { e.preventDefault(); inp.focus(); }
+  });
+  inp.addEventListener("focus", stopPlay);
+  inp.addEventListener("input", () => { S.cells[S.sel] = inp.value; recalc(); render(); });
+  inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const r = +S.sel.slice(1);
+      select(S.sel[0] + Math.min(r + 1, ROWS));
+    }
+  });
+  load(0);
+}
+document.querySelectorAll(".xl[data-sheet]").forEach(el => xlMount(el, XL_SHEETS[el.dataset.sheet]));
 
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
 const REF_KEY = "reflect-l1";
