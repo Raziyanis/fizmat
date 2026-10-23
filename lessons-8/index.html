@@ -162,6 +162,61 @@ textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05re
 .mark.m1 { color: var(--ink); }
 .mark.m0 { color: var(--bad); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.anatomy { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
+.part { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.tok { font-family: var(--f-mono); font-size: 1.7rem; font-weight: 600; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.tok.fnc { color: var(--c); }
+.tok.arg { color: var(--ink); background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+.lab { font-size: .82rem; color: var(--muted); text-align: center; max-width: 9rem; line-height: 1.3; }
+.tip { margin: 14px 0 0; }
+.fpills { display: flex; flex-wrap: wrap; gap: 8px; }
+.fpill { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 14px; font-family: var(--f-mono); font-size: .88rem; }
+.fpill[aria-selected="true"] { background: var(--c); border-color: var(--c); color: var(--surface); font-weight: 600; }
+.fcard { display: grid; gap: 14px; }
+.fname { margin: 0; font-family: var(--f-display); font-size: 1.35rem; font-weight: 500; line-height: 1.3; }
+.fname code { font-size: 1.1rem; color: var(--c); }
+.simple { margin: 0; font-size: 1.15rem; padding: 12px 14px; background: color-mix(in srgb, var(--c) 8%, var(--surface)); border-radius: 6px; }
+.how { margin: 0; font-size: 1.1rem; }
+.how span { color: var(--muted); }
+.how code { font-size: 1.05rem; }
+.try { border: 1px dashed var(--c); border-radius: 8px; padding: 14px; display: grid; gap: 10px; justify-items: start; min-width: 0; }
+.trylab { font-weight: 700; color: var(--c); }
+.mini.live td { padding: 2px 6px; text-align: left; }
+.mini.live input { width: 5.5rem; font: inherit; font-family: var(--f-mono); border: 0; background: transparent; color: var(--ink); padding: 3px 4px; text-align: right; }
+.mini.live input:focus { outline: 2px solid var(--c); }
+.resrow td { background: color-mix(in srgb, var(--c) 12%, var(--surface)); }
+.resrow .fx { color: var(--muted); font-size: .8rem; margin-right: 10px; }
+.resrow output { font-weight: 700; color: var(--c); font-size: 1.05rem; }
+.inline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-family: var(--f-mono); font-size: 1.2rem; }
+.inline .fx { color: var(--c); font-weight: 600; }
+input.num { width: 4.5rem; font: inherit; font-family: var(--f-mono); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); text-align: center; }
+.eq { margin: 0 6px; color: var(--muted); }
+output.big { font-size: 1.6rem; font-weight: 700; color: var(--c); }
+output.big.err { color: var(--bad); }
+.explain { margin: 0; font-size: 1.05rem; }
+.line { display: flex; width: 100%; max-width: 560px; }
+.tick { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.tick i { display: block; width: 100%; height: 10px; border-bottom: 2px solid var(--line); position: relative; }
+.tick i::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 1px; height: 8px; background: var(--muted); }
+.tick.on i { border-bottom-color: var(--c); border-bottom-width: 4px; }
+.tick.zero i::after { width: 3px; height: 14px; background: var(--ink); }
+.tick.end i::after { width: 10px; height: 10px; border-radius: 50%; background: var(--c); left: calc(50% - 5px); bottom: -7px; }
+.tick small { font-family: var(--f-mono); font-size: .68rem; color: var(--muted); min-height: 1em; }
+.sq { display: grid; grid-template-columns: repeat(var(--n, 1), 1.1rem); gap: 2px; }
+.sq i { width: 1.1rem; height: 1.1rem; background: color-mix(in srgb, var(--c) 35%, var(--surface)); border-radius: 2px; }
+.use { margin: 0; font-size: 1.05rem; padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; }
+.use b { color: var(--c); }
+select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); max-width: 100%; }
+#sifTable tr.hit td { background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
+#sifTable tr.miss td { color: var(--muted); text-decoration: line-through; }
+#sifTable tr.miss td.mk { text-decoration: none; }
+#sifTable td.mk { font-family: var(--f-body); font-size: .85rem; text-align: left; }
+#sifTable tr.hit td.mk { color: var(--c); font-weight: 700; }
+.remember { margin: 0; font-size: 1.02rem; padding-left: 12px; border-left: 3px solid var(--warn, var(--c)); }
+.tablewrap { overflow-x: auto; }
+.cheat { border-collapse: collapse; width: 100%; font-size: 1rem; }
+.cheat th, .cheat td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.cheat th { background: var(--head); color: var(--muted); font-weight: 700; font-size: .85rem; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -177,7 +232,8 @@ textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05re
   <div class="steps" role="tablist" aria-label="Этапы урока">
     <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="true"><b>1</b>Разгадай тему</button>
     <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>2</b>Тема и цель</button>
-    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>3</b>Итоги урока</button>
+    <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>3</b>Новая тема</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>4</b>Итоги урока</button>
   </div>
 
   <!-- Этап 1: разгадать тему -->
@@ -274,10 +330,145 @@ textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05re
       <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>сложить только те числа, которые подходят под условие, с помощью <code>=СУММЕСЛИ(A1:A10;"&gt;0")</code> и составить формулу из двух функций, например <code>=КОРЕНЬ(ABS(A1))</code>, и объяснить, зачем тут ABS.</p></div>
     </section>
     </div>
-    <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><button class="btn" type="button" data-go="reflect" id="toReflect" hidden>В конце урока: итоги →</button></div>
+    <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><button class="btn main" type="button" data-go="learn" id="toLearn" hidden>Дальше: новая тема →</button></div>
   </div>
 
-  <!-- Этап 3: итоги урока -->
+  <!-- Этап 3: новая тема -->
+  <div class="panel" id="learn" role="tabpanel" aria-labelledby="tab-learn" hidden>
+    <div>
+      <h1>Как работают функции</h1>
+      <p class="lead">Функция — это готовый помощник внутри таблицы. Ты говоришь ему, что сделать и с какими числами, а он сразу выдаёт ответ.</p>
+    </div>
+
+    <section class="block">
+      <h2>Любая формула устроена одинаково</h2>
+      <div class="anatomy">
+        <div class="part"><span class="tok">=</span><span class="lab">«Сейчас будет формула»</span></div>
+        <div class="part"><span class="tok fnc">СУММ</span><span class="lab">что сделать</span></div>
+        <div class="part"><span class="tok">(</span><span class="lab">открыли</span></div>
+        <div class="part"><span class="tok arg">A1:A5</span><span class="lab">с чем сделать<br>(от A1 до A5)</span></div>
+        <div class="part"><span class="tok">)</span><span class="lab">закрыли</span></div>
+      </div>
+      <p class="tip">Если чисел в скобках несколько, их разделяют <b>точкой с запятой</b>: <code>=СТЕПЕНЬ(2;3)</code>. Двоеточие <code>A1:A5</code> означает «все ячейки от A1 до A5».</p>
+    </section>
+
+    <div class="fpills" role="tablist" aria-label="Функции">
+      <button type="button" class="fpill" data-f="0" aria-selected="true">1 · СУММ</button>
+      <button type="button" class="fpill" data-f="1" aria-selected="false">2 · ABS</button>
+      <button type="button" class="fpill" data-f="2" aria-selected="false">3 · КОРЕНЬ</button>
+      <button type="button" class="fpill" data-f="3" aria-selected="false">4 · СТЕПЕНЬ</button>
+      <button type="button" class="fpill" data-f="4" aria-selected="false">5 · СУММЕСЛИ</button>
+      <button type="button" class="fpill" data-f="5" aria-selected="false">Шпаргалка</button>
+    </div>
+
+    <!-- СУММ -->
+    <section class="block fcard" data-card="0">
+      <p class="fname"><code>СУММ()</code> — складывает</p>
+      <p class="simple"><b>Простыми словами:</b> как кассир в магазине. Пробивает всё, что лежит в корзине, и называет общую сумму.</p>
+      <p class="how"><span>Как записать:</span> <code>=СУММ(A1:A5)</code></p>
+      <div class="try">
+        <span class="trylab">Попробуй: поменяй числа в ячейках</span>
+        <table class="mini live">
+          <tr><th></th><th>A</th></tr>
+          <tr><th>1</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum1" value="5" aria-label="A1"></td></tr>
+          <tr><th>2</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum2" value="12" aria-label="A2"></td></tr>
+          <tr><th>3</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum3" value="-3" aria-label="A3"></td></tr>
+          <tr><th>4</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum4" value="8" aria-label="A4"></td></tr>
+          <tr><th>5</th><td><input type="text" inputmode="decimal" class="sumIn" id="sum5" value="10" aria-label="A5"></td></tr>
+          <tr class="resrow"><th>6</th><td><span class="fx">=СУММ(A1:A5)</span><output id="sumOut"></output></td></tr>
+        </table>
+        <p class="explain" id="sumExp"></p>
+      </div>
+      <p class="use"><b>Где пригодится:</b> посчитать стоимость всех покупок, сумму баллов за четверть, бюджет класса на экскурсию.</p>
+      <p class="remember"><b>Запомни:</b> СУММ сама пересчитывает ответ, если поменять число в ячейке. В этом и сила формул.</p>
+    </section>
+
+    <!-- ABS -->
+    <section class="block fcard" data-card="1" hidden>
+      <p class="fname"><code>ABS()</code> — убирает минус</p>
+      <p class="simple"><b>Простыми словами:</b> сколько шагов до нуля. Идёшь ты вперёд или назад, пройденное расстояние не бывает отрицательным. Это <b>модуль</b> числа из математики.</p>
+      <p class="how"><span>Как записать:</span> <code>=ABS(A1)</code></p>
+      <div class="try">
+        <label class="trylab" for="absIn">Попробуй: впиши число от −10 до 10</label>
+        <div class="inline"><span class="fx">=ABS(</span><input type="text" inputmode="decimal" id="absIn" value="-7" class="num"><span class="fx">)</span> <span class="eq">=</span> <output id="absOut" class="big"></output></div>
+        <div class="line" id="absLine" aria-hidden="true"></div>
+        <p class="explain" id="absExp"></p>
+      </div>
+      <p class="use"><b>Где пригодится:</b> узнать, насколько догадка отличается от правильного ответа (неважно, в большую или меньшую сторону), на сколько градусов изменилась температура, разницу в росте двух людей.</p>
+      <p class="remember"><b>Запомни:</b> ABS ничего не меняет у положительных чисел: <code>=ABS(7)</code> тоже равно 7.</p>
+    </section>
+
+    <!-- КОРЕНЬ -->
+    <section class="block fcard" data-card="2" hidden>
+      <p class="fname"><code>КОРЕНЬ()</code> — квадратный корень</p>
+      <p class="simple"><b>Простыми словами:</b> есть квадрат из клеток. Известно, сколько в нём клеток всего. КОРЕНЬ узнаёт, сколько клеток в одной стороне.</p>
+      <p class="how"><span>Как записать:</span> <code>=КОРЕНЬ(A1)</code></p>
+      <div class="try">
+        <label class="trylab" for="rootIn">Попробуй: сколько клеток во всём квадрате? (попробуй 16, 49, 100 и −9)</label>
+        <div class="inline"><span class="fx">=КОРЕНЬ(</span><input type="text" inputmode="decimal" id="rootIn" value="25" class="num"><span class="fx">)</span> <span class="eq">=</span> <output id="rootOut" class="big"></output></div>
+        <div class="sq" id="rootSq" aria-hidden="true"></div>
+        <p class="explain" id="rootExp"></p>
+      </div>
+      <p class="use"><b>Где пригодится:</b> узнать сторону квадратной комнаты или участка по площади; в геометрии — по теореме Пифагора найти диагональ экрана или расстояние по прямой.</p>
+      <p class="remember"><b>Запомни:</b> из отрицательного числа корень не извлекается, и таблица покажет ошибку <code>#ЧИСЛО!</code>. Поможет ABS: <code>=КОРЕНЬ(ABS(A1))</code>.</p>
+    </section>
+
+    <!-- СТЕПЕНЬ -->
+    <section class="block fcard" data-card="3" hidden>
+      <p class="fname"><code>СТЕПЕНЬ()</code> — умножает число само на себя</p>
+      <p class="simple"><b>Простыми словами:</b> у функции два числа. Первое — <b>что</b> умножаем, второе — <b>сколько раз</b> оно встречается в умножении.</p>
+      <p class="how"><span>Как записать:</span> <code>=СТЕПЕНЬ(число;степень)</code></p>
+      <div class="try">
+        <span class="trylab">Попробуй: поменяй оба числа</span>
+        <div class="inline"><span class="fx">=СТЕПЕНЬ(</span><input type="text" inputmode="decimal" id="powA" value="2" class="num" aria-label="число"><span class="fx">;</span><input type="text" inputmode="numeric" id="powB" value="3" class="num" aria-label="степень"><span class="fx">)</span> <span class="eq">=</span> <output id="powOut" class="big"></output></div>
+        <p class="explain" id="powExp"></p>
+      </div>
+      <p class="use"><b>Где пригодится:</b> площадь квадрата — <code>=СТЕПЕНЬ(сторона;2)</code>, объём куба — <code>=СТЕПЕНЬ(ребро;3)</code>; сколько станет чего-то, если оно удваивается каждый день.</p>
+      <p class="remember"><b>Запомни:</b> порядок важен. <code>=СТЕПЕНЬ(2;3)</code> это 2·2·2 = 8, а <code>=СТЕПЕНЬ(3;2)</code> это 3·3 = 9.</p>
+    </section>
+
+    <!-- СУММЕСЛИ -->
+    <section class="block fcard" data-card="4" hidden>
+      <p class="fname"><code>СУММЕСЛИ()</code> — складывает только нужное</p>
+      <p class="simple"><b>Простыми словами:</b> это СУММ с фильтром. Как если бы кассир пробивал только фрукты, а остальное пропускал. Сначала указываем, <b>где искать</b>, потом <b>условие в кавычках</b>.</p>
+      <p class="how"><span>Как записать:</span> <code>=СУММЕСЛИ(A1:A6;"&gt;0")</code></p>
+      <div class="try">
+        <label class="trylab" for="sifCond">Попробуй: выбери условие. Карманные деньги за неделю: «+» получил, «−» потратил</label>
+        <select id="sifCond">
+          <option value="&gt;0">"&gt;0" — сколько получил</option>
+          <option value="&lt;0">"&lt;0" — сколько потратил</option>
+          <option value="&gt;=500">"&gt;=500" — только крупные суммы от 500</option>
+        </select>
+        <table class="mini live" id="sifTable"></table>
+        <p class="explain" id="sifExp"></p>
+      </div>
+      <p class="use"><b>Где пригодится:</b> из всех расходов посчитать только те, что больше заданной суммы; отдельно сложить доходы и отдельно расходы в семейном бюджете.</p>
+      <p class="remember"><b>Запомни:</b> условие всегда пишем в кавычках: <code>"&gt;0"</code>, <code>"&lt;100"</code>, <code>"&gt;=500"</code>.</p>
+    </section>
+
+    <!-- Шпаргалка -->
+    <section class="block fcard" data-card="5" hidden>
+      <p class="fname">Шпаргалка</p>
+      <div class="tablewrap">
+        <table class="cheat">
+          <tr><th>Функция</th><th>Что делает</th><th>Пример</th><th>Ответ</th></tr>
+          <tr><td><code>СУММ</code></td><td>складывает всё</td><td><code>=СУММ(2;3;5)</code></td><td>10</td></tr>
+          <tr><td><code>ABS</code></td><td>убирает минус</td><td><code>=ABS(-4)</code></td><td>4</td></tr>
+          <tr><td><code>КОРЕНЬ</code></td><td>сторона квадрата по площади</td><td><code>=КОРЕНЬ(36)</code></td><td>6</td></tr>
+          <tr><td><code>СТЕПЕНЬ</code></td><td>умножает число само на себя</td><td><code>=СТЕПЕНЬ(3;2)</code></td><td>9</td></tr>
+          <tr><td><code>СУММЕСЛИ</code></td><td>складывает только по условию</td><td><code>=СУММЕСЛИ(A1:A6;"&gt;0")</code></td><td>сумма положительных</td></tr>
+        </table>
+      </div>
+      <p class="remember"><b>Три частые ошибки:</b> забыли знак <code>=</code> в начале; поставили запятую вместо <code>;</code> между числами; забыли кавычки вокруг условия в СУММЕСЛИ.</p>
+    </section>
+
+    <div class="next">
+      <button class="btn" type="button" id="fPrev">← Назад</button>
+      <button class="btn main" type="button" id="fNext">Дальше: ABS →</button>
+    </div>
+  </div>
+
+  <!-- Этап 4: итоги урока -->
   <div class="panel" id="reflect" role="tabpanel" aria-labelledby="tab-reflect" hidden>
     <div>
       <h1>Итоги урока</h1>
@@ -303,6 +494,13 @@ textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05re
     <section class="block">
       <h2>Ожидаемые результаты · достиг ли я?</h2>
       <div id="refRes"></div>
+    </section>
+
+    <section class="block">
+      <h2>Где мне это пригодится</h2>
+      <label for="refUse" class="q">Приведи один пример из своей жизни: какая функция и для чего?</label>
+      <p class="small" id="useReq" hidden>В начале урока ты хотел понять, где это пригодится. Если сможешь привести пример — значит, ожидание сбылось.</p>
+      <textarea id="refUse" rows="2" placeholder="Например: СУММЕСЛИ — посчитать, сколько я потратил за неделю только на еду"></textarea>
     </section>
 
     <section class="block">
@@ -463,7 +661,7 @@ function unlock() {
 
 function show(id) {
   if (id === "reflect") fillReflect();
-  ["puzzle", "goal", "reflect"].forEach(p => {
+  ["puzzle", "goal", "learn", "reflect"].forEach(p => {
     document.getElementById(p).hidden = p !== id;
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
@@ -473,7 +671,7 @@ document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", 
 
 document.getElementById("resetBtn").addEventListener("click", () => {
   solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
-  refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refSummary").hidden = true;
+  refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refUse").value = ""; document.getElementById("refSummary").hidden = true;
   document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
   expText.value = ""; showExp("");
   document.getElementById("tab-goal").disabled = true;
@@ -503,8 +701,98 @@ function showExp(text) {
   document.getElementById("expShow").textContent = text || "";
   document.getElementById("afterExp").hidden = !has;
   document.getElementById("tab-reflect").disabled = !has;
-  document.getElementById("toReflect").hidden = !has;
+  document.getElementById("tab-learn").disabled = !has;
+  document.getElementById("toLearn").hidden = !has;
 }
+
+/* Новая тема: карточки функций по одной и живые примеры */
+const F_NAMES = ["СУММ", "ABS", "КОРЕНЬ", "СТЕПЕНЬ", "СУММЕСЛИ", "Шпаргалка"];
+let fCur = 0;
+function showCard(i) {
+  fCur = i;
+  document.querySelectorAll(".fcard").forEach(c => { c.hidden = +c.dataset.card !== i; });
+  document.querySelectorAll(".fpill").forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
+  document.getElementById("fPrev").textContent = i === 0 ? "← Тема и цель" : "← Назад";
+  document.getElementById("fNext").textContent = i === 5 ? "В конце урока: итоги →" : "Дальше: " + F_NAMES[i + 1] + " →";
+}
+document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
+document.getElementById("fPrev").addEventListener("click", () => { if (fCur === 0) show("goal"); else showCard(fCur - 1); });
+document.getElementById("fNext").addEventListener("click", () => {
+  if (fCur === 5) { show("reflect"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
+});
+
+const num = s => { const v = parseFloat(String(s).trim().replace(",", ".").replace("−", "-")); return Number.isNaN(v) ? null : v; };
+const fmtN = v => (Math.round(v * 100) / 100).toLocaleString("ru-RU").replace("-", "−");
+
+function calcSum() {
+  const vals = [1, 2, 3, 4, 5].map(i => num(document.getElementById("sum" + i).value));
+  const ok = vals.map(v => v === null ? 0 : v);
+  const total = ok.reduce((a, b) => a + b, 0);
+  document.getElementById("sumOut").textContent = fmtN(total);
+  document.getElementById("sumExp").textContent = ok.map(fmtN).join(" + ").replace(/\+ −/g, "− ") + " = " + fmtN(total);
+}
+document.querySelectorAll(".sumIn").forEach(i => i.addEventListener("input", calcSum));
+
+function calcAbs() {
+  const v = num(document.getElementById("absIn").value);
+  const out = document.getElementById("absOut"), exp = document.getElementById("absExp"), line = document.getElementById("absLine");
+  if (v === null) { out.textContent = "?"; exp.textContent = "Впиши число."; line.innerHTML = ""; return; }
+  out.textContent = fmtN(Math.abs(v));
+  exp.textContent = v < 0 ? `От нуля до ${fmtN(v)} — ${fmtN(-v)} шагов назад. Шаги не бывают отрицательными, поэтому ответ ${fmtN(-v)}.`
+    : v > 0 ? `Число и так положительное — ABS оставляет его как есть.` : "От нуля до нуля — 0 шагов.";
+  const r = Math.round(v);
+  let html = "";
+  for (let k = -10; k <= 10; k++) {
+    const inside = (r < 0 && k >= r && k <= 0) || (r > 0 && k <= r && k >= 0);
+    html += `<span class="tick${inside ? " on" : ""}${k === 0 ? " zero" : ""}${k === r ? " end" : ""}"><i></i><small>${k % 5 === 0 || k === r ? fmtN(k) : ""}</small></span>`;
+  }
+  line.innerHTML = Math.abs(v) <= 10 ? html : "";
+}
+document.getElementById("absIn").addEventListener("input", calcAbs);
+
+function calcRoot() {
+  const v = num(document.getElementById("rootIn").value);
+  const out = document.getElementById("rootOut"), exp = document.getElementById("rootExp"), sq = document.getElementById("rootSq");
+  out.classList.remove("err"); sq.innerHTML = "";
+  if (v === null) { out.textContent = "?"; exp.textContent = "Впиши число."; return; }
+  if (v < 0) { out.textContent = "#ЧИСЛО!"; out.classList.add("err"); exp.textContent = "Квадрата с отрицательным числом клеток не бывает, поэтому таблица показывает ошибку."; return; }
+  const s = Math.sqrt(v);
+  out.textContent = fmtN(s);
+  if (Number.isInteger(s)) {
+    exp.textContent = `Квадрат ${s} на ${s} состоит из ${fmtN(v)} клеток. Проверка: ${s} · ${s} = ${fmtN(v)}.`;
+    if (s >= 1 && s <= 12) { sq.style.setProperty("--n", s); sq.innerHTML = "<i></i>".repeat(s * s); }
+  } else {
+    exp.textContent = `Из ${fmtN(v)} клеток ровный квадрат не сложить, но таблица всё равно сосчитает: сторона примерно ${fmtN(s)}.`;
+  }
+}
+document.getElementById("rootIn").addEventListener("input", calcRoot);
+
+function calcPow() {
+  const a = num(document.getElementById("powA").value), b = num(document.getElementById("powB").value);
+  const out = document.getElementById("powOut"), exp = document.getElementById("powExp");
+  if (a === null || b === null) { out.textContent = "?"; exp.textContent = "Впиши оба числа."; return; }
+  const r = Math.pow(a, b);
+  out.textContent = Number.isFinite(r) ? fmtN(r) : "—";
+  if (b === 0) exp.textContent = "Любое число (кроме нуля) в нулевой степени равно 1. Так договорились математики.";
+  else if (b === 1) exp.textContent = `Число в первой степени — это оно само: ${fmtN(a)}.`;
+  else if (Number.isInteger(b) && b > 1 && b <= 10) exp.textContent = `${fmtN(a)} встречается в умножении ${b} ${b >= 2 && b <= 4 ? "раза" : "раз"}: ` + Array(b).fill(fmtN(a)).join(" · ") + " = " + fmtN(r);
+  else exp.textContent = "Для такой степени расписать умножение длинно, но таблица считает сама.";
+}
+["powA", "powB"].forEach(id => document.getElementById(id).addEventListener("input", calcPow));
+
+const SIF = [500, -200, 300, -150, 1000, -50];
+function calcSif() {
+  const cond = document.getElementById("sifCond").value;
+  const test = { ">0": v => v > 0, "<0": v => v < 0, ">=500": v => v >= 500 }[cond];
+  let total = 0, picked = [];
+  const rows = SIF.map((v, i) => { const m = test(v); if (m) { total += v; picked.push(v); } return `<tr class="${m ? "hit" : "miss"}"><th>${i + 1}</th><td>${fmtN(v)}</td><td class="mk">${m ? "✓ берём" : "пропускаем"}</td></tr>`; });
+  const safe = cond.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  document.getElementById("sifTable").innerHTML = `<tr><th></th><th>A</th><th></th></tr>` + rows.join("") +
+    `<tr class="resrow"><th>7</th><td colspan="2"><span class="fx">=СУММЕСЛИ(A1:A6;"${safe}")</span><output>${fmtN(total)}</output></td></tr>`;
+  document.getElementById("sifExp").textContent = "Складываем только отмеченные: " + picked.map(fmtN).join(" + ").replace(/\+ −/g, "− ") + " = " + fmtN(total);
+}
+document.getElementById("sifCond").addEventListener("change", calcSif);
+calcSum(); calcAbs(); calcRoot(); calcPow(); calcSif();
 
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
 const REF_KEY = "reflect-l1";
@@ -532,10 +820,14 @@ function fillReflect() {
       if (saved.exp != null) set("r-exp", saved.exp);
       (saved.res || []).forEach((v, i) => { if (v != null) set("r-res-" + i, v); });
       document.getElementById("refNote").value = saved.note || "";
+      document.getElementById("refUse").value = saved.use || "";
     }
   }
+  document.getElementById("useReq").hidden = !wantsUse();
   if (saved) showSummary(saved);
 }
+/* Ученик в начале спрашивал «где пригодится / зачем» — тогда пример обязателен */
+function wantsUse() { return /пригод|зачем|для чего/i.test(store.get(EXP_KEY, "")); }
 function val(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : null; }
 function showSummary(s) {
   const rows = [`<div class="sumrow"><span>Ожидания</span><span class="mark m${s.exp}">${EXP_MARK[s.exp]}</span></div>`]
@@ -544,16 +836,19 @@ function showSummary(s) {
   let next = got === 3 ? "Все цели достигнуты. Отличная работа!"
     : s.res[0] !== "2" ? "Вернись к заданиям на СУММ и ABS и спроси учителя, что непонятно."
     : "Хороший результат. На следующем уроке потренируйся в том, что отмечено «Частично» или «Пока нет».";
-  const note = s.note ? `<p class="mine" style="margin-top:10px"></p>` : "";
+  const use = s.use ? `<p class="mine use-ex" style="margin-top:10px"></p>` : "";
+  const note = s.note ? `<p class="mine note-ex" style="margin-top:10px"></p>` : "";
   const body = document.getElementById("refSumBody");
-  body.innerHTML = rows.join("") + note + `<p class="plain" style="margin-top:10px">${next}</p>`;
-  if (s.note) body.querySelector(".mine").textContent = s.note;
+  body.innerHTML = rows.join("") + use + note + `<p class="plain" style="margin-top:10px">${next}</p>`;
+  if (s.use) body.querySelector(".use-ex").textContent = "Где пригодится: " + s.use;
+  if (s.note) body.querySelector(".note-ex").textContent = s.note;
   document.getElementById("refSummary").hidden = false;
 }
 document.getElementById("refSave").addEventListener("click", () => {
-  const s = { exp: val("r-exp"), res: [0, 1, 2].map(i => val("r-res-" + i)), note: document.getElementById("refNote").value.trim() };
+  const s = { exp: val("r-exp"), res: [0, 1, 2].map(i => val("r-res-" + i)), note: document.getElementById("refNote").value.trim(), use: document.getElementById("refUse").value.trim() };
   const msg = document.getElementById("refMsg");
   if (s.exp === null || s.res.includes(null)) { msg.className = "msg bad"; msg.textContent = "Ответь на все вопросы: ожидания и три результата."; return; }
+  if (wantsUse() && s.use.length < 5) { msg.className = "msg bad"; msg.textContent = "Приведи пример, где пригодится функция: ты сам хотел это понять."; return; }
   store.set(REF_KEY, s);
   msg.className = "msg ok"; msg.textContent = "Сохранено.";
   showSummary(s);
