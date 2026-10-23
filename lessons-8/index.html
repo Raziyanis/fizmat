@@ -356,6 +356,11 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .q-card { border-top: 6px solid var(--c); }
 .q-text { margin: 0; font-family: var(--f-display); font-size: 1.35rem; line-height: 1.3; }
 .toast { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); background: var(--ink); color: var(--surface); padding: 10px 18px; border-radius: 8px; font-weight: 700; }
+.crit td:first-child { min-width: 16rem; }
+.crit-main { margin-bottom: 10px; }
+.crit tr.d-ok td:last-child { color: var(--c); font-weight: 700; }
+.crit tr.d-no td:last-child { color: var(--muted); }
+.desc-sum { margin-bottom: 8px; font-weight: 700; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -372,10 +377,11 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
   <div class="steps" role="tablist" aria-label="Этапы урока">
     <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="true"><b>1</b>Разгадай тему</button>
     <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>2</b>Тема и цель</button>
-    <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>3</b>Новая тема</button>
-    <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>4</b>Какая функция?</button>
-    <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>5</b>Практика</button>
-    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>6</b>Итоги урока</button>
+    <button type="button" class="step" role="tab" id="tab-actual" aria-controls="actual" aria-selected="false" disabled><b>3</b>Вспомним</button>
+    <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>4</b>Новая тема</button>
+    <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>5</b>Какая функция?</button>
+    <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>6</b>Практика</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>7</b>Итоги урока</button>
   </div>
 
   <!-- Этап 1: разгадать тему -->
@@ -471,11 +477,38 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>извлечь квадратный корень функцией <code>КОРЕНЬ()</code> и возвести число в степень функцией <code>СТЕПЕНЬ()</code>, не путая порядок аргументов: <code>=СТЕПЕНЬ(число;показатель)</code>.</p></div>
       <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>сложить только те числа, которые подходят под условие, с помощью <code>=СУММЕСЛИ(A1:A10;"&gt;0")</code> и составить формулу из двух функций, например <code>=КОРЕНЬ(ABS(A1))</code>, и объяснить, зачем тут ABS.</p></div>
     </section>
+    <section class="block">
+      <h2>Критерии оценивания · как проверим, что цель достигнута</h2>
+      <p class="plain crit-main"><b>Критерий:</b> использует математические функции СУММ(), ABS(), КОРЕНЬ(), СТЕПЕНЬ(), СУММЕСЛИ() для вычислений в электронных таблицах.</p>
+      <div class="tablewrap"><table class="th-args crit" id="critTable"></table></div>
+      <p class="small-note">Дескрипторы отмечаются автоматически по заданиям урока. Свои результаты увидишь в «Итогах урока».</p>
+    </section>
     </div>
-    <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><button class="btn main" type="button" data-go="learn" id="toLearn" hidden>Дальше: новая тема →</button></div>
+    <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><button class="btn main" type="button" data-go="actual" id="toLearn" hidden>Дальше: вспомним →</button></div>
   </div>
 
-  <!-- Этап 3: новая тема -->
+  <!-- Этап 3: актуализация знаний -->
+  <div class="panel" id="actual" role="tabpanel" aria-labelledby="tab-actual" hidden>
+    <div>
+      <h1>Вспомним, что мы уже знаем</h1>
+      <p class="lead">Перед новой темой проверь себя: без этих знаний функции не запишешь. Выбери ответ — сразу увидишь, верно или нет, и почему.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="acBar"></i></div><span class="pnum" id="acNum"></span></div>
+      <p class="small" id="acFirst"></p>
+    </section>
+    <div class="mt-list" id="acList"></div>
+    <section class="block mt-done" id="acDone" hidden>
+      <h2>Итог</h2>
+      <p class="plain" id="acDoneText"></p>
+    </section>
+    <div class="next">
+      <button class="btn" type="button" data-go="goal">← Тема и цель</button>
+      <button class="btn main" type="button" data-go="learn">Дальше: новая тема →</button>
+    </div>
+  </div>
+
+  <!-- Этап 4: новая тема -->
   <div class="panel" id="learn" role="tabpanel" aria-labelledby="tab-learn" hidden>
     <div>
       <h1>Как работают функции</h1>
@@ -685,7 +718,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     </div>
   </div>
 
-  <!-- Этап 4: какая функция подходит -->
+  <!-- Этап 5: какая функция подходит -->
   <div class="panel" id="match" role="tabpanel" aria-labelledby="tab-match" hidden>
     <div>
       <h1>Какая функция подходит?</h1>
@@ -707,7 +740,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     </div>
   </div>
 
-  <!-- Этап 5: практика -->
+  <!-- Этап 6: практика -->
   <div class="panel" id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
     <div>
       <h1>Практика</h1>
@@ -731,7 +764,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     </div>
   </div>
 
-  <!-- Этап 5: итоги урока -->
+  <!-- Этап 7: итоги урока -->
   <div class="panel" id="reflect" role="tabpanel" aria-labelledby="tab-reflect" hidden>
     <div>
       <h1>Итоги урока</h1>
@@ -757,6 +790,11 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     <section class="block">
       <h2>Ожидаемые результаты · достиг ли я?</h2>
       <div id="refRes"></div>
+    </section>
+
+    <section class="block">
+      <h2>Критерии оценивания · мои дескрипторы</h2>
+      <div id="refDesc"></div>
     </section>
 
     <section class="block">
@@ -948,7 +986,7 @@ function unlock() {
 function show(id) {
   if (window.__onStage) window.__onStage(id);
   if (id === "reflect") fillReflect();
-  ["puzzle", "goal", "learn", "match", "practice", "reflect"].forEach(p => {
+  ["puzzle", "goal", "actual", "learn", "match", "practice", "reflect"].forEach(p => {
     document.getElementById(p).hidden = p !== id;
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
@@ -988,6 +1026,7 @@ function showExp(text) {
   document.getElementById("expShow").textContent = text || "";
   document.getElementById("afterExp").hidden = !has;
   document.getElementById("tab-reflect").disabled = !has;
+  document.getElementById("tab-actual").disabled = !has;
   document.getElementById("tab-learn").disabled = !has;
   document.getElementById("tab-match").disabled = !has;
   document.getElementById("tab-practice").disabled = !has;
@@ -1001,11 +1040,11 @@ function showCard(i) {
   fCur = i;
   document.querySelectorAll(".fcard").forEach(c => { c.hidden = +c.dataset.card !== i; });
   document.querySelectorAll(".fpill").forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
-  document.getElementById("fPrev").textContent = i === 0 ? "← Тема и цель" : "← Назад";
+  document.getElementById("fPrev").textContent = i === 0 ? "← Вспомним" : "← Назад";
   document.getElementById("fNext").textContent = i === 5 ? "Дальше: какая функция? →" : "Дальше: " + F_NAMES[i + 1] + " →";
 }
 document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
-document.getElementById("fPrev").addEventListener("click", () => { if (fCur === 0) show("goal"); else showCard(fCur - 1); });
+document.getElementById("fPrev").addEventListener("click", () => { if (fCur === 0) show("actual"); else showCard(fCur - 1); });
 document.getElementById("fNext").addEventListener("click", () => {
   if (fCur === 5) { show("match"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
 });
@@ -1743,7 +1782,7 @@ function cellBuild(box) {
     if (inp) inp.addEventListener("keydown", e => { if (e.key === "Enter") card.querySelector(".tc-check").click(); });
     card.querySelector(".tc-check").addEventListener("click", () => {
       const r = cellCheck(t, st, inp ? inp.value : "");
-      if (window.__onAttempt) window.__onAttempt("5. Практика", t.id + " · ячейки", inp ? inp.value : (st.sel ? "выделено " + rectText(st.sel) : "ничего не выделено"), r.ok, r.ok ? "" : r.msg);
+      if (window.__onAttempt) window.__onAttempt("6. Практика", t.id + " · ячейки", inp ? inp.value : (st.sel ? "выделено " + rectText(st.sel) : "ничего не выделено"), r.ok, r.ok ? "" : r.msg);
       const all = prLoad(), tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
       all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), tries }; prSave(all);
       msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.msg;
@@ -1948,7 +1987,7 @@ function prBuild() {
     if (saved && saved.f) { Object.entries(saved.f).forEach(([k, v]) => root.xlSet(k, v)); setStatus(!!saved.ok); }
     card.querySelector(".tc-check").addEventListener("click", () => {
       const r = prCheck(t, root.xlState);
-      if (window.__onAttempt) window.__onAttempt("5. Практика", t.id + " · " + t.fn, targets.map(k => k + ": " + (root.xlState.cells[k] ?? "")).join("   "), r.ok, r.ok ? "" : r.msg);
+      if (window.__onAttempt) window.__onAttempt("6. Практика", t.id + " · " + t.fn, targets.map(k => k + ": " + (root.xlState.cells[k] ?? "")).join("   "), r.ok, r.ok ? "" : r.msg);
       const all = prLoad();
       const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
       const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
@@ -2031,7 +2070,7 @@ function mtBuild() {
     show(d[i] || {}, true);
     card.querySelector(".mt-opts").addEventListener("click", e => {
       const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
-      if (window.__onAttempt) window.__onAttempt("4. Какая функция?", "Ситуация " + (i + 1), b.dataset.f, b.dataset.f === c.a, b.dataset.f === c.a ? "" : "нужно " + c.a);
+      if (window.__onAttempt) window.__onAttempt("5. Какая функция?", "Ситуация " + (i + 1), b.dataset.f, b.dataset.f === c.a, b.dataset.f === c.a ? "" : "нужно " + c.a);
       const all = mtLoad(), st = all[i] || { wrong: [] };
       st.wrong = st.wrong || [];
       if (b.dataset.f === c.a) { st.ok = true; st.first = st.wrong.length === 0; }
@@ -2056,6 +2095,100 @@ function mtRender() {
 }
 document.getElementById("mtRetry").addEventListener("click", () => { store.set(MT_KEY, {}); mtBuild(); document.getElementById("match").scrollIntoView({ behavior: "smooth" }); });
 mtBuild();
+
+/* Актуализация знаний: что нужно помнить перед новой темой */
+const AC_KEY = "actual-l1";
+const AC_CASES = [
+  { q: "С какого знака начинается любая формула в электронной таблице?", opts: ["=", "+", ":", ";"], a: "=", why: "Знак «=» говорит таблице: дальше формула, её нужно вычислить." },
+  { q: "Как называется место, где пересекаются столбец и строка?", opts: ["ячейка", "диапазон", "лист", "строка формул"], a: "ячейка", why: "Ячейка — пересечение столбца и строки. У каждой ячейки есть адрес, например B3." },
+  { q: "Какой адрес у ячейки в столбце C и строке 4?", opts: ["C4", "4C", "C:4", "C-4"], a: "C4", why: "Сначала пишут букву столбца, потом номер строки." },
+  { q: "В A1 записано 5, в A2 — 7. Что покажет ячейка с формулой =A1+A2?", opts: ["12", "A1+A2", "57", "ошибку"], a: "12", why: "Таблица подставляет значения ячеек: 5 + 7 = 12." },
+  { q: "Что получится по формуле =2+3*4?", opts: ["14", "20", "24", "9"], a: "14", why: "Как в математике: сначала умножение 3 · 4 = 12, потом сложение 2 + 12 = 14." },
+  { q: "Каким знаком обозначают деление в формуле?", opts: ["/", ":", "÷", "\\"], a: "/", why: "В формулах делят знаком «/», например =A1/2." },
+  { q: "В A3 записана формула =A1*2. Число в A1 поменяли с 5 на 10. Что станет в A3?", opts: ["20", "10", "5", "ошибка"], a: "20", why: "Формула пересчитывается сама: 10 · 2 = 20. Поэтому в формулах пишут адреса ячеек, а не числа." }
+];
+function quizBuild(cfg) {
+  const load = () => store.get(cfg.key, {});
+  function render() {
+    const d = load(), n = cfg.cases.length;
+    const ok = cfg.cases.filter((_, i) => d[i] && d[i].ok).length, first = cfg.cases.filter((_, i) => d[i] && d[i].first).length;
+    document.getElementById(cfg.bar).style.width = (ok / n * 100) + "%";
+    document.getElementById(cfg.num).textContent = `Решено: ${ok} из ${n}`;
+    document.getElementById(cfg.first).textContent = ok ? `С первой попытки: ${first} из ${ok}` : "";
+    document.getElementById(cfg.done).hidden = ok !== n;
+    if (ok === n) document.getElementById(cfg.doneText).textContent = cfg.summary(first, n);
+  }
+  document.getElementById(cfg.list).innerHTML = cfg.cases.map((c, i) => `
+    <section class="block mt-card" id="${cfg.prefix}-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q"></p>
+      <div class="mt-opts" role="group" aria-label="Варианты ответа">${c.opts.map(o => `<button type="button" class="mt-opt" data-f=""></button>`).join("")}</div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  cfg.cases.forEach((c, i) => {
+    const card = document.getElementById(`${cfg.prefix}-${i}`), msg = card.querySelector(".tc-msg");
+    card.querySelector(".tc-q").textContent = c.q;
+    card.querySelectorAll(".mt-opt").forEach((b, j) => { b.dataset.f = c.opts[j]; b.textContent = c.opts[j]; });
+    const show = (st, quiet) => {
+      card.querySelectorAll(".mt-opt").forEach(b => {
+        b.classList.toggle("ok", !!st.ok && b.dataset.f === c.a);
+        b.classList.toggle("bad", (st.wrong || []).includes(b.dataset.f));
+        b.disabled = !!st.ok;
+      });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ с первой попытки" : "✓ решено") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.textContent = `Верно: ${c.a}. ${c.why}`; }
+      else if (!quiet && st.wrong && st.wrong.length) { msg.className = "tc-msg bad"; msg.textContent = `«${st.wrong[st.wrong.length - 1]}» — неверно. Подумай ещё раз.`; }
+    };
+    show(load()[i] || {}, true);
+    card.querySelector(".mt-opts").addEventListener("click", e => {
+      const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      const ok = b.dataset.f === c.a;
+      if (window.__onAttempt) window.__onAttempt(cfg.stage, "Вопрос " + (i + 1), b.dataset.f, ok, ok ? "" : "верно: " + c.a);
+      const all = load(), st = all[i] || { wrong: [] };
+      st.wrong = st.wrong || [];
+      if (ok) { st.ok = true; st.first = st.wrong.length === 0; } else if (!st.wrong.includes(b.dataset.f)) st.wrong.push(b.dataset.f);
+      all[i] = st; store.set(cfg.key, all); show(st); render();
+    });
+  });
+  render();
+}
+quizBuild({ key: AC_KEY, cases: AC_CASES, prefix: "ac", list: "acList", bar: "acBar", num: "acNum", first: "acFirst", done: "acDone", doneText: "acDoneText", stage: "3. Вспомним",
+  summary: (first, n) => first >= 6 ? `${first} из ${n} с первой попытки. Основа есть — переходи к новой теме.`
+    : `${first} из ${n} с первой попытки. Перечитай пояснения к вопросам, где ошибся: они понадобятся в новой теме.` });
+
+/* Критерии оценивания и дескрипторы: отмечаются по заданиям урока */
+const DESC = [
+  { id: "Д1", text: "определяет адрес ячейки и диапазона", lv: "Все", where: "Практика: разминка Z1–Z8", tasks: ["Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8"] },
+  { id: "Д2", text: "выбирает функцию, подходящую для ситуации", lv: "Все", where: "«Какая функция?»: не меньше 7 из 10 с первой попытки", matchFirst: 7 },
+  { id: "Д3", text: "вычисляет сумму и модуль с помощью СУММ() и ABS()", lv: "Все", where: "Практика A1, A2", tasks: ["A1", "A2"] },
+  { id: "Д4", text: "применяет КОРЕНЬ() и СТЕПЕНЬ(), правильно записывая аргументы", lv: "Большинство", where: "Практика A3, B1, B3", tasks: ["A3", "B1", "B3"] },
+  { id: "Д5", text: "суммирует значения по условию с помощью СУММЕСЛИ()", lv: "Некоторые", where: "Практика C1, C2", tasks: ["C1", "C2"] },
+  { id: "Д6", text: "составляет формулу из нескольких вложенных функций", lv: "Некоторые", where: "Практика C1, C3", tasks: ["C1", "C3"] }
+];
+function descStatus() {
+  const pr = store.get("practice-l1", {}), mt = store.get("match-l1", {});
+  return DESC.map(d => {
+    if (d.matchFirst) {
+      const first = Object.values(mt).filter(x => x && x.first).length;
+      return { ...d, ok: first >= d.matchFirst, progress: `${first} из 10 с первой попытки` };
+    }
+    const done = d.tasks.filter(id => pr[id] && (pr[id].ok || pr[id].ever)).length;
+    return { ...d, ok: done === d.tasks.length, progress: `решено ${done} из ${d.tasks.length}` };
+  });
+}
+(function renderCrit() {
+  const t = document.getElementById("critTable");
+  t.innerHTML = "<tr><th>Дескриптор · обучающийся</th><th>Уровень</th><th>Где проверяется</th></tr>" +
+    DESC.map(d => `<tr><td><b>${d.id}</b> ${d.text}</td><td>${d.lv}</td><td>${d.where}</td></tr>`).join("");
+})();
+function renderDescMine(box) {
+  const st = descStatus(), got = st.filter(d => d.ok).length;
+  box.innerHTML = `<p class="plain desc-sum"></p><div class="tablewrap"><table class="th-args crit"><tr><th>Дескриптор</th><th>Уровень</th><th>Результат</th></tr>` +
+    st.map(d => `<tr class="${d.ok ? "d-ok" : "d-no"}"><td><b>${d.id}</b> ${d.text}</td><td>${d.lv}</td><td>${d.ok ? "✓ достигнут" : "пока нет"} <span class="small">(${d.progress})</span></td></tr>`).join("") + "</table></div>";
+  box.querySelector(".desc-sum").textContent = `Достигнуто дескрипторов: ${got} из ${st.length}.`;
+}
+window.__descStatus = descStatus;
 
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
 const REF_KEY = "reflect-l1";
@@ -2087,6 +2220,7 @@ function fillReflect() {
     }
   }
   document.getElementById("useReq").hidden = !wantsUse();
+  renderDescMine(document.getElementById("refDesc"));
   const pd = prLoad();
   document.querySelectorAll("#refRes .rr").forEach((el, i) => {
     const lv = "ABC"[i], list = TASKS_PR.filter(t => t.lv === lv), ok = list.filter(t => pd[t.id] && pd[t.id].ok).length;
@@ -2158,7 +2292,7 @@ window.__lessonInfo = { matchN: MT_CASES.length, Z: TASKS_CELL.map(t => t.id),
 
 }
 /* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
-const STAGES = { puzzle: "1. Разгадка темы", goal: "2. Тема и цель", learn: "3. Новая тема", match: "4. Какая функция?", practice: "5. Практика", reflect: "6. Итоги" };
+const STAGES = { puzzle: "1. Разгадка темы", goal: "2. Тема и цель", actual: "3. Вспомним", learn: "4. Новая тема", match: "5. Какая функция?", practice: "6. Практика", reflect: "7. Итоги" };
 let me = null, curStage = "puzzle", syncTimer = null;
 const gsr = (fn, ...args) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
@@ -2177,7 +2311,8 @@ function lessonSummary() {
     matchFirst: mv.filter(x => x && x.first).length,
     z: cnt(info.Z), a: cnt(info.A), b: cnt(info.B), c: cnt(info.C),
     expOk: rf ? EXP[rf.exp] || "" : "", r0: rf ? MARK[rf.res[0]] || "" : "", r1: rf ? MARK[rf.res[1]] || "" : "", r2: rf ? MARK[rf.res[2]] || "" : "",
-    use: rf ? rf.use || "" : "", note: rf ? rf.note || "" : ""
+    use: rf ? rf.use || "" : "", note: rf ? rf.note || "" : "",
+    desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
   };
 }
 function syncSoon() { if (!me) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 1500); }

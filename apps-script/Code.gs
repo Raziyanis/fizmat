@@ -7,7 +7,7 @@
 
 const SHEETS = {
   roster:   { name: "Ученики",   head: ["Класс", "Ученик"] },
-  progress: { name: "Прогресс",  head: ["ID", "Класс", "Ученик", "Этап", "Ожидания", "Какая функция", "С первой попытки", "Разминка «Ячейки»", "Уровень A", "Уровень B", "Уровень C", "Ожидания оправдались", "Все учащиеся", "Большинство", "Некоторые", "Где пригодится", "Комментарий", "Обновлено"] },
+  progress: { name: "Прогресс",  head: ["ID", "Класс", "Ученик", "Этап", "Ожидания", "Какая функция", "С первой попытки", "Разминка «Ячейки»", "Уровень A", "Уровень B", "Уровень C", "Ожидания оправдались", "Все учащиеся", "Большинство", "Некоторые", "Где пригодится", "Комментарий", "Обновлено", "Дескрипторы"] },
   attempts: { name: "Попытки",   head: ["Время", "Класс", "Ученик", "Этап", "Задание", "Ответ", "Верно", "Подсказка ученику"] },
   board:    { name: "Доска",     head: ["Время", "ID вопроса", "Вопрос", "Класс", "Ученик", "Ответ"] },
   settings: { name: "Настройки", head: ["Параметр", "Значение"] }
@@ -134,10 +134,8 @@ function registerStudent(cls, name) {
     if (best && (bd <= 2 || (bd <= 3 && k.length >= 12))) return { suggest: best, cls: cls };
     throw new Error("Тебя нет в списке класса " + cls + ". Проверь, как написаны фамилия и имя, или скажи учителю.");
   }
-  withLock_(function () {
-    const list = getRoster()[cls] || [];
-    if (!list.some(function (s) { return key_(s) === key_(name); })) sheet_("roster").appendRow([cls, name]);
-  });
+  // Список не заполнен или проверка выключена: пускаем всех, лист «Ученики» не трогаем —
+  // его ведёт только учитель, а вошедшие и так видны на листе «Прогресс».
   return { id: cls + " | " + name, cls: cls, name: name };
 }
 
@@ -146,7 +144,7 @@ function saveProgress(p) {
   if (!id) return false;
   const row = [id, clean_(p.cls, 20), clean_(p.name, 80), clean_(p.stage, 40), clean_(p.expect, 500),
     clean_(p.match, 10), Number(p.matchFirst) || 0, clean_(p.z, 10), clean_(p.a, 10), clean_(p.b, 10), clean_(p.c, 10),
-    clean_(p.expOk, 20), clean_(p.r0, 20), clean_(p.r1, 20), clean_(p.r2, 20), clean_(p.use, 500), clean_(p.note, 500), new Date()];
+    clean_(p.expOk, 20), clean_(p.r0, 20), clean_(p.r1, 20), clean_(p.r2, 20), clean_(p.use, 500), clean_(p.note, 500), new Date(), clean_(p.desc, 60)];
   withLock_(function () {
     const sh = sheet_("progress");
     const n = sh.getLastRow();
@@ -235,7 +233,7 @@ function getTeacherData(pin, qid, since) {
     const upd = r[17] instanceof Date ? r[17].getTime() : 0;
     return { cls: String(r[1]), name: String(r[2]), stage: String(r[3]), expect: String(r[4]), match: String(r[5]), matchFirst: r[6],
       z: String(r[7]), a: String(r[8]), b: String(r[9]), c: String(r[10]), expOk: String(r[11]), r0: String(r[12]), r1: String(r[13]), r2: String(r[14]),
-      use: String(r[15]), note: String(r[16]), t: time_(r[17]), online: now - upd < 150000 };
+      use: String(r[15]), note: String(r[16]), t: time_(r[17]), desc: String(r[18] || ""), online: now - upd < 150000 };
   });
   return { q: q, want: want, questions: questions, answers: answers, attempts: attempts, progress: progress, roster: getRoster() };
 }
