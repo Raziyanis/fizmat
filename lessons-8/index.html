@@ -787,7 +787,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
   <div class="lg-card" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
     <p class="eyebrow">Информатика · 8 класс</p>
     <h2 class="lg-title" id="lgTitle">Математические функции</h2>
-    <div id="loginBody"><p>Загружаю список класса…</p></div>
+    <div id="loginBody"></div>
   </div>
 </div>
 <div class="overlay" id="qModal" hidden>
@@ -2182,56 +2182,32 @@ function syncSoon() { if (!me) return; clearTimeout(syncTimer); syncTimer = setT
 function syncNow() { if (!me) return; gsr("saveProgress", lessonSummary()).then(() => setNet(true)).catch(() => setNet(false)); }
 function setNet(ok) { const n = document.getElementById("netState"); if (n) { n.textContent = ok ? "связь с учителем есть" : "нет связи — ответы отправятся позже"; n.className = "net " + (ok ? "on" : "off"); } }
 
-/* Вход: выбрать класс и себя из списка или вписать имя */
-function loginUI(roster) {
+/* Вход: ученик сам вписывает класс, фамилию и имя */
+const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х" };
+function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[ABCEHKMOPTX]/g, ch => LAT2CYR[ch]); }
+function normName(v) { return v.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" "); }
+function loginUI() {
   const ov = document.getElementById("login"), body = document.getElementById("loginBody");
   ov.hidden = false;
-  const last = lsGet("last-student", null);
-  const classes = Object.keys(roster).sort((a, b) => a.localeCompare(b, "ru", { numeric: true }));
-  function stepStart() {
-    if (last) {
-      body.innerHTML = `<p class="lg-q">Продолжить урок?</p>
-        <button type="button" class="btn main lg-big" id="lgCont"></button>
-        <button type="button" class="btn" id="lgOther">Это не я</button>`;
-      document.getElementById("lgCont").textContent = `Да, я ${last.name} (${last.cls})`;
-      document.getElementById("lgCont").onclick = () => enter(last);
-      document.getElementById("lgOther").onclick = stepClass;
-    } else stepClass();
-  }
-  function stepClass() {
-    body.innerHTML = `<p class="lg-q">Выбери свой класс</p><div class="lg-grid">${classes.map(c => `<button type="button" class="lg-btn" data-c=""></button>`).join("")}</div>
-      <button type="button" class="btn" id="lgNew">Моего класса нет в списке</button>`;
-    body.querySelectorAll(".lg-btn").forEach((b, i) => { b.textContent = classes[i]; b.onclick = () => stepName(classes[i]); });
-    document.getElementById("lgNew").onclick = () => stepNew("");
-  }
-  function stepName(cls) {
-    const names = roster[cls] || [];
-    body.innerHTML = `<p class="lg-q">Класс <b></b>. Найди себя</p><div class="lg-grid lg-names"></div>
-      <div class="lg-row"><button type="button" class="btn" id="lgBack">← Другой класс</button><button type="button" class="btn" id="lgNew">Меня нет в списке</button></div>`;
-    body.querySelector(".lg-q b").textContent = cls;
-    const grid = body.querySelector(".lg-names");
-    names.forEach(n => { const b = document.createElement("button"); b.type = "button"; b.className = "lg-btn"; b.textContent = n; b.onclick = () => enter({ id: cls + " | " + n, cls, name: n }); grid.appendChild(b); });
-    document.getElementById("lgBack").onclick = stepClass;
-    document.getElementById("lgNew").onclick = () => stepNew(cls);
-  }
-  function stepNew(cls) {
-    body.innerHTML = `<p class="lg-q">Впиши свои данные</p>
-      <label class="lg-l" for="lgCls">Класс</label><input id="lgCls" class="lg-in" maxlength="20" placeholder="например, 8А">
-      <label class="lg-l" for="lgName">Фамилия и имя</label><input id="lgName" class="lg-in" maxlength="80" placeholder="например, Сейткали Айдана">
-      <p class="lg-err" id="lgErr" aria-live="polite"></p>
-      <div class="lg-row"><button type="button" class="btn" id="lgBack">← Назад</button><button type="button" class="btn main" id="lgGo">Войти</button></div>`;
-    document.getElementById("lgCls").value = cls;
-    document.getElementById("lgBack").onclick = stepClass;
-    document.getElementById("lgGo").onclick = () => {
-      const c = document.getElementById("lgCls").value.trim(), n = document.getElementById("lgName").value.trim().replace(/\s+/g, " ");
-      const err = document.getElementById("lgErr");
-      if (!c || n.length < 3) { err.textContent = "Впиши класс и фамилию с именем."; return; }
-      err.textContent = "Сохраняю…";
-      gsr("registerStudent", c, n).then(enter).catch(e => { err.textContent = "Не получилось: " + (e && e.message ? e.message : "проверь связь и попробуй ещё раз."); });
-    };
-  }
+  body.innerHTML = `<p class="lg-q">Впиши свои данные</p>
+    <label class="lg-l" for="lgCls">Класс</label><input id="lgCls" class="lg-in" maxlength="20" placeholder="например, 8А" autocomplete="off">
+    <label class="lg-l" for="lgName">Фамилия и имя</label><input id="lgName" class="lg-in" maxlength="80" placeholder="например, Сейткали Айдана" autocomplete="off">
+    <p class="lg-err" id="lgErr" aria-live="polite"></p>
+    <button type="button" class="btn main lg-big" id="lgGo">Начать урок</button>`;
+  const go = () => {
+    const c = normClass(document.getElementById("lgCls").value), n = normName(document.getElementById("lgName").value);
+    const err = document.getElementById("lgErr");
+    if (!/^\d{1,2}[А-ЯЁ]?$/.test(c)) { err.textContent = "Класс пишется так: цифра и буква, например 8А."; return; }
+    if (n.split(" ").length < 2 || n.length < 5) { err.textContent = "Впиши фамилию и имя через пробел."; return; }
+    err.textContent = "Сохраняю…";
+    document.getElementById("lgGo").disabled = true;
+    gsr("registerStudent", c, n).then(enter).catch(e => { document.getElementById("lgGo").disabled = false; err.textContent = "Не получилось: " + (e && e.message ? e.message : "проверь связь и попробуй ещё раз."); });
+  };
+  document.getElementById("lgGo").onclick = go;
+  ["lgCls", "lgName"].forEach(id => document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") go(); }));
+  document.getElementById("lgCls").focus();
   function enter(st) {
-    me = st; lsSet("last-student", st);
+    me = st;
     NS = "st:" + st.id + ":";
     ov.hidden = true;
     document.getElementById("whoName").textContent = `${st.name}, ${st.cls}`;
@@ -2241,7 +2217,6 @@ function loginUI(roster) {
     setInterval(syncNow, 60000);
     pollQuestion(); setInterval(pollQuestion, 5000);
   }
-  stepStart();
 }
 
 /* Вопрос учителя всплывает у всех учеников */
@@ -2285,10 +2260,7 @@ function onlineBoot() {
   document.getElementById("qSend").addEventListener("click", sendAnswer);
   document.getElementById("qAns").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) sendAnswer(); });
   document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
-  gsr("getRoster").then(loginUI).catch(() => {
-    document.getElementById("loginBody").innerHTML = `<p class="lg-err">Не удалось загрузить список учеников. Обнови страницу.</p>`;
-    document.getElementById("login").hidden = false;
-  });
+  loginUI();
 }
 if (ONLINE) onlineBoot(); else startLesson();
 

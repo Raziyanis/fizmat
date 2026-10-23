@@ -1,6 +1,7 @@
 /**
  * Урок «Математические функции» (8 класс) — серверная часть.
- * Ученики открывают веб-приложение без входа в Google, учитель — по ссылке с ?page=teacher и PIN.
+ * Ученики открывают веб-приложение без входа в Google и сами вписывают класс и имя;
+ * учитель открывает ту же ссылку с ?page=teacher и входит по PIN.
  * Все данные лежат в Google Таблице, к которой привязан этот скрипт.
  */
 
@@ -81,10 +82,20 @@ function getRoster() {
   return map;
 }
 
+/** Класс к виду «8А» (латинские A, B, C… → русские), имя — с заглавных букв. */
+function normClass_(v) {
+  const map = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х" };
+  return String(v || "").toUpperCase().replace(/\s+/g, "").replace(/[ABCEHKMOPTX]/g, function (ch) { return map[ch]; }).slice(0, 20);
+}
+function normName_(v) {
+  return String(v || "").trim().replace(/\s+/g, " ").split(" ").map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(" ").slice(0, 80);
+}
+
 function registerStudent(cls, name) {
-  cls = clean_(cls, 20).replace(/^'/, "");
-  name = clean_(name, 80).replace(/^'/, "");
-  if (!cls || name.length < 3) throw new Error("Укажи класс, фамилию и имя.");
+  cls = normClass_(clean_(cls, 20).replace(/^'/, ""));
+  name = normName_(clean_(name, 80).replace(/^'/, ""));
+  if (!/^\d{1,2}[А-ЯЁ]?$/.test(cls)) throw new Error("Класс пишется так: цифра и буква, например 8А.");
+  if (name.split(" ").length < 2) throw new Error("Впиши фамилию и имя через пробел.");
   withLock_(function () {
     const list = getRoster()[cls] || [];
     if (!list.some(function (s) { return s.toLowerCase() === name.toLowerCase(); })) sheet_("roster").appendRow([cls, name]);
