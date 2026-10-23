@@ -276,6 +276,8 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .err-table td.ecode { font-family: var(--f-mono); font-weight: 700; color: var(--bad); white-space: nowrap; }
 .err-table td.eex { display: table-cell; }
 .err-table .tryf { display: inline-block; margin: 0 4px 4px 0; }
+.showex { display: block; margin-bottom: 6px; border: 0; background: var(--bad); color: var(--surface); border-radius: 4px; padding: 3px 10px; font-size: .85rem; font-weight: 700; }
+.showex:hover { filter: brightness(1.1); }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -582,14 +584,14 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       </div>
       <p class="remember"><b>Три частые ошибки:</b> забыли знак <code>=</code> в начале; поставили запятую вместо <code>;</code> между числами; забыли кавычки вокруг условия в СУММЕСЛИ.</p>
       <h3 class="th-h">Ошибки и почему они возникают</h3>
-      <p class="small-note">Нажми на пример — он откроется в песочнице ниже, в ячейке H10, с подробным пояснением.</p>
+      <p class="small-note"><b>«Показать на листе»</b> открывает в песочнице ниже готовый лист: рядом формула с ошибкой и исправленная. Кнопки с формулами вставляют пример в ячейку H10.</p>
       <div class="tablewrap"><table class="th-ex err-table"><tr><th>Ошибка</th><th>Что значит</th><th>Почему возникает</th><th>Пример</th><th>Как исправить</th></tr>
-<tr><td class="ecode">#ЧИСЛО!</td><td>число нельзя вычислить</td><td>Корень из отрицательного числа; 0 в степени 0; отрицательное число в дробной степени; результат слишком большой для таблицы.</td><td class="eex"><button type="button" class="tryf" data-f="=КОРЕНЬ(-9)">=КОРЕНЬ(-9)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(0;0)">=СТЕПЕНЬ(0;0)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(-8;0,5)">=СТЕПЕНЬ(-8;0,5)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(10;400)">=СТЕПЕНЬ(10;400)</button></td><td>Проверить знак и величину чисел. Минус под корнем убрать через ABS: <code>=КОРЕНЬ(ABS(A1))</code>.</td></tr>
-<tr><td class="ecode">#ИМЯ?</td><td>таблица не узнала слово в формуле</td><td>Опечатка в имени функции; английское имя в русской версии; русская буква в адресе ячейки; текст в условии СУММЕСЛИ без кавычек.</td><td class="eex"><button type="button" class="tryf" data-f="=СУМ(1;2)">=СУМ(1;2)</button><button type="button" class="tryf" data-f="=SUM(1;2)">=SUM(1;2)</button><button type="button" class="tryf" data-f="=А1+1">=А1+1</button><button type="button" class="tryf" data-f="=СУММЕСЛИ(A1:A5;еда)">=СУММЕСЛИ(A1:A5;еда)</button></td><td>Проверить написание. Функции вставлять кнопками, ячейки выбирать мышью, текст условия брать в кавычки: <code>"еда"</code>.</td></tr>
-<tr><td class="ecode">#ЗНАЧ!</td><td>неподходящий тип данных</td><td>В вычислении участвует текст, а нужно число. Например, к подписи прибавляют число или берут модуль слова.</td><td class="eex"><button type="button" class="tryf" data-f="=&quot;текст&quot;+1">="текст"+1</button><button type="button" class="tryf" data-f="=ABS(&quot;пять&quot;)">=ABS("пять")</button></td><td>Проверить, что в ячейках формулы стоят числа. Помнить: СУММ текст в диапазоне пропускает, а знак <code>+</code> — нет.</td></tr>
-<tr><td class="ecode">#ДЕЛ/0!</td><td>деление на ноль</td><td>Делитель равен нулю или ячейка-делитель пустая (пустая ячейка считается нулём). Ноль в отрицательной степени — тоже деление на ноль.</td><td class="eex"><button type="button" class="tryf" data-f="=10/0">=10/0</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(0;-1)">=СТЕПЕНЬ(0;-1)</button></td><td>Проверить делитель и заполнить пустые ячейки.</td></tr>
-<tr><td class="ecode">Ошибка записи</td><td>формула записана неправильно</td><td>Не хватает скобки; запятая вместо «;»; неверное число аргументов. В Excel такую формулу не дадут ввести — появится окно с сообщением. В нашей таблице ячейка покажет <code>#ОШИБКА</code> и подскажет причину.</td><td class="eex"><button type="button" class="tryf" data-f="=СТЕПЕНЬ(2,3)">=СТЕПЕНЬ(2,3)</button><button type="button" class="tryf" data-f="=СУММ(1;2">=СУММ(1;2</button><button type="button" class="tryf" data-f="=ABS(-3;-5)">=ABS(-3;-5)</button></td><td>Сверить формулу с синтаксисом функции: каждая <code>(</code> закрыта <code>)</code>, аргументы разделены <code>;</code>.</td></tr>
-<tr><td class="ecode">Циклическая ссылка</td><td>формула ссылается на свою ячейку</td><td>В формулу попал адрес той же ячейки, где она записана. В Excel это не код ошибки, а предупреждение; в ячейке обычно остаётся 0. В нашей таблице для наглядности — <code>#ЦИКЛ!</code>.</td><td class="eex"><button type="button" class="tryf" data-f="=H10+1">=H10+1</button></td><td>Убрать из формулы адрес этой ячейки.</td></tr>
+<tr><td class="ecode">#ЧИСЛО!</td><td>число нельзя вычислить</td><td>Корень из отрицательного числа; 0 в степени 0; отрицательное число в дробной степени; результат слишком большой для таблицы.</td><td class="eex"><button type="button" class="showex" data-ex="1">Показать на листе</button><button type="button" class="tryf" data-f="=КОРЕНЬ(-9)">=КОРЕНЬ(-9)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(0;0)">=СТЕПЕНЬ(0;0)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(-8;0,5)">=СТЕПЕНЬ(-8;0,5)</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(10;400)">=СТЕПЕНЬ(10;400)</button></td><td>Проверить знак и величину чисел. Минус под корнем убрать через ABS: <code>=КОРЕНЬ(ABS(A1))</code>.</td></tr>
+<tr><td class="ecode">#ИМЯ?</td><td>таблица не узнала слово в формуле</td><td>Опечатка в имени функции; английское имя в русской версии; русская буква в адресе ячейки; текст в условии СУММЕСЛИ без кавычек.</td><td class="eex"><button type="button" class="showex" data-ex="2">Показать на листе</button><button type="button" class="tryf" data-f="=СУМ(1;2)">=СУМ(1;2)</button><button type="button" class="tryf" data-f="=SUM(1;2)">=SUM(1;2)</button><button type="button" class="tryf" data-f="=А1+1">=А1+1</button><button type="button" class="tryf" data-f="=СУММЕСЛИ(A1:A5;еда)">=СУММЕСЛИ(A1:A5;еда)</button></td><td>Проверить написание. Функции вставлять кнопками, ячейки выбирать мышью, текст условия брать в кавычки: <code>"еда"</code>.</td></tr>
+<tr><td class="ecode">#ЗНАЧ!</td><td>неподходящий тип данных</td><td>В вычислении участвует текст, а нужно число. Например, к подписи прибавляют число или берут модуль слова.</td><td class="eex"><button type="button" class="showex" data-ex="3">Показать на листе</button><button type="button" class="tryf" data-f="=&quot;текст&quot;+1">="текст"+1</button><button type="button" class="tryf" data-f="=ABS(&quot;пять&quot;)">=ABS("пять")</button></td><td>Проверить, что в ячейках формулы стоят числа. Помнить: СУММ текст в диапазоне пропускает, а знак <code>+</code> — нет.</td></tr>
+<tr><td class="ecode">#ДЕЛ/0!</td><td>деление на ноль</td><td>Делитель равен нулю или ячейка-делитель пустая (пустая ячейка считается нулём). Ноль в отрицательной степени — тоже деление на ноль.</td><td class="eex"><button type="button" class="showex" data-ex="4">Показать на листе</button><button type="button" class="tryf" data-f="=10/0">=10/0</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(0;-1)">=СТЕПЕНЬ(0;-1)</button></td><td>Проверить делитель и заполнить пустые ячейки.</td></tr>
+<tr><td class="ecode">Ошибка записи</td><td>формула записана неправильно</td><td>Не хватает скобки; запятая вместо «;»; неверное число аргументов. В Excel такую формулу не дадут ввести — появится окно с сообщением. В нашей таблице ячейка покажет <code>#ОШИБКА</code> и подскажет причину.</td><td class="eex"><button type="button" class="showex" data-ex="5">Показать на листе</button><button type="button" class="tryf" data-f="=СТЕПЕНЬ(2,3)">=СТЕПЕНЬ(2,3)</button><button type="button" class="tryf" data-f="=СУММ(1;2">=СУММ(1;2</button><button type="button" class="tryf" data-f="=ABS(-3;-5)">=ABS(-3;-5)</button></td><td>Сверить формулу с синтаксисом функции: каждая <code>(</code> закрыта <code>)</code>, аргументы разделены <code>;</code>.</td></tr>
+<tr><td class="ecode">Циклическая ссылка</td><td>формула ссылается на свою ячейку</td><td>В формулу попал адрес той же ячейки, где она записана. В Excel это не код ошибки, а предупреждение; в ячейке обычно остаётся 0. В нашей таблице для наглядности — <code>#ЦИКЛ!</code>.</td><td class="eex"><button type="button" class="showex" data-ex="6">Показать на листе</button><button type="button" class="tryf" data-f="=H10+1">=H10+1</button></td><td>Убрать из формулы адрес этой ячейки.</td></tr>
 <tr><td class="ecode">#ССЫЛКА!</td><td>ссылка на несуществующую ячейку</td><td>В Excel удалили строку или столбец, на которые ссылалась формула. В нашей учебной таблице удалять строки нельзя, поэтому эта ошибка здесь не появится.</td><td class="eex">—</td><td>Отменить удаление (Ctrl+Z) или заново указать ячейки в формуле.</td></tr>
 <tr><td class="ecode">#####</td><td>это не ошибка</td><td>Число не помещается в ширину столбца, и Excel показывает решётки.</td><td class="eex">—</td><td>Расширить столбец: потянуть границу заголовка столбца или дважды щёлкнуть по ней.</td></tr>
 </table></div>
@@ -1212,6 +1214,41 @@ const XL_SHEETS = {
     { name: "Все пять функций", text: "В столбце B — по одной формуле на каждую функцию. Нажми на ячейку и посмотри формулу.",
       cells: { A1: "16", A2: "-5", A3: "3", A4: "250", A5: "-100", B1: "=СУММ(A1:A5)", C1: "сумма всех", B2: "=ABS(A2)", C2: "модуль A2", B3: "=КОРЕНЬ(A1)", C3: "корень из A1", B4: "=СТЕПЕНЬ(A3;2)", C4: "A3 в квадрате", B5: "=СУММЕСЛИ(A1:A5;\">0\")", C5: "сумма положительных" },
       sel: "B1", rand: { keys: ["A1", "A2", "A3", "A4", "A5"], min: -50, max: 100 } },
+    { name: "Ошибка #ЧИСЛО!", text: "B — с ошибкой, C — исправлено. Нажми на красную ячейку, чтобы увидеть формулу и причину ошибки, а потом на ячейку рядом — как правильно.",
+      cells: { A1: "Число", B1: "Неправильно", C1: "Исправлено", D1: "Что случилось",
+        A2: "-16", B2: "=КОРЕНЬ(A2)", C2: "=КОРЕНЬ(ABS(A2))", D2: "корень из отрицательного",
+        A3: "10", B3: "=СТЕПЕНЬ(A3;400)", C3: "=СТЕПЕНЬ(A3;4)", D3: "слишком большое число",
+        A4: "0", B4: "=СТЕПЕНЬ(A4;0)", C4: "=СТЕПЕНЬ(A4;2)", D4: "0 в степени 0" },
+      sel: "B2" },
+    { name: "Ошибка #ИМЯ?", text: "B — с ошибкой, C — исправлено. Нажми на красную ячейку, чтобы увидеть формулу и причину ошибки, а потом на ячейку рядом — как правильно.",
+      cells: { A1: "Числа", B1: "Неправильно", C1: "Исправлено", D1: "Что случилось",
+        A2: "5", A3: "10", A4: "15", A5: "20",
+        B2: "=СУМ(A2:A5)", C2: "=СУММ(A2:A5)", D2: "опечатка в имени",
+        B3: "=SUM(A2:A5)", C3: "=СУММ(A2:A5)", D3: "английское имя",
+        B4: "=СУММ(А2:A5)", C4: "=СУММ(A2:A5)", D4: "русская «А» в адресе",
+        B5: "=СУММЕСЛИ(A2:A5;больше)", C5: "=СУММЕСЛИ(A2:A5;\">10\")", D5: "условие без кавычек" },
+      sel: "B2" },
+    { name: "Ошибка #ЗНАЧ!", text: "C — с ошибкой, D — исправлено. Нажми на красную ячейку, чтобы увидеть формулу и причину ошибки, а потом на ячейку рядом — как правильно.",
+      cells: { A1: "Товар", B1: "Цена", C1: "Неправильно", D1: "Исправлено", E1: "Что случилось",
+        A2: "Хлеб", B2: "250", A3: "Молоко", B3: "480",
+        C2: "=A2+B2", D2: "=B2+B3", E2: "к слову «Хлеб» прибавили число",
+        C3: "=ABS(A3)", D3: "=ABS(B3)", E3: "модуль от слова" },
+      sel: "C2" },
+    { name: "Ошибка #ДЕЛ/0!", text: "Делим сумму на число человек. C — с ошибкой, D — исправлено. Нажми на красную ячейку, чтобы увидеть формулу и причину ошибки, а потом на ячейку рядом — как правильно.",
+      cells: { A1: "Сумма", B1: "Человек", C1: "Неправильно", D1: "Исправлено", E1: "Что случилось",
+        A2: "1200", B2: "0", C2: "=A2/B2", D2: "=A2/4", E2: "делитель равен нулю",
+        A3: "1200", C3: "=A3/B3", D3: "=A3/4", E3: "делитель — пустая ячейка" },
+      sel: "C2" },
+    { name: "Ошибка записи", text: "B — формулы с ошибкой записи, C — исправлено. В Excel неправильную формулу не дадут ввести. Нажми на красную ячейку, чтобы увидеть формулу и причину ошибки, а потом на ячейку рядом — как правильно.",
+      cells: { A1: "Числа", B1: "Неправильно", C1: "Исправлено", D1: "Что случилось",
+        A2: "2", A3: "3",
+        B2: "=СТЕПЕНЬ(2,3)", C2: "=СТЕПЕНЬ(2;3)", D2: "запятая вместо «;»",
+        B3: "=СУММ(A2:A3", C3: "=СУММ(A2:A3)", D3: "нет закрывающей скобки",
+        B4: "=ABS(-3;-5)", C4: "=ABS(-3)", D4: "лишний аргумент" },
+      sel: "B2" },
+    { name: "Циклическая ссылка", text: "Формула в A5 складывает и саму себя. B5 — исправлено. Нажми на красную ячейку, чтобы увидеть формулу и причину ошибки, а потом на ячейку рядом — как правильно.",
+      cells: { A1: "Числа", A2: "10", A3: "20", A4: "30", A5: "=СУММ(A2:A5)", B5: "=СУММ(A2:A4)", B1: "Исправлено", C5: "A5 входит в свой же диапазон" },
+      sel: "A5" },
     { name: "Пустой лист", text: "Чистый лист: впиши свои числа и формулы.", cells: {}, sel: "A1" }
   ]
 };
@@ -1406,10 +1443,13 @@ function xlMount(root, examples) {
       select(S.sel[0] + Math.min(r + 1, ROWS));
     }
   });
+  root.xlLoad = i => { stopPlay(); load(i); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
   root.xlTry = f => { stopPlay(); S.cells.H10 = f; recalc(); select("H10"); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
   load(0);
 }
 document.addEventListener("click", e => {
+  const sx = e.target.closest(".showex");
+  if (sx) { const xl = document.querySelector('.xl[data-sheet="all"]'); if (xl && xl.xlLoad) xl.xlLoad(+sx.dataset.ex); return; }
   const b = e.target.closest(".tryf"); if (!b) return;
   const xl = b.closest(".fcard").querySelector(".xl");
   if (xl && xl.xlTry) xl.xlTry(b.dataset.f);
