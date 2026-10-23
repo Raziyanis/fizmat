@@ -279,8 +279,8 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .err-table .tryf { display: inline-block; margin: 0 4px 4px 0; }
 .showex { display: block; margin-bottom: 6px; border: 0; background: var(--bad); color: var(--surface); border-radius: 4px; padding: 3px 10px; font-size: .85rem; font-weight: 700; }
 .showex:hover { filter: brightness(1.1); }
-.lv-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-@media (max-width: 560px) { .lv-tabs { grid-template-columns: minmax(0, 1fr); } }
+.lv-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 760px) { .lv-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .lv { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 10px 12px; position: relative; }
 .lv .lv-name { font-weight: 700; font-family: var(--f-mono); }
 .lv small { color: var(--muted); }
@@ -305,6 +305,17 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .xl-grid td.target { background: var(--tgt); box-shadow: inset 0 0 0 2px var(--tgtb); }
 .pr-note { margin: 0; font-size: .9rem; color: var(--muted); font-family: var(--f-mono); }
 .pr-note.full { color: var(--c); }
+.cg { display: grid; gap: 8px; min-width: 0; }
+.cg-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cg-name { font-family: var(--f-mono); font-weight: 700; font-size: 1.1rem; min-width: 5.5rem; text-align: center; padding: 4px 10px; border: 1px solid var(--line); background: var(--head); border-radius: 4px; }
+.cg-size { color: var(--muted); font-size: .92rem; }
+.cg-grid { touch-action: none; }
+.cg-grid td { cursor: cell; }
+.cg-grid td.given { background: color-mix(in srgb, var(--refc) 22%, var(--surface)); box-shadow: inset 0 0 0 2px var(--refc); }
+.cg-grid td.picked { background: color-mix(in srgb, var(--c) 22%, var(--surface)); box-shadow: inset 0 0 0 2px var(--c); }
+.cg-answer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cg-answer label { font-weight: 700; }
+.cg-in { font: inherit; font-family: var(--f-mono); font-size: 1.1rem; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 12rem; max-width: 100%; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -636,10 +647,11 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
   <div class="panel" id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
     <div>
       <h1>Практика</h1>
-      <p class="lead">Задания на трёх уровнях — от простого к сложному. Начни с уровня A. Решил все задания уровня — переходи к следующему. Таблица проверяет формулу и на других числах, поэтому вписать готовый ответ не получится.</p>
+      <p class="lead">Сначала разминка: научись находить ячейки и записывать диапазоны. Потом задания на формулы трёх уровней — от простого к сложному. Решил все задания уровня — переходи к следующему. Таблица проверяет формулу и на других числах, поэтому вписать готовый ответ не получится.</p>
     </div>
     <section class="block">
       <div class="lv-tabs" role="tablist" aria-label="Уровни">
+        <button type="button" class="lv" data-lv="0" role="tab"><span class="lv-name">0 · Ячейки</span><small>разминка для всех</small><span class="lv-c" id="lvc0"></span></button>
         <button type="button" class="lv" data-lv="A" role="tab"><span class="lv-name">A · Базовый</span><small>для всех</small><span class="lv-c" id="lvcA"></span></button>
         <button type="button" class="lv" data-lv="B" role="tab"><span class="lv-name">B · Средний</span><small>для большинства</small><span class="lv-c" id="lvcB"></span></button>
         <button type="button" class="lv" data-lv="C" role="tab"><span class="lv-name">C · Высокий</span><small>для некоторых</small><span class="lv-c" id="lvcC"></span></button>
@@ -1517,9 +1529,150 @@ document.addEventListener("click", e => {
 });
 document.querySelectorAll(".xl[data-sheet]").forEach(el => xlMount(el, XL_SHEETS[el.dataset.sheet]));
 
+/* Разминка «Ячейки и диапазоны»: найти ячейку, назвать адрес, выделить диапазон мышью */
+const CELL_COLS = ["A", "B", "C", "D", "E", "F"], CELL_ROWS = 7;
+const CELL_SHOP = { A1: "Товар", B1: "Цена", A2: "Хлеб", B2: "250", A3: "Молоко", B3: "480", A4: "Яблоки", B4: "900", A5: "Сыр", B5: "1500", A6: "Вода", B6: "200" };
+const CELL_JOURNAL = { A1: "Ученик", B1: "Зад. 1", C1: "Зад. 2", D1: "Зад. 3", E1: "Зад. 4", F1: "Зад. 5",
+  A2: "Айдана", B2: "8", C2: "10", D2: "7", E2: "9", F2: "10", A3: "Тимур", B3: "6", C3: "9", D3: "8", E3: "7", F3: "5",
+  A4: "Дана", B4: "10", C4: "10", D4: "9", E4: "8", F4: "10", A5: "Арман", B5: "7", C5: "6", D5: "9", E5: "10", F5: "8",
+  A6: "Мадина", B6: "9", C6: "8", D6: "10", E6: "6", F6: "9" };
+const TASKS_CELL = [
+  { id: "Z1", type: "click", q: "Щёлкни по ячейке C3.", target: "C3", cells: {},
+    hint: "C — это столбец (буквы сверху), 3 — строка (числа слева). Ячейка C3 там, где они пересекаются." },
+  { id: "Z2", type: "name", q: "Какой адрес у выделенной ячейки? Напиши его.", show: "B5", target: "B5", cells: {},
+    hint: "Сначала буква столбца, потом номер строки. Буква — латинская: переключи раскладку на английскую." },
+  { id: "Z3", type: "name", q: "Как записать выделенный диапазон?", show: "B2:B6", target: "B2:B6", cells: CELL_SHOP,
+    hint: "Диапазон записывают так: первая ячейка, двоеточие, последняя ячейка. Например, A1:A5." },
+  { id: "Z4", type: "drag", q: "Выдели мышью все цены — без заголовка «Цена».", target: "B2:B6", cells: CELL_SHOP,
+    hint: "Нажми на первую цену и, не отпуская кнопку мыши, протяни до последней. Адрес выделения видно слева от таблицы." },
+  { id: "Z5", type: "drag", q: "Выдели все баллы Тимура.", target: "B3:F3", cells: CELL_JOURNAL,
+    hint: "Баллы Тимура стоят в его строке, от столбца B до столбца F. Имя в выделение не входит." },
+  { id: "Z6", type: "name", q: "Как записать выделенный прямоугольник?", show: "B2:D4", target: "B2:D4", cells: {},
+    hint: "Для прямоугольника берут левую верхнюю ячейку и правую нижнюю, а между ними ставят двоеточие." },
+  { id: "Z7", type: "count", q: "Сколько ячеек в диапазоне A1:C4? Можешь выделить его мышью и проверить.", target: 12, cells: {},
+    hint: "Посчитай столбцы (A, B, C) и строки (с 1 по 4) и перемножь." },
+  { id: "Z8", type: "drag", q: "Выдели баллы всех учеников за все задания — без имён и заголовков.", target: "B2:F6", cells: CELL_JOURNAL,
+    hint: "Левая верхняя ячейка — первый балл Айданы, правая нижняя — последний балл Мадины." }
+];
+
+TASKS_CELL.forEach(t => { t.lv = "0"; });
+
+function cellRect(a, b) {
+  const c1 = Math.min(a.charCodeAt(0), b.charCodeAt(0)), c2 = Math.max(a.charCodeAt(0), b.charCodeAt(0));
+  const r1 = Math.min(+a.slice(1), +b.slice(1)), r2 = Math.max(+a.slice(1), +b.slice(1));
+  return { c1, c2, r1, r2 };
+}
+function rectText(r) {
+  const tl = String.fromCharCode(r.c1) + r.r1, br = String.fromCharCode(r.c2) + r.r2;
+  return tl === br ? tl : tl + ":" + br;
+}
+function rectOf(addr) { const [a, b] = addr.split(":"); return cellRect(a, b || a); }
+const rectSize = r => (r.c2 - r.c1 + 1) * (r.r2 - r.r1 + 1);
+const rectEq = (x, y) => x.c1 === y.c1 && x.c2 === y.c2 && x.r1 === y.r1 && x.r2 === y.r2;
+const rectIn = (inner, outer) => inner.c1 >= outer.c1 && inner.c2 <= outer.c2 && inner.r1 >= outer.r1 && inner.r2 <= outer.r2;
+
+function cellCheck(t, st, typed) {
+  if (t.type === "click" || t.type === "drag") {
+    if (!st.sel) return { ok: false, msg: "Сначала выдели ячейки в таблице." };
+    const want = rectOf(t.target), got = st.sel;
+    if (rectEq(want, got)) return { ok: true, msg: `Верно! Выделено ${rectText(got)}` + (rectSize(got) > 1 ? ` — ${rectSize(got)} ячеек.` : ".") };
+    if (t.type === "click") return { ok: false, msg: `Ты выбрал ${rectText(got)}, а нужна C3. Найди столбец C сверху и строку 3 слева.` };
+    if (rectSize(got) === 1) return { ok: false, msg: "Выделена одна ячейка. Нажми на первую нужную ячейку и протяни мышью до последней." };
+    if (got.r1 === 1 && want.r1 > 1) return { ok: false, msg: `В выделение попала строка заголовков. Начни со строки ${want.r1}.` };
+    if (got.c1 === 65 && want.c1 > 65) return { ok: false, msg: "В выделение попал столбец A с названиями. Начни со столбца B." };
+    if (rectIn(want, got)) return { ok: false, msg: `Выделено ${rectText(got)} — это больше, чем нужно.` };
+    if (rectIn(got, want)) return { ok: false, msg: `Выделено ${rectText(got)} — это не всё, что нужно.` };
+    return { ok: false, msg: `Выделено ${rectText(got)}, а нужен другой диапазон. Перечитай задание.` };
+  }
+  if (t.type === "count") {
+    const n = parseInt(String(typed).trim(), 10);
+    if (Number.isNaN(n)) return { ok: false, msg: "Впиши число." };
+    return n === t.target ? { ok: true, msg: "Верно! 3 столбца × 4 строки = 12 ячеек." } : { ok: false, msg: `Не ${n}. Посчитай, сколько столбцов и сколько строк в диапазоне.` };
+  }
+  const raw = String(typed).trim();
+  if (!raw) return { ok: false, msg: "Впиши адрес." };
+  if (/[А-Яа-яЁё]/.test(raw)) return { ok: false, msg: "В адресе русская буква. Переключи раскладку на английскую: адреса пишут латиницей." };
+  const s = raw.toUpperCase().replace(/\s+/g, "").replace(/\$/g, "");
+  if (/^[A-Z]\d+[;\-–,.][A-Z]\d+$/.test(s)) return { ok: false, msg: "Между первой и последней ячейкой диапазона ставится двоеточие «:»." };
+  if (/^\d+[A-Z]/.test(s)) return { ok: false, msg: "Сначала пишут букву столбца, потом номер строки: B5, а не 5B." };
+  if (!/^[A-Z]\d+(:[A-Z]\d+)?$/.test(s)) return { ok: false, msg: "Адрес записывается так: буква и число (B5). Диапазон — две ячейки через двоеточие (B2:B6)." };
+  const want = rectOf(t.target), got = rectOf(s);
+  const isRange = t.target.includes(":");
+  if (isRange && !s.includes(":")) return { ok: false, msg: "Это адрес одной ячейки, а выделен диапазон. Напиши первую и последнюю ячейку через двоеточие." };
+  if (!rectEq(want, got)) return { ok: false, msg: `${s} — это другие ячейки. Посмотри, где начинается и где заканчивается выделение.` };
+  if (s !== t.target) return { ok: true, msg: `Верно! Обычно пишут от левой верхней ячейки к правой нижней: ${t.target}.` };
+  return { ok: true, msg: "Верно!" };
+}
+
+function cellBuild(box) {
+  box.insertAdjacentHTML("afterbegin", TASKS_CELL.map(t => `
+    <section class="block task-card" data-lv="0" id="pt-${t.id}" hidden>
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">${{ click: "найди ячейку", name: "назови адрес", drag: "выдели мышью", count: "посчитай" }[t.type]}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <div class="cg">
+        <div class="cg-bar"><span class="cg-name" title="Адрес выделения"></span><span class="cg-size"></span></div>
+        <div class="xl-wrap"><table class="xl-grid cg-grid">
+          <tr><th class="xl-corner"></th>${CELL_COLS.map(c => `<th>${c}</th>`).join("")}</tr>
+          ${Array.from({ length: CELL_ROWS }, (_, r) => `<tr><th>${r + 1}</th>${CELL_COLS.map(c => `<td data-k="${c}${r + 1}">${xlFmt(xlNum(t.cells[c + (r + 1)] ?? "") ?? (t.cells[c + (r + 1)] ?? ""))}</td>`).join("")}</tr>`).join("")}
+        </table></div>
+      </div>
+      ${t.type === "name" || t.type === "count" ? `<div class="cg-answer"><label for="cin-${t.id}">${t.type === "name" ? "Адрес:" : "Ячеек:"}</label><input type="text" id="cin-${t.id}" class="cg-in" autocomplete="off" spellcheck="false" placeholder="${t.type === "name" ? "например, A1 или A1:A5" : "число"}"></div>` : ""}
+      <div class="tc-actions">
+        <button type="button" class="btn main tc-check">Проверить</button>
+        <button type="button" class="btn tc-hintbtn">Подсказка</button>
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join(""));
+
+  TASKS_CELL.forEach(t => {
+    const card = document.getElementById("pt-" + t.id), grid = card.querySelector(".cg-grid"), msg = card.querySelector(".tc-msg");
+    const st = { sel: null, anchor: null, drag: false };
+    if (t.show) { const r = rectOf(t.show); grid.querySelectorAll("td").forEach(td => { const k = td.dataset.k, c = k.charCodeAt(0), n = +k.slice(1); if (c >= r.c1 && c <= r.c2 && n >= r.r1 && n <= r.r2) td.classList.add("given"); }); }
+    grid.querySelectorAll("td").forEach(td => { if (xlNum(td.textContent.replace(/\s/g, "")) !== null) td.classList.add("n"); });
+    function paint() {
+      grid.querySelectorAll("td").forEach(td => {
+        const k = td.dataset.k, c = k.charCodeAt(0), n = +k.slice(1), r = st.sel;
+        td.classList.toggle("picked", !!r && c >= r.c1 && c <= r.c2 && n >= r.r1 && n <= r.r2);
+      });
+      card.querySelector(".cg-name").textContent = st.sel ? rectText(st.sel) : "—";
+      card.querySelector(".cg-size").textContent = st.sel ? `выделено ячеек: ${rectSize(st.sel)}` : "Выдели ячейку щелчком или диапазон — протяни мышью";
+    }
+    const tdAt = e => { const el = document.elementFromPoint(e.clientX, e.clientY); const td = el && el.closest ? el.closest("td[data-k]") : null; return td && grid.contains(td) ? td : null; };
+    grid.addEventListener("pointerdown", e => {
+      const td = e.target.closest("td[data-k]"); if (!td) return;
+      e.preventDefault();
+      st.anchor = e.shiftKey && st.anchor ? st.anchor : td.dataset.k;
+      st.sel = cellRect(st.anchor, td.dataset.k); st.drag = true;
+      try { grid.setPointerCapture(e.pointerId); } catch (err) {}
+      msg.textContent = ""; msg.className = "tc-msg"; paint();
+    });
+    grid.addEventListener("pointermove", e => { if (!st.drag) return; const td = tdAt(e); if (td) { st.sel = cellRect(st.anchor, td.dataset.k); paint(); } });
+    const stop = () => { st.drag = false; };
+    grid.addEventListener("pointerup", stop); grid.addEventListener("pointercancel", stop);
+    const inp = card.querySelector(".cg-in");
+    if (inp) inp.addEventListener("keydown", e => { if (e.key === "Enter") card.querySelector(".tc-check").click(); });
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = cellCheck(t, st, inp ? inp.value : "");
+      const all = prLoad(), tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      all[t.id] = { ok: r.ok, tries }; prSave(all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      card.classList.toggle("done", r.ok); card.querySelector(".tc-status").textContent = r.ok ? "✓ решено" : "";
+      prRender();
+      if (r.ok && TASKS_CELL.every(x => (prLoad()[x.id] || {}).ok)) msg.textContent += " Разминка пройдена — переходи к уровню A.";
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    const saved = prLoad()[t.id];
+    if (saved && saved.ok) { card.classList.add("done"); card.querySelector(".tc-status").textContent = "✓ решено"; }
+    paint();
+  });
+}
+
 /* Практика: задания трёх уровней с автопроверкой формулы на других числах */
 const PR_KEY = "practice-l1";
 const LEVELS_PR = {
+  "0": { name: "0 · Ячейки", who: "разминка", desc: "Найди ячейку, назови адрес, выдели диапазон мышью. Без этого формулы не написать." },
   A: { name: "A · Базовый", who: "для всех", desc: "Одна функция, данные уже в таблице. Нужно только правильно записать формулу." },
   B: { name: "B · Средний", who: "для большинства", desc: "Функция с двумя аргументами, несколько формул или формула из двух частей." },
   C: { name: "C · Высокий", who: "для некоторых", desc: "Условия, вложенные функции и задачи, где нужно самому придумать формулу." }
@@ -1623,13 +1776,14 @@ function prCheck(t, S) {
   return { ok: true };
 }
 
+function prAll() { return [...TASKS_CELL, ...TASKS_PR]; }
 function prRender() {
   const d = prLoad();
-  const solved = TASKS_PR.filter(t => d[t.id] && d[t.id].ok).length;
-  document.getElementById("prBar").style.width = (solved / TASKS_PR.length * 100) + "%";
-  document.getElementById("prNum").textContent = `Решено: ${solved} из ${TASKS_PR.length}`;
+  const solved = prAll().filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("prBar").style.width = (solved / prAll().length * 100) + "%";
+  document.getElementById("prNum").textContent = `Решено: ${solved} из ${prAll().length}`;
   Object.keys(LEVELS_PR).forEach(lv => {
-    const list = TASKS_PR.filter(t => t.lv === lv), ok = list.filter(t => d[t.id] && d[t.id].ok).length;
+    const list = prAll().filter(t => t.lv === lv), ok = list.filter(t => d[t.id] && d[t.id].ok).length;
     document.getElementById("lvc" + lv).textContent = `${ok}/${list.length}`;
     document.querySelector(`.lv[data-lv="${lv}"]`).classList.toggle("full", ok === list.length);
   });
@@ -1660,6 +1814,7 @@ function prBuild() {
       <p class="tc-msg" aria-live="polite"></p>
       <p class="tc-hint" hidden>${t.hint}</p>
     </section>`).join("");
+  cellBuild(box);
   const d = prLoad();
   TASKS_PR.forEach(t => {
     const card = document.getElementById("pt-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg");
@@ -1698,7 +1853,7 @@ function prBuild() {
   });
   document.querySelectorAll(".lv").forEach(b => b.addEventListener("click", () => prShowLevel(b.dataset.lv)));
   document.getElementById("lvNext").addEventListener("click", e => { prShowLevel(e.currentTarget.dataset.lv); document.getElementById("practice").scrollIntoView({ behavior: "smooth" }); });
-  prShowLevel(store.get("practice-lv", "A"));
+  prShowLevel(store.get("practice-lv", "0"));
   prRender();
 }
 prBuild();
@@ -1738,8 +1893,10 @@ function fillReflect() {
     const lv = "ABC"[i], list = TASKS_PR.filter(t => t.lv === lv), ok = list.filter(t => pd[t.id] && pd[t.id].ok).length;
     let n = el.querySelector(".pr-note");
     if (!n) { n = document.createElement("p"); n.className = "pr-note"; el.insertBefore(n, el.querySelector("fieldset")); }
-    n.textContent = `Практика, уровень ${lv}: решено ${ok} из ${list.length}`;
-    n.classList.toggle("full", ok === list.length);
+    let txt = `Практика, уровень ${lv}: решено ${ok} из ${list.length}`, full = ok === list.length;
+    if (i === 0) { const z = TASKS_CELL.filter(t => pd[t.id] && pd[t.id].ok).length; txt = `Разминка «Ячейки»: ${z} из ${TASKS_CELL.length} · ` + txt; full = full && z === TASKS_CELL.length; }
+    n.textContent = txt;
+    n.classList.toggle("full", full);
   });
   if (saved) showSummary(saved);
 }
