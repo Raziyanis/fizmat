@@ -124,6 +124,17 @@ input.wrong { border-color: var(--bad); }
 @media (max-width: 520px) { .res { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
 code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; white-space: nowrap; }
 .next { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.howto { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.howto li { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr); gap: 10px; align-items: start; font-size: 1.05rem; }
+.hn { width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--c); color: var(--surface); font-family: var(--f-mono); font-weight: 600; font-size: .85rem; display: flex; align-items: center; justify-content: center; }
+.example { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; padding: 10px 12px; background: var(--bg); border: 1px dashed var(--line); border-radius: 6px; }
+.ex-label { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.ex-cell { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 2.6rem; height: 3rem; border: 1px solid var(--line); background: var(--surface); font-family: var(--f-mono); }
+.ex-cell b { font-family: var(--f-display); font-size: 1.2rem; color: var(--line); line-height: 1; }
+.ex-cell small { font-size: .66rem; color: var(--muted); }
+.ex-cell.open { background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
+.ex-cell.open b { color: var(--c); }
+.arrow { color: var(--muted); }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -144,9 +155,28 @@ code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); borde
   <!-- Этап 1: разгадать тему -->
   <div class="panel" id="puzzle" role="tabpanel" aria-labelledby="tab-puzzle">
     <div>
-      <h1>Какая тема сегодня?</h1>
-      <p class="lead">Тема урока спрятана в ячейках таблицы. Номер под ячейкой — это номер задания. Решите задание, и буква откроется во всех ячейках с этим номером.</p>
+      <h1>Разгадай тему урока</h1>
     </div>
+
+    <section class="block how">
+      <h2>Как играть</h2>
+      <ol class="howto">
+        <li><span class="hn">1</span><span>В каждой ячейке таблицы спрятана буква. <b>Маленькая цифра под «?»</b> — это номер задания.</span></li>
+        <li><span class="hn">2</span><span>Найди <b>задание с этим номером</b> ниже. Посчитай, какое число вернёт формула, и впиши его в поле «Ответ».</span></li>
+        <li><span class="hn">3</span><span>Нажми <b>«Проверить»</b>. Если ответ верный, буква появится во всех ячейках с этим номером.</span></li>
+        <li><span class="hn">4</span><span>Открой все буквы или впиши тему целиком, если догадался раньше. После этого откроется <b>тема и цель урока</b>.</span></li>
+      </ol>
+      <div class="example">
+        <span class="ex-label">Пример</span>
+        <span class="ex-cell"><b>?</b><small>5</small></span>
+        <span class="arrow">→</span>
+        <span>задание 5: <code>=КОРЕНЬ(49)</code></span>
+        <span class="arrow">→</span>
+        <span>ответ <b>7</b></span>
+        <span class="arrow">→</span>
+        <span class="ex-cell open"><b>Т</b><small>5</small></span>
+      </div>
+    </section>
 
     <section class="block">
       <h2>Лист «Тема»</h2>
@@ -164,7 +194,7 @@ code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); borde
     </section>
 
     <section class="block">
-      <h2>Задания · что вернёт формула?</h2>
+      <h2>Задания · какое число вернёт формула?</h2>
       <div class="tasks" id="tasks"></div>
     </section>
     <button class="reset" type="button" id="resetBtn">Начать заново</button>
@@ -249,7 +279,7 @@ function buildTasks() {
       ${t.table ? `<table class="mini"><tr><th></th><th>A</th></tr>${t.table.map((v, i) => `<tr><th>${i + 1}</th><td>${v}</td></tr>`).join("")}</table>` : ""}
       <div class="formula">${t.f.replace(/</g, "&lt;")}</div>
       <div class="row">
-        <input type="text" inputmode="numeric" id="in-${t.n}" aria-label="Ответ к заданию ${t.n}" placeholder="Ответ" autocomplete="off">
+        <input type="text" inputmode="numeric" id="in-${t.n}" aria-label="Ответ к заданию ${t.n}" placeholder="Ответ — число" autocomplete="off">
         <button class="btn" type="button" data-check="${t.n}">Проверить</button>
       </div>
       <details><summary>Подсказка</summary><p>${t.hint}</p></details>
