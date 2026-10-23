@@ -268,6 +268,11 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .th-ex td.r { font-family: var(--f-mono); font-weight: 600; white-space: nowrap; }
 .tryf { font-family: var(--f-mono); font-size: .9rem; border: 1px solid var(--c); color: var(--c); background: var(--surface); border-radius: 4px; padding: 2px 8px; white-space: nowrap; }
 .tryf:hover { background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+.xl-keys { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.xl-keys-lab { font-size: .82rem; color: var(--muted); margin-right: 4px; }
+.xl-key { font-family: var(--f-mono); font-size: .85rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 4px; padding: 3px 8px; }
+.xl-key:hover { border-color: var(--c); color: var(--c); }
+.xl-grid { user-select: none; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -1168,6 +1173,10 @@ function xlMount(root, examples) {
       </div>
     </div>
     <p class="xl-text"></p>
+    <div class="xl-keys" aria-label="Вставить в формулу">
+      <span class="xl-keys-lab">Вставить:</span>
+      ${["=", "СУММ(", "ABS(", "КОРЕНЬ(", "СТЕПЕНЬ(", "СУММЕСЛИ(", ";", ":", ")", "\">0\"", "\"<0\""].map(k => `<button type="button" class="xl-key" data-ins="${k.replace(/"/g, "&quot;")}">${k.replace(/</g, "&lt;")}</button>`).join("")}
+    </div>
     <div class="xl-bar">
       <span class="xl-name" aria-live="polite"></span>
       <span class="xl-fx">fx</span>
@@ -1178,7 +1187,7 @@ function xlMount(root, examples) {
       ${Array.from({ length: ROWS }, (_, r) => `<tr><th>${r + 1}</th>${XL_COLS.map(c => `<td tabindex="-1" data-k="${c}${r + 1}"></td>`).join("")}</tr>`).join("")}
     </table></div>
     <p class="xl-explain"></p>
-    <p class="xl-hint">Нажми на любую ячейку: её содержимое появится в строке <b>fx</b>. Там можно менять числа и формулы — таблица сразу пересчитает.</p>`;
+    <p class="xl-hint">Нажми на ячейку — её содержимое появится в строке <b>fx</b>. <b>Пишешь формулу?</b> Щёлкни по ячейке, и её адрес вставится сам. Протяни мышью по нескольким ячейкам — вставится диапазон, например A1:A5. Раскладку менять не нужно.</p>`;
   const $ = s => root.querySelector(s);
   const inp = $(".xl-in"), grid = $(".xl-grid"), playBtn = $(".xl-play");
 
@@ -1272,7 +1281,55 @@ function xlMount(root, examples) {
   root.querySelector(".xl-ex").addEventListener("click", e => { const b = e.target.closest("[data-ex]"); if (b) { stopPlay(); load(+b.dataset.ex); } });
   $(".xl-rand").addEventListener("click", () => { stopPlay(); randomize(); });
   $(".xl-reset").addEventListener("click", () => { stopPlay(); load(S.ex); });
-  grid.addEventListener("click", e => { const td = e.target.closest("td[data-k]"); if (td) { stopPlay(); select(td.dataset.k); } });
+  /* Режим указания: пока пишется формула, щелчок по ячейке вставляет её адрес, протягивание — диапазон */
+  let point = null, pointed = false;
+  const editingFormula = () => document.activeElement === inp && inp.value.trim().startsWith("=");
+  function rangeText(a, b) {
+    if (a === b) return a;
+    const c1 = Math.min(a.charCodeAt(0), b.charCodeAt(0)), c2 = Math.max(a.charCodeAt(0), b.charCodeAt(0));
+    const r1 = Math.min(+a.slice(1), +b.slice(1)), r2 = Math.max(+a.slice(1), +b.slice(1));
+    return String.fromCharCode(c1) + r1 + ":" + String.fromCharCode(c2) + r2;
+  }
+  function putText(start, oldLen, txt) {
+    inp.value = inp.value.slice(0, start) + txt + inp.value.slice(start + oldLen);
+    inp.setSelectionRange(start + txt.length, start + txt.length);
+    S.cells[S.sel] = inp.value; recalc(); render();
+  }
+  grid.addEventListener("mousedown", e => {
+    const td = e.target.closest("td[data-k]");
+    pointed = false;
+    if (!td || !editingFormula() || td.dataset.k === S.sel) return;
+    e.preventDefault();
+    const start = inp.selectionStart, end = inp.selectionEnd;
+    inp.value = inp.value.slice(0, start) + inp.value.slice(end);
+    point = { start, len: 0, anchor: td.dataset.k };
+    putText(start, 0, td.dataset.k);
+    point.len = td.dataset.k.length;
+    pointed = true;
+  });
+  grid.addEventListener("mouseover", e => {
+    if (!point || !(e.buttons & 1)) return;
+    const td = e.target.closest("td[data-k]"); if (!td) return;
+    const txt = rangeText(point.anchor, td.dataset.k);
+    putText(point.start, point.len, txt);
+    point.len = txt.length;
+  });
+  document.addEventListener("mouseup", () => { point = null; });
+  grid.addEventListener("click", e => {
+    if (pointed) { pointed = false; inp.focus(); return; }
+    const td = e.target.closest("td[data-k]"); if (td) { stopPlay(); select(td.dataset.k); }
+  });
+  root.querySelector(".xl-keys").addEventListener("mousedown", e => { if (e.target.closest(".xl-key")) e.preventDefault(); });
+  root.querySelector(".xl-keys").addEventListener("click", e => {
+    const b = e.target.closest(".xl-key"); if (!b) return;
+    stopPlay();
+    let ins = b.dataset.ins;
+    if (document.activeElement !== inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    if (ins !== "=" && !inp.value.trim().startsWith("=")) { inp.value = ""; ins = "=" + ins; }
+    if (ins === "=") { inp.value = ""; }
+    const st = inp.selectionStart;
+    putText(st, inp.selectionEnd - st, ins);
+  });
   grid.addEventListener("dblclick", e => { if (e.target.closest("td[data-k]")) { inp.focus(); inp.select(); } });
   grid.addEventListener("keydown", e => {
     const k = S.sel, c = XL_COLS.indexOf(k[0]), r = +k.slice(1);
