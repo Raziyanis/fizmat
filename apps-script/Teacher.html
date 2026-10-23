@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<base target="_top">
+<title>Экран учителя</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=PT+Sans:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: шапка с вопросом классу, вкладки «Доска · Лента попыток · Ответы из урока · Прогресс», карточки как в Padlet */
+:root {
+  --bg: #f3f6f7; --surface: #ffffff; --ink: #16212a; --muted: #5a6a76; --line: #d7e0e5; --head: #e9eef1;
+  --c: #1d7652; --bad: #b3372b; --okbg: #e6f3ed; --badbg: #fbeceb;
+  --card1: #fff7d6; --card2: #e4f1ff; --card3: #e8f6ec; --card4: #f6e9ff; --card5: #ffe9df;
+  --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --f-body: "PT Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Consolas", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
+    --c: #4cc093; --bad: #f07b6e; --okbg: #17302a; --badbg: #3a2020;
+    --card1: #3a3418; --card2: #1b2c3f; --card3: #1c3326; --card4: #2f2140; --card5: #3d2a20; color-scheme: dark; }
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html.big { font-size: 130%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 1rem; line-height: 1.45; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 16px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); }
+button { font: inherit; cursor: pointer; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 7px 12px; border-radius: 6px; }
+.btn:hover { border-color: var(--muted); }
+.btn.main { background: var(--c); border-color: var(--c); color: var(--surface); font-weight: 700; }
+.btn.danger { border-color: var(--bad); color: var(--bad); }
+:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+input, textarea, select { font: inherit; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.top h1 { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: 1.35rem; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.state { font-size: .85rem; color: var(--muted); }
+.state.on { color: var(--c); }
+
+.pin { max-width: 380px; margin: 12vh auto 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: grid; gap: 10px; }
+.pin h1 { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: 1.3rem; }
+.err { color: var(--bad); margin: 0; min-height: 1.2em; }
+
+.ask { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; margin-bottom: 14px; }
+.ask-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ask-row textarea { flex: 1 1 360px; min-width: 0; resize: vertical; }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.preset { border: 1px dashed var(--c); color: var(--c); background: none; border-radius: 999px; padding: 3px 10px; font-size: .88rem; }
+.live { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 8px; background: var(--okbg); }
+.live b { font-size: 1.1rem; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+@media (prefers-reduced-motion: no-preference) { .dot { animation: pulse 1.4s infinite; } @keyframes pulse { 50% { opacity: .3; } } }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 14px; flex-wrap: wrap; }
+.tab { background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px; color: var(--muted); font-weight: 700; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--c); }
+.tab .n { font-family: var(--f-mono); font-size: .8rem; margin-left: 4px; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.qtitle { font-family: var(--f-display); font-size: 1.4rem; margin: 0 0 12px; line-height: 1.3; }
+
+.wall { columns: 280px; column-gap: 12px; }
+.card { break-inside: avoid; margin: 0 0 12px; border-radius: 10px; padding: 12px 14px; background: var(--card1); border: 1px solid var(--line); display: grid; gap: 6px; }
+.card:nth-child(5n+2) { background: var(--card2); } .card:nth-child(5n+3) { background: var(--card3); }
+.card:nth-child(5n+4) { background: var(--card4); } .card:nth-child(5n+5) { background: var(--card5); }
+.card .who { font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
+.card .who small { font-weight: 400; color: var(--muted); font-family: var(--f-mono); }
+.card .txt { font-size: 1.1rem; white-space: pre-wrap; word-break: break-word; }
+.empty { color: var(--muted); padding: 30px 0; text-align: center; }
+
+.feed { display: grid; gap: 8px; }
+.att { display: grid; grid-template-columns: 4.6rem 13rem 11rem minmax(0, 1fr); gap: 10px; align-items: start; padding: 8px 12px; border-radius: 8px; border-left: 5px solid var(--c); background: var(--okbg); }
+.att.no { border-left-color: var(--bad); background: var(--badbg); }
+.att .t { font-family: var(--f-mono); font-size: .82rem; color: var(--muted); }
+.att .nm { font-weight: 700; }
+.att .tk { font-size: .9rem; }
+.att .ans { font-family: var(--f-mono); word-break: break-word; }
+.att .note { display: block; font-family: var(--f-body); font-size: .88rem; color: var(--bad); margin-top: 2px; }
+@media (max-width: 800px) { .att { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+table.pg { border-collapse: collapse; width: 100%; font-size: .92rem; }
+.pg th, .pg td { border-bottom: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+.pg th { background: var(--head); color: var(--muted); font-size: .8rem; position: sticky; top: 0; }
+.pg td.num { font-family: var(--f-mono); white-space: nowrap; }
+.pg td.full { color: var(--c); font-weight: 700; }
+.pg .on { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 6px; }
+.pg .off { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--line); margin-right: 6px; }
+.m2 { color: var(--c); font-weight: 700; } .m1 { color: var(--ink); } .m0 { color: var(--bad); font-weight: 700; }
+.clip { max-width: 22rem; }
+</style>
+</head>
+<body>
+<div class="pin" id="pinBox">
+  <h1>Экран учителя</h1>
+  <label for="pinIn">PIN (лист «Настройки», ячейка B2)</label>
+  <input id="pinIn" type="password" inputmode="numeric" autocomplete="off">
+  <button class="btn main" id="pinGo" type="button">Войти</button>
+  <p class="err" id="pinErr" aria-live="polite"></p>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div class="top">
+    <h1>Математические функции · экран учителя</h1>
+    <div class="tools">
+      <label for="clsSel">Класс:</label>
+      <select id="clsSel"><option value="">все классы</option></select>
+      <button class="btn" type="button" id="bigBtn">Крупно для проектора</button>
+      <span class="state" id="state">загрузка…</span>
+    </div>
+  </div>
+
+  <section class="ask">
+    <div class="live" id="liveBox" hidden><span class="dot"></span><span>Сейчас у учеников открыт вопрос:</span><b id="liveText"></b><button class="btn danger" type="button" id="closeQ">Закрыть вопрос</button></div>
+    <label for="qIn"><b>Задать вопрос классу</b> — у всех учеников всплывёт окно для ответа</label>
+    <div class="ask-row">
+      <textarea id="qIn" rows="2" maxlength="300" placeholder="Например: где в жизни пригодится СУММЕСЛИ?"></textarea>
+      <button class="btn main" type="button" id="openQ">Открыть вопрос</button>
+    </div>
+    <div class="presets" id="presets"></div>
+    <p class="err" id="askErr" aria-live="polite"></p>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" type="button" data-tab="board" aria-selected="true">Доска ответов<span class="n" id="nBoard"></span></button>
+    <button class="tab" type="button" data-tab="feed" aria-selected="false">Лента попыток<span class="n" id="nFeed"></span></button>
+    <button class="tab" type="button" data-tab="lesson" aria-selected="false">Ответы из урока</button>
+    <button class="tab" type="button" data-tab="progress" aria-selected="false">Прогресс<span class="n" id="nProg"></span></button>
+  </div>
+
+  <section id="tab-board">
+    <div class="bar"><label for="qSel">Вопрос:</label><select id="qSel"></select></div>
+    <p class="qtitle" id="boardTitle"></p>
+    <div class="wall" id="wall"></div>
+  </section>
+
+  <section id="tab-feed" hidden>
+    <div class="bar">
+      <label><input type="checkbox" id="onlyBad"> только ошибки</label>
+      <label for="stageSel">Этап:</label>
+      <select id="stageSel"><option value="">все</option><option>4. Какая функция?</option><option>5. Практика</option></select>
+      <label for="taskSel">Задание:</label><select id="taskSel"><option value="">все</option></select>
+    </div>
+    <div class="feed" id="feed"></div>
+  </section>
+
+  <section id="tab-lesson" hidden>
+    <div class="bar">
+      <label for="lessonSel">Показать:</label>
+      <select id="lessonSel">
+        <option value="expect">Мои ожидания от урока</option>
+        <option value="use">Где мне это пригодится</option>
+        <option value="note">Комментарий в итогах</option>
+      </select>
+    </div>
+    <div class="wall" id="lessonWall"></div>
+  </section>
+
+  <section id="tab-progress" hidden>
+    <div class="tablewrap"><table class="pg" id="pg"></table></div>
+  </section>
+
+  <p class="state" style="margin-top:24px">Ответы хранятся в Google Таблице. Перед новым уроком: <button class="btn danger" type="button" id="clearAll">Очистить ответы и попытки</button> <span id="clearMsg"></span></p>
+</div>
+
+<script>
+const gsr = (fn, ...a) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...a));
+const PRESETS = ["Чего вы ждёте от урока?", "Где в жизни пригодится СУММЕСЛИ?", "Почему =СТЕПЕНЬ(2,3) даёт ошибку?", "Чем СУММ отличается от СУММЕСЛИ?", "Какая функция найдёт сторону квадрата по площади?", "Что сегодня было самым трудным?"];
+let PIN = "", DATA = null, tab = "board", qWanted = "", confirmClear = false;
+const el = id => document.getElementById(id);
+function node(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; }
+
+el("pinGo").onclick = login;
+el("pinIn").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+function login() {
+  const p = el("pinIn").value.trim(); el("pinErr").textContent = "Проверяю…";
+  gsr("teacherLogin", p).then(() => { PIN = p; el("pinBox").hidden = true; el("app").hidden = false; refresh(); setInterval(refresh, 3000); })
+    .catch(e => { el("pinErr").textContent = (e && e.message) || "Не получилось."; });
+}
+
+PRESETS.forEach(t => { const b = node("button", "preset", t); b.type = "button"; b.onclick = () => { el("qIn").value = t; el("qIn").focus(); }; el("presets").appendChild(b); });
+el("openQ").onclick = () => {
+  const t = el("qIn").value.trim(); if (!t) { el("askErr").textContent = "Напишите вопрос."; return; }
+  el("askErr").textContent = "Открываю…";
+  gsr("openQuestion", PIN, t).then(q => { el("askErr").textContent = ""; el("qIn").value = ""; qWanted = q.id; setTab("board"); refresh(); })
+    .catch(e => { el("askErr").textContent = e.message; });
+};
+el("closeQ").onclick = () => gsr("closeQuestion", PIN).then(refresh);
+el("qSel").onchange = () => { qWanted = el("qSel").value; refresh(); };
+["clsSel", "onlyBad", "stageSel", "taskSel", "lessonSel"].forEach(id => el(id).addEventListener("change", render));
+el("bigBtn").onclick = () => document.documentElement.classList.toggle("big");
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => setTab(b.dataset.tab));
+function setTab(t) {
+  tab = t;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+  ["board", "feed", "lesson", "progress"].forEach(x => { el("tab-" + x).hidden = x !== t; });
+}
+el("clearAll").onclick = () => {
+  if (!confirmClear) { confirmClear = true; el("clearMsg").textContent = "Нажмите ещё раз, чтобы удалить все ответы и попытки."; return; }
+  confirmClear = false;
+  gsr("clearLessonData", PIN).then(() => { el("clearMsg").textContent = "Очищено."; refresh(); });
+};
+
+function refresh() {
+  gsr("getTeacherData", PIN, qWanted).then(d => {
+    DATA = d; el("state").textContent = "обновлено " + new Date().toLocaleTimeString("ru-RU"); el("state").className = "state on"; render();
+  }).catch(() => { el("state").textContent = "нет связи, повторяю…"; el("state").className = "state"; });
+}
+
+function byClass(list) { const c = el("clsSel").value; return c ? list.filter(x => x.cls === c) : list; }
+function render() {
+  if (!DATA) return;
+  const d = DATA;
+  // классы
+  const classes = [...new Set(d.progress.map(p => p.cls).concat(d.attempts.map(a => a.cls)))].filter(Boolean).sort((a, b) => a.localeCompare(b, "ru", { numeric: true }));
+  const cs = el("clsSel"), cur = cs.value;
+  if (cs.options.length - 1 !== classes.length) { cs.innerHTML = '<option value="">все классы</option>'; classes.forEach(c => cs.appendChild(new Option(c, c))); cs.value = cur; }
+  // открытый вопрос
+  el("liveBox").hidden = !(d.q && d.q.open);
+  if (d.q && d.q.open) el("liveText").textContent = d.q.text;
+  // доска
+  const qs = el("qSel"); qs.innerHTML = "";
+  d.questions.forEach(q => qs.appendChild(new Option((d.q && d.q.id === q.id && d.q.open ? "● " : "") + q.text, q.id)));
+  qs.value = d.want || "";
+  const curQ = d.questions.find(q => q.id === d.want);
+  el("boardTitle").textContent = curQ ? curQ.text : "Вопросов пока не было. Задайте первый вопрос выше.";
+  const ans = byClass(d.answers);
+  wall(el("wall"), ans.map(a => ({ name: a.name, cls: a.cls, t: a.t, text: a.text })), "Ответов пока нет. Они появятся здесь через несколько секунд после отправки.");
+  el("nBoard").textContent = ans.length ? "(" + ans.length + ")" : "";
+  // лента попыток
+  const tasks = [...new Set(d.attempts.map(a => a.task))];
+  const ts = el("taskSel"), tcur = ts.value;
+  if (ts.options.length - 1 !== tasks.length) { ts.innerHTML = '<option value="">все</option>'; tasks.forEach(t => ts.appendChild(new Option(t, t))); ts.value = tcur; }
+  let att = byClass(d.attempts).slice().reverse();
+  if (el("onlyBad").checked) att = att.filter(a => !a.ok);
+  if (el("stageSel").value) att = att.filter(a => a.stage === el("stageSel").value);
+  if (ts.value) att = att.filter(a => a.task === ts.value);
+  const feed = el("feed"); feed.innerHTML = "";
+  if (!att.length) feed.appendChild(node("p", "empty", "Попыток пока нет."));
+  att.slice(0, 200).forEach(a => {
+    const r = node("div", "att" + (a.ok ? "" : " no"));
+    r.appendChild(node("span", "t", a.t));
+    const w = node("span", "nm", a.name); w.appendChild(node("span", "t", " " + a.cls)); r.appendChild(w);
+    r.appendChild(node("span", "tk", a.task));
+    const an = node("span", "ans", (a.ok ? "✓ " : "✗ ") + a.answer); if (!a.ok && a.note) an.appendChild(node("span", "note", a.note)); r.appendChild(an);
+    feed.appendChild(r);
+  });
+  const bad = byClass(d.attempts).filter(a => !a.ok).length;
+  el("nFeed").textContent = d.attempts.length ? `(${bad} ошиб.)` : "";
+  // ответы из урока
+  const key = el("lessonSel").value;
+  wall(el("lessonWall"), byClass(d.progress).filter(p => p[key]).map(p => ({ name: p.name, cls: p.cls, t: p.t, text: p[key] })), "Пока никто не ответил.");
+  // прогресс
+  const pg = byClass(d.progress).slice().sort((a, b) => a.cls.localeCompare(b.cls, "ru") || a.name.localeCompare(b.name, "ru"));
+  el("nProg").textContent = pg.length ? "(" + pg.filter(p => p.online).length + " онлайн)" : "";
+  const T = el("pg"); T.innerHTML = "";
+  const head = ["Ученик", "Класс", "Этап", "Какая функция", "Разминка", "A", "B", "C", "Ожидания оправдались", "Все", "Большинство", "Некоторые", "Ожидания", "Обновлено"];
+  const hr = node("tr"); head.forEach(h => hr.appendChild(node("th", "", h))); T.appendChild(hr);
+  const mk = v => v === "Получилось" || v === "Да" ? "m2" : v === "Частично" ? "m1" : v ? "m0" : "";
+  pg.forEach(p => {
+    const tr = node("tr");
+    const n = node("td"); n.appendChild(node("span", p.online ? "on" : "off")); n.appendChild(document.createTextNode(p.name)); tr.appendChild(n);
+    tr.appendChild(node("td", "", p.cls)); tr.appendChild(node("td", "", p.stage));
+    const full = v => { const [a, b] = String(v).split("/"); return a && a === b ? "num full" : "num"; };
+    tr.appendChild(node("td", full(p.match), p.match + (p.match ? " (1-я попытка: " + p.matchFirst + ")" : "")));
+    [p.z, p.a, p.b, p.c].forEach(v => tr.appendChild(node("td", full(v), v)));
+    [p.expOk, p.r0, p.r1, p.r2].forEach(v => tr.appendChild(node("td", mk(v), v)));
+    tr.appendChild(node("td", "clip", p.expect)); tr.appendChild(node("td", "num", p.t));
+    T.appendChild(tr);
+  });
+  if (!pg.length) { const tr = node("tr"), td = node("td", "empty", "Ученики ещё не заходили."); td.colSpan = head.length; tr.appendChild(td); T.appendChild(tr); }
+}
+function wall(box, items, emptyText) {
+  box.innerHTML = "";
+  if (!items.length) { box.appendChild(node("p", "empty", emptyText)); return; }
+  items.slice().reverse().forEach(it => {
+    const c = node("div", "card");
+    const w = node("div", "who", it.name); w.appendChild(node("small", "", it.cls + " · " + it.t)); c.appendChild(w);
+    c.appendChild(node("div", "txt", it.text));
+    box.appendChild(c);
+  });
+}
+</script>
+</body>
+</html>

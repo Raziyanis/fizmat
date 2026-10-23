@@ -333,6 +333,27 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .mt-opt.bad { border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
 .mt-opt:disabled:not(.ok) { opacity: .45; }
 .mt-done { border: 2px solid var(--c); }
+.who { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: .88rem; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.net { font-size: .8rem; color: var(--muted); }
+.net.on { color: var(--c); }
+.net.off { color: var(--bad); }
+.linkbtn { background: none; border: 0; color: var(--c); text-decoration: underline; padding: 0; font-size: .85rem; }
+.overlay { position: fixed; inset: 0; z-index: 50; background: color-mix(in srgb, var(--ink) 45%, transparent); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
+.lg-card { background: var(--surface); color: var(--ink); border-radius: 12px; padding: 24px; width: 100%; max-width: 640px; display: grid; gap: 10px; box-shadow: 0 20px 60px rgba(0, 0, 0, .25); }
+.lg-title { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: 1.5rem; }
+#loginBody { display: grid; gap: 10px; justify-items: start; }
+.lg-q { margin: 6px 0 0; font-size: 1.15rem; font-weight: 700; }
+.lg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; width: 100%; max-height: 50vh; overflow-y: auto; }
+.lg-btn { border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 8px; padding: 10px 12px; text-align: left; font-size: 1rem; }
+.lg-btn:hover { border-color: var(--c); color: var(--c); }
+.lg-big { font-size: 1.1rem; padding: 12px 16px; }
+.lg-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lg-l { font-weight: 700; }
+.lg-in { font: inherit; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+.lg-err { margin: 0; color: var(--bad); min-height: 1.2em; }
+.q-card { border-top: 6px solid var(--c); }
+.q-text { margin: 0; font-family: var(--f-display); font-size: 1.35rem; line-height: 1.3; }
+.toast { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); background: var(--ink); color: var(--surface); padding: 10px 18px; border-radius: 8px; font-weight: 700; }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
 </style>
 
@@ -340,6 +361,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
   <div class="top">
     <span class="eyebrow">Информатика · 8 класс · Электронные таблицы</span>
     <div class="tools">
+      <span class="who" id="who" hidden>Ученик: <b id="whoName"></b> · <span id="netState" class="net"></span> <button type="button" class="linkbtn" id="whoChange">Сменить</button><span class="small" id="whoHint" hidden> Чтобы войти другим учеником, обнови страницу.</span></span>
       <button class="btn" id="bigBtn" type="button" aria-pressed="false">Крупный шрифт</button>
       <button class="btn" id="fsBtn" type="button">Во весь экран</button>
     </div>
@@ -761,7 +783,30 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
   </div>
 </div>
 
+<div class="overlay" id="login" hidden>
+  <div class="lg-card" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
+    <p class="eyebrow">Информатика · 8 класс</p>
+    <h2 class="lg-title" id="lgTitle">Математические функции</h2>
+    <div id="loginBody"><p>Загружаю список класса…</p></div>
+  </div>
+</div>
+<div class="overlay" id="qModal" hidden>
+  <div class="lg-card q-card" role="dialog" aria-modal="true" aria-labelledby="qTitle">
+    <p class="eyebrow" id="qTitle">Вопрос учителя</p>
+    <p class="q-text" id="qText"></p>
+    <textarea id="qAns" rows="4" maxlength="1000" placeholder="Напиши ответ…"></textarea>
+    <p class="lg-err" id="qErr" aria-live="polite"></p>
+    <button type="button" class="btn main" id="qSend">Отправить ответ</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
 <script>
+/* Урок запускается сразу; в онлайн-версии — после того, как ученик выбрал себя */
+const ONLINE = !!(window.google && window.google.script && window.google.script.run);
+let NS = "";
+function startLesson() {
+
 /* Тема в двух строках листа; каждой букве соответствует номер задания */
 const ROWS = ["МАТЕМАТИЧЕСКИЕ", "ФУНКЦИИ"];
 const TASKS = [
@@ -785,9 +830,9 @@ const COLS = "ABCDEFGHIJKLMN";
 const KEY = "topic-l1";
 
 const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
-  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  get(k, d) { try { const v = localStorage.getItem(NS + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} if (window.__onStore) window.__onStore(k); },
+  del(k) { try { localStorage.removeItem(NS + k); } catch (e) {} if (window.__onStore) window.__onStore(k); }
 };
 
 let solved = new Set(store.get(KEY, []));
@@ -899,6 +944,7 @@ function unlock() {
 }
 
 function show(id) {
+  if (window.__onStage) window.__onStage(id);
   if (id === "reflect") fillReflect();
   ["puzzle", "goal", "learn", "match", "practice", "reflect"].forEach(p => {
     document.getElementById(p).hidden = p !== id;
@@ -1695,6 +1741,7 @@ function cellBuild(box) {
     if (inp) inp.addEventListener("keydown", e => { if (e.key === "Enter") card.querySelector(".tc-check").click(); });
     card.querySelector(".tc-check").addEventListener("click", () => {
       const r = cellCheck(t, st, inp ? inp.value : "");
+      if (window.__onAttempt) window.__onAttempt("5. Практика", t.id + " · ячейки", inp ? inp.value : (st.sel ? "выделено " + rectText(st.sel) : "ничего не выделено"), r.ok, r.ok ? "" : r.msg);
       const all = prLoad(), tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
       all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), tries }; prSave(all);
       msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.msg;
@@ -1899,6 +1946,7 @@ function prBuild() {
     if (saved && saved.f) { Object.entries(saved.f).forEach(([k, v]) => root.xlSet(k, v)); setStatus(!!saved.ok); }
     card.querySelector(".tc-check").addEventListener("click", () => {
       const r = prCheck(t, root.xlState);
+      if (window.__onAttempt) window.__onAttempt("5. Практика", t.id + " · " + t.fn, targets.map(k => k + ": " + (root.xlState.cells[k] ?? "")).join("   "), r.ok, r.ok ? "" : r.msg);
       const all = prLoad();
       const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
       const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
@@ -1981,6 +2029,7 @@ function mtBuild() {
     show(d[i] || {}, true);
     card.querySelector(".mt-opts").addEventListener("click", e => {
       const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      if (window.__onAttempt) window.__onAttempt("4. Какая функция?", "Ситуация " + (i + 1), b.dataset.f, b.dataset.f === c.a, b.dataset.f === c.a ? "" : "нужно " + c.a);
       const all = mtLoad(), st = all[i] || { wrong: [] };
       st.wrong = st.wrong || [];
       if (b.dataset.f === c.a) { st.ok = true; st.first = st.wrong.length === 0; }
@@ -2102,4 +2151,145 @@ buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
 render();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
+window.__lessonInfo = { matchN: MT_CASES.length, Z: TASKS_CELL.map(t => t.id),
+  A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
+
+}
+/* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
+const STAGES = { puzzle: "1. Разгадка темы", goal: "2. Тема и цель", learn: "3. Новая тема", match: "4. Какая функция?", practice: "5. Практика", reflect: "6. Итоги" };
+let me = null, curStage = "puzzle", syncTimer = null;
+const gsr = (fn, ...args) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+function lessonSummary() {
+  const g = k => lsGet(NS + k, null), info = window.__lessonInfo;
+  const pr = g("practice-l1") || {}, mt = g("match-l1") || {}, rf = g("reflect-l1");
+  const cnt = ids => ids.filter(id => pr[id] && pr[id].ok).length + "/" + ids.length;
+  const MARK = { "2": "Получилось", "1": "Частично", "0": "Пока нет" }, EXP = { "2": "Да", "1": "Частично", "0": "Нет" };
+  const mv = Object.values(mt);
+  return {
+    id: me.id, cls: me.cls, name: me.name, stage: STAGES[curStage] || curStage,
+    expect: g("expect-l1") || "",
+    match: mv.filter(x => x && x.ok).length + "/" + info.matchN,
+    matchFirst: mv.filter(x => x && x.first).length,
+    z: cnt(info.Z), a: cnt(info.A), b: cnt(info.B), c: cnt(info.C),
+    expOk: rf ? EXP[rf.exp] || "" : "", r0: rf ? MARK[rf.res[0]] || "" : "", r1: rf ? MARK[rf.res[1]] || "" : "", r2: rf ? MARK[rf.res[2]] || "" : "",
+    use: rf ? rf.use || "" : "", note: rf ? rf.note || "" : ""
+  };
+}
+function syncSoon() { if (!me) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 1500); }
+function syncNow() { if (!me) return; gsr("saveProgress", lessonSummary()).then(() => setNet(true)).catch(() => setNet(false)); }
+function setNet(ok) { const n = document.getElementById("netState"); if (n) { n.textContent = ok ? "связь с учителем есть" : "нет связи — ответы отправятся позже"; n.className = "net " + (ok ? "on" : "off"); } }
+
+/* Вход: выбрать класс и себя из списка или вписать имя */
+function loginUI(roster) {
+  const ov = document.getElementById("login"), body = document.getElementById("loginBody");
+  ov.hidden = false;
+  const last = lsGet("last-student", null);
+  const classes = Object.keys(roster).sort((a, b) => a.localeCompare(b, "ru", { numeric: true }));
+  function stepStart() {
+    if (last) {
+      body.innerHTML = `<p class="lg-q">Продолжить урок?</p>
+        <button type="button" class="btn main lg-big" id="lgCont"></button>
+        <button type="button" class="btn" id="lgOther">Это не я</button>`;
+      document.getElementById("lgCont").textContent = `Да, я ${last.name} (${last.cls})`;
+      document.getElementById("lgCont").onclick = () => enter(last);
+      document.getElementById("lgOther").onclick = stepClass;
+    } else stepClass();
+  }
+  function stepClass() {
+    body.innerHTML = `<p class="lg-q">Выбери свой класс</p><div class="lg-grid">${classes.map(c => `<button type="button" class="lg-btn" data-c=""></button>`).join("")}</div>
+      <button type="button" class="btn" id="lgNew">Моего класса нет в списке</button>`;
+    body.querySelectorAll(".lg-btn").forEach((b, i) => { b.textContent = classes[i]; b.onclick = () => stepName(classes[i]); });
+    document.getElementById("lgNew").onclick = () => stepNew("");
+  }
+  function stepName(cls) {
+    const names = roster[cls] || [];
+    body.innerHTML = `<p class="lg-q">Класс <b></b>. Найди себя</p><div class="lg-grid lg-names"></div>
+      <div class="lg-row"><button type="button" class="btn" id="lgBack">← Другой класс</button><button type="button" class="btn" id="lgNew">Меня нет в списке</button></div>`;
+    body.querySelector(".lg-q b").textContent = cls;
+    const grid = body.querySelector(".lg-names");
+    names.forEach(n => { const b = document.createElement("button"); b.type = "button"; b.className = "lg-btn"; b.textContent = n; b.onclick = () => enter({ id: cls + " | " + n, cls, name: n }); grid.appendChild(b); });
+    document.getElementById("lgBack").onclick = stepClass;
+    document.getElementById("lgNew").onclick = () => stepNew(cls);
+  }
+  function stepNew(cls) {
+    body.innerHTML = `<p class="lg-q">Впиши свои данные</p>
+      <label class="lg-l" for="lgCls">Класс</label><input id="lgCls" class="lg-in" maxlength="20" placeholder="например, 8А">
+      <label class="lg-l" for="lgName">Фамилия и имя</label><input id="lgName" class="lg-in" maxlength="80" placeholder="например, Сейткали Айдана">
+      <p class="lg-err" id="lgErr" aria-live="polite"></p>
+      <div class="lg-row"><button type="button" class="btn" id="lgBack">← Назад</button><button type="button" class="btn main" id="lgGo">Войти</button></div>`;
+    document.getElementById("lgCls").value = cls;
+    document.getElementById("lgBack").onclick = stepClass;
+    document.getElementById("lgGo").onclick = () => {
+      const c = document.getElementById("lgCls").value.trim(), n = document.getElementById("lgName").value.trim().replace(/\s+/g, " ");
+      const err = document.getElementById("lgErr");
+      if (!c || n.length < 3) { err.textContent = "Впиши класс и фамилию с именем."; return; }
+      err.textContent = "Сохраняю…";
+      gsr("registerStudent", c, n).then(enter).catch(e => { err.textContent = "Не получилось: " + (e && e.message ? e.message : "проверь связь и попробуй ещё раз."); });
+    };
+  }
+  function enter(st) {
+    me = st; lsSet("last-student", st);
+    NS = "st:" + st.id + ":";
+    ov.hidden = true;
+    document.getElementById("whoName").textContent = `${st.name}, ${st.cls}`;
+    document.getElementById("who").hidden = false;
+    startLesson();
+    syncNow();
+    setInterval(syncNow, 60000);
+    pollQuestion(); setInterval(pollQuestion, 5000);
+  }
+  stepStart();
+}
+
+/* Вопрос учителя всплывает у всех учеников */
+let shownQ = null;
+function pollQuestion() {
+  gsr("getQuestion").then(q => {
+    setNet(true);
+    const answered = lsGet(NS + "answered", []);
+    const modal = document.getElementById("qModal");
+    if (q && q.open && !answered.includes(q.id)) {
+      if (shownQ !== q.id) {
+        shownQ = q.id;
+        document.getElementById("qText").textContent = q.text;
+        document.getElementById("qAns").value = "";
+        document.getElementById("qErr").textContent = "";
+        modal.hidden = false;
+        document.getElementById("qAns").focus();
+      }
+    } else if (!modal.hidden) {
+      modal.hidden = true; shownQ = null;
+      if (q && !q.open) toast("Учитель закрыл вопрос.");
+    }
+  }).catch(() => setNet(false));
+}
+function sendAnswer() {
+  const text = document.getElementById("qAns").value.trim(), err = document.getElementById("qErr");
+  if (!text) { err.textContent = "Напиши ответ."; return; }
+  const btn = document.getElementById("qSend"); btn.disabled = true; err.textContent = "Отправляю…";
+  gsr("submitAnswer", { qid: shownQ, text, cls: me.cls, name: me.name, id: me.id }).then(() => {
+    const a = lsGet(NS + "answered", []); a.push(shownQ); lsSet(NS + "answered", a);
+    document.getElementById("qModal").hidden = true; shownQ = null; btn.disabled = false;
+    toast("Ответ отправлен учителю.");
+  }).catch(e => { btn.disabled = false; err.textContent = (e && e.message) || "Не получилось отправить. Попробуй ещё раз."; });
+}
+function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 3500); }
+
+function onlineBoot() {
+  window.__onStore = syncSoon;
+  window.__onStage = id => { curStage = id; syncSoon(); };
+  window.__onAttempt = (stage, task, answer, ok, note) => { if (me) gsr("logAttempt", { id: me.id, cls: me.cls, name: me.name, stage, task, answer: String(answer), ok: !!ok, note: note || "" }).catch(() => setNet(false)); };
+  document.getElementById("qSend").addEventListener("click", sendAnswer);
+  document.getElementById("qAns").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) sendAnswer(); });
+  document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
+  gsr("getRoster").then(loginUI).catch(() => {
+    document.getElementById("loginBody").innerHTML = `<p class="lg-err">Не удалось загрузить список учеников. Обнови страницу.</p>`;
+    document.getElementById("login").hidden = false;
+  });
+}
+if (ONLINE) onlineBoot(); else startLesson();
+
 </script>
