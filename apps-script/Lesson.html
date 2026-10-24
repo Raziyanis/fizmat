@@ -2736,6 +2736,10 @@ function setNet(ok) { const n = document.getElementById("netState"); if (n) { n.
 const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", F: "Ф", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
 function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[A-Z]/g, ch => LAT2CYR[ch] || ch); }
 function normName(v) { return v.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" "); }
+/* Вход: онлайн — через сервер (проверка по списку класса), без сервера — только на этом компьютере */
+function register(c, n) {
+  return ONLINE ? gsr("registerStudent", c, n) : Promise.resolve({ id: c + " | " + n, cls: c, name: n });
+}
 function loginUI() {
   const ov = document.getElementById("login"), body = document.getElementById("loginBody");
   ov.hidden = false;
@@ -2752,7 +2756,7 @@ function loginUI() {
     err.textContent = "Сохраняю…";
     document.getElementById("lgGo").disabled = true;
     const old = document.getElementById("lgSug"); if (old) old.remove();
-    gsr("registerStudent", c, n).then(r => { document.getElementById("lgGo").disabled = false; if (r && r.suggest) suggest(r); else enter(r); })
+    register(c, n).then(r => { document.getElementById("lgGo").disabled = false; if (r && r.suggest) suggest(r); else enter(r); })
       .catch(e => { document.getElementById("lgGo").disabled = false; err.textContent = (e && e.message) ? e.message : "Не получилось. Проверь связь и попробуй ещё раз."; });
   };
   function suggest(r) {
@@ -2761,7 +2765,7 @@ function loginUI() {
     box.innerHTML = `<p>Такого ученика нет в списке. Может быть, ты — <b></b>?</p><div class="lg-row"><button type="button" class="btn main" id="sugYes">Да, это я</button><button type="button" class="btn" id="sugNo">Нет</button></div>`;
     box.querySelector("b").textContent = `${r.suggest}, ${r.cls}`;
     err.after(box);
-    document.getElementById("sugYes").onclick = () => { box.remove(); err.textContent = "Вхожу…"; gsr("registerStudent", r.cls, r.suggest).then(enter).catch(e => { err.textContent = e.message || "Не получилось."; }); };
+    document.getElementById("sugYes").onclick = () => { box.remove(); err.textContent = "Вхожу…"; register(r.cls, r.suggest).then(enter).catch(e => { err.textContent = e.message || "Не получилось."; }); };
     document.getElementById("sugNo").onclick = () => { box.remove(); err.textContent = "Тогда проверь, как написаны фамилия и имя, или скажи учителю, чтобы он добавил тебя в список."; };
   }
   document.getElementById("lgGo").onclick = go;
@@ -2774,6 +2778,7 @@ function loginUI() {
     document.getElementById("whoName").textContent = `${st.name}, ${st.cls}`;
     document.getElementById("who").hidden = false;
     startLesson();
+    if (!ONLINE) return;
     syncNow();
     setInterval(syncNow, 60000);
     pollQuestion(); setInterval(pollQuestion, 5000);
@@ -2831,7 +2836,12 @@ function onlineBoot() {
   document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
   loginUI();
 }
-if (ONLINE) onlineBoot(); else startLesson();
+if (ONLINE) onlineBoot();
+else {
+  loginUI();
+  const n = document.getElementById("netState"); n.textContent = "ответы сохраняются на этом компьютере"; n.className = "net";
+  document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
+}
 
 </script>
 
