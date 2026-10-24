@@ -821,11 +821,10 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
   <div class="panel" id="excel" role="tabpanel" aria-labelledby="tab-excel" hidden>
     <div>
       <h1>Работа в Excel</h1>
-      <p class="lead">Теперь — в настоящем Excel. В каждом сценарии ты сам набираешь таблицу, пишешь формулы и вписываешь сюда, что получилось. Сначала по одной функции, в конце — все вместе.</p>
+      <p class="lead">Задания выполняются в Excel-файле <b>«Самопроверка_Excel.xlsx»</b> — его даст учитель. В файле на каждом листе (S1–S6) уже есть таблица с данными. Пиши формулы в жёлтые ячейки — справа в столбце «Проверка» Excel сам покажет «✓ верно» или подскажет, что исправить. Здесь — условия заданий.</p>
     </div>
     <section class="block">
       <div class="ex-pills" id="exPills" role="tablist" aria-label="Сценарии"></div>
-      <div class="progress"><div class="pbar"><i id="exBar"></i></div><span class="pnum" id="exNum"></span></div>
     </section>
     <div class="panel" id="exList"></div>
     <div class="next"><button class="btn" type="button" data-go="practice">← Практика</button><button class="btn main" type="button" data-go="reflect">Итоги урока →</button></div>
@@ -2481,38 +2480,6 @@ function exNum(v) {
   const s = String(v).trim().replace(/\s+/g, "").replace(/ /g, "").replace("−", "-").replace(",", ".");
   return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : null;
 }
-function exCheck(t, f, a) {
-  const raw = String(a || "").trim();
-  if (!raw) return { ok: false, msg: "Впиши число, которое получилось в Excel." };
-  if (typeof t.ans === "string") {
-    const up = raw.toUpperCase().replace(/\s+/g, "");
-    if (!(up === t.ans || (t.alt || []).includes(up))) return { ok: false, msg: `В ячейке должна быть ошибка. Посмотри внимательно, что написал Excel.` };
-  } else {
-    const n = exNum(raw);
-    if (n === null) return { ok: false, msg: "Ответ — это число. Перепиши его из ячейки, например 1850 или 1,41." };
-    if (Math.abs(n - t.ans) > (t.tol || 0.0001)) return { ok: false, msg: `Число не совпадает с правильным ответом. Проверь формулу и данные в таблице: все ли числа набраны верно?` };
-  }
-  if (t.noFormula) return { ok: true, msg: "Верно!" };
-  const fs = String(f || "").trim();
-  if (!fs) return { ok: false, msg: "Ответ верный. Впиши ещё формулу, которую ты набрал в Excel, — так учитель увидит, как ты считал." };
-  if (!fs.startsWith("=")) return { ok: false, msg: "Формула начинается со знака «=». Перепиши её так, как она видна в строке формул Excel." };
-  const up = fs.toUpperCase().replace(/\s+/g, "");
-  let calls;
-  try { calls = prCalls(xlParse(fs.slice(1)), new Set()); } catch (e) {
-    if (!(e instanceof XSyntax)) throw e;
-    return { ok: false, msg: "В записи формулы ошибка: " + e.message };
-  }
-  const miss = (t.fn || []).filter(x => !calls.has(x));
-  if (miss.length) return { ok: false, msg: `В этом шаге нужна функция ${miss.join(" и ")}.` };
-  const banned = (t.forbidFn || []).filter(x => calls.has(x));
-  if (banned.length) return { ok: false, msg: `В этом шаге попробуй обойтись без ${banned.join(", ")}.` };
-  const needMiss = (t.need || []).filter(x => !up.includes(x.toUpperCase()));
-  if (needMiss.length) return { ok: false, msg: `Ответ верный, но формула записана не тем способом, который просит шаг «${t.tag}». Перечитай задание.` };
-  const forb = (t.forbid || []).filter(x => up.includes(x));
-  if (forb.length) return { ok: false, msg: `Ответ верный, но в этом шаге нужно обойтись без «${forb.join("», «")}». Перечитай задание.` };
-  return { ok: true, msg: "Верно!" };
-}
-
 function exGrid(data) {
   const keys = Object.keys(data);
   const maxC = Math.max(...keys.map(k => k.charCodeAt(0))), maxR = Math.max(...keys.map(k => +k.slice(1)));
@@ -2521,24 +2488,6 @@ function exGrid(data) {
   for (let r = 1; r <= maxR; r++) h += `<tr><th>${r}</th>` + cols.map(c => { const v = data[c + r] ?? ""; return `<td class="${exNum(v) !== null ? "n" : "t"}">${v.replace(/</g, "&lt;")}</td>`; }).join("") + "</tr>";
   return h + "</table></div>";
 }
-function exTsv(data) {
-  const keys = Object.keys(data);
-  const maxC = Math.max(...keys.map(k => k.charCodeAt(0))), maxR = Math.max(...keys.map(k => +k.slice(1)));
-  const rows = [];
-  for (let r = 1; r <= maxR; r++) { const row = []; for (let c = 65; c <= maxC; c++) row.push(data[String.fromCharCode(c) + r] ?? ""); rows.push(row.join("\t")); }
-  return rows.join("\n");
-}
-function exRender() {
-  const d = store.get(EX_KEY, {});
-  EX_SC.forEach(sc => {
-    const ok = sc.tasks.filter(t => d[t.id] && d[t.id].ok).length;
-    const pill = document.querySelector(`.ex-pill[data-sc="${sc.id}"] .ex-c`); if (pill) pill.textContent = `${ok}/${sc.tasks.length}`;
-    document.querySelector(`.ex-pill[data-sc="${sc.id}"]`).classList.toggle("full", ok === sc.tasks.length);
-  });
-  const all = EX_ALL.filter(t => d[t.id] && d[t.id].ok).length;
-  document.getElementById("exBar").style.width = (all / EX_ALL.length * 100) + "%";
-  document.getElementById("exNum").textContent = `Выполнено шагов: ${all} из ${EX_ALL.length}`;
-}
 function exShow(id) {
   document.querySelectorAll(".ex-pill").forEach(b => b.setAttribute("aria-selected", b.dataset.sc === id));
   document.querySelectorAll(".ex-sc").forEach(s => { s.hidden = s.dataset.sc !== id; });
@@ -2546,67 +2495,32 @@ function exShow(id) {
 }
 (function exBuild() {
   const d = store.get(EX_KEY, {});
-  document.getElementById("exPills").innerHTML = EX_SC.map((sc, i) => `<button type="button" class="ex-pill" data-sc="${sc.id}" role="tab"><span class="ex-n">Сценарий ${i + 1}</span><b>${sc.fn}</b><span class="ex-c"></span></button>`).join("");
+  document.getElementById("exPills").innerHTML = EX_SC.map((sc, i) => `<button type="button" class="ex-pill" data-sc="${sc.id}" role="tab"><span class="ex-n">Сценарий ${i + 1} · лист ${sc.id}</span><b>${sc.fn}</b></button>`).join("");
   document.getElementById("exList").innerHTML = EX_SC.map((sc, i) => `
     <section class="block ex-sc" data-sc="${sc.id}" hidden>
       <p class="fname">Сценарий ${i + 1}. ${sc.title} <code>${sc.fn}</code></p>
       <p class="plain"><b>Цель:</b> ${sc.goal}</p>
-      <h3 class="ex-h">Шаг 0. Подготовь таблицу в Excel</h3>
-      <ol class="ex-prep">
-        <li>Открой Excel и создай новый лист: правой кнопкой по ярлыку листа внизу → «Вставить» или значок «+». Назови лист <b>${sc.id}</b>.</li>
-        <li>Набери таблицу ровно в тех ячейках, что на образце: адреса должны совпасть, иначе формулы дадут другой ответ.</li>
-        <li>Числа набирай без пробелов; дробную часть — через запятую (2,5).</li>
-      </ol>
-      <p class="ex-cap">Образец таблицы</p>
+      <h3 class="ex-h">Открой лист ${sc.id} в файле «Самопроверка_Excel.xlsx»</h3>
+      <p class="ex-cap">Так выглядит таблица на листе</p>
       ${exGrid(sc.data)}
-      <p class="small">Не успеваешь набрать? <button type="button" class="linkbtn ex-copy" data-sc="${sc.id}">Скопировать данные</button> и вставь в ячейку A1 (Ctrl+V). <span class="ex-copied" aria-live="polite"></span></p>
-      <textarea class="ex-tsv" readonly hidden></textarea>
       <h3 class="ex-h">Шаги: от простого к сложному</h3>
       <div class="ex-tasks">${sc.tasks.map((t, j) => `
         <div class="ex-task" id="ex-${t.id.replace(".", "-")}">
-          <div class="tc-head"><span class="tc-id">${j + 1}</span><span class="ex-tag${t.tag.startsWith("сложное") ? " hard" : ""}">${t.tag}</span><span class="tc-status" aria-live="polite"></span></div>
+          <div class="tc-head"><span class="tc-id">${j + 1}</span><span class="ex-tag${t.tag.startsWith("сложное") ? " hard" : ""}">${t.tag}</span></div>
           <p class="tc-q">${t.q} <span class="ex-where">${t.read ? `Формула: <b>${t.cell}</b>, протяни вниз · ответ возьми из <b>${t.read}</b>` : `Ячейка: <b>${t.cell}</b>`}</span></p>
-          <div class="ex-inputs">
-            ${t.noFormula ? "" : `<label>Формула<input type="text" class="ex-f" autocomplete="off" spellcheck="false" placeholder="=…"></label>`}
-            <label>Ответ в ячейке<input type="text" class="ex-a" autocomplete="off" placeholder="${typeof t.ans === "string" ? "что показал Excel" : "число"}"></label>
-            <button type="button" class="btn main ex-check">Проверить</button>
-            <button type="button" class="btn ex-hintbtn">Подсказка</button>
-          </div>
-          <p class="tc-msg" aria-live="polite"></p>
+          <div class="ex-inputs"><button type="button" class="btn ex-hintbtn">Подсказка</button></div>
           <p class="tc-hint" hidden></p>
         </div>`).join("")}
       </div>
     </section>`).join("");
   EX_ALL.forEach(t => {
-    const box = document.getElementById("ex-" + t.id.replace(".", "-")), msg = box.querySelector(".tc-msg");
+    const box = document.getElementById("ex-" + t.id.replace(".", "-"));
     box.querySelector(".tc-hint").textContent = "Подсказка: " + t.hint;
-    const fIn = box.querySelector(".ex-f"), aIn = box.querySelector(".ex-a");
-    const setStatus = ok => { box.classList.toggle("done", ok); box.querySelector(".tc-status").textContent = ok ? "✓ верно" : ""; };
-    const sv = d[t.id];
-    if (sv) { if (fIn && sv.f) fIn.value = sv.f; if (sv.a) aIn.value = sv.a; setStatus(!!sv.ok); }
-    const check = () => {
-      const f = fIn ? fIn.value : "", a = aIn.value, r = exCheck(t, f, a), all = store.get(EX_KEY, {});
-      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
-      all[t.id] = { ok: r.ok, f, a, tries }; store.set(EX_KEY, all);
-      if (window.__onAttempt) window.__onAttempt("7. Работа в Excel", `${t.id} · ${t.sc.fn} · ${t.tag}`, (f ? "формула: " + f + " · " : "") + "ответ: " + a, r.ok, r.ok ? "" : r.msg);
-      msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.msg;
-      if (!r.ok && tries >= 2) box.querySelector(".tc-hint").hidden = false;
-      setStatus(r.ok); exRender();
-    };
-    box.querySelector(".ex-check").addEventListener("click", check);
-    [fIn, aIn].forEach(i => i && i.addEventListener("keydown", e => { if (e.key === "Enter") check(); }));
     box.querySelector(".ex-hintbtn").addEventListener("click", () => { const h = box.querySelector(".tc-hint"); h.hidden = !h.hidden; });
   });
   document.querySelectorAll(".ex-pill").forEach(b => b.addEventListener("click", () => exShow(b.dataset.sc)));
-  document.querySelectorAll(".ex-copy").forEach(b => b.addEventListener("click", () => {
-    const sec = b.closest(".ex-sc"), sc = EX_SC.find(x => x.id === b.dataset.sc), txt = exTsv(sc.data), note = sec.querySelector(".ex-copied");
-    const fallback = () => { const ta = sec.querySelector(".ex-tsv"); ta.value = txt; ta.hidden = false; ta.focus(); ta.select(); note.textContent = "Выделено — нажми Ctrl+C."; };
-    try { navigator.clipboard.writeText(txt).then(() => { note.textContent = "Скопировано."; }, fallback); } catch (e) { fallback(); }
-  }));
   exShow(store.get("excel-sc", "S1"));
-  exRender();
 })();
-window.__excelCount = () => { const d = store.get(EX_KEY, {}); return EX_ALL.filter(t => d[t.id] && d[t.id].ok).length + "/" + EX_ALL.length; };
 
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
 const REF_KEY = "reflect-l1";
@@ -2733,7 +2647,6 @@ function lessonSummary() {
     act: (() => { const a = Object.values(g("actual-l1") || {}); return a.filter(x => x && x.ok).length + "/" + info.actN; })(),
     actFirst: Object.values(g("actual-l1") || {}).filter(x => x && x.first).length,
     now: window.__prNow(),
-    excel: window.__excelCount(),
     hw: (() => { const h = g("hw-l1") || {}; return Object.values(h).filter(x => x && x.ok).length + "/3"; })(),
     desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
   };
