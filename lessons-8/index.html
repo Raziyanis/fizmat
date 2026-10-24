@@ -406,9 +406,9 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
 .lang-sw button[aria-pressed="true"]{background:var(--c, #1d7652);color:#fff}
 .lang-sw button:focus-visible{outline:2px solid var(--c, #1d7652);outline-offset:-2px}
-.lg-card .lang-sw{display:flex;width:max-content;margin:0 0 .6rem auto}
+.lg-card .lang-sw, #pinBox .lang-sw{display:flex;width:max-content;margin:0 0 .6rem auto}
 </style>
-<div id="app"></div>
+<div id="lang-root"></div>
 <template id="t-ru">
 
 <div class="wrap">
@@ -1485,8 +1485,8 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
   if (lang !== "kz") lang = "ru";
   document.documentElement.lang = lang === "kz" ? "kk" : "ru";
   document.title = TITLES[lang];
-  var app = document.getElementById("app");
-  app.parentNode.replaceChild(document.getElementById("t-" + lang).content.cloneNode(true), app);
+  var root = document.getElementById("lang-root");
+  root.parentNode.replaceChild(document.getElementById("t-" + lang).content.cloneNode(true), root);
   function sw() {
     var s = document.createElement("span");
     s.className = "lang-sw"; s.setAttribute("role", "group"); s.setAttribute("aria-label", "Тіл / Язык");
@@ -1503,10 +1503,10 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     });
     return s;
   }
-  var tools = document.querySelector(".top .tools");
-  if (tools) tools.insertBefore(sw(), tools.firstChild);
-  var card = document.querySelector("#login .lg-card");
-  if (card) card.insertBefore(sw(), card.firstChild);
+  [".top .tools", "#login .lg-card"].forEach(function (sel) {
+    var box = document.querySelector(sel);
+    if (box) box.insertBefore(sw(), box.firstChild);
+  });
   (lang === "kz" ? L_kz : L_ru)();
 })();
 function L_ru() {

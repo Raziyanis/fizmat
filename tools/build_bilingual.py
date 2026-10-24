@@ -4,8 +4,9 @@
 (фрагмент → перевод), шаблонами tools/i18n_kz_templates.py и правками ниже (ребус темы и то,
 что зависит от порядка слов). В index.html лежат обе версии разметки в <template> и оба скрипта
 в функциях L_ru / L_kz; язык выбирается кнопками РУС | ҚАЗ и запоминается в браузере.
+Так же собирается экран учителя: tools/teacher/<папка>.html → apps-script*/Teacher.html.
 
-    python3 tools/build_bilingual.py          # все три урока
+    python3 tools/build_bilingual.py          # три урока и три экрана учителя
 """
 import json, re, sys
 from pathlib import Path
@@ -98,7 +99,7 @@ LANG_CSS = """
 .lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
 .lang-sw button[aria-pressed="true"]{background:var(--c, #1d7652);color:#fff}
 .lang-sw button:focus-visible{outline:2px solid var(--c, #1d7652);outline-offset:-2px}
-.lg-card .lang-sw{display:flex;width:max-content;margin:0 0 .6rem auto}
+.lg-card .lang-sw, #pinBox .lang-sw{display:flex;width:max-content;margin:0 0 .6rem auto}
 """
 
 BOOT = r"""<script>
@@ -113,8 +114,8 @@ BOOT = r"""<script>
   if (lang !== "kz") lang = "ru";
   document.documentElement.lang = lang === "kz" ? "kk" : "ru";
   document.title = TITLES[lang];
-  var app = document.getElementById("app");
-  app.parentNode.replaceChild(document.getElementById("t-" + lang).content.cloneNode(true), app);
+  var root = document.getElementById("lang-root");
+  root.parentNode.replaceChild(document.getElementById("t-" + lang).content.cloneNode(true), root);
   function sw() {
     var s = document.createElement("span");
     s.className = "lang-sw"; s.setAttribute("role", "group"); s.setAttribute("aria-label", "Тіл / Язык");
@@ -131,50 +132,93 @@ BOOT = r"""<script>
     });
     return s;
   }
-  var tools = document.querySelector(".top .tools");
-  if (tools) tools.insertBefore(sw(), tools.firstChild);
-  var card = document.querySelector("#login .lg-card");
-  if (card) card.insertBefore(sw(), card.firstChild);
+  %(places)s.forEach(function (sel) {
+    var box = document.querySelector(sel);
+    if (box) box.insertBefore(sw(), box.firstChild);
+  });
   (lang === "kz" ? L_kz : L_ru)();
 })();
 """
 
 
 def split(page):
+    """head + стили | разметка | скрипт | хвост. Разметка начинается после </style> (или после <body>)."""
     a = page.index("<style>"); b = page.index("</style>") + len("</style>")
     c = page.index("<script>"); d = page.rindex("</script>")
     assert b < c
-    return page[:a], page[a:b], page[b:c], page[c + len("<script>"):d]
+    pre, body = "", page[b:c]
+    if "<body>" in body:
+        i = body.index("<body>") + len("<body>"); pre, body = body[:i], body[i:]
+    return page[:a], page[a:b] + pre, body, page[c + len("<script>"):d], page[d + len("</script>"):]
+
+
+def assemble(src, titles, places, fix_kz, name):
+    assert src.count("<script>") == 1 and "</template>" not in src
+    kz, missing = translate(src, DIC, tpl=TPL)
+    if missing:
+        raise SystemExit(f"{name}: нет перевода для {len(missing)} фрагментов, например: {missing[:5]}")
+    head, style, body_ru, js_ru, tail = split(src)
+    _, _, body_kz, js_kz, _ = split(kz)
+    js_kz = fix_kz(js_kz)
+    # сокращения без строчных букв словарь не трогает: СОР 1 → БЖБ 1, ДЗ → ҮТ
+    abbr = lambda t: re.sub(r"(?<![А-ЯЁA-Z])(СОР|СОЧ|ДЗ)(?![А-ЯЁA-Z])", lambda m: {"СОР": "БЖБ", "СОЧ": "ТЖБ", "ДЗ": "ҮТ"}[m.group(1)], t)
+    body_kz, js_kz = abbr(body_kz), abbr(js_kz)
+    assert "</script" not in js_ru + js_kz
+    style = style.replace("</style>", LANG_CSS + "</style>", 1)
+    return (head + style + '\n<div id="lang-root"></div>\n'
+            + '<template id="t-ru">' + body_ru + '</template>\n'
+            + '<template id="t-kz">' + body_kz + '</template>\n'
+            + BOOT % {"ru": json.dumps(titles[0], ensure_ascii=False), "kz": json.dumps(titles[1], ensure_ascii=False),
+                      "places": json.dumps(places)}
+            + "function L_ru() {\n" + js_ru + "\n}\n"
+            + "function L_kz() {\n" + js_kz + "\n}\n</script>" + (tail if tail.strip() else "\n"))
 
 
 def build(folder):
     ru_title, kz_title, fix = LESSONS[folder]
-    src = (root / folder / "src-ru.html").read_text(encoding="utf-8")
-    assert src.count("<script>") == 1 and "</template>" not in src
-    src = src.replace(*CLASS_RX)
-    kz, missing = translate(src, DIC, tpl=TPL)
-    if missing:
-        raise SystemExit(f"{folder}: нет перевода для {len(missing)} фрагментов, например: {missing[:5]}")
-    head, style, body_ru, js_ru = split(src)
-    _, _, body_kz, js_kz = split(kz)
-    js_kz = fix(js_kz)
-    for old, new in KZ_FIX.get(folder, []):
-        js_kz = replace_once(js_kz, old, new)
-    # сервер отвечает ученику на его языке
-    js_kz = replace_once(js_kz, 'gsr("registerStudent", c, n)', 'gsr("registerStudent", c, n, "kz")')
-    js_kz = replace_once(js_kz, 'gsr("submitAnswer", { qid: shownQ,', 'gsr("submitAnswer", { qid: shownQ, lang: "kz",')
-    assert "</script" not in js_ru + js_kz
-    style = style.replace("</style>", LANG_CSS + "</style>")
-    page = (head + style + '\n<div id="app"></div>\n'
-            + '<template id="t-ru">' + body_ru + '</template>\n'
-            + '<template id="t-kz">' + body_kz + '</template>\n'
-            + BOOT % {"ru": json.dumps(ru_title, ensure_ascii=False), "kz": json.dumps(kz_title, ensure_ascii=False)}
-            + "function L_ru() {\n" + js_ru + "\n}\n"
-            + "function L_kz() {\n" + js_kz + "\n}\n</script>\n")
+    src = (root / folder / "src-ru.html").read_text(encoding="utf-8").replace(*CLASS_RX)
+    def fix_kz(js):
+        js = fix(js)
+        for old, new in KZ_FIX.get(folder, []):
+            js = replace_once(js, old, new)
+        # сервер отвечает ученику на его языке
+        js = replace_once(js, 'gsr("registerStudent", c, n)', 'gsr("registerStudent", c, n, "kz")')
+        return replace_once(js, 'gsr("submitAnswer", { qid: shownQ,', 'gsr("submitAnswer", { qid: shownQ, lang: "kz",')
+    page = assemble(src, (ru_title, kz_title), [".top .tools", "#login .lg-card"], fix_kz, folder)
     (root / folder / "index.html").write_text(page, encoding="utf-8")
     print(f"{folder}/index.html: {len(page)} bytes")
+
+
+# Экран учителя: данные с сервера (этапы, самооценка) приходят по-русски — на казахском экране
+# они переводятся тем же словарём, поэтому фильтры и сравнения в коде продолжают совпадать.
+DATA_WORDS = ["Получилось", "Частично", "Пока нет", "Да", "Нет"]
+KZ_DATA_JS = r"""
+const KZ_DATA = %s;
+const KZ_TASK = { "Вопрос": "Сұрақ", "Развилка": "Айрық", "Задание": "Тапсырма" };
+function kzData(v) {
+  if (typeof v === "string") return v in KZ_DATA ? KZ_DATA[v] : v.replace(/\(1-я: /g, "(1-ші: ").replace(/^верно: /, "дұрыс: ")
+    .replace(/^(Вопрос|Развилка|Задание) (\d+)$/, (m, a, n) => KZ_TASK[a] + " " + n);
+  if (Array.isArray(v)) return v.map(kzData);
+  if (v && typeof v === "object") { const o = {}; Object.keys(v).forEach(k => { o[k] = kzData(v[k]); }); return o; }
+  return v;
+}
+"""
+
+
+def build_teacher(folder):
+    src = (root / "tools" / "teacher" / f"{folder}.html").read_text(encoding="utf-8")
+    words = DATA_WORDS + [k for k in DIC if re.fullmatch(r"\d+\. .+", k)]
+    data = {w: DIC[w] for w in words}
+    def fix_kz(js):
+        js = replace_once(js, 'gsr("getTeacherData", PIN, qWanted).then(d => {', 'gsr("getTeacherData", PIN, qWanted).then(d => { d = kzData(d);')
+        return KZ_DATA_JS % json.dumps(data, ensure_ascii=False) + js
+    page = assemble(src, ("Экран учителя", "Мұғалім экраны"), [".top .tools", "#pinBox"], fix_kz, folder)
+    (root / folder / "Teacher.html").write_text(page, encoding="utf-8")
+    print(f"{folder}/Teacher.html: {len(page)} bytes")
 
 
 if __name__ == "__main__":
     for f in LESSONS:
         build(f)
+    for f in ["apps-script", "apps-script-logic", "apps-script-stats"]:
+        build_teacher(f)
