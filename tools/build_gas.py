@@ -1,9 +1,10 @@
-"""Собирает apps-script/Lesson.html из lessons-8/index.html для Google Apps Script."""
+"""Собирает Lesson.html для Google Apps Script из веб-версии каждого урока."""
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
-page = (root / "lessons-8" / "index.html").read_text(encoding="utf-8")
-out = ('<!DOCTYPE html>\n<html lang="ru">\n<head>\n<meta charset="utf-8">\n<base target="_top">\n'
-       + page + '\n</html>\n')
-(root / "apps-script" / "Lesson.html").write_text(out, encoding="utf-8")
-print("apps-script/Lesson.html:", len(out), "bytes")
+for src, dst in [("lessons-8", "apps-script"), ("lessons-8-logic", "apps-script-logic")]:
+    page = (root / src / "index.html").read_text(encoding="utf-8")
+    out = ('<!DOCTYPE html>\n<html lang="ru">\n<head>\n<meta charset="utf-8">\n<base target="_top">\n'
+           + page + '\n</html>\n')
+    (root / dst / "Lesson.html").write_text(out, encoding="utf-8")
+    print(f"{dst}/Lesson.html:", len(out), "bytes")

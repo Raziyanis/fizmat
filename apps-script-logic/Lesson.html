@@ -1,0 +1,2658 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<base target="_top">
+<title>Логические функции · 8 класс</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=PT+Sans:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: тема спрятана в строках таблицы; задания открывают буквы, после разгадки открывается тема и цель */
+:root {
+  --bg: #f3f6f7;
+  --surface: #ffffff;
+  --ink: #16212a;
+  --muted: #5a6a76;
+  --line: #d7e0e5;
+  --head: #e9eef1;    /* заголовки строк и столбцов таблицы */
+  --c: #1d7652;       /* зелёный электронных таблиц */
+  --bad: #b3372b;
+  --refc: #2c58ad;   /* ячейки, на которые ссылается формула */
+  --tgt: #fff4cc; --tgtb: #d9a400;   /* ячейка для ответа в практике */
+  --f-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --f-body: "PT Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Consolas", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
+    --c: #4cc093; --bad: #f07b6e; --refc: #8aaaff; --tgt: #3a3317; --tgtb: #e0b23a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e151a; --surface: #162028; --ink: #e5ecf0; --muted: #98a9b5; --line: #2b3a45; --head: #1d2a33;
+  --c: #4cc093; --bad: #f07b6e; --refc: #8aaaff; --tgt: #3a3317; --tgtb: #e0b23a; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+*, *::before, *::after { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
+html.big { font-size: 125%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 1rem; line-height: 1.5; }
+.wrap {
+  max-width: 1000px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+.eyebrow { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tools { display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; cursor: pointer; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 7px 12px; border-radius: 6px; font-size: .9rem; }
+.btn:hover { border-color: var(--muted); }
+.btn.main { background: var(--c); border-color: var(--c); color: var(--surface); font-weight: 700; }
+:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+
+h1 { margin: 0 0 6px; font-family: var(--f-display); font-weight: 500; font-size: clamp(1.4rem, 3.6vw, 2.1rem); line-height: 1.2; text-wrap: balance; }
+.lead { margin: 0 0 18px; color: var(--muted); max-width: 65ch; }
+
+.steps { display: flex; gap: 18px; border-bottom: 1px solid var(--line); margin-bottom: 18px; flex-wrap: wrap; }
+.step { background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 8px 2px 9px; font-size: .98rem; display: flex; gap: 8px; align-items: baseline; }
+.step b { font-family: var(--f-mono); font-weight: 600; font-size: .8rem; }
+.step[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--c); font-weight: 700; }
+.step[disabled] { cursor: not-allowed; opacity: .5; }
+
+.panel { display: grid; gap: 16px; }
+.block { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; min-width: 0; }
+.block h2 { margin: 0 0 12px; font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* Лист с зашифрованной темой */
+.sheetwrap { overflow-x: auto; padding-bottom: 4px; }
+.grid { border-collapse: collapse; font-family: var(--f-mono); }
+.grid th { background: var(--head); color: var(--muted); font-weight: 400; font-size: .75rem; border: 1px solid var(--line); padding: 2px 0; width: 2.6rem; }
+.grid th.rh { width: 2rem; }
+.grid td { border: 1px solid var(--line); width: 2.6rem; height: 3.2rem; text-align: center; vertical-align: middle; padding: 0; position: relative; }
+.grid td.gap { background: var(--bg); border-color: transparent; }
+.cell { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+.cell .ch { font-family: var(--f-display); font-size: 1.35rem; font-weight: 700; color: var(--line); line-height: 1; }
+.cell .no { font-size: .66rem; color: var(--muted); margin-top: 3px; }
+td.open { background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
+td.open .ch { color: var(--c); }
+@media (prefers-reduced-motion: no-preference) { td.flip .ch { animation: flip .45s ease-out; } @keyframes flip { from { transform: rotateX(90deg); } to { transform: none; } } }
+.progress { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.pbar { flex: 1 1 200px; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.pbar i { display: block; height: 100%; width: 0; background: var(--c); transition: width .3s; }
+.pnum { font-family: var(--f-mono); font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.guess { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.guess label { font-weight: 700; }
+.guess input { flex: 1 1 240px; min-width: 0; }
+
+input[type="text"] {
+  font: inherit; font-family: var(--f-mono); padding: 7px 10px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+}
+input.wrong { border-color: var(--bad); }
+@media (prefers-reduced-motion: no-preference) { input.wrong { animation: shake .3s; } @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } } }
+.msg { font-size: .9rem; min-height: 1.4em; margin: 6px 0 0; }
+.msg.bad { color: var(--bad); }
+.msg.ok { color: var(--c); font-weight: 700; }
+
+/* Задания */
+.tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.task { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; background: var(--surface); }
+.task.done { border-color: var(--c); background: color-mix(in srgb, var(--c) 6%, var(--surface)); }
+.task .hd { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.task .tn { font-family: var(--f-mono); font-size: .8rem; color: var(--muted); }
+.task .fn { font-size: .75rem; font-weight: 700; letter-spacing: .05em; color: var(--c); }
+.formula { font-family: var(--f-mono); font-size: 1.05rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; overflow-x: auto; white-space: nowrap; }
+.formula::before { content: "fx"; color: var(--muted); font-style: italic; font-size: .8rem; margin-right: 8px; }
+.mini { border-collapse: collapse; font-family: var(--f-mono); font-size: .85rem; }
+.mini th, .mini td { border: 1px solid var(--line); padding: 2px 10px; text-align: right; }
+.mini th { background: var(--head); color: var(--muted); font-weight: 400; text-align: center; }
+.row { display: flex; gap: 8px; }
+.row input { flex: 1 1 auto; min-width: 0; width: 6rem; }
+.task details summary { cursor: pointer; font-size: .85rem; color: var(--muted); }
+.task details p { margin: 6px 0 0; font-size: .9rem; }
+.task .got { font-size: .9rem; color: var(--c); font-weight: 700; }
+
+/* Тема и цель */
+.reveal-title { font-family: var(--f-display); font-weight: 500; font-size: clamp(1.3rem, 3.2vw, 1.9rem); line-height: 1.25; margin: 0 0 10px; text-wrap: balance; }
+.fns { display: flex; flex-wrap: wrap; gap: 8px; }
+.fns code { font-size: 1rem; padding: 3px 10px; }
+.goal { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: baseline; }
+.code { font-family: var(--f-mono); font-weight: 600; color: var(--c); font-size: .92rem; white-space: nowrap; }
+.goal p, .plain { margin: 0; font-size: 1.08rem; }
+.res { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+.res:first-child { border-top: 0; padding-top: 0; }
+.who { font-weight: 700; display: flex; flex-direction: column; gap: 4px; }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--c); }
+.res p { margin: 0; font-size: 1.05rem; }
+@media (max-width: 520px) { .res { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
+code { font-family: var(--f-mono); font-size: .9em; background: var(--bg); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; white-space: nowrap; }
+.next { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.howto { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.howto li { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr); gap: 10px; align-items: start; font-size: 1.05rem; }
+.hn { width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--c); color: var(--surface); font-family: var(--f-mono); font-weight: 600; font-size: .85rem; display: flex; align-items: center; justify-content: center; }
+.example { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; padding: 10px 12px; background: var(--bg); border: 1px dashed var(--line); border-radius: 6px; }
+.ex-label { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.ex-cell { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 2.6rem; height: 3rem; border: 1px solid var(--line); background: var(--surface); font-family: var(--f-mono); }
+.ex-cell b { font-family: var(--f-display); font-size: 1.2rem; color: var(--line); line-height: 1; }
+.ex-cell small { font-size: .66rem; color: var(--muted); }
+.ex-cell.open { background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
+.ex-cell.open b { color: var(--c); }
+.arrow { color: var(--muted); }
+.expect { border: 2px solid var(--c); }
+.expect .q { display: block; font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+.starters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.starter { border: 1px dashed var(--c); background: none; color: var(--c); border-radius: 999px; padding: 4px 12px; font-size: .9rem; }
+.starter:hover { background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05rem; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); resize: vertical; }
+.exp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 10px; }
+.mine { margin: 0 0 10px; font-size: 1.1rem; padding: 10px 14px; background: var(--bg); border-left: 3px solid var(--c); border-radius: 4px; white-space: pre-wrap; }
+.seg { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
+.seg label { cursor: pointer; }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg span { display: inline-block; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.seg input:checked + span { background: var(--c); border-color: var(--c); color: var(--surface); font-weight: 700; }
+.seg input:focus-visible + span { outline: 2px solid var(--c); outline-offset: 2px; }
+.rr { display: grid; gap: 8px; padding: 12px 0; border-top: 1px solid var(--line); }
+.rr:first-child { border-top: 0; padding-top: 0; }
+.rr .lvl { font-weight: 700; }
+.rr p { margin: 0; }
+.summary { border: 2px solid var(--c); }
+.sumrow { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 12px; padding: 6px 0; }
+@media (max-width: 520px) { .sumrow { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+.mark { font-weight: 700; }
+.mark.m2 { color: var(--c); }
+.mark.m1 { color: var(--ink); }
+.mark.m0 { color: var(--bad); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.anatomy { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
+.part { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.tok { font-family: var(--f-mono); font-size: 1.7rem; font-weight: 600; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.tok.fnc { color: var(--c); }
+.tok.arg { color: var(--ink); background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+.lab { font-size: .82rem; color: var(--muted); text-align: center; max-width: 9rem; line-height: 1.3; }
+.tip { margin: 14px 0 0; }
+.fpills { display: flex; flex-wrap: wrap; gap: 8px; }
+.fpill { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 14px; font-family: var(--f-mono); font-size: .88rem; }
+.fpill[aria-selected="true"] { background: var(--c); border-color: var(--c); color: var(--surface); font-weight: 600; }
+.fcard { display: grid; gap: 14px; }
+.fname { margin: 0; font-family: var(--f-display); font-size: 1.35rem; font-weight: 500; line-height: 1.3; }
+.fname code { font-size: 1.1rem; color: var(--c); }
+.simple { margin: 0; font-size: 1.15rem; padding: 12px 14px; background: color-mix(in srgb, var(--c) 8%, var(--surface)); border-radius: 6px; }
+.how { margin: 0; font-size: 1.1rem; }
+.how span { color: var(--muted); }
+.how code { font-size: 1.05rem; }
+.try { border: 1px dashed var(--c); border-radius: 8px; padding: 14px; display: grid; gap: 10px; justify-items: start; min-width: 0; }
+.trylab { font-weight: 700; color: var(--c); }
+.mini.live td { padding: 2px 6px; text-align: left; }
+.mini.live input { width: 5.5rem; font: inherit; font-family: var(--f-mono); border: 0; background: transparent; color: var(--ink); padding: 3px 4px; text-align: right; }
+.mini.live input:focus { outline: 2px solid var(--c); }
+.resrow td { background: color-mix(in srgb, var(--c) 12%, var(--surface)); }
+.resrow .fx { color: var(--muted); font-size: .8rem; margin-right: 10px; }
+.resrow output { font-weight: 700; color: var(--c); font-size: 1.05rem; }
+.inline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-family: var(--f-mono); font-size: 1.2rem; }
+.inline .fx { color: var(--c); font-weight: 600; }
+input.num { width: 4.5rem; font: inherit; font-family: var(--f-mono); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); text-align: center; }
+.eq { margin: 0 6px; color: var(--muted); }
+output.big { font-size: 1.6rem; font-weight: 700; color: var(--c); }
+output.big.err { color: var(--bad); }
+.explain { margin: 0; font-size: 1.05rem; }
+.line { display: flex; width: 100%; max-width: 560px; }
+.tick { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.tick i { display: block; width: 100%; height: 10px; border-bottom: 2px solid var(--line); position: relative; }
+.tick i::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 1px; height: 8px; background: var(--muted); }
+.tick.on i { border-bottom-color: var(--c); border-bottom-width: 4px; }
+.tick.zero i::after { width: 3px; height: 14px; background: var(--ink); }
+.tick.end i::after { width: 10px; height: 10px; border-radius: 50%; background: var(--c); left: calc(50% - 5px); bottom: -7px; }
+.tick small { font-family: var(--f-mono); font-size: .68rem; color: var(--muted); min-height: 1em; }
+.sq { display: grid; grid-template-columns: repeat(var(--n, 1), 1.1rem); gap: 2px; }
+.sq i { width: 1.1rem; height: 1.1rem; background: color-mix(in srgb, var(--c) 35%, var(--surface)); border-radius: 2px; }
+.use { margin: 0; font-size: 1.05rem; padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; }
+.use b { color: var(--c); }
+select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); max-width: 100%; }
+#sifTable tr.hit td { background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
+#sifTable tr.miss td { color: var(--muted); text-decoration: line-through; }
+#sifTable tr.miss td.mk { text-decoration: none; }
+#sifTable td.mk { font-family: var(--f-body); font-size: .85rem; text-align: left; }
+#sifTable tr.hit td.mk { color: var(--c); font-weight: 700; }
+.remember { margin: 0; font-size: 1.02rem; padding-left: 12px; border-left: 3px solid var(--warn, var(--c)); }
+.tablewrap { overflow-x: auto; }
+.cheat { border-collapse: collapse; width: 100%; font-size: 1rem; }
+.cheat th, .cheat td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.cheat th { background: var(--head); color: var(--muted); font-weight: 700; font-size: .85rem; }
+.tryxl { border: 1px dashed var(--c); border-radius: 8px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.xl { display: grid; gap: 10px; min-width: 0; }
+.xl-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+.xl-ex, .xl-act { display: flex; flex-wrap: wrap; gap: 6px; }
+.xl-chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 4px 12px; font-size: .88rem; }
+.xl-chip[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 15%, var(--surface)); border-color: var(--c); color: var(--c); font-weight: 700; }
+.xl-act .btn { padding: 4px 10px; font-size: .85rem; }
+.xl-play[aria-pressed="true"] { border-color: var(--c); color: var(--c); }
+.xl-text { margin: 0; font-size: 1.02rem; }
+.xl-bar { display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); min-width: 0; }
+.xl-name { font-family: var(--f-mono); font-size: .9rem; padding: 6px 10px; min-width: 3.2rem; border-right: 1px solid var(--line); background: var(--head); display: flex; align-items: center; justify-content: center; }
+.xl-fx { font-style: italic; color: var(--muted); padding: 6px 10px; border-right: 1px solid var(--line); display: flex; align-items: center; font-family: Georgia, serif; }
+.xl-in { flex: 1; min-width: 0; border: 0; font-family: var(--f-mono); font-size: 1.05rem; padding: 6px 10px; background: transparent; color: var(--ink); }
+.xl-in:focus { outline: 2px solid var(--c); outline-offset: -2px; }
+.xl-wrap { overflow-x: auto; }
+.xl-grid { border-collapse: collapse; font-family: var(--f-body); font-size: 1rem; font-variant-numeric: tabular-nums; }
+.xl-grid th { background: var(--head); color: var(--muted); font-weight: 400; font-size: .8rem; border: 1px solid var(--line); padding: 2px 6px; font-family: var(--f-mono); }
+.xl-grid th.xl-corner { width: 2rem; }
+.xl-grid td { border: 1px solid var(--line); min-width: 5.2rem; height: 2rem; padding: 2px 8px; cursor: cell; white-space: nowrap; background: var(--surface); }
+.xl-grid td.n { text-align: right; }
+.xl-grid td.e { color: var(--bad); text-align: center; font-weight: 700; }
+.xl-grid td.f { background: color-mix(in srgb, var(--c) 7%, var(--surface)); font-weight: 700; }
+.xl-grid td.ref { background: color-mix(in srgb, var(--refc) 16%, var(--surface)); box-shadow: inset 0 0 0 1px var(--refc); }
+.xl-grid td.sel { outline: 2px solid var(--c); outline-offset: -2px; }
+.xl-grid td:focus { outline: 2px solid var(--c); outline-offset: -2px; }
+.xl-explain { margin: 0; font-size: 1.02rem; padding: 8px 12px; background: var(--bg); border-radius: 6px; }
+.xl-explain code { white-space: normal; word-break: break-word; }
+.xl-explain.bad { color: var(--bad); }
+.xl-why { display: block; margin-top: 4px; }
+.xl-step { color: var(--muted); }
+.xl-hint { margin: 0; font-size: .85rem; color: var(--muted); }
+.theory-intro .concepts { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.concepts div { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+.concepts b { color: var(--c); }
+.concepts p { margin: 4px 0 0; }
+.th-h { margin: 16px 0 8px; font-size: 1rem; }
+.steps-list { margin: 0; padding-left: 1.4rem; display: grid; gap: 4px; }
+.theory { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 6px; }
+.theory h3 { margin: 10px 0 0; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
+.theory p { margin: 0; }
+.theory ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 6px; }
+.theory .syn code { font-size: 1.15rem; padding: 4px 10px; }
+.small-note { font-size: .85rem; color: var(--muted); }
+.th-ex, .th-args { border-collapse: collapse; width: 100%; font-size: .98rem; }
+.th-ex th, .th-ex td, .th-args th, .th-args td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+.th-ex th, .th-args th { background: var(--head); color: var(--muted); font-size: .82rem; font-weight: 700; }
+.ex-cap { margin: 4px 0 0; font-weight: 700; font-size: .9rem; }
+.ex-data td { min-width: 4.5rem; }
+.ex-data td.n { text-align: right; }
+.ex-data td.t { text-align: left; }
+.th-ex td.r { font-family: var(--f-mono); font-weight: 600; white-space: nowrap; }
+.tryf { font-family: var(--f-mono); font-size: .9rem; border: 1px solid var(--c); color: var(--c); background: var(--surface); border-radius: 4px; padding: 2px 8px; white-space: nowrap; }
+.tryf:hover { background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+.xl-keys { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.xl-keys-lab { font-size: .82rem; color: var(--muted); margin-right: 4px; }
+.xl-key { font-family: var(--f-mono); font-size: .85rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 4px; padding: 3px 8px; }
+.xl-key:hover { border-color: var(--c); color: var(--c); }
+.xl-grid { user-select: none; }
+.err-table td.ecode { font-family: var(--f-mono); font-weight: 700; color: var(--bad); white-space: nowrap; }
+.err-table td.eex { display: table-cell; }
+.err-table .tryf { display: inline-block; margin: 0 4px 4px 0; }
+.showex { display: block; margin-bottom: 6px; border: 0; background: var(--bad); color: var(--surface); border-radius: 4px; padding: 3px 10px; font-size: .85rem; font-weight: 700; }
+.showex:hover { filter: brightness(1.1); }
+.lv-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 760px) { .lv-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lv { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 10px 12px; position: relative; }
+.lv .lv-name { font-weight: 700; font-family: var(--f-mono); }
+.lv small { color: var(--muted); }
+.lv .lv-c { position: absolute; top: 10px; right: 12px; font-family: var(--f-mono); font-size: .85rem; color: var(--muted); }
+.lv[aria-selected="true"] { border: 2px solid var(--c); padding: 9px 11px; }
+.lv.full .lv-c { color: var(--c); font-weight: 700; }
+.lv.full .lv-c::before { content: "✓ "; }
+.lv-desc { margin: 10px 0 0; }
+.task-card { display: grid; gap: 10px; }
+.task-card.done { border-color: var(--c); }
+.tc-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tc-id { font-family: var(--f-mono); font-weight: 700; background: var(--c); color: var(--surface); border-radius: 4px; padding: 1px 8px; }
+.tc-fn { font-family: var(--f-mono); font-size: .85rem; color: var(--c); font-weight: 700; }
+.tc-status { margin-left: auto; color: var(--c); font-weight: 700; }
+.tc-q { margin: 0; font-size: 1.12rem; font-weight: 700; }
+.tc-where { margin: 0; color: var(--muted); }
+.tc-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tc-msg { margin: 0; min-height: 1.4em; font-size: 1.02rem; }
+.tc-msg.ok { color: var(--c); font-weight: 700; }
+.tc-msg.bad { color: var(--bad); }
+.tc-hint { margin: 0; padding: 8px 12px; border-left: 3px solid var(--c); background: var(--bg); border-radius: 4px; }
+.xl-grid td.target { background: var(--tgt); box-shadow: inset 0 0 0 2px var(--tgtb); }
+.pr-note { margin: 0; font-size: .9rem; color: var(--muted); font-family: var(--f-mono); }
+.pr-note.full { color: var(--c); }
+.cg { display: grid; gap: 8px; min-width: 0; }
+.cg-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cg-name { font-family: var(--f-mono); font-weight: 700; font-size: 1.1rem; min-width: 5.5rem; text-align: center; padding: 4px 10px; border: 1px solid var(--line); background: var(--head); border-radius: 4px; }
+.cg-size { color: var(--muted); font-size: .92rem; }
+.cg-grid { touch-action: none; }
+.cg-grid td { cursor: cell; }
+.cg-grid td.given { background: color-mix(in srgb, var(--refc) 22%, var(--surface)); box-shadow: inset 0 0 0 2px var(--refc); }
+.cg-grid td.picked { background: color-mix(in srgb, var(--c) 22%, var(--surface)); box-shadow: inset 0 0 0 2px var(--c); }
+.cg-answer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cg-answer label { font-weight: 700; }
+.cg-in { font: inherit; font-family: var(--f-mono); font-size: 1.1rem; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 12rem; max-width: 100%; }
+.task-card.locked { opacity: .6; border-style: dashed; }
+.task-card.locked > :not(.tc-head):not(.tc-lock):not(.tc-q) { display: none; }
+.tc-lock { margin: 0; font-weight: 700; color: var(--muted); }
+.tc-lock:empty { display: none; }
+.lv:disabled { opacity: .5; cursor: not-allowed; }
+.lv:disabled .lv-name::after { content: " · закрыто"; font-family: var(--f-body); font-weight: 400; font-size: .8rem; }
+#lvNext:disabled { opacity: .5; cursor: not-allowed; }
+.mt-list { display: grid; gap: 12px; }
+.mt-card { display: grid; gap: 10px; }
+.mt-card.done { border-color: var(--c); }
+.mt-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.mt-opt { font-family: var(--f-mono); font-size: .95rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; }
+.mt-opt:hover:not(:disabled) { border-color: var(--c); color: var(--c); }
+.mt-opt.ok { background: var(--c); border-color: var(--c); color: var(--surface); }
+.mt-opt.bad { border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.mt-opt:disabled:not(.ok) { opacity: .45; }
+.mt-done { border: 2px solid var(--c); }
+.mt-ex { display: block; margin-top: 4px; font-weight: 400; color: var(--ink); }
+.who { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: .88rem; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.net { font-size: .8rem; color: var(--muted); }
+.net.on { color: var(--c); }
+.net.off { color: var(--bad); }
+.linkbtn { background: none; border: 0; color: var(--c); text-decoration: underline; padding: 0; font-size: .85rem; }
+.overlay { position: fixed; inset: 0; z-index: 50; background: color-mix(in srgb, var(--ink) 45%, transparent); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
+.lg-card { background: var(--surface); color: var(--ink); border-radius: 12px; padding: 24px; width: 100%; max-width: 640px; display: grid; gap: 10px; box-shadow: 0 20px 60px rgba(0, 0, 0, .25); }
+.lg-title { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: 1.5rem; }
+#loginBody { display: grid; gap: 10px; justify-items: start; }
+.lg-q { margin: 6px 0 0; font-size: 1.15rem; font-weight: 700; }
+.lg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; width: 100%; max-height: 50vh; overflow-y: auto; }
+.lg-btn { border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 8px; padding: 10px 12px; text-align: left; font-size: 1rem; }
+.lg-btn:hover { border-color: var(--c); color: var(--c); }
+.lg-big { font-size: 1.1rem; padding: 12px 16px; }
+.lg-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lg-l { font-weight: 700; }
+.lg-in { font: inherit; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+.lg-err { margin: 0; color: var(--bad); min-height: 1.2em; }
+.lg-sug { display: grid; gap: 8px; padding: 10px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--c); width: 100%; }
+.lg-sug p { margin: 0; }
+.q-card { border-top: 6px solid var(--c); }
+.q-text { margin: 0; font-family: var(--f-display); font-size: 1.35rem; line-height: 1.3; }
+.toast { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); background: var(--ink); color: var(--surface); padding: 10px 18px; border-radius: 8px; font-weight: 700; }
+.crit td:first-child { min-width: 16rem; }
+.crit-main { margin-bottom: 10px; }
+.crit tr.d-ok td:last-child { color: var(--c); font-weight: 700; }
+.crit tr.d-no td:last-child { color: var(--muted); }
+.desc-sum { margin-bottom: 8px; font-weight: 700; }
+.brk { text-align: center; justify-items: center; }
+.brk-step { margin: 0; font-family: var(--f-mono); color: var(--c); font-weight: 700; }
+.brk-text { margin: 0; font-family: var(--f-display); font-size: 1.35rem; line-height: 1.3; max-width: 30ch; }
+.brk-timer { display: flex; align-items: baseline; gap: 6px; font-family: var(--f-mono); }
+.brk-timer output { font-size: 3.4rem; font-weight: 700; color: var(--c); font-variant-numeric: tabular-nums; }
+.brk .pbar { width: 100%; }
+.ex-pills { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.ex-pill { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 8px 10px; }
+.ex-pill .ex-n { font-size: .78rem; color: var(--muted); }
+.ex-pill b { font-family: var(--f-mono); }
+.ex-pill .ex-c { font-family: var(--f-mono); font-size: .82rem; color: var(--muted); }
+.ex-pill[aria-selected="true"] { border: 2px solid var(--c); padding: 7px 9px; }
+.ex-pill.full .ex-c { color: var(--c); font-weight: 700; }
+.ex-sc { display: grid; gap: 10px; }
+.ex-h { margin: 8px 0 0; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
+.ex-prep { margin: 0; padding-left: 1.3rem; display: grid; gap: 4px; }
+.ex-tsv { width: 100%; height: 6rem; font-family: var(--f-mono); }
+.ex-tasks { display: grid; gap: 10px; }
+.ex-task { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px; }
+.ex-task.done { border-color: var(--c); background: color-mix(in srgb, var(--c) 5%, var(--surface)); }
+.ex-tag { font-size: .78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--head); color: var(--ink); }
+.ex-tag.hard { background: color-mix(in srgb, var(--bad) 15%, var(--surface)); color: var(--bad); }
+.ex-where { display: inline-block; font-weight: 400; color: var(--muted); font-size: .92rem; margin-left: 6px; }
+.ex-where b { color: var(--ink); font-family: var(--f-mono); }
+.ex-inputs { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+.ex-inputs label { display: grid; gap: 2px; font-size: .82rem; color: var(--muted); }
+.ex-inputs input { font: inherit; font-family: var(--f-mono); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 15rem; max-width: 100%; }
+.ex-inputs .ex-a { width: 10rem; }
+.apply { border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 6px; padding: 10px 14px; display: grid; gap: 6px; }
+.apply-h { margin: 0; font-weight: 700; color: var(--c); font-size: .85rem; letter-spacing: .05em; text-transform: uppercase; }
+.apply ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 4px; }
+.apply li span { color: var(--ink); }
+.apply-no { margin: 0; font-size: .95rem; color: var(--muted); }
+.reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
+.fork-q { margin: 0; font-size: 1.15rem; font-weight: 700; }
+.fork-br { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fork-b { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-weight: 700; }
+.fork-b:hover:not(:disabled) { border-color: var(--c); }
+.fork-b .lt { font-family: var(--f-display); font-size: 1.15rem; color: var(--muted); }
+.fork-b.ok { border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 12%, var(--surface)); }
+.fork-b.ok .lt { color: var(--c); }
+.fork-b.no { border: 2px solid var(--bad); background: color-mix(in srgb, var(--bad) 10%, var(--surface)); }
+.fork-b.no .lt { color: var(--bad); }
+.fork-b:disabled { cursor: default; }
+.fork-b:disabled:not(.ok) { opacity: .5; }
+.task.fork.wrongp { border-color: var(--bad); }
+td.wrongl { background: color-mix(in srgb, var(--bad) 12%, var(--surface)); }
+td.wrongl .ch { color: var(--bad); }
+.xl-grid td.b { text-align: center; }
+.xl-if { display: block; margin-top: 4px; color: var(--c); font-weight: 700; }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <span class="eyebrow">Информатика · 8 класс · Электронные таблицы</span>
+    <div class="tools">
+      <span class="who" id="who" hidden>Ученик: <b id="whoName"></b> · <span id="netState" class="net"></span> <button type="button" class="linkbtn" id="whoChange">Сменить</button><span class="small" id="whoHint" hidden> Чтобы войти другим учеником, обнови страницу.</span></span>
+      <button class="btn" id="breakBtn" type="button">Физминутка · 1 мин</button>
+      <button class="btn" id="bigBtn" type="button" aria-pressed="false">Крупный шрифт</button>
+      <button class="btn" id="fsBtn" type="button">Во весь экран</button>
+    </div>
+  </div>
+
+  <div class="steps" role="tablist" aria-label="Этапы урока">
+    <button type="button" class="step" role="tab" id="tab-review" aria-controls="review" aria-selected="true"><b>1</b>Повторим</button>
+    <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="false"><b>2</b>Разгадай тему</button>
+    <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>3</b>Тема и цель</button>
+    <button type="button" class="step" role="tab" id="tab-actual" aria-controls="actual" aria-selected="false" disabled><b>4</b>Вспомним</button>
+    <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>5</b>Новая тема</button>
+    <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>6</b>Какая функция?</button>
+    <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>7</b>Практика</button>
+    <button type="button" class="step" role="tab" id="tab-excel" aria-controls="excel" aria-selected="false" disabled><b>8</b>Работа в Excel</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>9</b>Итоги урока</button>
+    <button type="button" class="step" role="tab" id="tab-hw" aria-controls="hw" aria-selected="false" disabled><b>10</b>Домашнее задание</button>
+  </div>
+
+  <!-- Этап 1: повторение прошлого урока -->
+  <div class="panel" id="review" role="tabpanel" aria-labelledby="tab-review">
+    <div>
+      <h1>Повторим прошлый урок</h1>
+      <p class="lead">Шесть быстрых вопросов о функциях СУММ, ABS, КОРЕНЬ, СТЕПЕНЬ и СУММЕСЛИ. Выбери ответ — сразу увидишь, верно или нет, и почему.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="rvBar"></i></div><span class="pnum" id="rvNum"></span></div>
+      <p class="small" id="rvFirst"></p>
+    </section>
+    <div class="mt-list" id="rvList"></div>
+    <section class="block mt-done" id="rvDone" hidden>
+      <h2>Итог</h2>
+      <p class="plain" id="rvDoneText"></p>
+    </section>
+    <div class="next"><span></span><button class="btn main" type="button" data-go="puzzle">Дальше: разгадай тему →</button></div>
+  </div>
+
+  <!-- Этап 2: разгадать тему -->
+  <div class="panel" id="puzzle" role="tabpanel" aria-labelledby="tab-puzzle" hidden>
+    <div>
+      <h1>Разгадай тему урока</h1>
+    </div>
+
+    <section class="block how">
+      <h2>Как играть</h2>
+      <ol class="howto">
+        <li><span class="hn">1</span><span>В каждой ячейке листа спрятана буква. <b>Маленькая цифра под «?»</b> — это номер развилки.</span></li>
+        <li><span class="hn">2</span><span>Найди <b>развилку с этим номером</b> ниже и прочитай утверждение. Оно верно или нет?</span></li>
+        <li><span class="hn">3</span><span>Нажми <b>«Да»</b> или <b>«Нет»</b>. У каждой ветки своя буква: верная ветка открывает нужную букву, неверная ставит лишнюю — и слово на листе «ломается».</span></li>
+        <li><span class="hn">4</span><span>Сломалось слово — выбери другую ветку. Открой все буквы или впиши тему целиком, если догадался раньше. После этого откроется <b>тема и цель урока</b>.</span></li>
+      </ol>
+      <div class="example">
+        <span class="ex-label">Пример</span>
+        <span>развилка: <b>2 + 2 = 4</b></span>
+        <span class="arrow">→</span>
+        <span>верно, жмём <b>«Да»</b></span>
+        <span class="arrow">→</span>
+        <span class="ex-cell open"><b>Д</b><small>0</small></span>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Лист «Тема»</h2>
+      <div class="sheetwrap"><table class="grid" id="grid"></table></div>
+      <div class="progress">
+        <div class="pbar"><i id="pbar"></i></div>
+        <span class="pnum" id="pnum"></span>
+      </div>
+      <div class="guess">
+        <label for="guessIn">Уже догадались?</label>
+        <input type="text" id="guessIn" placeholder="Впишите тему целиком" autocomplete="off">
+        <button class="btn" type="button" id="guessBtn">Проверить тему</button>
+      </div>
+      <p class="msg" id="guessMsg" aria-live="polite"></p>
+    </section>
+
+    <section class="block">
+      <h2>Развилки · верно или нет?</h2>
+      <div class="tasks" id="tasks"></div>
+    </section>
+    <div class="next"><button class="btn" type="button" data-go="review">← Повторим</button><button class="reset" type="button" id="resetBtn">Начать заново</button></div>
+  </div>
+
+  <!-- Этап 3: тема и цель -->
+  <div class="panel" id="goal" role="tabpanel" aria-labelledby="tab-goal" hidden>
+    <section class="block">
+      <h2>Тема урока</h2>
+      <p class="reveal-title">Логические функции в электронных таблицах</p>
+      <div class="fns"><code>ЕСЛИ()</code><code>И()</code><code>ИЛИ()</code><code>НЕ()</code></div>
+      <p class="small" id="forkNote">Разгадывая тему, ты рассуждал как функция <b>ЕСЛИ</b>: проверял утверждение и по ответу «да» или «нет» выбирал одну из двух букв.</p>
+    </section>
+    <section class="block expect" id="expect">
+      <h2>Мои ожидания от урока</h2>
+      <div id="expForm">
+        <label for="expText" class="q">Тема открыта. Чему ты хочешь научиться на этом уроке? Что ты уже знаешь о проверке условий?</label>
+        <div class="starters" aria-label="Начало фразы">
+          <button type="button" class="starter">Я хочу научиться…</button>
+          <button type="button" class="starter">Я уже знаю…</button>
+          <button type="button" class="starter">Мне интересно, зачем…</button>
+          <button type="button" class="starter">Хочу понять, где пригодится…</button>
+        </div>
+        <textarea id="expText" rows="3" placeholder="Например: хочу научиться, чтобы таблица сама ставила «зачёт»…"></textarea>
+        <div class="exp-actions">
+          <button class="btn main" type="button" id="expSave">Сохранить и увидеть цель урока</button>
+          <span class="msg" id="expMsg" aria-live="polite"></span>
+        </div>
+      </div>
+      <div id="expSaved" hidden>
+        <p class="mine" id="expShow"></p>
+        <button class="btn" type="button" id="expEdit">Изменить</button>
+        <p class="small">В конце урока сравнишь свои ожидания с тем, что получилось.</p>
+      </div>
+    </section>
+
+    <div class="panel" id="afterExp" hidden>
+    <section class="block">
+      <h2>Цель обучения</h2>
+      <div class="goal"><span class="code">8.2.2.2</span><p>использовать функции обработки логических операций (ЕСЛИ(), И(), ИЛИ(), НЕ()) в электронных таблицах</p></div>
+    </section>
+    <section class="block">
+      <h2>Цель урока</h2>
+      <p class="plain">научиться проверять условия в электронных таблицах и выбирать результат с помощью функций ЕСЛИ(), И(), ИЛИ() и НЕ().</p>
+    </section>
+    <section class="block">
+      <h2>Ожидаемые результаты · к концу урока я смогу</h2>
+      <div class="res"><div class="who">Все учащиеся<span class="bar"><i style="width:100%"></i></span></div><p>записать условие знаками сравнения и выбрать одно из двух значений функцией <code>=ЕСЛИ(B2&gt;=50;"зачёт";"незачёт")</code>.</p></div>
+      <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>проверить несколько условий сразу функциями <code>И()</code> и <code>ИЛИ()</code>, например <code>=И(B2&lt;=10;C2&gt;=150)</code>, и посчитать результат в ветке ЕСЛИ.</p></div>
+      <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>составить формулу из вложенных функций, например <code>=ЕСЛИ(И(B2=5;C2=5);"допущен";"нет")</code> или ЕСЛИ внутри ЕСЛИ, и объяснить, чем И отличается от ИЛИ.</p></div>
+    </section>
+    <section class="block">
+      <h2>Критерии оценивания · как проверим, что цель достигнута</h2>
+      <p class="plain crit-main"><b>Критерий:</b> использует логические функции ЕСЛИ(), И(), ИЛИ(), НЕ() для обработки условий в электронных таблицах.</p>
+      <div class="tablewrap"><table class="th-args crit" id="critTable"></table></div>
+      <p class="small-note">Дескрипторы отмечаются автоматически по заданиям урока. Свои результаты увидишь в «Итогах урока».</p>
+    </section>
+    </div>
+    <div class="next"><button class="btn" type="button" data-go="puzzle">← К разгадке</button><button class="btn main" type="button" data-go="actual" id="toLearn" hidden>Дальше: вспомним →</button></div>
+  </div>
+
+  <!-- Этап 4: актуализация знаний -->
+  <div class="panel" id="actual" role="tabpanel" aria-labelledby="tab-actual" hidden>
+    <div>
+      <h1>Вспомним: сравнения</h1>
+      <p class="lead">Новые функции работают с условиями: больше, меньше, равно. Проверь, помнишь ли ты знаки сравнения и как таблица отвечает на вопрос «верно ли?».</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="acBar"></i></div><span class="pnum" id="acNum"></span></div>
+      <p class="small" id="acFirst"></p>
+    </section>
+    <div class="mt-list" id="acList"></div>
+    <section class="block mt-done" id="acDone" hidden>
+      <h2>Итог</h2>
+      <p class="plain" id="acDoneText"></p>
+    </section>
+    <div class="next">
+      <button class="btn" type="button" data-go="goal">← Тема и цель</button>
+      <button class="btn main" type="button" data-go="learn">Дальше: новая тема →</button>
+    </div>
+  </div>
+
+  <!-- Этап 5: новая тема -->
+  <div class="panel" id="learn" role="tabpanel" aria-labelledby="tab-learn" hidden>
+    <div>
+      <h1>Как таблица проверяет условия</h1>
+      <p class="lead">Логическая функция отвечает на вопрос «да или нет?». Ответ таблица пишет словами ИСТИНА или ЛОЖЬ, а функция ЕСЛИ по этому ответу выбирает, что показать в ячейке.</p>
+    </div>
+
+    <section class="block">
+      <h2>Как устроена формула с ЕСЛИ</h2>
+      <div class="anatomy">
+        <div class="part"><span class="tok">=</span><span class="lab">«Сейчас будет формула»</span></div>
+        <div class="part"><span class="tok fnc">ЕСЛИ</span><span class="lab">что сделать</span></div>
+        <div class="part"><span class="tok">(</span><span class="lab">открыли</span></div>
+        <div class="part"><span class="tok arg">B2&gt;=50</span><span class="lab">условие:<br>верно или нет?</span></div>
+        <div class="part"><span class="tok">;</span><span class="lab">&nbsp;</span></div>
+        <div class="part"><span class="tok arg">"зачёт"</span><span class="lab">если да</span></div>
+        <div class="part"><span class="tok">;</span><span class="lab">&nbsp;</span></div>
+        <div class="part"><span class="tok arg">"незачёт"</span><span class="lab">если нет</span></div>
+        <div class="part"><span class="tok">)</span><span class="lab">закрыли</span></div>
+      </div>
+      <p class="tip">Читается так: <b>если</b> в B2 50 или больше, <b>то</b> написать «зачёт», <b>иначе</b> — «незачёт». Текст пишут в кавычках, а части разделяют точкой с запятой.</p>
+    </section>
+
+    <section class="block theory-intro">
+      <h2>Основные понятия</h2>
+      <div class="concepts">
+        <div><b>Условие</b><p>логическое выражение, про которое можно сказать «верно» или «неверно»: <code>B2&gt;=50</code>, <code>A1&lt;&gt;0</code>.</p></div>
+        <div><b>ИСТИНА и ЛОЖЬ</b><p>два логических значения. ИСТИНА — условие верно, ЛОЖЬ — неверно. Формула <code>=5&gt;3</code> покажет ИСТИНА.</p></div>
+        <div><b>Логическая функция</b><p>работает с условиями: ЕСЛИ выбирает ответ, И, ИЛИ и НЕ соединяют и переворачивают условия.</p></div>
+        <div><b>Текст в формуле</b><p>всегда в двойных кавычках: <code>"зачёт"</code>. Две кавычки подряд <code>""</code> — пустой текст, ячейка выглядит пустой.</p></div>
+        <div><b>Вложенная функция</b><p>функция внутри другой: <code>=ЕСЛИ(И(…);"да";"нет")</code>. Сначала считается внутренняя.</p></div>
+        <div><b>Логическая ошибка</b><p>формула работает без кода ошибки, но ответ неверный. Например, <code>&gt;</code> вместо <code>&gt;=</code> на границе.</p></div>
+      </div>
+      <h3 class="th-h">Знаки сравнения</h3>
+      <div class="tablewrap"><table class="th-args"><tr><th>Знак</th><th>Что значит</th><th>Пример</th><th>Ответ</th></tr><tr><td><code>&gt;</code></td><td>больше</td><td><code>=5&gt;3</code></td><td>ИСТИНА</td></tr><tr><td><code>&lt;</code></td><td>меньше</td><td><code>=5&lt;3</code></td><td>ЛОЖЬ</td></tr><tr><td><code>=</code></td><td>равно</td><td><code>=5=5</code></td><td>ИСТИНА</td></tr><tr><td><code>&gt;=</code></td><td>больше или равно</td><td><code>=5&gt;=5</code></td><td>ИСТИНА</td></tr><tr><td><code>&lt;=</code></td><td>меньше или равно</td><td><code>=6&lt;=5</code></td><td>ЛОЖЬ</td></tr><tr><td><code>&lt;&gt;</code></td><td>не равно</td><td><code>=5&lt;&gt;5</code></td><td>ЛОЖЬ</td></tr></table></div>
+      <p class="tip">Знаки ≥, ≤ и ≠ из математики в таблице не набирают. Пишут два символа подряд: сначала <code>&gt;</code> или <code>&lt;</code>, потом <code>=</code>. «Не равно» — <code>&lt;&gt;</code>.</p>
+    </section>
+
+    <div class="fpills" role="tablist" aria-label="Функции">
+      <button type="button" class="fpill" data-f="0" aria-selected="true">1 · ЕСЛИ</button>
+      <button type="button" class="fpill" data-f="1" aria-selected="false">2 · И</button>
+      <button type="button" class="fpill" data-f="2" aria-selected="false">3 · ИЛИ</button>
+      <button type="button" class="fpill" data-f="3" aria-selected="false">4 · НЕ</button>
+      <button type="button" class="fpill" data-f="4" aria-selected="false">Шпаргалка и ошибки</button>
+    </div>
+
+    <!-- ЕСЛИ -->
+    <section class="block fcard" data-card="0">
+      <p class="fname"><code>ЕСЛИ()</code> — выбирает из двух</p>
+      <p class="simple"><b>Простыми словами:</b> как светофор у перехода. Если горит зелёный — идём, иначе — стоим. ЕСЛИ проверяет условие и по ответу «да» или «нет» показывает одно из двух значений.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Зачёт по баллам:</span> <code>=ЕСЛИ(B2&gt;=50;"зачёт";"незачёт")</code></li><li><span>Бесплатная доставка от 5000 тг:</span> <code>=ЕСЛИ(B2&gt;=5000;0;700)</code></li><li><span>Скидка 10% на покупку дороже 10 000 тг:</span> <code>=ЕСЛИ(B2&gt;10000;B2*0,9;B2)</code></li></ul><p class="apply-no"><b>Не подходит:</b> когда условий несколько и выполняться должны все → ЕСЛИ вместе с И.</p></div>
+      <p class="how"><span>Как записать:</span> <code>=ЕСЛИ(условие;"да";"нет")</code></p>
+
+      <div class="theory">
+      <h3>Определение</h3>
+      <p>ЕСЛИ проверяет условие. Если оно верно (ИСТИНА), функция возвращает второй аргумент, если неверно (ЛОЖЬ) — третий.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=ЕСЛИ(лог_выражение; значение_если_истина; [значение_если_ложь])</code></p>
+      <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Что это</th><th>Нужен?</th></tr><tr><td><code>лог_выражение</code></td><td>условие, которое проверяем: <code>B2&gt;=50</code>, <code>A1="да"</code></td><td>да</td></tr><tr><td><code>значение_если_истина</code></td><td>что показать, если условие верно: число, текст в кавычках, ячейка или формула</td><td>да</td></tr><tr><td><code>значение_если_ложь</code></td><td>что показать, если условие неверно. Если не указать, ячейка покажет ЛОЖЬ</td><td>нет</td></tr></table></div>
+      <h3>Примеры</h3>
+      <p class="small-note">Данные для примеров — в таблице ниже. Нажми на формулу: эти данные и формула появятся в таблице «Попробуй сам», а формула — в ячейке H10.</p>
+      <p class="ex-cap">Данные для примеров</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th></tr><tr><th>1</th><td class="n">72</td></tr><tr><th>2</th><td class="n">35</td></tr><tr><th>3</th><td class="n">12000</td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(5&gt;3;&quot;да&quot;;&quot;нет&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Открыть в таблице ниже">=ЕСЛИ(5&gt;3;"да";"нет")</button></td><td class="r">да</td><td>5 больше 3 — условие верно, берём второй аргумент</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(2&gt;3;&quot;да&quot;;&quot;нет&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Открыть в таблице ниже">=ЕСЛИ(2&gt;3;"да";"нет")</button></td><td class="r">нет</td><td>условие неверно — берём третий аргумент</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A1&gt;=50;&quot;зачёт&quot;;&quot;незачёт&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Открыть в таблице ниже">=ЕСЛИ(A1&gt;=50;"зачёт";"незачёт")</button></td><td class="r">зачёт</td><td>в A1 72, а 72 ≥ 50</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A2&gt;=50;&quot;зачёт&quot;;&quot;незачёт&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Открыть в таблице ниже">=ЕСЛИ(A2&gt;=50;"зачёт";"незачёт")</button></td><td class="r">незачёт</td><td>в A2 35, а 35 &lt; 50</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A3&gt;10000;A3*0,9;A3)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Открыть в таблице ниже">=ЕСЛИ(A3&gt;10000;A3*0,9;A3)</button></td><td class="r">10 800</td><td>покупка больше 10 000 — скидка 10%: 12 000 · 0,9</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A2&gt;=50;&quot;зачёт&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Открыть в таблице ниже">=ЕСЛИ(A2&gt;=50;"зачёт")</button></td><td class="r">ЛОЖЬ</td><td>третьего аргумента нет, а условие неверно</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A2&gt;=50;&quot;зачёт&quot;;&quot;&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Открыть в таблице ниже">=ЕСЛИ(A2&gt;=50;"зачёт";"")</button></td><td class="r">(пусто)</td><td>&quot;&quot; — пустой текст: ячейка выглядит пустой</td></tr></table></div>
+      <h3>Важно знать</h3>
+      <ul><li><b>Текст — в кавычках:</b> <code>"зачёт"</code>. Без кавычек таблица примет слово за имя и покажет <code>#ИМЯ?</code>.</li><li><b>Числа и формулы — без кавычек:</b> <code>=ЕСЛИ(B2&gt;=5000;0;700)</code>. Число в кавычках <code>"700"</code> станет текстом.</li><li><b>Граница важна:</b> <code>&gt;=50</code> включает само число 50, а <code>&gt;50</code> — нет. Перепутал знак — ошибки на экране не будет, но ответ будет неверный.</li><li>Сравнивать можно и текст: <code>=ЕСЛИ(A1="да";1;0)</code>. Большие и маленькие буквы таблица не различает.</li></ul>
+      <h3>Связь с алгоритмами</h3>
+      <p>«Если …, то …, иначе …» — это ветвление. В блок-схеме ему соответствует ромб с двумя выходами: «да» и «нет». ЕСЛИ — то же ветвление, только внутри ячейки.</p>
+      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="if"></div></div>
+      <p class="remember"><b>Запомни:</b> ЕСЛИ всегда выбирает один из двух ответов: сначала пишут ответ для «да», потом — для «нет».</p>
+    </section>
+
+    <!-- И -->
+    <section class="block fcard" data-card="1" hidden>
+      <p class="fname"><code>И()</code> — все условия сразу</p>
+      <p class="simple"><b>Простыми словами:</b> как охранник у бассейна, которому нужны и билет, и шапочка. Пропустит, только если есть всё. Не хватает хотя бы одного — ЛОЖЬ.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Зачёт по физкультуре: бег не дольше 10 с и прыжок от 150 см:</span> <code>=И(B2&lt;=10;C2&gt;=150)</code></li><li><span>Число от 10 до 20:</span> <code>=И(A1&gt;=10;A1&lt;=20)</code></li><li><span>Допуск к олимпиаде с двумя пятёрками:</span> <code>=ЕСЛИ(И(B2=5;C2=5);"допущен";"нет")</code></li></ul><p class="apply-no"><b>Не подходит:</b> если хватает одного условия из нескольких → ИЛИ.</p></div>
+      <p class="how"><span>Как записать:</span> <code>=И(условие1;условие2)</code></p>
+
+      <div class="theory">
+      <h3>Определение</h3>
+      <p>И проверяет несколько условий и возвращает ИСТИНА, только если верны все. Если неверно хотя бы одно — ЛОЖЬ.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=И(лог_значение1; [лог_значение2]; …)</code></p>
+      <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Что это</th><th>Нужен?</th></tr><tr><td><code>лог_значение1</code></td><td>первое условие</td><td>да</td></tr><tr><td><code>лог_значение2; …</code></td><td>ещё условия через «;»</td><td>нет</td></tr></table></div>
+      <h3>Таблица истинности</h3>
+      <div class="tablewrap"><table class="th-args"><tr><th>Условие 1</th><th>Условие 2</th><th>И</th></tr><tr><td>ИСТИНА</td><td>ИСТИНА</td><td><b>ИСТИНА</b></td></tr><tr><td>ИСТИНА</td><td>ЛОЖЬ</td><td>ЛОЖЬ</td></tr><tr><td>ЛОЖЬ</td><td>ИСТИНА</td><td>ЛОЖЬ</td></tr><tr><td>ЛОЖЬ</td><td>ЛОЖЬ</td><td>ЛОЖЬ</td></tr></table></div>
+      <h3>Примеры</h3>
+      <p class="small-note">Данные для примеров — в таблице ниже. Нажми на формулу: она появится в таблице «Попробуй сам» в ячейке H10.</p>
+      <p class="ex-cap">Данные для примеров</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th></tr><tr><th>1</th><td class="n">9</td></tr><tr><th>2</th><td class="n">160</td></tr><tr><th>3</th><td class="n">15</td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><button type="button" class="tryf" data-f="=И(5&gt;3;2&gt;1)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Открыть в таблице ниже">=И(5&gt;3;2&gt;1)</button></td><td class="r">ИСТИНА</td><td>оба условия верны</td></tr><tr><td><button type="button" class="tryf" data-f="=И(5&gt;3;2&gt;4)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Открыть в таблице ниже">=И(5&gt;3;2&gt;4)</button></td><td class="r">ЛОЖЬ</td><td>второе условие неверно</td></tr><tr><td><button type="button" class="tryf" data-f="=И(A1&lt;=10;A2&gt;=150)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Открыть в таблице ниже">=И(A1&lt;=10;A2&gt;=150)</button></td><td class="r">ИСТИНА</td><td>бег 9 с и прыжок 160 см — обе нормы выполнены</td></tr><tr><td><button type="button" class="tryf" data-f="=И(A3&gt;=10;A3&lt;=20)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Открыть в таблице ниже">=И(A3&gt;=10;A3&lt;=20)</button></td><td class="r">ИСТИНА</td><td>15 — от 10 до 20</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(И(A1&lt;=10;A2&gt;=150);&quot;зачёт&quot;;&quot;незачёт&quot;)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Открыть в таблице ниже">=ЕСЛИ(И(A1&lt;=10;A2&gt;=150);"зачёт";"незачёт")</button></td><td class="r">зачёт</td><td>И внутри ЕСЛИ: результат — слово</td></tr></table></div>
+      <h3>Важно знать</h3>
+      <ul><li>Сама по себе И показывает только ИСТИНА или ЛОЖЬ. Чтобы вывести слово, И кладут внутрь ЕСЛИ: <code>=ЕСЛИ(И(…);"да";"нет")</code>.</li><li>Двойное неравенство 10 ≤ A1 ≤ 20 записывают через И: <code>=И(A1&gt;=10;A1&lt;=20)</code>. Запись <code>=10&lt;=A1&lt;=20</code> сработает неверно — попробуй её в таблице.</li><li>Скобку И закрывают до точки с запятой, которая отделяет следующий аргумент ЕСЛИ.</li></ul>
+      <h3>Связь с математикой</h3>
+      <p>В логике И называют конъюнкцией: A ∧ B. Система неравенств { x ≥ 10; x ≤ 20 } — тоже И: верными должны быть оба неравенства.</p>
+      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="and"></div></div>
+      <p class="remember"><b>Запомни:</b> И строгая — достаточно одного «нет», чтобы весь ответ стал ЛОЖЬ.</p>
+    </section>
+
+    <!-- ИЛИ -->
+    <section class="block fcard" data-card="2" hidden>
+      <p class="fname"><code>ИЛИ()</code> — хотя бы одно условие</p>
+      <p class="simple"><b>Простыми словами:</b> в музей пускают бесплатно, если тебе меньше 7 лет <b>или</b> больше 65. Хватает одного из двух.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Выходной день:</span> <code>=ИЛИ(A2="сб";A2="вс")</code></li><li><span>Льготный билет: младше 7 или старше 65:</span> <code>=ИЛИ(B2&lt;7;B2&gt;65)</code></li><li><span>Тревога при морозе ниже −20° или жаре выше 35°:</span> <code>=ЕСЛИ(ИЛИ(B2&lt;-20;B2&gt;35);"тревога";"норма")</code></li></ul><p class="apply-no"><b>Не подходит:</b> если выполняться должны все условия → И.</p></div>
+      <p class="how"><span>Как записать:</span> <code>=ИЛИ(условие1;условие2)</code></p>
+
+      <div class="theory">
+      <h3>Определение</h3>
+      <p>ИЛИ возвращает ИСТИНА, если верно хотя бы одно условие. ЛОЖЬ — только когда неверны все.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=ИЛИ(лог_значение1; [лог_значение2]; …)</code></p>
+      <h3>Таблица истинности</h3>
+      <div class="tablewrap"><table class="th-args"><tr><th>Условие 1</th><th>Условие 2</th><th>ИЛИ</th></tr><tr><td>ИСТИНА</td><td>ИСТИНА</td><td>ИСТИНА</td></tr><tr><td>ИСТИНА</td><td>ЛОЖЬ</td><td>ИСТИНА</td></tr><tr><td>ЛОЖЬ</td><td>ИСТИНА</td><td>ИСТИНА</td></tr><tr><td>ЛОЖЬ</td><td>ЛОЖЬ</td><td><b>ЛОЖЬ</b></td></tr></table></div>
+      <h3>Примеры</h3>
+      <p class="ex-cap">Данные для примеров</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th></tr><tr><th>1</th><td class="n">5</td></tr><tr><th>2</th><td class="t">сб</td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><button type="button" class="tryf" data-f="=ИЛИ(5&gt;3;2&gt;4)" data-cells="{&quot;A1&quot;: &quot;5&quot;, &quot;A2&quot;: &quot;сб&quot;}" title="Открыть в таблице ниже">=ИЛИ(5&gt;3;2&gt;4)</button></td><td class="r">ИСТИНА</td><td>первое условие верно — этого хватает</td></tr><tr><td><button type="button" class="tryf" data-f="=ИЛИ(1&gt;3;2&gt;4)" data-cells="{&quot;A1&quot;: &quot;5&quot;, &quot;A2&quot;: &quot;сб&quot;}" title="Открыть в таблице ниже">=ИЛИ(1&gt;3;2&gt;4)</button></td><td class="r">ЛОЖЬ</td><td>оба условия неверны</td></tr><tr><td><button type="button" class="tryf" data-f="=ИЛИ(A1&lt;7;A1&gt;65)" data-cells="{&quot;A1&quot;: &quot;5&quot;, &quot;A2&quot;: &quot;сб&quot;}" title="Открыть в таблице ниже">=ИЛИ(A1&lt;7;A1&gt;65)</button></td><td class="r">ИСТИНА</td><td>в A1 возраст 5 — меньше 7</td></tr><tr><td><button type="button" class="tryf" data-f="=ИЛИ(A2=&quot;сб&quot;;A2=&quot;вс&quot;)" data-cells="{&quot;A1&quot;: &quot;5&quot;, &quot;A2&quot;: &quot;сб&quot;}" title="Открыть в таблице ниже">=ИЛИ(A2="сб";A2="вс")</button></td><td class="r">ИСТИНА</td><td>в A2 «сб»</td></tr></table></div>
+      <h3>Важно знать</h3>
+      <ul><li>И или ИЛИ? Спроси себя: нужно всё сразу (И) или хватит одного (ИЛИ)?</li><li>В логике ИЛИ называют дизъюнкцией: A ∨ B.</li></ul>
+      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="or"></div></div>
+      <p class="remember"><b>Запомни:</b> ИЛИ добрая — достаточно одного «да».</p>
+    </section>
+
+    <!-- НЕ -->
+    <section class="block fcard" data-card="3" hidden>
+      <p class="fname"><code>НЕ()</code> — наоборот</p>
+      <p class="simple"><b>Простыми словами:</b> переворачивает ответ. Было ИСТИНА — станет ЛОЖЬ, было ЛОЖЬ — станет ИСТИНА.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Кто ещё не сдал ДЗ (в B2 ИСТИНА, если сдал):</span> <code>=НЕ(B2)</code></li><li><span>Все, кроме 8А:</span> <code>=НЕ(A2="8А")</code></li><li><span>Напоминание тем, кто не сдал:</span> <code>=ЕСЛИ(НЕ(B2);"напомнить";"")</code></li></ul><p class="apply-no"><b>Не подходит:</b> если нужно просто «не равно» — короче знак <code>&lt;&gt;</code>: <code>=A2&lt;&gt;"8А"</code>.</p></div>
+      <p class="how"><span>Как записать:</span> <code>=НЕ(условие)</code></p>
+
+      <div class="theory">
+      <h3>Определение</h3>
+      <p>НЕ меняет логическое значение на противоположное. У функции ровно один аргумент.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=НЕ(лог_значение)</code></p>
+      <h3>Примеры</h3>
+      <p class="ex-cap">Данные для примеров</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th></tr><tr><th>1</th><td class="t">ИСТИНА</td></tr><tr><th>2</th><td class="n">12</td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Результат</th><th>Почему</th></tr><tr><td><button type="button" class="tryf" data-f="=НЕ(5&gt;3)" data-cells="{&quot;A1&quot;: &quot;ИСТИНА&quot;, &quot;A2&quot;: &quot;12&quot;}" title="Открыть в таблице ниже">=НЕ(5&gt;3)</button></td><td class="r">ЛОЖЬ</td><td>5 &gt; 3 верно, а НЕ переворачивает ответ</td></tr><tr><td><button type="button" class="tryf" data-f="=НЕ(2&gt;3)" data-cells="{&quot;A1&quot;: &quot;ИСТИНА&quot;, &quot;A2&quot;: &quot;12&quot;}" title="Открыть в таблице ниже">=НЕ(2&gt;3)</button></td><td class="r">ИСТИНА</td><td>2 &gt; 3 неверно, значит, наоборот — ИСТИНА</td></tr><tr><td><button type="button" class="tryf" data-f="=НЕ(A1)" data-cells="{&quot;A1&quot;: &quot;ИСТИНА&quot;, &quot;A2&quot;: &quot;12&quot;}" title="Открыть в таблице ниже">=НЕ(A1)</button></td><td class="r">ЛОЖЬ</td><td>в A1 записано ИСТИНА</td></tr><tr><td><button type="button" class="tryf" data-f="=НЕ(A2&gt;10)" data-cells="{&quot;A1&quot;: &quot;ИСТИНА&quot;, &quot;A2&quot;: &quot;12&quot;}" title="Открыть в таблице ниже">=НЕ(A2&gt;10)</button></td><td class="r">ЛОЖЬ</td><td>12 &gt; 10 верно → ЛОЖЬ. То же самое, что =A2&lt;=10</td></tr></table></div>
+      <h3>Важно знать</h3>
+      <ul><li><code>=НЕ(A2&gt;10)</code> — то же самое, что <code>=A2&lt;=10</code>.</li><li>В логике НЕ называют отрицанием: ¬A.</li></ul>
+      </div>
+      <div class="tryxl"><span class="trylab">Попробуй сам в таблице</span><div class="xl" data-sheet="not"></div></div>
+      <p class="remember"><b>Запомни:</b> <code>НЕ(…)</code> читается как «неверно, что …».</p>
+    </section>
+
+    <!-- Шпаргалка -->
+    <section class="block fcard" data-card="4" hidden>
+      <p class="fname">Шпаргалка и ошибки</p>
+      <div class="tablewrap">
+        <table class="cheat">
+          <tr><th>Функция</th><th>Что делает</th><th>Пример</th><th>Ответ</th></tr>
+          <tr><td><code>ЕСЛИ</code></td><td>выбирает из двух</td><td><code>=ЕСЛИ(7&gt;5;"да";"нет")</code></td><td>да</td></tr>
+          <tr><td><code>И</code></td><td>верны все условия</td><td><code>=И(7&gt;5;2&gt;1)</code></td><td>ИСТИНА</td></tr>
+          <tr><td><code>ИЛИ</code></td><td>верно хотя бы одно</td><td><code>=ИЛИ(7&lt;5;2&gt;1)</code></td><td>ИСТИНА</td></tr>
+          <tr><td><code>НЕ</code></td><td>наоборот</td><td><code>=НЕ(7&gt;5)</code></td><td>ЛОЖЬ</td></tr>
+        </table>
+      </div>
+      <p class="remember"><b>Три частые ошибки:</b> текст без кавычек; знак <code>=&gt;</code> вместо <code>&gt;=</code>; перепутали И и ИЛИ.</p>
+      <h3 class="th-h">Ошибки и почему они возникают</h3>
+      <p class="small-note"><b>«Показать на листе»</b> открывает в песочнице ниже готовый лист: рядом формула с ошибкой и исправленная. Кнопки с формулами вставляют пример в ячейку H10.</p>
+      <div class="tablewrap"><table class="th-ex err-table"><tr><th>Ошибка</th><th>Что значит</th><th>Почему возникает</th><th>Пример</th><th>Как исправить</th></tr>
+<tr><td class="ecode">#ИМЯ?</td><td>таблица не узнала слово</td><td>Текст без кавычек; английское имя IF в русской версии; опечатка в имени функции.</td><td class="eex"><button type="button" class="showex" data-ex="1">Показать на листе</button><button type="button" class="tryf" data-f="=ЕСЛИ(5&gt;3;да;нет)">=ЕСЛИ(5&gt;3;да;нет)</button><button type="button" class="tryf" data-f="=IF(5&gt;3;&quot;да&quot;;&quot;нет&quot;)">=IF(5&gt;3;"да";"нет")</button><button type="button" class="tryf" data-f="=ЕСЛЕ(5&gt;3;&quot;да&quot;;&quot;нет&quot;)">=ЕСЛЕ(5&gt;3;"да";"нет")</button></td><td>Текст взять в кавычки: <code>"да"</code>. Проверить имя функции.</td></tr>
+<tr><td class="ecode">Ошибка записи</td><td>формула записана неправильно</td><td>Знак <code>=&gt;</code> вместо <code>&gt;=</code>; символ ≥; запятая вместо «;»; не закрыта кавычка или скобка. В Excel такую формулу не дадут ввести. В нашей таблице ячейка покажет <code>#ОШИБКА</code> и подскажет причину.</td><td class="eex"><button type="button" class="showex" data-ex="2">Показать на листе</button><button type="button" class="tryf" data-f="=ЕСЛИ(5=&gt;3;&quot;да&quot;;&quot;нет&quot;)">=ЕСЛИ(5=&gt;3;"да";"нет")</button><button type="button" class="tryf" data-f="=ЕСЛИ(5&gt;3,&quot;да&quot;,&quot;нет&quot;)">=ЕСЛИ(5&gt;3,"да","нет")</button><button type="button" class="tryf" data-f="=И(5&gt;3;2&gt;1">=И(5&gt;3;2&gt;1</button></td><td>Знаки сравнения: <code>&gt;=</code>, <code>&lt;=</code>, <code>&lt;&gt;</code>. Аргументы разделять <code>;</code>, каждую кавычку и скобку закрывать.</td></tr>
+<tr><td class="ecode">#ЗНАЧ!</td><td>вместо условия — текст</td><td>В ЕСЛИ, И, ИЛИ или НЕ вместо условия попало слово: таблица не может сказать, верно оно или нет.</td><td class="eex"><button type="button" class="showex" data-ex="3">Показать на листе</button><button type="button" class="tryf" data-f="=НЕ(&quot;да&quot;)">=НЕ("да")</button><button type="button" class="tryf" data-f="=ЕСЛИ(&quot;да&quot;;1;0)">=ЕСЛИ("да";1;0)</button></td><td>В условии должно быть сравнение: <code>A1="да"</code>, <code>B2&gt;=50</code>.</td></tr>
+<tr><td class="ecode">Логическая ошибка</td><td>ответ неверный, хотя ошибки на экране нет</td><td><code>&gt;</code> вместо <code>&gt;=</code> на границе; перепутаны ответы «да» и «нет»; И вместо ИЛИ.</td><td class="eex"><button type="button" class="showex" data-ex="4">Показать на листе</button></td><td>Проверить формулу на граничном числе (ровно 50) и на обоих ответах.</td></tr>
+</table></div>
+      <div class="tryxl"><span class="trylab">Песочница: все функции вместе</span><div class="xl" data-sheet="all"></div></div>
+    </section>
+
+    <div class="next">
+      <button class="btn" type="button" id="fPrev">← Назад</button>
+      <button class="btn main" type="button" id="fNext">Дальше: И →</button>
+    </div>
+  </div>
+
+  <!-- Этап 6: какая функция подходит -->
+  <div class="panel" id="match" role="tabpanel" aria-labelledby="tab-match" hidden>
+    <div>
+      <h1>Какая функция подходит?</h1>
+      <p class="lead">Прочитай ситуацию и выбери главную функцию: <b>ЕСЛИ</b> — одно условие и выбор из двух ответов, <b>И</b> — нужны все условия, <b>ИЛИ</b> — хватит одного, <b>НЕ</b> — наоборот. Ошибёшься — увидишь, почему, и сможешь выбрать снова.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="mtBar"></i></div><span class="pnum" id="mtNum"></span></div>
+      <p class="small" id="mtFirst"></p>
+    </section>
+    <div class="mt-list" id="mtList"></div>
+    <section class="block mt-done" id="mtDone" hidden>
+      <h2>Итог</h2>
+      <p class="plain" id="mtDoneText"></p>
+      <button class="btn" type="button" id="mtRetry">Пройти ещё раз</button>
+    </section>
+    <div class="next">
+      <button class="btn" type="button" data-go="learn">← Новая тема</button>
+      <button class="btn" type="button" id="breakBtn2">Физминутка · 1 мин</button>
+      <button class="btn main" type="button" data-go="practice">Дальше: практика →</button>
+    </div>
+  </div>
+
+  <!-- Этап 7: практика -->
+  <div class="panel" id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+    <div>
+      <h1>Практика</h1>
+      <p class="lead">Сначала разминка: запиши условие знаками сравнения. Потом задания трёх уровней — от простого к сложному. Следующее задание открывается, когда решено предыдущее. Таблица проверяет формулу и на других числах — в том числе на границе условия.</p>
+    </div>
+    <section class="block">
+      <div class="lv-tabs" role="tablist" aria-label="Уровни">
+        <button type="button" class="lv" data-lv="0" role="tab"><span class="lv-name">0 · Сравнения</span><small>разминка для всех</small><span class="lv-c" id="lvc0"></span></button>
+        <button type="button" class="lv" data-lv="A" role="tab"><span class="lv-name">A · Базовый</span><small>для всех</small><span class="lv-c" id="lvcA"></span></button>
+        <button type="button" class="lv" data-lv="B" role="tab"><span class="lv-name">B · Средний</span><small>для большинства</small><span class="lv-c" id="lvcB"></span></button>
+        <button type="button" class="lv" data-lv="C" role="tab"><span class="lv-name">C · Высокий</span><small>для некоторых</small><span class="lv-c" id="lvcC"></span></button>
+      </div>
+      <p class="lv-desc" id="lvDesc"></p>
+      <div class="progress"><div class="pbar"><i id="prBar"></i></div><span class="pnum" id="prNum"></span></div>
+    </section>
+    <div class="panel" id="prTasks"></div>
+    <div class="next">
+      <button class="btn" type="button" data-go="match">← Какая функция?</button>
+      <button class="btn" type="button" id="lvNext"></button>
+      <button class="btn main" type="button" data-go="excel">Дальше: работа в Excel →</button>
+    </div>
+  </div>
+
+  <!-- Этап 8: работа в Excel -->
+  <div class="panel" id="excel" role="tabpanel" aria-labelledby="tab-excel" hidden>
+    <div>
+      <h1>Работа в Excel</h1>
+      <p class="lead">Задания выполняются в Excel-файле <b>«Самопроверка_логика.xlsx»</b> — его даст учитель. На каждом листе (S1–S5) уже есть таблица с данными. Пиши формулы в жёлтые ячейки — справа в столбце «Проверка» Excel сам покажет «✓ верно» или подскажет, что исправить. Здесь — условия заданий.</p>
+    </div>
+    <section class="block">
+      <div class="ex-pills" id="exPills" role="tablist" aria-label="Сценарии"></div>
+    </section>
+    <div class="panel" id="exList"></div>
+    <div class="next"><button class="btn" type="button" data-go="practice">← Практика</button><button class="btn main" type="button" data-go="reflect">Итоги урока →</button></div>
+  </div>
+
+  <!-- Этап 9: итоги урока -->
+  <div class="panel" id="reflect" role="tabpanel" aria-labelledby="tab-reflect" hidden>
+    <div>
+      <h1>Итоги урока</h1>
+      <p class="lead">Вернись к тому, что ты написал в начале урока, и честно отметь, что получилось.</p>
+    </div>
+
+    <section class="block">
+      <h2>Мои ожидания · в начале урока</h2>
+      <p class="mine" id="refExp"></p>
+      <fieldset class="seg" id="segExp">
+        <legend>Мои ожидания оправдались?</legend>
+        <label><input type="radio" name="r-exp" id="r-exp-2" value="2"><span>Да</span></label>
+        <label><input type="radio" name="r-exp" id="r-exp-1" value="1"><span>Частично</span></label>
+        <label><input type="radio" name="r-exp" id="r-exp-0" value="0"><span>Нет</span></label>
+      </fieldset>
+    </section>
+
+    <section class="block">
+      <h2>Цель урока</h2>
+      <p class="plain" id="refGoal"></p>
+    </section>
+
+    <section class="block">
+      <h2>Ожидаемые результаты · достиг ли я?</h2>
+      <div id="refRes"></div>
+    </section>
+
+    <section class="block">
+      <h2>Критерии оценивания · мои дескрипторы</h2>
+      <div id="refDesc"></div>
+    </section>
+
+    <section class="block">
+      <h2>Где мне это пригодится</h2>
+      <label for="refUse" class="q">Приведи один пример из своей жизни: какая функция и для чего?</label>
+      <p class="small" id="useReq" hidden>В начале урока ты хотел понять, где это пригодится. Если сможешь привести пример — значит, ожидание сбылось.</p>
+      <textarea id="refUse" rows="2" placeholder="Например: ЕСЛИ — чтобы таблица сама писала «долг», если я потратил больше, чем есть"></textarea>
+    </section>
+
+    <section class="block">
+      <h2>Мой комментарий</h2>
+      <label for="refNote" class="q">Что получилось лучше всего? Что было трудно?</label>
+      <textarea id="refNote" rows="3" placeholder="Например: легко было с ЕСЛИ, трудно понять разницу между И и ИЛИ…"></textarea>
+      <div class="exp-actions">
+        <button class="btn main" type="button" id="refSave">Сохранить итог</button>
+        <span class="msg" id="refMsg" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="block summary" id="refSummary" hidden>
+      <h2>Мой итог</h2>
+      <div id="refSumBody"></div>
+    </section>
+
+    <div class="next"><button class="btn" type="button" data-go="goal">← Тема и цель</button><button class="btn main" type="button" data-go="hw">Домашнее задание →</button></div>
+  </div>
+
+  <!-- Этап 10: домашнее задание -->
+  <div class="panel" id="hw" role="tabpanel" aria-labelledby="tab-hw" hidden>
+    <div>
+      <h1>Домашнее задание</h1>
+      <p class="lead">Выбери задание своего уровня — можно и все три. Открой урок дома по той же ссылке: таблица проверит формулу так же, как на уроке.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="hwBar"></i></div><span class="pnum" id="hwNum"></span></div>
+      <p class="small">Обязательно: задание уровня, на котором ты закончил практику. Задания выше — по желанию.</p>
+    </section>
+    <div class="panel" id="hwTasks"></div>
+    <div class="next"><button class="btn" type="button" data-go="reflect">← Итоги урока</button><span></span></div>
+  </div>
+</div>
+
+<div class="overlay" id="breakOv" hidden>
+  <div class="lg-card brk" role="dialog" aria-modal="true" aria-labelledby="brkTitle">
+    <p class="eyebrow" id="brkTitle">Физминутка · отдохни от экрана</p>
+    <p class="brk-step" id="brkStep"></p>
+    <p class="brk-text" id="brkText"></p>
+    <div class="brk-timer"><output id="brkTime">15</output><span>сек</span></div>
+    <div class="pbar"><i id="brkBar"></i></div>
+    <div class="lg-row"><button type="button" class="btn" id="brkSkip">Пропустить упражнение</button><button type="button" class="btn" id="brkEnd">Закончить</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="login" hidden>
+  <div class="lg-card" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
+    <p class="eyebrow">Информатика · 8 класс</p>
+    <h2 class="lg-title" id="lgTitle">Логические функции</h2>
+    <div id="loginBody"></div>
+  </div>
+</div>
+<div class="overlay" id="qModal" hidden>
+  <div class="lg-card q-card" role="dialog" aria-modal="true" aria-labelledby="qTitle">
+    <p class="eyebrow" id="qTitle">Вопрос учителя</p>
+    <p class="q-text" id="qText"></p>
+    <textarea id="qAns" rows="4" maxlength="1000" placeholder="Напиши ответ…"></textarea>
+    <p class="lg-err" id="qErr" aria-live="polite"></p>
+    <button type="button" class="btn main" id="qSend">Отправить ответ</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+/* Урок запускается сразу; в онлайн-версии — после того, как ученик выбрал себя */
+const ONLINE = !!(window.google && window.google.script && window.google.script.run);
+let NS = "";
+function startLesson() {
+
+/* Тема в двух строках листа; каждая буква открывается развилкой «Да / Нет» */
+const ROWS = ["ЛОГИЧЕСКИЕ", "ФУНКЦИИ"];
+const TASKS = [
+  { n: 1,  q: "7 > 5",                     ans: "Да",  letter: "Л", decoy: "М", why: "7 больше 5 — утверждение верно." },
+  { n: 2,  q: "10 = 2 · 6",                ans: "Нет", letter: "О", decoy: "А", why: "2 · 6 = 12, а не 10 — утверждение неверно." },
+  { n: 3,  q: "−3 < 0",                    ans: "Да",  letter: "Г", decoy: "Б", why: "Любое отрицательное число меньше нуля." },
+  { n: 4,  q: "Квадрат — это прямоугольник", ans: "Да", letter: "И", decoy: "Ы", why: "У квадрата все углы прямые, значит, он прямоугольник (у которого все стороны равны)." },
+  { n: 5,  q: "0,5 > 0,49",                ans: "Да",  letter: "Ч", decoy: "Ш", why: "0,5 = 0,50, а 0,50 больше 0,49." },
+  { n: 6,  q: "В неделе 8 дней",           ans: "Нет", letter: "Е", decoy: "Э", why: "В неделе 7 дней." },
+  { n: 7,  q: "15 ≥ 15 (больше или равно)", ans: "Да", letter: "С", decoy: "З", why: "«Больше или равно» верно и тогда, когда числа равны." },
+  { n: 8,  q: "20 ≠ 20 (не равно)",        ans: "Нет", letter: "К", decoy: "Х", why: "20 равно 20, поэтому «не равно» — неверно." },
+  { n: 9,  q: "5 > 3 и 2 > 4 — верно и то, и другое", ans: "Нет", letter: "Ф", decoy: "В", why: "5 > 3 верно, а 2 > 4 — нет. Для «и» нужно, чтобы были верны обе части." },
+  { n: 10, q: "5 > 3 или 2 > 4 — верно хотя бы одно", ans: "Да", letter: "У", decoy: "Ю", why: "5 > 3 верно — для «или» этого достаточно." },
+  { n: 11, q: "Неверно, что 4 < 1",        ans: "Да",  letter: "Н", decoy: "П", why: "4 < 1 — неверно. Значит, «неверно, что 4 < 1» — верно." },
+  { n: 12, q: "Число 9 чётное",            ans: "Нет", letter: "Ц", decoy: "Щ", why: "9 не делится на 2 — оно нечётное." }
+];
+const BY_LETTER = Object.fromEntries(TASKS.map(t => [t.letter, t]));
+const ANSWER = ROWS.join("");
+const COLS = "ABCDEFGHIJKLMN";
+const KEY = "topic-l2";
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(NS + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} if (window.__onStore) window.__onStore(k); },
+  del(k) { try { localStorage.removeItem(NS + k); } catch (e) {} if (window.__onStore) window.__onStore(k); }
+};
+
+/* picks: номер развилки → выбранная ветка «Да» или «Нет» */
+let picks = store.get(KEY, {});
+let solved = new Set(TASKS.filter(t => picks[t.n] === t.ans).map(t => t.n));
+
+function buildGrid() {
+  const width = Math.max(...ROWS.map(r => r.length));
+  let html = "<tr><th class=\"rh\"></th>" + [...COLS.slice(0, width)].map(c => `<th>${c}</th>`).join("") + "</tr>";
+  ROWS.forEach((row, ri) => {
+    html += `<tr><th class="rh">${ri + 1}</th>`;
+    for (let i = 0; i < width; i++) {
+      const ch = row[i];
+      if (!ch) { html += "<td class=\"gap\"></td>"; continue; }
+      const t = BY_LETTER[ch];
+      html += `<td data-n="${t.n}" aria-label="ячейка ${COLS[i]}${ri + 1}, развилка ${t.n}"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
+    }
+    html += "</tr>";
+  });
+  document.getElementById("grid").innerHTML = html;
+}
+
+function buildTasks() {
+  document.getElementById("tasks").innerHTML = TASKS.map(t => `
+    <div class="task fork" id="task-${t.n}">
+      <div class="hd"><span class="tn">Развилка ${t.n}</span><span class="fn">верно или нет?</span></div>
+      <p class="fork-q">${t.q}</p>
+      <div class="fork-br" role="group" aria-label="Ответ к развилке ${t.n}">
+        ${["Да", "Нет"].map(b => `<button type="button" class="fork-b" data-n="${t.n}" data-b="${b}" aria-pressed="false"><span>${b}</span><span class="lt">?</span></button>`).join("")}
+      </div>
+      <p class="msg" id="msg-${t.n}" aria-live="polite"></p>
+    </div>`).join("");
+}
+
+function render(animateN) {
+  document.querySelectorAll("#grid td[data-n]").forEach(td => {
+    const n = +td.dataset.n, t = TASKS[n - 1], p = picks[n];
+    const open = solved.has(n), wrong = !!p && !open;
+    td.classList.toggle("open", open);
+    td.classList.toggle("wrongl", wrong);
+    td.querySelector(".ch").textContent = open ? t.letter : wrong ? t.decoy : "?";
+    if (p && n === animateN) { td.classList.remove("flip"); void td.offsetWidth; td.classList.add("flip"); }
+  });
+  TASKS.forEach(t => {
+    const box = document.getElementById("task-" + t.n), p = picks[t.n], done = solved.has(t.n);
+    box.classList.toggle("done", done);
+    box.classList.toggle("wrongp", !!p && !done);
+    box.querySelectorAll(".fork-b").forEach(b => {
+      const mine = b.dataset.b === p;
+      b.setAttribute("aria-pressed", mine);
+      b.classList.toggle("ok", mine && done);
+      b.classList.toggle("no", mine && !done);
+      b.querySelector(".lt").textContent = mine ? (done ? t.letter : t.decoy) : "?";
+      b.disabled = done;
+    });
+    const msg = document.getElementById("msg-" + t.n);
+    if (done) { msg.className = "msg ok"; msg.textContent = `Верно! Открыта буква «${t.letter}».`; }
+    else if (p) { msg.className = "msg bad"; msg.textContent = `Буква «${t.decoy}» ломает слово. ${t.why} Выбери другую ветку.`; }
+    else { msg.className = "msg"; msg.textContent = ""; }
+  });
+  const total = ANSWER.length;
+  const open = [...ANSWER].filter(ch => solved.has(BY_LETTER[ch].n)).length;
+  document.getElementById("pbar").style.width = (open / total * 100) + "%";
+  document.getElementById("pnum").textContent = `Открыто букв: ${open} из ${total}`;
+  if (open === total) unlock();
+}
+
+function choose(n, b) {
+  const t = TASKS[n - 1];
+  if (solved.has(n)) return;
+  picks[n] = b;
+  const ok = b === t.ans;
+  if (ok) solved.add(n);
+  if (window.__onAttempt) window.__onAttempt("2. Разгадка темы", "Развилка " + n, b, ok, ok ? "" : "верно: " + t.ans);
+  store.set(KEY, picks);
+  render(n);
+}
+
+document.getElementById("tasks").addEventListener("click", e => {
+  const b = e.target.closest(".fork-b"); if (b && !b.disabled) choose(+b.dataset.n, b.dataset.b);
+});
+
+function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯA-Z]/g, ""); }
+function guess() {
+  const inp = document.getElementById("guessIn"), msg = document.getElementById("guessMsg");
+  inp.classList.remove("wrong");
+  if (norm(inp.value) === ANSWER) {
+    TASKS.forEach(t => { picks[t.n] = t.ans; solved.add(t.n); }); store.set(KEY, picks);
+    msg.className = "msg ok"; msg.textContent = "Верно! Тема открыта.";
+    render();
+  } else {
+    void inp.offsetWidth; inp.classList.add("wrong");
+    msg.className = "msg bad"; msg.textContent = "Пока не то. Откройте ещё несколько букв.";
+  }
+}
+document.getElementById("guessBtn").addEventListener("click", guess);
+document.getElementById("guessIn").addEventListener("keydown", e => { if (e.key === "Enter") guess(); });
+
+let unlocked = false;
+function unlock() {
+  const tab = document.getElementById("tab-goal");
+  tab.disabled = false;
+  if (unlocked) return;
+  unlocked = true;
+  setTimeout(() => showExp(store.get(EXP_KEY, "")), 0);  // после загрузки остальных частей урока
+  document.getElementById("guessMsg").className = "msg ok";
+  document.getElementById("guessMsg").textContent = "Тема разгадана! Открываем тему и цель урока…";
+  setTimeout(() => { show("goal"); window.scrollTo({ top: 0, behavior: "smooth" }); }, 1400);
+}
+
+const PANELS = ["review", "puzzle", "goal", "actual", "learn", "match", "practice", "excel", "reflect", "hw"];
+function show(id) {
+  if (window.__onStage) window.__onStage(id);
+  if (id === "reflect") fillReflect();
+  PANELS.forEach(p => {
+    document.getElementById(p).hidden = p !== id;
+    document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
+  });
+}
+document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => { if (!b.disabled) show(b.getAttribute("aria-controls")); }));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  picks = {}; solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
+  refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refUse").value = ""; document.getElementById("refSummary").hidden = true;
+  document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
+  expText.value = ""; showExp("");
+  document.getElementById("tab-goal").disabled = true;
+  document.getElementById("guessIn").value = "";
+  document.getElementById("guessMsg").textContent = "";
+  buildTasks(); render(); show("puzzle");
+});
+
+const bigBtn = document.getElementById("bigBtn");
+function setBig(on) { document.documentElement.classList.toggle("big", on); bigBtn.setAttribute("aria-pressed", on); store.set("big", on); }
+bigBtn.addEventListener("click", () => setBig(!document.documentElement.classList.contains("big")));
+setBig(store.get("big", false));
+document.getElementById("fsBtn").addEventListener("click", () => {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  } catch (e) {}
+});
+
+/* Ожидания ученика: пока хранятся только в его браузере */
+const EXP_KEY = "expect-l2";
+const expText = document.getElementById("expText");
+function showExp(text) {
+  // этапы 4–10 открыты, только когда тема разгадана и ожидания записаны
+  const has = !!text && [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+  document.getElementById("expForm").hidden = has;
+  document.getElementById("expSaved").hidden = !has;
+  document.getElementById("expShow").textContent = text || "";
+  document.getElementById("afterExp").hidden = !has;
+  ["reflect", "actual", "learn", "match", "practice", "excel", "hw"].forEach(p => { document.getElementById("tab-" + p).disabled = !has; });
+  document.getElementById("toLearn").hidden = !has;
+}
+
+/* Новая тема: карточки функций по одной и живые примеры */
+const F_NAMES = ["ЕСЛИ", "И", "ИЛИ", "НЕ", "Шпаргалка и ошибки"];
+const F_LAST = F_NAMES.length - 1;
+let fCur = 0;
+function showCard(i) {
+  fCur = i;
+  document.querySelectorAll(".fcard").forEach(c => { c.hidden = +c.dataset.card !== i; });
+  document.querySelectorAll(".fpill").forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
+  document.getElementById("fPrev").textContent = i === 0 ? "← Вспомним" : "← Назад";
+  document.getElementById("fNext").textContent = i === F_LAST ? "Дальше: какая функция? →" : "Дальше: " + F_NAMES[i + 1] + " →";
+}
+document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
+document.getElementById("fPrev").addEventListener("click", () => { if (fCur === 0) show("actual"); else showCard(fCur - 1); });
+document.getElementById("fNext").addEventListener("click", () => {
+  if (fCur === F_LAST) { show("match"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
+});
+
+/* Мини-таблица как в Excel: сравнения, логические значения и функции ЕСЛИ, И, ИЛИ, НЕ (плюс функции прошлого урока) */
+const XL_COLS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const XL_EN = { SUM: "СУММ", SQRT: "КОРЕНЬ", POWER: "СТЕПЕНЬ", SUMIF: "СУММЕСЛИ", IF: "ЕСЛИ", AND: "И", OR: "ИЛИ", NOT: "НЕ" };
+const XL_ERR = {
+  "#ЧИСЛО!": "Почему: такое число посчитать нельзя — корень из отрицательного числа, 0 в степени 0, отрицательное число в дробной степени или слишком большой результат. Как исправить: проверь знак и величину чисел; минус под корнем убирает ABS.",
+  "#ИМЯ?": "Почему: таблица не узнала слово в формуле — текст без кавычек (в ЕСЛИ пишут \"зачёт\"), опечатка в имени функции, английское название или русская буква в адресе ячейки. Как исправить: возьми текст в кавычки, проверь написание или вставь функцию кнопкой «Вставить».",
+  "#ЗНАЧ!": "Почему: таблица ждала число или условие, а получила текст. Например, в ЕСЛИ, И, ИЛИ или НЕ вместо сравнения попало слово, или к подписи прибавляют число. Как исправить: в условии должно быть сравнение, например B2>=50 или A1=\"да\".",
+  "#ДЕЛ/0!": "Почему: делить на ноль нельзя. Пустая ячейка в делителе тоже считается нулём. Как исправить: проверь делитель.",
+  "#ЦИКЛ!": "Почему: формула ссылается на свою же ячейку, и посчитать её невозможно. В Excel появится предупреждение о циклической ссылке. Как исправить: убери из формулы адрес этой ячейки."
+};
+class XErr { constructor(code) { this.code = code; } }
+class XSyntax extends Error {}
+class XArity extends Error {}
+
+function xlNum(s) {
+  const t = String(s).trim().replace("−", "-");
+  return /^-?\d+([.,]\d+)?$/.test(t) ? parseFloat(t.replace(",", ".")) : null;
+}
+function xlFmt(v) {
+  if (v === null || v === undefined) return "";
+  if (v instanceof XErr) return v.code;
+  if (typeof v === "boolean") return v ? "ИСТИНА" : "ЛОЖЬ";
+  if (typeof v === "number") return v.toLocaleString("ru-RU", { maximumFractionDigits: 4 }).replace("−", "-");
+  return String(v);
+}
+
+function xlTokens(src) {
+  const t = []; let i = 0, m;
+  while (i < src.length) {
+    const c = src[i], rest = src.slice(i);
+    if (/\s/.test(c)) { i++; continue; }
+    if ((m = /^\d+(?:[.,]\d+)?/.exec(rest))) { t.push({ k: "num", v: parseFloat(m[0].replace(",", ".")) }); i += m[0].length; continue; }
+    if (c === '"') {
+      const j = src.indexOf('"', i + 1);
+      if (j < 0) throw new XSyntax("Не закрыта кавычка. Условие пишется так: \">0\".");
+      t.push({ k: "str", v: src.slice(i + 1, j) }); i = j + 1; continue;
+    }
+    if ((m = /^\$?([A-Za-z])\$?(\d+)(?![A-Za-zА-Яа-яЁё0-9_(])/.exec(rest))) { t.push({ k: "ref", v: m[1].toUpperCase() + m[2] }); i += m[0].length; continue; }
+    if ((m = /^\$?([А-Яа-яЁё])\$?(\d+)(?![A-Za-zА-Яа-яЁё0-9_(])/.exec(rest))) { t.push({ k: "badref", v: m[0] }); i += m[0].length; continue; }
+    if ((m = /^[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё0-9_.]*/.exec(rest))) { t.push({ k: "id", v: m[0].toUpperCase() }); i += m[0].length; continue; }
+    if ("≥≤≠".includes(c)) throw new XSyntax(`Знак «${c}» в таблице не набирают. Пиши ${c === "≥" ? ">=" : c === "≤" ? "<=" : "<>"}.`);
+    if (rest.startsWith("=>") || rest.startsWith("=<")) throw new XSyntax(`Знак записан наоборот: пиши ${rest[1]}=, а не =${rest[1]}.`);
+    if (rest.startsWith("!=")) throw new XSyntax("«Не равно» в таблице пишут так: <>.");
+    if ((m = /^(<=|>=|<>|<|>|=)/.exec(rest))) { t.push({ k: "cmp", v: m[1] }); i += m[1].length; continue; }
+    if ("+-*/^();:,".includes(c)) { t.push({ k: c }); i++; continue; }
+    throw new XSyntax(`Непонятный символ «${c}».`);
+  }
+  return t;
+}
+
+function xlParse(src) {
+  const toks = xlTokens(src); let p = 0;
+  const peek = () => toks[p];
+  const COMMA = "Между аргументами функции ставится точка с запятой «;», а не запятая.";
+  function compare() { let n = expr(); while (peek() && peek().k === "cmp") { const op = toks[p++].v; n = { t: "bin", op, l: n, r: expr() }; } return n; }
+  function expr() { let n = term(); while (peek() && (peek().k === "+" || peek().k === "-")) { const op = toks[p++].k; n = { t: "bin", op, l: n, r: term() }; } return n; }
+  function term() { let n = power(); while (peek() && (peek().k === "*" || peek().k === "/")) { const op = toks[p++].k; n = { t: "bin", op, l: n, r: power() }; } return n; }
+  function power() { let n = unary(); while (peek() && peek().k === "^") { p++; n = { t: "bin", op: "^", l: n, r: unary() }; } return n; }
+  function unary() {
+    const x = peek();
+    if (x && (x.k === "-" || x.k === "+")) { p++; const a = unary(); return x.k === "-" ? { t: "neg", a } : a; }
+    return primary();
+  }
+  function primary() {
+    const x = toks[p++];
+    if (!x) throw new XSyntax("Формула оборвалась: в конце чего-то не хватает.");
+    if (x.k === "num") return { t: "num", v: x.v };
+    if (x.k === "str") return { t: "str", v: x.v };
+    if (x.k === "badref" || (x.k === "ref" && peek() && peek().k === ":" && toks[p + 1] && toks[p + 1].k === "badref")) {
+      if (peek() && peek().k === ":") { p++; const y = toks[p++]; if (!y || (y.k !== "ref" && y.k !== "badref")) throw new XSyntax("После двоеточия нужен адрес ячейки, например A5."); return { t: "badref", v: x.k === "badref" ? x.v : y.v }; }
+      return { t: "badref", v: x.v };
+    }
+    if (x.k === "ref") {
+      if (peek() && peek().k === ":") {
+        p++; const y = toks[p++];
+        if (!y || y.k !== "ref") throw new XSyntax("После двоеточия нужен адрес ячейки, например A5.");
+        return { t: "range", a: x.v, b: y.v };
+      }
+      return { t: "ref", v: x.v };
+    }
+    if (x.k === "id") {
+      if (!peek() || peek().k !== "(") return x.v === "ИСТИНА" || x.v === "ЛОЖЬ" ? { t: "bool", v: x.v === "ИСТИНА" } : { t: "name", v: x.v };
+      p++; const args = [];
+      if (peek() && peek().k === ")") { p++; return { t: "call", f: x.v, args }; }
+      for (;;) {
+        args.push(compare());
+        const y = peek();
+        if (y && y.k === ";") { p++; continue; }
+        if (y && y.k === ",") throw new XSyntax(COMMA);
+        if (y && (y.k === "id" || y.k === "str" || y.k === "num" || y.k === "ref")) throw new XSyntax("Между аргументами функции нужна «;». Если это текст из нескольких слов — возьми его в кавычки целиком: \"не сдал\".");
+        if (!y || y.k !== ")") throw new XSyntax("Не хватает закрывающей скобки «)».");
+        p++; break;
+      }
+      return { t: "call", f: x.v, args };
+    }
+    if (x.k === "(") {
+      const a = compare();
+      if (!peek() || peek().k !== ")") throw new XSyntax("Не хватает закрывающей скобки «)».");
+      p++; return { t: "paren", a };
+    }
+    if (x.k === ",") throw new XSyntax(COMMA);
+    if (x.k === "cmp") throw new XSyntax(`Знак «${x.v}» стоит не на месте: слева и справа от него должны быть значения, например B2${x.v}50.`);
+    throw new XSyntax(`Лишний знак «${x.k}».`);
+  }
+  if (!toks.length) throw new XSyntax("После знака = нужно написать формулу.");
+  const ast = compare();
+  if (p < toks.length) {
+    const y = toks[p];
+    throw new XSyntax(y.k === ")" ? "Лишняя закрывающая скобка «)»." : y.k === ";" ? "Знак «;» ставится только внутри скобок функции." : y.k === "," ? COMMA : "Лишние символы в конце формулы.");
+  }
+  return ast;
+}
+
+function xlRange(a, b) {
+  const c1 = a.charCodeAt(0), c2 = b.charCodeAt(0), r1 = +a.slice(1), r2 = +b.slice(1);
+  const keys = [];
+  for (let r = Math.min(r1, r2); r <= Math.max(r1, r2) && keys.length < 400; r++)
+    for (let c = Math.min(c1, c2); c <= Math.max(c1, c2); c++) keys.push(String.fromCharCode(c) + r);
+  return keys;
+}
+/* Сравнение как в Excel: пустая ячейка — 0 или "", текст без учёта регистра, число < текст < ИСТИНА/ЛОЖЬ */
+function xlCmpV(op, a, b) {
+  const empty = o => typeof o === "string" ? "" : typeof o === "boolean" ? false : 0;
+  if (a === null) a = empty(b);
+  if (b === null) b = empty(a);
+  const rank = v => typeof v === "number" ? 0 : typeof v === "string" ? 1 : 2;
+  if (rank(a) !== rank(b)) return op === "<>" ? true : op === "=" ? false : xlCmp(op, rank(a), rank(b));
+  if (typeof a === "string") { a = a.toLowerCase().replace(/ё/g, "е"); b = b.toLowerCase().replace(/ё/g, "е"); }
+  if (typeof a === "boolean") { a = +a; b = +b; }
+  return xlCmp(op, a, b);
+}
+const XL_CMP = new Set([">", "<", "=", ">=", "<=", "<>"]);
+/* Случайные данные: одна группа ячеек или несколько групп со своими диапазонами */
+function rndFill(r, cells) { (r.groups || [r]).forEach(g => g.keys.forEach(k => { cells[k] = String(prRandom(g)); })); }
+function xlCmp(op, a, b) { return op === ">" ? a > b : op === "<" ? a < b : op === ">=" ? a >= b : op === "<=" ? a <= b : op === "<>" ? a !== b : a === b; }
+function xlCrit(c) {
+  if (typeof c === "number") return x => x === c;
+  const m = /^(<=|>=|<>|<|>|=)?(.*)$/.exec(String(c === null ? "" : c).trim());
+  const op = m[1] || "=", rhs = m[2].trim(), n = xlNum(rhs);
+  if (n !== null) return x => typeof x === "number" && xlCmp(op, x, n);
+  const low = rhs.toLowerCase();
+  return x => { const s = x === null ? "" : String(x).toLowerCase(); return op === "<>" ? s !== low : op === "=" ? s === low : false; };
+}
+
+function xlEvalCell(S, k, st) {
+  if (S.cache.has(k)) return S.cache.get(k);
+  const raw = String(S.cells[k] ?? "").trim();
+  let v;
+  if (raw === "") v = null;
+  else if (raw[0] === "=") {
+    if (st.has(k)) return new XErr("#ЦИКЛ!");
+    st.add(k);
+    try { v = xlEv(S, xlParse(raw.slice(1)), st); if (v && v.arr) v = new XErr("#ЗНАЧ!"); }
+    catch (e) { if (e instanceof XSyntax || e instanceof XArity) v = new XErr("#ОШИБКА"); else throw e; }
+    st.delete(k);
+  } else if (/^(ИСТИНА|ЛОЖЬ)$/i.test(raw)) v = raw.toUpperCase() === "ИСТИНА";
+  else { const n = xlNum(raw); v = n === null ? raw : n; }
+  S.cache.set(k, v);
+  return v;
+}
+function xlToNum(v) {
+  if (v instanceof XErr) return v;
+  if (v === null) return 0;
+  if (typeof v === "number") return v;
+  if (typeof v === "boolean") return +v;
+  return new XErr("#ЗНАЧ!");
+}
+function xlEv(S, n, st) {
+  switch (n.t) {
+    case "num": case "str": case "bool": return n.v;
+    case "ref": return xlEvalCell(S, n.v, st);
+    case "range": return { arr: xlRange(n.a, n.b).map(k => xlEvalCell(S, k, st)) };
+    case "name": case "badref": return new XErr("#ИМЯ?");
+    case "paren": return xlEv(S, n.a, st);
+    case "neg": { const a = xlToNum(xlEv(S, n.a, st)); return a instanceof XErr ? a : -a; }
+    case "bin": {
+      if (XL_CMP.has(n.op)) {
+        const x = xlEv(S, n.l, st), y = xlEv(S, n.r, st);
+        if (x instanceof XErr) return x;
+        if (y instanceof XErr) return y;
+        if ((x && x.arr) || (y && y.arr)) return new XErr("#ЗНАЧ!");
+        return xlCmpV(n.op, x, y);
+      }
+      const a = xlToNum(xlEv(S, n.l, st)), b = xlToNum(xlEv(S, n.r, st));
+      if (a instanceof XErr) return a;
+      if (b instanceof XErr) return b;
+      if (n.op === "+") return a + b;
+      if (n.op === "-") return a - b;
+      if (n.op === "*") return a * b;
+      if (n.op === "/") return b === 0 ? new XErr("#ДЕЛ/0!") : a / b;
+      if (a === 0 && b < 0) return new XErr("#ДЕЛ/0!");
+      if (a === 0 && b === 0) return new XErr("#ЧИСЛО!");
+      const r = Math.pow(a, b);
+      return Number.isFinite(r) ? r : new XErr("#ЧИСЛО!");
+    }
+    case "call": return xlCall(S, n, st);
+  }
+  return new XErr("#ЗНАЧ!");
+}
+function xlCall(S, n, st) {
+  const f = n.f;
+  const need = (lo, hi) => { if (n.args.length < lo || n.args.length > hi) throw new XArity(f); };
+  const one = i => xlToNum(xlEv(S, n.args[i], st));
+  if (f === "СУММ") {
+    need(1, 255);
+    let s = 0;
+    for (const a of n.args) {
+      const v = xlEv(S, a, st);
+      if (v && v.arr) { for (const x of v.arr) { if (x instanceof XErr) return x; if (typeof x === "number") s += x; } }
+      else { const x = xlToNum(v); if (x instanceof XErr) return x; s += x; }
+    }
+    return s;
+  }
+  if (f === "ABS") { need(1, 1); const x = one(0); return x instanceof XErr ? x : Math.abs(x); }
+  if (f === "КОРЕНЬ") { need(1, 1); const x = one(0); if (x instanceof XErr) return x; return x < 0 ? new XErr("#ЧИСЛО!") : Math.sqrt(x); }
+  if (f === "СТЕПЕНЬ") {
+    need(2, 2);
+    const a = one(0), b = one(1);
+    if (a instanceof XErr) return a;
+    if (b instanceof XErr) return b;
+    if (a === 0 && b < 0) return new XErr("#ДЕЛ/0!");
+    if (a === 0 && b === 0) return new XErr("#ЧИСЛО!");
+    const r = Math.pow(a, b);
+    return Number.isFinite(r) ? r : new XErr("#ЧИСЛО!");
+  }
+  if (f === "СУММЕСЛИ") {
+    need(2, 3);
+    const r = xlEv(S, n.args[0], st);
+    if (!(r && r.arr)) return new XErr("#ЗНАЧ!");
+    const c = xlEv(S, n.args[1], st);
+    if (c instanceof XErr) return c;
+    if (c && c.arr) return new XErr("#ЗНАЧ!");
+    const test = xlCrit(c);
+    const sr = n.args[2] ? xlEv(S, n.args[2], st) : r;
+    if (!(sr && sr.arr)) return new XErr("#ЗНАЧ!");
+    let s = 0;
+    for (let i = 0; i < r.arr.length; i++) {
+      if (!test(r.arr[i])) continue;
+      const y = sr.arr[i];
+      if (y instanceof XErr) return y;
+      if (typeof y === "number") s += y;
+    }
+    return s;
+  }
+  /* условие: ИСТИНА/ЛОЖЬ, число (0 — ЛОЖЬ), пустая ячейка — ЛОЖЬ, текст — ошибка */
+  const logical = v => v instanceof XErr ? v : typeof v === "boolean" ? v : typeof v === "number" ? v !== 0 : v === null ? false : new XErr("#ЗНАЧ!");
+  if (f === "ЕСЛИ") {
+    need(2, 3);
+    const c0 = xlEv(S, n.args[0], st);
+    if (c0 && c0.arr) return new XErr("#ЗНАЧ!");
+    const c = logical(c0);
+    if (c instanceof XErr) return c;
+    if (!c && n.args.length < 3) return false;
+    const v = xlEv(S, n.args[c ? 1 : 2], st);
+    return v === null ? 0 : v;
+  }
+  if (f === "И" || f === "ИЛИ") {
+    need(1, 255);
+    let any = false, all = true, seen = false;
+    for (const a of n.args) {
+      const v = xlEv(S, a, st);
+      const list = v && v.arr ? v.arr.filter(x => typeof x === "boolean" || typeof x === "number" || x instanceof XErr) : [v];
+      for (const x of list) {
+        if (x === null) continue;
+        const b = logical(x);
+        if (b instanceof XErr) return b;
+        seen = true; if (b) any = true; else all = false;
+      }
+    }
+    if (!seen) return new XErr("#ЗНАЧ!");
+    return f === "И" ? all : any;
+  }
+  if (f === "НЕ") {
+    need(1, 1);
+    const v = xlEv(S, n.args[0], st);
+    if (v && v.arr) return new XErr("#ЗНАЧ!");
+    const b = logical(v);
+    return b instanceof XErr ? b : !b;
+  }
+  if (f === "ИСТИНА" || f === "ЛОЖЬ") { need(0, 0); return f === "ИСТИНА"; }
+  return new XErr("#ИМЯ?");
+}
+
+/* Подстановка значений вместо адресов: =СУММ(B1:B5) → =СУММ({250; 480; …}) */
+function xlShow(S, n) {
+  const val = v => v instanceof XErr ? v.code : v === null ? "0" : typeof v === "number" || typeof v === "boolean" ? xlFmt(v) : `«${v}»`;
+  switch (n.t) {
+    case "num": return xlFmt(n.v);
+    case "str": return `"${n.v}"`;
+    case "bool": return n.v ? "ИСТИНА" : "ЛОЖЬ";
+    case "ref": return val(xlEvalCell(S, n.v, new Set()));
+    case "range": return "{" + xlRange(n.a, n.b).map(k => xlEvalCell(S, k, new Set())).filter(v => v !== null).map(val).join("; ") + "}";
+    case "name": case "badref": return n.v;
+    case "paren": return "(" + xlShow(S, n.a) + ")";
+    case "neg": return "-" + xlShow(S, n.a);
+    case "bin": return xlShow(S, n.l) + " " + n.op + " " + xlShow(S, n.r);
+    case "call": return n.f + "(" + n.args.map(a => xlShow(S, a)).join("; ") + ")";
+  }
+  return "";
+}
+function xlRefs(n, out) {
+  if (!n) return out;
+  if (n.t === "ref") out.add(n.v);
+  else if (n.t === "range") xlRange(n.a, n.b).forEach(k => out.add(k));
+  else if (n.t === "paren" || n.t === "neg") xlRefs(n.a, out);
+  else if (n.t === "bin") { xlRefs(n.l, out); xlRefs(n.r, out); }
+  else if (n.t === "call") n.args.forEach(a => xlRefs(a, out));
+  return out;
+}
+function xlFind(n, pred) {
+  if (!n) return null;
+  if (pred(n)) return n;
+  const kids = n.t === "bin" ? [n.l, n.r] : n.t === "call" ? n.args : n.a ? [n.a] : [];
+  for (const k of kids) { const r = xlFind(k, pred); if (r) return r; }
+  return null;
+}
+const XL_ARGS = { "СУММ": "хотя бы одно значение", "ABS": "ровно одно число", "КОРЕНЬ": "ровно одно число", "СТЕПЕНЬ": "два числа через «;»: число и степень", "СУММЕСЛИ": "диапазон и условие через «;» (и, если нужно, диапазон для сложения)", "ЕСЛИ": "условие и два значения через «;»: что показать, если да, и что — если нет", "И": "хотя бы одно условие", "ИЛИ": "хотя бы одно условие", "НЕ": "ровно одно условие", "ИСТИНА": "пустые скобки", "ЛОЖЬ": "пустые скобки" };
+
+const XL_SHEETS = {
+  if: [
+    { name: "Журнал: зачёт", text: "Если балл 50 или больше — «зачёт», иначе «незачёт». Нажми «Случайные числа» и посмотри, как меняются итоги. Что будет, если поставить ровно 50?",
+      cells: { A1: "Ученик", B1: "Балл", C1: "Итог", A2: "Айдана", B2: "72", A3: "Тимур", B3: "45", A4: "Дана", B4: "50", A5: "Арман", B5: "38", A6: "Мадина", B6: "91",
+        C2: "=ЕСЛИ(B2>=50;\"зачёт\";\"незачёт\")", C3: "=ЕСЛИ(B3>=50;\"зачёт\";\"незачёт\")", C4: "=ЕСЛИ(B4>=50;\"зачёт\";\"незачёт\")", C5: "=ЕСЛИ(B5>=50;\"зачёт\";\"незачёт\")", C6: "=ЕСЛИ(B6>=50;\"зачёт\";\"незачёт\")" },
+      sel: "C2", rand: { keys: ["B2", "B3", "B4", "B5", "B6"], min: 20, max: 100 } },
+    { name: "Сравнения", text: "Сравнение само по себе отвечает ИСТИНА или ЛОЖЬ. Поменяй числа в A1 и B1.",
+      cells: { A1: "7", B1: "5", C1: "=A1>B1", D1: "A больше B?", C2: "=A1<B1", D2: "A меньше B?", C3: "=A1=B1", D3: "равны?", C4: "=A1>=B1", D4: "больше или равно?", C5: "=A1<>B1", D5: "не равны?" },
+      sel: "C1", rand: { keys: ["A1", "B1"], min: 1, max: 9 } },
+    { name: "Доставка", text: "Если покупка 5000 тг или больше — доставка 0, иначе 700. В ветках ЕСЛИ — числа, без кавычек.",
+      cells: { A1: "Покупка, тг", B1: "3500", A2: "Доставка, тг", B2: "=ЕСЛИ(B1>=5000;0;700)", A3: "К оплате, тг", B3: "=B1+B2" },
+      sel: "B2", rand: { keys: ["B1"], min: 1000, max: 9000, step: 500 } },
+    { name: "Скидка", text: "Покупка больше 10 000 тг — платим 90% суммы. В ветке ЕСЛИ можно считать.",
+      cells: { A1: "Покупка, тг", B1: "12000", A2: "К оплате, тг", B2: "=ЕСЛИ(B1>10000;B1*0,9;B1)" },
+      sel: "B2", rand: { keys: ["B1"], min: 5000, max: 20000, step: 1000 } },
+    { name: "Гололёд", text: "Если температура ниже нуля — «гололёд», иначе «сухо».",
+      cells: { A1: "Температура", B1: "-3", A2: "Дорога", B2: "=ЕСЛИ(B1<0;\"гололёд\";\"сухо\")" },
+      sel: "B2", rand: { keys: ["B1"], min: -10, max: 10 } }
+  ],
+  and: [
+    { name: "Нормы по физкультуре", text: "Зачёт, если бег не дольше 10 с И прыжок не меньше 150 см. Столбец D — проверка через И, столбец E — слово через ЕСЛИ(И(…)).",
+      cells: { A1: "Ученик", B1: "Бег, с", C1: "Прыжок, см", D1: "Обе нормы?", E1: "Итог",
+        A2: "Айдана", B2: "9,8", C2: "155", A3: "Тимур", B3: "10,4", C3: "170", A4: "Дана", B4: "9,2", C4: "140", A5: "Арман", B5: "8,9", C5: "182",
+        D2: "=И(B2<=10;C2>=150)", D3: "=И(B3<=10;C3>=150)", D4: "=И(B4<=10;C4>=150)", D5: "=И(B5<=10;C5>=150)",
+        E2: "=ЕСЛИ(И(B2<=10;C2>=150);\"зачёт\";\"незачёт\")", E3: "=ЕСЛИ(И(B3<=10;C3>=150);\"зачёт\";\"незачёт\")", E4: "=ЕСЛИ(И(B4<=10;C4>=150);\"зачёт\";\"незачёт\")", E5: "=ЕСЛИ(И(B5<=10;C5>=150);\"зачёт\";\"незачёт\")" },
+      sel: "D2", rand: { groups: [{ keys: ["B2", "B3", "B4", "B5"], min: 8, max: 12 }, { keys: ["C2", "C3", "C4", "C5"], min: 130, max: 180, step: 5 }] } },
+    { name: "Промежуток", text: "Число от 10 до 20 — два условия через И. В B2 — запись двойного неравенства «как в математике»: сравни ответы.",
+      cells: { A1: "15", B1: "=И(A1>=10;A1<=20)", C1: "верно", B2: "=10<=A1<=20", C2: "так нельзя" },
+      sel: "B1", rand: { keys: ["A1"], min: 0, max: 30 } },
+    { name: "Олимпиада", text: "Допускают тех, у кого 5 по математике И 5 по информатике.",
+      cells: { A1: "Ученик", B1: "Математика", C1: "Информатика", D1: "Олимпиада", A2: "Айдана", B2: "5", C2: "5", A3: "Тимур", B3: "5", C3: "4", A4: "Дана", B4: "4", C4: "5",
+        D2: "=ЕСЛИ(И(B2=5;C2=5);\"допущен\";\"нет\")", D3: "=ЕСЛИ(И(B3=5;C3=5);\"допущен\";\"нет\")", D4: "=ЕСЛИ(И(B4=5;C4=5);\"допущен\";\"нет\")" },
+      sel: "D2", rand: { keys: ["B2", "C2", "B3", "C3", "B4", "C4"], pick: [3, 4, 5, 5] } },
+    { name: "Таблица истинности", text: "Все четыре сочетания ИСТИНА и ЛОЖЬ. ИСТИНА получается только в одной строке.",
+      cells: { A1: "Условие 1", B1: "Условие 2", C1: "И", A2: "ИСТИНА", B2: "ИСТИНА", C2: "=И(A2;B2)", A3: "ИСТИНА", B3: "ЛОЖЬ", C3: "=И(A3;B3)", A4: "ЛОЖЬ", B4: "ИСТИНА", C4: "=И(A4;B4)", A5: "ЛОЖЬ", B5: "ЛОЖЬ", C5: "=И(A5;B5)" },
+      sel: "C2" }
+  ],
+  or: [
+    { name: "Билеты в музей", text: "Бесплатно, если посетителю меньше 7 лет ИЛИ больше 65. Столбец C — ИЛИ, столбец D — слово через ЕСЛИ.",
+      cells: { A1: "Посетитель", B1: "Возраст", C1: "Льгота", D1: "Билет", A2: "Дана", B2: "5", A3: "Серик", B3: "68", A4: "Тимур", B4: "14", A5: "Айгуль", B5: "40",
+        C2: "=ИЛИ(B2<7;B2>65)", C3: "=ИЛИ(B3<7;B3>65)", C4: "=ИЛИ(B4<7;B4>65)", C5: "=ИЛИ(B5<7;B5>65)",
+        D2: "=ЕСЛИ(C2;\"бесплатно\";\"платно\")", D3: "=ЕСЛИ(C3;\"бесплатно\";\"платно\")", D4: "=ЕСЛИ(C4;\"бесплатно\";\"платно\")", D5: "=ЕСЛИ(C5;\"бесплатно\";\"платно\")" },
+      sel: "C2", rand: { keys: ["B2", "B3", "B4", "B5"], min: 2, max: 80 } },
+    { name: "Выходные", text: "Выходной — если день «сб» ИЛИ «вс». Текст в условии тоже в кавычках.",
+      cells: { A1: "пн", A2: "вт", A3: "ср", A4: "чт", A5: "пт", A6: "сб", A7: "вс",
+        B1: "=ИЛИ(A1=\"сб\";A1=\"вс\")", B2: "=ИЛИ(A2=\"сб\";A2=\"вс\")", B3: "=ИЛИ(A3=\"сб\";A3=\"вс\")", B4: "=ИЛИ(A4=\"сб\";A4=\"вс\")", B5: "=ИЛИ(A5=\"сб\";A5=\"вс\")", B6: "=ИЛИ(A6=\"сб\";A6=\"вс\")", B7: "=ИЛИ(A7=\"сб\";A7=\"вс\")" },
+      sel: "B6" },
+    { name: "Таблица истинности", text: "ЛОЖЬ получается только в одной строке — когда неверны оба условия.",
+      cells: { A1: "Условие 1", B1: "Условие 2", C1: "ИЛИ", A2: "ИСТИНА", B2: "ИСТИНА", C2: "=ИЛИ(A2;B2)", A3: "ИСТИНА", B3: "ЛОЖЬ", C3: "=ИЛИ(A3;B3)", A4: "ЛОЖЬ", B4: "ИСТИНА", C4: "=ИЛИ(A4;B4)", A5: "ЛОЖЬ", B5: "ЛОЖЬ", C5: "=ИЛИ(A5;B5)" },
+      sel: "C5" }
+  ],
+  not: [
+    { name: "Сдал ли ДЗ", text: "В B — ИСТИНА, если ученик сдал ДЗ. C — НЕ переворачивает ответ, D — напоминание тем, кто не сдал.",
+      cells: { A1: "Ученик", B1: "Сдал ДЗ", C1: "Не сдал", D1: "Напоминание", A2: "Айдана", B2: "ИСТИНА", A3: "Тимур", B3: "ЛОЖЬ", A4: "Дана", B4: "ИСТИНА", A5: "Арман", B5: "ЛОЖЬ",
+        C2: "=НЕ(B2)", C3: "=НЕ(B3)", C4: "=НЕ(B4)", C5: "=НЕ(B5)",
+        D2: "=ЕСЛИ(НЕ(B2);\"напомнить\";\"\")", D3: "=ЕСЛИ(НЕ(B3);\"напомнить\";\"\")", D4: "=ЕСЛИ(НЕ(B4);\"напомнить\";\"\")", D5: "=ЕСЛИ(НЕ(B5);\"напомнить\";\"\")" },
+      sel: "C2", rand: { keys: ["B2", "B3", "B4", "B5"], pick: ["ИСТИНА", "ЛОЖЬ"] } },
+    { name: "НЕ и знак <>", text: "Все, кроме 8А. Столбец B — через НЕ, столбец C — знаком «не равно». Ответы одинаковые.",
+      cells: { A1: "Класс", B1: "Через НЕ", C1: "Через <>", A2: "8А", A3: "8Б", A4: "8В", B2: "=НЕ(A2=\"8А\")", B3: "=НЕ(A3=\"8А\")", B4: "=НЕ(A4=\"8А\")", C2: "=A2<>\"8А\"", C3: "=A3<>\"8А\"", C4: "=A4<>\"8А\"" },
+      sel: "B2" },
+    { name: "Таблица истинности", text: "НЕ меняет ИСТИНА на ЛОЖЬ и наоборот.",
+      cells: { A1: "Значение", B1: "НЕ", A2: "ИСТИНА", B2: "=НЕ(A2)", A3: "ЛОЖЬ", B3: "=НЕ(A3)" },
+      sel: "B2" }
+  ],
+  all: [
+    { name: "Все четыре функции", text: "Балл в A2, посещаемость в B2. По одной формуле на каждую функцию — нажми на ячейку и посмотри формулу.",
+      cells: { A1: "Балл", B1: "Пропуски", A2: "64", B2: "3", C1: "ЕСЛИ", C2: "=ЕСЛИ(A2>=50;\"зачёт\";\"незачёт\")", D1: "И", D2: "=И(A2>=50;B2<=5)", E1: "ИЛИ", E2: "=ИЛИ(A2>=90;B2=0)", F1: "НЕ", F2: "=НЕ(A2>=50)" },
+      sel: "C2", rand: { groups: [{ keys: ["A2"], min: 20, max: 100 }, { keys: ["B2"], min: 0, max: 10 }] } },
+    { name: "Ошибка #ИМЯ?", text: "B — с ошибкой, C — исправлено. Нажми на красную ячейку, чтобы увидеть формулу и причину ошибки, а потом на ячейку рядом — как правильно.",
+      cells: { A1: "Балл", B1: "Неправильно", C1: "Исправлено", D1: "Что случилось", A2: "64",
+        B2: "=ЕСЛИ(A2>=50;зачёт;незачёт)", C2: "=ЕСЛИ(A2>=50;\"зачёт\";\"незачёт\")", D2: "текст без кавычек",
+        B3: "=IF(A2>=50;\"да\";\"нет\")", C3: "=ЕСЛИ(A2>=50;\"да\";\"нет\")", D3: "английское имя",
+        B4: "=ЕСЛЕ(A2>=50;\"да\";\"нет\")", C4: "=ЕСЛИ(A2>=50;\"да\";\"нет\")", D4: "опечатка в имени" },
+      sel: "B2" },
+    { name: "Ошибка записи", text: "B — формулы с ошибкой записи, C — исправлено. В Excel неправильную формулу не дадут ввести. Нажми на красную ячейку, чтобы увидеть причину.",
+      cells: { A1: "Балл", B1: "Неправильно", C1: "Исправлено", D1: "Что случилось", A2: "64",
+        B2: "=ЕСЛИ(A2=>50;\"да\";\"нет\")", C2: "=ЕСЛИ(A2>=50;\"да\";\"нет\")", D2: "=> вместо >=",
+        B3: "=ЕСЛИ(A2>=50,\"да\",\"нет\")", C3: "=ЕСЛИ(A2>=50;\"да\";\"нет\")", D3: "запятая вместо «;»",
+        B4: "=ЕСЛИ(A2>=50;\"да;\"нет\")", C4: "=ЕСЛИ(A2>=50;\"да\";\"нет\")", D4: "не закрыта кавычка",
+        B5: "=ЕСЛИ(A2≥50;\"да\";\"нет\")", C5: "=ЕСЛИ(A2>=50;\"да\";\"нет\")", D5: "символ ≥" },
+      sel: "B2" },
+    { name: "Ошибка #ЗНАЧ!", text: "В условии оказалось слово, а не сравнение. B — с ошибкой, C — исправлено.",
+      cells: { A1: "Ответ", B1: "Неправильно", C1: "Исправлено", D1: "Что случилось", A2: "да",
+        B2: "=НЕ(\"да\")", C2: "=НЕ(A2=\"да\")", D2: "в НЕ слово вместо условия",
+        B3: "=ЕСЛИ(\"да\";1;0)", C3: "=ЕСЛИ(A2=\"да\";1;0)", D3: "в ЕСЛИ слово вместо условия" },
+      sel: "B2" },
+    { name: "Логическая ошибка", text: "Кода ошибки нет, но ответ неверный. Сравни столбцы B и C: где ошиблась формула?",
+      cells: { A1: "Балл", B1: "С ошибкой", C1: "Правильно", D1: "Что случилось",
+        A2: "50", B2: "=ЕСЛИ(A2>50;\"зачёт\";\"незачёт\")", C2: "=ЕСЛИ(A2>=50;\"зачёт\";\"незачёт\")", D2: "> вместо >=: 50 — это зачёт",
+        A3: "72", B3: "=ЕСЛИ(A3>=50;\"незачёт\";\"зачёт\")", C3: "=ЕСЛИ(A3>=50;\"зачёт\";\"незачёт\")", D3: "перепутаны «да» и «нет»" },
+      sel: "B2" },
+    { name: "Пустой лист", text: "Чистый лист: впиши свои числа и формулы.", cells: {}, sel: "A1" }
+  ]
+};
+
+function xlMount(root, examples, opts = {}) {
+  const ROWS = opts.rows || 10, COLS = XL_COLS.slice(0, opts.cols || XL_COLS.length);
+  const S = { cells: {}, cache: new Map(), sel: "A1", ex: 0, timer: null };
+  root.innerHTML = `
+    <div class="xl-top"${opts.task ? " hidden" : ""}>
+      <div class="xl-ex">${examples.map((e, i) => `<button type="button" class="xl-chip" data-ex="${i}">${e.name}</button>`).join("")}</div>
+      <div class="xl-act">
+        <button type="button" class="btn xl-rand">Случайные числа</button>
+        <button type="button" class="btn xl-play" aria-pressed="false">▶ Автопоказ</button>
+        <button type="button" class="btn xl-reset">Сбросить</button>
+      </div>
+    </div>
+    <p class="xl-text"${opts.task ? " hidden" : ""}></p>
+    <div class="xl-keys" aria-label="Вставить в формулу">
+      <span class="xl-keys-lab">Вставить:</span>
+      ${["=", "ЕСЛИ(", "И(", "ИЛИ(", "НЕ(", ";", ">", "<", ">=", "<=", "<>", "\"\"", ")"].map(k => `<button type="button" class="xl-key" data-ins="${k.replace(/"/g, "&quot;")}">${k.replace(/</g, "&lt;")}</button>`).join("")}
+    </div>
+    <div class="xl-bar">
+      <span class="xl-name" aria-live="polite"></span>
+      <span class="xl-fx">fx</span>
+      <input type="text" class="xl-in" autocomplete="off" spellcheck="false" aria-label="Строка формул">
+    </div>
+    <div class="xl-wrap"><table class="xl-grid">
+      <tr><th class="xl-corner"></th>${COLS.map(c => `<th>${c}</th>`).join("")}</tr>
+      ${Array.from({ length: ROWS }, (_, r) => `<tr><th>${r + 1}</th>${COLS.map(c => `<td tabindex="-1" data-k="${c}${r + 1}"></td>`).join("")}</tr>`).join("")}
+    </table></div>
+    <p class="xl-explain"></p>
+    <p class="xl-hint">Нажми на ячейку — её содержимое появится в строке <b>fx</b>. <b>Пишешь формулу?</b> Щёлкни по ячейке, и её адрес вставится сам. Протяни мышью по нескольким ячейкам — вставится диапазон, например A1:A5. Раскладку менять не нужно.</p>`;
+  const $ = s => root.querySelector(s);
+  const inp = $(".xl-in"), grid = $(".xl-grid"), playBtn = $(".xl-play");
+
+  function recalc() { S.cache = new Map(); }
+  function render() {
+    let refs = new Set();
+    const raw = String(S.cells[S.sel] ?? "");
+    let ast = null;
+    if (raw.trim().startsWith("=")) { try { ast = xlParse(raw.trim().slice(1)); refs = xlRefs(ast, new Set()); } catch (e) { if (!(e instanceof XSyntax)) throw e; } }
+    grid.querySelectorAll("td").forEach(td => {
+      const k = td.dataset.k, v = xlEvalCell(S, k, new Set());
+      const isF = String(S.cells[k] ?? "").trim().startsWith("=");
+      td.textContent = xlFmt(v);
+      td.className = (typeof v === "number" ? "n" : typeof v === "boolean" ? "b" : v instanceof XErr ? "e" : "") + (isF ? " f" : "") + (refs.has(k) ? " ref" : "") + (opts.targets && opts.targets.includes(k) ? " target" : "") + (k === S.sel ? " sel" : "");
+      td.tabIndex = k === S.sel ? 0 : -1;
+    });
+    $(".xl-name").textContent = S.sel;
+    explain(raw, ast);
+  }
+  function explain(raw, ast) {
+    const box = $(".xl-explain");
+    box.className = "xl-explain";
+    const t = raw.trim();
+    if (!t) { box.textContent = "Ячейка пустая. Впиши число или формулу в строку fx."; return; }
+    if (!t.startsWith("=")) {
+      if (/^(ИСТИНА|ЛОЖЬ)$/i.test(t)) { box.textContent = `В ячейке логическое значение ${t.toUpperCase()}. Его можно взять условием: =ЕСЛИ(${S.sel};"да";"нет").`; return; }
+      box.textContent = xlNum(t) !== null ? `В ячейке просто число ${xlFmt(xlNum(t))}. Поменяй его, и формулы, которые на него ссылаются, пересчитаются.` : "В ячейке текст — подпись. Формулы его не складывают.";
+      return;
+    }
+    let parsed = ast;
+    if (!parsed) {
+      try { parsed = xlParse(t.slice(1)); } catch (e) {
+        if (!(e instanceof XSyntax)) throw e;
+        box.classList.add("bad"); box.textContent = "Ошибка в записи формулы: " + e.message + " В Excel такую формулу не дадут ввести: появится окно с сообщением о проблеме в формуле."; return;
+      }
+    }
+    const v = xlEvalCell(S, S.sel, new Set());
+    const lines = [];
+    if (v instanceof XErr && v.code === "#ОШИБКА") {
+      const call = xlFind(parsed, n => n.t === "call" && XL_ARGS[n.f] && (() => { try { xlCall(S, n, new Set()); return false; } catch (e) { return e instanceof XArity; } })());
+      box.classList.add("bad");
+      box.textContent = call ? `У функции ${call.f} должно быть ${XL_ARGS[call.f]}.` + (t.includes(",") ? " Похоже, вместо «;» стоит запятая." : "") : "Ошибка в записи формулы.";
+      box.textContent += " В Excel такую формулу не дадут ввести: появится окно с сообщением о проблеме в формуле.";
+      return;
+    }
+    lines.push(`<span class="xl-step">Подставляем значения:</span> <code></code> → <b></b>`);
+    box.innerHTML = lines.join("");
+    box.querySelector("code").textContent = "=" + xlShow(S, parsed);
+    box.querySelector("b").textContent = v === "" ? "пусто (\"\")" : xlFmt(v);
+    if (!(v instanceof XErr) && parsed.t === "call" && parsed.f === "ЕСЛИ" && parsed.args.length >= 2) {
+      const c = xlEv(S, parsed.args[0], new Set());
+      if (typeof c === "boolean" || typeof c === "number") {
+        const yes = typeof c === "boolean" ? c : c !== 0, p = document.createElement("span");
+        p.className = "xl-if";
+        p.textContent = `Условие ${xlShow(S, parsed.args[0])} → ${yes ? "ИСТИНА" : "ЛОЖЬ"}, поэтому ЕСЛИ ` + (yes ? "берёт второй аргумент — ответ для «да»." : parsed.args.length > 2 ? "берёт третий аргумент — ответ для «нет»." : "показывает ЛОЖЬ: третьего аргумента нет.");
+        box.appendChild(p);
+      }
+    }
+    if (v instanceof XErr) {
+      box.classList.add("bad");
+      const p = document.createElement("span");
+      p.className = "xl-why";
+      const en = xlFind(parsed, n => n.t === "call" && XL_EN[n.f]);
+      const bad = xlFind(parsed, n => n.t === "badref");
+      p.textContent = en ? `В русской версии эта функция называется ${XL_EN[en.f]}.` : bad ? `В адресе «${bad.v}» буква набрана по-русски. Адреса ячеек пишут латинскими буквами: A1, B2.` : (XL_ERR[v.code] || "");
+      box.appendChild(p);
+    }
+  }
+  function select(k, focusCell) {
+    S.sel = k;
+    inp.value = S.cells[k] ?? "";
+    render();
+    if (focusCell) grid.querySelector(`td[data-k="${k}"]`).focus();
+  }
+  function load(i) {
+    S.ex = i;
+    const e = examples[i];
+    S.cells = { ...e.cells };
+    recalc();
+    root.querySelectorAll(".xl-chip").forEach(c => c.setAttribute("aria-pressed", +c.dataset.ex === i));
+    $(".xl-text").textContent = e.text;
+    $(".xl-rand").hidden = !e.rand;
+    select(e.sel);
+  }
+  function randomize() {
+    const r = examples[S.ex].rand; if (!r) return;
+    rndFill(r, S.cells);
+    recalc(); inp.value = S.cells[S.sel] ?? ""; render();
+  }
+  function stopPlay() { clearInterval(S.timer); S.timer = null; playBtn.setAttribute("aria-pressed", "false"); playBtn.textContent = "▶ Автопоказ"; }
+  playBtn.addEventListener("click", () => {
+    if (S.timer) return stopPlay();
+    playBtn.setAttribute("aria-pressed", "true"); playBtn.textContent = "■ Стоп";
+    const step = () => { if (examples[S.ex].rand && Math.random() < .5) randomize(); else load((S.ex + 1) % examples.length); };
+    step(); S.timer = setInterval(step, 3500);
+  });
+  root.querySelector(".xl-ex").addEventListener("click", e => { const b = e.target.closest("[data-ex]"); if (b) { stopPlay(); load(+b.dataset.ex); } });
+  $(".xl-rand").addEventListener("click", () => { stopPlay(); randomize(); });
+  $(".xl-reset").addEventListener("click", () => { stopPlay(); load(S.ex); });
+  /* Режим указания: пока пишется формула, щелчок по ячейке вставляет её адрес, протягивание — диапазон */
+  let point = null, pointed = false;
+  /* Как в Excel: адрес вставляется, только если курсор стоит там, где ожидается ссылка (после = ( ; : + - * / ^) */
+  const editingFormula = () => {
+    if (document.activeElement !== inp || !inp.value.trim().startsWith("=")) return false;
+    const before = inp.value.slice(0, inp.selectionStart).replace(/\s+$/, "");
+    return /[=(;:+\-*\/^<>]$/.test(before);
+  };
+  function rangeText(a, b) {
+    if (a === b) return a;
+    const c1 = Math.min(a.charCodeAt(0), b.charCodeAt(0)), c2 = Math.max(a.charCodeAt(0), b.charCodeAt(0));
+    const r1 = Math.min(+a.slice(1), +b.slice(1)), r2 = Math.max(+a.slice(1), +b.slice(1));
+    return String.fromCharCode(c1) + r1 + ":" + String.fromCharCode(c2) + r2;
+  }
+  function putText(start, oldLen, txt) {
+    inp.value = inp.value.slice(0, start) + txt + inp.value.slice(start + oldLen);
+    inp.setSelectionRange(start + txt.length, start + txt.length);
+    S.cells[S.sel] = inp.value; recalc(); render();
+    if (opts.onChange) opts.onChange();
+  }
+  grid.addEventListener("mousedown", e => {
+    const td = e.target.closest("td[data-k]");
+    pointed = false;
+    if (!td || !editingFormula() || td.dataset.k === S.sel) return;
+    e.preventDefault();
+    const start = inp.selectionStart, end = inp.selectionEnd;
+    inp.value = inp.value.slice(0, start) + inp.value.slice(end);
+    point = { start, len: 0, anchor: td.dataset.k };
+    putText(start, 0, td.dataset.k);
+    point.len = td.dataset.k.length;
+    pointed = true;
+  });
+  grid.addEventListener("mouseover", e => {
+    if (!point || !(e.buttons & 1)) return;
+    const td = e.target.closest("td[data-k]"); if (!td) return;
+    const txt = rangeText(point.anchor, td.dataset.k);
+    putText(point.start, point.len, txt);
+    point.len = txt.length;
+  });
+  document.addEventListener("mouseup", () => { point = null; });
+  grid.addEventListener("click", e => {
+    if (pointed) { pointed = false; inp.focus(); return; }
+    const td = e.target.closest("td[data-k]"); if (td) { stopPlay(); select(td.dataset.k); }
+  });
+  root.querySelector(".xl-keys").addEventListener("mousedown", e => { if (e.target.closest(".xl-key")) e.preventDefault(); });
+  root.querySelector(".xl-keys").addEventListener("click", e => {
+    const b = e.target.closest(".xl-key"); if (!b) return;
+    stopPlay();
+    let ins = b.dataset.ins;
+    if (document.activeElement !== inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    if (ins !== "=" && !inp.value.trim().startsWith("=")) { inp.value = ""; ins = "=" + ins; }
+    if (ins === "=") { inp.value = ""; }
+    const st = inp.selectionStart;
+    putText(st, inp.selectionEnd - st, ins);
+  });
+  grid.addEventListener("dblclick", e => { if (e.target.closest("td[data-k]")) { inp.focus(); inp.select(); } });
+  grid.addEventListener("keydown", e => {
+    const k = S.sel, c = COLS.indexOf(k[0]), r = +k.slice(1);
+    const mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+    if (mv) {
+      e.preventDefault();
+      const nc = Math.min(Math.max(c + mv[0], 0), COLS.length - 1), nr = Math.min(Math.max(r + mv[1], 1), ROWS);
+      select(COLS[nc] + nr, true);
+    } else if (e.key === "Enter" || e.key === "F2") { e.preventDefault(); inp.focus(); }
+  });
+  inp.addEventListener("focus", stopPlay);
+  inp.addEventListener("input", () => { S.cells[S.sel] = inp.value; recalc(); render(); if (opts.onChange) opts.onChange(); });
+  inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const r = +S.sel.slice(1);
+      select(S.sel[0] + Math.min(r + 1, ROWS));
+    }
+  });
+  root.xlState = S;
+  root.xlSet = (k, v) => { S.cells[k] = v; recalc(); if (k === S.sel) inp.value = v; render(); };
+  root.xlReset = () => load(S.ex);
+  root.xlLoad = i => { stopPlay(); load(i); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  root.xlTry = (f, cells) => { stopPlay(); if (cells) S.cells = { ...cells }; S.cells.H10 = f; recalc(); select("H10"); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  load(0);
+}
+document.addEventListener("click", e => {
+  const sx = e.target.closest(".showex");
+  if (sx) { const xl = document.querySelector('.xl[data-sheet="all"]'); if (xl && xl.xlLoad) xl.xlLoad(+sx.dataset.ex); return; }
+  const b = e.target.closest(".tryf"); if (!b) return;
+  const xl = b.closest(".fcard").querySelector(".xl");
+  if (xl && xl.xlTry) xl.xlTry(b.dataset.f, b.dataset.cells ? JSON.parse(b.dataset.cells) : null);
+});
+document.querySelectorAll(".xl[data-sheet]").forEach(el => xlMount(el, XL_SHEETS[el.dataset.sheet]));
+
+/* Практика: разминка и задания трёх уровней с автопроверкой формулы на других числах */
+const PR_KEY = "practice-l2";
+const LEVELS_PR = {
+  "0": { name: "0 · Сравнения", who: "разминка", desc: "Запиши условие знаками > < = >= <= <>. Таблица ответит ИСТИНА или ЛОЖЬ. Без этого ЕСЛИ не написать." },
+  A: { name: "A · Базовый", who: "для всех", desc: "Функция ЕСЛИ с одним условием: выбрать слово или число." },
+  B: { name: "B · Средний", who: "для большинства", desc: "Вычисление в ветке ЕСЛИ и несколько условий через И и ИЛИ." },
+  C: { name: "C · Высокий", who: "для некоторых", desc: "Вложенные функции: ЕСЛИ(И(…)), ЕСЛИ внутри ЕСЛИ, ЕСЛИ(НЕ(…))." }
+};
+const TASKS_PR = [
+  { id: "Z1", lv: "0", fn: "сравнение", q: "Набрал ли Тимур 50 баллов или больше? Запиши в C2 сравнение — таблица ответит ИСТИНА или ЛОЖЬ.",
+    cells: { A1: "Ученик", B1: "Балл", C1: "50 и больше?", A2: "Тимур", B2: "64" },
+    ref: { C2: "=B2>=50" }, must: { C2: [] }, vary: { keys: ["B2"], pick: [30, 49, 50, 51, 90] },
+    hint: "Сравнение пишут без функции: =B2>=50. «Больше или равно» — два знака подряд: > и =." },
+  { id: "Z2", lv: "0", fn: "сравнение", q: "На улице мороз? Мороз — когда температура ниже нуля. Запиши проверку в B2.",
+    cells: { A1: "Температура", B1: "-3", A2: "Мороз?" },
+    ref: { B2: "=B1<0" }, must: { B2: [] }, vary: { keys: ["B1"], pick: [-10, -1, 0, 1, 5] },
+    hint: "«Ниже нуля» — знак <: =B1<0. Ноль — не мороз." },
+  { id: "Z3", lv: "0", fn: "сравнение", q: "Хватит ли Айдане денег на книгу? В B1 — сколько у неё есть, в B2 — цена. Запиши в B3: денег столько же или больше, чем стоит книга.",
+    cells: { A1: "Есть денег, тг", B1: "2500", A2: "Цена книги, тг", B2: "2300", A3: "Хватит?" },
+    ref: { B3: "=B1>=B2" }, must: { B3: [] }, vary: { groups: [{ keys: ["B1"], pick: [2000, 2300, 2500] }, { keys: ["B2"], pick: [2300, 2400] }] },
+    hint: "Сравни две ячейки: =B1>=B2. Если денег ровно столько, сколько стоит книга, — хватит." },
+  { id: "Z4", lv: "0", fn: "сравнение", q: "В B1 — ответ ученика, в B2 — правильный ответ. Запиши в B3 проверку «ответ НЕ совпадает с правильным».",
+    cells: { A1: "Ответ ученика", B1: "12", A2: "Правильный ответ", B2: "12", A3: "Ошибка?" },
+    ref: { B3: "=B1<>B2" }, must: { B3: [] }, vary: { groups: [{ keys: ["B1"], pick: [10, 12, 15] }, { keys: ["B2"], pick: [12] }] },
+    hint: "«Не равно» пишут двумя знаками: <>. =B1<>B2." },
+
+  { id: "A1", lv: "A", fn: "ЕСЛИ", q: "Если балл 50 или больше — в C2 должно быть «зачёт», иначе «незачёт».",
+    cells: { A1: "Ученик", B1: "Балл", C1: "Итог", A2: "Айдана", B2: "72" },
+    ref: { C2: "=ЕСЛИ(B2>=50;\"зачёт\";\"незачёт\")" }, must: { C2: ["ЕСЛИ"] }, vary: { keys: ["B2"], pick: [20, 49, 50, 51, 100] },
+    hint: "=ЕСЛИ(B2>=50;\"зачёт\";\"незачёт\"). Текст — в кавычках, части — через «;»." },
+  { id: "A2", lv: "A", fn: "ЕСЛИ", q: "Если температура ниже нуля, в B2 нужно написать «гололёд», иначе «сухо».",
+    cells: { A1: "Температура", B1: "-4", A2: "Дорога" },
+    ref: { B2: "=ЕСЛИ(B1<0;\"гололёд\";\"сухо\")" }, must: { B2: ["ЕСЛИ"] }, vary: { keys: ["B1"], pick: [-10, -1, 0, 1, 8] },
+    hint: "Условие — B1<0. =ЕСЛИ(B1<0;\"гололёд\";\"сухо\")." },
+  { id: "A3", lv: "A", fn: "ЕСЛИ", q: "Интернет-магазин: если покупка 5000 тг или больше, доставка бесплатная (0), иначе — 700 тг. Найди стоимость доставки в B2.",
+    cells: { A1: "Покупка, тг", B1: "3500", A2: "Доставка, тг" },
+    ref: { B2: "=ЕСЛИ(B1>=5000;0;700)" }, must: { B2: ["ЕСЛИ"] }, vary: { keys: ["B1"], pick: [1000, 4999, 5000, 5001, 8000] },
+    hint: "В ветках ЕСЛИ можно писать числа — без кавычек: =ЕСЛИ(B1>=5000;0;700)." },
+
+  { id: "B1", lv: "B", fn: "ЕСЛИ", q: "Скидка 10%: если покупка больше 10 000 тг, платим 90% суммы, иначе — всю сумму. Найди сумму к оплате в B2.",
+    cells: { A1: "Покупка, тг", B1: "12000", A2: "К оплате, тг" },
+    ref: { B2: "=ЕСЛИ(B1>10000;B1*0,9;B1)" }, must: { B2: ["ЕСЛИ"] }, vary: { keys: ["B1"], pick: [5000, 9999, 10000, 10001, 20000] },
+    hint: "В ветке ЕСЛИ можно считать: B1*0,9 — это 90% суммы. =ЕСЛИ(B1>10000;B1*0,9;B1)." },
+  { id: "B2", lv: "B", fn: "И", q: "Зачёт по физкультуре ставят, если бег 60 м не дольше 10 с И прыжок в длину не меньше 150 см. Запиши в D2 проверку обеих норм — ответ ИСТИНА или ЛОЖЬ.",
+    cells: { A1: "Ученик", B1: "Бег, с", C1: "Прыжок, см", D1: "Обе нормы?", A2: "Арман", B2: "9,5", C2: "160" },
+    ref: { D2: "=И(B2<=10;C2>=150)" }, must: { D2: ["И"] }, vary: { groups: [{ keys: ["B2"], pick: [9, 10, 10.5, 11] }, { keys: ["C2"], pick: [140, 149, 150, 170] }] },
+    hint: "Два условия внутри И через «;»: =И(B2<=10;C2>=150)." },
+  { id: "B3", lv: "B", fn: "ЕСЛИ + ИЛИ", q: "Музей: вход бесплатный, если посетителю меньше 7 лет ИЛИ больше 65. Напиши в C2 «бесплатно» или «платно».",
+    cells: { A1: "Посетитель", B1: "Возраст", C1: "Билет", A2: "Дана", B2: "5" },
+    ref: { C2: "=ЕСЛИ(ИЛИ(B2<7;B2>65);\"бесплатно\";\"платно\")" }, must: { C2: ["ЕСЛИ", "ИЛИ"] }, vary: { keys: ["B2"], pick: [3, 6, 7, 30, 65, 66, 80] },
+    hint: "Условие ЕСЛИ — это ИЛИ из двух сравнений: =ЕСЛИ(ИЛИ(B2<7;B2>65);\"бесплатно\";\"платно\")." },
+
+  { id: "C1", lv: "C", fn: "ЕСЛИ + И", q: "Олимпиада: допускают тех, у кого 5 по математике И 5 по информатике. Заполни D2, D3 и D4: «допущен» или «нет».",
+    cells: { A1: "Ученик", B1: "Математика", C1: "Информатика", D1: "Олимпиада", A2: "Айдана", B2: "5", C2: "5", A3: "Тимур", B3: "5", C3: "4", A4: "Дана", B4: "4", C4: "5" },
+    ref: { D2: "=ЕСЛИ(И(B2=5;C2=5);\"допущен\";\"нет\")", D3: "=ЕСЛИ(И(B3=5;C3=5);\"допущен\";\"нет\")", D4: "=ЕСЛИ(И(B4=5;C4=5);\"допущен\";\"нет\")" },
+    must: { D2: ["ЕСЛИ", "И"], D3: ["ЕСЛИ", "И"], D4: ["ЕСЛИ", "И"] }, vary: { keys: ["B2", "C2", "B3", "C3", "B4", "C4"], pick: [3, 4, 5] },
+    hint: "Для D2: =ЕСЛИ(И(B2=5;C2=5);\"допущен\";\"нет\"). В D3 и D4 — то же для строк 3 и 4." },
+  { id: "C2", lv: "C", fn: "ЕСЛИ в ЕСЛИ", q: "Переведи баллы в оценку: 85 и больше — 5, от 70 до 84 — 4, от 50 до 69 — 3, меньше 50 — 2. Запиши формулу в C2.",
+    cells: { A1: "Ученик", B1: "Балл", C1: "Оценка", A2: "Мадина", B2: "77" },
+    ref: { C2: "=ЕСЛИ(B2>=85;5;ЕСЛИ(B2>=70;4;ЕСЛИ(B2>=50;3;2)))" }, must: { C2: ["ЕСЛИ"] }, vary: { keys: ["B2"], pick: [20, 49, 50, 69, 70, 84, 85, 100] },
+    hint: "ЕСЛИ внутри ЕСЛИ, начиная с самого высокого порога: =ЕСЛИ(B2>=85;5;ЕСЛИ(B2>=70;4;ЕСЛИ(B2>=50;3;2)))." },
+  { id: "C3", lv: "C", fn: "ЕСЛИ + НЕ", q: "В B2 — сдал ли ученик домашнее задание: ИСТИНА или ЛОЖЬ. Если НЕ сдал — напиши в C2 «напомнить», иначе оставь ячейку пустой (две кавычки подряд: \"\").",
+    cells: { A1: "Ученик", B1: "Сдал ДЗ", C1: "Напоминание", A2: "Арман", B2: "ЛОЖЬ" },
+    ref: { C2: "=ЕСЛИ(НЕ(B2);\"напомнить\";\"\")" }, must: { C2: ["ЕСЛИ", "НЕ"] }, vary: { keys: ["B2"], pick: ["ИСТИНА", "ЛОЖЬ"] },
+    hint: "Условие — НЕ(B2): «неверно, что сдал». =ЕСЛИ(НЕ(B2);\"напомнить\";\"\")." }
+];
+const TASKS_Z = TASKS_PR.filter(t => t.lv === "0");
+
+function prLoad() { return store.get(PR_KEY, {}); }
+function prSave(d) { store.set(PR_KEY, d); }
+function prCalls(n, out) {
+  if (!n) return out;
+  if (n.t === "call") { out.add(n.f); n.args.forEach(a => prCalls(a, out)); }
+  else if (n.t === "bin") { prCalls(n.l, out); prCalls(n.r, out); }
+  else if (n.a) prCalls(n.a, out);
+  return out;
+}
+function prEval(cells, k, f) {
+  const S = { cells: { ...cells, [k]: f }, cache: new Map() };
+  return xlEvalCell(S, k, new Set());
+}
+const prText = v => String(v ?? "").trim().toLowerCase().replace(/ё/g, "е");
+const prSame = (a, b) => typeof a === "number" && typeof b === "number" ? Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b))
+  : typeof a === "boolean" || typeof b === "boolean" ? a === b : (a ?? "") === (b ?? "") || (typeof a === "string" && typeof b === "string" && prText(a) === prText(b));
+const prShow = v => v === "" || v === null ? "пусто" : typeof v === "string" ? `«${v}»` : xlFmt(v);
+/* Почему ответ не тот: подсказка по типу ответа */
+function prWhy(mine, want) {
+  if (typeof mine === "boolean" && typeof want !== "boolean") return "Формула показывает ИСТИНА или ЛОЖЬ, а нужно слово или число — положи условие внутрь ЕСЛИ.";
+  if (typeof want === "boolean" && typeof mine !== "boolean") return "Здесь нужен ответ ИСТИНА или ЛОЖЬ: само сравнение или И, ИЛИ, НЕ — без ЕСЛИ и без кавычек.";
+  if (typeof mine === "string" && typeof want === "string") return prText(mine).replace(/\s+/g, "") === prText(want).replace(/\s+/g, "") ? "Проверь пробелы в тексте в кавычках." : "Проверь текст в кавычках и порядок ответов: сначала — для «да», потом — для «нет».";
+  return "Проверь знак сравнения и те ли ячейки взяты в формулу.";
+}
+/* Данные для проверки: каждое значение из списков pick (граница условия) и несколько случайных наборов */
+function prVariants(v, base) {
+  const out = [];
+  (v.groups || [v]).forEach(g => { if (g.pick) g.pick.forEach(x => { const c = { ...base }; g.keys.forEach(k => { c[k] = String(x); }); out.push(c); }); });
+  for (let i = 0; i < 8; i++) { const c = { ...base }; rndFill(v, c); out.push(c); }
+  return out;
+}
+function prRandom(v) {
+  if (v.pick) return v.pick[Math.floor(Math.random() * v.pick.length)];
+  const step = v.step || 1, n = Math.floor((v.max - v.min) / step) + 1;
+  return v.min + Math.floor(Math.random() * n) * step;
+}
+
+/* Проверка: формула, нужная функция, верный результат и тот же результат на других числах */
+function prCheck(t, S) {
+  for (const k of Object.keys(t.ref)) {
+    const raw = String(S.cells[k] ?? "").trim();
+    if (!raw) return { ok: false, cell: k, msg: `Ячейка ${k} пустая. Впиши туда формулу.` };
+    if (!raw.startsWith("=")) return { ok: false, cell: k, msg: `В ячейке ${k} просто число или текст. Нужна формула — она начинается со знака «=».` };
+    let ast;
+    try { ast = xlParse(raw.slice(1)); } catch (e) {
+      if (!(e instanceof XSyntax)) throw e;
+      return { ok: false, cell: k, msg: `Ошибка в записи формулы в ${k}: ${e.message}` };
+    }
+    const used = prCalls(ast, new Set());
+    const miss = t.must[k].filter(f => !used.has(f));
+    if (miss.length) return { ok: false, cell: k, msg: `В формуле в ${k} нужна функция ${miss.join(" и ")}. Задание проверяет именно её.` };
+    const mine = xlEvalCell({ cells: S.cells, cache: new Map() }, k, new Set());
+    if (mine instanceof XErr) return { ok: false, cell: k, msg: `Формула в ${k} выдаёт ${mine.code}. ` + (XL_ERR[mine.code] || "Проверь, как она записана.") };
+    const want = prEval(S.cells, k, t.ref[k]);
+    if (!prSame(mine, want)) return { ok: false, cell: k, msg: `В ${k} получилось ${prShow(mine)}, а должно быть другое. ` + prWhy(mine, want) };
+    for (const cells of prVariants(t.vary, S.cells)) {
+      const a = prEval(cells, k, raw), b = prEval(cells, k, t.ref[k]);
+      if (b instanceof XErr) continue;
+      if (!prSame(a, b)) {
+        const keys = [...new Set((t.vary.groups || [t.vary]).flatMap(g => g.keys))];
+        return { ok: false, cell: k, msg: `Сейчас ответ совпал, но проверка на других данных нашла ошибку: если ${keys.map(x => x + " = " + (xlNum(cells[x]) !== null ? xlFmt(xlNum(cells[x])) : cells[x])).join(", ")}, в ${k} должно быть ${prShow(b)}, а формула даёт ${prShow(a)}. Проверь знак на границе (> или >=) и что в формуле адреса ячеек, а не готовые числа.` };
+      }
+    }
+  }
+  return { ok: true };
+}
+
+function prAll() { return TASKS_PR; }
+/* Задание открывается, когда решено предыдущее; уровень — когда открыто его первое задание */
+function prUnlocked(id) {
+  const order = prAll(), i = order.findIndex(t => t.id === id), d = prLoad();
+  return i <= 0 || !!(d[order[i - 1].id] && d[order[i - 1].id].ever);
+}
+function prLocks() {
+  const order = prAll();
+  order.forEach((t, i) => {
+    const card = document.getElementById("pt-" + t.id); if (!card) return;
+    const open = prUnlocked(t.id);
+    card.classList.toggle("locked", !open);
+    card.inert = !open;
+    let l = card.querySelector(".tc-lock");
+    if (!l) { l = document.createElement("p"); l.className = "tc-lock"; card.querySelector(".tc-head").after(l); }
+    l.textContent = open ? "" : `Закрыто. Откроется, когда будет решено задание ${order[i - 1].id}.`;
+  });
+  document.querySelectorAll(".lv").forEach(b => {
+    const first = order.find(t => t.lv === b.dataset.lv);
+    const open = first && prUnlocked(first.id);
+    b.disabled = !open;
+    b.title = open ? "" : "Уровень откроется, когда будут решены все задания предыдущего уровня";
+  });
+  const nx = document.getElementById("lvNext");
+  if (nx && !nx.hidden) { const first = order.find(t => t.lv === nx.dataset.lv); nx.disabled = !(first && prUnlocked(first.id)); }
+}
+function prRender() {
+  const d = prLoad();
+  const solved = prAll().filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("prBar").style.width = (solved / prAll().length * 100) + "%";
+  document.getElementById("prNum").textContent = `Решено: ${solved} из ${prAll().length}`;
+  Object.keys(LEVELS_PR).forEach(lv => {
+    const list = prAll().filter(t => t.lv === lv), ok = list.filter(t => d[t.id] && d[t.id].ok).length;
+    document.getElementById("lvc" + lv).textContent = `${ok}/${list.length}`;
+    document.querySelector(`.lv[data-lv="${lv}"]`).classList.toggle("full", ok === list.length);
+  });
+  prLocks();
+}
+function prShowLevel(lv) {
+  document.querySelectorAll(".lv").forEach(b => b.setAttribute("aria-selected", b.dataset.lv === lv));
+  document.querySelectorAll("#prTasks .task-card").forEach(c => { c.hidden = c.dataset.lv !== lv; });
+  document.getElementById("lvDesc").textContent = LEVELS_PR[lv].desc;
+  const order = Object.keys(LEVELS_PR), nx = order[order.indexOf(lv) + 1];
+  const btn = document.getElementById("lvNext");
+  btn.hidden = !nx; if (nx) { btn.dataset.lv = nx; btn.textContent = `Перейти на уровень ${LEVELS_PR[nx].name} →`; }
+  store.set("practice-lv", lv);
+  prLocks();
+}
+
+function prBuild() {
+  const box = document.getElementById("prTasks");
+  box.innerHTML = TASKS_PR.map(t => `
+    <section class="block task-card" data-lv="${t.lv}" id="pt-${t.id}" hidden>
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">${t.fn}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <p class="tc-where">Формулу записывай в ${Object.keys(t.ref).length > 1 ? "ячейки" : "ячейку"} <b>${Object.keys(t.ref).join(", ")}</b> — ${Object.keys(t.ref).length > 1 ? "они подсвечены" : "она подсвечена"} жёлтым.</p>
+      <div class="xl xl-task"></div>
+      <div class="tc-actions">
+        <button type="button" class="btn main tc-check">Проверить</button>
+        <button type="button" class="btn tc-hintbtn">Подсказка</button>
+        <button type="button" class="btn tc-reset">Начать заново</button>
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join("");
+  const d = prLoad();
+  TASKS_PR.forEach(t => {
+    const card = document.getElementById("pt-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg");
+    const targets = Object.keys(t.ref);
+    const setStatus = ok => {
+      card.classList.toggle("done", ok);
+      card.querySelector(".tc-status").textContent = ok ? "✓ решено" : "";
+    };
+    xlMount(root, [{ name: t.id, text: "", cells: t.cells, sel: targets[0] }], {
+      task: true, cols: 5, rows: 8, targets,
+      onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; }
+    });
+    const saved = d[t.id];
+    if (saved && saved.f && (saved.ver || 1) === (t.ver || 1)) { Object.entries(saved.f).forEach(([k, v]) => { if (targets.includes(k)) root.xlSet(k, v); }); }
+    if (saved) setStatus(!!saved.ok && (saved.ver || 1) === (t.ver || 1));
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = prCheck(t, root.xlState);
+      if (window.__onAttempt) window.__onAttempt("7. Практика", t.id + " · " + t.fn, targets.map(k => k + ": " + (root.xlState.cells[k] ?? "")).join("   "), r.ok, r.ok ? "" : r.msg);
+      const all = prLoad();
+      const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
+      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), f, tries, ver: t.ver || 1 };
+      prSave(all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad");
+      msg.textContent = r.ok ? "Верно! Формула работает и с другими числами." : r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(r.ok);
+      prRender();
+      if (r.ok && TASKS_PR.filter(x => x.lv === t.lv).every(x => (prLoad()[x.id] || {}).ok)) {
+        msg.textContent += t.lv === "C" ? " Ты решил все уровни!" : ` Уровень ${t.lv} пройден — можно переходить дальше.`;
+      }
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => {
+      root.xlReset(); msg.textContent = ""; card.querySelector(".tc-hint").hidden = true;
+      const all = prLoad(); all[t.id] = { ok: false, ever: !!(all[t.id] && all[t.id].ever) }; prSave(all); setStatus(false); prRender();
+    });
+  });
+  document.querySelectorAll(".lv").forEach(b => b.addEventListener("click", () => prShowLevel(b.dataset.lv)));
+  document.getElementById("lvNext").addEventListener("click", e => { prShowLevel(e.currentTarget.dataset.lv); document.getElementById("practice").scrollIntoView({ behavior: "smooth" }); });
+  {
+    const want = store.get("practice-lv", "0"), first = prAll().find(t => t.lv === want);
+    const cur = prAll().find(t => prUnlocked(t.id) && !(prLoad()[t.id] || {}).ever) || prAll()[prAll().length - 1];
+    prShowLevel(first && prUnlocked(first.id) ? want : cur.lv);
+  }
+  prRender();
+}
+prBuild();
+
+
+/* Какая функция подходит: ситуации из жизни */
+const MT_KEY = "match-l2";
+const MT_FNS = ["ЕСЛИ", "И", "ИЛИ", "НЕ"];
+const MT_WHAT = {
+  "ЕСЛИ": "ЕСЛИ проверяет одно условие и выбирает один из двух ответов.",
+  "И": "И нужна, когда должны выполняться все условия сразу.",
+  "ИЛИ": "ИЛИ нужна, когда достаточно хотя бы одного условия.",
+  "НЕ": "НЕ только переворачивает ответ: ИСТИНА становится ЛОЖЬ."
+};
+const MT_CASES = [
+  { q: "Если балл за СОР 50 или больше — написать «зачёт», иначе «незачёт».", a: "ЕСЛИ", why: "Одно условие и два ответа на выбор.", f: "=ЕСЛИ(B2>=50;\"зачёт\";\"незачёт\")", note: "если балл записан в B2" },
+  { q: "Скидку дают, если покупка больше 5000 тг и у покупателя есть карта магазина.", a: "И", why: "Нужны оба условия сразу: и сумма, и карта.", f: "=ЕСЛИ(И(B2>5000;C2=\"да\");\"скидка\";\"нет\")", note: "сумма в B2, наличие карты («да»/«нет») в C2" },
+  { q: "В музей пускают бесплатно, если посетителю меньше 7 лет или больше 65.", a: "ИЛИ", why: "Хватает одного из двух условий.", f: "=ИЛИ(B2<7;B2>65)", note: "если возраст в B2" },
+  { q: "Нужно отметить всех учеников, которые НЕ из 8А.", a: "НЕ", why: "Нужно условие «наоборот»: неверно, что класс — 8А.", f: "=НЕ(A2=\"8А\")", note: "то же самое даёт =A2<>\"8А\"" },
+  { q: "Проверить, что число в A1 лежит от 10 до 20 включительно.", a: "И", why: "Число должно быть одновременно ≥ 10 и ≤ 20 — оба условия.", f: "=И(A1>=10;A1<=20)", note: "запись =10<=A1<=20 сработает неверно" },
+  { q: "В субботу и в воскресенье в кинотеатре другая цена билета. Как проверить, что день выходной?", a: "ИЛИ", why: "Выходной — это суббота или воскресенье: хватит одного совпадения.", f: "=ИЛИ(A2=\"сб\";A2=\"вс\")", note: "если день недели записан в A2" },
+  { q: "Если температура ниже нуля, табло пишет «гололёд», иначе — «сухо».", a: "ЕСЛИ", why: "Одно условие (ниже нуля) и два ответа.", f: "=ЕСЛИ(B1<0;\"гололёд\";\"сухо\")", note: "если температура в B1" },
+  { q: "К олимпиаде допускают ученика с пятёркой по математике и пятёркой по информатике.", a: "И", why: "Нужны обе пятёрки одновременно.", f: "=ЕСЛИ(И(B2=5;C2=5);\"допущен\";\"нет\")", note: "оценки в B2 и C2" },
+  { q: "Билет льготный, если пассажир — школьник или пенсионер.", a: "ИЛИ", why: "Достаточно, чтобы выполнилось одно из двух условий.", f: "=ИЛИ(C2=\"школьник\";C2=\"пенсионер\")", note: "если категория пассажира в C2" },
+  { q: "В B2 записано ИСТИНА, если ученик сдал ДЗ. Нужно получить ИСТИНА для тех, кто ещё не сдал.", a: "НЕ", why: "Нужно перевернуть ответ: сдал → не сдал.", f: "=НЕ(B2)", note: "для «напомнить»: =ЕСЛИ(НЕ(B2);\"напомнить\";\"\")" }
+];
+function mtLoad() { return store.get(MT_KEY, {}); }
+function mtBuild() {
+  const d = mtLoad();
+  document.getElementById("mtList").innerHTML = MT_CASES.map((c, i) => `
+    <section class="block mt-card" id="mt-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${c.q}</p>
+      <div class="mt-opts" role="group" aria-label="Выбери функцию">
+        ${MT_FNS.map(f => `<button type="button" class="mt-opt" data-f="${f}">${f}</button>`).join("")}
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  MT_CASES.forEach((c, i) => {
+    const card = document.getElementById("mt-" + i), msg = card.querySelector(".tc-msg");
+    const show = (st, quiet) => {
+      card.querySelectorAll(".mt-opt").forEach(b => {
+        b.classList.toggle("ok", !!st.ok && b.dataset.f === c.a);
+        b.classList.toggle("bad", (st.wrong || []).includes(b.dataset.f));
+        b.disabled = !!st.ok;
+      });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ с первой попытки" : "✓ решено") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.innerHTML = `Верно: <b>${c.a}</b>. ${c.why}<span class="mt-ex">Пример: <code></code> <span></span></span>`; msg.querySelector("code").textContent = c.f; msg.querySelector(".mt-ex span").textContent = c.note ? "— " + c.note : ""; }
+      else if (!quiet && st.wrong && st.wrong.length) { const w = st.wrong[st.wrong.length - 1]; msg.className = "tc-msg bad"; msg.textContent = `${w} не подходит: ${MT_WHAT[w]} Подумай, что нужно сделать в этой ситуации, и выбери снова.`; }
+    };
+    show(d[i] || {}, true);
+    card.querySelector(".mt-opts").addEventListener("click", e => {
+      const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      if (window.__onAttempt) window.__onAttempt("6. Какая функция?", "Ситуация " + (i + 1), b.dataset.f, b.dataset.f === c.a, b.dataset.f === c.a ? "" : "нужно " + c.a);
+      const all = mtLoad(), st = all[i] || { wrong: [] };
+      st.wrong = st.wrong || [];
+      if (b.dataset.f === c.a) { st.ok = true; st.first = st.wrong.length === 0; }
+      else if (!st.wrong.includes(b.dataset.f)) st.wrong.push(b.dataset.f);
+      all[i] = st; store.set(MT_KEY, all);
+      show(st); mtRender();
+    });
+  });
+  mtRender();
+}
+function mtRender() {
+  const d = mtLoad(), n = MT_CASES.length;
+  const ok = MT_CASES.filter((_, i) => d[i] && d[i].ok).length, first = MT_CASES.filter((_, i) => d[i] && d[i].first).length;
+  document.getElementById("mtBar").style.width = (ok / n * 100) + "%";
+  document.getElementById("mtNum").textContent = `Решено: ${ok} из ${n}`;
+  document.getElementById("mtFirst").textContent = ok ? `С первой попытки: ${first} из ${ok}` : "";
+  const done = ok === n;
+  document.getElementById("mtDone").hidden = !done;
+  if (done) document.getElementById("mtDoneText").textContent = first >= 8 ? `Отлично! ${first} из ${n} с первой попытки. Ты хорошо различаешь И, ИЛИ и НЕ — переходи к практике.`
+    : first >= 5 ? `${first} из ${n} с первой попытки. Хорошо. Перечитай пояснения там, где ошибся, и переходи к практике.`
+    : `${first} из ${n} с первой попытки. Вернись в «Новую тему» и посмотри ещё раз раздел «Простыми словами» у каждой функции.`;
+}
+document.getElementById("mtRetry").addEventListener("click", () => { store.set(MT_KEY, {}); mtBuild(); document.getElementById("match").scrollIntoView({ behavior: "smooth" }); });
+mtBuild();
+
+/* Актуализация знаний: сравнения и логические значения */
+const AC_KEY = "actual-l2";
+const AC_CASES = [
+  { q: "Что означает знак >= в формуле?", opts: ["больше или равно", "больше", "меньше или равно", "не равно"], a: "больше или равно", why: "Два знака подряд: «больше» или «равно». 5>=5 — ИСТИНА." },
+  { q: "Как в Excel записать «не равно»?", opts: ["<>", "≠", "!=", "=/="], a: "<>", why: "«Не равно» в таблице пишут двумя знаками: <> — «меньше или больше»." },
+  { q: "Верно ли, что 7 > 7?", opts: ["ЛОЖЬ", "ИСТИНА", "ошибка"], a: "ЛОЖЬ", why: "7 не больше 7 — они равны. А 7 >= 7 — ИСТИНА." },
+  { q: "В A1 записано 12. Что покажет формула =A1>10?", opts: ["ИСТИНА", "ЛОЖЬ", "12", "10"], a: "ИСТИНА", why: "Сравнение отвечает ИСТИНА или ЛОЖЬ: 12 больше 10 — ИСТИНА." },
+  { q: "Какое неравенство верно?", opts: ["−5 < −2", "−5 > −2", "0 < −1", "3 = 3,5"], a: "−5 < −2", why: "На числовой прямой −5 левее −2, значит, оно меньше." },
+  { q: "Как написать в формуле текст сдал?", opts: ["\"сдал\"", "сдал", "'сдал'", "(сдал)"], a: "\"сдал\"", why: "Текст в формуле берут в двойные кавычки. Без них таблица примет слово за имя и покажет #ИМЯ?." },
+  { q: "В B2 записано 50. Что покажет формула =B2=50?", opts: ["ИСТИНА", "ЛОЖЬ", "50", "ошибку"], a: "ИСТИНА", why: "Первый знак = начинает формулу, второй — сравнивает: 50 равно 50." }
+];
+/* Повторение прошлого урока: математические функции */
+const RV_KEY = "review-l2";
+const RV_CASES = [
+  { q: "В A1 записано −8. Что покажет =ABS(A1)?", opts: ["8", "−8", "0", "#ЧИСЛО!"], a: "8", why: "ABS убирает минус: |−8| = 8." },
+  { q: "Какая функция сложит только покупки дороже 500 тг?", opts: ["СУММЕСЛИ", "СУММ", "ABS", "СТЕПЕНЬ"], a: "СУММЕСЛИ", why: "СУММЕСЛИ складывает только числа, которые подходят под условие: =СУММЕСЛИ(B2:B9;\">500\")." },
+  { q: "Что покажет =КОРЕНЬ(49)?", opts: ["7", "49", "24,5", "#ЧИСЛО!"], a: "7", why: "7 · 7 = 49." },
+  { q: "В какой записи нет ошибки?", opts: ["=СТЕПЕНЬ(2;3)", "=СТЕПЕНЬ(2,3)", "=СТЕПЕНЬ(2 3)", "СТЕПЕНЬ(2;3)"], a: "=СТЕПЕНЬ(2;3)", why: "Формула начинается с «=», аргументы разделяют точкой с запятой." },
+  { q: "В B1:B3 записаны 4, 6 и 10. Что покажет =СУММ(B1:B3)?", opts: ["20", "10", "4", "3"], a: "20", why: "4 + 6 + 10 = 20." },
+  { q: "В A1:A4 записаны 5, −2, 3 и −1. Что покажет =СУММЕСЛИ(A1:A4;\">0\")?", opts: ["8", "5", "11", "−3"], a: "8", why: "Подходят только 5 и 3: 5 + 3 = 8. Условие \">0\" — это сравнение, сегодня оно пригодится в ЕСЛИ." }
+];
+function shuffleSeeded(arr, seed) {
+  let h = 2166136261;
+  for (const ch of String(seed)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 10000) / 10000; };
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function quizBuild(cfg) {
+  const load = () => store.get(cfg.key, {});
+  function render() {
+    const d = load(), n = cfg.cases.length;
+    const ok = cfg.cases.filter((_, i) => d[i] && d[i].ok).length, first = cfg.cases.filter((_, i) => d[i] && d[i].first).length;
+    document.getElementById(cfg.bar).style.width = (ok / n * 100) + "%";
+    document.getElementById(cfg.num).textContent = `Решено: ${ok} из ${n}`;
+    document.getElementById(cfg.first).textContent = ok ? `С первой попытки: ${first} из ${ok}` : "";
+    document.getElementById(cfg.done).hidden = ok !== n;
+    if (ok === n) document.getElementById(cfg.doneText).textContent = cfg.summary(first, n);
+  }
+  document.getElementById(cfg.list).innerHTML = cfg.cases.map((c, i) => `
+    <section class="block mt-card" id="${cfg.prefix}-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q"></p>
+      <div class="mt-opts" role="group" aria-label="Варианты ответа">${c.opts.map(o => `<button type="button" class="mt-opt" data-f=""></button>`).join("")}</div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  cfg.cases.forEach((c, i) => {
+    const card = document.getElementById(`${cfg.prefix}-${i}`), msg = card.querySelector(".tc-msg");
+    card.querySelector(".tc-q").textContent = c.q;
+    // варианты перемешаны: у каждого ученика свой порядок, при перезагрузке он не меняется
+    const opts = shuffleSeeded(c.opts, NS + cfg.prefix + i);
+    card.querySelectorAll(".mt-opt").forEach((b, j) => { b.dataset.f = opts[j]; b.textContent = opts[j]; });
+    const show = (st, quiet) => {
+      card.querySelectorAll(".mt-opt").forEach(b => {
+        b.classList.toggle("ok", !!st.ok && b.dataset.f === c.a);
+        b.classList.toggle("bad", (st.wrong || []).includes(b.dataset.f));
+        b.disabled = !!st.ok;
+      });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ с первой попытки" : "✓ решено") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.textContent = `Верно: ${c.a}. ${c.why}`; }
+      else if (!quiet && st.wrong && st.wrong.length) { msg.className = "tc-msg bad"; msg.textContent = `«${st.wrong[st.wrong.length - 1]}» — неверно. Подумай ещё раз.`; }
+    };
+    show(load()[i] || {}, true);
+    card.querySelector(".mt-opts").addEventListener("click", e => {
+      const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      const ok = b.dataset.f === c.a;
+      if (window.__onAttempt) window.__onAttempt(cfg.stage, "Вопрос " + (i + 1), b.dataset.f, ok, ok ? "" : "верно: " + c.a);
+      const all = load(), st = all[i] || { wrong: [] };
+      st.wrong = st.wrong || [];
+      if (ok) { st.ok = true; st.first = st.wrong.length === 0; } else if (!st.wrong.includes(b.dataset.f)) st.wrong.push(b.dataset.f);
+      all[i] = st; store.set(cfg.key, all); show(st); render();
+    });
+  });
+  render();
+}
+quizBuild({ key: AC_KEY, cases: AC_CASES, prefix: "ac", list: "acList", bar: "acBar", num: "acNum", first: "acFirst", done: "acDone", doneText: "acDoneText", stage: "4. Вспомним",
+  summary: (first, n) => first >= 6 ? `${first} из ${n} с первой попытки. Знаки сравнения ты знаешь — переходи к новой теме.`
+    : `${first} из ${n} с первой попытки. Перечитай пояснения к вопросам, где ошибся: знаки сравнения понадобятся в каждой формуле урока.` });
+quizBuild({ key: RV_KEY, cases: RV_CASES, prefix: "rv", list: "rvList", bar: "rvBar", num: "rvNum", first: "rvFirst", done: "rvDone", doneText: "rvDoneText", stage: "1. Повторим",
+  summary: (first, n) => first >= 5 ? `${first} из ${n} с первой попытки. Прошлый урок ты помнишь — разгадай тему нового.`
+    : `${first} из ${n} с первой попытки. Перечитай пояснения к вопросам, где ошибся, — и вперёд, к новой теме.` });
+
+/* Критерии оценивания и дескрипторы: отмечаются по заданиям урока */
+const DESC = [
+  { id: "Д1", text: "записывает условие с помощью знаков сравнения", lv: "Все", where: "Практика: разминка Z1–Z4", tasks: ["Z1", "Z2", "Z3", "Z4"] },
+  { id: "Д2", text: "выбирает логическую функцию, подходящую для ситуации", lv: "Все", where: "«Какая функция?»: не меньше 7 из 10 с первой попытки", matchFirst: 7 },
+  { id: "Д3", text: "использует ЕСЛИ() для выбора одного из двух значений", lv: "Все", where: "Практика A1–A3", tasks: ["A1", "A2", "A3"] },
+  { id: "Д4", text: "выполняет вычисления в ветках функции ЕСЛИ()", lv: "Большинство", where: "Практика B1", tasks: ["B1"] },
+  { id: "Д5", text: "проверяет несколько условий функциями И() и ИЛИ()", lv: "Большинство", where: "Практика B2, B3", tasks: ["B2", "B3"] },
+  { id: "Д6", text: "составляет формулы из вложенных логических функций", lv: "Некоторые", where: "Практика C1–C3", tasks: ["C1", "C2", "C3"] }
+];
+function descStatus() {
+  const pr = store.get("practice-l2", {}), mt = store.get("match-l2", {});
+  return DESC.map(d => {
+    if (d.matchFirst) {
+      const first = Object.values(mt).filter(x => x && x.first).length;
+      return { ...d, ok: first >= d.matchFirst, progress: `${first} из 10 с первой попытки` };
+    }
+    const done = d.tasks.filter(id => pr[id] && (pr[id].ok || pr[id].ever)).length;
+    return { ...d, ok: done === d.tasks.length, progress: `решено ${done} из ${d.tasks.length}` };
+  });
+}
+(function renderCrit() {
+  const t = document.getElementById("critTable");
+  t.innerHTML = "<tr><th>Дескриптор · обучающийся</th><th>Уровень</th><th>Где проверяется</th></tr>" +
+    DESC.map(d => `<tr><td><b>${d.id}</b> ${d.text}</td><td>${d.lv}</td><td>${d.where}</td></tr>`).join("");
+})();
+function renderDescMine(box) {
+  const st = descStatus(), got = st.filter(d => d.ok).length;
+  box.innerHTML = `<p class="plain desc-sum"></p><div class="tablewrap"><table class="th-args crit"><tr><th>Дескриптор</th><th>Уровень</th><th>Результат</th></tr>` +
+    st.map(d => `<tr class="${d.ok ? "d-ok" : "d-no"}"><td><b>${d.id}</b> ${d.text}</td><td>${d.lv}</td><td>${d.ok ? "✓ достигнут" : "пока нет"} <span class="small">(${d.progress})</span></td></tr>`).join("") + "</table></div>";
+  box.querySelector(".desc-sum").textContent = `Достигнуто дескрипторов: ${got} из ${st.length}.`;
+}
+window.__descStatus = descStatus;
+window.__prNow = () => {
+  const d = store.get("practice-l2", {}), t = TASKS_PR.find(x => !(d[x.id] && (d[x.id].ever || d[x.id].ok)));
+  return t ? `${t.lv} · ${t.id}` : "всё решено";
+};
+
+/* Физминутка: 4 упражнения по 15 секунд */
+const BREAK = [
+  ["Глаза", "Посмотри вдаль, в окно, а потом на кончик носа. Повтори несколько раз."],
+  ["Восьмёрка", "Не поворачивая головы, нарисуй глазами большую восьмёрку. Потом в другую сторону."],
+  ["Кисти рук", "Сожми кулаки и разожми. Покрути кистями в одну и в другую сторону."],
+  ["Потянись", "Встань, подними руки вверх и потянись. Медленно наклони голову вправо и влево."]
+];
+let brkTimer = null, brkI = 0, brkLeft = 0;
+function breakStep(i) {
+  brkI = i;
+  if (i >= BREAK.length) return breakEnd();
+  document.getElementById("brkStep").textContent = `${i + 1} из ${BREAK.length} · ${BREAK[i][0]}`;
+  document.getElementById("brkText").textContent = BREAK[i][1];
+  brkLeft = 15; breakTick();
+}
+function breakTick() {
+  document.getElementById("brkTime").textContent = brkLeft;
+  document.getElementById("brkBar").style.width = ((brkI * 15 + (15 - brkLeft)) / (BREAK.length * 15) * 100) + "%";
+}
+function breakStart() {
+  clearInterval(brkTimer);
+  document.getElementById("breakOv").hidden = false;
+  breakStep(0);
+  brkTimer = setInterval(() => { brkLeft--; if (brkLeft < 0) breakStep(brkI + 1); else breakTick(); }, 1000);
+}
+function breakEnd() {
+  clearInterval(brkTimer); brkTimer = null;
+  document.getElementById("breakOv").hidden = true;
+  if (window.__onBreakEnd) window.__onBreakEnd();
+}
+window.__breakStart = breakStart;
+["breakBtn", "breakBtn2"].forEach(id => document.getElementById(id).addEventListener("click", breakStart));
+document.getElementById("brkSkip").addEventListener("click", () => breakStep(brkI + 1));
+document.getElementById("brkEnd").addEventListener("click", breakEnd);
+
+/* Домашнее задание: по одному заданию на уровень, проверка как в практике */
+const HW_KEY = "hw-l2";
+const TASKS_HW = [
+  { id: "H1", lv: "A", fn: "ЕСЛИ", q: "В B2 — сколько шагов Тимур прошёл за день. Если 10 000 или больше — напиши в C2 «норма», иначе «мало».",
+    cells: { A1: "Ученик", B1: "Шаги", C1: "Итог", A2: "Тимур", B2: "8500" },
+    ref: { C2: "=ЕСЛИ(B2>=10000;\"норма\";\"мало\")" }, must: { C2: ["ЕСЛИ"] }, vary: { keys: ["B2"], pick: [5000, 9999, 10000, 10001, 15000] },
+    hint: "Условие — B2>=10000. Текст «норма» и «мало» — в кавычках." },
+  { id: "H2", lv: "B", fn: "ЕСЛИ + И", q: "Палатку можно ставить, если ветер не сильнее 10 м/с И нет дождя (в C2 написано «нет»). Напиши в D2 «можно» или «нельзя».",
+    cells: { A1: "День", B1: "Ветер, м/с", C1: "Дождь", D1: "Палатка", A2: "Суббота", B2: "6", C2: "нет" },
+    ref: { D2: "=ЕСЛИ(И(B2<=10;C2=\"нет\");\"можно\";\"нельзя\")" }, must: { D2: ["ЕСЛИ", "И"] }, vary: { groups: [{ keys: ["B2"], pick: [5, 10, 11, 15] }, { keys: ["C2"], pick: ["нет", "да"] }] },
+    hint: "Внутри ЕСЛИ — И из двух условий: B2<=10 и C2=\"нет\"." },
+  { id: "H3", lv: "C", fn: "ЕСЛИ + ИЛИ", q: "Такси: ночью (с 23:00 до 6:00) — 300 тг за километр, днём — 200 тг. Час начала поездки — в B1, километры — в B2. Найди стоимость поездки в B3.",
+    cells: { A1: "Час поездки", B1: "23", A2: "Километры", B2: "10", A3: "Стоимость, тг" },
+    ref: { B3: "=ЕСЛИ(ИЛИ(B1>=23;B1<6);300;200)*B2" }, must: { B3: ["ЕСЛИ", "ИЛИ"] }, vary: { groups: [{ keys: ["B1"], pick: [0, 5, 6, 12, 22, 23] }, { keys: ["B2"], pick: [3, 10] }] },
+    hint: "Ночь — это час 23 и позже ИЛИ раньше 6. Цена за километр — ЕСЛИ(ИЛИ(…);300;200), потом умножь на B2." }
+];
+function hwRender() {
+  const d = store.get(HW_KEY, {}), ok = TASKS_HW.filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("hwBar").style.width = (ok / TASKS_HW.length * 100) + "%";
+  document.getElementById("hwNum").textContent = `Сделано: ${ok} из ${TASKS_HW.length}`;
+}
+(function hwBuild() {
+  const box = document.getElementById("hwTasks");
+  box.innerHTML = TASKS_HW.map(t => `
+    <section class="block task-card" id="hw-${t.id}">
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">Уровень ${t.lv} · ${t.fn}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <p class="tc-where">Формулу записывай в ячейку <b>${Object.keys(t.ref).join(", ")}</b> — она подсвечена жёлтым.</p>
+      <div class="xl xl-task"></div>
+      <div class="tc-actions"><button type="button" class="btn main tc-check">Проверить</button><button type="button" class="btn tc-hintbtn">Подсказка</button><button type="button" class="btn tc-reset">Начать заново</button></div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join("");
+  const d = store.get(HW_KEY, {});
+  TASKS_HW.forEach(t => {
+    const card = document.getElementById("hw-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg"), targets = Object.keys(t.ref);
+    const setStatus = ok => { card.classList.toggle("done", ok); card.querySelector(".tc-status").textContent = ok ? "✓ сделано" : ""; };
+    xlMount(root, [{ name: t.id, text: "", cells: t.cells, sel: targets[0] }], { task: true, cols: 5, rows: 9, targets, onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; } });
+    if (d[t.id] && d[t.id].f) { Object.entries(d[t.id].f).forEach(([k, v]) => root.xlSet(k, v)); setStatus(!!d[t.id].ok); }
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = prCheck(t, root.xlState), all = store.get(HW_KEY, {});
+      const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
+      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      if (window.__onAttempt) window.__onAttempt("10. Домашнее задание", t.id + " · " + t.fn, targets.map(k => k + ": " + f[k]).join("   "), r.ok, r.ok ? "" : r.msg);
+      all[t.id] = { ok: r.ok, f, tries }; store.set(HW_KEY, all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.ok ? "Верно! Формула работает и с другими числами." : r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(r.ok); hwRender();
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => { root.xlReset(); msg.textContent = ""; const all = store.get(HW_KEY, {}); delete all[t.id]; store.set(HW_KEY, all); setStatus(false); hwRender(); });
+  });
+  hwRender();
+})();
+
+
+/* Работа в Excel: условия сценариев; формулы ученик пишет в файле «Самопроверка_логика.xlsx» */
+const EX_KEY = "excel-l2";
+/* f — эталонная формула шага (для ключа и файла самопроверки), fill — диапазон, до которого протягивают формулу,
+   change — данные, которые ученик меняет на этом шаге; ans — ответ в ячейке cell после шага */
+const EX_SC = [
+  { id: "S1", fn: "ЕСЛИ", title: "Журнал СОР", goal: "Записывать условие, выбирать слово или число и протягивать формулу вниз.",
+    data: { A1: "Ученик", B1: "Балл", C1: "Итог", D1: "50 и больше?", E1: "Бонус", F1: "Зачёт = 1",
+      A2: "Айдана", B2: "72", A3: "Тимур", B3: "45", A4: "Дана", B4: "50", A5: "Арман", B5: "38", A6: "Мадина", B6: "91", A7: "Ерлан", B7: "64" },
+    tasks: [
+      { tag: "сравнение", cell: "D2", q: "Запиши в D2 сравнение: балл Айданы 50 или больше? Excel покажет ИСТИНА или ЛОЖЬ.", f: "=B2>=50", ans: "ИСТИНА", fn: [], hint: "=B2>=50 — сравнение без функции." },
+      { tag: "ЕСЛИ с текстом", cell: "C2", q: "В C2: если балл 50 или больше — «зачёт», иначе «незачёт».", f: "=ЕСЛИ(B2>=50;\"зачёт\";\"незачёт\")", ans: "зачёт", fn: ["ЕСЛИ"], hint: "=ЕСЛИ(B2>=50;\"зачёт\";\"незачёт\") — текст в кавычках." },
+      { tag: "протянуть вниз", cell: "C4", fill: "C2:C7", q: "Протяни формулу из C2 вниз до C7: потяни за маленький квадрат в правом нижнем углу ячейки. Что получилось у Даны (C4)?", f: "=ЕСЛИ(B2>=50;\"зачёт\";\"незачёт\")", ans: "зачёт", fn: ["ЕСЛИ"], hint: "У Даны ровно 50 — знак >= включает 50, поэтому «зачёт»." },
+      { tag: "ЕСЛИ с числами", cell: "E6", fill: "E2:E7", q: "Бонус: если балл 85 или больше — 5 баллов, иначе 0. Запиши в E2 и протяни до E7. Какой бонус у Мадины (E6)?", f: "=ЕСЛИ(B2>=85;5;0)", ans: 5, fn: ["ЕСЛИ"], hint: "=ЕСЛИ(B2>=85;5;0) — числа без кавычек." },
+      { tag: "условие с текстом", cell: "F3", fill: "F2:F7", q: "В F2 поставь 1, если в C2 написано «зачёт», иначе 0. Протяни до F7. Что у Тимура (F3)?", f: "=ЕСЛИ(C2=\"зачёт\";1;0)", ans: 0, fn: ["ЕСЛИ"], hint: "Сравнивать можно и текст: =ЕСЛИ(C2=\"зачёт\";1;0)." },
+      { tag: "сложное: граница", cell: "C3", change: { B3: "50" }, q: "Тимур исправил работу: измени его балл в B3 на 50, формулы не трогай. Что теперь в C3? Был бы такой ответ со знаком > вместо >=?", f: "=ЕСЛИ(B3>=50;\"зачёт\";\"незачёт\")", ans: "зачёт", hint: "50 >= 50 — ИСТИНА, поэтому «зачёт». Со знаком > Тимур остался бы с «незачёт»: это была бы логическая ошибка." }
+    ] },
+  { id: "S2", fn: "ЕСЛИ", title: "Интернет-магазин", goal: "Писать числа и вычисления в ветках ЕСЛИ и складывать результат.",
+    data: { A1: "Заказ", B1: "Сумма, тг", C1: "Доставка, тг", D1: "Скидка, тг", E1: "К оплате, тг", F1: "Тип заказа",
+      A2: "№1", B2: "3500", A3: "№2", B3: "5000", A4: "№3", B4: "12000", A5: "№4", B5: "800", A6: "№5", B6: "10000", A7: "Всего" },
+    tasks: [
+      { tag: "число в ветке", cell: "C3", fill: "C2:C6", q: "Доставка: если сумма 5000 тг или больше — 0, иначе 700. Запиши в C2 и протяни до C6. Сколько доставка у заказа №2 (C3)?", f: "=ЕСЛИ(B2>=5000;0;700)", ans: 0, fn: ["ЕСЛИ"], hint: "=ЕСЛИ(B2>=5000;0;700)" },
+      { tag: "вычисление в ветке", cell: "D4", fill: "D2:D6", q: "Скидка: если сумма больше 10 000 тг — 10% от суммы, иначе 0. Запиши в D2 и протяни. Какая скидка у заказа №3 (D4)?", f: "=ЕСЛИ(B2>10000;B2*0,1;0)", ans: 1200, fn: ["ЕСЛИ"], hint: "10% от суммы — B2*0,1: =ЕСЛИ(B2>10000;B2*0,1;0)." },
+      { tag: "итог по строке", cell: "E5", fill: "E2:E6", q: "К оплате = сумма + доставка − скидка. Запиши в E2 и протяни. Сколько платит заказ №4 (E5)?", f: "=B2+C2-D2", ans: 1500, fn: [], hint: "=B2+C2-D2" },
+      { tag: "СУММ", cell: "E7", q: "Сколько денег магазин получит со всех заказов? Сложи E2:E6 в E7.", f: "=СУММ(E2:E6)", ans: 31500, fn: ["СУММ"], hint: "=СУММ(E2:E6)" },
+      { tag: "текст по числу", cell: "F4", fill: "F2:F6", q: "Если к оплате больше 5000 тг — «крупный», иначе «обычный». Запиши в F2 и протяни. Что у заказа №3 (F4)?", f: "=ЕСЛИ(E2>5000;\"крупный\";\"обычный\")", ans: "крупный", fn: ["ЕСЛИ"], hint: "=ЕСЛИ(E2>5000;\"крупный\";\"обычный\")" },
+      { tag: "сложное: измени данные", cell: "E5", change: { B5: "4900" }, q: "Заказ №4 вырос до 4900 тг — измени B5. Сколько теперь к оплате (E5)? Почему доставка не исчезла?", f: "=B5+C5-D5", ans: 5600, hint: "4900 меньше 5000, поэтому доставка 700 осталась: 4900 + 700 = 5600." }
+    ] },
+  { id: "S3", fn: "И", title: "Нормы по физкультуре", goal: "Проверять два и три условия сразу через И и выводить слово через ЕСЛИ(И(…)).",
+    data: { A1: "Ученик", B1: "Бег 60 м, с", C1: "Прыжок, см", D1: "Отжимания", E1: "Бег и прыжок", F1: "Все три нормы", G1: "Итог", H1: "Прыжок 150–180", I1: "Пересдача?",
+      A2: "Айдана", B2: "9,8", C2: "155", D2: "12", A3: "Тимур", B3: "10,4", C3: "170", D3: "25", A4: "Дана", B4: "9,2", C4: "140", D4: "18",
+      A5: "Арман", B5: "8,9", C5: "182", D5: "30", A6: "Мадина", B6: "11", C6: "130", D6: "8" },
+    tasks: [
+      { tag: "И из двух условий", cell: "E3", fill: "E2:E6", q: "В E2 проверь две нормы: бег не дольше 10 с И прыжок не меньше 150 см. Протяни до E6. Что у Тимура (E3)?", f: "=И(B2<=10;C2>=150)", ans: "ЛОЖЬ", fn: ["И"], hint: "=И(B2<=10;C2>=150). У Тимура бег 10,4 с — дольше 10." },
+      { tag: "И из трёх условий", cell: "F5", fill: "F2:F6", q: "Добавь третью норму: отжиманий не меньше 15. В F2 — И с тремя условиями, протяни. Что у Армана (F5)?", f: "=И(B2<=10;C2>=150;D2>=15)", ans: "ИСТИНА", fn: ["И"], hint: "=И(B2<=10;C2>=150;D2>=15)" },
+      { tag: "ЕСЛИ + И", cell: "G2", fill: "G2:G6", q: "В G2 выведи словом: все три нормы выполнены — «зачёт», иначе «пересдача». Протяни. Что у Айданы (G2)?", f: "=ЕСЛИ(И(B2<=10;C2>=150;D2>=15);\"зачёт\";\"пересдача\")", ans: "пересдача", fn: ["ЕСЛИ", "И"], hint: "Можно взять готовый ответ из F2: =ЕСЛИ(F2;\"зачёт\";\"пересдача\")." },
+      { tag: "промежуток", cell: "H5", fill: "H2:H6", q: "Прыжок «в норме», если он от 150 до 180 см включительно. Проверь в H2 через И и протяни. Что у Армана (H5)?", f: "=И(C2>=150;C2<=180)", ans: "ЛОЖЬ", fn: ["И"], hint: "=И(C2>=150;C2<=180). У Армана 182 — больше 180." },
+      { tag: "НЕ", cell: "I6", fill: "I2:I6", q: "В I2 получи ИСТИНА для тех, кому нужна пересдача: НЕ(все три нормы). Протяни. Что у Мадины (I6)?", f: "=НЕ(F2)", ans: "ИСТИНА", fn: ["НЕ"], hint: "=НЕ(F2)" },
+      { tag: "сложное: измени данные", cell: "G2", change: { D2: "15" }, q: "Айдана пересдала отжимания — 15 раз. Измени D2. Что теперь в G2?", f: "=ЕСЛИ(И(B2<=10;C2>=150;D2>=15);\"зачёт\";\"пересдача\")", ans: "зачёт", hint: "15 >= 15 — ИСТИНА, теперь выполнены все три нормы." }
+    ] },
+  { id: "S4", fn: "ИЛИ", title: "Кинотеатр", goal: "Проверять «хотя бы одно условие» через ИЛИ, сочетать ИЛИ, ЕСЛИ и НЕ.",
+    data: { A1: "Зритель", B1: "Возраст", C1: "День", D1: "Льгота", E1: "Выходной", F1: "Цена, тг", G1: "К оплате, тг", H1: "Будний день",
+      A2: "Айдана", B2: "13", C2: "пн", A3: "Серик", B3: "68", C3: "ср", A4: "Тимур", B4: "6", C4: "сб", A5: "Дана", B5: "25", C5: "вс", A6: "Арман", B6: "30", C6: "вт", A7: "Мадина", B7: "15", C7: "сб", A8: "Выручка" },
+    tasks: [
+      { tag: "ИЛИ: возраст", cell: "D3", fill: "D2:D7", q: "Льгота — у детей младше 7 лет ИЛИ у зрителей старше 65. В D2 — ИЛИ, протяни до D7. Что у Серика (D3)?", f: "=ИЛИ(B2<7;B2>65)", ans: "ИСТИНА", fn: ["ИЛИ"], hint: "=ИЛИ(B2<7;B2>65)" },
+      { tag: "ИЛИ с текстом", cell: "E5", fill: "E2:E7", q: "Выходной — если день «сб» ИЛИ «вс». Проверь в E2, протяни. Что у Даны (E5)?", f: "=ИЛИ(C2=\"сб\";C2=\"вс\")", ans: "ИСТИНА", fn: ["ИЛИ"], hint: "=ИЛИ(C2=\"сб\";C2=\"вс\") — текст в кавычках." },
+      { tag: "ЕСЛИ: цена", cell: "F4", fill: "F2:F7", q: "Цена билета: в выходной 2500 тг, в будни 1800 тг. Запиши в F2 через ЕСЛИ (условие — ячейка E2) и протяни. Какая цена у Тимура (F4)?", f: "=ЕСЛИ(E2;2500;1800)", ans: 2500, fn: ["ЕСЛИ"], hint: "В E2 уже ИСТИНА или ЛОЖЬ, поэтому условием может быть сама ячейка: =ЕСЛИ(E2;2500;1800)." },
+      { tag: "ЕСЛИ: льгота", cell: "G4", fill: "G2:G7", q: "Со льготой платят половину цены. В G2: если в D2 ИСТИНА — F2/2, иначе F2. Протяни. Сколько платит Тимур (G4)?", f: "=ЕСЛИ(D2;F2/2;F2)", ans: 1250, fn: ["ЕСЛИ"], hint: "=ЕСЛИ(D2;F2/2;F2)" },
+      { tag: "НЕ", cell: "H6", fill: "H2:H7", q: "Будний день — это НЕ выходной. Запиши в H2 через НЕ, протяни. Что у Армана (H6)?", f: "=НЕ(E2)", ans: "ИСТИНА", fn: ["НЕ"], hint: "=НЕ(E2)" },
+      { tag: "сложное: выручка", cell: "G8", q: "Сколько денег кинотеатр получит от всех зрителей? Сложи G2:G7 в G8.", f: "=СУММ(G2:G7)", ans: 10750, fn: ["СУММ"], hint: "=СУММ(G2:G7)" }
+    ] },
+  { id: "S5", fn: "ЕСЛИ · И · ИЛИ · НЕ", title: "Стипендия", goal: "Сочетать все логические функции и вложенные ЕСЛИ в одной задаче.",
+    data: { A1: "Студент", B1: "Средний балл", C1: "Пропуски", D1: "Олимпиада", E1: "Стипендия", F1: "Повышенная", G1: "Похвальный лист", H1: "Беседа", I1: "Сумма, тг",
+      A2: "Айдана", B2: "4,8", C2: "2", D2: "да", A3: "Тимур", B3: "4,2", C3: "0", D3: "нет", A4: "Дана", B4: "3,9", C4: "5", D4: "да",
+      A5: "Арман", B5: "4,6", C5: "12", D5: "нет", A6: "Мадина", B6: "5", C6: "1", D6: "нет", A8: "Всего" },
+    tasks: [
+      { tag: "И", cell: "E5", fill: "E2:E6", q: "Стипендию дают, если средний балл не ниже 4,5 И пропусков не больше 5. В E2 — И, протяни до E6. Что у Армана (E5)?", f: "=И(B2>=4,5;C2<=5)", ans: "ЛОЖЬ", fn: ["И"], hint: "=И(B2>=4,5;C2<=5). У Армана 12 пропусков." },
+      { tag: "ЕСЛИ + И", cell: "F2", fill: "F2:F6", q: "Повышенная стипендия — если стипендия есть (E2) И студент участвовал в олимпиаде (D2 = «да»). В F2 — «да» или «нет». Что у Айданы (F2)?", f: "=ЕСЛИ(И(E2;D2=\"да\");\"да\";\"нет\")", ans: "да", fn: ["ЕСЛИ", "И"], hint: "=ЕСЛИ(И(E2;D2=\"да\");\"да\";\"нет\")" },
+      { tag: "ИЛИ", cell: "G4", fill: "G2:G6", q: "Похвальный лист — если средний балл 5 ИЛИ олимпиада «да». В G2 — ИЛИ, протяни. Что у Даны (G4)?", f: "=ИЛИ(B2=5;D2=\"да\")", ans: "ИСТИНА", fn: ["ИЛИ"], hint: "=ИЛИ(B2=5;D2=\"да\")" },
+      { tag: "НЕ", cell: "H3", fill: "H2:H6", q: "Беседа нужна тем, у кого НЕТ стипендии. В H2 — НЕ, протяни. Что у Тимура (H3)?", f: "=НЕ(E2)", ans: "ИСТИНА", fn: ["НЕ"], hint: "=НЕ(E2)" },
+      { tag: "ЕСЛИ в ЕСЛИ", cell: "I6", fill: "I2:I6", q: "Размер стипендии: повышенная — 60 000 тг, обычная — 40 000 тг, нет стипендии — 0. В I2 — ЕСЛИ внутри ЕСЛИ, протяни. Сколько у Мадины (I6)?", f: "=ЕСЛИ(F2=\"да\";60000;ЕСЛИ(E2;40000;0))", ans: 40000, fn: ["ЕСЛИ"], hint: "=ЕСЛИ(F2=\"да\";60000;ЕСЛИ(E2;40000;0))" },
+      { tag: "сложное: всего", cell: "I8", q: "Сколько денег нужно на все стипендии? Сложи I2:I6 в I8.", f: "=СУММ(I2:I6)", ans: 100000, fn: ["СУММ"], hint: "=СУММ(I2:I6)" }
+    ] }
+];
+EX_SC.forEach(sc => sc.tasks.forEach((t, i) => { t.id = sc.id + "." + (i + 1); t.sc = sc; }));
+const EX_ALL = EX_SC.flatMap(sc => sc.tasks);
+
+function exNum(v) {
+  const s = String(v).trim().replace(/\s+/g, "").replace(/ /g, "").replace("−", "-").replace(",", ".");
+  return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : null;
+}
+function exGrid(data) {
+  const keys = Object.keys(data);
+  const maxC = Math.max(...keys.map(k => k.charCodeAt(0))), maxR = Math.max(...keys.map(k => +k.slice(1)));
+  const cols = []; for (let c = 65; c <= maxC; c++) cols.push(String.fromCharCode(c));
+  let h = '<div class="tablewrap"><table class="mini ex-data ex-grid"><tr><th></th>' + cols.map(c => `<th>${c}</th>`).join("") + "</tr>";
+  for (let r = 1; r <= maxR; r++) h += `<tr><th>${r}</th>` + cols.map(c => { const v = data[c + r] ?? ""; return `<td class="${exNum(v) !== null ? "n" : "t"}">${v.replace(/</g, "&lt;")}</td>`; }).join("") + "</tr>";
+  return h + "</table></div>";
+}
+function exShow(id) {
+  document.querySelectorAll(".ex-pill").forEach(b => b.setAttribute("aria-selected", b.dataset.sc === id));
+  document.querySelectorAll(".ex-sc").forEach(s => { s.hidden = s.dataset.sc !== id; });
+  store.set("excel-sc", id);
+}
+(function exBuild() {
+  const d = store.get(EX_KEY, {});
+  document.getElementById("exPills").innerHTML = EX_SC.map((sc, i) => `<button type="button" class="ex-pill" data-sc="${sc.id}" role="tab"><span class="ex-n">Сценарий ${i + 1} · лист ${sc.id}</span><b>${sc.fn}</b></button>`).join("");
+  document.getElementById("exList").innerHTML = EX_SC.map((sc, i) => `
+    <section class="block ex-sc" data-sc="${sc.id}" hidden>
+      <p class="fname">Сценарий ${i + 1}. ${sc.title} <code>${sc.fn}</code></p>
+      <p class="plain"><b>Цель:</b> ${sc.goal}</p>
+      <h3 class="ex-h">Открой лист ${sc.id} в файле «Самопроверка_логика.xlsx»</h3>
+      <p class="ex-cap">Так выглядит таблица на листе</p>
+      ${exGrid(sc.data)}
+      <h3 class="ex-h">Шаги: от простого к сложному</h3>
+      <div class="ex-tasks">${sc.tasks.map((t, j) => `
+        <div class="ex-task" id="ex-${t.id.replace(".", "-")}">
+          <div class="tc-head"><span class="tc-id">${j + 1}</span><span class="ex-tag${t.tag.startsWith("сложное") ? " hard" : ""}">${t.tag}</span></div>
+          <p class="tc-q">${t.q} <span class="ex-where">${t.fill ? `Формула: <b>${t.fill.split(":")[0]}</b>, протяни до <b>${t.fill.split(":")[1]}</b> · ответ смотри в <b>${t.cell}</b>` : t.change ? `Измени: <b>${Object.entries(t.change).map(([k, v]) => k + " → " + v).join(", ")}</b> · ответ смотри в <b>${t.cell}</b>` : `Ячейка: <b>${t.cell}</b>`}</span></p>
+          <div class="ex-inputs"><button type="button" class="btn ex-hintbtn">Подсказка</button></div>
+          <p class="tc-hint" hidden></p>
+        </div>`).join("")}
+      </div>
+    </section>`).join("");
+  EX_ALL.forEach(t => {
+    const box = document.getElementById("ex-" + t.id.replace(".", "-"));
+    box.querySelector(".tc-hint").textContent = "Подсказка: " + t.hint;
+    box.querySelector(".ex-hintbtn").addEventListener("click", () => { const h = box.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+  });
+  document.querySelectorAll(".ex-pill").forEach(b => b.addEventListener("click", () => exShow(b.dataset.sc)));
+  exShow(store.get("excel-sc", "S1"));
+})();
+
+/* Итоги урока: ожидания, цель и самооценка по каждому результату */
+const REF_KEY = "reflect-l2";
+const LEVELS = ["Все учащиеся", "Большинство", "Некоторые"];
+const MARK = { "2": "Получилось", "1": "Частично", "0": "Пока нет" };
+const EXP_MARK = { "2": "Да", "1": "Частично", "0": "Нет" };
+let refBuilt = false;
+function fillReflect() {
+  const saved = store.get(REF_KEY, null);
+  document.getElementById("refExp").textContent = store.get(EXP_KEY, "");
+  document.getElementById("refGoal").textContent = document.querySelector("#afterExp .plain").textContent;
+  if (!refBuilt) {
+    const texts = [...document.querySelectorAll("#afterExp .res p")].map(p => p.innerHTML);
+    document.getElementById("refRes").innerHTML = texts.map((t, i) => `
+      <div class="rr">
+        <span class="lvl">${LEVELS[i]}</span>
+        <p>Я смогу ${t}</p>
+        <fieldset class="seg"><legend class="sr">Достиг ли я: ${LEVELS[i]}</legend>
+          ${["2", "1", "0"].map(v => `<label><input type="radio" name="r-res-${i}" id="r-res-${i}-${v}" value="${v}"><span>${MARK[v]}</span></label>`).join("")}
+        </fieldset>
+      </div>`).join("");
+    refBuilt = true;
+    if (saved) {
+      const set = (name, v) => { const el = document.querySelector(`input[name="${name}"][value="${v}"]`); if (el) el.checked = true; };
+      if (saved.exp != null) set("r-exp", saved.exp);
+      (saved.res || []).forEach((v, i) => { if (v != null) set("r-res-" + i, v); });
+      document.getElementById("refNote").value = saved.note || "";
+      document.getElementById("refUse").value = saved.use || "";
+    }
+  }
+  document.getElementById("useReq").hidden = !wantsUse();
+  renderDescMine(document.getElementById("refDesc"));
+  const pd = prLoad();
+  document.querySelectorAll("#refRes .rr").forEach((el, i) => {
+    const lv = "ABC"[i], list = TASKS_PR.filter(t => t.lv === lv), ok = list.filter(t => pd[t.id] && pd[t.id].ok).length;
+    let n = el.querySelector(".pr-note");
+    if (!n) { n = document.createElement("p"); n.className = "pr-note"; el.insertBefore(n, el.querySelector("fieldset")); }
+    let txt = `Практика, уровень ${lv}: решено ${ok} из ${list.length}`, full = ok === list.length;
+    if (i === 0) { const z = TASKS_Z.filter(t => pd[t.id] && pd[t.id].ok).length; txt = `Разминка «Сравнения»: ${z} из ${TASKS_Z.length} · ` + txt; full = full && z === TASKS_Z.length; }
+    n.textContent = txt;
+    n.classList.toggle("full", full);
+  });
+  if (saved) showSummary(saved);
+}
+/* Ученик в начале спрашивал «где пригодится / зачем» — тогда пример обязателен */
+function wantsUse() { return /пригод|зачем|для чего/i.test(store.get(EXP_KEY, "")); }
+function val(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : null; }
+function showSummary(s) {
+  const rows = [`<div class="sumrow"><span>Ожидания</span><span class="mark m${s.exp}">${EXP_MARK[s.exp]}</span></div>`]
+    .concat(s.res.map((v, i) => `<div class="sumrow"><span>${LEVELS[i]}</span><span class="mark m${v}">${MARK[v]}</span></div>`));
+  const got = s.res.filter(v => v === "2").length;
+  let next = got === 3 ? "Все цели достигнуты. Отличная работа!"
+    : s.res[0] !== "2" ? "Вернись к разминке «Сравнения» и заданиям уровня A на ЕСЛИ и спроси учителя, что непонятно."
+    : "Хороший результат. На следующем уроке потренируйся в том, что отмечено «Частично» или «Пока нет».";
+  const use = s.use ? `<p class="mine use-ex" style="margin-top:10px"></p>` : "";
+  const note = s.note ? `<p class="mine note-ex" style="margin-top:10px"></p>` : "";
+  const body = document.getElementById("refSumBody");
+  body.innerHTML = rows.join("") + use + note + `<p class="plain" style="margin-top:10px">${next}</p>`;
+  if (s.use) body.querySelector(".use-ex").textContent = "Где пригодится: " + s.use;
+  if (s.note) body.querySelector(".note-ex").textContent = s.note;
+  document.getElementById("refSummary").hidden = false;
+}
+document.getElementById("refSave").addEventListener("click", () => {
+  const s = { exp: val("r-exp"), res: [0, 1, 2].map(i => val("r-res-" + i)), note: document.getElementById("refNote").value.trim(), use: document.getElementById("refUse").value.trim() };
+  const msg = document.getElementById("refMsg");
+  if (s.exp === null || s.res.includes(null)) { msg.className = "msg bad"; msg.textContent = "Ответь на все вопросы: ожидания и три результата."; return; }
+  if (wantsUse() && s.use.length < 5) { msg.className = "msg bad"; msg.textContent = "Приведи пример, где пригодится функция: ты сам хотел это понять."; return; }
+  store.set(REF_KEY, s);
+  msg.className = "msg ok"; msg.textContent = "Сохранено.";
+  showSummary(s);
+  document.getElementById("refSummary").scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+document.querySelectorAll(".starter").forEach(b => b.addEventListener("click", () => {
+  const s = b.textContent.replace("…", " ");
+  expText.value = (expText.value.trim() ? expText.value.trim() + "\n" : "") + s;
+  expText.focus();
+  expText.setSelectionRange(expText.value.length, expText.value.length);
+}));
+document.getElementById("expSave").addEventListener("click", () => {
+  const v = expText.value.trim();
+  const msg = document.getElementById("expMsg");
+  if (v.length < 5) { msg.className = "msg bad"; msg.textContent = "Напиши хотя бы одно предложение."; return; }
+  msg.textContent = "";
+  store.set(EXP_KEY, v);
+  showExp(v);
+});
+document.getElementById("expEdit").addEventListener("click", () => {
+  expText.value = store.get(EXP_KEY, "");
+  document.getElementById("expForm").hidden = false;
+  document.getElementById("expSaved").hidden = true;
+  expText.focus();
+});
+showExp(store.get(EXP_KEY, ""));
+
+buildGrid(); buildTasks();
+unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+render();
+if (unlocked) document.getElementById("tab-goal").disabled = false;
+window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
+  A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
+
+}
+/* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
+const STAGES = { review: "1. Повторим", puzzle: "2. Разгадка темы", goal: "3. Тема и цель", actual: "4. Вспомним", learn: "5. Новая тема", match: "6. Какая функция?", practice: "7. Практика", excel: "8. Работа в Excel", reflect: "9. Итоги", hw: "10. Домашнее задание" };
+let me = null, curStage = "review", syncTimer = null;
+const gsr = (fn, ...args) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+function lessonSummary() {
+  const g = k => lsGet(NS + k, null), info = window.__lessonInfo;
+  const pr = g("practice-l2") || {}, mt = g("match-l2") || {}, rf = g("reflect-l2");
+  const cnt = ids => ids.filter(id => pr[id] && pr[id].ok).length + "/" + ids.length;
+  const MARK = { "2": "Получилось", "1": "Частично", "0": "Пока нет" }, EXP = { "2": "Да", "1": "Частично", "0": "Нет" };
+  const mv = Object.values(mt);
+  return {
+    id: me.id, cls: me.cls, name: me.name, stage: STAGES[curStage] || curStage,
+    expect: g("expect-l2") || "",
+    match: mv.filter(x => x && x.ok).length + "/" + info.matchN,
+    matchFirst: mv.filter(x => x && x.first).length,
+    z: cnt(info.Z), a: cnt(info.A), b: cnt(info.B), c: cnt(info.C),
+    expOk: rf ? EXP[rf.exp] || "" : "", r0: rf ? MARK[rf.res[0]] || "" : "", r1: rf ? MARK[rf.res[1]] || "" : "", r2: rf ? MARK[rf.res[2]] || "" : "",
+    use: rf ? rf.use || "" : "", note: rf ? rf.note || "" : "",
+    act: (() => { const a = Object.values(g("actual-l2") || {}); return a.filter(x => x && x.ok).length + "/" + info.actN; })(),
+    actFirst: Object.values(g("actual-l2") || {}).filter(x => x && x.first).length,
+    now: window.__prNow(),
+    hw: (() => { const h = g("hw-l2") || {}; return Object.values(h).filter(x => x && x.ok).length + "/3"; })(),
+    rev: (() => { const a = Object.values(g("review-l2") || {}); return a.filter(x => x && x.ok).length + "/" + info.rvN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
+    desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
+  };
+}
+function syncSoon() { if (!me) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 1500); }
+function syncNow() { if (!me) return; gsr("saveProgress", lessonSummary()).then(() => setNet(true)).catch(() => setNet(false)); }
+function setNet(ok) { const n = document.getElementById("netState"); if (n) { n.textContent = ok ? "связь с учителем есть" : "нет связи — ответы отправятся позже"; n.className = "net " + (ok ? "on" : "off"); } }
+
+/* Вход: ученик сам вписывает класс, фамилию и имя */
+const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", F: "Ф", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
+function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[A-Z]/g, ch => LAT2CYR[ch] || ch); }
+function normName(v) { return v.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" "); }
+/* Вход: онлайн — через сервер (проверка по списку класса), без сервера — только на этом компьютере */
+function register(c, n) {
+  return ONLINE ? gsr("registerStudent", c, n) : Promise.resolve({ id: c + " | " + n, cls: c, name: n });
+}
+function loginUI() {
+  const ov = document.getElementById("login"), body = document.getElementById("loginBody");
+  ov.hidden = false;
+  body.innerHTML = `<p class="lg-q">Впиши свои данные</p>
+    <label class="lg-l" for="lgCls">Класс</label><input id="lgCls" class="lg-in" maxlength="20" placeholder="например, 8А" autocomplete="off">
+    <label class="lg-l" for="lgName">Фамилия и имя</label><input id="lgName" class="lg-in" maxlength="80" placeholder="например, Сейткали Айдана" autocomplete="off">
+    <p class="lg-err" id="lgErr" aria-live="polite"></p>
+    <button type="button" class="btn main lg-big" id="lgGo">Начать урок</button>`;
+  const go = () => {
+    const c = normClass(document.getElementById("lgCls").value), n = normName(document.getElementById("lgName").value);
+    const err = document.getElementById("lgErr");
+    if (!/^\d{1,2}[А-ЯЁ]?$/.test(c)) { err.textContent = "Класс пишется так: цифра и буква, например 8А."; return; }
+    if (n.split(" ").length < 2 || n.length < 5) { err.textContent = "Впиши фамилию и имя через пробел."; return; }
+    err.textContent = "Сохраняю…";
+    document.getElementById("lgGo").disabled = true;
+    const old = document.getElementById("lgSug"); if (old) old.remove();
+    register(c, n).then(r => { document.getElementById("lgGo").disabled = false; if (r && r.suggest) suggest(r); else enter(r); })
+      .catch(e => { document.getElementById("lgGo").disabled = false; err.textContent = (e && e.message) ? e.message : "Не получилось. Проверь связь и попробуй ещё раз."; });
+  };
+  function suggest(r) {
+    const err = document.getElementById("lgErr"); err.textContent = "";
+    const box = document.createElement("div"); box.className = "lg-sug"; box.id = "lgSug";
+    box.innerHTML = `<p>Такого ученика нет в списке. Может быть, ты — <b></b>?</p><div class="lg-row"><button type="button" class="btn main" id="sugYes">Да, это я</button><button type="button" class="btn" id="sugNo">Нет</button></div>`;
+    box.querySelector("b").textContent = `${r.suggest}, ${r.cls}`;
+    err.after(box);
+    document.getElementById("sugYes").onclick = () => { box.remove(); err.textContent = "Вхожу…"; register(r.cls, r.suggest).then(enter).catch(e => { err.textContent = e.message || "Не получилось."; }); };
+    document.getElementById("sugNo").onclick = () => { box.remove(); err.textContent = "Тогда проверь, как написаны фамилия и имя, или скажи учителю, чтобы он добавил тебя в список."; };
+  }
+  document.getElementById("lgGo").onclick = go;
+  ["lgCls", "lgName"].forEach(id => document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") go(); }));
+  document.getElementById("lgCls").focus();
+  function enter(st) {
+    me = st;
+    NS = "st:" + st.id + ":";
+    ov.hidden = true;
+    document.getElementById("whoName").textContent = `${st.name}, ${st.cls}`;
+    document.getElementById("who").hidden = false;
+    startLesson();
+    if (!ONLINE) return;
+    syncNow();
+    setInterval(syncNow, 60000);
+    pollQuestion(); setInterval(pollQuestion, 5000);
+  }
+}
+
+/* Вопрос учителя всплывает у всех учеников */
+let shownQ = null;
+function pollQuestion() {
+  gsr("getQuestion").then(q => {
+    setNet(true);
+    const answered = lsGet(NS + "answered", []);
+    const modal = document.getElementById("qModal");
+    if (q && q.open && q.type === "break") {
+      if (!answered.includes(q.id) && shownQ !== q.id) {
+        shownQ = q.id;
+        window.__onBreakEnd = () => { const a = lsGet(NS + "answered", []); if (!a.includes(q.id)) { a.push(q.id); lsSet(NS + "answered", a); } shownQ = null; };
+        window.__breakStart();
+      }
+      return;
+    }
+    if (q && q.open && !answered.includes(q.id)) {
+      if (shownQ !== q.id) {
+        shownQ = q.id;
+        document.getElementById("qText").textContent = q.text;
+        document.getElementById("qAns").value = "";
+        document.getElementById("qErr").textContent = "";
+        modal.hidden = false;
+        document.getElementById("qAns").focus();
+      }
+    } else if (!modal.hidden) {
+      modal.hidden = true; shownQ = null;
+      if (q && !q.open) toast("Учитель закрыл вопрос.");
+    }
+  }).catch(() => setNet(false));
+}
+function sendAnswer() {
+  const text = document.getElementById("qAns").value.trim(), err = document.getElementById("qErr");
+  if (!text) { err.textContent = "Напиши ответ."; return; }
+  const btn = document.getElementById("qSend"); btn.disabled = true; err.textContent = "Отправляю…";
+  gsr("submitAnswer", { qid: shownQ, text, cls: me.cls, name: me.name, id: me.id }).then(() => {
+    const a = lsGet(NS + "answered", []); a.push(shownQ); lsSet(NS + "answered", a);
+    document.getElementById("qModal").hidden = true; shownQ = null; btn.disabled = false;
+    toast("Ответ отправлен учителю.");
+  }).catch(e => { btn.disabled = false; err.textContent = (e && e.message) || "Не получилось отправить. Попробуй ещё раз."; });
+}
+function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 3500); }
+
+function onlineBoot() {
+  window.__onStore = syncSoon;
+  window.__onStage = id => { curStage = id; syncSoon(); };
+  window.__onAttempt = (stage, task, answer, ok, note) => { if (me) gsr("logAttempt", { id: me.id, cls: me.cls, name: me.name, stage, task, answer: String(answer), ok: !!ok, note: note || "" }).catch(() => setNet(false)); };
+  document.getElementById("qSend").addEventListener("click", sendAnswer);
+  document.getElementById("qAns").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) sendAnswer(); });
+  document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
+  loginUI();
+}
+if (ONLINE) onlineBoot();
+else {
+  loginUI();
+  const n = document.getElementById("netState"); n.textContent = "ответы сохраняются на этом компьютере"; n.className = "net";
+  document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
+}
+
+</script>
+
+</html>
