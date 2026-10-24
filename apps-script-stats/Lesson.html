@@ -434,7 +434,15 @@ td.wrongl .ch { color: var(--bad); }
 .ch-bar:hover path { fill: color-mix(in srgb, var(--c) 75%, var(--ink)); }
 .chart details { margin-top: 6px; font-size: .85rem; }
 .chart summary { cursor: pointer; color: var(--muted); }
+
+.lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
+.lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
+.lang-sw button[aria-pressed="true"]{background:var(--c, #1d7652);color:#fff}
+.lang-sw button:focus-visible{outline:2px solid var(--c, #1d7652);outline-offset:-2px}
+.lg-card .lang-sw{display:flex;width:max-content;margin:0 0 .6rem auto}
 </style>
+<div id="app"></div>
+<template id="t-ru">
 
 <div class="wrap">
   <div class="top">
@@ -910,7 +918,522 @@ td.wrongl .ch { color: var(--bad); }
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 
+</template>
+<template id="t-kz">
+
+<div class="wrap">
+  <div class="top">
+    <span class="eyebrow">Информатика · 8 сынып · Электрондық кестелер</span>
+    <div class="tools">
+      <span class="who" id="who" hidden>Оқушы: <b id="whoName"></b> · <span id="netState" class="net"></span> <button type="button" class="linkbtn" id="whoChange">Ауыстыру</button><span class="small" id="whoHint" hidden> Басқа оқушы ретінде кіру үшін бетті жаңарт.</span></span>
+      <button class="btn" id="breakBtn" type="button">Сергіту сәті · 1 мин</button>
+      <button class="btn" id="bigBtn" type="button" aria-pressed="false">Үлкен қаріп</button>
+      <button class="btn" id="fsBtn" type="button">Толық экран</button>
+    </div>
+  </div>
+
+  <div class="steps" role="tablist" aria-label="Сабақ кезеңдері">
+    <button type="button" class="step" role="tab" id="tab-review" aria-controls="review" aria-selected="true"><b>1</b>Қайталайық</button>
+    <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="false"><b>2</b>Тақырыпты анықта</button>
+    <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>3</b>Тақырып және мақсат</button>
+    <button type="button" class="step" role="tab" id="tab-actual" aria-controls="actual" aria-selected="false" disabled><b>4</b>Еске түсірейік</button>
+    <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>5</b>Жаңа тақырып</button>
+    <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>6</b>Қай функция?</button>
+    <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>7</b>Практика</button>
+    <button type="button" class="step" role="tab" id="tab-excel" aria-controls="excel" aria-selected="false" disabled><b>8</b>Excel-де жұмыс</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>9</b>Сабақ қорытындысы</button>
+    <button type="button" class="step" role="tab" id="tab-hw" aria-controls="hw" aria-selected="false" disabled><b>10</b>Үй тапсырмасы</button>
+  </div>
+
+  <!-- Этап 1: повторение прошлого урока -->
+  <div class="panel" id="review" role="tabpanel" aria-labelledby="tab-review">
+    <div>
+      <h1>Өткен сабақты қайталайық</h1>
+      <p class="lead">ЕСЛИ, И, ИЛИ, НЕ логикалық функциялары туралы алты жылдам сұрақ. Жауапты таңда — дұрыс па, жоқ па және неге екенін бірден көресің.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="rvBar"></i></div><span class="pnum" id="rvNum"></span></div>
+      <p class="small" id="rvFirst"></p>
+    </section>
+    <div class="mt-list" id="rvList"></div>
+    <section class="block mt-done" id="rvDone" hidden>
+      <h2>Қорытынды</h2>
+      <p class="plain" id="rvDoneText"></p>
+    </section>
+    <div class="next"><span></span><button class="btn main" type="button" data-go="puzzle">Әрі қарай: тақырыпты анықта →</button></div>
+  </div>
+
+  <!-- Этап 2: разгадать тему — детектив по диаграмме -->
+  <div class="panel" id="puzzle" role="tabpanel" aria-labelledby="tab-puzzle" hidden>
+    <div>
+      <h1>Диаграмма бойынша детектив</h1>
+      <p class="lead">Сабақтың тақырыбы «Тақырып» парағында жасырылған. Оны ашу үшін екі диаграмманы оқы — бұл айғақтар — және детективтің сұрақтарына жауап бер.</p>
+    </div>
+
+    <section class="block how">
+      <h2>Қалай ойнаймыз</h2>
+      <ol class="howto">
+        <li><span class="hn">1</span><span>Қара: <b>екі диаграммаға</b> (төменде): аптадағы температура және дүңгіршекте қанша балмұздақ сатылғаны.</span></li>
+        <li><span class="hn">2</span><span>Мынаған жауап бер — <b>детективтің сұрағына</b>: нұсқалардың бірін таңда. Парақтағы «?» астындағы кішкентай сан — сұрақтың нөмірі.</span></li>
+        <li><span class="hn">3</span><span>Әр нұсқаның өз әрпі бар. Дұрыс жауап керекті әріпті ашады, дұрыс емесі артық әріп қояды — парақтағы сөз «бұзылады».</span></li>
+        <li><span class="hn">4</span><span>Сөз бұзылды — басқа нұсқаны таңда. Барлық әріпті аш немесе тақырыпты толық жаз — ашылады: <b>сабақтың тақырыбы мен мақсаты</b>.</span></li>
+      </ol>
+      <div class="example">
+        <span class="ex-label">Мысал</span>
+        <span>қай сан үлкен: <b>7</b> немесе <b>4</b>?</span>
+        <span class="arrow">→</span>
+        <span>таңдаймыз: <b>7</b></span>
+        <span class="arrow">→</span>
+        <span class="ex-cell open"><b>Д</b><small>0</small></span>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Айғақтар</h2>
+      <div class="charts" id="charts"></div>
+    </section>
+
+    <section class="block">
+      <h2>«Тақырып» парағы</h2>
+      <div class="sheetwrap"><table class="grid" id="grid"></table></div>
+      <div class="progress">
+        <div class="pbar"><i id="pbar"></i></div>
+        <span class="pnum" id="pnum"></span>
+      </div>
+      <div class="guess">
+        <label for="guessIn">Тақырыпты таптыңыз ба?</label>
+        <input type="text" id="guessIn" placeholder="Тақырыпты толық жазыңыз" autocomplete="off">
+        <button class="btn" type="button" id="guessBtn">Тақырыпты тексеру</button>
+      </div>
+      <p class="msg" id="guessMsg" aria-live="polite"></p>
+    </section>
+
+    <section class="block">
+      <h2>Детективтің сұрақтары</h2>
+      <div class="tasks" id="tasks"></div>
+    </section>
+    <div class="next"><button class="btn" type="button" data-go="review">← Қайталайық</button><button class="reset" type="button" id="resetBtn">Қайта бастау</button></div>
+  </div>
+
+  <!-- Этап 3: тема и цель -->
+  <div class="panel" id="goal" role="tabpanel" aria-labelledby="tab-goal" hidden>
+    <section class="block">
+      <h2>Сабақтың тақырыбы</h2>
+      <p class="reveal-title">Электрондық кестедегі статистикалық функциялар</p>
+      <div class="fns"><code>СРЗНАЧ()</code><code>МАКС()</code><code>МИН()</code></div>
+      <p class="small" id="forkNote">Тақырыпты шешкенде сен статистикалық функциялар сияқты жұмыс істедің: ең жылы күнді (<b>МАКС</b>), ең суық күнді (<b>МИН</b>) және орташа температураны (<b>СРЗНАЧ</b>) таптың. Бүгін кесте мұны өзі істеуді үйренеді.</p>
+    </section>
+    <section class="block expect" id="expect">
+      <h2>Сабақтан күтетінім</h2>
+      <div id="expForm">
+        <label for="expText" class="q">Тақырып ашылды. Осы сабақта не үйренгің келеді? «Орташа балл» немесе «рекорд» деген сөздерді бұрын қай жерде кездестірдің?</label>
+        <div class="starters" aria-label="Сөйлемнің басы">
+          <button type="button" class="starter">Мен үйренгім келеді…</button>
+          <button type="button" class="starter">Мен білемін…</button>
+          <button type="button" class="starter">Маған қызық, не үшін…</button>
+          <button type="button" class="starter">Қайда пайдалы екенін түсінгім келеді…</button>
+        </div>
+        <textarea id="expText" rows="3" placeholder="Мысалы: тоқсандағы орташа балды тез есептеуді үйренгім келеді…"></textarea>
+        <div class="exp-actions">
+          <button class="btn main" type="button" id="expSave">Сақтап, сабақ мақсатын көру</button>
+          <span class="msg" id="expMsg" aria-live="polite"></span>
+        </div>
+      </div>
+      <div id="expSaved" hidden>
+        <p class="mine" id="expShow"></p>
+        <button class="btn" type="button" id="expEdit">Өзгерту</button>
+        <p class="small">Сабақтың соңында күткеніңді нәтижемен салыстырасың.</p>
+      </div>
+    </section>
+
+    <div class="panel" id="afterExp" hidden>
+    <section class="block">
+      <h2>Оқу мақсаты</h2>
+      <div class="goal"><span class="code">8.2.2.3</span><p>электрондық кестелерде статистикалық функцияларды (СРЗНАЧ(), МАКС(); МИН()) қолдану</p></div>
+    </section>
+    <section class="block">
+      <h2>Сабақ мақсаты</h2>
+      <p class="plain">СРЗНАЧ(), МАКС() және МИН() функцияларымен электрондық кестелерде орташа, ең үлкен және ең кіші мәндерді табуды үйрену.</p>
+    </section>
+    <section class="block">
+      <h2>Күтілетін нәтижелер · сабақтың соңында мен</h2>
+      <div class="res"><div class="who">Барлық оқушылар<span class="bar"><i style="width:100%"></i></span></div><p>ауқымның орташа, ең үлкен және ең кіші мәнін табу: <code>=СРЗНАЧ(B2:B8)</code>, <code>=МАКС(B2:B8)</code>, <code>=МИН(B2:B8)</code>.</p></div>
+      <div class="res"><div class="who">Оқушылардың көпшілігі<span class="bar"><i style="width:70%"></i></span></div><p>бір тапсырмада бірнеше функцияны қолдану, мысалы, құлаш <code>=МАКС(B2:B8)-МИН(B2:B8)</code>, және мағынасы бойынша МАКС немесе МИН таңдау: жүгіруде ең жақсы нәтиже — ең аз уақыт.</p></div>
+      <div class="res"><div class="who">Кейбір оқушылар<span class="bar"><i style="width:35%"></i></span></div><p>статистикалық функцияларды ЕСЛИ ішіне және есептеулерге кірістіру, мысалы, <code>=ЕСЛИ(B2&gt;СРЗНАЧ(B2:B5);"орташадан жоғары";"жоғары емес")</code>, және бос ұяшық пен 0 орташаға неге әртүрлі әсер ететінін түсіндіру.</p></div>
+    </section>
+    <section class="block">
+      <h2>Бағалау критерийлері · мақсатқа жеткенімізді қалай тексереміз</h2>
+      <p class="plain crit-main"><b>Критерий:</b> электрондық кестелерде деректерді өңдеу үшін СРЗНАЧ(), МАКС(), МИН() статистикалық функцияларын қолданады.</p>
+      <div class="tablewrap"><table class="th-args crit" id="critTable"></table></div>
+      <p class="small-note">Дескрипторлар сабақтағы тапсырмалар бойынша автоматты түрде белгіленеді. Өз нәтижелеріңді «Сабақ қорытындысында» көресің.</p>
+    </section>
+    </div>
+    <div class="next"><button class="btn" type="button" data-go="puzzle">← Тақырыпты анықтауға</button><button class="btn main" type="button" data-go="actual" id="toLearn" hidden>Әрі қарай: еске түсірейік →</button></div>
+  </div>
+
+  <!-- Этап 4: актуализация знаний -->
+  <div class="panel" id="actual" role="tabpanel" aria-labelledby="tab-actual" hidden>
+    <div>
+      <h1>Еске түсірейік: орташа, ең үлкен, ең кіші</h1>
+      <p class="lead">Бұл ұғымдар математикадан таныс. Арифметикалық ортаны қалай табуды және теріс сандарды қалай салыстыруды есіңде ме, тексер.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="acBar"></i></div><span class="pnum" id="acNum"></span></div>
+      <p class="small" id="acFirst"></p>
+    </section>
+    <div class="mt-list" id="acList"></div>
+    <section class="block mt-done" id="acDone" hidden>
+      <h2>Қорытынды</h2>
+      <p class="plain" id="acDoneText"></p>
+    </section>
+    <div class="next">
+      <button class="btn" type="button" data-go="goal">← Тақырып және мақсат</button>
+      <button class="btn main" type="button" data-go="learn">Әрі қарай: жаңа тақырып →</button>
+    </div>
+  </div>
+
+  <!-- Этап 5: новая тема -->
+  <div class="panel" id="learn" role="tabpanel" aria-labelledby="tab-learn" hidden>
+    <div>
+      <h1>Кесте сандар қатарын қалай өңдейді</h1>
+      <p class="lead">Статистикалық функция бірден бүкіл сандар қатарына қарайды — бағаларға, температураларға, тауар құнына — және бір санмен жауап береді: орташасы қандай, ең үлкені қандай, ең кішісі қандай.</p>
+    </div>
+
+    <section class="block">
+      <h2>Бір қатардағы үш функция</h2>
+      <div class="anatomy">
+        <div class="part"><span class="tok">=</span><span class="lab">«Қазір формула болады»</span></div>
+        <div class="part"><span class="tok fnc">СРЗНАЧ</span><span class="lab">не істеу керек</span></div>
+        <div class="part"><span class="tok">(</span><span class="lab">аштық</span></div>
+        <div class="part"><span class="tok arg">B2:B8</span><span class="lab">қай қатармен<br>(B2-ден B8-ге дейін)</span></div>
+        <div class="part"><span class="tok">)</span><span class="lab">жаптық</span></div>
+      </div>
+      <p class="tip">МАКС және МИН де солай жазылады: <code>=МАКС(B2:B8)</code>, <code>=МИН(B2:B8)</code>. Тек функцияның атауы өзгереді, ал сандар қатары сол күйі.</p>
+      <div class="tablewrap"><table class="th-args"><tr><th>Температура, °C</th><th>12</th><th>15</th><th>9</th><th>18</th><th>21</th><th>24</th><th>20</th></tr><tr><td><code>=СРЗНАЧ(…)</code></td><td colspan="7">17 — егер барлық күн бірдей болса, әрқайсысы 17° болар еді</td></tr><tr><td><code>=МАКС(…)</code></td><td colspan="7">24 — ең жылы күн</td></tr><tr><td><code>=МИН(…)</code></td><td colspan="7">9 — ең суық күн</td></tr></table></div>
+    </section>
+
+    <section class="block theory-intro">
+      <h2>Негізгі ұғымдар</h2>
+      <div class="concepts">
+        <div><b>Деректер қатары</b><p>бір нәрсе туралы сандар жиыны: оқушының бағалары, тауардың бағалары, күндер бойынша температура. Кестеде бұл — ауқым, мысалы, <code>B2:B8</code>.</p></div>
+        <div><b>Арифметикалық орта</b><p>барлық санның олардың санына бөлінген қосындысы: (2 + 4 + 9) : 3 = 5.</p></div>
+        <div><b>Ең үлкені және ең кішісі</b><p>қатардың ең үлкен және ең кіші саны. Теріс сандардың ішінде нөлге жақынырағы үлкен: −1 &gt; −8.</p></div>
+        <div><b>Құлаш</b><p>ең үлкені мен ең кішісінің айырмасы: <code>=МАКС(…)-МИН(…)</code>. Деректердің қаншалықты шашыраңқы екенін көрсетеді.</p></div>
+        <div><b>Бос және нөл</b><p>бос ұяшық пен мәтінді функциялар өткізіп жібереді, ал 0 — бұл сан, ол есептеуге қатысады.</p></div>
+        <div><b>Статистика</b><p>деректерді жинау және өңдеу туралы ғылым. Орташа балл, рекорд, ең төмен баға — бұл статистикалық көрсеткіштер.</p></div>
+      </div>
+    </section>
+
+    <div class="fpills" role="tablist" aria-label="Функциялар">
+      <button type="button" class="fpill" data-f="0" aria-selected="true">1 · СРЗНАЧ</button>
+      <button type="button" class="fpill" data-f="1" aria-selected="false">2 · МАКС</button>
+      <button type="button" class="fpill" data-f="2" aria-selected="false">3 · МИН</button>
+      <button type="button" class="fpill" data-f="3" aria-selected="false">Анықтамалық және қателер</button>
+    </div>
+
+    <!-- СРЗНАЧ -->
+    <section class="block fcard" data-card="0">
+      <p class="fname"><code>СРЗНАЧ()</code> — орташа мән</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> «бәрін тең бөлсек» дегендей. Бес дос кәмпиттерді бір үйінге жинап, тең бөлді — әрқайсысына қанша тиді? Міне, бұл орташа.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Тоқсандағы орташа балл:</span> <code>=СРЗНАЧ(B2:F2)</code></li><li><span>Аптадағы орташа температура:</span> <code>=СРЗНАЧ(B2:B8)</code></li><li><span>Күніне орташа есеппен қанша қадам:</span> <code>=СРЗНАЧ(C2:C31)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> «орташа есеппен» емес, «барлығы бірге» керек болса → СУММ.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>=СРЗНАЧ(A1:A5)</code></p>
+
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>СРЗНАЧ арифметикалық ортаны қайтарады: сандарды қосып, қосындыны олардың санына бөледі.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=СРЗНАЧ(сан1; [сан2]; …)</code></p>
+      <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Бұл не</th><th>Міндетті ме?</th></tr><tr><td><code>сан1</code></td><td>сан, ұяшық немесе ауқым, мысалы, A1:A5</td><td>иә</td></tr><tr><td><code>сан2; …</code></td><td>«;» арқылы басқа сандар немесе ауқымдар</td><td>жоқ</td></tr></table></div>
+      <h3>Мысалдар</h3>
+      <p class="small-note">Мысалдарға арналған деректер — төмендегі кестеде. Формуланы бас: осы деректер мен формула «Өзің байқап көр» кестесінде пайда болады, ал формула H10 ұяшығына түседі.</p>
+      <p class="ex-cap">Мысалдарға арналған деректер</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th><th>C</th></tr><tr><th>1</th><td class="n">4</td><td class="n">10</td></tr><tr><th>2</th><td class="n">5</td><td class="n">20</td></tr><tr><th>3</th><td class="n">3</td><td class="n">0</td></tr><tr><th>4</th><td class="n">5</td><td class="t"></td></tr><tr><th>5</th><td class="t">ж</td><td class="t"></td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Нәтиже</th><th>Неге</th></tr><tr><td><button type="button" class="tryf" data-f="=СРЗНАЧ(2;4;6)" data-cells="{&quot;A1&quot;: &quot;4&quot;, &quot;A2&quot;: &quot;5&quot;, &quot;A3&quot;: &quot;3&quot;, &quot;A4&quot;: &quot;5&quot;, &quot;A5&quot;: &quot;ж&quot;, &quot;C1&quot;: &quot;10&quot;, &quot;C2&quot;: &quot;20&quot;, &quot;C3&quot;: &quot;0&quot;}" title="Төмендегі кестеде ашу">=СРЗНАЧ(2;4;6)</button></td><td class="r">4</td><td>(2 + 4 + 6) : 3</td></tr><tr><td><button type="button" class="tryf" data-f="=СРЗНАЧ(A1:A4)" data-cells="{&quot;A1&quot;: &quot;4&quot;, &quot;A2&quot;: &quot;5&quot;, &quot;A3&quot;: &quot;3&quot;, &quot;A4&quot;: &quot;5&quot;, &quot;A5&quot;: &quot;ж&quot;, &quot;C1&quot;: &quot;10&quot;, &quot;C2&quot;: &quot;20&quot;, &quot;C3&quot;: &quot;0&quot;}" title="Төмендегі кестеде ашу">=СРЗНАЧ(A1:A4)</button></td><td class="r">4,25</td><td>(4 + 5 + 3 + 5) : 4 = 17 : 4</td></tr><tr><td><button type="button" class="tryf" data-f="=СРЗНАЧ(A1:A5)" data-cells="{&quot;A1&quot;: &quot;4&quot;, &quot;A2&quot;: &quot;5&quot;, &quot;A3&quot;: &quot;3&quot;, &quot;A4&quot;: &quot;5&quot;, &quot;A5&quot;: &quot;ж&quot;, &quot;C1&quot;: &quot;10&quot;, &quot;C2&quot;: &quot;20&quot;, &quot;C3&quot;: &quot;0&quot;}" title="Төмендегі кестеде ашу">=СРЗНАЧ(A1:A5)</button></td><td class="r">4,25</td><td>A5-тегі «ж» мәтіні өткізіледі: 5-ке емес, 4-ке бөлеміз</td></tr><tr><td><button type="button" class="tryf" data-f="=СРЗНАЧ(C1:C3)" data-cells="{&quot;A1&quot;: &quot;4&quot;, &quot;A2&quot;: &quot;5&quot;, &quot;A3&quot;: &quot;3&quot;, &quot;A4&quot;: &quot;5&quot;, &quot;A5&quot;: &quot;ж&quot;, &quot;C1&quot;: &quot;10&quot;, &quot;C2&quot;: &quot;20&quot;, &quot;C3&quot;: &quot;0&quot;}" title="Төмендегі кестеде ашу">=СРЗНАЧ(C1:C3)</button></td><td class="r">10</td><td>нөл — бұл сан: (10 + 20 + 0) : 3</td></tr><tr><td><button type="button" class="tryf" data-f="=СУММ(A1:A4)/4" data-cells="{&quot;A1&quot;: &quot;4&quot;, &quot;A2&quot;: &quot;5&quot;, &quot;A3&quot;: &quot;3&quot;, &quot;A4&quot;: &quot;5&quot;, &quot;A5&quot;: &quot;ж&quot;, &quot;C1&quot;: &quot;10&quot;, &quot;C2&quot;: &quot;20&quot;, &quot;C3&quot;: &quot;0&quot;}" title="Төмендегі кестеде ашу">=СУММ(A1:A4)/4</button></td><td class="r">4,25</td><td>дәл сол «қолмен»: қосынды : саны</td></tr><tr><td><button type="button" class="tryf" data-f="=СРЗНАЧ(A1:A4;5)" data-cells="{&quot;A1&quot;: &quot;4&quot;, &quot;A2&quot;: &quot;5&quot;, &quot;A3&quot;: &quot;3&quot;, &quot;A4&quot;: &quot;5&quot;, &quot;A5&quot;: &quot;ж&quot;, &quot;C1&quot;: &quot;10&quot;, &quot;C2&quot;: &quot;20&quot;, &quot;C3&quot;: &quot;0&quot;}" title="Төмендегі кестеде ашу">=СРЗНАЧ(A1:A4;5)</button></td><td class="r">4,4</td><td>бағаларға тағы бір бесті қостық: 22 : 5</td></tr></table></div>
+      <h3>Білу маңызды</h3>
+      <ul><li><b>Бос ұяшықтар мен мәтінді</b> СРЗНАЧ өткізіп жібереді, ал <b>0-ді есептейді</b>. Болмау («ж») мен нөл — әртүрлі нәрсе: нөл орташаны төмендетеді.</li><li>Орташа жиі бөлшек болып шығады. Артық таңбаларды мына батырма алып тастайды: <b>«Разрядтылықты азайту»</b> «Басты» қойындысында.</li><li>Ауқымда бірде-бір сан болмаса, мына қате шығады: <code>#ДЕЛ/0!</code>: бөлетін ештеңе жоқ.</li><li>Ауқымға «Жиыны» жолын қоспа: сома орташаға түсіп, оны бұзады.</li></ul>
+      <h3>Математикамен байланысы</h3>
+      <p>Арифметикалық орта: (a₁ + a₂ + … + aₙ) : n. Орташа өте үлкен және өте кіші сандарға сезімтал: бір екілік орташа балды айтарлықтай төмендетеді.</p>
+      </div>
+      <div class="tryxl"><span class="trylab">Кестеде өзің байқап көр</span><div class="xl" data-sheet="avg"></div></div>
+      <p class="remember"><b>Есте сақта:</b> СРЗНАЧ = СУММ : сандар саны. Бос ұяшықтар есептелмейді, нөлдер — есептеледі.</p>
+    </section>
+
+    <!-- МАКС -->
+    <section class="block fcard" data-card="1" hidden>
+      <p class="fname"><code>МАКС()</code> — ең үлкені</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> барлық нәтиженің ішінен рекордты атайтын жарыстағы төреші сияқты. МАКС барлық санды қарап шығып, ең үлкенін көрсетеді.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Айдағы ең жоғары температура:</span> <code>=МАКС(B2:B31)</code></li><li><span>Ұзындыққа ең жақсы секіру:</span> <code>=МАКС(C2:C25)</code></li><li><span>Ең қымбат сатып алу:</span> <code>=МАКС(D2:D20)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> «ең жақсысы» — ең кішісі болса (жүгіру уақыты, баға) → МИН.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>=МАКС(A1:A5)</code></p>
+
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>МАКС барлық аргументтің ішінен ең үлкен санды қайтарады.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=МАКС(сан1; [сан2]; …)</code></p>
+      <h3>Мысалдар</h3>
+      <p class="small-note">Мысалдарға арналған деректер — төмендегі кестеде. Формуланы бас: ол «Өзің байқап көр» кестесінде H10 ұяшығында пайда болады.</p>
+      <p class="ex-cap">Мысалдарға арналған деректер</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th><th>B</th></tr><tr><th>1</th><td class="n">12</td><td class="n">-3</td></tr><tr><th>2</th><td class="n">-5</td><td class="n">-8</td></tr><tr><th>3</th><td class="n">30</td><td class="n">-1</td></tr><tr><th>4</th><td class="n">18</td><td class="t"></td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Нәтиже</th><th>Неге</th></tr><tr><td><button type="button" class="tryf" data-f="=МАКС(3;9;4)" data-cells="{&quot;A1&quot;: &quot;12&quot;, &quot;A2&quot;: &quot;-5&quot;, &quot;A3&quot;: &quot;30&quot;, &quot;A4&quot;: &quot;18&quot;, &quot;B1&quot;: &quot;-3&quot;, &quot;B2&quot;: &quot;-8&quot;, &quot;B3&quot;: &quot;-1&quot;}" title="Төмендегі кестеде ашу">=МАКС(3;9;4)</button></td><td class="r">9</td><td>үш санның ең үлкені</td></tr><tr><td><button type="button" class="tryf" data-f="=МАКС(A1:A4)" data-cells="{&quot;A1&quot;: &quot;12&quot;, &quot;A2&quot;: &quot;-5&quot;, &quot;A3&quot;: &quot;30&quot;, &quot;A4&quot;: &quot;18&quot;, &quot;B1&quot;: &quot;-3&quot;, &quot;B2&quot;: &quot;-8&quot;, &quot;B3&quot;: &quot;-1&quot;}" title="Төмендегі кестеде ашу">=МАКС(A1:A4)</button></td><td class="r">30</td><td>12, −5, 30, 18 сандарының ең үлкені</td></tr><tr><td><button type="button" class="tryf" data-f="=МАКС(B1:B3)" data-cells="{&quot;A1&quot;: &quot;12&quot;, &quot;A2&quot;: &quot;-5&quot;, &quot;A3&quot;: &quot;30&quot;, &quot;A4&quot;: &quot;18&quot;, &quot;B1&quot;: &quot;-3&quot;, &quot;B2&quot;: &quot;-8&quot;, &quot;B3&quot;: &quot;-1&quot;}" title="Төмендегі кестеде ашу">=МАКС(B1:B3)</button></td><td class="r">-1</td><td>теріс сандардың ішінде нөлге жақынырағы ең үлкен</td></tr><tr><td><button type="button" class="tryf" data-f="=МАКС(A1:A4;50)" data-cells="{&quot;A1&quot;: &quot;12&quot;, &quot;A2&quot;: &quot;-5&quot;, &quot;A3&quot;: &quot;30&quot;, &quot;A4&quot;: &quot;18&quot;, &quot;B1&quot;: &quot;-3&quot;, &quot;B2&quot;: &quot;-8&quot;, &quot;B3&quot;: &quot;-1&quot;}" title="Төмендегі кестеде ашу">=МАКС(A1:A4;50)</button></td><td class="r">50</td><td>50 саны да салыстыруға қатысады</td></tr><tr><td><button type="button" class="tryf" data-f="=МАКС(A1:A4)-МИН(A1:A4)" data-cells="{&quot;A1&quot;: &quot;12&quot;, &quot;A2&quot;: &quot;-5&quot;, &quot;A3&quot;: &quot;30&quot;, &quot;A4&quot;: &quot;18&quot;, &quot;B1&quot;: &quot;-3&quot;, &quot;B2&quot;: &quot;-8&quot;, &quot;B3&quot;: &quot;-1&quot;}" title="Төмендегі кестеде ашу">=МАКС(A1:A4)-МИН(A1:A4)</button></td><td class="r">35</td><td>құлаш: −5-тен 30-ға дейін</td></tr></table></div>
+      <h3>Білу маңызды</h3>
+      <ul><li>Мәтін мен бос ұяшықтарды МАКС өткізіп жібереді. Сандар мүлде болмаса, жауап — 0.</li><li>МАКС санның өзін атайды, бірақ оның <b>кімдікі</b> екенін айтпайды. Үздікті табуға ЕСЛИ көмектеседі: <code>=ЕСЛИ(B2=МАКС(B2:B6);"үздік";"")</code>.</li><li>Теріс сандардың ішінде нөлге жақынырағы ең үлкен: <code>=МАКС(-3;-8)</code> −3 береді.</li></ul>
+      <h3>Математикамен байланысы</h3>
+      <p>Қатардың ең үлкен мәні — сан түзуіндегі ең оң жақтағы сан. Қатардың құлашы = ең үлкені − ең кішісі.</p>
+      </div>
+      <div class="tryxl"><span class="trylab">Кестеде өзің байқап көр</span><div class="xl" data-sheet="max"></div></div>
+      <p class="remember"><b>Есте сақта:</b> «көп — жақсы» (секіру, балл) — МАКС; «аз — жақсы» (уақыт, баға) — МИН.</p>
+    </section>
+
+    <!-- МИН -->
+    <section class="block fcard" data-card="2" hidden>
+      <p class="fname"><code>МИН()</code> — ең кішісі</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> ең төмен бағаны іздейтін сатып алушы сияқты. МИН барлық санды қарап шығып, ең кішісін көрсетеді.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Бес дүкендегі ең төмен баға:</span> <code>=МИН(B2:F2)</code></li><li><span>Жүгірудегі ең жақсы уақыт (аз — жақсы):</span> <code>=МИН(C2:C25)</code></li><li><span>Айдағы ең суық түн:</span> <code>=МИН(B2:B31)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> рекорд — «көбірек» болса (секіру, балл) → МАКС.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>=МИН(A1:A5)</code></p>
+
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>МИН барлық аргументтің ішінен ең кіші санды қайтарады.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=МИН(сан1; [сан2]; …)</code></p>
+      <h3>Мысалдар</h3>
+      <p class="ex-cap">Мысалдарға арналған деректер</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th><th>B</th></tr><tr><th>1</th><td class="n">450</td><td class="n">9,8</td></tr><tr><th>2</th><td class="n">380</td><td class="n">10,4</td></tr><tr><th>3</th><td class="n">520</td><td class="n">9,2</td></tr><tr><th>4</th><td class="t"></td><td class="t"></td></tr><tr><th>5</th><td class="t">жоқ</td><td class="t"></td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Нәтиже</th><th>Неге</th></tr><tr><td><button type="button" class="tryf" data-f="=МИН(7;2;5)" data-cells="{&quot;A1&quot;: &quot;450&quot;, &quot;A2&quot;: &quot;380&quot;, &quot;A3&quot;: &quot;520&quot;, &quot;A5&quot;: &quot;жоқ&quot;, &quot;B1&quot;: &quot;9,8&quot;, &quot;B2&quot;: &quot;10,4&quot;, &quot;B3&quot;: &quot;9,2&quot;}" title="Төмендегі кестеде ашу">=МИН(7;2;5)</button></td><td class="r">2</td><td>үш санның ең кішісі</td></tr><tr><td><button type="button" class="tryf" data-f="=МИН(A1:A5)" data-cells="{&quot;A1&quot;: &quot;450&quot;, &quot;A2&quot;: &quot;380&quot;, &quot;A3&quot;: &quot;520&quot;, &quot;A5&quot;: &quot;жоқ&quot;, &quot;B1&quot;: &quot;9,8&quot;, &quot;B2&quot;: &quot;10,4&quot;, &quot;B3&quot;: &quot;9,2&quot;}" title="Төмендегі кестеде ашу">=МИН(A1:A5)</button></td><td class="r">380</td><td>A4 бос ұяшығы және A5-тегі «жоқ» сөзі өткізіледі</td></tr><tr><td><button type="button" class="tryf" data-f="=МИН(B1:B3)" data-cells="{&quot;A1&quot;: &quot;450&quot;, &quot;A2&quot;: &quot;380&quot;, &quot;A3&quot;: &quot;520&quot;, &quot;A5&quot;: &quot;жоқ&quot;, &quot;B1&quot;: &quot;9,8&quot;, &quot;B2&quot;: &quot;10,4&quot;, &quot;B3&quot;: &quot;9,2&quot;}" title="Төмендегі кестеде ашу">=МИН(B1:B3)</button></td><td class="r">9,2</td><td>жүгірудегі ең жақсы уақыт — ең азы</td></tr><tr><td><button type="button" class="tryf" data-f="=МИН(-4;0;3)" data-cells="{&quot;A1&quot;: &quot;450&quot;, &quot;A2&quot;: &quot;380&quot;, &quot;A3&quot;: &quot;520&quot;, &quot;A5&quot;: &quot;жоқ&quot;, &quot;B1&quot;: &quot;9,8&quot;, &quot;B2&quot;: &quot;10,4&quot;, &quot;B3&quot;: &quot;9,2&quot;}" title="Төмендегі кестеде ашу">=МИН(-4;0;3)</button></td><td class="r">-4</td><td>теріс сан нөлден кіші</td></tr><tr><td><button type="button" class="tryf" data-f="=МИН(A1:A3;0)" data-cells="{&quot;A1&quot;: &quot;450&quot;, &quot;A2&quot;: &quot;380&quot;, &quot;A3&quot;: &quot;520&quot;, &quot;A5&quot;: &quot;жоқ&quot;, &quot;B1&quot;: &quot;9,8&quot;, &quot;B2&quot;: &quot;10,4&quot;, &quot;B3&quot;: &quot;9,2&quot;}" title="Төмендегі кестеде ашу">=МИН(A1:A3;0)</button></td><td class="r">0</td><td>нөл — бұл да сан, және ол ең кішісі болып шықты</td></tr></table></div>
+      <h3>Білу маңызды</h3>
+      <ul><li>Бос ұяшықты МИН өткізіп жібереді, ал <b>0-ді есептейді</b>. «Дерек жоқ» орнына 0 жазба, әйтпесе минимум 0 болып кетеді.</li><li>Сандар мүлде болмаса, жауап — 0.</li></ul>
+      <h3>Математикамен байланысы</h3>
+      <p>Қатардың ең кіші мәні — сан түзуіндегі ең сол жақтағы сан: −7 &lt; −2 &lt; 0.</p>
+      </div>
+      <div class="tryxl"><span class="trylab">Кестеде өзің байқап көр</span><div class="xl" data-sheet="min"></div></div>
+      <p class="remember"><b>Есте сақта:</b> бос — нөл емес. Бос ұяшықты МИН көрмейді, ал нөлді ең кіші сан деп есептейді.</p>
+    </section>
+
+    <!-- Шпаргалка -->
+    <section class="block fcard" data-card="3" hidden>
+      <p class="fname">Анықтамалық және қателер</p>
+      <div class="tablewrap">
+        <table class="cheat">
+          <tr><th>Функция</th><th>Не істейді</th><th>Мысал</th><th>Жауап</th></tr>
+          <tr><td><code>СРЗНАЧ</code></td><td>орташа: қосынды : саны</td><td><code>=СРЗНАЧ(2;4;9)</code></td><td>5</td></tr>
+          <tr><td><code>МАКС</code></td><td>ең үлкені</td><td><code>=МАКС(2;4;9)</code></td><td>9</td></tr>
+          <tr><td><code>МИН</code></td><td>ең кішісі</td><td><code>=МИН(2;4;9)</code></td><td>2</td></tr>
+          <tr><td>құлаш</td><td>МАКС − МИН</td><td><code>=МАКС(2;4;9)-МИН(2;4;9)</code></td><td>7</td></tr>
+        </table>
+      </div>
+      <p class="remember"><b>Жиі кездесетін үш қате:</b> ауқымға «Жиыны» жолы кіріп кетті; бос ұяшықтың орнына 0 жазылды; ең жақсы нәтиже ең кішісі болатын жерде МАКС алынды.</p>
+      <h3 class="th-h">Қателер және олардың себептері</h3>
+      <p class="small-note"><b>«Парақта көрсету»</b> төмендегі құмсалғышта дайын парақты ашады: қатесі бар формула мен түзетілгені қатар тұрады. Формулалы батырмалар мысалды H10 ұяшығына қояды.</p>
+      <div class="tablewrap"><table class="th-ex err-table"><tr><th>Қате</th><th>Нені білдіреді</th><th>Неге пайда болады</th><th>Мысал</th><th>Қалай түзетеміз</th></tr>
+<tr><td class="ecode">#ИМЯ?</td><td>кесте сөзді танымады</td><td>Функцияның атауы қате: СРЕДНЕЕ, СРЗНАЧЕНИЕ, орыс нұсқасындағы ағылшынша AVERAGE немесе MAX.</td><td class="eex"><button type="button" class="showex" data-ex="1">Парақта көрсету</button><button type="button" class="tryf" data-f="=СРЕДНЕЕ(1;2;3)">=СРЕДНЕЕ(1;2;3)</button><button type="button" class="tryf" data-f="=AVERAGE(1;2;3)">=AVERAGE(1;2;3)</button><button type="button" class="tryf" data-f="=МАКСИМУМ(1;2;3)">=МАКСИМУМ(1;2;3)</button></td><td>Дәл жазу: СРЗНАЧ, МАКС, МИН немесе батырмалармен қою.</td></tr>
+<tr><td class="ecode">#ДЕЛ/0!</td><td>орташаны есептейтін ештеңе жоқ</td><td>СРЗНАЧ ауқымында бірде-бір сан жоқ: барлық ұяшық бос немесе мәтінді.</td><td class="eex"><button type="button" class="showex" data-ex="2">Парақта көрсету</button><button type="button" class="tryf" data-f="=СРЗНАЧ(A1:A3)">=СРЗНАЧ(A1:A3)</button></td><td>Ауқымды тексеру: онда сандар болуы керек.</td></tr>
+<tr><td class="ecode">Жазу қатесі</td><td>формула қате жазылған</td><td>«:» немесе «;» орнына үтір; жақша жабылмаған. Excel мұндай формуланы енгізуге рұқсат бермейді, біздің кестеде ұяшық мынаны көрсетеді: <code>#ОШИБКА</code> және себебін айтады.</td><td class="eex"><button type="button" class="showex" data-ex="3">Парақта көрсету</button><button type="button" class="tryf" data-f="=СРЗНАЧ(2,4,9)">=СРЗНАЧ(2,4,9)</button><button type="button" class="tryf" data-f="=МАКС(B2:B8">=МАКС(B2:B8</button></td><td>Ауқым — қос нүкте арқылы, жеке сандар — «;» арқылы, жақшаларды жабу керек.</td></tr>
+<tr><td class="ecode">Логикалық қате</td><td>экранда қате жоқ, бірақ жауап дұрыс емес</td><td>Ауқымға «Жиыны» жолы кіріп кетті; бос ұяшықтың орнына 0 жазылды; жүгіру уақыты үшін МИН орнына МАКС алынды; СРЗНАЧ орнына СУММ.</td><td class="eex"><button type="button" class="showex" data-ex="4">Парақта көрсету</button></td><td>Ауқымға қай ұяшықтар кіретінін тексеріп, осы тапсырмада «ең жақсы» нені білдіретінін ойлану.</td></tr>
+</table></div>
+      <div class="tryxl"><span class="trylab">Құмсалғыш: барлық функциялар бірге</span><div class="xl" data-sheet="all"></div></div>
+    </section>
+
+    <div class="next">
+      <button class="btn" type="button" id="fPrev">← Артқа</button>
+      <button class="btn main" type="button" id="fNext">Әрі қарай: МАКС →</button>
+    </div>
+  </div>
+
+  <!-- Этап 6: какая функция подходит -->
+  <div class="panel" id="match" role="tabpanel" aria-labelledby="tab-match" hidden>
+    <div>
+      <h1>Қай функция сәйкес келеді?</h1>
+      <p class="lead">Жағдайды оқып, функцияны таңда: <b>СРЗНАЧ</b> — «орташа есеппен», <b>МАКС</b> — ең үлкені, <b>МИН</b> — ең кішісі, <b>СУММ</b> — «барлығы бірге». Абайла: «ең жақсы нәтиже» ең үлкені де, ең кішісі де болуы мүмкін.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="mtBar"></i></div><span class="pnum" id="mtNum"></span></div>
+      <p class="small" id="mtFirst"></p>
+    </section>
+    <div class="mt-list" id="mtList"></div>
+    <section class="block mt-done" id="mtDone" hidden>
+      <h2>Қорытынды</h2>
+      <p class="plain" id="mtDoneText"></p>
+      <button class="btn" type="button" id="mtRetry">Қайта өту</button>
+    </section>
+    <div class="next">
+      <button class="btn" type="button" data-go="learn">← Жаңа тақырып</button>
+      <button class="btn" type="button" id="breakBtn2">Сергіту сәті · 1 мин</button>
+      <button class="btn main" type="button" data-go="practice">Әрі қарай: практика →</button>
+    </div>
+  </div>
+
+  <!-- Этап 7: практика -->
+  <div class="panel" id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+    <div>
+      <h1>Практика</h1>
+      <p class="lead">Алдымен жаңа функцияларсыз сергіту: қосынды, «қолмен» орташа және салыстыру. Содан кейін үш деңгейдің тапсырмалары — оңайдан күрделіге. Алдыңғы тапсырма шешілгенде келесісі ашылады. Кесте формуланы басқа сандармен де тексереді.</p>
+    </div>
+    <section class="block">
+      <div class="lv-tabs" role="tablist" aria-label="Деңгейлер">
+        <button type="button" class="lv" data-lv="0" role="tab"><span class="lv-name">0 · Қолмен</span><small>барлығына арналған жаттығу</small><span class="lv-c" id="lvc0"></span></button>
+        <button type="button" class="lv" data-lv="A" role="tab"><span class="lv-name">A · Базалық</span><small>барлығы үшін</small><span class="lv-c" id="lvcA"></span></button>
+        <button type="button" class="lv" data-lv="B" role="tab"><span class="lv-name">B · Орташа</span><small>көпшілігі үшін</small><span class="lv-c" id="lvcB"></span></button>
+        <button type="button" class="lv" data-lv="C" role="tab"><span class="lv-name">C · Жоғары</span><small>кейбіреулер үшін</small><span class="lv-c" id="lvcC"></span></button>
+      </div>
+      <p class="lv-desc" id="lvDesc"></p>
+      <div class="progress"><div class="pbar"><i id="prBar"></i></div><span class="pnum" id="prNum"></span></div>
+    </section>
+    <div class="panel" id="prTasks"></div>
+    <div class="next">
+      <button class="btn" type="button" data-go="match">← Қай функция?</button>
+      <button class="btn" type="button" id="lvNext"></button>
+      <button class="btn main" type="button" data-go="excel">Әрі қарай: Excel-де жұмыс →</button>
+    </div>
+  </div>
+
+  <!-- Этап 8: работа в Excel -->
+  <div class="panel" id="excel" role="tabpanel" aria-labelledby="tab-excel" hidden>
+    <div>
+      <h1>Excel-де жұмыс</h1>
+      <p class="lead">Тапсырмалар Excel файлында орындалады: <b>«Өзін-өзі_тексеру_статистика.xlsx»</b> — оны мұғалім береді. Әр парақта (S1–S5) деректері бар кесте дайын тұр. Формулаларды сары ұяшықтарға жаз — оң жақтағы «Тексеру» бағанында Excel өзі «✓ дұрыс» деп көрсетеді немесе нені түзету керегін айтады. Мұнда — тапсырмалардың шарттары.</p>
+    </div>
+    <section class="block">
+      <div class="ex-pills" id="exPills" role="tablist" aria-label="Сценарийлер"></div>
+    </section>
+    <div class="panel" id="exList"></div>
+    <div class="next"><button class="btn" type="button" data-go="practice">← Практика</button><button class="btn main" type="button" data-go="reflect">Сабақ қорытындысы →</button></div>
+  </div>
+
+  <!-- Этап 9: итоги урока -->
+  <div class="panel" id="reflect" role="tabpanel" aria-labelledby="tab-reflect" hidden>
+    <div>
+      <h1>Сабақ қорытындысы</h1>
+      <p class="lead">Сабақтың басында не жазғаныңа орал да, не шыққанын шын көңілмен белгіле.</p>
+    </div>
+
+    <section class="block">
+      <h2>Менің күтулерім · сабақтың басында</h2>
+      <p class="mine" id="refExp"></p>
+      <fieldset class="seg" id="segExp">
+        <legend>Күткенім орындалды ма?</legend>
+        <label><input type="radio" name="r-exp" id="r-exp-2" value="2"><span>Иә</span></label>
+        <label><input type="radio" name="r-exp" id="r-exp-1" value="1"><span>Ішінара</span></label>
+        <label><input type="radio" name="r-exp" id="r-exp-0" value="0"><span>Жоқ</span></label>
+      </fieldset>
+    </section>
+
+    <section class="block">
+      <h2>Сабақ мақсаты</h2>
+      <p class="plain" id="refGoal"></p>
+    </section>
+
+    <section class="block">
+      <h2>Күтілетін нәтижелер · қол жеткіздім бе?</h2>
+      <div id="refRes"></div>
+    </section>
+
+    <section class="block">
+      <h2>Бағалау критерийлері · менің дескрипторларым</h2>
+      <div id="refDesc"></div>
+    </section>
+
+    <section class="block">
+      <h2>Бұл маған қайда пайдалы</h2>
+      <label for="refUse" class="q">Өз өміріңнен бір мысал келтір: қай функция және не үшін?</label>
+      <p class="small" id="useReq" hidden>Сабақтың басында сен бұл қайда пайдалы екенін түсінгің келді. Мысал келтіре алсаң — күткенің орындалды деген сөз.</p>
+      <textarea id="refUse" rows="2" placeholder="Мысалы: СРЗНАЧ — өз орташа балымды есептеп, тоқсандық баға қандай болатынын білу үшін"></textarea>
+    </section>
+
+    <section class="block">
+      <h2>Менің пікірім</h2>
+      <label for="refNote" class="q">Не жақсы шықты? Не қиын болды?</label>
+      <textarea id="refNote" rows="3" placeholder="Мысалы: МАКС оңай болды, бос ұяшық пен нөл неге әртүрлі орташа беретінін түсіну қиын болды…"></textarea>
+      <div class="exp-actions">
+        <button class="btn main" type="button" id="refSave">Қорытындыны сақтау</button>
+        <span class="msg" id="refMsg" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="block summary" id="refSummary" hidden>
+      <h2>Менің қорытындым</h2>
+      <div id="refSumBody"></div>
+    </section>
+
+    <div class="next"><button class="btn" type="button" data-go="goal">← Тақырып және мақсат</button><button class="btn main" type="button" data-go="hw">Үй тапсырмасы →</button></div>
+  </div>
+
+  <!-- Этап 10: домашнее задание -->
+  <div class="panel" id="hw" role="tabpanel" aria-labelledby="tab-hw" hidden>
+    <div>
+      <h1>Үй тапсырмасы</h1>
+      <p class="lead">Өз деңгейіңнің тапсырмасын таңда — үшеуін де орындауға болады. Сабақты үйде сол сілтеме арқылы аш: кесте формуланы сабақтағыдай тексереді.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="hwBar"></i></div><span class="pnum" id="hwNum"></span></div>
+      <p class="small">Міндетті: практиканы қай деңгейде аяқтасаң, сол деңгейдің тапсырмасы. Жоғары деңгейлер — қалауың бойынша.</p>
+    </section>
+    <div class="panel" id="hwTasks"></div>
+    <div class="next"><button class="btn" type="button" data-go="reflect">← Сабақ қорытындысы</button><span></span></div>
+  </div>
+</div>
+
+<div class="overlay" id="breakOv" hidden>
+  <div class="lg-card brk" role="dialog" aria-modal="true" aria-labelledby="brkTitle">
+    <p class="eyebrow" id="brkTitle">Сергіту сәті · экраннан демал</p>
+    <p class="brk-step" id="brkStep"></p>
+    <p class="brk-text" id="brkText"></p>
+    <div class="brk-timer"><output id="brkTime">15</output><span>сек</span></div>
+    <div class="pbar"><i id="brkBar"></i></div>
+    <div class="lg-row"><button type="button" class="btn" id="brkSkip">Жаттығуды өткізіп жіберу</button><button type="button" class="btn" id="brkEnd">Аяқтау</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="login" hidden>
+  <div class="lg-card" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
+    <p class="eyebrow">Информатика · 8 сынып</p>
+    <h2 class="lg-title" id="lgTitle">Статистикалық функциялар</h2>
+    <div id="loginBody"></div>
+  </div>
+</div>
+<div class="overlay" id="qModal" hidden>
+  <div class="lg-card q-card" role="dialog" aria-modal="true" aria-labelledby="qTitle">
+    <p class="eyebrow" id="qTitle">Мұғалімнің сұрағы</p>
+    <p class="q-text" id="qText"></p>
+    <textarea id="qAns" rows="4" maxlength="1000" placeholder="Жауапты жаз…"></textarea>
+    <p class="lg-err" id="qErr" aria-live="polite"></p>
+    <button type="button" class="btn main" id="qSend">Жауапты жіберу</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+</template>
 <script>
+/* Язык урока: РУС | ҚАЗ. Выбор хранится в браузере; переключение перезагружает страницу. */
+(function () {
+  var TITLES = { ru: "Статистические функции · 8 класс", kz: "Статистикалық функциялар · 8 сынып" };
+  var lang = "ru";
+  try {
+    var h = location.hash.slice(1);
+    lang = h === "kz" || h === "ru" ? h : localStorage.getItem("fizmat-lang") || "ru";
+  } catch (e) {}
+  if (lang !== "kz") lang = "ru";
+  document.documentElement.lang = lang === "kz" ? "kk" : "ru";
+  document.title = TITLES[lang];
+  var app = document.getElementById("app");
+  app.parentNode.replaceChild(document.getElementById("t-" + lang).content.cloneNode(true), app);
+  function sw() {
+    var s = document.createElement("span");
+    s.className = "lang-sw"; s.setAttribute("role", "group"); s.setAttribute("aria-label", "Тіл / Язык");
+    [["ru", "РУС"], ["kz", "ҚАЗ"]].forEach(function (p) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = p[1]; b.setAttribute("aria-pressed", String(p[0] === lang));
+      b.addEventListener("click", function () {
+        if (p[0] === lang) return;
+        try { localStorage.setItem("fizmat-lang", p[0]); } catch (e) {}
+        location.hash = p[0];
+        location.reload();
+      });
+      s.appendChild(b);
+    });
+    return s;
+  }
+  var tools = document.querySelector(".top .tools");
+  if (tools) tools.insertBefore(sw(), tools.firstChild);
+  var card = document.querySelector("#login .lg-card");
+  if (card) card.insertBefore(sw(), card.firstChild);
+  (lang === "kz" ? L_kz : L_ru)();
+})();
+function L_ru() {
+
 /* Урок запускается сразу; в онлайн-версии — после того, как ученик выбрал себя */
 const ONLINE = !!(window.google && window.google.script && window.google.script.run);
 let NS = "";
@@ -949,7 +1472,8 @@ const TASKS = [
     opts: [["меньше", "Ш", "Посмотри на субботу: самый тёплый день и самая большая продажа."], ["больше", "Ц"], ["столько же", "Щ", "Продажи меняются: в среду 20 штук, в субботу 90."], ["не связано", "Ж", "Сравни: самый холодный день — среда — и самая маленькая продажа тоже в среду."]] }
 ];
 TASKS.forEach(t => { const o = t.opts.find(x => x[0] === t.ans); t.letter = o[1]; });
-const BY_LETTER = Object.fromEntries(TASKS.map(t => [t.letter, t]));
+/* буква может открываться группой («УН»): каждая буква листа знает своё задание */
+const BY_LETTER = {}; TASKS.forEach(t => [...t.letter].forEach(ch => { BY_LETTER[ch] = t; }));
 const ANSWER = ROWS.join("");
 const COLS = "ABCDEFGHIJKLMN";
 const KEY = "topic-l3";
@@ -989,7 +1513,7 @@ function buildGrid() {
       const ch = row[i];
       if (!ch) { html += "<td class=\"gap\"></td>"; continue; }
       const t = BY_LETTER[ch];
-      html += `<td data-n="${t.n}" aria-label="ячейка ${COLS[i]}${ri + 1}, вопрос ${t.n}"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
+      html += `<td data-n="${t.n}" data-ch="${ch}" aria-label="ячейка ${COLS[i]}${ri + 1}, вопрос ${t.n}"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
     }
     html += "</tr>";
   });
@@ -1015,7 +1539,7 @@ function render(animateN) {
     const open = solved.has(n), wrong = !!p && !open, o = wrong ? t.opts.find(x => x[0] === p) : null;
     td.classList.toggle("open", open);
     td.classList.toggle("wrongl", wrong);
-    td.querySelector(".ch").textContent = open ? t.letter : o ? o[1] : "?";
+    td.querySelector(".ch").textContent = open ? td.dataset.ch : o ? o[1][[...t.letter].indexOf(td.dataset.ch)] : "?";
     if (p && n === animateN) { td.classList.remove("flip"); void td.offsetWidth; td.classList.add("flip"); }
   });
   TASKS.forEach(t => {
@@ -1058,7 +1582,7 @@ document.getElementById("tasks").addEventListener("click", e => {
   const b = e.target.closest(".fork-b"); if (b && !b.disabled) choose(+b.dataset.n, b.dataset.b);
 });
 
-function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯA-Z]/g, ""); }
+function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯЁӘҒҚҢӨҰҮҺІA-Z]/g, ""); }
 function guess() {
   const inp = document.getElementById("guessIn"), msg = document.getElementById("guessMsg");
   inp.classList.remove("wrong");
@@ -2583,7 +3107,7 @@ function loginUI() {
   const go = () => {
     const c = normClass(document.getElementById("lgCls").value), n = normName(document.getElementById("lgName").value);
     const err = document.getElementById("lgErr");
-    if (!/^\d{1,2}[А-ЯЁ]?$/.test(c)) { err.textContent = "Класс пишется так: цифра и буква, например 8А."; return; }
+    if (!/^\d{1,2}[А-ЯЁӘҒҚҢӨҰҮҺІ]?$/.test(c)) { err.textContent = "Класс пишется так: цифра и буква, например 8А."; return; }
     if (n.split(" ").length < 2 || n.length < 5) { err.textContent = "Впиши фамилию и имя через пробел."; return; }
     err.textContent = "Сохраняю…";
     document.getElementById("lgGo").disabled = true;
@@ -2675,6 +3199,1777 @@ else {
   document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
 }
 
+
+}
+function L_kz() {
+
+/* Урок запускается сразу; в онлайн-версии — после того, как ученик выбрал себя */
+const ONLINE = !!(window.google && window.google.script && window.google.script.run);
+let NS = "";
+function startLesson() {
+
+/* Тема в двух строках листа; буквы открываются ответами на вопросы детектива по двум диаграммам */
+const ROWS = ["СТАТИСТИКАЛЫҚ", "ФУНКЦИЯЛАР"];
+const DAYS = ["Дс", "Сс", "Ср", "Бс", "Жм", "Сн", "Жс"];
+const CHARTS = [
+  { id: "t", title: "Аптадағы температура, °C", unit: "°C", values: [12, 15, 9, 18, 21, 24, 20], max: 30, step: 5 },
+  { id: "i", title: "Сатылған балмұздақ, дана", unit: "дана", values: [30, 45, 20, 60, 75, 90, 65], max: 100, step: 20 }
+];
+/* opts: [вариант, буква, пояснение для неверного варианта] — верный вариант в ans */
+const TASKS = [
+  { n: 1, chart: "t", q: "Қай күні ең жылы болды?", ans: "Сн",
+    opts: [["Жм", "Р", "Жұмада 21°, ал одан да жылы күн бар."], ["Сн", "С"], ["Жс", "Л", "Жексенбіде 20°, ал одан да жылы күн бар."], ["Бс", "М", "Бейсенбіде 18° — бұл ең биік баған емес."]] },
+  { n: 2, chart: "t", q: "Аптадағы ең жоғары температура қандай?", ans: "24",
+    opts: [["21", "Ш", "21° — жұмада, бірақ бұл ең биік баған емес."], ["20", "В", "20° — жексенбі. Ең биік бағанды тап."], ["24", "Т"], ["119", "Ж", "119 — бұл барлық температураның қосындысы, ең жоғарысы емес."]] },
+  { n: 3, chart: "t", q: "Қай күні ең суық болды?", ans: "Ср",
+    opts: [["Дс", "О", "Дүйсенбіде 12°, ал одан да суық күн бар."], ["Ср", "А"], ["Сс", "Я", "Сейсенбіде 15°. Ең аласа бағанды тап."], ["Жс", "Э", "Жексенбіде 20° — бұл жылы күндердің бірі."]] },
+  { n: 4, chart: "t", q: "Аптадағы ең төмен температура қандай?", ans: "9",
+    opts: [["12", "Ы", "12° — дүйсенбі, бірақ одан да суық күн бар."], ["0", "Й", "Диаграммада мұндай температура жоқ: бағандардың үстіндегі жазуларға қара."], ["15", "Ю", "15° — сейсенбі. Ең аласа бағанды тап."], ["9", "И"]] },
+  { n: 5, chart: "t", q: "Аптада орташа есеппен температура қандай болды? Жеті температураны қосып, 7-ге бөл.", ans: "17",
+    opts: [["119", "Б", "119 — бұл қосынды. Оны әлі күн санына — 7-ге бөлу керек."], ["17", "К"], ["18", "Щ", "18° — бұл бейсенбі. Орташа барлық күн бойынша есептеледі: қосынды : 7."], ["24", "Ж", "24° — ең жылы күн, орташа емес."]] },
+  { n: 6, chart: "t", q: "Ең жылы күн ең суық күннен қанша градусқа жылы?", ans: "15",
+    opts: [["33", "З", "Температураларды қоспайды, алады: ең жоғарысы − ең төмені."], ["15", "Л"], ["12", "О", "Ең жоғары және ең төмен температураны тауып, біреуінен екіншісін ал."], ["3", "Г", "Дәл ең жылы және ең суық күнді салыстыр."]] },
+  { n: 7, chart: "t", q: "Неше күн температура орташадан (17°) жоғары болды?", ans: "4",
+    opts: [["3", "Г", "17°-тан жоғары барлық бағанды қайта сана: 18, 21, 24, 20."], ["4", "Ы"], ["5", "Х", "17°-тан жоғары бағандар — тек 18, 21, 24 және 20."], ["7", "Л", "Барлық күн орташадан жылы емес: 12, 15 және 9 — төмен."]] },
+  { n: 8, chart: "i", q: "Қай күні балмұздақ ең көп сатылды?", ans: "Сн",
+    opts: [["Жм", "В", "Жұмада 75 дана, ал одан да көп сатылған күн бар."], ["Жс", "Д", "Жексенбіде 65 дана. Ең биік бағанды тап."], ["Сн", "Қ"], ["Бс", "П", "Бейсенбіде 60 дана — бұл ең биік баған емес."]] },
+  { n: 9, chart: "i", q: "Күніне орташа есеппен қанша балмұздақ сатылды? Барлық сатылымды қосып, 7-ге бөл.", ans: "55",
+    opts: [["385", "Ы", "385 — бұл апталық қосынды. Оны 7 күнге бөл."], ["90", "Ю", "90 — ең үлкен сатылым, орташа емес."], ["55", "Ф"], ["60", "О", "60 — бейсенбідегі сатылым. Орташа барлық күн бойынша есептеледі."]] },
+  { n: 10, chart: "i", q: "Аптадағы ең аз сатылым қандай?", ans: "20",
+    opts: [["30", "ҮМ", "30 — дүйсенбі, бірақ азырақ сатылған күн бар."], ["20", "УН"], ["0", "ӨП", "Диаграммада сатылымсыз күн жоқ: жазуларға қара."], ["45", "ЮЛ", "45 — сейсенбі. Ең аласа бағанды тап."]] },
+  { n: 11, chart: "both", q: "Екі диаграмманы салыстыр. Далада жылырақ болғанда балмұздақ … сатылады.", ans: "көбірек",
+    opts: [["азырақ", "ШӘП", "Сенбіге қара: ең жылы күн және ең үлкен сатылым."], ["көбірек", "ЦЯР"], ["сонша", "ЩЕЗ", "Сатылым өзгереді: сәрсенбіде 20 дана, сенбіде 90."], ["байланысы жоқ", "ЖІВ", "Салыстыр: ең суық күн — сәрсенбі, ал ең аз сатылым да сәрсенбіде."]] }
+];
+TASKS.forEach(t => { const o = t.opts.find(x => x[0] === t.ans); t.letter = o[1]; });
+/* буква может открываться группой («УН»): каждая буква листа знает своё задание */
+const BY_LETTER = {}; TASKS.forEach(t => [...t.letter].forEach(ch => { BY_LETTER[ch] = t; }));
+const ANSWER = ROWS.join("");
+const COLS = "ABCDEFGHIJKLMN";
+const KEY = "topic-l3-kz";
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(NS + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} if (window.__onStore) window.__onStore(k); },
+  del(k) { try { localStorage.removeItem(NS + k); } catch (e) {} if (window.__onStore) window.__onStore(k); }
+};
+
+/* picks: номер вопроса → выбранный вариант */
+let picks = store.get(KEY, {});
+let solved = new Set(TASKS.filter(t => picks[t.n] === t.ans).map(t => t.n));
+
+/* Столбчатая диаграмма: один ряд, подписи значений над столбиками, бледная сетка */
+function barChart(c) {
+  const W = 360, H = 220, L = 34, R = 8, T = 22, B = 26, iw = W - L - R, ih = H - T - B, slot = iw / c.values.length, bw = slot * .58;
+  const y = v => T + ih - v / c.max * ih;
+  let g = "";
+  for (let v = 0; v <= c.max; v += c.step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" class="ch-grid"/><text x="${L - 6}" y="${y(v) + 4}" class="ch-ax" text-anchor="end">${v}</text>`;
+  const bars = c.values.map((v, i) => {
+    const x = L + i * slot + (slot - bw) / 2, top = y(v), r = 4, base = y(0);
+    const d = `M${x},${base}V${top + r}Q${x},${top} ${x + r},${top}H${x + bw - r}Q${x + bw},${top} ${x + bw},${top + r}V${base}Z`;
+    return `<g class="ch-bar"><title>${DAYS[i]}: ${v} ${c.unit}</title><rect x="${L + i * slot}" y="${T}" width="${slot}" height="${ih + B}" fill="transparent"/><path d="${d}"/><text x="${x + bw / 2}" y="${top - 5}" class="ch-val" text-anchor="middle">${v}</text><text x="${x + bw / 2}" y="${H - 8}" class="ch-ax" text-anchor="middle">${DAYS[i]}</text></g>`;
+  }).join("");
+  return `<figure class="chart" id="chart-${c.id}"><figcaption>${c.title}</figcaption><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${c.title}: ${c.values.map((v, i) => DAYS[i] + " " + v).join(", ")}">${g}<line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" class="ch-base"/>${bars}</svg>
+    <details><summary>Кестемен көрсету</summary><table class="mini"><tr>${DAYS.map(d => `<th>${d}</th>`).join("")}</tr><tr>${c.values.map(v => `<td>${v}</td>`).join("")}</tr></table></details></figure>`;
+}
+document.getElementById("charts").innerHTML = CHARTS.map(barChart).join("");
+
+function buildGrid() {
+  const width = Math.max(...ROWS.map(r => r.length));
+  let html = "<tr><th class=\"rh\"></th>" + [...COLS.slice(0, width)].map(c => `<th>${c}</th>`).join("") + "</tr>";
+  ROWS.forEach((row, ri) => {
+    html += `<tr><th class="rh">${ri + 1}</th>`;
+    for (let i = 0; i < width; i++) {
+      const ch = row[i];
+      if (!ch) { html += "<td class=\"gap\"></td>"; continue; }
+      const t = BY_LETTER[ch];
+      html += `<td data-n="${t.n}" data-ch="${ch}" aria-label="${COLS[i]}${ri + 1} ұяшығы, ${t.n}-сұрақ"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
+    }
+    html += "</tr>";
+  });
+  document.getElementById("grid").innerHTML = html;
+}
+
+function buildTasks() {
+  const where = { t: "«Температура» диаграммасы", i: "«Балмұздақ» диаграммасы", both: "екі диаграмма да" };
+  document.getElementById("tasks").innerHTML = TASKS.map(t => `
+    <div class="task fork" id="task-${t.n}">
+      <div class="hd"><span class="tn">Сұрақ ${t.n}</span><span class="fn">${where[t.chart]}</span></div>
+      <p class="fork-q">${t.q}</p>
+      <div class="fork-br opts4" role="group" aria-label="Сұрақтың жауабы ${t.n}">
+        ${t.opts.map(o => `<button type="button" class="fork-b" data-n="${t.n}" data-b="${o[0]}" aria-pressed="false"><span>${o[0]}</span><span class="lt">?</span></button>`).join("")}
+      </div>
+      <p class="msg" id="msg-${t.n}" aria-live="polite"></p>
+    </div>`).join("");
+}
+
+function render(animateN) {
+  document.querySelectorAll("#grid td[data-n]").forEach(td => {
+    const n = +td.dataset.n, t = TASKS[n - 1], p = picks[n];
+    const open = solved.has(n), wrong = !!p && !open, o = wrong ? t.opts.find(x => x[0] === p) : null;
+    td.classList.toggle("open", open);
+    td.classList.toggle("wrongl", wrong);
+    td.querySelector(".ch").textContent = open ? td.dataset.ch : o ? o[1][[...t.letter].indexOf(td.dataset.ch)] : "?";
+    if (p && n === animateN) { td.classList.remove("flip"); void td.offsetWidth; td.classList.add("flip"); }
+  });
+  TASKS.forEach(t => {
+    const box = document.getElementById("task-" + t.n), p = picks[t.n], done = solved.has(t.n);
+    box.classList.toggle("done", done);
+    box.classList.toggle("wrongp", !!p && !done);
+    box.querySelectorAll(".fork-b").forEach(b => {
+      const mine = b.dataset.b === p, o = t.opts.find(x => x[0] === b.dataset.b);
+      b.setAttribute("aria-pressed", mine);
+      b.classList.toggle("ok", mine && done);
+      b.classList.toggle("no", mine && !done);
+      b.querySelector(".lt").textContent = mine ? o[1] : "?";
+      b.disabled = done;
+    });
+    const msg = document.getElementById("msg-" + t.n);
+    const o = p ? t.opts.find(x => x[0] === p) : null;
+    if (done) { msg.className = "msg ok"; msg.textContent = `Дұрыс! «${t.letter}» әрпі ашылды.`; }
+    else if (o) { msg.className = "msg bad"; msg.textContent = `«${o[1]}» әрпі сөзді бұзады. ${o[2] || ""} Басқа жауапты таңда.`; }
+    else { msg.className = "msg"; msg.textContent = ""; }
+  });
+  const total = ANSWER.length;
+  const open = [...ANSWER].filter(ch => solved.has(BY_LETTER[ch].n)).length;
+  document.getElementById("pbar").style.width = (open / total * 100) + "%";
+  document.getElementById("pnum").textContent = `Ашылған әріптер: ${open} / ${total}`;
+  if (open === total) unlock();
+}
+
+function choose(n, b) {
+  const t = TASKS[n - 1];
+  if (solved.has(n)) return;
+  picks[n] = b;
+  const ok = b === t.ans;
+  if (ok) solved.add(n);
+  if (window.__onAttempt) window.__onAttempt("2. Разгадка темы", "Вопрос " + n, b, ok, ok ? "" : "верно: " + t.ans);
+  store.set(KEY, picks);
+  render(n);
+}
+
+document.getElementById("tasks").addEventListener("click", e => {
+  const b = e.target.closest(".fork-b"); if (b && !b.disabled) choose(+b.dataset.n, b.dataset.b);
+});
+
+function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯЁӘҒҚҢӨҰҮҺІA-Z]/g, ""); }
+function guess() {
+  const inp = document.getElementById("guessIn"), msg = document.getElementById("guessMsg");
+  inp.classList.remove("wrong");
+  if (norm(inp.value) === ANSWER) {
+    TASKS.forEach(t => { picks[t.n] = t.ans; solved.add(t.n); }); store.set(KEY, picks);
+    msg.className = "msg ok"; msg.textContent = "Дұрыс! Тақырып ашылды.";
+    render();
+  } else {
+    void inp.offsetWidth; inp.classList.add("wrong");
+    msg.className = "msg bad"; msg.textContent = "Әзірге олай емес. Тағы бірнеше әріп ашыңыз.";
+  }
+}
+document.getElementById("guessBtn").addEventListener("click", guess);
+document.getElementById("guessIn").addEventListener("keydown", e => { if (e.key === "Enter") guess(); });
+
+let unlocked = false;
+function unlock() {
+  const tab = document.getElementById("tab-goal");
+  tab.disabled = false;
+  if (unlocked) return;
+  unlocked = true;
+  setTimeout(() => showExp(store.get(EXP_KEY, "")), 0);  // после загрузки остальных частей урока
+  document.getElementById("guessMsg").className = "msg ok";
+  document.getElementById("guessMsg").textContent = "Тақырып анықталды! Сабақтың тақырыбы мен мақсатын ашамыз…";
+  setTimeout(() => { show("goal"); window.scrollTo({ top: 0, behavior: "smooth" }); }, 1400);
+}
+
+const PANELS = ["review", "puzzle", "goal", "actual", "learn", "match", "practice", "excel", "reflect", "hw"];
+function show(id) {
+  if (window.__onStage) window.__onStage(id);
+  if (id === "reflect") fillReflect();
+  PANELS.forEach(p => {
+    document.getElementById(p).hidden = p !== id;
+    document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
+  });
+}
+document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => { if (!b.disabled) show(b.getAttribute("aria-controls")); }));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  picks = {}; solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
+  refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refUse").value = ""; document.getElementById("refSummary").hidden = true;
+  document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
+  expText.value = ""; showExp("");
+  document.getElementById("tab-goal").disabled = true;
+  document.getElementById("guessIn").value = "";
+  document.getElementById("guessMsg").textContent = "";
+  buildTasks(); render(); show("puzzle");
+});
+
+const bigBtn = document.getElementById("bigBtn");
+function setBig(on) { document.documentElement.classList.toggle("big", on); bigBtn.setAttribute("aria-pressed", on); store.set("big", on); }
+bigBtn.addEventListener("click", () => setBig(!document.documentElement.classList.contains("big")));
+setBig(store.get("big", false));
+document.getElementById("fsBtn").addEventListener("click", () => {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  } catch (e) {}
+});
+
+/* Ожидания ученика: пока хранятся только в его браузере */
+const EXP_KEY = "expect-l3";
+const expText = document.getElementById("expText");
+function showExp(text) {
+  // этапы 4–10 открыты, только когда тема разгадана и ожидания записаны
+  const has = !!text && [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+  document.getElementById("expForm").hidden = has;
+  document.getElementById("expSaved").hidden = !has;
+  document.getElementById("expShow").textContent = text || "";
+  document.getElementById("afterExp").hidden = !has;
+  ["reflect", "actual", "learn", "match", "practice", "excel", "hw"].forEach(p => { document.getElementById("tab-" + p).disabled = !has; });
+  document.getElementById("toLearn").hidden = !has;
+}
+
+/* Новая тема: карточки функций по одной и живые примеры */
+const F_NAMES = ["СРЗНАЧ", "МАКС", "МИН", "Анықтамалық және қателер"];
+const F_LAST = F_NAMES.length - 1;
+let fCur = 0;
+function showCard(i) {
+  fCur = i;
+  document.querySelectorAll(".fcard").forEach(c => { c.hidden = +c.dataset.card !== i; });
+  document.querySelectorAll(".fpill").forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
+  document.getElementById("fPrev").textContent = i === 0 ? "← Еске түсірейік" : "← Артқа";
+  document.getElementById("fNext").textContent = i === F_LAST ? "Әрі қарай: қай функция? →" : "Әрі қарай: " + F_NAMES[i + 1] + " →";
+}
+document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
+document.getElementById("fPrev").addEventListener("click", () => { if (fCur === 0) show("actual"); else showCard(fCur - 1); });
+document.getElementById("fNext").addEventListener("click", () => {
+  if (fCur === F_LAST) { show("match"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
+});
+
+/* Мини-таблица как в Excel: СРЗНАЧ, МАКС, МИН, а также функции прошлых уроков (СУММ, ЕСЛИ, И, ИЛИ, НЕ, сравнения) */
+const XL_COLS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const XL_EN = { SUM: "СУММ", SQRT: "КОРЕНЬ", POWER: "СТЕПЕНЬ", SUMIF: "СУММЕСЛИ", IF: "ЕСЛИ", AND: "И", OR: "ИЛИ", NOT: "НЕ", AVERAGE: "СРЗНАЧ", MAX: "МАКС", MIN: "МИН" };
+const XL_ERR = {
+  "#ЧИСЛО!": "Неге: мұндай санды есептеу мүмкін емес — теріс саннан түбір, 0-дің 0 дәрежесі, теріс санның бөлшек дәрежесі немесе тым үлкен нәтиже. Қалай түзетеміз: сандардың таңбасы мен шамасын тексер; түбір астындағы минусты ABS алып тастайды.",
+  "#ИМЯ?": "Неге: кесте формуладағы сөзді танымады — тырнақшасыз мәтін (ЕСЛИ ішінде былай жазылады: \"есептелді\"), функция атауында қате, ағылшынша атау немесе ұяшық адресінде кириллица әрпі. Қалай түзетеміз: мәтінді тырнақшаға ал, жазылуын тексер немесе функцияны «Қою» батырмасымен қой.",
+  "#ЗНАЧ!": "Неге: кесте сан немесе шарт күтті, ал мәтін алды. Мысалы, ЕСЛИ, И, ИЛИ немесе НЕ ішінде салыстырудың орнына сөз тұр немесе жазуға сан қосылып жатыр. Қалай түзетеміз: шартта салыстыру болуы керек, мысалы, B2>=50 немесе A1=\"иә\".",
+  "#ДЕЛ/0!": "Неге: нөлге бөлуге болмайды. СРЗНАЧ үшін бұл ауқымда бірде-бір сан жоқ дегенді білдіреді — орташаны есептейтін ештеңе жоқ. Бөлгіштегі бос ұяшық та нөл болып есептеледі. Қалай түзетеміз: ауқымды немесе бөлгішті тексер.",
+  "#ЦИКЛ!": "Неге: формула өз ұяшығына сілтейді, сондықтан оны есептеу мүмкін емес. Excel-де циклдік сілтеме туралы ескерту шығады. Қалай түзетеміз: формуладан осы ұяшықтың адресін алып таста."
+};
+class XErr { constructor(code) { this.code = code; } }
+class XSyntax extends Error {}
+class XArity extends Error {}
+
+function xlNum(s) {
+  const t = String(s).trim().replace("−", "-");
+  return /^-?\d+([.,]\d+)?$/.test(t) ? parseFloat(t.replace(",", ".")) : null;
+}
+function xlFmt(v) {
+  if (v === null || v === undefined) return "";
+  if (v instanceof XErr) return v.code;
+  if (typeof v === "boolean") return v ? "ИСТИНА" : "ЛОЖЬ";
+  if (typeof v === "number") return v.toLocaleString("ru-RU", { maximumFractionDigits: 4 }).replace("−", "-");
+  return String(v);
+}
+
+function xlTokens(src) {
+  const t = []; let i = 0, m;
+  while (i < src.length) {
+    const c = src[i], rest = src.slice(i);
+    if (/\s/.test(c)) { i++; continue; }
+    if ((m = /^\d+(?:[.,]\d+)?/.exec(rest))) { t.push({ k: "num", v: parseFloat(m[0].replace(",", ".")) }); i += m[0].length; continue; }
+    if (c === '"') {
+      const j = src.indexOf('"', i + 1);
+      if (j < 0) throw new XSyntax("Тырнақша жабылмаған. Шарт былай жазылады: \">0\".");
+      t.push({ k: "str", v: src.slice(i + 1, j) }); i = j + 1; continue;
+    }
+    if ((m = /^\$?([A-Za-z])\$?(\d+)(?![A-Za-zА-Яа-яЁё0-9_(])/.exec(rest))) { t.push({ k: "ref", v: m[1].toUpperCase() + m[2] }); i += m[0].length; continue; }
+    if ((m = /^\$?([А-Яа-яЁё])\$?(\d+)(?![A-Za-zА-Яа-яЁё0-9_(])/.exec(rest))) { t.push({ k: "badref", v: m[0] }); i += m[0].length; continue; }
+    if ((m = /^[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё0-9_.]*/.exec(rest))) { t.push({ k: "id", v: m[0].toUpperCase() }); i += m[0].length; continue; }
+    if ("≥≤≠".includes(c)) throw new XSyntax(`«${c}» таңбасы кестеде терілмейді. ${c === "≥" ? ">=" : c === "≤" ? "<=" : "<>"} деп жаз.`);
+    if (rest.startsWith("=>") || rest.startsWith("=<")) throw new XSyntax(`Таңба керісінше жазылған: =${rest[1]} емес, ${rest[1]}= деп жаз.`);
+    if (rest.startsWith("!=")) throw new XSyntax("«Тең емес» кестеде былай жазылады: <>.");
+    if ((m = /^(<=|>=|<>|<|>|=)/.exec(rest))) { t.push({ k: "cmp", v: m[1] }); i += m[1].length; continue; }
+    if ("+-*/^();:,".includes(c)) { t.push({ k: c }); i++; continue; }
+    throw new XSyntax(`Түсініксіз таңба: «${c}».`);
+  }
+  return t;
+}
+
+function xlParse(src) {
+  const toks = xlTokens(src); let p = 0;
+  const peek = () => toks[p];
+  const COMMA = "Функцияның аргументтерінің арасына үтір емес, нүктелі үтір «;» қойылады.";
+  function compare() { let n = expr(); while (peek() && peek().k === "cmp") { const op = toks[p++].v; n = { t: "bin", op, l: n, r: expr() }; } return n; }
+  function expr() { let n = term(); while (peek() && (peek().k === "+" || peek().k === "-")) { const op = toks[p++].k; n = { t: "bin", op, l: n, r: term() }; } return n; }
+  function term() { let n = power(); while (peek() && (peek().k === "*" || peek().k === "/")) { const op = toks[p++].k; n = { t: "bin", op, l: n, r: power() }; } return n; }
+  function power() { let n = unary(); while (peek() && peek().k === "^") { p++; n = { t: "bin", op: "^", l: n, r: unary() }; } return n; }
+  function unary() {
+    const x = peek();
+    if (x && (x.k === "-" || x.k === "+")) { p++; const a = unary(); return x.k === "-" ? { t: "neg", a } : a; }
+    return primary();
+  }
+  function primary() {
+    const x = toks[p++];
+    if (!x) throw new XSyntax("Формула үзіліп қалды: соңында бірдеңе жетіспейді.");
+    if (x.k === "num") return { t: "num", v: x.v };
+    if (x.k === "str") return { t: "str", v: x.v };
+    if (x.k === "badref" || (x.k === "ref" && peek() && peek().k === ":" && toks[p + 1] && toks[p + 1].k === "badref")) {
+      if (peek() && peek().k === ":") { p++; const y = toks[p++]; if (!y || (y.k !== "ref" && y.k !== "badref")) throw new XSyntax("Қос нүктеден кейін ұяшық адресі керек, мысалы, A5."); return { t: "badref", v: x.k === "badref" ? x.v : y.v }; }
+      return { t: "badref", v: x.v };
+    }
+    if (x.k === "ref") {
+      if (peek() && peek().k === ":") {
+        p++; const y = toks[p++];
+        if (!y || y.k !== "ref") throw new XSyntax("Қос нүктеден кейін ұяшық адресі керек, мысалы, A5.");
+        return { t: "range", a: x.v, b: y.v };
+      }
+      return { t: "ref", v: x.v };
+    }
+    if (x.k === "id") {
+      if (!peek() || peek().k !== "(") return x.v === "ИСТИНА" || x.v === "ЛОЖЬ" ? { t: "bool", v: x.v === "ИСТИНА" } : { t: "name", v: x.v };
+      p++; const args = [];
+      if (peek() && peek().k === ")") { p++; return { t: "call", f: x.v, args }; }
+      for (;;) {
+        args.push(compare());
+        const y = peek();
+        if (y && y.k === ";") { p++; continue; }
+        if (y && y.k === ",") throw new XSyntax(COMMA);
+        if (y && (y.k === "id" || y.k === "str" || y.k === "num" || y.k === "ref")) throw new XSyntax("Функцияның аргументтерінің арасына «;» керек. Егер бұл бірнеше сөзден тұратын мәтін болса — оны тұтасымен тырнақшаға ал: \"тапсырмады\".");
+        if (!y || y.k !== ")") throw new XSyntax("Жабатын жақша «)» жетіспейді.");
+        p++; break;
+      }
+      return { t: "call", f: x.v, args };
+    }
+    if (x.k === "(") {
+      const a = compare();
+      if (!peek() || peek().k !== ")") throw new XSyntax("Жабатын жақша «)» жетіспейді.");
+      p++; return { t: "paren", a };
+    }
+    if (x.k === ",") throw new XSyntax(COMMA);
+    if (x.k === "cmp") throw new XSyntax(`«${x.v}» таңбасы орнында емес: оның сол және оң жағында мән болуы керек, мысалы, B2${x.v}50.`);
+    throw new XSyntax(`Артық таңба: «${x.k}».`);
+  }
+  if (!toks.length) throw new XSyntax("= таңбасынан кейін формула жазу керек.");
+  const ast = compare();
+  if (p < toks.length) {
+    const y = toks[p];
+    throw new XSyntax(y.k === ")" ? "Артық жабатын жақша «)»." : y.k === ";" ? "«;» таңбасы тек функцияның жақшасының ішінде қойылады." : y.k === "," ? COMMA : "Формуланың соңында артық таңбалар бар.");
+  }
+  return ast;
+}
+
+function xlRange(a, b) {
+  const c1 = a.charCodeAt(0), c2 = b.charCodeAt(0), r1 = +a.slice(1), r2 = +b.slice(1);
+  const keys = [];
+  for (let r = Math.min(r1, r2); r <= Math.max(r1, r2) && keys.length < 400; r++)
+    for (let c = Math.min(c1, c2); c <= Math.max(c1, c2); c++) keys.push(String.fromCharCode(c) + r);
+  return keys;
+}
+/* Сравнение как в Excel: пустая ячейка — 0 или "", текст без учёта регистра, число < текст < ИСТИНА/ЛОЖЬ */
+function xlCmpV(op, a, b) {
+  const empty = o => typeof o === "string" ? "" : typeof o === "boolean" ? false : 0;
+  if (a === null) a = empty(b);
+  if (b === null) b = empty(a);
+  const rank = v => typeof v === "number" ? 0 : typeof v === "string" ? 1 : 2;
+  if (rank(a) !== rank(b)) return op === "<>" ? true : op === "=" ? false : xlCmp(op, rank(a), rank(b));
+  if (typeof a === "string") { a = a.toLowerCase().replace(/ё/g, "е"); b = b.toLowerCase().replace(/ё/g, "е"); }
+  if (typeof a === "boolean") { a = +a; b = +b; }
+  return xlCmp(op, a, b);
+}
+const XL_CMP = new Set([">", "<", "=", ">=", "<=", "<>"]);
+/* Случайные данные: одна группа ячеек или несколько групп со своими диапазонами */
+function rndFill(r, cells) { (r.groups || [r]).forEach(g => g.keys.forEach(k => { cells[k] = String(prRandom(g)); })); }
+function xlCmp(op, a, b) { return op === ">" ? a > b : op === "<" ? a < b : op === ">=" ? a >= b : op === "<=" ? a <= b : op === "<>" ? a !== b : a === b; }
+function xlCrit(c) {
+  if (typeof c === "number") return x => x === c;
+  const m = /^(<=|>=|<>|<|>|=)?(.*)$/.exec(String(c === null ? "" : c).trim());
+  const op = m[1] || "=", rhs = m[2].trim(), n = xlNum(rhs);
+  if (n !== null) return x => typeof x === "number" && xlCmp(op, x, n);
+  const low = rhs.toLowerCase();
+  return x => { const s = x === null ? "" : String(x).toLowerCase(); return op === "<>" ? s !== low : op === "=" ? s === low : false; };
+}
+
+function xlEvalCell(S, k, st) {
+  if (S.cache.has(k)) return S.cache.get(k);
+  const raw = String(S.cells[k] ?? "").trim();
+  let v;
+  if (raw === "") v = null;
+  else if (raw[0] === "=") {
+    if (st.has(k)) return new XErr("#ЦИКЛ!");
+    st.add(k);
+    try { v = xlEv(S, xlParse(raw.slice(1)), st); if (v && v.arr) v = new XErr("#ЗНАЧ!"); }
+    catch (e) { if (e instanceof XSyntax || e instanceof XArity) v = new XErr("#ОШИБКА"); else throw e; }
+    st.delete(k);
+  } else if (/^(ИСТИНА|ЛОЖЬ)$/i.test(raw)) v = raw.toUpperCase() === "ИСТИНА";
+  else { const n = xlNum(raw); v = n === null ? raw : n; }
+  S.cache.set(k, v);
+  return v;
+}
+function xlToNum(v) {
+  if (v instanceof XErr) return v;
+  if (v === null) return 0;
+  if (typeof v === "number") return v;
+  if (typeof v === "boolean") return +v;
+  return new XErr("#ЗНАЧ!");
+}
+function xlEv(S, n, st) {
+  switch (n.t) {
+    case "num": case "str": case "bool": return n.v;
+    case "ref": return xlEvalCell(S, n.v, st);
+    case "range": return { arr: xlRange(n.a, n.b).map(k => xlEvalCell(S, k, st)) };
+    case "name": case "badref": return new XErr("#ИМЯ?");
+    case "paren": return xlEv(S, n.a, st);
+    case "neg": { const a = xlToNum(xlEv(S, n.a, st)); return a instanceof XErr ? a : -a; }
+    case "bin": {
+      if (XL_CMP.has(n.op)) {
+        const x = xlEv(S, n.l, st), y = xlEv(S, n.r, st);
+        if (x instanceof XErr) return x;
+        if (y instanceof XErr) return y;
+        if ((x && x.arr) || (y && y.arr)) return new XErr("#ЗНАЧ!");
+        return xlCmpV(n.op, x, y);
+      }
+      const a = xlToNum(xlEv(S, n.l, st)), b = xlToNum(xlEv(S, n.r, st));
+      if (a instanceof XErr) return a;
+      if (b instanceof XErr) return b;
+      if (n.op === "+") return a + b;
+      if (n.op === "-") return a - b;
+      if (n.op === "*") return a * b;
+      if (n.op === "/") return b === 0 ? new XErr("#ДЕЛ/0!") : a / b;
+      if (a === 0 && b < 0) return new XErr("#ДЕЛ/0!");
+      if (a === 0 && b === 0) return new XErr("#ЧИСЛО!");
+      const r = Math.pow(a, b);
+      return Number.isFinite(r) ? r : new XErr("#ЧИСЛО!");
+    }
+    case "call": return xlCall(S, n, st);
+  }
+  return new XErr("#ЗНАЧ!");
+}
+function xlCall(S, n, st) {
+  const f = n.f;
+  const need = (lo, hi) => { if (n.args.length < lo || n.args.length > hi) throw new XArity(f); };
+  const one = i => xlToNum(xlEv(S, n.args[i], st));
+  if (f === "СУММ") {
+    need(1, 255);
+    let s = 0;
+    for (const a of n.args) {
+      const v = xlEv(S, a, st);
+      if (v && v.arr) { for (const x of v.arr) { if (x instanceof XErr) return x; if (typeof x === "number") s += x; } }
+      else { const x = xlToNum(v); if (x instanceof XErr) return x; s += x; }
+    }
+    return s;
+  }
+  if (f === "ABS") { need(1, 1); const x = one(0); return x instanceof XErr ? x : Math.abs(x); }
+  if (f === "КОРЕНЬ") { need(1, 1); const x = one(0); if (x instanceof XErr) return x; return x < 0 ? new XErr("#ЧИСЛО!") : Math.sqrt(x); }
+  if (f === "СТЕПЕНЬ") {
+    need(2, 2);
+    const a = one(0), b = one(1);
+    if (a instanceof XErr) return a;
+    if (b instanceof XErr) return b;
+    if (a === 0 && b < 0) return new XErr("#ДЕЛ/0!");
+    if (a === 0 && b === 0) return new XErr("#ЧИСЛО!");
+    const r = Math.pow(a, b);
+    return Number.isFinite(r) ? r : new XErr("#ЧИСЛО!");
+  }
+  if (f === "СУММЕСЛИ") {
+    need(2, 3);
+    const r = xlEv(S, n.args[0], st);
+    if (!(r && r.arr)) return new XErr("#ЗНАЧ!");
+    const c = xlEv(S, n.args[1], st);
+    if (c instanceof XErr) return c;
+    if (c && c.arr) return new XErr("#ЗНАЧ!");
+    const test = xlCrit(c);
+    const sr = n.args[2] ? xlEv(S, n.args[2], st) : r;
+    if (!(sr && sr.arr)) return new XErr("#ЗНАЧ!");
+    let s = 0;
+    for (let i = 0; i < r.arr.length; i++) {
+      if (!test(r.arr[i])) continue;
+      const y = sr.arr[i];
+      if (y instanceof XErr) return y;
+      if (typeof y === "number") s += y;
+    }
+    return s;
+  }
+  /* условие: ИСТИНА/ЛОЖЬ, число (0 — ЛОЖЬ), пустая ячейка — ЛОЖЬ, текст — ошибка */
+  const logical = v => v instanceof XErr ? v : typeof v === "boolean" ? v : typeof v === "number" ? v !== 0 : v === null ? false : new XErr("#ЗНАЧ!");
+  if (f === "ЕСЛИ") {
+    need(2, 3);
+    const c0 = xlEv(S, n.args[0], st);
+    if (c0 && c0.arr) return new XErr("#ЗНАЧ!");
+    const c = logical(c0);
+    if (c instanceof XErr) return c;
+    if (!c && n.args.length < 3) return false;
+    const v = xlEv(S, n.args[c ? 1 : 2], st);
+    return v === null ? 0 : v;
+  }
+  if (f === "И" || f === "ИЛИ") {
+    need(1, 255);
+    let any = false, all = true, seen = false;
+    for (const a of n.args) {
+      const v = xlEv(S, a, st);
+      const list = v && v.arr ? v.arr.filter(x => typeof x === "boolean" || typeof x === "number" || x instanceof XErr) : [v];
+      for (const x of list) {
+        if (x === null) continue;
+        const b = logical(x);
+        if (b instanceof XErr) return b;
+        seen = true; if (b) any = true; else all = false;
+      }
+    }
+    if (!seen) return new XErr("#ЗНАЧ!");
+    return f === "И" ? all : any;
+  }
+  if (f === "НЕ") {
+    need(1, 1);
+    const v = xlEv(S, n.args[0], st);
+    if (v && v.arr) return new XErr("#ЗНАЧ!");
+    const b = logical(v);
+    return b instanceof XErr ? b : !b;
+  }
+  if (f === "ИСТИНА" || f === "ЛОЖЬ") { need(0, 0); return f === "ИСТИНА"; }
+  /* СРЗНАЧ, МАКС, МИН: в диапазонах и ссылках берут только числа (текст и пустые ячейки пропускают), числа в скобках — всегда */
+  if (f === "СРЗНАЧ" || f === "МАКС" || f === "МИН") {
+    need(1, 255);
+    const nums = [];
+    for (const a of n.args) {
+      const v = xlEv(S, a, st);
+      if (v instanceof XErr) return v;
+      if (v && v.arr) { for (const x of v.arr) { if (x instanceof XErr) return x; if (typeof x === "number") nums.push(x); } }
+      else if (a.t === "ref") { if (typeof v === "number") nums.push(v); }
+      else { const x = xlToNum(v); if (x instanceof XErr) return x; nums.push(x); }
+    }
+    if (f === "СРЗНАЧ") return nums.length ? nums.reduce((p, x) => p + x, 0) / nums.length : new XErr("#ДЕЛ/0!");
+    if (!nums.length) return 0;
+    return f === "МАКС" ? Math.max(...nums) : Math.min(...nums);
+  }
+  return new XErr("#ИМЯ?");
+}
+
+/* Подстановка значений вместо адресов: =СУММ(B1:B5) → =СУММ({250; 480; …}) */
+function xlShow(S, n) {
+  const val = v => v instanceof XErr ? v.code : v === null ? "0" : typeof v === "number" || typeof v === "boolean" ? xlFmt(v) : `«${v}»`;
+  switch (n.t) {
+    case "num": return xlFmt(n.v);
+    case "str": return `"${n.v}"`;
+    case "bool": return n.v ? "ИСТИНА" : "ЛОЖЬ";
+    case "ref": return val(xlEvalCell(S, n.v, new Set()));
+    case "range": return "{" + xlRange(n.a, n.b).map(k => xlEvalCell(S, k, new Set())).filter(v => v !== null).map(val).join("; ") + "}";
+    case "name": case "badref": return n.v;
+    case "paren": return "(" + xlShow(S, n.a) + ")";
+    case "neg": return "-" + xlShow(S, n.a);
+    case "bin": return xlShow(S, n.l) + " " + n.op + " " + xlShow(S, n.r);
+    case "call": return n.f + "(" + n.args.map(a => xlShow(S, a)).join("; ") + ")";
+  }
+  return "";
+}
+function xlRefs(n, out) {
+  if (!n) return out;
+  if (n.t === "ref") out.add(n.v);
+  else if (n.t === "range") xlRange(n.a, n.b).forEach(k => out.add(k));
+  else if (n.t === "paren" || n.t === "neg") xlRefs(n.a, out);
+  else if (n.t === "bin") { xlRefs(n.l, out); xlRefs(n.r, out); }
+  else if (n.t === "call") n.args.forEach(a => xlRefs(a, out));
+  return out;
+}
+function xlFind(n, pred) {
+  if (!n) return null;
+  if (pred(n)) return n;
+  const kids = n.t === "bin" ? [n.l, n.r] : n.t === "call" ? n.args : n.a ? [n.a] : [];
+  for (const k of kids) { const r = xlFind(k, pred); if (r) return r; }
+  return null;
+}
+const XL_ARGS = { "СУММ": "кемінде бір мән", "ABS": "дәл бір сан", "КОРЕНЬ": "дәл бір сан", "СТЕПЕНЬ": "«;» арқылы екі сан: сан және дәреже", "СУММЕСЛИ": "«;» арқылы ауқым мен шарт (қажет болса, қосылатын ауқым да)", "ЕСЛИ": "«;» арқылы шарт және екі мән: «иә» болса не көрсету, «жоқ» болса не көрсету", "И": "кемінде бір шарт", "ИЛИ": "кемінде бір шарт", "НЕ": "дәл бір шарт", "ИСТИНА": "бос жақша", "ЛОЖЬ": "бос жақша", "СРЗНАЧ": "кемінде бір сан немесе ауқым", "МАКС": "кемінде бір сан немесе ауқым", "МИН": "кемінде бір сан немесе ауқым" };
+
+const XL_SHEETS = {
+  avg: [
+    { name: "Бағалар журналы", text: "Төрт БЖБ бағалары. F бағаны — әр оқушының орташа балы, 7-жол — әр БЖБ бойынша сыныптың орташа бағасы. «Кездейсоқ сандар» батырмасын бас.",
+      cells: { A1: "Оқушы", B1: "СОР 1", C1: "СОР 2", D1: "СОР 3", E1: "СОР 4", F1: "Орташа",
+        A2: "Айдана", B2: "5", C2: "4", D2: "5", E2: "5", A3: "Тимур", B3: "3", C3: "4", D3: "3", E3: "4", A4: "Дана", B4: "5", C4: "5", D4: "4", E4: "5",
+        A5: "Арман", B5: "2", C5: "3", D5: "4", E5: "3", A6: "Мадина", B6: "4", C6: "5", D6: "5", E6: "4",
+        F2: "=СРЗНАЧ(B2:E2)", F3: "=СРЗНАЧ(B3:E3)", F4: "=СРЗНАЧ(B4:E4)", F5: "=СРЗНАЧ(B5:E5)", F6: "=СРЗНАЧ(B6:E6)",
+        A7: "Сынып", B7: "=СРЗНАЧ(B2:B6)", C7: "=СРЗНАЧ(C2:C6)", D7: "=СРЗНАЧ(D2:D6)", E7: "=СРЗНАЧ(E2:E6)", F7: "=СРЗНАЧ(B2:E6)" },
+      sel: "F2", rand: { keys: ["B2", "C2", "D2", "E2", "B3", "C3", "D3", "E3", "B4", "C4", "D4", "E4", "B5", "C5", "D5", "E5", "B6", "C6", "D6", "E6"], min: 2, max: 5 } },
+    { name: "Орташа температура", text: "Аптадағы температура. Орташасы — 17°: егер барлық күн бірдей болса, әрқайсысы осындай болар еді.",
+      cells: { A1: "Дс", B1: "12", A2: "Сс", B2: "15", A3: "Ср", B3: "9", A4: "Бс", B4: "18", A5: "Жм", B5: "21", A6: "Сн", B6: "24", A7: "Жс", B7: "20", A8: "Орташа", B8: "=СРЗНАЧ(B1:B7)" },
+      sel: "B8", rand: { keys: ["B1", "B2", "B3", "B4", "B5", "B6", "B7"], min: -5, max: 30 } },
+    { name: "Бос па, нөл ме", text: "Тимур БЖБ 2-ні жазбады. 2-жолда ұяшық бос — СРЗНАЧ оны өткізіп жібереді. 3-жолда босатудың орнына 0 жазылды — орташа төмендейді.",
+      cells: { A1: "Босату қалай жазылған", B1: "СОР 1", C1: "СОР 2", D1: "СОР 3", E1: "Орташа", A2: "бос ұяшық", B2: "4", D2: "5", E2: "=СРЗНАЧ(B2:D2)", A3: "нөл", B3: "4", C3: "0", D3: "5", E3: "=СРЗНАЧ(B3:D3)", A4: "«ж» мәтіні", B4: "4", C4: "ж", D4: "5", E4: "=СРЗНАЧ(B4:D4)" },
+      sel: "E2" },
+    { name: "Қолмен және функциямен", text: "Орташаны СРЗНАЧ-сыз да есептеуге болады: қосынды санына бөлінеді. Жауаптар сәйкес келеді.",
+      cells: { A1: "8", A2: "6", A3: "10", A4: "4", B1: "Сомасы", C1: "=СУММ(A1:A4)", B2: "Қолмен", C2: "=СУММ(A1:A4)/4", B3: "СРЗНАЧ", C3: "=СРЗНАЧ(A1:A4)" },
+      sel: "C3", rand: { keys: ["A1", "A2", "A3", "A4"], min: 1, max: 20 } }
+  ],
+  max: [
+    { name: "Ауа райы", text: "Күндізгі және түнгі температура. 9-жолда — әр бағандағы ең жоғары температура.",
+      cells: { A1: "Күн", B1: "Күндіз", C1: "Түнде", A2: "Дс", B2: "14", C2: "5", A3: "Сс", B3: "16", C3: "7", A4: "Ср", B4: "11", C4: "2", A5: "Бс", B5: "18", C5: "8", A6: "Жм", B6: "20", C6: "9", A7: "Сн", B7: "17", C7: "6", A8: "Жс", B8: "13", C8: "-1",
+        A9: "Максимум", B9: "=МАКС(B2:B8)", C9: "=МАКС(C2:C8)" },
+      sel: "B9", rand: { groups: [{ keys: ["B2", "B3", "B4", "B5", "B6", "B7", "B8"], min: 5, max: 25 }, { keys: ["C2", "C3", "C4", "C5", "C6", "C7", "C8"], min: -10, max: 10 }] } },
+    { name: "Ұзындыққа секіру", text: "Әр оқушының үш әрекеті. Есепке ең жақсысы — ең ұзыны алынады.",
+      cells: { A1: "Оқушы", B1: "1-әрекет", C1: "2-әрекет", D1: "3-әрекет", E1: "Үздігі", A2: "Айдана", B2: "150", C2: "158", D2: "155", A3: "Тимур", B3: "172", C3: "168", D3: "175", A4: "Дана", B4: "140", C4: "146", D4: "143",
+        E2: "=МАКС(B2:D2)", E3: "=МАКС(B3:D3)", E4: "=МАКС(B4:D4)" },
+      sel: "E2", rand: { keys: ["B2", "C2", "D2", "B3", "C3", "D3", "B4", "C4", "D4"], min: 130, max: 190 } },
+    { name: "Теріс сандар", text: "Қысқы түндер. Теріс сандардың ішінде ең үлкені — нөлге жақынырағы.",
+      cells: { A1: "-3", A2: "-8", A3: "-1", A4: "-12", B1: "Ең жылы түн", B2: "=МАКС(A1:A4)" },
+      sel: "B2", rand: { keys: ["A1", "A2", "A3", "A4"], min: -20, max: -1 } },
+    { name: "Кім үздік", text: "МАКС рекордты табады, ал ЕСЛИ — оның кімде екенін: C бағанында ең жоғары балдың тұсында — «үздік».",
+      cells: { A1: "Оқушы", B1: "Балл", C1: "", A2: "Айдана", B2: "87", A3: "Тимур", B3: "92", A4: "Дана", B4: "78",
+        C2: "=ЕСЛИ(B2=МАКС(B2:B4);\"үздік\";\"\")", C3: "=ЕСЛИ(B3=МАКС(B2:B4);\"үздік\";\"\")", C4: "=ЕСЛИ(B4=МАКС(B2:B4);\"үздік\";\"\")" },
+      sel: "C3", rand: { keys: ["B2", "B3", "B4"], min: 50, max: 100 } }
+  ],
+  min: [
+    { name: "Дүкендердегі бағалар", text: "Тауардың үш дүкендегі бағасы. E бағаны — ең арзан жер.",
+      cells: { A1: "Тауар", B1: "1-дүкен", C1: "2-дүкен", D1: "3-дүкен", E1: "Ең арзаны", A2: "Дәптер", B2: "150", C2: "140", D2: "165", A3: "Рюкзак", B3: "9500", C3: "8900", D3: "10200", A4: "Қаламсауыт", B4: "1500", C4: "1400", D4: "1650",
+        E2: "=МИН(B2:D2)", E3: "=МИН(B3:D3)", E4: "=МИН(B4:D4)" },
+      sel: "E3", rand: { keys: ["B3", "C3", "D3"], min: 8000, max: 11000, step: 100 } },
+    { name: "60 м жүгіру", text: "Жүгіруде ең жақсы нәтиже — ең аз уақыт. Сондықтан мұнда МАКС емес, МИН керек.",
+      cells: { A1: "Оқушы", B1: "Уақыты, с", A2: "Айдана", B2: "9,8", A3: "Тимур", B3: "10,4", A4: "Дана", B4: "9,2", A5: "Арман", B5: "8,9", A6: "Ең жақсы уақыт", B6: "=МИН(B2:B5)", A7: "Ең нашар уақыт", B7: "=МАКС(B2:B5)" },
+      sel: "B6" },
+    { name: "Бос және нөл", text: "A3-те дерек жоқ. A бағанында ұяшық бос — МИН оны өткізіп жібереді. B бағанында бос орынның орнына 0 жазылды — минимум нөл болды.",
+      cells: { A1: "450", A2: "380", A4: "520", B1: "450", B2: "380", B3: "0", B4: "520", C1: "МИН A", C2: "=МИН(A1:A4)", D1: "МИН B", D2: "=МИН(B1:B4)" },
+      sel: "C2" }
+  ],
+  all: [
+    { name: "Үш функция бірге", text: "Олимпиада балдары. Төменде — орташа, ең жақсы және ең нашар нәтиже және құлаш.",
+      cells: { A1: "Айдана", B1: "27", A2: "Тимур", B2: "18", A3: "Дана", B3: "24", A4: "Арман", B4: "15", A5: "Мадина", B5: "29",
+        A7: "Орташа", B7: "=СРЗНАЧ(B1:B5)", A8: "Үздік", B8: "=МАКС(B1:B5)", A9: "Ең нашар", B9: "=МИН(B1:B5)", A10: "Құлаш", B10: "=МАКС(B1:B5)-МИН(B1:B5)" },
+      sel: "B7", rand: { keys: ["B1", "B2", "B3", "B4", "B5"], min: 0, max: 30 } },
+    { name: "#ИМЯ? қатесі", text: "B — қатесі бар, C — түзетілген. Формула мен қатенің себебін көру үшін қызыл ұяшықты бас, содан кейін қасындағы ұяшықты бас — дұрысы қалай екенін көресің.",
+      cells: { A1: "Сандар", B1: "Қате", C1: "Түзетілген", D1: "Не болды", A2: "4", A3: "6", A4: "8",
+        B2: "=СРЕДНЕЕ(A2:A4)", C2: "=СРЗНАЧ(A2:A4)", D2: "мұндай функция жоқ",
+        B3: "=MAX(A2:A4)", C3: "=МАКС(A2:A4)", D3: "ағылшынша атауы",
+        B4: "=МИНИМУМ(A2:A4)", C4: "=МИН(A2:A4)", D4: "атауы дәл емес" },
+      sel: "B2" },
+    { name: "#ДЕЛ/0! қатесі", text: "B2:B4 ауқымында сандар жоқ — тек босатулар. Орташаны есептейтін ештеңе жоқ.",
+      cells: { A1: "Оқушы", B1: "Балл", C1: "Қате", D1: "Түзетілген", A2: "Айдана", B2: "ж", A3: "Тимур", A4: "Дана", B4: "ж", A5: "Арман", B5: "18",
+        C2: "=СРЗНАЧ(B2:B4)", D2: "=СРЗНАЧ(B2:B5)", E2: "ауқымда сандар жоқ" },
+      sel: "C2" },
+    { name: "Жазу қатесі", text: "B — жазу қатесі бар формулалар, C — түзетілген. Excel қате формуланы енгізуге рұқсат бермейді.",
+      cells: { A1: "Сандар", B1: "Қате", C1: "Түзетілген", D1: "Не болды", A2: "4", A3: "6", A4: "8",
+        B2: "=СРЗНАЧ(A2,A4)", C2: "=СРЗНАЧ(A2:A4)", D2: "«:» орнына үтір",
+        B3: "=МАКС(A2:A4", C3: "=МАКС(A2:A4)", D3: "жақша жоқ" },
+      sel: "B2" },
+    { name: "Логикалық қате", text: "Қате коды жоқ, бірақ жауап дұрыс емес. B және C бағандарын салыстыр: B8-де ауқымға «Жиыны» жолы кіріп кеткен, B9-да жүгіру үшін МАКС алынған.",
+      cells: { A1: "Оқушы", B1: "Балл", A2: "Айдана", B2: "4", A3: "Тимур", B3: "3", A4: "Дана", B4: "5", A5: "Жиыны", B5: "=СУММ(B2:B4)",
+        A7: "", B7: "Қатесі бар", C7: "Дұрысы", D7: "Не болды",
+        A8: "Орташа", B8: "=СРЗНАЧ(B2:B5)", C8: "=СРЗНАЧ(B2:B4)", D8: "«Жиыны» орташаға түсіп кетті",
+        A9: "Ең жақсы жүгіру", B9: "=МАКС(9,8;10,4;9,2)", C9: "=МИН(9,8;10,4;9,2)", D9: "жүгіруде аз уақыт жақсы" },
+      sel: "B8" },
+    { name: "Бос парақ", text: "Таза парақ: өз сандарың мен формулаларыңды жаз.", cells: {}, sel: "A1" }
+  ]
+};
+
+function xlMount(root, examples, opts = {}) {
+  const ROWS = opts.rows || 10, COLS = XL_COLS.slice(0, opts.cols || XL_COLS.length);
+  const S = { cells: {}, cache: new Map(), sel: "A1", ex: 0, timer: null };
+  root.innerHTML = `
+    <div class="xl-top"${opts.task ? " hidden" : ""}>
+      <div class="xl-ex">${examples.map((e, i) => `<button type="button" class="xl-chip" data-ex="${i}">${e.name}</button>`).join("")}</div>
+      <div class="xl-act">
+        <button type="button" class="btn xl-rand">Кездейсоқ сандар</button>
+        <button type="button" class="btn xl-play" aria-pressed="false">▶ Автокөрсетілім</button>
+        <button type="button" class="btn xl-reset">Бастапқы қалпына</button>
+      </div>
+    </div>
+    <p class="xl-text"${opts.task ? " hidden" : ""}></p>
+    <div class="xl-keys" aria-label="Формулаға қою">
+      <span class="xl-keys-lab">Қою:</span>
+      ${["=", "СРЗНАЧ(", "МАКС(", "МИН(", "СУММ(", "ЕСЛИ(", ":", ";", ")", "-", "/", ">", "\"\""].map(k => `<button type="button" class="xl-key" data-ins="${k.replace(/"/g, "&quot;")}">${k.replace(/</g, "&lt;")}</button>`).join("")}
+    </div>
+    <div class="xl-bar">
+      <span class="xl-name" aria-live="polite"></span>
+      <span class="xl-fx">fx</span>
+      <input type="text" class="xl-in" autocomplete="off" spellcheck="false" aria-label="Формула жолы">
+    </div>
+    <div class="xl-wrap"><table class="xl-grid">
+      <tr><th class="xl-corner"></th>${COLS.map(c => `<th>${c}</th>`).join("")}</tr>
+      ${Array.from({ length: ROWS }, (_, r) => `<tr><th>${r + 1}</th>${COLS.map(c => `<td tabindex="-1" data-k="${c}${r + 1}"></td>`).join("")}</tr>`).join("")}
+    </table></div>
+    <p class="xl-explain"></p>
+    <p class="xl-hint">Ұяшықты бас — оның мазмұны мына жолда пайда болады: <b>fx</b>. <b>Формула жазып жатырсың ба?</b> Ұяшықты бас — оның адресі өзі қойылады. Тышқанмен бірнеше ұяшықты созсаң — ауқым қойылады, мысалы, A1:A5. Пернетақта тілін ауыстырудың қажеті жоқ.</p>`;
+  const $ = s => root.querySelector(s);
+  const inp = $(".xl-in"), grid = $(".xl-grid"), playBtn = $(".xl-play");
+
+  function recalc() { S.cache = new Map(); }
+  function render() {
+    let refs = new Set();
+    const raw = String(S.cells[S.sel] ?? "");
+    let ast = null;
+    if (raw.trim().startsWith("=")) { try { ast = xlParse(raw.trim().slice(1)); refs = xlRefs(ast, new Set()); } catch (e) { if (!(e instanceof XSyntax)) throw e; } }
+    grid.querySelectorAll("td").forEach(td => {
+      const k = td.dataset.k, v = xlEvalCell(S, k, new Set());
+      const isF = String(S.cells[k] ?? "").trim().startsWith("=");
+      td.textContent = xlFmt(v);
+      td.className = (typeof v === "number" ? "n" : typeof v === "boolean" ? "b" : v instanceof XErr ? "e" : "") + (isF ? " f" : "") + (refs.has(k) ? " ref" : "") + (opts.targets && opts.targets.includes(k) ? " target" : "") + (k === S.sel ? " sel" : "");
+      td.tabIndex = k === S.sel ? 0 : -1;
+    });
+    $(".xl-name").textContent = S.sel;
+    explain(raw, ast);
+  }
+  function explain(raw, ast) {
+    const box = $(".xl-explain");
+    box.className = "xl-explain";
+    const t = raw.trim();
+    if (!t) { box.textContent = "Ұяшық бос. fx жолына сан немесе формула жаз."; return; }
+    if (!t.startsWith("=")) {
+      if (/^(ИСТИНА|ЛОЖЬ)$/i.test(t)) { box.textContent = `Ұяшықта логикалық мән тұр: ${t.toUpperCase()}. Оны шарт ретінде алуға болады: =ЕСЛИ(${S.sel};"иә";"жоқ").`; return; }
+      box.textContent = xlNum(t) !== null ? `Ұяшықта жай сан тұр: ${xlFmt(xlNum(t))}. Оны өзгертсең, оған сілтейтін формулалар қайта есептеледі.` : "Ұяшықта мәтін — жазу. Формулалар оны қоспайды.";
+      return;
+    }
+    let parsed = ast;
+    if (!parsed) {
+      try { parsed = xlParse(t.slice(1)); } catch (e) {
+        if (!(e instanceof XSyntax)) throw e;
+        box.classList.add("bad"); box.textContent = "Формула қате жазылған: " + e.message + " Excel мұндай формуланы енгізуге рұқсат бермейді: формуладағы ақау туралы хабарлама терезесі шығады."; return;
+      }
+    }
+    const v = xlEvalCell(S, S.sel, new Set());
+    const lines = [];
+    if (v instanceof XErr && v.code === "#ОШИБКА") {
+      const call = xlFind(parsed, n => n.t === "call" && XL_ARGS[n.f] && (() => { try { xlCall(S, n, new Set()); return false; } catch (e) { return e instanceof XArity; } })());
+      box.classList.add("bad");
+      box.textContent = call ? `${call.f} функциясында болуы керек: ${XL_ARGS[call.f]}.` + (t.includes(",") ? " «;» орнына үтір тұрған сияқты." : "") : "Формула қате жазылған.";
+      box.textContent += " Excel мұндай формуланы енгізуге рұқсат бермейді: формуладағы ақау туралы хабарлама терезесі шығады.";
+      return;
+    }
+    lines.push(`<span class="xl-step">Мәндерді қоямыз:</span> <code></code> → <b></b>`);
+    box.innerHTML = lines.join("");
+    box.querySelector("code").textContent = "=" + xlShow(S, parsed);
+    box.querySelector("b").textContent = v === "" ? "бос (\"\")" : xlFmt(v);
+    if (!(v instanceof XErr) && parsed.t === "call" && parsed.f === "ЕСЛИ" && parsed.args.length >= 2) {
+      const c = xlEv(S, parsed.args[0], new Set());
+      if (typeof c === "boolean" || typeof c === "number") {
+        const yes = typeof c === "boolean" ? c : c !== 0, p = document.createElement("span");
+        p.className = "xl-if";
+        p.textContent = `Шарт ${xlShow(S, parsed.args[0])} → ${yes ? "ИСТИНА" : "ЛОЖЬ"}, сондықтан ЕСЛИ ` + (yes ? "екінші аргументті алады — «иә» жауабын." : parsed.args.length > 2 ? "үшінші аргументті алады — «жоқ» жауабын." : "ЛОЖЬ көрсетеді: үшінші аргумент жоқ.");
+        box.appendChild(p);
+      }
+    }
+    if (v instanceof XErr) {
+      box.classList.add("bad");
+      const p = document.createElement("span");
+      p.className = "xl-why";
+      const en = xlFind(parsed, n => n.t === "call" && XL_EN[n.f]);
+      const bad = xlFind(parsed, n => n.t === "badref");
+      p.textContent = en ? `Орыс тіліндегі Excel-де бұл функция ${XL_EN[en.f]} деп аталады.` : bad ? `«${bad.v}» адресіндегі әріп кириллицамен терілген. Ұяшық адрестері латын әріптерімен жазылады: A1, B2.` : (XL_ERR[v.code] || "");
+      box.appendChild(p);
+    }
+  }
+  function select(k, focusCell) {
+    S.sel = k;
+    inp.value = S.cells[k] ?? "";
+    render();
+    if (focusCell) grid.querySelector(`td[data-k="${k}"]`).focus();
+  }
+  function load(i) {
+    S.ex = i;
+    const e = examples[i];
+    S.cells = { ...e.cells };
+    recalc();
+    root.querySelectorAll(".xl-chip").forEach(c => c.setAttribute("aria-pressed", +c.dataset.ex === i));
+    $(".xl-text").textContent = e.text;
+    $(".xl-rand").hidden = !e.rand;
+    select(e.sel);
+  }
+  function randomize() {
+    const r = examples[S.ex].rand; if (!r) return;
+    rndFill(r, S.cells);
+    recalc(); inp.value = S.cells[S.sel] ?? ""; render();
+  }
+  function stopPlay() { clearInterval(S.timer); S.timer = null; playBtn.setAttribute("aria-pressed", "false"); playBtn.textContent = "▶ Автокөрсетілім"; }
+  playBtn.addEventListener("click", () => {
+    if (S.timer) return stopPlay();
+    playBtn.setAttribute("aria-pressed", "true"); playBtn.textContent = "■ Тоқта";
+    const step = () => { if (examples[S.ex].rand && Math.random() < .5) randomize(); else load((S.ex + 1) % examples.length); };
+    step(); S.timer = setInterval(step, 3500);
+  });
+  root.querySelector(".xl-ex").addEventListener("click", e => { const b = e.target.closest("[data-ex]"); if (b) { stopPlay(); load(+b.dataset.ex); } });
+  $(".xl-rand").addEventListener("click", () => { stopPlay(); randomize(); });
+  $(".xl-reset").addEventListener("click", () => { stopPlay(); load(S.ex); });
+  /* Режим указания: пока пишется формула, щелчок по ячейке вставляет её адрес, протягивание — диапазон */
+  let point = null, pointed = false;
+  /* Как в Excel: адрес вставляется, только если курсор стоит там, где ожидается ссылка (после = ( ; : + - * / ^) */
+  const editingFormula = () => {
+    if (document.activeElement !== inp || !inp.value.trim().startsWith("=")) return false;
+    const before = inp.value.slice(0, inp.selectionStart).replace(/\s+$/, "");
+    return /[=(;:+\-*\/^<>]$/.test(before);
+  };
+  function rangeText(a, b) {
+    if (a === b) return a;
+    const c1 = Math.min(a.charCodeAt(0), b.charCodeAt(0)), c2 = Math.max(a.charCodeAt(0), b.charCodeAt(0));
+    const r1 = Math.min(+a.slice(1), +b.slice(1)), r2 = Math.max(+a.slice(1), +b.slice(1));
+    return String.fromCharCode(c1) + r1 + ":" + String.fromCharCode(c2) + r2;
+  }
+  function putText(start, oldLen, txt) {
+    inp.value = inp.value.slice(0, start) + txt + inp.value.slice(start + oldLen);
+    inp.setSelectionRange(start + txt.length, start + txt.length);
+    S.cells[S.sel] = inp.value; recalc(); render();
+    if (opts.onChange) opts.onChange();
+  }
+  grid.addEventListener("mousedown", e => {
+    const td = e.target.closest("td[data-k]");
+    pointed = false;
+    if (!td || !editingFormula() || td.dataset.k === S.sel) return;
+    e.preventDefault();
+    const start = inp.selectionStart, end = inp.selectionEnd;
+    inp.value = inp.value.slice(0, start) + inp.value.slice(end);
+    point = { start, len: 0, anchor: td.dataset.k };
+    putText(start, 0, td.dataset.k);
+    point.len = td.dataset.k.length;
+    pointed = true;
+  });
+  grid.addEventListener("mouseover", e => {
+    if (!point || !(e.buttons & 1)) return;
+    const td = e.target.closest("td[data-k]"); if (!td) return;
+    const txt = rangeText(point.anchor, td.dataset.k);
+    putText(point.start, point.len, txt);
+    point.len = txt.length;
+  });
+  document.addEventListener("mouseup", () => { point = null; });
+  grid.addEventListener("click", e => {
+    if (pointed) { pointed = false; inp.focus(); return; }
+    const td = e.target.closest("td[data-k]"); if (td) { stopPlay(); select(td.dataset.k); }
+  });
+  root.querySelector(".xl-keys").addEventListener("mousedown", e => { if (e.target.closest(".xl-key")) e.preventDefault(); });
+  root.querySelector(".xl-keys").addEventListener("click", e => {
+    const b = e.target.closest(".xl-key"); if (!b) return;
+    stopPlay();
+    let ins = b.dataset.ins;
+    if (document.activeElement !== inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    if (ins !== "=" && !inp.value.trim().startsWith("=")) { inp.value = ""; ins = "=" + ins; }
+    if (ins === "=") { inp.value = ""; }
+    const st = inp.selectionStart;
+    putText(st, inp.selectionEnd - st, ins);
+  });
+  grid.addEventListener("dblclick", e => { if (e.target.closest("td[data-k]")) { inp.focus(); inp.select(); } });
+  grid.addEventListener("keydown", e => {
+    const k = S.sel, c = COLS.indexOf(k[0]), r = +k.slice(1);
+    const mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+    if (mv) {
+      e.preventDefault();
+      const nc = Math.min(Math.max(c + mv[0], 0), COLS.length - 1), nr = Math.min(Math.max(r + mv[1], 1), ROWS);
+      select(COLS[nc] + nr, true);
+    } else if (e.key === "Enter" || e.key === "F2") { e.preventDefault(); inp.focus(); }
+  });
+  inp.addEventListener("focus", stopPlay);
+  inp.addEventListener("input", () => { S.cells[S.sel] = inp.value; recalc(); render(); if (opts.onChange) opts.onChange(); });
+  inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const r = +S.sel.slice(1);
+      select(S.sel[0] + Math.min(r + 1, ROWS));
+    }
+  });
+  root.xlState = S;
+  root.xlSet = (k, v) => { S.cells[k] = v; recalc(); if (k === S.sel) inp.value = v; render(); };
+  root.xlReset = () => load(S.ex);
+  root.xlLoad = i => { stopPlay(); load(i); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  root.xlTry = (f, cells) => { stopPlay(); if (cells) S.cells = { ...cells }; S.cells.H10 = f; recalc(); select("H10"); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  load(0);
+}
+document.addEventListener("click", e => {
+  const sx = e.target.closest(".showex");
+  if (sx) { const xl = document.querySelector('.xl[data-sheet="all"]'); if (xl && xl.xlLoad) xl.xlLoad(+sx.dataset.ex); return; }
+  const b = e.target.closest(".tryf"); if (!b) return;
+  const xl = b.closest(".fcard").querySelector(".xl");
+  if (xl && xl.xlTry) xl.xlTry(b.dataset.f, b.dataset.cells ? JSON.parse(b.dataset.cells) : null);
+});
+document.querySelectorAll(".xl[data-sheet]").forEach(el => xlMount(el, XL_SHEETS[el.dataset.sheet]));
+
+/* Практика: разминка и задания трёх уровней с автопроверкой формулы на других числах */
+const PR_KEY = "practice-l3";
+const LEVELS_PR = {
+  "0": { name: "0 · Қолмен", who: "жаттығу", desc: "Жаңа функцияларсыз: қосынды, «қолмен» орташа (қосынды : саны) және орташамен салыстыру." },
+  A: { name: "A · Базалық", who: "барлығы үшін", desc: "Бір функция: бір сандар қатары үшін СРЗНАЧ, МАКС немесе МИН." },
+  B: { name: "B · Орташа", who: "көпшілігі үшін", desc: "Бір тапсырмадағы бірнеше функция: құлаш, көрсеткіштер жиыны, мағынасы бойынша МАКС немесе МИН таңдау." },
+  C: { name: "C · Жоғары", who: "кейбіреулер үшін", desc: "ЕСЛИ ішіндегі және есептеулер ішіндегі статистикалық функциялар." }
+};
+const TASKS_PR = [
+  { id: "Z1", lv: "0", fn: "СУММ", q: "Айдана бес БЖБ бойынша қанша балл жинады? B7-де қосындыны тап.",
+    cells: { A1: "СОР", B1: "Балл", A2: "СОР 1", B2: "18", A3: "СОР 2", B3: "15", A4: "СОР 3", B4: "20", A5: "СОР 4", B5: "12", A6: "СОР 5", B6: "17", A7: "Сомасы" },
+    ref: { B7: "=СУММ(B2:B6)" }, must: { B7: ["СУММ"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6"], min: 0, max: 20 },
+    hint: "=СУММ(B2:B6) — B2-ден B6-ға дейінгі балдарды тышқанмен белгіле." },
+  { id: "Z2", lv: "0", fn: "қолмен орташа", q: "Айдананың орташа балын СРЗНАЧ-сыз, «қолмен» тап: бес балдың қосындысын олардың санына бөл. B7-ге жаз.",
+    cells: { A1: "СОР", B1: "Балл", A2: "СОР 1", B2: "18", A3: "СОР 2", B3: "15", A4: "СОР 3", B4: "20", A5: "СОР 4", B5: "12", A6: "СОР 5", B6: "17", A7: "Орташа" },
+    ref: { B7: "=СУММ(B2:B6)/5" }, must: { B7: ["СУММ"] }, forbid: ["СРЗНАЧ"], vary: { keys: ["B2", "B3", "B4", "B5", "B6"], min: 0, max: 20 },
+    hint: "Орташа = қосынды : саны. =СУММ(B2:B6)/5." },
+  { id: "Z3", lv: "0", fn: "салыстыру", q: "Сыныптың орташа балы — B1-де. Тимур орташадан көп жинады ма? C2-ге салыстыру жаз — кесте ИСТИНА немесе ЛОЖЬ деп жауап береді.",
+    cells: { A1: "Сыныптың орташасы", B1: "15", A2: "Тимур", B2: "17", C1: "Орташадан көп пе?" },
+    ref: { C2: "=B2>B1" }, must: { C2: [] }, vary: { groups: [{ keys: ["B2"], pick: [10, 15, 16, 20] }, { keys: ["B1"], pick: [15] }] },
+    hint: "Екі ұяшықты мына таңбамен салыстыр: >: =B2>B1." },
+
+  { id: "A1", lv: "A", fn: "СРЗНАЧ", q: "Дананың төрт БЖБ бойынша орташа балын тап. F2-ге жаз.",
+    cells: { A1: "Оқушы", B1: "СОР 1", C1: "СОР 2", D1: "СОР 3", E1: "СОР 4", F1: "Орташа", A2: "Дана", B2: "16", C2: "19", D2: "14", E2: "18" },
+    ref: { F2: "=СРЗНАЧ(B2:E2)" }, must: { F2: ["СРЗНАЧ"] }, vary: { keys: ["B2", "C2", "D2", "E2"], min: 0, max: 20 },
+    hint: "=СРЗНАЧ(B2:E2) — балдарды тышқанмен белгіле: бұл B2-ден E2-ге дейінгі жол." },
+  { id: "A2", lv: "A", fn: "МАКС", q: "Аптадағы ең жоғары температураны тап. B9-ға жаз.",
+    cells: { A1: "Күн", B1: "Температура", A2: "Дс", B2: "12", A3: "Сс", B3: "15", A4: "Ср", B4: "9", A5: "Бс", B5: "18", A6: "Жм", B6: "21", A7: "Сн", B7: "24", A8: "Жс", B8: "20", A9: "Ең жоғары" },
+    ref: { B9: "=МАКС(B2:B8)" }, must: { B9: ["МАКС"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6", "B7", "B8"], min: -10, max: 30 },
+    hint: "=МАКС(B2:B8). «Температура» тақырыбы ауқымға кірмейді." },
+  { id: "A3", lv: "A", fn: "МИН", q: "Құлаққап бес дүкенде сатылады. Ең төмен бағаны тап. B7-ге жаз.",
+    cells: { A1: "Дүкен", B1: "Бағасы, тг", A2: "1-дүкен", B2: "8900", A3: "2-дүкен", B3: "7500", A4: "3-дүкен", B4: "9200", A5: "4-дүкен", B5: "7800", A6: "5-дүкен", B6: "8100", A7: "Ең арзаны" },
+    ref: { B7: "=МИН(B2:B6)" }, must: { B7: ["МИН"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6"], min: 6000, max: 10000, step: 100 },
+    hint: "=МИН(B2:B6)" },
+
+  { id: "B1", lv: "B", fn: "МАКС − МИН", q: "Аптадағы температураның құлашын тап: ең жылы күн ең суық күннен қанша градусқа жылы. B9-да бір формула.",
+    cells: { A1: "Күн", B1: "Температура", A2: "Дс", B2: "12", A3: "Сс", B3: "15", A4: "Ср", B4: "9", A5: "Бс", B5: "18", A6: "Жм", B6: "21", A7: "Сн", B7: "24", A8: "Жс", B8: "20", A9: "Құлаш" },
+    ref: { B9: "=МАКС(B2:B8)-МИН(B2:B8)" }, must: { B9: ["МАКС", "МИН"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6", "B7", "B8"], min: -10, max: 30 },
+    hint: "Құлаш = ең үлкені − ең кішісі: =МАКС(B2:B8)-МИН(B2:B8)." },
+  { id: "B2", lv: "B", fn: "СРЗНАЧ · МАКС · МИН", q: "Рюкзактың алты дүкендегі бағалары. Орташа бағаны (D2), ең жоғарысын (D3) және ең төменін (D4) тап.",
+    cells: { A1: "Дүкен", B1: "Бағасы, тг", A2: "1", B2: "9500", A3: "2", B3: "8900", A4: "3", B4: "10200", A5: "4", B5: "9800", A6: "5", B6: "8700", A7: "6", B7: "9300", C2: "Орташа", C3: "Ең жоғары", C4: "Ең төмен" },
+    ref: { D2: "=СРЗНАЧ(B2:B7)", D3: "=МАКС(B2:B7)", D4: "=МИН(B2:B7)" }, must: { D2: ["СРЗНАЧ"], D3: ["МАКС"], D4: ["МИН"] },
+    vary: { keys: ["B2", "B3", "B4", "B5", "B6", "B7"], min: 7000, max: 12000, step: 100 },
+    hint: "Бір B2:B7 ауқымы бар үш формула: =СРЗНАЧ(B2:B7), =МАКС(B2:B7), =МИН(B2:B7)." },
+  { id: "B3", lv: "B", fn: "МАКС па, МИН бе?", q: "60 м жүгірудегі бес оқушының уақыты. B7-де ең жақсы нәтижені тап. Жүгіруде «ең жақсы» нені білдіретінін ойлан.",
+    cells: { A1: "Оқушы", B1: "Уақыты, с", A2: "Айдана", B2: "9,8", A3: "Тимур", B3: "10,4", A4: "Дана", B4: "9,2", A5: "Арман", B5: "8,9", A6: "Мадина", B6: "11", A7: "Үздік" },
+    ref: { B7: "=МИН(B2:B6)" }, must: { B7: [] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6"], pick: [8.5, 8.9, 9.2, 9.8, 10.4, 11, 11.6] },
+    hint: "Жүгіруде жылдамырақ жүгірген жеңеді — оның уақыты ең аз. Демек, МИН керек: =МИН(B2:B6)." },
+
+  { id: "C1", lv: "C", fn: "ЕСЛИ + СРЗНАЧ", q: "C2, C3, C4 және C5-ке оқушының балы төрт оқушының орташа балынан көп болса — «орташадан жоғары», әйтпесе — «жоғары емес» деп жаз.",
+    cells: { A1: "Оқушы", B1: "Балл", C1: "Салыстыру", A2: "Айдана", B2: "27", A3: "Тимур", B3: "18", A4: "Дана", B4: "24", A5: "Арман", B5: "15" },
+    ref: { C2: "=ЕСЛИ(B2>СРЗНАЧ(B2:B5);\"орташадан жоғары\";\"жоғары емес\")", C3: "=ЕСЛИ(B3>СРЗНАЧ(B2:B5);\"орташадан жоғары\";\"жоғары емес\")", C4: "=ЕСЛИ(B4>СРЗНАЧ(B2:B5);\"орташадан жоғары\";\"жоғары емес\")", C5: "=ЕСЛИ(B5>СРЗНАЧ(B2:B5);\"орташадан жоғары\";\"жоғары емес\")" },
+    must: { C2: ["ЕСЛИ"], C3: ["ЕСЛИ"], C4: ["ЕСЛИ"], C5: ["ЕСЛИ"] }, vary: { keys: ["B2", "B3", "B4", "B5"], min: 0, max: 30 },
+    hint: "Айдана үшін: =ЕСЛИ(B2>СРЗНАЧ(B2:B5);\"орташадан жоғары\";\"жоғары емес\"). Басқа жолдарда тек бірінші ұяшық өзгереді (B3, B4, B5), ал B2:B5 ауқымы сол күйі. Орташаны бір рет бөлек ұяшықта есептеп, онымен салыстыруға болады." },
+  { id: "C2", lv: "C", fn: "Есептеудегі МАКС", q: "Әркімге ең жақсы нәтижеге дейін қанша балл жетпейді? C2, C3, C4 және C5-ке жаз: ең жақсы балл минус оқушының балы.",
+    cells: { A1: "Оқушы", B1: "Балл", C1: "Үздікке дейін", A2: "Айдана", B2: "27", A3: "Тимур", B3: "18", A4: "Дана", B4: "24", A5: "Арман", B5: "15" },
+    ref: { C2: "=МАКС(B2:B5)-B2", C3: "=МАКС(B2:B5)-B3", C4: "=МАКС(B2:B5)-B4", C5: "=МАКС(B2:B5)-B5" },
+    must: { C2: ["МАКС"], C3: ["МАКС"], C4: ["МАКС"], C5: ["МАКС"] }, vary: { keys: ["B2", "B3", "B4", "B5"], min: 0, max: 30 },
+    hint: "Айдана үшін: =МАКС(B2:B5)-B2. Ең үздік оқушыда 0 шығады." },
+  { id: "C3", lv: "C", fn: "СУММ − МИН", q: "Мұғалім бес бағаның ең төменін есепке алмайды. Қалған төртеуі бойынша орташа балды тап. B7-де бір формула.",
+    cells: { A1: "СОР", B1: "Балл", A2: "СОР 1", B2: "18", A3: "СОР 2", B3: "15", A4: "СОР 3", B4: "20", A5: "СОР 4", B5: "9", A6: "СОР 5", B6: "17", A7: "Ең нашарынсыз" },
+    ref: { B7: "=(СУММ(B2:B6)-МИН(B2:B6))/4" }, must: { B7: ["МИН"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6"], min: 0, max: 20 },
+    hint: "Қосындыдан ең төмен бағаны алып, 4-ке бөл: =(СУММ(B2:B6)-МИН(B2:B6))/4. Жақшалар міндетті!" }
+];
+const TASKS_Z = TASKS_PR.filter(t => t.lv === "0");
+
+function prLoad() { return store.get(PR_KEY, {}); }
+function prSave(d) { store.set(PR_KEY, d); }
+function prCalls(n, out) {
+  if (!n) return out;
+  if (n.t === "call") { out.add(n.f); n.args.forEach(a => prCalls(a, out)); }
+  else if (n.t === "bin") { prCalls(n.l, out); prCalls(n.r, out); }
+  else if (n.a) prCalls(n.a, out);
+  return out;
+}
+function prEval(cells, k, f) {
+  const S = { cells: { ...cells, [k]: f }, cache: new Map() };
+  return xlEvalCell(S, k, new Set());
+}
+const prText = v => String(v ?? "").trim().toLowerCase().replace(/ё/g, "е");
+const prSame = (a, b) => typeof a === "number" && typeof b === "number" ? Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b))
+  : typeof a === "boolean" || typeof b === "boolean" ? a === b : (a ?? "") === (b ?? "") || (typeof a === "string" && typeof b === "string" && prText(a) === prText(b));
+const prShow = v => v === "" || v === null ? "бос" : typeof v === "string" ? `«${v}»` : xlFmt(v);
+/* Почему ответ не тот: подсказка по типу ответа */
+function prWhy(mine, want) {
+  if (typeof mine === "boolean" && typeof want !== "boolean") return "Формула ИСТИНА немесе ЛОЖЬ көрсетеді, ал сөз немесе сан керек — шартты ЕСЛИ ішіне сал.";
+  if (typeof want === "boolean" && typeof mine !== "boolean") return "Мұнда ИСТИНА немесе ЛОЖЬ жауабы керек: салыстырудың өзі немесе И, ИЛИ, НЕ — ЕСЛИ-сіз және тырнақшасыз.";
+  if (typeof mine === "string" && typeof want === "string") return prText(mine).replace(/\s+/g, "") === prText(want).replace(/\s+/g, "") ? "Тырнақшадағы мәтіндегі бос орындарды тексер." : "Тырнақшадағы мәтінді және жауаптардың ретін тексер: алдымен — «иә» үшін, содан кейін — «жоқ» үшін.";
+  return "Функция дұрыс таңдалғанын және ауқымға дұрыс ұяшықтар алынғанын тексер.";
+}
+/* Данные для проверки: каждое значение из списков pick (граница условия) и несколько случайных наборов */
+function prVariants(v, base) {
+  const out = [];
+  (v.groups || [v]).forEach(g => { if (g.pick) g.pick.forEach(x => { const c = { ...base }; g.keys.forEach(k => { c[k] = String(x); }); out.push(c); }); });
+  for (let i = 0; i < 8; i++) { const c = { ...base }; rndFill(v, c); out.push(c); }
+  return out;
+}
+function prRandom(v) {
+  if (v.pick) return v.pick[Math.floor(Math.random() * v.pick.length)];
+  const step = v.step || 1, n = Math.floor((v.max - v.min) / step) + 1;
+  return v.min + Math.floor(Math.random() * n) * step;
+}
+
+/* Проверка: формула, нужная функция, верный результат и тот же результат на других числах */
+function prCheck(t, S) {
+  for (const k of Object.keys(t.ref)) {
+    const raw = String(S.cells[k] ?? "").trim();
+    if (!raw) return { ok: false, cell: k, msg: `${k} ұяшығы бос. Оған формула жаз.` };
+    if (!raw.startsWith("=")) return { ok: false, cell: k, msg: `${k} ұяшығында жай сан немесе мәтін тұр. Формула керек — ол «=» таңбасынан басталады.` };
+    let ast;
+    try { ast = xlParse(raw.slice(1)); } catch (e) {
+      if (!(e instanceof XSyntax)) throw e;
+      return { ok: false, cell: k, msg: `${k} ұяшығындағы формула қате жазылған: ${e.message}` };
+    }
+    const used = prCalls(ast, new Set());
+    const miss = t.must[k].filter(f => !used.has(f));
+    if (miss.length) return { ok: false, cell: k, msg: miss.length > 1 ? `${k} ұяшығындағы формулада ${miss.join(" және ")} функциялары болуы керек. Тапсырма дәл соларды тексереді.` : `${k} ұяшығындағы формулада ${miss[0]} функциясы болуы керек. Тапсырма дәл соны тексереді.` };
+    const extra = (t.forbid || []).filter(f => used.has(f));
+    if (extra.length) return { ok: false, cell: k, msg: `Мұнда ${extra.join(" және ")} функциясынсыз есепте: бұл «қолмен» жаттығу — қосынды санына бөлінеді.` };
+    const mine = xlEvalCell({ cells: S.cells, cache: new Map() }, k, new Set());
+    if (mine instanceof XErr) return { ok: false, cell: k, msg: `${k} ұяшығындағы формула ${mine.code} береді. ` + (XL_ERR[mine.code] || "Қалай жазылғанын тексер.") };
+    const want = prEval(S.cells, k, t.ref[k]);
+    if (!prSame(mine, want)) return { ok: false, cell: k, msg: `${k} ұяшығында ${prShow(mine)} шықты, ал басқа мән болуы керек. ` + prWhy(mine, want) };
+    for (const cells of prVariants(t.vary, S.cells)) {
+      const a = prEval(cells, k, raw), b = prEval(cells, k, t.ref[k]);
+      if (b instanceof XErr) continue;
+      if (!prSame(a, b)) {
+        const keys = [...new Set((t.vary.groups || [t.vary]).flatMap(g => g.keys))];
+        return { ok: false, cell: k, msg: `Қазір жауап сәйкес келді, бірақ басқа деректермен тексергенде қате табылды: егер ${keys.map(x => x + " = " + (xlNum(cells[x]) !== null ? xlFmt(xlNum(cells[x])) : cells[x])).join(", ")} болса, ${k} ұяшығында ${prShow(b)} болуы керек, ал формула ${prShow(a)} береді. Формулада дайын сандар емес, ұяшық адрестері тұрғанын және ауқымға керекті ұяшықтардың бәрі кіргенін тексер.` };
+      }
+    }
+  }
+  return { ok: true };
+}
+
+function prAll() { return TASKS_PR; }
+/* Задание открывается, когда решено предыдущее; уровень — когда открыто его первое задание */
+function prUnlocked(id) {
+  const order = prAll(), i = order.findIndex(t => t.id === id), d = prLoad();
+  return i <= 0 || !!(d[order[i - 1].id] && d[order[i - 1].id].ever);
+}
+function prLocks() {
+  const order = prAll();
+  order.forEach((t, i) => {
+    const card = document.getElementById("pt-" + t.id); if (!card) return;
+    const open = prUnlocked(t.id);
+    card.classList.toggle("locked", !open);
+    card.inert = !open;
+    let l = card.querySelector(".tc-lock");
+    if (!l) { l = document.createElement("p"); l.className = "tc-lock"; card.querySelector(".tc-head").after(l); }
+    l.textContent = open ? "" : `Жабық. ${order[i - 1].id} тапсырмасы шешілгенде ашылады.`;
+  });
+  document.querySelectorAll(".lv").forEach(b => {
+    const first = order.find(t => t.lv === b.dataset.lv);
+    const open = first && prUnlocked(first.id);
+    b.disabled = !open;
+    b.title = open ? "" : "Алдыңғы деңгейдің барлық тапсырмасы шешілгенде деңгей ашылады";
+  });
+  const nx = document.getElementById("lvNext");
+  if (nx && !nx.hidden) { const first = order.find(t => t.lv === nx.dataset.lv); nx.disabled = !(first && prUnlocked(first.id)); }
+}
+function prRender() {
+  const d = prLoad();
+  const solved = prAll().filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("prBar").style.width = (solved / prAll().length * 100) + "%";
+  document.getElementById("prNum").textContent = `Шешілді: ${solved} / ${prAll().length}`;
+  Object.keys(LEVELS_PR).forEach(lv => {
+    const list = prAll().filter(t => t.lv === lv), ok = list.filter(t => d[t.id] && d[t.id].ok).length;
+    document.getElementById("lvc" + lv).textContent = `${ok}/${list.length}`;
+    document.querySelector(`.lv[data-lv="${lv}"]`).classList.toggle("full", ok === list.length);
+  });
+  prLocks();
+}
+function prShowLevel(lv) {
+  document.querySelectorAll(".lv").forEach(b => b.setAttribute("aria-selected", b.dataset.lv === lv));
+  document.querySelectorAll("#prTasks .task-card").forEach(c => { c.hidden = c.dataset.lv !== lv; });
+  document.getElementById("lvDesc").textContent = LEVELS_PR[lv].desc;
+  const order = Object.keys(LEVELS_PR), nx = order[order.indexOf(lv) + 1];
+  const btn = document.getElementById("lvNext");
+  btn.hidden = !nx; if (nx) { btn.dataset.lv = nx; btn.textContent = `${LEVELS_PR[nx].name} деңгейіне өту →`; }
+  store.set("practice-lv", lv);
+  prLocks();
+}
+
+function prBuild() {
+  const box = document.getElementById("prTasks");
+  box.innerHTML = TASKS_PR.map(t => `
+    <section class="block task-card" data-lv="${t.lv}" id="pt-${t.id}" hidden>
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">${t.fn}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <p class="tc-where">Формуланы <b>${Object.keys(t.ref).join(", ")}</b> ${Object.keys(t.ref).length > 1 ? "ұяшықтарына" : "ұяшығына"} жаз — ${Object.keys(t.ref).length > 1 ? "олар" : "ол"} сарымен белгіленген.</p>
+      <div class="xl xl-task"></div>
+      <div class="tc-actions">
+        <button type="button" class="btn main tc-check">Тексеру</button>
+        <button type="button" class="btn tc-hintbtn">Кеңес</button>
+        <button type="button" class="btn tc-reset">Қайта бастау</button>
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join("");
+  const d = prLoad();
+  TASKS_PR.forEach(t => {
+    const card = document.getElementById("pt-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg");
+    const targets = Object.keys(t.ref);
+    const setStatus = ok => {
+      card.classList.toggle("done", ok);
+      card.querySelector(".tc-status").textContent = ok ? "✓ шешілді" : "";
+    };
+    xlMount(root, [{ name: t.id, text: "", cells: t.cells, sel: targets[0] }], {
+      task: true, cols: 5, rows: 8, targets,
+      onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; }
+    });
+    const saved = d[t.id];
+    if (saved && saved.f && (saved.ver || 1) === (t.ver || 1)) { Object.entries(saved.f).forEach(([k, v]) => { if (targets.includes(k)) root.xlSet(k, v); }); }
+    if (saved) setStatus(!!saved.ok && (saved.ver || 1) === (t.ver || 1));
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = prCheck(t, root.xlState);
+      if (window.__onAttempt) window.__onAttempt("7. Практика", t.id + " · " + t.fn, targets.map(k => k + ": " + (root.xlState.cells[k] ?? "")).join("   "), r.ok, r.ok ? "" : r.msg);
+      const all = prLoad();
+      const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
+      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), f, tries, ver: t.ver || 1 };
+      prSave(all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad");
+      msg.textContent = r.ok ? "Дұрыс! Формула басқа сандармен де жұмыс істейді." : r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(r.ok);
+      prRender();
+      if (r.ok && TASKS_PR.filter(x => x.lv === t.lv).every(x => (prLoad()[x.id] || {}).ok)) {
+        msg.textContent += t.lv === "C" ? " Сен барлық деңгейді шештің!" : ` ${t.lv} деңгейі өтілді — келесісіне өтуге болады.`;
+      }
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => {
+      root.xlReset(); msg.textContent = ""; card.querySelector(".tc-hint").hidden = true;
+      const all = prLoad(); all[t.id] = { ok: false, ever: !!(all[t.id] && all[t.id].ever) }; prSave(all); setStatus(false); prRender();
+    });
+  });
+  document.querySelectorAll(".lv").forEach(b => b.addEventListener("click", () => prShowLevel(b.dataset.lv)));
+  document.getElementById("lvNext").addEventListener("click", e => { prShowLevel(e.currentTarget.dataset.lv); document.getElementById("practice").scrollIntoView({ behavior: "smooth" }); });
+  {
+    const want = store.get("practice-lv", "0"), first = prAll().find(t => t.lv === want);
+    const cur = prAll().find(t => prUnlocked(t.id) && !(prLoad()[t.id] || {}).ever) || prAll()[prAll().length - 1];
+    prShowLevel(first && prUnlocked(first.id) ? want : cur.lv);
+  }
+  prRender();
+}
+prBuild();
+
+
+/* Какая функция подходит: ситуации из жизни */
+const MT_KEY = "match-l3";
+const MT_FNS = ["СРЗНАЧ", "МАКС", "МИН", "СУММ"];
+const MT_WHAT = {
+  "СРЗНАЧ": "СРЗНАЧ «орташа есеппен қанша» деген сұраққа жауап береді: қосындыны санына бөледі.",
+  "МАКС": "МАКС ең үлкен санды табады.",
+  "МИН": "МИН ең кіші санды табады.",
+  "СУММ": "СУММ бәрін бірге қосады — «орташа есеппен» емес, «барлығы» шығады."
+};
+const MT_CASES = [
+  { q: "Мұғалім тоқсандық баға қояды: оқушының барлық БЖБ бойынша орташа балы қандай?", a: "СРЗНАЧ", why: "Орташа балл керек: бағалардың қосындысы олардың санына бөлінеді.", f: "=СРЗНАЧ(B2:F2)", note: "егер БЖБ бағалары B2…F2-де жазылса" },
+  { q: "Шілдедегі ең жоғары температура қандай болды?", a: "МАКС", why: "Температуралар қатарынан ең үлкен санды іздейміз.", f: "=МАКС(B2:B32)", note: "31 күндегі температуралар B2…B32-де" },
+  { q: "Қай дүкенде телефон ең арзан? Ең төмен бағаны тап.", a: "МИН", why: "Ең төмен баға — ең кіші сан.", f: "=МИН(B2:F2)", note: "бес дүкендегі бағалар B2…F2-де" },
+  { q: "Сынып экскурсияға барлығы қанша ақша жинады?", a: "СУММ", why: "«Барлығы» — демек, барлық жарнаны қосу керек.", f: "=СУММ(B2:B26)", note: "25 оқушының жарнасы B2…B26-да" },
+  { q: "100 м жүгірудегі ең жақсы нәтиже (уақыт секундпен).", a: "МИН", why: "Жүгіруде ең жылдамы жеңеді — оның уақыты ең аз.", f: "=МИН(C2:C25)", note: "оқушылардың уақыты C2…C25-те" },
+  { q: "Биіктікке секірудегі ең жақсы нәтиже (сантиметрмен).", a: "МАКС", why: "Секіруде биікке секірген жеңеді — ең үлкен сан.", f: "=МАКС(C2:C25)", note: "секірулердің биіктігі C2…C25-те" },
+  { q: "Тимур бір айда күніне орташа есеппен қанша қадам жүреді?", a: "СРЗНАЧ", why: "«Орташа есеппен» — қадамдар қосындысы күн санына бөлінеді.", f: "=СРЗНАЧ(B2:B31)", note: "30 күндегі қадамдар B2…B31-де" },
+  { q: "Жүк көлігіндегі барлық қораптың жалпы салмағы қандай?", a: "СУММ", why: "Жалпы салмақ — барлық қорап салмақтарының қосындысы.", f: "=СУММ(B2:B40)", note: "әр қораптың салмағы B2…B40-та" },
+  { q: "Қыстың ең суық түні қандай болды?", a: "МИН", why: "Ең суығы — ең төмен температура, ең кіші сан.", f: "=МИН(C2:C91)", note: "түнгі температуралар C2…C91-де" },
+  { q: "Отбасы айына орташа есеппен қанша электр жұмсайды?", a: "СРЗНАЧ", why: "«Айына орташа есеппен» — жылдық шығын 12 айға бөлінеді.", f: "=СРЗНАЧ(B2:B13)", note: "12 айдағы шығын B2…B13-те" }
+];
+function mtLoad() { return store.get(MT_KEY, {}); }
+function mtBuild() {
+  const d = mtLoad();
+  document.getElementById("mtList").innerHTML = MT_CASES.map((c, i) => `
+    <section class="block mt-card" id="mt-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${c.q}</p>
+      <div class="mt-opts" role="group" aria-label="Функцияны таңда">
+        ${MT_FNS.map(f => `<button type="button" class="mt-opt" data-f="${f}">${f}</button>`).join("")}
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  MT_CASES.forEach((c, i) => {
+    const card = document.getElementById("mt-" + i), msg = card.querySelector(".tc-msg");
+    const show = (st, quiet) => {
+      card.querySelectorAll(".mt-opt").forEach(b => {
+        b.classList.toggle("ok", !!st.ok && b.dataset.f === c.a);
+        b.classList.toggle("bad", (st.wrong || []).includes(b.dataset.f));
+        b.disabled = !!st.ok;
+      });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ бірінші әрекеттен" : "✓ шешілді") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.innerHTML = `Дұрыс: <b>${c.a}</b>. ${c.why}<span class="mt-ex">Мысал: <code></code> <span></span></span>`; msg.querySelector("code").textContent = c.f; msg.querySelector(".mt-ex span").textContent = c.note ? "— " + c.note : ""; }
+      else if (!quiet && st.wrong && st.wrong.length) { const w = st.wrong[st.wrong.length - 1]; msg.className = "tc-msg bad"; msg.textContent = `${w} сәйкес келмейді: ${MT_WHAT[w]} Бұл жағдайда не істеу керегін ойлан да, қайта таңда.`; }
+    };
+    show(d[i] || {}, true);
+    card.querySelector(".mt-opts").addEventListener("click", e => {
+      const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      if (window.__onAttempt) window.__onAttempt("6. Какая функция?", "Ситуация " + (i + 1), b.dataset.f, b.dataset.f === c.a, b.dataset.f === c.a ? "" : "нужно " + c.a);
+      const all = mtLoad(), st = all[i] || { wrong: [] };
+      st.wrong = st.wrong || [];
+      if (b.dataset.f === c.a) { st.ok = true; st.first = st.wrong.length === 0; }
+      else if (!st.wrong.includes(b.dataset.f)) st.wrong.push(b.dataset.f);
+      all[i] = st; store.set(MT_KEY, all);
+      show(st); mtRender();
+    });
+  });
+  mtRender();
+}
+function mtRender() {
+  const d = mtLoad(), n = MT_CASES.length;
+  const ok = MT_CASES.filter((_, i) => d[i] && d[i].ok).length, first = MT_CASES.filter((_, i) => d[i] && d[i].first).length;
+  document.getElementById("mtBar").style.width = (ok / n * 100) + "%";
+  document.getElementById("mtNum").textContent = `Шешілді: ${ok} / ${n}`;
+  document.getElementById("mtFirst").textContent = ok ? `Бірінші әрекеттен: ${first} / ${ok}` : "";
+  const done = ok === n;
+  document.getElementById("mtDone").hidden = !done;
+  if (done) document.getElementById("mtDoneText").textContent = first >= 8 ? `Керемет! ${n} жағдайдың ${first}-і бірінші әрекеттен. Сен функцияларды жақсы ажыратасың — практикаға өт.`
+    : first >= 5 ? `${n} жағдайдың ${first}-і бірінші әрекеттен. Жақсы. Қателескен жерлердің түсіндірмесін қайта оқы да, практикаға өт.`
+    : `${n} жағдайдың ${first}-і бірінші әрекеттен. «Жаңа тақырыпқа» оралып, әр функцияның «Қарапайым тілмен» бөлімін тағы бір рет қара.`;
+}
+document.getElementById("mtRetry").addEventListener("click", () => { store.set(MT_KEY, {}); mtBuild(); document.getElementById("match").scrollIntoView({ behavior: "smooth" }); });
+mtBuild();
+
+/* Актуализация знаний: среднее, наибольшее, наименьшее */
+const AC_KEY = "actual-l3";
+const AC_CASES = [
+  { q: "2, 4 және 9 сандарының арифметикалық ортасы неге тең?", opts: ["5", "15", "4", "9"], a: "5", why: "(2 + 4 + 9) : 3 = 15 : 3 = 5. Қосынды — 15, ал орташа — санына бөлінген қосынды." },
+  { q: "Қай сан ең үлкен: −3, −8, −1, −5?", opts: ["−1", "−8", "−3", "−5"], a: "−1", why: "Теріс сандардың ішінде нөлге жақынырағы үлкен: −1 > −3 > −5 > −8." },
+  { q: "Қай сан ең кіші: 0, −2, 3, −7?", opts: ["−7", "0", "−2", "3"], a: "−7", why: "Сан түзуінде −7 бәрінен сол жақта тұр, демек, ол ең кіші." },
+  { q: "B2-ден B8-ге дейінгі ұяшықтар ауқымы қалай жазылады?", opts: ["B2:B8", "B2;B8", "B2-B8", "B2..B8"], a: "B2:B8", why: "Ауқым қос нүкте арқылы жазылады: бірінші ұяшық, «:», соңғысы." },
+  { q: "A1:A3-те 10, 20 және 30 жазылған. =СУММ(A1:A3)/3 не көрсетеді?", opts: ["20", "60", "30", "10"], a: "20", why: "Қосынды 60, 3-ке бөлеміз — 20 шығады. Міне, бұл орташа." },
+  { q: "Дананың бағалары 5, 5, 5 және 2. Оның орташа балы қандай?", opts: ["4,25", "5", "3,5", "17"], a: "4,25", why: "(5 + 5 + 5 + 2) : 4 = 17 : 4 = 4,25. Бір екілік орташаны айтарлықтай төмендетеді." },
+  { q: "Сандар қатарының құлашы — бұл…", opts: ["ең үлкені минус ең кішісі", "барлық санның қосындысы", "орташа мән", "сандар саны"], a: "ең үлкені минус ең кішісі", why: "Құлаш сандардың қаншалықты шашыраңқы екенін көрсетеді: ең кішісінен ең үлкеніне дейін." }
+];
+/* Повторение прошлого урока: логические функции */
+const RV_KEY = "review-l3";
+const RV_CASES = [
+  { q: "A1-де 45 жазылған. Мына формула не көрсетеді: =ЕСЛИ(A1>=50;\"есептелді\";\"есептелмеді\")?", opts: ["есептелмеді", "есептелді", "ЛОЖЬ", "45"], a: "есептелмеді", why: "45 >= 50 — дұрыс емес, сондықтан ЕСЛИ үшінші аргументті алады: «есептелмеді»." },
+  { q: "Excel-де «тең емес» қалай жазылады?", opts: ["<>", "≠", "!=", "><"], a: "<>", why: "«Тең емес» қатар тұрған екі таңбамен жазылады: <>." },
+  { q: "Мына формула не көрсетеді: =И(5>3;2>4)?", opts: ["ЛОЖЬ", "ИСТИНА", "5", "қате"], a: "ЛОЖЬ", why: "И үшін барлық шарт дұрыс болуы керек, ал 2 > 4 — дұрыс емес." },
+  { q: "Келушіге 7 жастан кем немесе 65 жастан көп болса, кіру тегін. Бұл шартты қай функция тексереді?", opts: ["ИЛИ", "И", "НЕ", "СУММ"], a: "ИЛИ", why: "Екі шарттың біреуі жеткілікті — бұл ИЛИ." },
+  { q: "Мына формула не көрсетеді: =НЕ(10>5)?", opts: ["ЛОЖЬ", "ИСТИНА", "10", "5"], a: "ЛОЖЬ", why: "10 > 5 — ИСТИНА, ал НЕ жауапты аударады." },
+  { q: "Балл 50 және одан жоғары болғанда қай формула «есептелді» көрсетеді?", opts: ["=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\")", "=ЕСЛИ(B2>50;\"есептелді\";\"есептелмеді\")", "=ЕСЛИ(B2>=50;есептелді;есептелмеді)", "=ЕСЛИ(B2=>50;\"есептелді\";\"есептелмеді\")"], a: "=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\")", why: "Таңба >= 50-ді қамтиды және дәл осылай жазылады, мынадай емес: =>; мәтін — тырнақшада." }
+];
+function shuffleSeeded(arr, seed) {
+  let h = 2166136261;
+  for (const ch of String(seed)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 10000) / 10000; };
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function quizBuild(cfg) {
+  const load = () => store.get(cfg.key, {});
+  function render() {
+    const d = load(), n = cfg.cases.length;
+    const ok = cfg.cases.filter((_, i) => d[i] && d[i].ok).length, first = cfg.cases.filter((_, i) => d[i] && d[i].first).length;
+    document.getElementById(cfg.bar).style.width = (ok / n * 100) + "%";
+    document.getElementById(cfg.num).textContent = `Шешілді: ${ok} / ${n}`;
+    document.getElementById(cfg.first).textContent = ok ? `Бірінші әрекеттен: ${first} / ${ok}` : "";
+    document.getElementById(cfg.done).hidden = ok !== n;
+    if (ok === n) document.getElementById(cfg.doneText).textContent = cfg.summary(first, n);
+  }
+  document.getElementById(cfg.list).innerHTML = cfg.cases.map((c, i) => `
+    <section class="block mt-card" id="${cfg.prefix}-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q"></p>
+      <div class="mt-opts" role="group" aria-label="Жауап нұсқалары">${c.opts.map(o => `<button type="button" class="mt-opt" data-f=""></button>`).join("")}</div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  cfg.cases.forEach((c, i) => {
+    const card = document.getElementById(`${cfg.prefix}-${i}`), msg = card.querySelector(".tc-msg");
+    card.querySelector(".tc-q").textContent = c.q;
+    // варианты перемешаны: у каждого ученика свой порядок, при перезагрузке он не меняется
+    const opts = shuffleSeeded(c.opts, NS + cfg.prefix + i);
+    card.querySelectorAll(".mt-opt").forEach((b, j) => { b.dataset.f = opts[j]; b.textContent = opts[j]; });
+    const show = (st, quiet) => {
+      card.querySelectorAll(".mt-opt").forEach(b => {
+        b.classList.toggle("ok", !!st.ok && b.dataset.f === c.a);
+        b.classList.toggle("bad", (st.wrong || []).includes(b.dataset.f));
+        b.disabled = !!st.ok;
+      });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ бірінші әрекеттен" : "✓ шешілді") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.textContent = `Дұрыс: ${c.a}. ${c.why}`; }
+      else if (!quiet && st.wrong && st.wrong.length) { msg.className = "tc-msg bad"; msg.textContent = `«${st.wrong[st.wrong.length - 1]}» — дұрыс емес. Тағы ойлан.`; }
+    };
+    show(load()[i] || {}, true);
+    card.querySelector(".mt-opts").addEventListener("click", e => {
+      const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      const ok = b.dataset.f === c.a;
+      if (window.__onAttempt) window.__onAttempt(cfg.stage, "Вопрос " + (i + 1), b.dataset.f, ok, ok ? "" : "верно: " + c.a);
+      const all = load(), st = all[i] || { wrong: [] };
+      st.wrong = st.wrong || [];
+      if (ok) { st.ok = true; st.first = st.wrong.length === 0; } else if (!st.wrong.includes(b.dataset.f)) st.wrong.push(b.dataset.f);
+      all[i] = st; store.set(cfg.key, all); show(st); render();
+    });
+  });
+  render();
+}
+quizBuild({ key: AC_KEY, cases: AC_CASES, prefix: "ac", list: "acList", bar: "acBar", num: "acNum", first: "acFirst", done: "acDone", doneText: "acDoneText", stage: "4. Вспомним",
+  summary: (first, n) => first >= 6 ? `${n} сұрақтың ${first}-і бірінші әрекеттен. Математиканы ұмытпапсың — жаңа тақырыпқа өт.`
+    : `${n} сұрақтың ${first}-і бірінші әрекеттен. Қателескен сұрақтардың түсіндірмесін қайта оқы: орташа мән мен сандарды салыстыру сабақтың әр формуласында керек.` });
+quizBuild({ key: RV_KEY, cases: RV_CASES, prefix: "rv", list: "rvList", bar: "rvBar", num: "rvNum", first: "rvFirst", done: "rvDone", doneText: "rvDoneText", stage: "1. Повторим",
+  summary: (first, n) => first >= 5 ? `${n} сұрақтың ${first}-і бірінші әрекеттен. Өткен сабақты есіңде сақтапсың — жаңасының тақырыбын анықта.`
+    : `${n} сұрақтың ${first}-і бірінші әрекеттен. Қателескен сұрақтардың түсіндірмесін қайта оқы: ЕСЛИ бүгін де керек болады.` });
+
+/* Критерии оценивания и дескрипторы: отмечаются по заданиям урока */
+const DESC = [
+  { id: "Д1", text: "қосындыны және орташаны «қолмен» есептейді және мәнді орташамен салыстырады", lv: "Барлығы", where: "Практика: Z1–Z3 жаттығуы", tasks: ["Z1", "Z2", "Z3"] },
+  { id: "Д2", text: "жағдайға сәйкес статистикалық функцияны таңдайды", lv: "Барлығы", where: "«Қай функция?»: 10 жағдайдың кемінде 7-і бірінші әрекеттен", matchFirst: 7 },
+  { id: "Д3", text: "СРЗНАЧ(), МАКС(), МИН() функцияларымен орташа, ең үлкен және ең кіші мәнді табады", lv: "Барлығы", where: "Практика A1–A3", tasks: ["A1", "A2", "A3"] },
+  { id: "Д4", text: "бір тапсырмада бірнеше статистикалық функцияны қолданады", lv: "Оқушылардың көпшілігі", where: "Практика B1, B2", tasks: ["B1", "B2"] },
+  { id: "Д5", text: "МАКС() немесе МИН() функциясын тапсырманың мағынасы бойынша таңдайды", lv: "Оқушылардың көпшілігі", where: "Практика B3", tasks: ["B3"] },
+  { id: "Д6", text: "статистикалық функцияларды ЕСЛИ() ішіне және есептеулерге кірістіреді", lv: "Кейбір оқушылар", where: "Практика C1–C3", tasks: ["C1", "C2", "C3"] }
+];
+function descStatus() {
+  const pr = store.get("practice-l3", {}), mt = store.get("match-l3", {});
+  return DESC.map(d => {
+    if (d.matchFirst) {
+      const first = Object.values(mt).filter(x => x && x.first).length;
+      return { ...d, ok: first >= d.matchFirst, progress: `10 жағдайдың ${first}-і бірінші әрекеттен` };
+    }
+    const done = d.tasks.filter(id => pr[id] && (pr[id].ok || pr[id].ever)).length;
+    return { ...d, ok: done === d.tasks.length, progress: `${done} / ${d.tasks.length} шешілді` };
+  });
+}
+(function renderCrit() {
+  const t = document.getElementById("critTable");
+  t.innerHTML = "<tr><th>Дескриптор · білім алушы</th><th>Деңгей</th><th>Қайда тексеріледі</th></tr>" +
+    DESC.map(d => `<tr><td><b>${d.id}</b> ${d.text}</td><td>${d.lv}</td><td>${d.where}</td></tr>`).join("");
+})();
+function renderDescMine(box) {
+  const st = descStatus(), got = st.filter(d => d.ok).length;
+  box.innerHTML = `<p class="plain desc-sum"></p><div class="tablewrap"><table class="th-args crit"><tr><th>Дескриптор</th><th>Деңгей</th><th>Нәтиже</th></tr>` +
+    st.map(d => `<tr class="${d.ok ? "d-ok" : "d-no"}"><td><b>${d.id}</b> ${d.text}</td><td>${d.lv}</td><td>${d.ok ? "✓ орындалды" : "әзірге жоқ"} <span class="small">(${d.progress})</span></td></tr>`).join("") + "</table></div>";
+  box.querySelector(".desc-sum").textContent = `Орындалған дескрипторлар: ${got} / ${st.length}.`;
+}
+window.__descStatus = descStatus;
+window.__prNow = () => {
+  const d = store.get("practice-l3", {}), t = TASKS_PR.find(x => !(d[x.id] && (d[x.id].ever || d[x.id].ok)));
+  return t ? `${t.lv} · ${t.id}` : "всё решено";
+};
+
+/* Физминутка: 4 упражнения по 15 секунд */
+const BREAK = [
+  ["Көз", "Алысқа, терезеге қара, содан кейін мұрныңның ұшына қара. Бірнеше рет қайтала."],
+  ["Сегіз", "Басыңды бұрмай, көзіңмен үлкен сегіз сал. Содан кейін екінші жаққа."],
+  ["Қол басы", "Жұдырығыңды түйіп, аш. Қол басыңды бір жаққа, сосын екінші жаққа айналдыр."],
+  ["Созыл", "Орныңнан тұр, қолыңды жоғары көтеріп, созыл. Басыңды баяу оңға және солға еңкейт."]
+];
+let brkTimer = null, brkI = 0, brkLeft = 0;
+function breakStep(i) {
+  brkI = i;
+  if (i >= BREAK.length) return breakEnd();
+  document.getElementById("brkStep").textContent = `${i + 1} / ${BREAK.length} · ${BREAK[i][0]}`;
+  document.getElementById("brkText").textContent = BREAK[i][1];
+  brkLeft = 15; breakTick();
+}
+function breakTick() {
+  document.getElementById("brkTime").textContent = brkLeft;
+  document.getElementById("brkBar").style.width = ((brkI * 15 + (15 - brkLeft)) / (BREAK.length * 15) * 100) + "%";
+}
+function breakStart() {
+  clearInterval(brkTimer);
+  document.getElementById("breakOv").hidden = false;
+  breakStep(0);
+  brkTimer = setInterval(() => { brkLeft--; if (brkLeft < 0) breakStep(brkI + 1); else breakTick(); }, 1000);
+}
+function breakEnd() {
+  clearInterval(brkTimer); brkTimer = null;
+  document.getElementById("breakOv").hidden = true;
+  if (window.__onBreakEnd) window.__onBreakEnd();
+}
+window.__breakStart = breakStart;
+["breakBtn", "breakBtn2"].forEach(id => document.getElementById(id).addEventListener("click", breakStart));
+document.getElementById("brkSkip").addEventListener("click", () => breakStep(brkI + 1));
+document.getElementById("brkEnd").addEventListener("click", breakEnd);
+
+/* Домашнее задание: по одному заданию на уровень, проверка как в практике */
+const HW_KEY = "hw-l3";
+const TASKS_HW = [
+  { id: "H1", lv: "A", fn: "СРЗНАЧ", q: "Мектепке баратын жолға күніне орташа есеппен қанша минут жұмсайсың? B2:B6-да — бес күндегі уақыт. B7-де орташаны тап.",
+    cells: { A1: "Күн", B1: "Минут", A2: "Дс", B2: "25", A3: "Сс", B3: "30", A4: "Ср", B4: "22", A5: "Бс", B5: "35", A6: "Жм", B6: "28", A7: "Орташа есеппен" },
+    ref: { B7: "=СРЗНАЧ(B2:B6)" }, must: { B7: ["СРЗНАЧ"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6"], min: 10, max: 60 },
+    hint: "=СРЗНАЧ(B2:B6)" },
+  { id: "H2", lv: "B", fn: "МАКС − МИН", q: "Бір велосипедтің алты дүкендегі бағалары. Ең қымбат дүкеннен емес, ең арзан дүкеннен сатып алсаң, қанша үнемдеуге болады? B8-де бір формула.",
+    cells: { A1: "Дүкен", B1: "Бағасы, тг", A2: "1", B2: "85000", A3: "2", B3: "92000", A4: "3", B4: "78000", A5: "4", B5: "99000", A6: "5", B6: "81000", A7: "6", B7: "88000", A8: "Үнем" },
+    ref: { B8: "=МАКС(B2:B7)-МИН(B2:B7)" }, must: { B8: ["МАКС", "МИН"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6", "B7"], min: 70000, max: 110000, step: 1000 },
+    hint: "Үнем = ең жоғары баға − ең төмен баға: =МАКС(B2:B7)-МИН(B2:B7)." },
+  { id: "H3", lv: "C", fn: "ЕСЛИ + СРЗНАЧ", q: "Аптаның орташа температурасы 20°-тан жоғары болса — B9-ға «ыстық апта», әйтпесе «қалыпты апта» деп жаз.",
+    cells: { A1: "Күн", B1: "Температура", A2: "Дс", B2: "22", A3: "Сс", B3: "25", A4: "Ср", B4: "19", A5: "Бс", B5: "18", A6: "Жм", B6: "24", A7: "Сн", B7: "27", A8: "Жс", B8: "21", A9: "Апта" },
+    ref: { B9: "=ЕСЛИ(СРЗНАЧ(B2:B8)>20;\"ыстық апта\";\"қалыпты апта\")" }, must: { B9: ["ЕСЛИ", "СРЗНАЧ"] }, vary: { keys: ["B2", "B3", "B4", "B5", "B6", "B7", "B8"], min: 10, max: 30 },
+    hint: "ЕСЛИ шарты — орташаны 20-мен салыстыру: СРЗНАЧ(B2:B8)>20." }
+];
+function hwRender() {
+  const d = store.get(HW_KEY, {}), ok = TASKS_HW.filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("hwBar").style.width = (ok / TASKS_HW.length * 100) + "%";
+  document.getElementById("hwNum").textContent = `Орындалды: ${ok} / ${TASKS_HW.length}`;
+}
+(function hwBuild() {
+  const box = document.getElementById("hwTasks");
+  box.innerHTML = TASKS_HW.map(t => `
+    <section class="block task-card" id="hw-${t.id}">
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">Деңгей ${t.lv} · ${t.fn}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <p class="tc-where">Формуланы <b>${Object.keys(t.ref).join(", ")}</b> ұяшығына жаз — ол сарымен белгіленген.</p>
+      <div class="xl xl-task"></div>
+      <div class="tc-actions"><button type="button" class="btn main tc-check">Тексеру</button><button type="button" class="btn tc-hintbtn">Кеңес</button><button type="button" class="btn tc-reset">Қайта бастау</button></div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join("");
+  const d = store.get(HW_KEY, {});
+  TASKS_HW.forEach(t => {
+    const card = document.getElementById("hw-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg"), targets = Object.keys(t.ref);
+    const setStatus = ok => { card.classList.toggle("done", ok); card.querySelector(".tc-status").textContent = ok ? "✓ орындалды" : ""; };
+    xlMount(root, [{ name: t.id, text: "", cells: t.cells, sel: targets[0] }], { task: true, cols: 5, rows: 9, targets, onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; } });
+    if (d[t.id] && d[t.id].f) { Object.entries(d[t.id].f).forEach(([k, v]) => root.xlSet(k, v)); setStatus(!!d[t.id].ok); }
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = prCheck(t, root.xlState), all = store.get(HW_KEY, {});
+      const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
+      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      if (window.__onAttempt) window.__onAttempt("10. Домашнее задание", t.id + " · " + t.fn, targets.map(k => k + ": " + f[k]).join("   "), r.ok, r.ok ? "" : r.msg);
+      all[t.id] = { ok: r.ok, f, tries }; store.set(HW_KEY, all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.ok ? "Дұрыс! Формула басқа сандармен де жұмыс істейді." : r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(r.ok); hwRender();
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => { root.xlReset(); msg.textContent = ""; const all = store.get(HW_KEY, {}); delete all[t.id]; store.set(HW_KEY, all); setStatus(false); hwRender(); });
+  });
+  hwRender();
+})();
+
+
+/* Работа в Excel: условия сценариев; формулы ученик пишет в файле «Самопроверка_статистика.xlsx» */
+const EX_KEY = "excel-l3";
+/* f — эталонная формула шага (для ключа и файла самопроверки), fill — диапазон, до которого протягивают формулу,
+   change — данные, которые ученик меняет на этом шаге (пустая строка — очистить ячейку); ans — ответ в ячейке cell после шага */
+const EX_SC = [
+  { id: "S1", fn: "СРЗНАЧ", title: "Тоқсан журналы", goal: "Жол және баған бойынша орташа балды табу, СРЗНАЧ-ты «қолмен» есептелген орташамен салыстыру және босату мен нөлдің айырмашылығын көру.",
+    data: { A1: "Оқушы", B1: "СОР 1", C1: "СОР 2", D1: "СОР 3", E1: "СОЧ", F1: "Орташа", G1: "Қолмен", H1: "Белгі",
+      A2: "Айдана", B2: "5", C2: "4", D2: "5", E2: "5", A3: "Тимур", B3: "3", C3: "4", D3: "3", E3: "4", A4: "Дана", B4: "5", C4: "5", D4: "4", E4: "5",
+      A5: "Арман", B5: "2", C5: "3", D5: "4", E5: "3", A6: "Мадина", B6: "4", C6: "5", D6: "5", E6: "4", A7: "Ерлан", B7: "4", C7: "4", D7: "3", E7: "5", A8: "Сынып" },
+    tasks: [
+      { tag: "жол бойынша орташа", cell: "F5", fill: "F2:F7", q: "F2-де Айдананың төрт жұмыс бойынша орташа балын тап та, формуланы F7-ге дейін созып көшір. Арманның орташа балы қандай (F5)?", f: "=СРЗНАЧ(B2:E2)", ans: 3, fn: ["СРЗНАЧ"], hint: "=СРЗНАЧ(B2:E2) — Айдананың бағаларын B2-ден E2-ге дейін белгіле." },
+      { tag: "баған бойынша орташа", cell: "B8", q: "Сыныптың БЖБ 1 бойынша орташа бағасы қандай? B8-ге жаз. Үтірден кейін таңба көп шықса — «Разрядтылықты азайту» батырмасын бас.", f: "=СРЗНАЧ(B2:B7)", ans: 3.83, fn: ["СРЗНАЧ"], hint: "=СРЗНАЧ(B2:B7) — (5+3+5+2+4+4) : 6 = 23 : 6 ≈ 3,83." },
+      { tag: "қолмен", cell: "G2", q: "Функцияны тексер: G2-де Айдананың орташасын «қолмен» есепте — қосындыны бағалар санына бөл. F2-мен сәйкес келді ме?", f: "=СУММ(B2:E2)/4", ans: 4.75, fn: ["СУММ"], hint: "=СУММ(B2:E2)/4 — (5+4+5+5) : 4 = 4,75." },
+      { tag: "белгі", cell: "H2", fill: "H2:H7", q: "H2-де: орташа балл 4,5 немесе одан жоғары болса — «өте жақсы», әйтпесе ұяшықты бос қалдыр (\"\"). H7-ге дейін созып көшір. Айданада не (H2)?", f: "=ЕСЛИ(F2>=4,5;\"өте жақсы\";\"\")", ans: "өте жақсы", fn: ["ЕСЛИ"], hint: "=ЕСЛИ(F2>=4,5;\"өте жақсы\";\"\")" },
+      { tag: "күрделі: босату", cell: "F3", change: { C3: "" }, q: "Тимур БЖБ 2-ні жазбады. C3-ті тазала — ұяшық бос болуы керек. Енді F3-те не тұр? Орташа неге өзгерді?", f: "=СРЗНАЧ(B3:E3)", ans: 3.33, hint: "Бос ұяшықты СРЗНАЧ өткізіп жібереді: (3+3+4) : 3 ≈ 3,33." },
+      { tag: "күрделі: нөл", cell: "F7", change: { D7: "0" }, q: "Ерлан да жұмысты өткізіп алды — БЖБ 3, бірақ оған нөл қойылды. D7-ге нөл жаз. F7-де не болды? Тимурмен салыстыр: неге нөл орташа балды төмендетеді, ал бос ұяшық төмендетпейді?", f: "=СРЗНАЧ(B7:E7)", ans: 3.25, hint: "Нөл — бұл сан, ол есептеледі: (4+4+0+5) : 4 = 3,25. Тимурдың бос ұяшығын СРЗНАЧ жай ғана өткізіп жіберді." }
+    ] },
+  { id: "S2", fn: "МАКС · МИН", title: "Аптадағы ауа райы", goal: "Ең үлкен, ең кіші және орташа мәнді және құлашты табу.",
+    data: { A1: "Күн", B1: "Күндіз", C1: "Түнде", D1: "Айырмашылық", A2: "Дс", B2: "14", C2: "5", A3: "Сс", B3: "16", C3: "7", A4: "Ср", B4: "11", C4: "2", A5: "Бс", B5: "18", C5: "8",
+      A6: "Жм", B6: "20", C6: "9", A7: "Сн", B7: "17", C7: "6", A8: "Жс", B8: "13", C8: "-1", A10: "Максимум", A11: "Минимум", A12: "Орташа", A13: "Құлаш" },
+    tasks: [
+      { tag: "МАКС", cell: "B10", q: "Ең жоғары күндізгі температура қандай болды? B10-ға жаз.", f: "=МАКС(B2:B8)", ans: 20, fn: ["МАКС"], hint: "=МАКС(B2:B8)" },
+      { tag: "МИН", cell: "C11", q: "Ең суық түн қандай болды? C11-ге жаз.", f: "=МИН(C2:C8)", ans: -1, fn: ["МИН"], hint: "=МИН(C2:C8) — теріс сандардың ішінде нөлден алыстағысы ең кіші." },
+      { tag: "Түнгі МАКС", cell: "C10", q: "Ең жылы түн қандай болды? C10-ға жаз.", f: "=МАКС(C2:C8)", ans: 9, fn: ["МАКС"], hint: "=МАКС(C2:C8)" },
+      { tag: "СРЗНАЧ", cell: "B12", q: "Орташа күндізгі температура қандай? B12-ге жаз.", f: "=СРЗНАЧ(B2:B8)", ans: 15.57, fn: ["СРЗНАЧ"], hint: "=СРЗНАЧ(B2:B8) — 109 : 7 ≈ 15,57." },
+      { tag: "құлаш", cell: "B13", q: "Күндізгі температураның құлашы — ең жылы және ең суық күннің айырмасы. B13-те бір формула.", f: "=МАКС(B2:B8)-МИН(B2:B8)", ans: 9, fn: ["МАКС", "МИН"], hint: "=МАКС(B2:B8)-МИН(B2:B8) — 20 − 11 = 9." },
+      { tag: "күрделі: айырмашылық", cell: "D8", fill: "D2:D8", q: "Күндіз түндегіден қанша жылы? D2-ге жазып, D8-ге дейін созып көшір. Жексенбіде айырмашылық қандай (D8)?", f: "=B2-C2", ans: 14, fn: [], hint: "=B2-C2. Жексенбіде 13 − (−1) = 14." }
+    ] },
+  { id: "S3", fn: "МАКС немесе МИН", title: "Спорт: ең жақсы нәтиже", goal: "Мағынасы бойынша МАКС немесе МИН таңдау: жүгіруде ең жақсысы — ең кішісі, секіруде — ең үлкені.",
+    data: { A1: "Оқушы", B1: "60 м жүгіру, с", C1: "Секіру, см", D1: "Жерден итерілу", A2: "Айдана", B2: "9,8", C2: "155", D2: "12", A3: "Тимур", B3: "10,4", C3: "170", D3: "25",
+      A4: "Дана", B4: "9,2", C4: "140", D4: "18", A5: "Арман", B5: "8,9", C5: "182", D5: "30", A6: "Мадина", B6: "11", C6: "130", D6: "8", A7: "Ерлан", B7: "9,5", C7: "165", D7: "20",
+      A9: "Үздік", A10: "Ең нашар", A11: "Орташа", A12: "Мадинаға үздікке дейін" },
+    tasks: [
+      { tag: "жүгірудегі үздік", cell: "B9", q: "Жүгірудегі ең жақсы нәтижені тап (B9). Ойлан: жүгіруде көп уақыт жақсы ма, әлде аз уақыт па?", f: "=МИН(B2:B7)", ans: 8.9, fn: ["МИН"], hint: "Жүгіруде ең жылдамы жеңеді — ең аз уақыт: =МИН(B2:B7)." },
+      { tag: "ең жақсы секіру", cell: "C9", q: "Ең жақсы секіруді тап (C9).", f: "=МАКС(C2:C7)", ans: 182, fn: ["МАКС"], hint: "=МАКС(C2:C7)" },
+      { tag: "ең жақсы итерілу", cell: "D9", q: "Жерден итерілудегі ең жақсы нәтижені тап (D9).", f: "=МАКС(D2:D7)", ans: 30, fn: ["МАКС"], hint: "=МАКС(D2:D7)" },
+      { tag: "жүгірудегі ең нашар", cell: "B10", q: "Жүгірудегі ең нашар нәтижені тап (B10).", f: "=МАКС(B2:B7)", ans: 11, fn: ["МАКС"], hint: "Ең нашар уақыт — ең үлкені: =МАКС(B2:B7)." },
+      { tag: "орташа секіру", cell: "C11", q: "Сыныптың орташа секіруін тап (C11).", f: "=СРЗНАЧ(C2:C7)", ans: 157, fn: ["СРЗНАЧ"], hint: "=СРЗНАЧ(C2:C7) — 942 : 6 = 157." },
+      { tag: "күрделі: үздікке дейін", cell: "C12", q: "Мадинаға ең жақсы секіруге дейін неше сантиметр жетпеді? C12-де бір формула.", f: "=МАКС(C2:C7)-C6", ans: 52, fn: ["МАКС"], hint: "Ең жақсы секіру минус Мадинаның секіруі: =МАКС(C2:C7)-C6." }
+    ] },
+  { id: "S4", fn: "МИН · МАКС · СРЗНАЧ", title: "Дүкендер: қай жерде арзан", goal: "Бағаларды жол бойынша салыстыру және қанша үнемдеуге болатынын есептеу.",
+    data: { A1: "Тауар", B1: "1-дүкен", C1: "2-дүкен", D1: "3-дүкен", E1: "Ең арзаны", F1: "Ең қымбаты", G1: "Орташа баға", H1: "Үнем",
+      A2: "Дәптер", B2: "150", C2: "140", D2: "165", A3: "Қалам", B3: "120", C3: "130", D3: "110", A4: "Рюкзак", B4: "9500", C4: "8900", D4: "10200",
+      A5: "Қаламсауыт", B5: "1500", C5: "1400", D5: "1650", A6: "Бояулар", B6: "900", C6: "850", D6: "950", A7: "Барлығы" },
+    tasks: [
+      { tag: "Жол бойынша МИН", cell: "E4", fill: "E2:E6", q: "E2-де үш дүкендегі дәптердің ең төмен бағасын тап та, E6-ға дейін созып көшір. Ең арзан жерде рюкзак қанша тұрады (E4)?", f: "=МИН(B2:D2)", ans: 8900, fn: ["МИН"], hint: "=МИН(B2:D2) — B-дан D-ға дейінгі жол бойынша ауқым." },
+      { tag: "Жол бойынша МАКС", cell: "F4", fill: "F2:F6", q: "F2-де — ең жоғары баға, F6-ға дейін созып көшір. Ең қымбат жерде рюкзак қанша тұрады (F4)?", f: "=МАКС(B2:D2)", ans: 10200, fn: ["МАКС"], hint: "=МАКС(B2:D2)" },
+      { tag: "Жол бойынша СРЗНАЧ", cell: "G5", fill: "G2:G6", q: "G2-де — орташа баға, G6-ға дейін созып көшір. Қаламсауыттың орташа бағасы қандай (G5)?", f: "=СРЗНАЧ(B2:D2)", ans: 1516.67, fn: ["СРЗНАЧ"], hint: "=СРЗНАЧ(B2:D2) — 4550 : 3 ≈ 1516,67." },
+      { tag: "үнем", cell: "H4", fill: "H2:H6", q: "Үнем — ең қымбаты ең арзанынан қаншаға қымбат. H2-де: =F2-E2, созып көшір. Рюкзактан қанша үнемдеуге болады (H4)?", f: "=F2-E2", ans: 1300, fn: [], hint: "=F2-E2 — немесе бірден =МАКС(B2:D2)-МИН(B2:D2)." },
+      { tag: "СУММ", cell: "E7", q: "Әр тауарды ең арзан жерден сатып алсаң, қанша төлейсің? E2:E6-ны E7-ге қос.", f: "=СУММ(E2:E6)", ans: 11400, fn: ["СУММ"], hint: "=СУММ(E2:E6)" },
+      { tag: "күрделі: баға өсті", cell: "E4", change: { C4: "9800" }, q: "2-дүкен рюкзактың бағасын 9800-ге көтерді — C4-ті өзгерт. Енді ең арзан жерде рюкзак қанша тұрады (E4)?", f: "=МИН(B4:D4)", ans: 9500, hint: "Енді ең арзаны 1-дүкенде: 9500." }
+    ] },
+  { id: "S5", fn: "Барлығы бірге + ЕСЛИ", title: "Олимпиада", goal: "Бір тапсырмада СУММ, СРЗНАЧ, МАКС және ЕСЛИ біріктіру.",
+    data: { A1: "Қатысушы", B1: "1-тур", C1: "2-тур", D1: "3-тур", E1: "Сомасы", F1: "Орташа", G1: "Ең жақсы тур", H1: "Қорытынды",
+      A2: "Айдана", B2: "8", C2: "9", D2: "10", A3: "Тимур", B3: "6", C3: "7", D3: "5", A4: "Дана", B4: "10", C4: "8", D4: "9", A5: "Арман", B5: "4", C5: "6", D5: "7",
+      A6: "Мадина", B6: "9", C6: "10", D6: "10", A7: "Ерлан", B7: "7", C7: "5", D7: "8", A8: "Ең жақсы сома", A9: "Орташа сома" },
+    tasks: [
+      { tag: "СУММ", cell: "E6", fill: "E2:E7", q: "E2-де — үш турдың балдарының қосындысы, E7-ге дейін созып көшір. Мадинада қанша (E6)?", f: "=СУММ(B2:D2)", ans: 29, fn: ["СУММ"], hint: "=СУММ(B2:D2)" },
+      { tag: "СРЗНАЧ", cell: "F3", fill: "F2:F7", q: "F2-де — тур бойынша орташа балл, F7-ге дейін созып көшір. Тимурда қанша (F3)?", f: "=СРЗНАЧ(B2:D2)", ans: 6, fn: ["СРЗНАЧ"], hint: "=СРЗНАЧ(B2:D2)" },
+      { tag: "МАКС", cell: "G5", fill: "G2:G7", q: "G2-де — қатысушының ең жақсы туры, G7-ге дейін созып көшір. Арманның ең жақсы туры қандай (G5)?", f: "=МАКС(B2:D2)", ans: 7, fn: ["МАКС"], hint: "=МАКС(B2:D2)" },
+      { tag: "ең жақсы сома", cell: "E8", q: "Барлық қатысушының ішіндегі ең үлкен қосынды қандай? E8-ге жаз.", f: "=МАКС(E2:E7)", ans: 29, fn: ["МАКС"], hint: "=МАКС(E2:E7)" },
+      { tag: "орташа сома", cell: "E9", q: "Қатысушылардың орташа балл қосындысы қандай? E9-ға жаз.", f: "=СРЗНАЧ(E2:E7)", ans: 23, fn: ["СРЗНАЧ"], hint: "=СРЗНАЧ(E2:E7) — 138 : 6 = 23." },
+      { tag: "күрделі: ЕСЛИ", cell: "H6", q: "Мадинаның сомасы орташа сомадан (E9) көп болса, ол — жүлдегер. H6-ға «жүлдегер» немесе «қатысушы» деп жаз.", f: "=ЕСЛИ(E6>E9;\"жүлдегер\";\"қатысушы\")", ans: "жүлдегер", fn: ["ЕСЛИ"], hint: "=ЕСЛИ(E6>E9;\"жүлдегер\";\"қатысушы\")" }
+    ] }
+];
+EX_SC.forEach(sc => sc.tasks.forEach((t, i) => { t.id = sc.id + "." + (i + 1); t.sc = sc; }));
+const EX_ALL = EX_SC.flatMap(sc => sc.tasks);
+
+function exNum(v) {
+  const s = String(v).trim().replace(/\s+/g, "").replace(/ /g, "").replace("−", "-").replace(",", ".");
+  return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : null;
+}
+function exGrid(data) {
+  const keys = Object.keys(data);
+  const maxC = Math.max(...keys.map(k => k.charCodeAt(0))), maxR = Math.max(...keys.map(k => +k.slice(1)));
+  const cols = []; for (let c = 65; c <= maxC; c++) cols.push(String.fromCharCode(c));
+  let h = '<div class="tablewrap"><table class="mini ex-data ex-grid"><tr><th></th>' + cols.map(c => `<th>${c}</th>`).join("") + "</tr>";
+  for (let r = 1; r <= maxR; r++) h += `<tr><th>${r}</th>` + cols.map(c => { const v = data[c + r] ?? ""; return `<td class="${exNum(v) !== null ? "n" : "t"}">${v.replace(/</g, "&lt;")}</td>`; }).join("") + "</tr>";
+  return h + "</table></div>";
+}
+function exShow(id) {
+  document.querySelectorAll(".ex-pill").forEach(b => b.setAttribute("aria-selected", b.dataset.sc === id));
+  document.querySelectorAll(".ex-sc").forEach(s => { s.hidden = s.dataset.sc !== id; });
+  store.set("excel-sc", id);
+}
+(function exBuild() {
+  const d = store.get(EX_KEY, {});
+  document.getElementById("exPills").innerHTML = EX_SC.map((sc, i) => `<button type="button" class="ex-pill" data-sc="${sc.id}" role="tab"><span class="ex-n">${i + 1}-сценарий · ${sc.id} парағы</span><b>${sc.fn}</b></button>`).join("");
+  document.getElementById("exList").innerHTML = EX_SC.map((sc, i) => `
+    <section class="block ex-sc" data-sc="${sc.id}" hidden>
+      <p class="fname">Сценарий ${i + 1}. ${sc.title} <code>${sc.fn}</code></p>
+      <p class="plain"><b>Мақсаты:</b> ${sc.goal}</p>
+      <h3 class="ex-h">«Өзін-өзі_тексеру_статистика.xlsx» файлындағы ${sc.id} парағын аш</h3>
+      <p class="ex-cap">Парақтағы кесте осылай көрінеді</p>
+      ${exGrid(sc.data)}
+      <h3 class="ex-h">Қадамдар: оңайдан күрделіге</h3>
+      <div class="ex-tasks">${sc.tasks.map((t, j) => `
+        <div class="ex-task" id="ex-${t.id.replace(".", "-")}">
+          <div class="tc-head"><span class="tc-id">${j + 1}</span><span class="ex-tag${t.tag.startsWith("күрделі") ? " hard" : ""}">${t.tag}</span></div>
+          <p class="tc-q">${t.q} <span class="ex-where">${t.fill ? `Формула: <b>${t.fill.split(":")[0]}</b>, <b>${t.fill.split(":")[1]}</b> ұяшығына дейін созып көшір · жауапты <b>${t.cell}</b> ұяшығынан қара` : t.change ? `Деректер: <b>${Object.entries(t.change).map(([k, v]) => v === "" ? k + " ұяшығын тазала" : k + " → " + v).join(", ")}</b> · жауапты <b>${t.cell}</b> ұяшығынан қара` : `Ұяшық: <b>${t.cell}</b>`}</span></p>
+          <div class="ex-inputs"><button type="button" class="btn ex-hintbtn">Кеңес</button></div>
+          <p class="tc-hint" hidden></p>
+        </div>`).join("")}
+      </div>
+    </section>`).join("");
+  EX_ALL.forEach(t => {
+    const box = document.getElementById("ex-" + t.id.replace(".", "-"));
+    box.querySelector(".tc-hint").textContent = "Кеңес: " + t.hint;
+    box.querySelector(".ex-hintbtn").addEventListener("click", () => { const h = box.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+  });
+  document.querySelectorAll(".ex-pill").forEach(b => b.addEventListener("click", () => exShow(b.dataset.sc)));
+  exShow(store.get("excel-sc", "S1"));
+})();
+
+/* Итоги урока: ожидания, цель и самооценка по каждому результату */
+const REF_KEY = "reflect-l3";
+const LEVELS = ["Барлық оқушылар", "Оқушылардың көпшілігі", "Кейбір оқушылар"];
+const MARK = { "2": "Шықты", "1": "Ішінара", "0": "Әзірге жоқ" };
+const EXP_MARK = { "2": "Иә", "1": "Ішінара", "0": "Жоқ" };
+let refBuilt = false;
+function fillReflect() {
+  const saved = store.get(REF_KEY, null);
+  document.getElementById("refExp").textContent = store.get(EXP_KEY, "");
+  document.getElementById("refGoal").textContent = document.querySelector("#afterExp .plain").textContent;
+  if (!refBuilt) {
+    const texts = [...document.querySelectorAll("#afterExp .res p")].map(p => p.innerHTML);
+    document.getElementById("refRes").innerHTML = texts.map((t, i) => `
+      <div class="rr">
+        <span class="lvl">${LEVELS[i]}</span>
+        <p>${t}</p>
+        <fieldset class="seg"><legend class="sr">Қол жеткіздім бе: ${LEVELS[i]}</legend>
+          ${["2", "1", "0"].map(v => `<label><input type="radio" name="r-res-${i}" id="r-res-${i}-${v}" value="${v}"><span>${MARK[v]}</span></label>`).join("")}
+        </fieldset>
+      </div>`).join("");
+    refBuilt = true;
+    if (saved) {
+      const set = (name, v) => { const el = document.querySelector(`input[name="${name}"][value="${v}"]`); if (el) el.checked = true; };
+      if (saved.exp != null) set("r-exp", saved.exp);
+      (saved.res || []).forEach((v, i) => { if (v != null) set("r-res-" + i, v); });
+      document.getElementById("refNote").value = saved.note || "";
+      document.getElementById("refUse").value = saved.use || "";
+    }
+  }
+  document.getElementById("useReq").hidden = !wantsUse();
+  renderDescMine(document.getElementById("refDesc"));
+  const pd = prLoad();
+  document.querySelectorAll("#refRes .rr").forEach((el, i) => {
+    const lv = "ABC"[i], list = TASKS_PR.filter(t => t.lv === lv), ok = list.filter(t => pd[t.id] && pd[t.id].ok).length;
+    let n = el.querySelector(".pr-note");
+    if (!n) { n = document.createElement("p"); n.className = "pr-note"; el.insertBefore(n, el.querySelector("fieldset")); }
+    let txt = `Практика, ${lv} деңгейі: ${ok} / ${list.length} шешілді`, full = ok === list.length;
+    if (i === 0) { const z = TASKS_Z.filter(t => pd[t.id] && pd[t.id].ok).length; txt = `«Қолмен» жаттығуы: ${z} / ${TASKS_Z.length} · ` + txt; full = full && z === TASKS_Z.length; }
+    n.textContent = txt;
+    n.classList.toggle("full", full);
+  });
+  if (saved) showSummary(saved);
+}
+/* Ученик в начале спрашивал «где пригодится / зачем» — тогда пример обязателен */
+function wantsUse() { return /пригод|зачем|для чего|пайда|қажет|не үшін|қайда/i.test(store.get(EXP_KEY, "")); }
+function val(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : null; }
+function showSummary(s) {
+  const rows = [`<div class="sumrow"><span>Күтулер</span><span class="mark m${s.exp}">${EXP_MARK[s.exp]}</span></div>`]
+    .concat(s.res.map((v, i) => `<div class="sumrow"><span>${LEVELS[i]}</span><span class="mark m${v}">${MARK[v]}</span></div>`));
+  const got = s.res.filter(v => v === "2").length;
+  let next = got === 3 ? "Барлық мақсатқа жеттің. Керемет жұмыс!"
+    : s.res[0] !== "2" ? "Сергітуге және A деңгейіндегі СРЗНАЧ, МАКС және МИН тапсырмаларына орал да, түсініксізін мұғалімнен сұра."
+    : "Жақсы нәтиже. Келесі сабақта «Ішінара» немесе «Әзірге жоқ» деп белгіленгенді жаттықтыр.";
+  const use = s.use ? `<p class="mine use-ex" style="margin-top:10px"></p>` : "";
+  const note = s.note ? `<p class="mine note-ex" style="margin-top:10px"></p>` : "";
+  const body = document.getElementById("refSumBody");
+  body.innerHTML = rows.join("") + use + note + `<p class="plain" style="margin-top:10px">${next}</p>`;
+  if (s.use) body.querySelector(".use-ex").textContent = "Қайда пайдалы: " + s.use;
+  if (s.note) body.querySelector(".note-ex").textContent = s.note;
+  document.getElementById("refSummary").hidden = false;
+}
+document.getElementById("refSave").addEventListener("click", () => {
+  const s = { exp: val("r-exp"), res: [0, 1, 2].map(i => val("r-res-" + i)), note: document.getElementById("refNote").value.trim(), use: document.getElementById("refUse").value.trim() };
+  const msg = document.getElementById("refMsg");
+  if (s.exp === null || s.res.includes(null)) { msg.className = "msg bad"; msg.textContent = "Барлық сұраққа жауап бер: күтулер және үш нәтиже."; return; }
+  if (wantsUse() && s.use.length < 5) { msg.className = "msg bad"; msg.textContent = "Функция қайда пайдалы екеніне мысал келтір: мұны өзің түсінгің келді."; return; }
+  store.set(REF_KEY, s);
+  msg.className = "msg ok"; msg.textContent = "Сақталды.";
+  showSummary(s);
+  document.getElementById("refSummary").scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+document.querySelectorAll(".starter").forEach(b => b.addEventListener("click", () => {
+  const s = b.textContent.replace("…", " ");
+  expText.value = (expText.value.trim() ? expText.value.trim() + "\n" : "") + s;
+  expText.focus();
+  expText.setSelectionRange(expText.value.length, expText.value.length);
+}));
+document.getElementById("expSave").addEventListener("click", () => {
+  const v = expText.value.trim();
+  const msg = document.getElementById("expMsg");
+  if (v.length < 5) { msg.className = "msg bad"; msg.textContent = "Кемінде бір сөйлем жаз."; return; }
+  msg.textContent = "";
+  store.set(EXP_KEY, v);
+  showExp(v);
+});
+document.getElementById("expEdit").addEventListener("click", () => {
+  expText.value = store.get(EXP_KEY, "");
+  document.getElementById("expForm").hidden = false;
+  document.getElementById("expSaved").hidden = true;
+  expText.focus();
+});
+showExp(store.get(EXP_KEY, ""));
+
+buildGrid(); buildTasks();
+unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+render();
+if (unlocked) document.getElementById("tab-goal").disabled = false;
+window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
+  A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
+
+}
+/* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
+const STAGES = { review: "1. Повторим", puzzle: "2. Разгадка темы", goal: "3. Тема и цель", actual: "4. Вспомним", learn: "5. Новая тема", match: "6. Какая функция?", practice: "7. Практика", excel: "8. Работа в Excel", reflect: "9. Итоги", hw: "10. Домашнее задание" };
+let me = null, curStage = "review", syncTimer = null;
+const gsr = (fn, ...args) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+function lessonSummary() {
+  const g = k => lsGet(NS + k, null), info = window.__lessonInfo;
+  const pr = g("practice-l3") || {}, mt = g("match-l3") || {}, rf = g("reflect-l3");
+  const cnt = ids => ids.filter(id => pr[id] && pr[id].ok).length + "/" + ids.length;
+  const MARK = { "2": "Получилось", "1": "Частично", "0": "Пока нет" }, EXP = { "2": "Да", "1": "Частично", "0": "Нет" };
+  const mv = Object.values(mt);
+  return {
+    id: me.id, cls: me.cls, name: me.name, stage: STAGES[curStage] || curStage,
+    expect: g("expect-l3") || "",
+    match: mv.filter(x => x && x.ok).length + "/" + info.matchN,
+    matchFirst: mv.filter(x => x && x.first).length,
+    z: cnt(info.Z), a: cnt(info.A), b: cnt(info.B), c: cnt(info.C),
+    expOk: rf ? EXP[rf.exp] || "" : "", r0: rf ? MARK[rf.res[0]] || "" : "", r1: rf ? MARK[rf.res[1]] || "" : "", r2: rf ? MARK[rf.res[2]] || "" : "",
+    use: rf ? rf.use || "" : "", note: rf ? rf.note || "" : "",
+    act: (() => { const a = Object.values(g("actual-l3") || {}); return a.filter(x => x && x.ok).length + "/" + info.actN; })(),
+    actFirst: Object.values(g("actual-l3") || {}).filter(x => x && x.first).length,
+    now: window.__prNow(),
+    hw: (() => { const h = g("hw-l3") || {}; return Object.values(h).filter(x => x && x.ok).length + "/3"; })(),
+    rev: (() => { const a = Object.values(g("review-l3") || {}); return a.filter(x => x && x.ok).length + "/" + info.rvN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
+    desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
+  };
+}
+function syncSoon() { if (!me) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 1500); }
+function syncNow() { if (!me) return; gsr("saveProgress", lessonSummary()).then(() => setNet(true)).catch(() => setNet(false)); }
+function setNet(ok) { const n = document.getElementById("netState"); if (n) { n.textContent = ok ? "мұғаліммен байланыс бар" : "байланыс жоқ — жауаптар кейін жіберіледі"; n.className = "net " + (ok ? "on" : "off"); } }
+
+/* Вход: ученик сам вписывает класс, фамилию и имя */
+const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", F: "Ф", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
+function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[A-Z]/g, ch => LAT2CYR[ch] || ch); }
+function normName(v) { return v.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" "); }
+/* Вход: онлайн — через сервер (проверка по списку класса), без сервера — только на этом компьютере */
+function register(c, n) {
+  return ONLINE ? gsr("registerStudent", c, n, "kz") : Promise.resolve({ id: c + " | " + n, cls: c, name: n });
+}
+function loginUI() {
+  const ov = document.getElementById("login"), body = document.getElementById("loginBody");
+  ov.hidden = false;
+  body.innerHTML = `<p class="lg-q">Деректеріңді жаз</p>
+    <label class="lg-l" for="lgCls">Сынып</label><input id="lgCls" class="lg-in" maxlength="20" placeholder="мысалы, 8А" autocomplete="off">
+    <label class="lg-l" for="lgName">Тегі мен аты</label><input id="lgName" class="lg-in" maxlength="80" placeholder="мысалы, Сейткали Айдана" autocomplete="off">
+    <p class="lg-err" id="lgErr" aria-live="polite"></p>
+    <button type="button" class="btn main lg-big" id="lgGo">Сабақты бастау</button>`;
+  const go = () => {
+    const c = normClass(document.getElementById("lgCls").value), n = normName(document.getElementById("lgName").value);
+    const err = document.getElementById("lgErr");
+    if (!/^\d{1,2}[А-ЯЁӘҒҚҢӨҰҮҺІ]?$/.test(c)) { err.textContent = "Сынып былай жазылады: сан мен әріп, мысалы, 8А."; return; }
+    if (n.split(" ").length < 2 || n.length < 5) { err.textContent = "Тегің мен атыңды бос орын арқылы жаз."; return; }
+    err.textContent = "Сақтап жатырмын…";
+    document.getElementById("lgGo").disabled = true;
+    const old = document.getElementById("lgSug"); if (old) old.remove();
+    register(c, n).then(r => { document.getElementById("lgGo").disabled = false; if (r && r.suggest) suggest(r); else enter(r); })
+      .catch(e => { document.getElementById("lgGo").disabled = false; err.textContent = (e && e.message) ? e.message : "Болмады. Байланысты тексеріп, тағы бір рет көр."; });
+  };
+  function suggest(r) {
+    const err = document.getElementById("lgErr"); err.textContent = "";
+    const box = document.createElement("div"); box.className = "lg-sug"; box.id = "lgSug";
+    box.innerHTML = `<p>Мұндай оқушы тізімде жоқ. Мүмкін, сен — <b></b>?</p><div class="lg-row"><button type="button" class="btn main" id="sugYes">Иә, бұл менмін</button><button type="button" class="btn" id="sugNo">Жоқ</button></div>`;
+    box.querySelector("b").textContent = `${r.suggest}, ${r.cls}`;
+    err.after(box);
+    document.getElementById("sugYes").onclick = () => { box.remove(); err.textContent = "Кіріп жатырмын…"; register(r.cls, r.suggest).then(enter).catch(e => { err.textContent = e.message || "Болмады."; }); };
+    document.getElementById("sugNo").onclick = () => { box.remove(); err.textContent = "Онда тегің мен атыңның қалай жазылғанын тексер немесе мұғалімге айт, сені тізімге қоссын."; };
+  }
+  document.getElementById("lgGo").onclick = go;
+  ["lgCls", "lgName"].forEach(id => document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") go(); }));
+  document.getElementById("lgCls").focus();
+  function enter(st) {
+    me = st;
+    NS = "st:" + st.id + ":";
+    ov.hidden = true;
+    document.getElementById("whoName").textContent = `${st.name}, ${st.cls}`;
+    document.getElementById("who").hidden = false;
+    startLesson();
+    if (!ONLINE) return;
+    syncNow();
+    setInterval(syncNow, 60000);
+    pollQuestion(); setInterval(pollQuestion, 5000);
+  }
+}
+
+/* Вопрос учителя всплывает у всех учеников */
+let shownQ = null;
+function pollQuestion() {
+  gsr("getQuestion").then(q => {
+    setNet(true);
+    const answered = lsGet(NS + "answered", []);
+    const modal = document.getElementById("qModal");
+    if (q && q.open && q.type === "break") {
+      if (!answered.includes(q.id) && shownQ !== q.id) {
+        shownQ = q.id;
+        window.__onBreakEnd = () => { const a = lsGet(NS + "answered", []); if (!a.includes(q.id)) { a.push(q.id); lsSet(NS + "answered", a); } shownQ = null; };
+        window.__breakStart();
+      }
+      return;
+    }
+    if (q && q.open && !answered.includes(q.id)) {
+      if (shownQ !== q.id) {
+        shownQ = q.id;
+        document.getElementById("qText").textContent = q.text;
+        document.getElementById("qAns").value = "";
+        document.getElementById("qErr").textContent = "";
+        modal.hidden = false;
+        document.getElementById("qAns").focus();
+      }
+    } else if (!modal.hidden) {
+      modal.hidden = true; shownQ = null;
+      if (q && !q.open) toast("Мұғалім сұрақты жапты.");
+    }
+  }).catch(() => setNet(false));
+}
+function sendAnswer() {
+  const text = document.getElementById("qAns").value.trim(), err = document.getElementById("qErr");
+  if (!text) { err.textContent = "Жауапты жаз."; return; }
+  const btn = document.getElementById("qSend"); btn.disabled = true; err.textContent = "Жіберіп жатырмын…";
+  gsr("submitAnswer", { qid: shownQ, lang: "kz", text, cls: me.cls, name: me.name, id: me.id }).then(() => {
+    const a = lsGet(NS + "answered", []); a.push(shownQ); lsSet(NS + "answered", a);
+    document.getElementById("qModal").hidden = true; shownQ = null; btn.disabled = false;
+    toast("Жауап мұғалімге жіберілді.");
+  }).catch(e => { btn.disabled = false; err.textContent = (e && e.message) || "Жіберу мүмкін болмады. Тағы бір рет көр."; });
+}
+function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 3500); }
+
+function onlineBoot() {
+  window.__onStore = syncSoon;
+  window.__onStage = id => { curStage = id; syncSoon(); };
+  window.__onAttempt = (stage, task, answer, ok, note) => { if (me) gsr("logAttempt", { id: me.id, cls: me.cls, name: me.name, stage, task, answer: String(answer), ok: !!ok, note: note || "" }).catch(() => setNet(false)); };
+  document.getElementById("qSend").addEventListener("click", sendAnswer);
+  document.getElementById("qAns").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) sendAnswer(); });
+  document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
+  loginUI();
+}
+if (ONLINE) onlineBoot();
+else {
+  loginUI();
+  const n = document.getElementById("netState"); n.textContent = "жауаптар осы компьютерде сақталады"; n.className = "net";
+  document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
+}
+
+
+}
 </script>
 
 </html>

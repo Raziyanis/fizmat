@@ -117,23 +117,24 @@ function checkRoster_() {
  * Вход ученика. Если список на листе «Ученики» заполнен и проверка включена,
  * пускает только тех, кто есть в списке; при опечатке предлагает похожее имя.
  */
-function registerStudent(cls, name) {
+function registerStudent(cls, name, lang) {
+  const t = function (ru, kz) { return lang === "kz" ? kz : ru; };
   cls = normClass_(clean_(cls, 20).replace(/^'/, ""));
   name = normName_(clean_(name, 80).replace(/^'/, ""));
-  if (!/^\d{1,2}[А-ЯЁ]?$/.test(cls)) throw new Error("Класс пишется так: цифра и буква, например 8А.");
-  if (name.split(" ").length < 2) throw new Error("Впиши фамилию и имя через пробел.");
+  if (!/^\d{1,2}[А-ЯЁӘҒҚҢӨҰҮҺІ]?$/.test(cls)) throw new Error(t("Класс пишется так: цифра и буква, например 8А.", "Сынып былай жазылады: сан мен әріп, мысалы, 8А."));
+  if (name.split(" ").length < 2) throw new Error(t("Впиши фамилию и имя через пробел.", "Тегің мен атыңды бос орын арқылы жаз."));
   const roster = getRoster();
   const hasList = Object.keys(roster).length > 0;
   if (hasList && checkRoster_()) {
     const list = roster[cls];
-    if (!list || !list.length) throw new Error("Класса " + cls + " нет в списке. Проверь, как написан класс.");
+    if (!list || !list.length) throw new Error(t("Класса " + cls + " нет в списке. Проверь, как написан класс.", cls + " сыныбы тізімде жоқ. Сыныптың қалай жазылғанын тексер."));
     const k = key_(name);
     const hit = list.filter(function (s) { return key_(s) === k; })[0];
     if (hit) return { id: cls + " | " + hit, cls: cls, name: hit };
     let best = null, bd = 99;
     list.forEach(function (s) { const dd = lev_(key_(s), k); if (dd < bd) { bd = dd; best = s; } });
     if (best && (bd <= 2 || (bd <= 3 && k.length >= 12))) return { suggest: best, cls: cls };
-    throw new Error("Тебя нет в списке класса " + cls + ". Проверь, как написаны фамилия и имя, или скажи учителю.");
+    throw new Error(t("Тебя нет в списке класса " + cls + ". Проверь, как написаны фамилия и имя, или скажи учителю.", "Сен " + cls + " сыныбының тізімінде жоқсың. Тегің мен атыңның қалай жазылғанын тексер немесе мұғалімге айт."));
   }
   // Список не заполнен или проверка выключена: пускаем всех, лист «Ученики» не трогаем —
   // его ведёт только учитель, а вошедшие и так видны на листе «Прогресс».
@@ -179,10 +180,11 @@ function setQuestion_(q) {
 }
 
 function submitAnswer(a) {
+  const kz = a.lang === "kz";
   const q = getQuestion();
-  if (!q || !q.open || q.id !== a.qid) throw new Error("Учитель уже закрыл этот вопрос.");
+  if (!q || !q.open || q.id !== a.qid) throw new Error(kz ? "Мұғалім бұл сұрақты жауып қойды." : "Учитель уже закрыл этот вопрос.");
   const text = clean_(a.text, 1000);
-  if (!text) throw new Error("Напиши ответ.");
+  if (!text) throw new Error(kz ? "Жауабыңды жаз." : "Напиши ответ.");
   sheet_("board").appendRow([new Date(), q.id, clean_(q.text, 300), clean_(a.cls, 20), clean_(a.name, 80), text]);
   return true;
 }

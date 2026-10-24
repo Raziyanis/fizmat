@@ -422,7 +422,15 @@ td.wrongl { background: color-mix(in srgb, var(--bad) 12%, var(--surface)); }
 td.wrongl .ch { color: var(--bad); }
 .xl-grid td.b { text-align: center; }
 .xl-if { display: block; margin-top: 4px; color: var(--c); font-weight: 700; }
+
+.lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
+.lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
+.lang-sw button[aria-pressed="true"]{background:var(--c, #1d7652);color:#fff}
+.lang-sw button:focus-visible{outline:2px solid var(--c, #1d7652);outline-offset:-2px}
+.lg-card .lang-sw{display:flex;width:max-content;margin:0 0 .6rem auto}
 </style>
+<div id="app"></div>
+<template id="t-ru">
 
 <div class="wrap">
   <div class="top">
@@ -923,7 +931,547 @@ td.wrongl .ch { color: var(--bad); }
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 
+</template>
+<template id="t-kz">
+
+<div class="wrap">
+  <div class="top">
+    <span class="eyebrow">Информатика · 8 сынып · Электрондық кестелер</span>
+    <div class="tools">
+      <span class="who" id="who" hidden>Оқушы: <b id="whoName"></b> · <span id="netState" class="net"></span> <button type="button" class="linkbtn" id="whoChange">Ауыстыру</button><span class="small" id="whoHint" hidden> Басқа оқушы ретінде кіру үшін бетті жаңарт.</span></span>
+      <button class="btn" id="breakBtn" type="button">Сергіту сәті · 1 мин</button>
+      <button class="btn" id="bigBtn" type="button" aria-pressed="false">Үлкен қаріп</button>
+      <button class="btn" id="fsBtn" type="button">Толық экран</button>
+    </div>
+  </div>
+
+  <div class="steps" role="tablist" aria-label="Сабақ кезеңдері">
+    <button type="button" class="step" role="tab" id="tab-review" aria-controls="review" aria-selected="true"><b>1</b>Қайталайық</button>
+    <button type="button" class="step" role="tab" id="tab-puzzle" aria-controls="puzzle" aria-selected="false"><b>2</b>Тақырыпты анықта</button>
+    <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>3</b>Тақырып және мақсат</button>
+    <button type="button" class="step" role="tab" id="tab-actual" aria-controls="actual" aria-selected="false" disabled><b>4</b>Еске түсірейік</button>
+    <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>5</b>Жаңа тақырып</button>
+    <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>6</b>Қай функция?</button>
+    <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>7</b>Практика</button>
+    <button type="button" class="step" role="tab" id="tab-excel" aria-controls="excel" aria-selected="false" disabled><b>8</b>Excel-де жұмыс</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>9</b>Сабақ қорытындысы</button>
+    <button type="button" class="step" role="tab" id="tab-hw" aria-controls="hw" aria-selected="false" disabled><b>10</b>Үй тапсырмасы</button>
+  </div>
+
+  <!-- Этап 1: повторение прошлого урока -->
+  <div class="panel" id="review" role="tabpanel" aria-labelledby="tab-review">
+    <div>
+      <h1>Өткен сабақты қайталайық</h1>
+      <p class="lead">СУММ, ABS, КОРЕНЬ, СТЕПЕНЬ және СУММЕСЛИ функциялары туралы алты жылдам сұрақ. Жауапты таңда — дұрыс па, жоқ па және неге екенін бірден көресің.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="rvBar"></i></div><span class="pnum" id="rvNum"></span></div>
+      <p class="small" id="rvFirst"></p>
+    </section>
+    <div class="mt-list" id="rvList"></div>
+    <section class="block mt-done" id="rvDone" hidden>
+      <h2>Қорытынды</h2>
+      <p class="plain" id="rvDoneText"></p>
+    </section>
+    <div class="next"><span></span><button class="btn main" type="button" data-go="puzzle">Әрі қарай: тақырыпты анықта →</button></div>
+  </div>
+
+  <!-- Этап 2: разгадать тему -->
+  <div class="panel" id="puzzle" role="tabpanel" aria-labelledby="tab-puzzle" hidden>
+    <div>
+      <h1>Сабақтың тақырыбын анықта</h1>
+    </div>
+
+    <section class="block how">
+      <h2>Қалай ойнаймыз</h2>
+      <ol class="howto">
+        <li><span class="hn">1</span><span>Парақтың әр ұяшығында әріп жасырынған. <b>«?» астындағы кішкентай сан</b> — айрықтың нөмірі.</span></li>
+        <li><span class="hn">2</span><span>Тап <b>осы нөмірлі айрықты</b> төменде, сосын тұжырымды оқы. Ол дұрыс па, жоқ па?</span></li>
+        <li><span class="hn">3</span><span>Бас <b>«Иә»</b> немесе <b>«Жоқ»</b>. Әр тармақтың өз әрпі бар: дұрыс тармақ керекті әріпті ашады, дұрыс емесі артық әріп қояды — парақтағы сөз «бұзылады».</span></li>
+        <li><span class="hn">4</span><span>Сөз бұзылды — басқа тармақты таңда. Барлық әріпті аш немесе ертерек тапсаң, тақырыпты толық жаз. Осыдан кейін ашылады: <b>сабақтың тақырыбы мен мақсаты</b>.</span></li>
+      </ol>
+      <div class="example">
+        <span class="ex-label">Мысал</span>
+        <span>айрық: <b>2 + 2 = 4</b></span>
+        <span class="arrow">→</span>
+        <span>дұрыс, басамыз <b>«Иә»</b></span>
+        <span class="arrow">→</span>
+        <span class="ex-cell open"><b>Д</b><small>0</small></span>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>«Тақырып» парағы</h2>
+      <div class="sheetwrap"><table class="grid" id="grid"></table></div>
+      <div class="progress">
+        <div class="pbar"><i id="pbar"></i></div>
+        <span class="pnum" id="pnum"></span>
+      </div>
+      <div class="guess">
+        <label for="guessIn">Тақырыпты таптыңыз ба?</label>
+        <input type="text" id="guessIn" placeholder="Тақырыпты толық жазыңыз" autocomplete="off">
+        <button class="btn" type="button" id="guessBtn">Тақырыпты тексеру</button>
+      </div>
+      <p class="msg" id="guessMsg" aria-live="polite"></p>
+    </section>
+
+    <section class="block">
+      <h2>Айрықтар · дұрыс па, жоқ па?</h2>
+      <div class="tasks" id="tasks"></div>
+    </section>
+    <div class="next"><button class="btn" type="button" data-go="review">← Қайталайық</button><button class="reset" type="button" id="resetBtn">Қайта бастау</button></div>
+  </div>
+
+  <!-- Этап 3: тема и цель -->
+  <div class="panel" id="goal" role="tabpanel" aria-labelledby="tab-goal" hidden>
+    <section class="block">
+      <h2>Сабақтың тақырыбы</h2>
+      <p class="reveal-title">Электрондық кестедегі логикалық функциялар</p>
+      <div class="fns"><code>ЕСЛИ()</code><code>И()</code><code>ИЛИ()</code><code>НЕ()</code></div>
+      <p class="small" id="forkNote">Тақырыпты шешкенде сен функция сияқты ойладың — <b>ЕСЛИ</b>: тұжырымды тексеріп, «иә» немесе «жоқ» жауабы бойынша екі әріптің бірін таңдадың.</p>
+    </section>
+    <section class="block expect" id="expect">
+      <h2>Сабақтан күтетінім</h2>
+      <div id="expForm">
+        <label for="expText" class="q">Тақырып ашылды. Осы сабақта не үйренгің келеді? Шарттарды тексеру туралы не білесің?</label>
+        <div class="starters" aria-label="Сөйлемнің басы">
+          <button type="button" class="starter">Мен үйренгім келеді…</button>
+          <button type="button" class="starter">Мен білемін…</button>
+          <button type="button" class="starter">Маған қызық, не үшін…</button>
+          <button type="button" class="starter">Қайда пайдалы екенін түсінгім келеді…</button>
+        </div>
+        <textarea id="expText" rows="3" placeholder="Мысалы: кесте «есептелді» деп өзі қоятындай етуді үйренгім келеді…"></textarea>
+        <div class="exp-actions">
+          <button class="btn main" type="button" id="expSave">Сақтап, сабақ мақсатын көру</button>
+          <span class="msg" id="expMsg" aria-live="polite"></span>
+        </div>
+      </div>
+      <div id="expSaved" hidden>
+        <p class="mine" id="expShow"></p>
+        <button class="btn" type="button" id="expEdit">Өзгерту</button>
+        <p class="small">Сабақтың соңында күткеніңді нәтижемен салыстырасың.</p>
+      </div>
+    </section>
+
+    <div class="panel" id="afterExp" hidden>
+    <section class="block">
+      <h2>Оқу мақсаты</h2>
+      <div class="goal"><span class="code">8.2.2.2</span><p>электрондық кестелерде логикалық операцияларды өңдеу функцияларын (ЕСЛИ(), И(), ИЛИ(), НЕ()) қолдану</p></div>
+    </section>
+    <section class="block">
+      <h2>Сабақ мақсаты</h2>
+      <p class="plain">электрондық кестелерде шарттарды тексеруді және ЕСЛИ(), И(), ИЛИ() және НЕ() функцияларымен нәтижені таңдауды үйрену.</p>
+    </section>
+    <section class="block">
+      <h2>Күтілетін нәтижелер · сабақтың соңында мен</h2>
+      <div class="res"><div class="who">Барлық оқушылар<span class="bar"><i style="width:100%"></i></span></div><p>шартты салыстыру таңбаларымен жазып, екі мәннің бірін мына функциямен таңдау: <code>=ЕСЛИ(B2&gt;=50;"есептелді";"есептелмеді")</code>.</p></div>
+      <div class="res"><div class="who">Оқушылардың көпшілігі<span class="bar"><i style="width:70%"></i></span></div><p>бірнеше шартты бірден тексеру, функциялар: <code>И()</code> және <code>ИЛИ()</code>, мысалы, <code>=И(B2&lt;=10;C2&gt;=150)</code>, сондай-ақ ЕСЛИ тармағында нәтижені есептеу.</p></div>
+      <div class="res"><div class="who">Кейбір оқушылар<span class="bar"><i style="width:35%"></i></span></div><p>кірістірілген функциялардан формула құру, мысалы, <code>=ЕСЛИ(И(B2=5;C2=5);"жіберілді";"жоқ")</code> немесе ЕСЛИ ішінде ЕСЛИ, сондай-ақ И мен ИЛИ айырмашылығын түсіндіру.</p></div>
+    </section>
+    <section class="block">
+      <h2>Бағалау критерийлері · мақсатқа жеткенімізді қалай тексереміз</h2>
+      <p class="plain crit-main"><b>Критерий:</b> электрондық кестелерде шарттарды өңдеу үшін ЕСЛИ(), И(), ИЛИ(), НЕ() логикалық функцияларын қолданады.</p>
+      <div class="tablewrap"><table class="th-args crit" id="critTable"></table></div>
+      <p class="small-note">Дескрипторлар сабақтағы тапсырмалар бойынша автоматты түрде белгіленеді. Өз нәтижелеріңді «Сабақ қорытындысында» көресің.</p>
+    </section>
+    </div>
+    <div class="next"><button class="btn" type="button" data-go="puzzle">← Тақырыпты анықтауға</button><button class="btn main" type="button" data-go="actual" id="toLearn" hidden>Әрі қарай: еске түсірейік →</button></div>
+  </div>
+
+  <!-- Этап 4: актуализация знаний -->
+  <div class="panel" id="actual" role="tabpanel" aria-labelledby="tab-actual" hidden>
+    <div>
+      <h1>Еске түсірейік: салыстыру</h1>
+      <p class="lead">Жаңа функциялар шарттармен жұмыс істейді: үлкен, кіші, тең. Салыстыру таңбаларын және кесте «дұрыс па?» деген сұраққа қалай жауап беретінін есіңде ме, тексер.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="acBar"></i></div><span class="pnum" id="acNum"></span></div>
+      <p class="small" id="acFirst"></p>
+    </section>
+    <div class="mt-list" id="acList"></div>
+    <section class="block mt-done" id="acDone" hidden>
+      <h2>Қорытынды</h2>
+      <p class="plain" id="acDoneText"></p>
+    </section>
+    <div class="next">
+      <button class="btn" type="button" data-go="goal">← Тақырып және мақсат</button>
+      <button class="btn main" type="button" data-go="learn">Әрі қарай: жаңа тақырып →</button>
+    </div>
+  </div>
+
+  <!-- Этап 5: новая тема -->
+  <div class="panel" id="learn" role="tabpanel" aria-labelledby="tab-learn" hidden>
+    <div>
+      <h1>Кесте шарттарды қалай тексереді</h1>
+      <p class="lead">Логикалық функция «иә ме, жоқ па?» деген сұраққа жауап береді. Кесте жауапты ИСТИНА немесе ЛОЖЬ деп жазады, ал ЕСЛИ функциясы осы жауап бойынша ұяшықта не көрсетуді таңдайды.</p>
+    </div>
+
+    <section class="block">
+      <h2>ЕСЛИ формуласы қалай құрылған</h2>
+      <div class="anatomy">
+        <div class="part"><span class="tok">=</span><span class="lab">«Қазір формула болады»</span></div>
+        <div class="part"><span class="tok fnc">ЕСЛИ</span><span class="lab">не істеу керек</span></div>
+        <div class="part"><span class="tok">(</span><span class="lab">аштық</span></div>
+        <div class="part"><span class="tok arg">B2&gt;=50</span><span class="lab">шарт:<br>дұрыс па, жоқ па?</span></div>
+        <div class="part"><span class="tok">;</span><span class="lab">&nbsp;</span></div>
+        <div class="part"><span class="tok arg">"есептелді"</span><span class="lab">иә болса</span></div>
+        <div class="part"><span class="tok">;</span><span class="lab">&nbsp;</span></div>
+        <div class="part"><span class="tok arg">"есептелмеді"</span><span class="lab">жоқ болса</span></div>
+        <div class="part"><span class="tok">)</span><span class="lab">жаптық</span></div>
+      </div>
+      <p class="tip">Былай оқылады: <b>егер</b> B2-де 50 немесе одан көп болса, <b>онда</b> «есептелді» деп жаз, <b>әйтпесе</b> — «есептелмеді» деп жаз. Мәтін тырнақшада жазылады, ал бөліктер нүктелі үтірмен бөлінеді.</p>
+    </section>
+
+    <section class="block theory-intro">
+      <h2>Негізгі ұғымдар</h2>
+      <div class="concepts">
+        <div><b>Шарт</b><p>«дұрыс» немесе «дұрыс емес» деп айтуға болатын логикалық өрнек: <code>B2&gt;=50</code>, <code>A1&lt;&gt;0</code>.</p></div>
+        <div><b>ИСТИНА және ЛОЖЬ</b><p>екі логикалық мән. ИСТИНА — шарт дұрыс, ЛОЖЬ — дұрыс емес. Мысалы, <code>=5&gt;3</code> формуласы ИСТИНА көрсетеді.</p></div>
+        <div><b>Логикалық функция</b><p>шарттармен жұмыс істейді: ЕСЛИ жауапты таңдайды, И, ИЛИ және НЕ шарттарды біріктіреді және аударады.</p></div>
+        <div><b>Формуладағы мәтін</b><p>әрқашан қос тырнақшада: <code>"есептелді"</code>. Қатар тұрған екі тырнақша <code>""</code> — бос мәтін, ұяшық бос көрінеді.</p></div>
+        <div><b>Кірістірілген функция</b><p>басқа функцияның ішіндегі функция: <code>=ЕСЛИ(И(…);"иә";"жоқ")</code>. Алдымен ішкі функция есептеледі.</p></div>
+        <div><b>Логикалық қате</b><p>формула қате кодынсыз жұмыс істейді, бірақ жауап дұрыс емес. Мысалы, <code>&gt;</code> , дұрысы — <code>&gt;=</code> , шекарада.</p></div>
+      </div>
+      <h3 class="th-h">Салыстыру таңбалары</h3>
+      <div class="tablewrap"><table class="th-args"><tr><th>Таңба</th><th>Нені білдіреді</th><th>Мысал</th><th>Жауап</th></tr><tr><td><code>&gt;</code></td><td>үлкен</td><td><code>=5&gt;3</code></td><td>ИСТИНА</td></tr><tr><td><code>&lt;</code></td><td>кіші</td><td><code>=5&lt;3</code></td><td>ЛОЖЬ</td></tr><tr><td><code>=</code></td><td>тең</td><td><code>=5=5</code></td><td>ИСТИНА</td></tr><tr><td><code>&gt;=</code></td><td>үлкен немесе тең</td><td><code>=5&gt;=5</code></td><td>ИСТИНА</td></tr><tr><td><code>&lt;=</code></td><td>кіші немесе тең</td><td><code>=6&lt;=5</code></td><td>ЛОЖЬ</td></tr><tr><td><code>&lt;&gt;</code></td><td>тең емес</td><td><code>=5&lt;&gt;5</code></td><td>ЛОЖЬ</td></tr></table></div>
+      <p class="tip">Математикадағы ≥, ≤ және ≠ таңбалары кестеде терілмейді. Қатар екі символ жазылады: алдымен <code>&gt;</code> немесе <code>&lt;</code>, содан кейін <code>=</code>. «Тең емес» — <code>&lt;&gt;</code>.</p>
+    </section>
+
+    <div class="fpills" role="tablist" aria-label="Функциялар">
+      <button type="button" class="fpill" data-f="0" aria-selected="true">1 · ЕСЛИ</button>
+      <button type="button" class="fpill" data-f="1" aria-selected="false">2 · И</button>
+      <button type="button" class="fpill" data-f="2" aria-selected="false">3 · ИЛИ</button>
+      <button type="button" class="fpill" data-f="3" aria-selected="false">4 · НЕ</button>
+      <button type="button" class="fpill" data-f="4" aria-selected="false">Анықтамалық және қателер</button>
+    </div>
+
+    <!-- ЕСЛИ -->
+    <section class="block fcard" data-card="0">
+      <p class="fname"><code>ЕСЛИ()</code> — екеуінің бірін таңдайды</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> өткелдегі бағдаршам сияқты. Жасыл жанса — жүреміз, әйтпесе — тұрамыз. ЕСЛИ шартты тексеріп, «иә» немесе «жоқ» жауабы бойынша екі мәннің бірін көрсетеді.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Балл бойынша сынақ:</span> <code>=ЕСЛИ(B2&gt;=50;"есептелді";"есептелмеді")</code></li><li><span>5000 тг-ден бастап тегін жеткізу:</span> <code>=ЕСЛИ(B2&gt;=5000;0;700)</code></li><li><span>10 000 тг-ден қымбат сатып алуға 10% жеңілдік:</span> <code>=ЕСЛИ(B2&gt;10000;B2*0,9;B2)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> шарт бірнешеу болып, бәрі орындалуы керек болса → ЕСЛИ және И бірге.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>=ЕСЛИ(шарт;"иә";"жоқ")</code></p>
+
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>ЕСЛИ шартты тексереді. Шарт дұрыс болса (ИСТИНА), функция екінші аргументті қайтарады, дұрыс болмаса (ЛОЖЬ) — үшіншісін.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=ЕСЛИ(логикалық_өрнек; ақиқат_болса_мән; [жалған_болса_мән])</code></p>
+      <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Бұл не</th><th>Міндетті ме?</th></tr><tr><td><code>логикалық_өрнек</code></td><td>тексеретін шарт: <code>B2&gt;=50</code>, <code>A1="иә"</code></td><td>иә</td></tr><tr><td><code>ақиқат_болса_мән</code></td><td>шарт дұрыс болса, не көрсету керек: сан, тырнақшадағы мәтін, ұяшық немесе формула</td><td>иә</td></tr><tr><td><code>жалған_болса_мән</code></td><td>шарт дұрыс болмаса, не көрсету керек. Көрсетілмесе, ұяшық ЛОЖЬ көрсетеді</td><td>жоқ</td></tr></table></div>
+      <h3>Мысалдар</h3>
+      <p class="small-note">Мысалдарға арналған деректер — төмендегі кестеде. Формуланы бас: осы деректер мен формула «Өзің байқап көр» кестесінде пайда болады, ал формула H10 ұяшығына түседі.</p>
+      <p class="ex-cap">Мысалдарға арналған деректер</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th></tr><tr><th>1</th><td class="n">72</td></tr><tr><th>2</th><td class="n">35</td></tr><tr><th>3</th><td class="n">12000</td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Нәтиже</th><th>Неге</th></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(5&gt;3;&quot;иә&quot;;&quot;жоқ&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Төмендегі кестеде ашу">=ЕСЛИ(5&gt;3;"иә";"жоқ")</button></td><td class="r">иә</td><td>5 саны 3-тен үлкен — шарт дұрыс, екінші аргументті аламыз</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(2&gt;3;&quot;иә&quot;;&quot;жоқ&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Төмендегі кестеде ашу">=ЕСЛИ(2&gt;3;"иә";"жоқ")</button></td><td class="r">жоқ</td><td>шарт дұрыс емес — үшінші аргументті аламыз</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A1&gt;=50;&quot;есептелді&quot;;&quot;есептелмеді&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Төмендегі кестеде ашу">=ЕСЛИ(A1&gt;=50;"есептелді";"есептелмеді")</button></td><td class="r">есептелді</td><td>A1-де 72, ал 72 ≥ 50</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A2&gt;=50;&quot;есептелді&quot;;&quot;есептелмеді&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Төмендегі кестеде ашу">=ЕСЛИ(A2&gt;=50;"есептелді";"есептелмеді")</button></td><td class="r">есептелмеді</td><td>A2-де 35, ал 35 &lt; 50</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A3&gt;10000;A3*0,9;A3)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Төмендегі кестеде ашу">=ЕСЛИ(A3&gt;10000;A3*0,9;A3)</button></td><td class="r">10 800</td><td>сатып алу 10 000-нан көп — 10% жеңілдік: 12 000 · 0,9</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A2&gt;=50;&quot;есептелді&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Төмендегі кестеде ашу">=ЕСЛИ(A2&gt;=50;"есептелді")</button></td><td class="r">ЛОЖЬ</td><td>үшінші аргумент жоқ, ал шарт дұрыс емес</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(A2&gt;=50;&quot;есептелді&quot;;&quot;&quot;)" data-cells="{&quot;A1&quot;: &quot;72&quot;, &quot;A2&quot;: &quot;35&quot;, &quot;A3&quot;: &quot;12000&quot;}" title="Төмендегі кестеде ашу">=ЕСЛИ(A2&gt;=50;"есептелді";"")</button></td><td class="r">(бос)</td><td>&quot;&quot; — бос мәтін: ұяшық бос көрінеді</td></tr></table></div>
+      <h3>Білу маңызды</h3>
+      <ul><li><b>Мәтін — тырнақшада:</b> <code>"есептелді"</code>. Тырнақшасыз кесте сөзді атау деп қабылдап, мынаны көрсетеді: <code>#ИМЯ?</code>.</li><li><b>Сандар мен формулалар — тырнақшасыз:</b> <code>=ЕСЛИ(B2&gt;=5000;0;700)</code>. Тырнақшадағы сан <code>"700"</code> мәтінге айналады.</li><li><b>Шекара маңызды:</b> <code>&gt;=50</code> 50 санының өзін қамтиды, ал <code>&gt;50</code> — жоқ. Таңбаны шатастырсаң — экранда қате болмайды, бірақ жауап дұрыс болмайды.</li><li>Мәтінді де салыстыруға болады: <code>=ЕСЛИ(A1="иә";1;0)</code>. Кесте бас және кіші әріптерді ажыратпайды.</li></ul>
+      <h3>Алгоритмдермен байланысы</h3>
+      <p>«Егер …, онда …, әйтпесе …» — бұл тармақталу. Блок-сызбада оған «иә» және «жоқ» деген екі шығуы бар ромб сәйкес келеді. ЕСЛИ — дәл сол тармақталу, тек ұяшықтың ішінде.</p>
+      </div>
+      <div class="tryxl"><span class="trylab">Кестеде өзің байқап көр</span><div class="xl" data-sheet="if"></div></div>
+      <p class="remember"><b>Есте сақта:</b> ЕСЛИ әрқашан екі жауаптың бірін таңдайды: алдымен «иә» жауабы, содан кейін «жоқ» жауабы жазылады.</p>
+    </section>
+
+    <!-- И -->
+    <section class="block fcard" data-card="1" hidden>
+      <p class="fname"><code>И()</code> — барлық шарт бірден</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> билет пен бас киімді де тексеретін бассейн күзетшісі сияқты. Бәрі болса ғана кіргізеді. Біреуі жетіспесе — ЛОЖЬ.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Дене шынықтырудан сынақ: жүгіру 10 с-тан ұзақ емес және секіру 150 см-ден бастап:</span> <code>=И(B2&lt;=10;C2&gt;=150)</code></li><li><span>10-нан 20-ға дейінгі сан:</span> <code>=И(A1&gt;=10;A1&lt;=20)</code></li><li><span>Екі беспен олимпиадаға жіберу:</span> <code>=ЕСЛИ(И(B2=5;C2=5);"жіберілді";"жоқ")</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> бірнеше шарттың біреуі жеткілікті болса → ИЛИ.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>=И(шарт1;шарт2)</code></p>
+
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>И бірнеше шартты тексереді және бәрі дұрыс болғанда ғана ИСТИНА қайтарады. Ең болмаса біреуі дұрыс болмаса — ЛОЖЬ.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=И(логикалық_мән1; [логикалық_мән2]; …)</code></p>
+      <div class="tablewrap"><table class="th-args"><tr><th>Аргумент</th><th>Бұл не</th><th>Міндетті ме?</th></tr><tr><td><code>логикалық_мән1</code></td><td>бірінші шарт</td><td>иә</td></tr><tr><td><code>логикалық_мән2; …</code></td><td>«;» арқылы басқа шарттар</td><td>жоқ</td></tr></table></div>
+      <h3>Ақиқат кестесі</h3>
+      <div class="tablewrap"><table class="th-args"><tr><th>1-шарт</th><th>2-шарт</th><th>И</th></tr><tr><td>ИСТИНА</td><td>ИСТИНА</td><td><b>ИСТИНА</b></td></tr><tr><td>ИСТИНА</td><td>ЛОЖЬ</td><td>ЛОЖЬ</td></tr><tr><td>ЛОЖЬ</td><td>ИСТИНА</td><td>ЛОЖЬ</td></tr><tr><td>ЛОЖЬ</td><td>ЛОЖЬ</td><td>ЛОЖЬ</td></tr></table></div>
+      <h3>Мысалдар</h3>
+      <p class="small-note">Мысалдарға арналған деректер — төмендегі кестеде. Формуланы бас: ол «Өзің байқап көр» кестесінде H10 ұяшығында пайда болады.</p>
+      <p class="ex-cap">Мысалдарға арналған деректер</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th></tr><tr><th>1</th><td class="n">9</td></tr><tr><th>2</th><td class="n">160</td></tr><tr><th>3</th><td class="n">15</td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Нәтиже</th><th>Неге</th></tr><tr><td><button type="button" class="tryf" data-f="=И(5&gt;3;2&gt;1)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Төмендегі кестеде ашу">=И(5&gt;3;2&gt;1)</button></td><td class="r">ИСТИНА</td><td>екі шарт та дұрыс</td></tr><tr><td><button type="button" class="tryf" data-f="=И(5&gt;3;2&gt;4)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Төмендегі кестеде ашу">=И(5&gt;3;2&gt;4)</button></td><td class="r">ЛОЖЬ</td><td>екінші шарт дұрыс емес</td></tr><tr><td><button type="button" class="tryf" data-f="=И(A1&lt;=10;A2&gt;=150)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Төмендегі кестеде ашу">=И(A1&lt;=10;A2&gt;=150)</button></td><td class="r">ИСТИНА</td><td>жүгіру 9 с және секіру 160 см — екі норма да орындалды</td></tr><tr><td><button type="button" class="tryf" data-f="=И(A3&gt;=10;A3&lt;=20)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Төмендегі кестеде ашу">=И(A3&gt;=10;A3&lt;=20)</button></td><td class="r">ИСТИНА</td><td>15 — 10-нан 20-ға дейін</td></tr><tr><td><button type="button" class="tryf" data-f="=ЕСЛИ(И(A1&lt;=10;A2&gt;=150);&quot;есептелді&quot;;&quot;есептелмеді&quot;)" data-cells="{&quot;A1&quot;: &quot;9&quot;, &quot;A2&quot;: &quot;160&quot;, &quot;A3&quot;: &quot;15&quot;}" title="Төмендегі кестеде ашу">=ЕСЛИ(И(A1&lt;=10;A2&gt;=150);"есептелді";"есептелмеді")</button></td><td class="r">есептелді</td><td>ЕСЛИ ішіндегі И: нәтиже — сөз</td></tr></table></div>
+      <h3>Білу маңызды</h3>
+      <ul><li>И өздігінен тек ИСТИНА немесе ЛОЖЬ көрсетеді. Сөз шығару үшін И-ді ЕСЛИ ішіне салады: <code>=ЕСЛИ(И(…);"иә";"жоқ")</code>.</li><li>10 ≤ A1 ≤ 20 қос теңсіздігі И арқылы жазылады: <code>=И(A1&gt;=10;A1&lt;=20)</code>. Мына жазу: <code>=10&lt;=A1&lt;=20</code> қате жұмыс істейді — оны кестеде байқап көр.</li><li>И жақшасын ЕСЛИ-дің келесі аргументін бөлетін нүктелі үтірге дейін жабады.</li></ul>
+      <h3>Математикамен байланысы</h3>
+      <p>Логикада И конъюнкция деп аталады: A ∧ B. Теңсіздіктер жүйесі { x ≥ 10; x ≤ 20 } — бұл да И: екі теңсіздік те дұрыс болуы керек.</p>
+      </div>
+      <div class="tryxl"><span class="trylab">Кестеде өзің байқап көр</span><div class="xl" data-sheet="and"></div></div>
+      <p class="remember"><b>Есте сақта:</b> И қатал — бүкіл жауап ЛОЖЬ болуы үшін бір «жоқ» жеткілікті.</p>
+    </section>
+
+    <!-- ИЛИ -->
+    <section class="block fcard" data-card="2" hidden>
+      <p class="fname"><code>ИЛИ()</code> — ең болмаса бір шарт</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> мұражайға тегін кіргізеді, егер сен 7 жастан кіші <b>немесе</b> 65 жастан үлкен болсаң. Екеуінің біреуі жеткілікті.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Демалыс күні:</span> <code>=ИЛИ(A2="сн";A2="жс")</code></li><li><span>Жеңілдікті билет: 7 жастан кіші немесе 65 жастан үлкен:</span> <code>=ИЛИ(B2&lt;7;B2&gt;65)</code></li><li><span>−20°-тан төмен аязда немесе 35°-тан жоғары ыстықта дабыл:</span> <code>=ЕСЛИ(ИЛИ(B2&lt;-20;B2&gt;35);"дабыл";"норма")</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> барлық шарт орындалуы керек болса → И.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>=ИЛИ(шарт1;шарт2)</code></p>
+
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>ИЛИ ең болмаса бір шарт дұрыс болса, ИСТИНА қайтарады. ЛОЖЬ — тек бәрі дұрыс болмағанда.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=ИЛИ(логикалық_мән1; [логикалық_мән2]; …)</code></p>
+      <h3>Ақиқат кестесі</h3>
+      <div class="tablewrap"><table class="th-args"><tr><th>1-шарт</th><th>2-шарт</th><th>ИЛИ</th></tr><tr><td>ИСТИНА</td><td>ИСТИНА</td><td>ИСТИНА</td></tr><tr><td>ИСТИНА</td><td>ЛОЖЬ</td><td>ИСТИНА</td></tr><tr><td>ЛОЖЬ</td><td>ИСТИНА</td><td>ИСТИНА</td></tr><tr><td>ЛОЖЬ</td><td>ЛОЖЬ</td><td><b>ЛОЖЬ</b></td></tr></table></div>
+      <h3>Мысалдар</h3>
+      <p class="ex-cap">Мысалдарға арналған деректер</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th></tr><tr><th>1</th><td class="n">5</td></tr><tr><th>2</th><td class="t">сн</td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Нәтиже</th><th>Неге</th></tr><tr><td><button type="button" class="tryf" data-f="=ИЛИ(5&gt;3;2&gt;4)" data-cells="{&quot;A1&quot;: &quot;5&quot;, &quot;A2&quot;: &quot;сн&quot;}" title="Төмендегі кестеде ашу">=ИЛИ(5&gt;3;2&gt;4)</button></td><td class="r">ИСТИНА</td><td>бірінші шарт дұрыс — осы жеткілікті</td></tr><tr><td><button type="button" class="tryf" data-f="=ИЛИ(1&gt;3;2&gt;4)" data-cells="{&quot;A1&quot;: &quot;5&quot;, &quot;A2&quot;: &quot;сн&quot;}" title="Төмендегі кестеде ашу">=ИЛИ(1&gt;3;2&gt;4)</button></td><td class="r">ЛОЖЬ</td><td>екі шарт та дұрыс емес</td></tr><tr><td><button type="button" class="tryf" data-f="=ИЛИ(A1&lt;7;A1&gt;65)" data-cells="{&quot;A1&quot;: &quot;5&quot;, &quot;A2&quot;: &quot;сн&quot;}" title="Төмендегі кестеде ашу">=ИЛИ(A1&lt;7;A1&gt;65)</button></td><td class="r">ИСТИНА</td><td>A1-де жасы 5 — 7-ден кіші</td></tr><tr><td><button type="button" class="tryf" data-f="=ИЛИ(A2=&quot;сн&quot;;A2=&quot;жс&quot;)" data-cells="{&quot;A1&quot;: &quot;5&quot;, &quot;A2&quot;: &quot;сн&quot;}" title="Төмендегі кестеде ашу">=ИЛИ(A2="сн";A2="жс")</button></td><td class="r">ИСТИНА</td><td>A2-де «сн»</td></tr></table></div>
+      <h3>Білу маңызды</h3>
+      <ul><li>И ме, ИЛИ ме? Өзіңнен сұра: бәрі бірден керек пе (И), әлде біреуі жеткілікті ме (ИЛИ)?</li><li>Логикада ИЛИ дизъюнкция деп аталады: A ∨ B.</li></ul>
+      </div>
+      <div class="tryxl"><span class="trylab">Кестеде өзің байқап көр</span><div class="xl" data-sheet="or"></div></div>
+      <p class="remember"><b>Есте сақта:</b> ИЛИ мейірімді — бір «иә» жеткілікті.</p>
+    </section>
+
+    <!-- НЕ -->
+    <section class="block fcard" data-card="3" hidden>
+      <p class="fname"><code>НЕ()</code> — керісінше</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> жауапты аударады. ИСТИНА болса — ЛОЖЬ болады, ЛОЖЬ болса — ИСТИНА болады.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>ҮТ-ны әлі кім тапсырмады (тапсырса, B2-де ИСТИНА):</span> <code>=НЕ(B2)</code></li><li><span>8А-дан басқалардың бәрі:</span> <code>=НЕ(A2="8А")</code></li><li><span>Тапсырмағандарға еске салу:</span> <code>=ЕСЛИ(НЕ(B2);"еске салу";"")</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> жай ғана «тең емес» керек болса — мына таңба қысқарақ: <code>&lt;&gt;</code>: <code>=A2&lt;&gt;"8А"</code>.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>=НЕ(шарт)</code></p>
+
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>НЕ логикалық мәнді қарама-қарсысына ауыстырады. Функцияның дәл бір аргументі бар.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>=НЕ(логикалық_мән)</code></p>
+      <h3>Мысалдар</h3>
+      <p class="ex-cap">Мысалдарға арналған деректер</p><div class="tablewrap"><table class="mini ex-data"><tr><th></th><th>A</th></tr><tr><th>1</th><td class="t">ИСТИНА</td></tr><tr><th>2</th><td class="n">12</td></tr></table></div><div class="tablewrap"><table class="th-ex"><tr><th>Формула</th><th>Нәтиже</th><th>Неге</th></tr><tr><td><button type="button" class="tryf" data-f="=НЕ(5&gt;3)" data-cells="{&quot;A1&quot;: &quot;ИСТИНА&quot;, &quot;A2&quot;: &quot;12&quot;}" title="Төмендегі кестеде ашу">=НЕ(5&gt;3)</button></td><td class="r">ЛОЖЬ</td><td>5 &gt; 3 дұрыс, ал НЕ жауапты керісінше аударады</td></tr><tr><td><button type="button" class="tryf" data-f="=НЕ(2&gt;3)" data-cells="{&quot;A1&quot;: &quot;ИСТИНА&quot;, &quot;A2&quot;: &quot;12&quot;}" title="Төмендегі кестеде ашу">=НЕ(2&gt;3)</button></td><td class="r">ИСТИНА</td><td>2 &gt; 3 дұрыс емес, демек, керісінше — ИСТИНА</td></tr><tr><td><button type="button" class="tryf" data-f="=НЕ(A1)" data-cells="{&quot;A1&quot;: &quot;ИСТИНА&quot;, &quot;A2&quot;: &quot;12&quot;}" title="Төмендегі кестеде ашу">=НЕ(A1)</button></td><td class="r">ЛОЖЬ</td><td>A1-де ИСТИНА жазылған</td></tr><tr><td><button type="button" class="tryf" data-f="=НЕ(A2&gt;10)" data-cells="{&quot;A1&quot;: &quot;ИСТИНА&quot;, &quot;A2&quot;: &quot;12&quot;}" title="Төмендегі кестеде ашу">=НЕ(A2&gt;10)</button></td><td class="r">ЛОЖЬ</td><td>12 &gt; 10 дұрыс → ЛОЖЬ. =A2&lt;=10 формуласымен бірдей</td></tr></table></div>
+      <h3>Білу маңызды</h3>
+      <ul><li><code>=НЕ(A2&gt;10)</code> — мынамен бірдей: <code>=A2&lt;=10</code>.</li><li>Логикада НЕ терістеу деп аталады: ¬A.</li></ul>
+      </div>
+      <div class="tryxl"><span class="trylab">Кестеде өзің байқап көр</span><div class="xl" data-sheet="not"></div></div>
+      <p class="remember"><b>Есте сақта:</b> <code>НЕ(…)</code> «… дегені дұрыс емес» деп оқылады.</p>
+    </section>
+
+    <!-- Шпаргалка -->
+    <section class="block fcard" data-card="4" hidden>
+      <p class="fname">Анықтамалық және қателер</p>
+      <div class="tablewrap">
+        <table class="cheat">
+          <tr><th>Функция</th><th>Не істейді</th><th>Мысал</th><th>Жауап</th></tr>
+          <tr><td><code>ЕСЛИ</code></td><td>екеуінің бірін таңдайды</td><td><code>=ЕСЛИ(7&gt;5;"иә";"жоқ")</code></td><td>иә</td></tr>
+          <tr><td><code>И</code></td><td>барлық шарт дұрыс</td><td><code>=И(7&gt;5;2&gt;1)</code></td><td>ИСТИНА</td></tr>
+          <tr><td><code>ИЛИ</code></td><td>ең болмаса біреуі дұрыс</td><td><code>=ИЛИ(7&lt;5;2&gt;1)</code></td><td>ИСТИНА</td></tr>
+          <tr><td><code>НЕ</code></td><td>керісінше</td><td><code>=НЕ(7&gt;5)</code></td><td>ЛОЖЬ</td></tr>
+        </table>
+      </div>
+      <p class="remember"><b>Жиі кездесетін үш қате:</b> тырнақшасыз мәтін; таңба <code>=&gt;</code> , дұрысы — <code>&gt;=</code>; И мен ИЛИ шатастырылды.</p>
+      <h3 class="th-h">Қателер және олардың себептері</h3>
+      <p class="small-note"><b>«Парақта көрсету»</b> төмендегі құмсалғышта дайын парақты ашады: қатесі бар формула мен түзетілгені қатар тұрады. Формулалы батырмалар мысалды H10 ұяшығына қояды.</p>
+      <div class="tablewrap"><table class="th-ex err-table"><tr><th>Қате</th><th>Нені білдіреді</th><th>Неге пайда болады</th><th>Мысал</th><th>Қалай түзетеміз</th></tr>
+<tr><td class="ecode">#ИМЯ?</td><td>кесте сөзді танымады</td><td>Тырнақшасыз мәтін; орыс нұсқасындағы ағылшынша IF атауы; функция атауындағы қате.</td><td class="eex"><button type="button" class="showex" data-ex="1">Парақта көрсету</button><button type="button" class="tryf" data-f="=ЕСЛИ(5&gt;3;иә;жоқ)">=ЕСЛИ(5&gt;3;иә;жоқ)</button><button type="button" class="tryf" data-f="=IF(5&gt;3;&quot;иә&quot;;&quot;жоқ&quot;)">=IF(5&gt;3;"иә";"жоқ")</button><button type="button" class="tryf" data-f="=ЕСЛЕ(5&gt;3;&quot;иә&quot;;&quot;жоқ&quot;)">=ЕСЛЕ(5&gt;3;"иә";"жоқ")</button></td><td>Мәтінді тырнақшаға ал: <code>"иә"</code>. Функция атауын тексеру.</td></tr>
+<tr><td class="ecode">Жазу қатесі</td><td>формула қате жазылған</td><td>Таңба <code>=&gt;</code> , дұрысы — <code>&gt;=</code>; ≥ символы; «;» орнына үтір; тырнақша немесе жақша жабылмаған. Excel мұндай формуланы енгізуге рұқсат бермейді. Біздің кестеде ұяшық мынаны көрсетеді: <code>#ОШИБКА</code> және себебін айтады.</td><td class="eex"><button type="button" class="showex" data-ex="2">Парақта көрсету</button><button type="button" class="tryf" data-f="=ЕСЛИ(5=&gt;3;&quot;иә&quot;;&quot;жоқ&quot;)">=ЕСЛИ(5=&gt;3;"иә";"жоқ")</button><button type="button" class="tryf" data-f="=ЕСЛИ(5&gt;3,&quot;иә&quot;,&quot;жоқ&quot;)">=ЕСЛИ(5&gt;3,"иә","жоқ")</button><button type="button" class="tryf" data-f="=И(5&gt;3;2&gt;1">=И(5&gt;3;2&gt;1</button></td><td>Салыстыру таңбалары: <code>&gt;=</code>, <code>&lt;=</code>, <code>&lt;&gt;</code>. Аргументтерді бөлу: <code>;</code>, әр тырнақша мен жақшаны жабу.</td></tr>
+<tr><td class="ecode">#ЗНАЧ!</td><td>шарттың орнына — мәтін</td><td>ЕСЛИ, И, ИЛИ немесе НЕ ішінде шарттың орнына сөз тұр: кесте оның дұрыс не бұрыс екенін айта алмайды.</td><td class="eex"><button type="button" class="showex" data-ex="3">Парақта көрсету</button><button type="button" class="tryf" data-f="=НЕ(&quot;иә&quot;)">=НЕ("иә")</button><button type="button" class="tryf" data-f="=ЕСЛИ(&quot;иә&quot;;1;0)">=ЕСЛИ("иә";1;0)</button></td><td>Шартта салыстыру болуы керек: <code>A1="иә"</code>, <code>B2&gt;=50</code>.</td></tr>
+<tr><td class="ecode">Логикалық қате</td><td>экранда қате жоқ, бірақ жауап дұрыс емес</td><td><code>&gt;</code> , дұрысы — <code>&gt;=</code> шекарада; «иә» мен «жоқ» жауаптары шатастырылған; ИЛИ орнына И.</td><td class="eex"><button type="button" class="showex" data-ex="4">Парақта көрсету</button></td><td>Формуланы шекаралық санмен (дәл 50) және екі жауаппен де тексеру.</td></tr>
+</table></div>
+      <div class="tryxl"><span class="trylab">Құмсалғыш: барлық функциялар бірге</span><div class="xl" data-sheet="all"></div></div>
+    </section>
+
+    <div class="next">
+      <button class="btn" type="button" id="fPrev">← Артқа</button>
+      <button class="btn main" type="button" id="fNext">Әрі қарай: И →</button>
+    </div>
+  </div>
+
+  <!-- Этап 6: какая функция подходит -->
+  <div class="panel" id="match" role="tabpanel" aria-labelledby="tab-match" hidden>
+    <div>
+      <h1>Қай функция сәйкес келеді?</h1>
+      <p class="lead">Жағдайды оқып, негізгі функцияны таңда: <b>ЕСЛИ</b> — бір шарт және екі жауаптың бірін таңдау, <b>И</b> — барлық шарт керек, <b>ИЛИ</b> — біреуі жеткілікті, <b>НЕ</b> — керісінше. Қателессең — себебін көресің және қайта таңдай аласың.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="mtBar"></i></div><span class="pnum" id="mtNum"></span></div>
+      <p class="small" id="mtFirst"></p>
+    </section>
+    <div class="mt-list" id="mtList"></div>
+    <section class="block mt-done" id="mtDone" hidden>
+      <h2>Қорытынды</h2>
+      <p class="plain" id="mtDoneText"></p>
+      <button class="btn" type="button" id="mtRetry">Қайта өту</button>
+    </section>
+    <div class="next">
+      <button class="btn" type="button" data-go="learn">← Жаңа тақырып</button>
+      <button class="btn" type="button" id="breakBtn2">Сергіту сәті · 1 мин</button>
+      <button class="btn main" type="button" data-go="practice">Әрі қарай: практика →</button>
+    </div>
+  </div>
+
+  <!-- Этап 7: практика -->
+  <div class="panel" id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+    <div>
+      <h1>Практика</h1>
+      <p class="lead">Алдымен сергіту: шартты салыстыру таңбаларымен жаз. Содан кейін үш деңгейдің тапсырмалары — оңайдан күрделіге. Алдыңғы тапсырма шешілгенде келесісі ашылады. Кесте формуланы басқа сандармен де тексереді — соның ішінде шарттың шекарасында.</p>
+    </div>
+    <section class="block">
+      <div class="lv-tabs" role="tablist" aria-label="Деңгейлер">
+        <button type="button" class="lv" data-lv="0" role="tab"><span class="lv-name">0 · Салыстыру</span><small>барлығына арналған жаттығу</small><span class="lv-c" id="lvc0"></span></button>
+        <button type="button" class="lv" data-lv="A" role="tab"><span class="lv-name">A · Базалық</span><small>барлығы үшін</small><span class="lv-c" id="lvcA"></span></button>
+        <button type="button" class="lv" data-lv="B" role="tab"><span class="lv-name">B · Орташа</span><small>көпшілігі үшін</small><span class="lv-c" id="lvcB"></span></button>
+        <button type="button" class="lv" data-lv="C" role="tab"><span class="lv-name">C · Жоғары</span><small>кейбіреулер үшін</small><span class="lv-c" id="lvcC"></span></button>
+      </div>
+      <p class="lv-desc" id="lvDesc"></p>
+      <div class="progress"><div class="pbar"><i id="prBar"></i></div><span class="pnum" id="prNum"></span></div>
+    </section>
+    <div class="panel" id="prTasks"></div>
+    <div class="next">
+      <button class="btn" type="button" data-go="match">← Қай функция?</button>
+      <button class="btn" type="button" id="lvNext"></button>
+      <button class="btn main" type="button" data-go="excel">Әрі қарай: Excel-де жұмыс →</button>
+    </div>
+  </div>
+
+  <!-- Этап 8: работа в Excel -->
+  <div class="panel" id="excel" role="tabpanel" aria-labelledby="tab-excel" hidden>
+    <div>
+      <h1>Excel-де жұмыс</h1>
+      <p class="lead">Тапсырмалар Excel файлында орындалады: <b>«Өзін-өзі_тексеру_логика.xlsx»</b> — оны мұғалім береді. Әр парақта (S1–S5) деректері бар кесте дайын тұр. Формулаларды сары ұяшықтарға жаз — оң жақтағы «Тексеру» бағанында Excel өзі «✓ дұрыс» деп көрсетеді немесе нені түзету керегін айтады. Мұнда — тапсырмалардың шарттары.</p>
+    </div>
+    <section class="block">
+      <div class="ex-pills" id="exPills" role="tablist" aria-label="Сценарийлер"></div>
+    </section>
+    <div class="panel" id="exList"></div>
+    <div class="next"><button class="btn" type="button" data-go="practice">← Практика</button><button class="btn main" type="button" data-go="reflect">Сабақ қорытындысы →</button></div>
+  </div>
+
+  <!-- Этап 9: итоги урока -->
+  <div class="panel" id="reflect" role="tabpanel" aria-labelledby="tab-reflect" hidden>
+    <div>
+      <h1>Сабақ қорытындысы</h1>
+      <p class="lead">Сабақтың басында не жазғаныңа орал да, не шыққанын шын көңілмен белгіле.</p>
+    </div>
+
+    <section class="block">
+      <h2>Менің күтулерім · сабақтың басында</h2>
+      <p class="mine" id="refExp"></p>
+      <fieldset class="seg" id="segExp">
+        <legend>Күткенім орындалды ма?</legend>
+        <label><input type="radio" name="r-exp" id="r-exp-2" value="2"><span>Иә</span></label>
+        <label><input type="radio" name="r-exp" id="r-exp-1" value="1"><span>Ішінара</span></label>
+        <label><input type="radio" name="r-exp" id="r-exp-0" value="0"><span>Жоқ</span></label>
+      </fieldset>
+    </section>
+
+    <section class="block">
+      <h2>Сабақ мақсаты</h2>
+      <p class="plain" id="refGoal"></p>
+    </section>
+
+    <section class="block">
+      <h2>Күтілетін нәтижелер · қол жеткіздім бе?</h2>
+      <div id="refRes"></div>
+    </section>
+
+    <section class="block">
+      <h2>Бағалау критерийлері · менің дескрипторларым</h2>
+      <div id="refDesc"></div>
+    </section>
+
+    <section class="block">
+      <h2>Бұл маған қайда пайдалы</h2>
+      <label for="refUse" class="q">Өз өміріңнен бір мысал келтір: қай функция және не үшін?</label>
+      <p class="small" id="useReq" hidden>Сабақтың басында сен бұл қайда пайдалы екенін түсінгің келді. Мысал келтіре алсаң — күткенің орындалды деген сөз.</p>
+      <textarea id="refUse" rows="2" placeholder="Мысалы: ЕСЛИ — бар ақшамнан көп жұмсасам, кесте өзі «қарыз» деп жазуы үшін"></textarea>
+    </section>
+
+    <section class="block">
+      <h2>Менің пікірім</h2>
+      <label for="refNote" class="q">Не жақсы шықты? Не қиын болды?</label>
+      <textarea id="refNote" rows="3" placeholder="Мысалы: ЕСЛИ оңай болды, И мен ИЛИ айырмашылығын түсіну қиын болды…"></textarea>
+      <div class="exp-actions">
+        <button class="btn main" type="button" id="refSave">Қорытындыны сақтау</button>
+        <span class="msg" id="refMsg" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="block summary" id="refSummary" hidden>
+      <h2>Менің қорытындым</h2>
+      <div id="refSumBody"></div>
+    </section>
+
+    <div class="next"><button class="btn" type="button" data-go="goal">← Тақырып және мақсат</button><button class="btn main" type="button" data-go="hw">Үй тапсырмасы →</button></div>
+  </div>
+
+  <!-- Этап 10: домашнее задание -->
+  <div class="panel" id="hw" role="tabpanel" aria-labelledby="tab-hw" hidden>
+    <div>
+      <h1>Үй тапсырмасы</h1>
+      <p class="lead">Өз деңгейіңнің тапсырмасын таңда — үшеуін де орындауға болады. Сабақты үйде сол сілтеме арқылы аш: кесте формуланы сабақтағыдай тексереді.</p>
+    </div>
+    <section class="block">
+      <div class="progress"><div class="pbar"><i id="hwBar"></i></div><span class="pnum" id="hwNum"></span></div>
+      <p class="small">Міндетті: практиканы қай деңгейде аяқтасаң, сол деңгейдің тапсырмасы. Жоғары деңгейлер — қалауың бойынша.</p>
+    </section>
+    <div class="panel" id="hwTasks"></div>
+    <div class="next"><button class="btn" type="button" data-go="reflect">← Сабақ қорытындысы</button><span></span></div>
+  </div>
+</div>
+
+<div class="overlay" id="breakOv" hidden>
+  <div class="lg-card brk" role="dialog" aria-modal="true" aria-labelledby="brkTitle">
+    <p class="eyebrow" id="brkTitle">Сергіту сәті · экраннан демал</p>
+    <p class="brk-step" id="brkStep"></p>
+    <p class="brk-text" id="brkText"></p>
+    <div class="brk-timer"><output id="brkTime">15</output><span>сек</span></div>
+    <div class="pbar"><i id="brkBar"></i></div>
+    <div class="lg-row"><button type="button" class="btn" id="brkSkip">Жаттығуды өткізіп жіберу</button><button type="button" class="btn" id="brkEnd">Аяқтау</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="login" hidden>
+  <div class="lg-card" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
+    <p class="eyebrow">Информатика · 8 сынып</p>
+    <h2 class="lg-title" id="lgTitle">Логикалық функциялар</h2>
+    <div id="loginBody"></div>
+  </div>
+</div>
+<div class="overlay" id="qModal" hidden>
+  <div class="lg-card q-card" role="dialog" aria-modal="true" aria-labelledby="qTitle">
+    <p class="eyebrow" id="qTitle">Мұғалімнің сұрағы</p>
+    <p class="q-text" id="qText"></p>
+    <textarea id="qAns" rows="4" maxlength="1000" placeholder="Жауапты жаз…"></textarea>
+    <p class="lg-err" id="qErr" aria-live="polite"></p>
+    <button type="button" class="btn main" id="qSend">Жауапты жіберу</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+</template>
 <script>
+/* Язык урока: РУС | ҚАЗ. Выбор хранится в браузере; переключение перезагружает страницу. */
+(function () {
+  var TITLES = { ru: "Логические функции · 8 класс", kz: "Логикалық функциялар · 8 сынып" };
+  var lang = "ru";
+  try {
+    var h = location.hash.slice(1);
+    lang = h === "kz" || h === "ru" ? h : localStorage.getItem("fizmat-lang") || "ru";
+  } catch (e) {}
+  if (lang !== "kz") lang = "ru";
+  document.documentElement.lang = lang === "kz" ? "kk" : "ru";
+  document.title = TITLES[lang];
+  var app = document.getElementById("app");
+  app.parentNode.replaceChild(document.getElementById("t-" + lang).content.cloneNode(true), app);
+  function sw() {
+    var s = document.createElement("span");
+    s.className = "lang-sw"; s.setAttribute("role", "group"); s.setAttribute("aria-label", "Тіл / Язык");
+    [["ru", "РУС"], ["kz", "ҚАЗ"]].forEach(function (p) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = p[1]; b.setAttribute("aria-pressed", String(p[0] === lang));
+      b.addEventListener("click", function () {
+        if (p[0] === lang) return;
+        try { localStorage.setItem("fizmat-lang", p[0]); } catch (e) {}
+        location.hash = p[0];
+        location.reload();
+      });
+      s.appendChild(b);
+    });
+    return s;
+  }
+  var tools = document.querySelector(".top .tools");
+  if (tools) tools.insertBefore(sw(), tools.firstChild);
+  var card = document.querySelector("#login .lg-card");
+  if (card) card.insertBefore(sw(), card.firstChild);
+  (lang === "kz" ? L_kz : L_ru)();
+})();
+function L_ru() {
+
 /* Урок запускается сразу; в онлайн-версии — после того, как ученик выбрал себя */
 const ONLINE = !!(window.google && window.google.script && window.google.script.run);
 let NS = "";
@@ -945,7 +1493,8 @@ const TASKS = [
   { n: 11, q: "Неверно, что 4 < 1",        ans: "Да",  letter: "Н", decoy: "П", why: "4 < 1 — неверно. Значит, «неверно, что 4 < 1» — верно." },
   { n: 12, q: "Число 9 чётное",            ans: "Нет", letter: "Ц", decoy: "Щ", why: "9 не делится на 2 — оно нечётное." }
 ];
-const BY_LETTER = Object.fromEntries(TASKS.map(t => [t.letter, t]));
+/* буква может открываться группой («УН»): каждая буква листа знает своё задание */
+const BY_LETTER = {}; TASKS.forEach(t => [...t.letter].forEach(ch => { BY_LETTER[ch] = t; }));
 const ANSWER = ROWS.join("");
 const COLS = "ABCDEFGHIJKLMN";
 const KEY = "topic-l2";
@@ -969,7 +1518,7 @@ function buildGrid() {
       const ch = row[i];
       if (!ch) { html += "<td class=\"gap\"></td>"; continue; }
       const t = BY_LETTER[ch];
-      html += `<td data-n="${t.n}" aria-label="ячейка ${COLS[i]}${ri + 1}, развилка ${t.n}"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
+      html += `<td data-n="${t.n}" data-ch="${ch}" aria-label="ячейка ${COLS[i]}${ri + 1}, развилка ${t.n}"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
     }
     html += "</tr>";
   });
@@ -994,7 +1543,7 @@ function render(animateN) {
     const open = solved.has(n), wrong = !!p && !open;
     td.classList.toggle("open", open);
     td.classList.toggle("wrongl", wrong);
-    td.querySelector(".ch").textContent = open ? t.letter : wrong ? t.decoy : "?";
+    td.querySelector(".ch").textContent = open ? td.dataset.ch : wrong ? t.decoy[[...t.letter].indexOf(td.dataset.ch)] : "?";
     if (p && n === animateN) { td.classList.remove("flip"); void td.offsetWidth; td.classList.add("flip"); }
   });
   TASKS.forEach(t => {
@@ -1036,7 +1585,7 @@ document.getElementById("tasks").addEventListener("click", e => {
   const b = e.target.closest(".fork-b"); if (b && !b.disabled) choose(+b.dataset.n, b.dataset.b);
 });
 
-function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯA-Z]/g, ""); }
+function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯЁӘҒҚҢӨҰҮҺІA-Z]/g, ""); }
 function guess() {
   const inp = document.getElementById("guessIn"), msg = document.getElementById("guessMsg");
   inp.classList.remove("wrong");
@@ -2561,7 +3110,7 @@ function loginUI() {
   const go = () => {
     const c = normClass(document.getElementById("lgCls").value), n = normName(document.getElementById("lgName").value);
     const err = document.getElementById("lgErr");
-    if (!/^\d{1,2}[А-ЯЁ]?$/.test(c)) { err.textContent = "Класс пишется так: цифра и буква, например 8А."; return; }
+    if (!/^\d{1,2}[А-ЯЁӘҒҚҢӨҰҮҺІ]?$/.test(c)) { err.textContent = "Класс пишется так: цифра и буква, например 8А."; return; }
     if (n.split(" ").length < 2 || n.length < 5) { err.textContent = "Впиши фамилию и имя через пробел."; return; }
     err.textContent = "Сохраняю…";
     document.getElementById("lgGo").disabled = true;
@@ -2653,6 +3202,1742 @@ else {
   document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
 }
 
+
+}
+function L_kz() {
+
+/* Урок запускается сразу; в онлайн-версии — после того, как ученик выбрал себя */
+const ONLINE = !!(window.google && window.google.script && window.google.script.run);
+let NS = "";
+function startLesson() {
+
+/* Тема в двух строках листа; каждая буква открывается развилкой «Да / Нет» */
+const ROWS = ["ЛОГИКАЛЫҚ", "ФУНКЦИЯЛАР"];
+const TASKS = [
+  { n: 1,  q: "7 > 5",                     ans: "Иә",  letter: "Л", decoy: "М", why: "7 саны 5-тен үлкен — тұжырым дұрыс." },
+  { n: 2,  q: "10 = 2 · 6",                ans: "Жоқ", letter: "О", decoy: "Ө", why: "2 · 6 = 12, 10 емес — тұжырым дұрыс емес." },
+  { n: 3,  q: "−3 < 0",                    ans: "Иә",  letter: "Г", decoy: "Ғ", why: "Кез келген теріс сан нөлден кіші." },
+  { n: 4,  q: "Шаршы — тіктөртбұрыш", ans: "Иә", letter: "И", decoy: "І", why: "Шаршының барлық бұрышы тік, демек, ол тіктөртбұрыш (барлық қабырғасы тең)." },
+  { n: 5,  q: "0,5 > 0,49",                ans: "Иә",  letter: "К", decoy: "Х", why: "0,5 = 0,50, ал 0,50 саны 0,49-дан үлкен." },
+  { n: 6,  q: "Аптада 8 күн бар",           ans: "Жоқ", letter: "А", decoy: "Ә", why: "Аптада 7 күн бар." },
+  { n: 7,  q: "15 ≥ 15 (үлкен немесе тең)", ans: "Иә", letter: "Ы", decoy: "Ү", why: "«Үлкен немесе тең» сандар тең болғанда да дұрыс." },
+  { n: 8,  q: "20 ≠ 20 (тең емес)",        ans: "Жоқ", letter: "Қ", decoy: "Ң", why: "20 саны 20-ға тең, сондықтан «тең емес» — дұрыс емес." },
+  { n: 9,  q: "5 > 3 және 2 > 4 — екеуі де дұрыс", ans: "Жоқ", letter: "Ф", decoy: "В", why: "5 > 3 дұрыс, ал 2 > 4 — дұрыс емес. «Және» үшін екі бөлік те дұрыс болуы керек." },
+  { n: 10, q: "5 > 3 немесе 2 > 4 — ең болмаса біреуі дұрыс", ans: "Иә", letter: "УН", decoy: "ҮМ", why: "5 > 3 дұрыс — «немесе» үшін осы жеткілікті." },
+  { n: 11, q: "4 < 1",        ans: "Иә",  letter: "ЦЯ", decoy: "ЧЕ", why: "4 < 1 — дұрыс емес. Демек, «4 < 1 дегеннің дұрыс емес екені» — дұрыс." },
+  { n: 12, q: "9 саны жұп",            ans: "Жоқ", letter: "Р", decoy: "П", why: "9 саны 2-ге бөлінбейді — ол тақ." }
+];
+/* буква может открываться группой («УН»): каждая буква листа знает своё задание */
+const BY_LETTER = {}; TASKS.forEach(t => [...t.letter].forEach(ch => { BY_LETTER[ch] = t; }));
+const ANSWER = ROWS.join("");
+const COLS = "ABCDEFGHIJKLMN";
+const KEY = "topic-l2-kz";
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(NS + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} if (window.__onStore) window.__onStore(k); },
+  del(k) { try { localStorage.removeItem(NS + k); } catch (e) {} if (window.__onStore) window.__onStore(k); }
+};
+
+/* picks: номер развилки → выбранная ветка «Да» или «Нет» */
+let picks = store.get(KEY, {});
+let solved = new Set(TASKS.filter(t => picks[t.n] === t.ans).map(t => t.n));
+
+function buildGrid() {
+  const width = Math.max(...ROWS.map(r => r.length));
+  let html = "<tr><th class=\"rh\"></th>" + [...COLS.slice(0, width)].map(c => `<th>${c}</th>`).join("") + "</tr>";
+  ROWS.forEach((row, ri) => {
+    html += `<tr><th class="rh">${ri + 1}</th>`;
+    for (let i = 0; i < width; i++) {
+      const ch = row[i];
+      if (!ch) { html += "<td class=\"gap\"></td>"; continue; }
+      const t = BY_LETTER[ch];
+      html += `<td data-n="${t.n}" data-ch="${ch}" aria-label="${COLS[i]}${ri + 1} ұяшығы, ${t.n}-айрық"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
+    }
+    html += "</tr>";
+  });
+  document.getElementById("grid").innerHTML = html;
+}
+
+function buildTasks() {
+  document.getElementById("tasks").innerHTML = TASKS.map(t => `
+    <div class="task fork" id="task-${t.n}">
+      <div class="hd"><span class="tn">Айрық ${t.n}</span><span class="fn">дұрыс па, жоқ па?</span></div>
+      <p class="fork-q">${t.q}</p>
+      <div class="fork-br" role="group" aria-label="Айрыққа жауап ${t.n}">
+        ${["Иә", "Жоқ"].map(b => `<button type="button" class="fork-b" data-n="${t.n}" data-b="${b}" aria-pressed="false"><span>${b}</span><span class="lt">?</span></button>`).join("")}
+      </div>
+      <p class="msg" id="msg-${t.n}" aria-live="polite"></p>
+    </div>`).join("");
+}
+
+function render(animateN) {
+  document.querySelectorAll("#grid td[data-n]").forEach(td => {
+    const n = +td.dataset.n, t = TASKS[n - 1], p = picks[n];
+    const open = solved.has(n), wrong = !!p && !open;
+    td.classList.toggle("open", open);
+    td.classList.toggle("wrongl", wrong);
+    td.querySelector(".ch").textContent = open ? td.dataset.ch : wrong ? t.decoy[[...t.letter].indexOf(td.dataset.ch)] : "?";
+    if (p && n === animateN) { td.classList.remove("flip"); void td.offsetWidth; td.classList.add("flip"); }
+  });
+  TASKS.forEach(t => {
+    const box = document.getElementById("task-" + t.n), p = picks[t.n], done = solved.has(t.n);
+    box.classList.toggle("done", done);
+    box.classList.toggle("wrongp", !!p && !done);
+    box.querySelectorAll(".fork-b").forEach(b => {
+      const mine = b.dataset.b === p;
+      b.setAttribute("aria-pressed", mine);
+      b.classList.toggle("ok", mine && done);
+      b.classList.toggle("no", mine && !done);
+      b.querySelector(".lt").textContent = mine ? (done ? t.letter : t.decoy) : "?";
+      b.disabled = done;
+    });
+    const msg = document.getElementById("msg-" + t.n);
+    if (done) { msg.className = "msg ok"; msg.textContent = `Дұрыс! «${t.letter}» әрпі ашылды.`; }
+    else if (p) { msg.className = "msg bad"; msg.textContent = `«${t.decoy}» әрпі сөзді бұзады. ${t.why} Басқа тармақты таңда.`; }
+    else { msg.className = "msg"; msg.textContent = ""; }
+  });
+  const total = ANSWER.length;
+  const open = [...ANSWER].filter(ch => solved.has(BY_LETTER[ch].n)).length;
+  document.getElementById("pbar").style.width = (open / total * 100) + "%";
+  document.getElementById("pnum").textContent = `Ашылған әріптер: ${open} / ${total}`;
+  if (open === total) unlock();
+}
+
+function choose(n, b) {
+  const t = TASKS[n - 1];
+  if (solved.has(n)) return;
+  picks[n] = b;
+  const ok = b === t.ans;
+  if (ok) solved.add(n);
+  if (window.__onAttempt) window.__onAttempt("2. Разгадка темы", "Развилка " + n, b, ok, ok ? "" : "верно: " + t.ans);
+  store.set(KEY, picks);
+  render(n);
+}
+
+document.getElementById("tasks").addEventListener("click", e => {
+  const b = e.target.closest(".fork-b"); if (b && !b.disabled) choose(+b.dataset.n, b.dataset.b);
+});
+
+function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯЁӘҒҚҢӨҰҮҺІA-Z]/g, ""); }
+function guess() {
+  const inp = document.getElementById("guessIn"), msg = document.getElementById("guessMsg");
+  inp.classList.remove("wrong");
+  if (norm(inp.value) === ANSWER) {
+    TASKS.forEach(t => { picks[t.n] = t.ans; solved.add(t.n); }); store.set(KEY, picks);
+    msg.className = "msg ok"; msg.textContent = "Дұрыс! Тақырып ашылды.";
+    render();
+  } else {
+    void inp.offsetWidth; inp.classList.add("wrong");
+    msg.className = "msg bad"; msg.textContent = "Әзірге олай емес. Тағы бірнеше әріп ашыңыз.";
+  }
+}
+document.getElementById("guessBtn").addEventListener("click", guess);
+document.getElementById("guessIn").addEventListener("keydown", e => { if (e.key === "Enter") guess(); });
+
+let unlocked = false;
+function unlock() {
+  const tab = document.getElementById("tab-goal");
+  tab.disabled = false;
+  if (unlocked) return;
+  unlocked = true;
+  setTimeout(() => showExp(store.get(EXP_KEY, "")), 0);  // после загрузки остальных частей урока
+  document.getElementById("guessMsg").className = "msg ok";
+  document.getElementById("guessMsg").textContent = "Тақырып анықталды! Сабақтың тақырыбы мен мақсатын ашамыз…";
+  setTimeout(() => { show("goal"); window.scrollTo({ top: 0, behavior: "smooth" }); }, 1400);
+}
+
+const PANELS = ["review", "puzzle", "goal", "actual", "learn", "match", "practice", "excel", "reflect", "hw"];
+function show(id) {
+  if (window.__onStage) window.__onStage(id);
+  if (id === "reflect") fillReflect();
+  PANELS.forEach(p => {
+    document.getElementById(p).hidden = p !== id;
+    document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
+  });
+}
+document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => { if (!b.disabled) show(b.getAttribute("aria-controls")); }));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  picks = {}; solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
+  refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refUse").value = ""; document.getElementById("refSummary").hidden = true;
+  document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
+  expText.value = ""; showExp("");
+  document.getElementById("tab-goal").disabled = true;
+  document.getElementById("guessIn").value = "";
+  document.getElementById("guessMsg").textContent = "";
+  buildTasks(); render(); show("puzzle");
+});
+
+const bigBtn = document.getElementById("bigBtn");
+function setBig(on) { document.documentElement.classList.toggle("big", on); bigBtn.setAttribute("aria-pressed", on); store.set("big", on); }
+bigBtn.addEventListener("click", () => setBig(!document.documentElement.classList.contains("big")));
+setBig(store.get("big", false));
+document.getElementById("fsBtn").addEventListener("click", () => {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  } catch (e) {}
+});
+
+/* Ожидания ученика: пока хранятся только в его браузере */
+const EXP_KEY = "expect-l2";
+const expText = document.getElementById("expText");
+function showExp(text) {
+  // этапы 4–10 открыты, только когда тема разгадана и ожидания записаны
+  const has = !!text && [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+  document.getElementById("expForm").hidden = has;
+  document.getElementById("expSaved").hidden = !has;
+  document.getElementById("expShow").textContent = text || "";
+  document.getElementById("afterExp").hidden = !has;
+  ["reflect", "actual", "learn", "match", "practice", "excel", "hw"].forEach(p => { document.getElementById("tab-" + p).disabled = !has; });
+  document.getElementById("toLearn").hidden = !has;
+}
+
+/* Новая тема: карточки функций по одной и живые примеры */
+const F_NAMES = ["ЕСЛИ", "И", "ИЛИ", "НЕ", "Анықтамалық және қателер"];
+const F_LAST = F_NAMES.length - 1;
+let fCur = 0;
+function showCard(i) {
+  fCur = i;
+  document.querySelectorAll(".fcard").forEach(c => { c.hidden = +c.dataset.card !== i; });
+  document.querySelectorAll(".fpill").forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
+  document.getElementById("fPrev").textContent = i === 0 ? "← Еске түсірейік" : "← Артқа";
+  document.getElementById("fNext").textContent = i === F_LAST ? "Әрі қарай: қай функция? →" : "Әрі қарай: " + F_NAMES[i + 1] + " →";
+}
+document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
+document.getElementById("fPrev").addEventListener("click", () => { if (fCur === 0) show("actual"); else showCard(fCur - 1); });
+document.getElementById("fNext").addEventListener("click", () => {
+  if (fCur === F_LAST) { show("match"); window.scrollTo({ top: 0, behavior: "smooth" }); } else showCard(fCur + 1);
+});
+
+/* Мини-таблица как в Excel: сравнения, логические значения и функции ЕСЛИ, И, ИЛИ, НЕ (плюс функции прошлого урока) */
+const XL_COLS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const XL_EN = { SUM: "СУММ", SQRT: "КОРЕНЬ", POWER: "СТЕПЕНЬ", SUMIF: "СУММЕСЛИ", IF: "ЕСЛИ", AND: "И", OR: "ИЛИ", NOT: "НЕ" };
+const XL_ERR = {
+  "#ЧИСЛО!": "Неге: мұндай санды есептеу мүмкін емес — теріс саннан түбір, 0-дің 0 дәрежесі, теріс санның бөлшек дәрежесі немесе тым үлкен нәтиже. Қалай түзетеміз: сандардың таңбасы мен шамасын тексер; түбір астындағы минусты ABS алып тастайды.",
+  "#ИМЯ?": "Неге: кесте формуладағы сөзді танымады — тырнақшасыз мәтін (ЕСЛИ ішінде былай жазылады: \"есептелді\"), функция атауында қате, ағылшынша атау немесе ұяшық адресінде кириллица әрпі. Қалай түзетеміз: мәтінді тырнақшаға ал, жазылуын тексер немесе функцияны «Қою» батырмасымен қой.",
+  "#ЗНАЧ!": "Неге: кесте сан немесе шарт күтті, ал мәтін алды. Мысалы, ЕСЛИ, И, ИЛИ немесе НЕ ішінде салыстырудың орнына сөз тұр немесе жазуға сан қосылып жатыр. Қалай түзетеміз: шартта салыстыру болуы керек, мысалы, B2>=50 немесе A1=\"иә\".",
+  "#ДЕЛ/0!": "Неге: нөлге бөлуге болмайды. Бөлгіштегі бос ұяшық та нөл болып есептеледі. Қалай түзетеміз: бөлгішті тексер.",
+  "#ЦИКЛ!": "Неге: формула өз ұяшығына сілтейді, сондықтан оны есептеу мүмкін емес. Excel-де циклдік сілтеме туралы ескерту шығады. Қалай түзетеміз: формуладан осы ұяшықтың адресін алып таста."
+};
+class XErr { constructor(code) { this.code = code; } }
+class XSyntax extends Error {}
+class XArity extends Error {}
+
+function xlNum(s) {
+  const t = String(s).trim().replace("−", "-");
+  return /^-?\d+([.,]\d+)?$/.test(t) ? parseFloat(t.replace(",", ".")) : null;
+}
+function xlFmt(v) {
+  if (v === null || v === undefined) return "";
+  if (v instanceof XErr) return v.code;
+  if (typeof v === "boolean") return v ? "ИСТИНА" : "ЛОЖЬ";
+  if (typeof v === "number") return v.toLocaleString("ru-RU", { maximumFractionDigits: 4 }).replace("−", "-");
+  return String(v);
+}
+
+function xlTokens(src) {
+  const t = []; let i = 0, m;
+  while (i < src.length) {
+    const c = src[i], rest = src.slice(i);
+    if (/\s/.test(c)) { i++; continue; }
+    if ((m = /^\d+(?:[.,]\d+)?/.exec(rest))) { t.push({ k: "num", v: parseFloat(m[0].replace(",", ".")) }); i += m[0].length; continue; }
+    if (c === '"') {
+      const j = src.indexOf('"', i + 1);
+      if (j < 0) throw new XSyntax("Тырнақша жабылмаған. Шарт былай жазылады: \">0\".");
+      t.push({ k: "str", v: src.slice(i + 1, j) }); i = j + 1; continue;
+    }
+    if ((m = /^\$?([A-Za-z])\$?(\d+)(?![A-Za-zА-Яа-яЁё0-9_(])/.exec(rest))) { t.push({ k: "ref", v: m[1].toUpperCase() + m[2] }); i += m[0].length; continue; }
+    if ((m = /^\$?([А-Яа-яЁё])\$?(\d+)(?![A-Za-zА-Яа-яЁё0-9_(])/.exec(rest))) { t.push({ k: "badref", v: m[0] }); i += m[0].length; continue; }
+    if ((m = /^[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё0-9_.]*/.exec(rest))) { t.push({ k: "id", v: m[0].toUpperCase() }); i += m[0].length; continue; }
+    if ("≥≤≠".includes(c)) throw new XSyntax(`«${c}» таңбасы кестеде терілмейді. ${c === "≥" ? ">=" : c === "≤" ? "<=" : "<>"} деп жаз.`);
+    if (rest.startsWith("=>") || rest.startsWith("=<")) throw new XSyntax(`Таңба керісінше жазылған: =${rest[1]} емес, ${rest[1]}= деп жаз.`);
+    if (rest.startsWith("!=")) throw new XSyntax("«Тең емес» кестеде былай жазылады: <>.");
+    if ((m = /^(<=|>=|<>|<|>|=)/.exec(rest))) { t.push({ k: "cmp", v: m[1] }); i += m[1].length; continue; }
+    if ("+-*/^();:,".includes(c)) { t.push({ k: c }); i++; continue; }
+    throw new XSyntax(`Түсініксіз таңба: «${c}».`);
+  }
+  return t;
+}
+
+function xlParse(src) {
+  const toks = xlTokens(src); let p = 0;
+  const peek = () => toks[p];
+  const COMMA = "Функцияның аргументтерінің арасына үтір емес, нүктелі үтір «;» қойылады.";
+  function compare() { let n = expr(); while (peek() && peek().k === "cmp") { const op = toks[p++].v; n = { t: "bin", op, l: n, r: expr() }; } return n; }
+  function expr() { let n = term(); while (peek() && (peek().k === "+" || peek().k === "-")) { const op = toks[p++].k; n = { t: "bin", op, l: n, r: term() }; } return n; }
+  function term() { let n = power(); while (peek() && (peek().k === "*" || peek().k === "/")) { const op = toks[p++].k; n = { t: "bin", op, l: n, r: power() }; } return n; }
+  function power() { let n = unary(); while (peek() && peek().k === "^") { p++; n = { t: "bin", op: "^", l: n, r: unary() }; } return n; }
+  function unary() {
+    const x = peek();
+    if (x && (x.k === "-" || x.k === "+")) { p++; const a = unary(); return x.k === "-" ? { t: "neg", a } : a; }
+    return primary();
+  }
+  function primary() {
+    const x = toks[p++];
+    if (!x) throw new XSyntax("Формула үзіліп қалды: соңында бірдеңе жетіспейді.");
+    if (x.k === "num") return { t: "num", v: x.v };
+    if (x.k === "str") return { t: "str", v: x.v };
+    if (x.k === "badref" || (x.k === "ref" && peek() && peek().k === ":" && toks[p + 1] && toks[p + 1].k === "badref")) {
+      if (peek() && peek().k === ":") { p++; const y = toks[p++]; if (!y || (y.k !== "ref" && y.k !== "badref")) throw new XSyntax("Қос нүктеден кейін ұяшық адресі керек, мысалы, A5."); return { t: "badref", v: x.k === "badref" ? x.v : y.v }; }
+      return { t: "badref", v: x.v };
+    }
+    if (x.k === "ref") {
+      if (peek() && peek().k === ":") {
+        p++; const y = toks[p++];
+        if (!y || y.k !== "ref") throw new XSyntax("Қос нүктеден кейін ұяшық адресі керек, мысалы, A5.");
+        return { t: "range", a: x.v, b: y.v };
+      }
+      return { t: "ref", v: x.v };
+    }
+    if (x.k === "id") {
+      if (!peek() || peek().k !== "(") return x.v === "ИСТИНА" || x.v === "ЛОЖЬ" ? { t: "bool", v: x.v === "ИСТИНА" } : { t: "name", v: x.v };
+      p++; const args = [];
+      if (peek() && peek().k === ")") { p++; return { t: "call", f: x.v, args }; }
+      for (;;) {
+        args.push(compare());
+        const y = peek();
+        if (y && y.k === ";") { p++; continue; }
+        if (y && y.k === ",") throw new XSyntax(COMMA);
+        if (y && (y.k === "id" || y.k === "str" || y.k === "num" || y.k === "ref")) throw new XSyntax("Функцияның аргументтерінің арасына «;» керек. Егер бұл бірнеше сөзден тұратын мәтін болса — оны тұтасымен тырнақшаға ал: \"тапсырмады\".");
+        if (!y || y.k !== ")") throw new XSyntax("Жабатын жақша «)» жетіспейді.");
+        p++; break;
+      }
+      return { t: "call", f: x.v, args };
+    }
+    if (x.k === "(") {
+      const a = compare();
+      if (!peek() || peek().k !== ")") throw new XSyntax("Жабатын жақша «)» жетіспейді.");
+      p++; return { t: "paren", a };
+    }
+    if (x.k === ",") throw new XSyntax(COMMA);
+    if (x.k === "cmp") throw new XSyntax(`«${x.v}» таңбасы орнында емес: оның сол және оң жағында мән болуы керек, мысалы, B2${x.v}50.`);
+    throw new XSyntax(`Артық таңба: «${x.k}».`);
+  }
+  if (!toks.length) throw new XSyntax("= таңбасынан кейін формула жазу керек.");
+  const ast = compare();
+  if (p < toks.length) {
+    const y = toks[p];
+    throw new XSyntax(y.k === ")" ? "Артық жабатын жақша «)»." : y.k === ";" ? "«;» таңбасы тек функцияның жақшасының ішінде қойылады." : y.k === "," ? COMMA : "Формуланың соңында артық таңбалар бар.");
+  }
+  return ast;
+}
+
+function xlRange(a, b) {
+  const c1 = a.charCodeAt(0), c2 = b.charCodeAt(0), r1 = +a.slice(1), r2 = +b.slice(1);
+  const keys = [];
+  for (let r = Math.min(r1, r2); r <= Math.max(r1, r2) && keys.length < 400; r++)
+    for (let c = Math.min(c1, c2); c <= Math.max(c1, c2); c++) keys.push(String.fromCharCode(c) + r);
+  return keys;
+}
+/* Сравнение как в Excel: пустая ячейка — 0 или "", текст без учёта регистра, число < текст < ИСТИНА/ЛОЖЬ */
+function xlCmpV(op, a, b) {
+  const empty = o => typeof o === "string" ? "" : typeof o === "boolean" ? false : 0;
+  if (a === null) a = empty(b);
+  if (b === null) b = empty(a);
+  const rank = v => typeof v === "number" ? 0 : typeof v === "string" ? 1 : 2;
+  if (rank(a) !== rank(b)) return op === "<>" ? true : op === "=" ? false : xlCmp(op, rank(a), rank(b));
+  if (typeof a === "string") { a = a.toLowerCase().replace(/ё/g, "е"); b = b.toLowerCase().replace(/ё/g, "е"); }
+  if (typeof a === "boolean") { a = +a; b = +b; }
+  return xlCmp(op, a, b);
+}
+const XL_CMP = new Set([">", "<", "=", ">=", "<=", "<>"]);
+/* Случайные данные: одна группа ячеек или несколько групп со своими диапазонами */
+function rndFill(r, cells) { (r.groups || [r]).forEach(g => g.keys.forEach(k => { cells[k] = String(prRandom(g)); })); }
+function xlCmp(op, a, b) { return op === ">" ? a > b : op === "<" ? a < b : op === ">=" ? a >= b : op === "<=" ? a <= b : op === "<>" ? a !== b : a === b; }
+function xlCrit(c) {
+  if (typeof c === "number") return x => x === c;
+  const m = /^(<=|>=|<>|<|>|=)?(.*)$/.exec(String(c === null ? "" : c).trim());
+  const op = m[1] || "=", rhs = m[2].trim(), n = xlNum(rhs);
+  if (n !== null) return x => typeof x === "number" && xlCmp(op, x, n);
+  const low = rhs.toLowerCase();
+  return x => { const s = x === null ? "" : String(x).toLowerCase(); return op === "<>" ? s !== low : op === "=" ? s === low : false; };
+}
+
+function xlEvalCell(S, k, st) {
+  if (S.cache.has(k)) return S.cache.get(k);
+  const raw = String(S.cells[k] ?? "").trim();
+  let v;
+  if (raw === "") v = null;
+  else if (raw[0] === "=") {
+    if (st.has(k)) return new XErr("#ЦИКЛ!");
+    st.add(k);
+    try { v = xlEv(S, xlParse(raw.slice(1)), st); if (v && v.arr) v = new XErr("#ЗНАЧ!"); }
+    catch (e) { if (e instanceof XSyntax || e instanceof XArity) v = new XErr("#ОШИБКА"); else throw e; }
+    st.delete(k);
+  } else if (/^(ИСТИНА|ЛОЖЬ)$/i.test(raw)) v = raw.toUpperCase() === "ИСТИНА";
+  else { const n = xlNum(raw); v = n === null ? raw : n; }
+  S.cache.set(k, v);
+  return v;
+}
+function xlToNum(v) {
+  if (v instanceof XErr) return v;
+  if (v === null) return 0;
+  if (typeof v === "number") return v;
+  if (typeof v === "boolean") return +v;
+  return new XErr("#ЗНАЧ!");
+}
+function xlEv(S, n, st) {
+  switch (n.t) {
+    case "num": case "str": case "bool": return n.v;
+    case "ref": return xlEvalCell(S, n.v, st);
+    case "range": return { arr: xlRange(n.a, n.b).map(k => xlEvalCell(S, k, st)) };
+    case "name": case "badref": return new XErr("#ИМЯ?");
+    case "paren": return xlEv(S, n.a, st);
+    case "neg": { const a = xlToNum(xlEv(S, n.a, st)); return a instanceof XErr ? a : -a; }
+    case "bin": {
+      if (XL_CMP.has(n.op)) {
+        const x = xlEv(S, n.l, st), y = xlEv(S, n.r, st);
+        if (x instanceof XErr) return x;
+        if (y instanceof XErr) return y;
+        if ((x && x.arr) || (y && y.arr)) return new XErr("#ЗНАЧ!");
+        return xlCmpV(n.op, x, y);
+      }
+      const a = xlToNum(xlEv(S, n.l, st)), b = xlToNum(xlEv(S, n.r, st));
+      if (a instanceof XErr) return a;
+      if (b instanceof XErr) return b;
+      if (n.op === "+") return a + b;
+      if (n.op === "-") return a - b;
+      if (n.op === "*") return a * b;
+      if (n.op === "/") return b === 0 ? new XErr("#ДЕЛ/0!") : a / b;
+      if (a === 0 && b < 0) return new XErr("#ДЕЛ/0!");
+      if (a === 0 && b === 0) return new XErr("#ЧИСЛО!");
+      const r = Math.pow(a, b);
+      return Number.isFinite(r) ? r : new XErr("#ЧИСЛО!");
+    }
+    case "call": return xlCall(S, n, st);
+  }
+  return new XErr("#ЗНАЧ!");
+}
+function xlCall(S, n, st) {
+  const f = n.f;
+  const need = (lo, hi) => { if (n.args.length < lo || n.args.length > hi) throw new XArity(f); };
+  const one = i => xlToNum(xlEv(S, n.args[i], st));
+  if (f === "СУММ") {
+    need(1, 255);
+    let s = 0;
+    for (const a of n.args) {
+      const v = xlEv(S, a, st);
+      if (v && v.arr) { for (const x of v.arr) { if (x instanceof XErr) return x; if (typeof x === "number") s += x; } }
+      else { const x = xlToNum(v); if (x instanceof XErr) return x; s += x; }
+    }
+    return s;
+  }
+  if (f === "ABS") { need(1, 1); const x = one(0); return x instanceof XErr ? x : Math.abs(x); }
+  if (f === "КОРЕНЬ") { need(1, 1); const x = one(0); if (x instanceof XErr) return x; return x < 0 ? new XErr("#ЧИСЛО!") : Math.sqrt(x); }
+  if (f === "СТЕПЕНЬ") {
+    need(2, 2);
+    const a = one(0), b = one(1);
+    if (a instanceof XErr) return a;
+    if (b instanceof XErr) return b;
+    if (a === 0 && b < 0) return new XErr("#ДЕЛ/0!");
+    if (a === 0 && b === 0) return new XErr("#ЧИСЛО!");
+    const r = Math.pow(a, b);
+    return Number.isFinite(r) ? r : new XErr("#ЧИСЛО!");
+  }
+  if (f === "СУММЕСЛИ") {
+    need(2, 3);
+    const r = xlEv(S, n.args[0], st);
+    if (!(r && r.arr)) return new XErr("#ЗНАЧ!");
+    const c = xlEv(S, n.args[1], st);
+    if (c instanceof XErr) return c;
+    if (c && c.arr) return new XErr("#ЗНАЧ!");
+    const test = xlCrit(c);
+    const sr = n.args[2] ? xlEv(S, n.args[2], st) : r;
+    if (!(sr && sr.arr)) return new XErr("#ЗНАЧ!");
+    let s = 0;
+    for (let i = 0; i < r.arr.length; i++) {
+      if (!test(r.arr[i])) continue;
+      const y = sr.arr[i];
+      if (y instanceof XErr) return y;
+      if (typeof y === "number") s += y;
+    }
+    return s;
+  }
+  /* условие: ИСТИНА/ЛОЖЬ, число (0 — ЛОЖЬ), пустая ячейка — ЛОЖЬ, текст — ошибка */
+  const logical = v => v instanceof XErr ? v : typeof v === "boolean" ? v : typeof v === "number" ? v !== 0 : v === null ? false : new XErr("#ЗНАЧ!");
+  if (f === "ЕСЛИ") {
+    need(2, 3);
+    const c0 = xlEv(S, n.args[0], st);
+    if (c0 && c0.arr) return new XErr("#ЗНАЧ!");
+    const c = logical(c0);
+    if (c instanceof XErr) return c;
+    if (!c && n.args.length < 3) return false;
+    const v = xlEv(S, n.args[c ? 1 : 2], st);
+    return v === null ? 0 : v;
+  }
+  if (f === "И" || f === "ИЛИ") {
+    need(1, 255);
+    let any = false, all = true, seen = false;
+    for (const a of n.args) {
+      const v = xlEv(S, a, st);
+      const list = v && v.arr ? v.arr.filter(x => typeof x === "boolean" || typeof x === "number" || x instanceof XErr) : [v];
+      for (const x of list) {
+        if (x === null) continue;
+        const b = logical(x);
+        if (b instanceof XErr) return b;
+        seen = true; if (b) any = true; else all = false;
+      }
+    }
+    if (!seen) return new XErr("#ЗНАЧ!");
+    return f === "И" ? all : any;
+  }
+  if (f === "НЕ") {
+    need(1, 1);
+    const v = xlEv(S, n.args[0], st);
+    if (v && v.arr) return new XErr("#ЗНАЧ!");
+    const b = logical(v);
+    return b instanceof XErr ? b : !b;
+  }
+  if (f === "ИСТИНА" || f === "ЛОЖЬ") { need(0, 0); return f === "ИСТИНА"; }
+  return new XErr("#ИМЯ?");
+}
+
+/* Подстановка значений вместо адресов: =СУММ(B1:B5) → =СУММ({250; 480; …}) */
+function xlShow(S, n) {
+  const val = v => v instanceof XErr ? v.code : v === null ? "0" : typeof v === "number" || typeof v === "boolean" ? xlFmt(v) : `«${v}»`;
+  switch (n.t) {
+    case "num": return xlFmt(n.v);
+    case "str": return `"${n.v}"`;
+    case "bool": return n.v ? "ИСТИНА" : "ЛОЖЬ";
+    case "ref": return val(xlEvalCell(S, n.v, new Set()));
+    case "range": return "{" + xlRange(n.a, n.b).map(k => xlEvalCell(S, k, new Set())).filter(v => v !== null).map(val).join("; ") + "}";
+    case "name": case "badref": return n.v;
+    case "paren": return "(" + xlShow(S, n.a) + ")";
+    case "neg": return "-" + xlShow(S, n.a);
+    case "bin": return xlShow(S, n.l) + " " + n.op + " " + xlShow(S, n.r);
+    case "call": return n.f + "(" + n.args.map(a => xlShow(S, a)).join("; ") + ")";
+  }
+  return "";
+}
+function xlRefs(n, out) {
+  if (!n) return out;
+  if (n.t === "ref") out.add(n.v);
+  else if (n.t === "range") xlRange(n.a, n.b).forEach(k => out.add(k));
+  else if (n.t === "paren" || n.t === "neg") xlRefs(n.a, out);
+  else if (n.t === "bin") { xlRefs(n.l, out); xlRefs(n.r, out); }
+  else if (n.t === "call") n.args.forEach(a => xlRefs(a, out));
+  return out;
+}
+function xlFind(n, pred) {
+  if (!n) return null;
+  if (pred(n)) return n;
+  const kids = n.t === "bin" ? [n.l, n.r] : n.t === "call" ? n.args : n.a ? [n.a] : [];
+  for (const k of kids) { const r = xlFind(k, pred); if (r) return r; }
+  return null;
+}
+const XL_ARGS = { "СУММ": "кемінде бір мән", "ABS": "дәл бір сан", "КОРЕНЬ": "дәл бір сан", "СТЕПЕНЬ": "«;» арқылы екі сан: сан және дәреже", "СУММЕСЛИ": "«;» арқылы ауқым мен шарт (қажет болса, қосылатын ауқым да)", "ЕСЛИ": "«;» арқылы шарт және екі мән: «иә» болса не көрсету, «жоқ» болса не көрсету", "И": "кемінде бір шарт", "ИЛИ": "кемінде бір шарт", "НЕ": "дәл бір шарт", "ИСТИНА": "бос жақша", "ЛОЖЬ": "бос жақша" };
+
+const XL_SHEETS = {
+  if: [
+    { name: "Журнал: есептелді", text: "Балл 50 немесе одан көп болса — «есептелді», әйтпесе «есептелмеді». «Кездейсоқ сандар» батырмасын басып, қорытындылардың қалай өзгеретінін қара. Дәл 50 қойсаң не болады?",
+      cells: { A1: "Оқушы", B1: "Балл", C1: "Қорытынды", A2: "Айдана", B2: "72", A3: "Тимур", B3: "45", A4: "Дана", B4: "50", A5: "Арман", B5: "38", A6: "Мадина", B6: "91",
+        C2: "=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\")", C3: "=ЕСЛИ(B3>=50;\"есептелді\";\"есептелмеді\")", C4: "=ЕСЛИ(B4>=50;\"есептелді\";\"есептелмеді\")", C5: "=ЕСЛИ(B5>=50;\"есептелді\";\"есептелмеді\")", C6: "=ЕСЛИ(B6>=50;\"есептелді\";\"есептелмеді\")" },
+      sel: "C2", rand: { keys: ["B2", "B3", "B4", "B5", "B6"], min: 20, max: 100 } },
+    { name: "Салыстыру", text: "Салыстырудың өзі ИСТИНА немесе ЛОЖЬ деп жауап береді. A1 және B1-дегі сандарды өзгерт.",
+      cells: { A1: "7", B1: "5", C1: "=A1>B1", D1: "A саны B-дан үлкен бе?", C2: "=A1<B1", D2: "A саны B-дан кіші ме?", C3: "=A1=B1", D3: "тең бе?", C4: "=A1>=B1", D4: "үлкен немесе тең бе?", C5: "=A1<>B1", D5: "тең емес пе?" },
+      sel: "C1", rand: { keys: ["A1", "B1"], min: 1, max: 9 } },
+    { name: "Жеткізу", text: "Сатып алу 5000 тг немесе одан көп болса — жеткізу 0, әйтпесе 700. ЕСЛИ тармақтарында — тырнақшасыз сандар.",
+      cells: { A1: "Сатып алу, тг", B1: "3500", A2: "Жеткізу, тг", B2: "=ЕСЛИ(B1>=5000;0;700)", A3: "Төлеуге, тг", B3: "=B1+B2" },
+      sel: "B2", rand: { keys: ["B1"], min: 1000, max: 9000, step: 500 } },
+    { name: "Жеңілдік", text: "Сатып алу 10 000 тг-ден көп — соманың 90%-ын төлейміз. ЕСЛИ тармағында есептеуге болады.",
+      cells: { A1: "Сатып алу, тг", B1: "12000", A2: "Төлеуге, тг", B2: "=ЕСЛИ(B1>10000;B1*0,9;B1)" },
+      sel: "B2", rand: { keys: ["B1"], min: 5000, max: 20000, step: 1000 } },
+    { name: "Көктайғақ", text: "Температура нөлден төмен болса — «көктайғақ», әйтпесе «құрғақ».",
+      cells: { A1: "Температура", B1: "-3", A2: "Жол", B2: "=ЕСЛИ(B1<0;\"көктайғақ\";\"құрғақ\")" },
+      sel: "B2", rand: { keys: ["B1"], min: -10, max: 10 } }
+  ],
+  and: [
+    { name: "Дене шынықтыру нормалары", text: "Жүгіру 10 с-тан ұзақ болмаса ЖӘНЕ секіру 150 см-ден кем болмаса — есептелді. D бағаны — И арқылы тексеру, E бағаны — ЕСЛИ(И(…)) арқылы сөз.",
+      cells: { A1: "Оқушы", B1: "Жүгіру, с", C1: "Секіру, см", D1: "Екі норма да ма?", E1: "Қорытынды",
+        A2: "Айдана", B2: "9,8", C2: "155", A3: "Тимур", B3: "10,4", C3: "170", A4: "Дана", B4: "9,2", C4: "140", A5: "Арман", B5: "8,9", C5: "182",
+        D2: "=И(B2<=10;C2>=150)", D3: "=И(B3<=10;C3>=150)", D4: "=И(B4<=10;C4>=150)", D5: "=И(B5<=10;C5>=150)",
+        E2: "=ЕСЛИ(И(B2<=10;C2>=150);\"есептелді\";\"есептелмеді\")", E3: "=ЕСЛИ(И(B3<=10;C3>=150);\"есептелді\";\"есептелмеді\")", E4: "=ЕСЛИ(И(B4<=10;C4>=150);\"есептелді\";\"есептелмеді\")", E5: "=ЕСЛИ(И(B5<=10;C5>=150);\"есептелді\";\"есептелмеді\")" },
+      sel: "D2", rand: { groups: [{ keys: ["B2", "B3", "B4", "B5"], min: 8, max: 12 }, { keys: ["C2", "C3", "C4", "C5"], min: 130, max: 180, step: 5 }] } },
+    { name: "Аралық", text: "10-нан 20-ға дейінгі сан — И арқылы екі шарт. B2-де — қос теңсіздіктің «математикадағыдай» жазылуы: жауаптарды салыстыр.",
+      cells: { A1: "15", B1: "=И(A1>=10;A1<=20)", C1: "дұрыс", B2: "=10<=A1<=20", C2: "былай болмайды" },
+      sel: "B1", rand: { keys: ["A1"], min: 0, max: 30 } },
+    { name: "Олимпиада", text: "Математикадан 5 ЖӘНЕ информатикадан 5 алғандарды жібереді.",
+      cells: { A1: "Оқушы", B1: "Математика", C1: "Информатика", D1: "Олимпиада", A2: "Айдана", B2: "5", C2: "5", A3: "Тимур", B3: "5", C3: "4", A4: "Дана", B4: "4", C4: "5",
+        D2: "=ЕСЛИ(И(B2=5;C2=5);\"жіберілді\";\"жоқ\")", D3: "=ЕСЛИ(И(B3=5;C3=5);\"жіберілді\";\"жоқ\")", D4: "=ЕСЛИ(И(B4=5;C4=5);\"жіберілді\";\"жоқ\")" },
+      sel: "D2", rand: { keys: ["B2", "C2", "B3", "C3", "B4", "C4"], pick: [3, 4, 5, 5] } },
+    { name: "Ақиқат кестесі", text: "ИСТИНА мен ЛОЖЬ-тың төрт тіркесімі. ИСТИНА тек бір жолда шығады.",
+      cells: { A1: "1-шарт", B1: "2-шарт", C1: "И", A2: "ИСТИНА", B2: "ИСТИНА", C2: "=И(A2;B2)", A3: "ИСТИНА", B3: "ЛОЖЬ", C3: "=И(A3;B3)", A4: "ЛОЖЬ", B4: "ИСТИНА", C4: "=И(A4;B4)", A5: "ЛОЖЬ", B5: "ЛОЖЬ", C5: "=И(A5;B5)" },
+      sel: "C2" }
+  ],
+  or: [
+    { name: "Мұражайға билеттер", text: "Келушіге 7 жастан кем НЕМЕСЕ 65 жастан көп болса, кіру тегін. C бағаны — ИЛИ, D бағаны — ЕСЛИ арқылы сөз.",
+      cells: { A1: "Келуші", B1: "Жасы", C1: "Жеңілдік", D1: "Билет", A2: "Дана", B2: "5", A3: "Серік", B3: "68", A4: "Тимур", B4: "14", A5: "Айгүл", B5: "40",
+        C2: "=ИЛИ(B2<7;B2>65)", C3: "=ИЛИ(B3<7;B3>65)", C4: "=ИЛИ(B4<7;B4>65)", C5: "=ИЛИ(B5<7;B5>65)",
+        D2: "=ЕСЛИ(C2;\"тегін\";\"ақылы\")", D3: "=ЕСЛИ(C3;\"тегін\";\"ақылы\")", D4: "=ЕСЛИ(C4;\"тегін\";\"ақылы\")", D5: "=ЕСЛИ(C5;\"тегін\";\"ақылы\")" },
+      sel: "C2", rand: { keys: ["B2", "B3", "B4", "B5"], min: 2, max: 80 } },
+    { name: "Демалыс күндері", text: "Күн «сн» НЕМЕСЕ «жс» болса — демалыс. Шарттағы мәтін де тырнақшада.",
+      cells: { A1: "дс", A2: "сс", A3: "ср", A4: "бс", A5: "жм", A6: "сн", A7: "жс",
+        B1: "=ИЛИ(A1=\"сн\";A1=\"жс\")", B2: "=ИЛИ(A2=\"сн\";A2=\"жс\")", B3: "=ИЛИ(A3=\"сн\";A3=\"жс\")", B4: "=ИЛИ(A4=\"сн\";A4=\"жс\")", B5: "=ИЛИ(A5=\"сн\";A5=\"жс\")", B6: "=ИЛИ(A6=\"сн\";A6=\"жс\")", B7: "=ИЛИ(A7=\"сн\";A7=\"жс\")" },
+      sel: "B6" },
+    { name: "Ақиқат кестесі", text: "ЛОЖЬ тек бір жолда шығады — екі шарт та дұрыс болмағанда.",
+      cells: { A1: "1-шарт", B1: "2-шарт", C1: "ИЛИ", A2: "ИСТИНА", B2: "ИСТИНА", C2: "=ИЛИ(A2;B2)", A3: "ИСТИНА", B3: "ЛОЖЬ", C3: "=ИЛИ(A3;B3)", A4: "ЛОЖЬ", B4: "ИСТИНА", C4: "=ИЛИ(A4;B4)", A5: "ЛОЖЬ", B5: "ЛОЖЬ", C5: "=ИЛИ(A5;B5)" },
+      sel: "C5" }
+  ],
+  not: [
+    { name: "ҮТ тапсырды ма", text: "B-да — оқушы ҮТ тапсырса, ИСТИНА. C — НЕ жауапты керісінше аударады, D — тапсырмағандарға еске салу.",
+      cells: { A1: "Оқушы", B1: "ҮТ тапсырды", C1: "Тапсырмады", D1: "Еске салу", A2: "Айдана", B2: "ИСТИНА", A3: "Тимур", B3: "ЛОЖЬ", A4: "Дана", B4: "ИСТИНА", A5: "Арман", B5: "ЛОЖЬ",
+        C2: "=НЕ(B2)", C3: "=НЕ(B3)", C4: "=НЕ(B4)", C5: "=НЕ(B5)",
+        D2: "=ЕСЛИ(НЕ(B2);\"еске салу\";\"\")", D3: "=ЕСЛИ(НЕ(B3);\"еске салу\";\"\")", D4: "=ЕСЛИ(НЕ(B4);\"еске салу\";\"\")", D5: "=ЕСЛИ(НЕ(B5);\"еске салу\";\"\")" },
+      sel: "C2", rand: { keys: ["B2", "B3", "B4", "B5"], pick: ["ИСТИНА", "ЛОЖЬ"] } },
+    { name: "НЕ және мына таңба: <>", text: "8А-дан басқалардың бәрі. B бағаны — НЕ арқылы, C бағаны — «тең емес» таңбасымен. Жауаптары бірдей.",
+      cells: { A1: "Сынып", B1: "НЕ арқылы", C1: "<> арқылы", A2: "8А", A3: "8Б", A4: "8В", B2: "=НЕ(A2=\"8А\")", B3: "=НЕ(A3=\"8А\")", B4: "=НЕ(A4=\"8А\")", C2: "=A2<>\"8А\"", C3: "=A3<>\"8А\"", C4: "=A4<>\"8А\"" },
+      sel: "B2" },
+    { name: "Ақиқат кестесі", text: "НЕ ИСТИНА-ны ЛОЖЬ-қа ауыстырады және керісінше.",
+      cells: { A1: "Мән", B1: "НЕ", A2: "ИСТИНА", B2: "=НЕ(A2)", A3: "ЛОЖЬ", B3: "=НЕ(A3)" },
+      sel: "B2" }
+  ],
+  all: [
+    { name: "Төрт функция бірге", text: "A2-де балл, B2-де сабақ босату саны. Әр функцияға бір формуладан — ұяшықты басып, формуланы қара.",
+      cells: { A1: "Балл", B1: "Сабақ босату", A2: "64", B2: "3", C1: "ЕСЛИ", C2: "=ЕСЛИ(A2>=50;\"есептелді\";\"есептелмеді\")", D1: "И", D2: "=И(A2>=50;B2<=5)", E1: "ИЛИ", E2: "=ИЛИ(A2>=90;B2=0)", F1: "НЕ", F2: "=НЕ(A2>=50)" },
+      sel: "C2", rand: { groups: [{ keys: ["A2"], min: 20, max: 100 }, { keys: ["B2"], min: 0, max: 10 }] } },
+    { name: "#ИМЯ? қатесі", text: "B — қатесі бар, C — түзетілген. Формула мен қатенің себебін көру үшін қызыл ұяшықты бас, содан кейін қасындағы ұяшықты бас — дұрысы қалай екенін көресің.",
+      cells: { A1: "Балл", B1: "Қате", C1: "Түзетілген", D1: "Не болды", A2: "64",
+        B2: "=ЕСЛИ(A2>=50;есептелді;есептелмеді)", C2: "=ЕСЛИ(A2>=50;\"есептелді\";\"есептелмеді\")", D2: "тырнақшасыз мәтін",
+        B3: "=IF(A2>=50;\"иә\";\"жоқ\")", C3: "=ЕСЛИ(A2>=50;\"иә\";\"жоқ\")", D3: "ағылшынша атауы",
+        B4: "=ЕСЛЕ(A2>=50;\"иә\";\"жоқ\")", C4: "=ЕСЛИ(A2>=50;\"иә\";\"жоқ\")", D4: "атауында қате бар" },
+      sel: "B2" },
+    { name: "Жазу қатесі", text: "B — жазу қатесі бар формулалар, C — түзетілген. Excel қате формуланы енгізуге рұқсат бермейді. Себебін көру үшін қызыл ұяшықты бас.",
+      cells: { A1: "Балл", B1: "Қате", C1: "Түзетілген", D1: "Не болды", A2: "64",
+        B2: "=ЕСЛИ(A2=>50;\"иә\";\"жоқ\")", C2: "=ЕСЛИ(A2>=50;\"иә\";\"жоқ\")", D2: "=> , дұрысы — >=",
+        B3: "=ЕСЛИ(A2>=50,\"иә\",\"жоқ\")", C3: "=ЕСЛИ(A2>=50;\"иә\";\"жоқ\")", D3: "«;» орнына үтір",
+        B4: "=ЕСЛИ(A2>=50;\"иә;\"жоқ\")", C4: "=ЕСЛИ(A2>=50;\"иә\";\"жоқ\")", D4: "тырнақша жабылмаған",
+        B5: "=ЕСЛИ(A2≥50;\"иә\";\"жоқ\")", C5: "=ЕСЛИ(A2>=50;\"иә\";\"жоқ\")", D5: "≥ символы" },
+      sel: "B2" },
+    { name: "#ЗНАЧ! қатесі", text: "Шартта салыстыру емес, сөз тұр. B — қатесі бар, C — түзетілген.",
+      cells: { A1: "Жауап", B1: "Қате", C1: "Түзетілген", D1: "Не болды", A2: "иә",
+        B2: "=НЕ(\"иә\")", C2: "=НЕ(A2=\"иә\")", D2: "НЕ ішінде шарттың орнына сөз",
+        B3: "=ЕСЛИ(\"иә\";1;0)", C3: "=ЕСЛИ(A2=\"иә\";1;0)", D3: "ЕСЛИ ішінде шарттың орнына сөз" },
+      sel: "B2" },
+    { name: "Логикалық қате", text: "Қате коды жоқ, бірақ жауап дұрыс емес. B және C бағандарын салыстыр: формула қай жерде қателесті?",
+      cells: { A1: "Балл", B1: "Қатесі бар", C1: "Дұрысы", D1: "Не болды",
+        A2: "50", B2: "=ЕСЛИ(A2>50;\"есептелді\";\"есептелмеді\")", C2: "=ЕСЛИ(A2>=50;\"есептелді\";\"есептелмеді\")", D2: "> , дұрысы — >=: 50 — бұл есептелді",
+        A3: "72", B3: "=ЕСЛИ(A3>=50;\"есептелмеді\";\"есептелді\")", C3: "=ЕСЛИ(A3>=50;\"есептелді\";\"есептелмеді\")", D3: "«иә» мен «жоқ» шатастырылған" },
+      sel: "B2" },
+    { name: "Бос парақ", text: "Таза парақ: өз сандарың мен формулаларыңды жаз.", cells: {}, sel: "A1" }
+  ]
+};
+
+function xlMount(root, examples, opts = {}) {
+  const ROWS = opts.rows || 10, COLS = XL_COLS.slice(0, opts.cols || XL_COLS.length);
+  const S = { cells: {}, cache: new Map(), sel: "A1", ex: 0, timer: null };
+  root.innerHTML = `
+    <div class="xl-top"${opts.task ? " hidden" : ""}>
+      <div class="xl-ex">${examples.map((e, i) => `<button type="button" class="xl-chip" data-ex="${i}">${e.name}</button>`).join("")}</div>
+      <div class="xl-act">
+        <button type="button" class="btn xl-rand">Кездейсоқ сандар</button>
+        <button type="button" class="btn xl-play" aria-pressed="false">▶ Автокөрсетілім</button>
+        <button type="button" class="btn xl-reset">Бастапқы қалпына</button>
+      </div>
+    </div>
+    <p class="xl-text"${opts.task ? " hidden" : ""}></p>
+    <div class="xl-keys" aria-label="Формулаға қою">
+      <span class="xl-keys-lab">Қою:</span>
+      ${["=", "ЕСЛИ(", "И(", "ИЛИ(", "НЕ(", ";", ">", "<", ">=", "<=", "<>", "\"\"", ")"].map(k => `<button type="button" class="xl-key" data-ins="${k.replace(/"/g, "&quot;")}">${k.replace(/</g, "&lt;")}</button>`).join("")}
+    </div>
+    <div class="xl-bar">
+      <span class="xl-name" aria-live="polite"></span>
+      <span class="xl-fx">fx</span>
+      <input type="text" class="xl-in" autocomplete="off" spellcheck="false" aria-label="Формула жолы">
+    </div>
+    <div class="xl-wrap"><table class="xl-grid">
+      <tr><th class="xl-corner"></th>${COLS.map(c => `<th>${c}</th>`).join("")}</tr>
+      ${Array.from({ length: ROWS }, (_, r) => `<tr><th>${r + 1}</th>${COLS.map(c => `<td tabindex="-1" data-k="${c}${r + 1}"></td>`).join("")}</tr>`).join("")}
+    </table></div>
+    <p class="xl-explain"></p>
+    <p class="xl-hint">Ұяшықты бас — оның мазмұны мына жолда пайда болады: <b>fx</b>. <b>Формула жазып жатырсың ба?</b> Ұяшықты бас — оның адресі өзі қойылады. Тышқанмен бірнеше ұяшықты созсаң — ауқым қойылады, мысалы, A1:A5. Пернетақта тілін ауыстырудың қажеті жоқ.</p>`;
+  const $ = s => root.querySelector(s);
+  const inp = $(".xl-in"), grid = $(".xl-grid"), playBtn = $(".xl-play");
+
+  function recalc() { S.cache = new Map(); }
+  function render() {
+    let refs = new Set();
+    const raw = String(S.cells[S.sel] ?? "");
+    let ast = null;
+    if (raw.trim().startsWith("=")) { try { ast = xlParse(raw.trim().slice(1)); refs = xlRefs(ast, new Set()); } catch (e) { if (!(e instanceof XSyntax)) throw e; } }
+    grid.querySelectorAll("td").forEach(td => {
+      const k = td.dataset.k, v = xlEvalCell(S, k, new Set());
+      const isF = String(S.cells[k] ?? "").trim().startsWith("=");
+      td.textContent = xlFmt(v);
+      td.className = (typeof v === "number" ? "n" : typeof v === "boolean" ? "b" : v instanceof XErr ? "e" : "") + (isF ? " f" : "") + (refs.has(k) ? " ref" : "") + (opts.targets && opts.targets.includes(k) ? " target" : "") + (k === S.sel ? " sel" : "");
+      td.tabIndex = k === S.sel ? 0 : -1;
+    });
+    $(".xl-name").textContent = S.sel;
+    explain(raw, ast);
+  }
+  function explain(raw, ast) {
+    const box = $(".xl-explain");
+    box.className = "xl-explain";
+    const t = raw.trim();
+    if (!t) { box.textContent = "Ұяшық бос. fx жолына сан немесе формула жаз."; return; }
+    if (!t.startsWith("=")) {
+      if (/^(ИСТИНА|ЛОЖЬ)$/i.test(t)) { box.textContent = `Ұяшықта логикалық мән тұр: ${t.toUpperCase()}. Оны шарт ретінде алуға болады: =ЕСЛИ(${S.sel};"иә";"жоқ").`; return; }
+      box.textContent = xlNum(t) !== null ? `Ұяшықта жай сан тұр: ${xlFmt(xlNum(t))}. Оны өзгертсең, оған сілтейтін формулалар қайта есептеледі.` : "Ұяшықта мәтін — жазу. Формулалар оны қоспайды.";
+      return;
+    }
+    let parsed = ast;
+    if (!parsed) {
+      try { parsed = xlParse(t.slice(1)); } catch (e) {
+        if (!(e instanceof XSyntax)) throw e;
+        box.classList.add("bad"); box.textContent = "Формула қате жазылған: " + e.message + " Excel мұндай формуланы енгізуге рұқсат бермейді: формуладағы ақау туралы хабарлама терезесі шығады."; return;
+      }
+    }
+    const v = xlEvalCell(S, S.sel, new Set());
+    const lines = [];
+    if (v instanceof XErr && v.code === "#ОШИБКА") {
+      const call = xlFind(parsed, n => n.t === "call" && XL_ARGS[n.f] && (() => { try { xlCall(S, n, new Set()); return false; } catch (e) { return e instanceof XArity; } })());
+      box.classList.add("bad");
+      box.textContent = call ? `${call.f} функциясында болуы керек: ${XL_ARGS[call.f]}.` + (t.includes(",") ? " «;» орнына үтір тұрған сияқты." : "") : "Формула қате жазылған.";
+      box.textContent += " Excel мұндай формуланы енгізуге рұқсат бермейді: формуладағы ақау туралы хабарлама терезесі шығады.";
+      return;
+    }
+    lines.push(`<span class="xl-step">Мәндерді қоямыз:</span> <code></code> → <b></b>`);
+    box.innerHTML = lines.join("");
+    box.querySelector("code").textContent = "=" + xlShow(S, parsed);
+    box.querySelector("b").textContent = v === "" ? "бос (\"\")" : xlFmt(v);
+    if (!(v instanceof XErr) && parsed.t === "call" && parsed.f === "ЕСЛИ" && parsed.args.length >= 2) {
+      const c = xlEv(S, parsed.args[0], new Set());
+      if (typeof c === "boolean" || typeof c === "number") {
+        const yes = typeof c === "boolean" ? c : c !== 0, p = document.createElement("span");
+        p.className = "xl-if";
+        p.textContent = `Шарт ${xlShow(S, parsed.args[0])} → ${yes ? "ИСТИНА" : "ЛОЖЬ"}, сондықтан ЕСЛИ ` + (yes ? "екінші аргументті алады — «иә» жауабын." : parsed.args.length > 2 ? "үшінші аргументті алады — «жоқ» жауабын." : "ЛОЖЬ көрсетеді: үшінші аргумент жоқ.");
+        box.appendChild(p);
+      }
+    }
+    if (v instanceof XErr) {
+      box.classList.add("bad");
+      const p = document.createElement("span");
+      p.className = "xl-why";
+      const en = xlFind(parsed, n => n.t === "call" && XL_EN[n.f]);
+      const bad = xlFind(parsed, n => n.t === "badref");
+      p.textContent = en ? `Орыс тіліндегі Excel-де бұл функция ${XL_EN[en.f]} деп аталады.` : bad ? `«${bad.v}» адресіндегі әріп кириллицамен терілген. Ұяшық адрестері латын әріптерімен жазылады: A1, B2.` : (XL_ERR[v.code] || "");
+      box.appendChild(p);
+    }
+  }
+  function select(k, focusCell) {
+    S.sel = k;
+    inp.value = S.cells[k] ?? "";
+    render();
+    if (focusCell) grid.querySelector(`td[data-k="${k}"]`).focus();
+  }
+  function load(i) {
+    S.ex = i;
+    const e = examples[i];
+    S.cells = { ...e.cells };
+    recalc();
+    root.querySelectorAll(".xl-chip").forEach(c => c.setAttribute("aria-pressed", +c.dataset.ex === i));
+    $(".xl-text").textContent = e.text;
+    $(".xl-rand").hidden = !e.rand;
+    select(e.sel);
+  }
+  function randomize() {
+    const r = examples[S.ex].rand; if (!r) return;
+    rndFill(r, S.cells);
+    recalc(); inp.value = S.cells[S.sel] ?? ""; render();
+  }
+  function stopPlay() { clearInterval(S.timer); S.timer = null; playBtn.setAttribute("aria-pressed", "false"); playBtn.textContent = "▶ Автокөрсетілім"; }
+  playBtn.addEventListener("click", () => {
+    if (S.timer) return stopPlay();
+    playBtn.setAttribute("aria-pressed", "true"); playBtn.textContent = "■ Тоқта";
+    const step = () => { if (examples[S.ex].rand && Math.random() < .5) randomize(); else load((S.ex + 1) % examples.length); };
+    step(); S.timer = setInterval(step, 3500);
+  });
+  root.querySelector(".xl-ex").addEventListener("click", e => { const b = e.target.closest("[data-ex]"); if (b) { stopPlay(); load(+b.dataset.ex); } });
+  $(".xl-rand").addEventListener("click", () => { stopPlay(); randomize(); });
+  $(".xl-reset").addEventListener("click", () => { stopPlay(); load(S.ex); });
+  /* Режим указания: пока пишется формула, щелчок по ячейке вставляет её адрес, протягивание — диапазон */
+  let point = null, pointed = false;
+  /* Как в Excel: адрес вставляется, только если курсор стоит там, где ожидается ссылка (после = ( ; : + - * / ^) */
+  const editingFormula = () => {
+    if (document.activeElement !== inp || !inp.value.trim().startsWith("=")) return false;
+    const before = inp.value.slice(0, inp.selectionStart).replace(/\s+$/, "");
+    return /[=(;:+\-*\/^<>]$/.test(before);
+  };
+  function rangeText(a, b) {
+    if (a === b) return a;
+    const c1 = Math.min(a.charCodeAt(0), b.charCodeAt(0)), c2 = Math.max(a.charCodeAt(0), b.charCodeAt(0));
+    const r1 = Math.min(+a.slice(1), +b.slice(1)), r2 = Math.max(+a.slice(1), +b.slice(1));
+    return String.fromCharCode(c1) + r1 + ":" + String.fromCharCode(c2) + r2;
+  }
+  function putText(start, oldLen, txt) {
+    inp.value = inp.value.slice(0, start) + txt + inp.value.slice(start + oldLen);
+    inp.setSelectionRange(start + txt.length, start + txt.length);
+    S.cells[S.sel] = inp.value; recalc(); render();
+    if (opts.onChange) opts.onChange();
+  }
+  grid.addEventListener("mousedown", e => {
+    const td = e.target.closest("td[data-k]");
+    pointed = false;
+    if (!td || !editingFormula() || td.dataset.k === S.sel) return;
+    e.preventDefault();
+    const start = inp.selectionStart, end = inp.selectionEnd;
+    inp.value = inp.value.slice(0, start) + inp.value.slice(end);
+    point = { start, len: 0, anchor: td.dataset.k };
+    putText(start, 0, td.dataset.k);
+    point.len = td.dataset.k.length;
+    pointed = true;
+  });
+  grid.addEventListener("mouseover", e => {
+    if (!point || !(e.buttons & 1)) return;
+    const td = e.target.closest("td[data-k]"); if (!td) return;
+    const txt = rangeText(point.anchor, td.dataset.k);
+    putText(point.start, point.len, txt);
+    point.len = txt.length;
+  });
+  document.addEventListener("mouseup", () => { point = null; });
+  grid.addEventListener("click", e => {
+    if (pointed) { pointed = false; inp.focus(); return; }
+    const td = e.target.closest("td[data-k]"); if (td) { stopPlay(); select(td.dataset.k); }
+  });
+  root.querySelector(".xl-keys").addEventListener("mousedown", e => { if (e.target.closest(".xl-key")) e.preventDefault(); });
+  root.querySelector(".xl-keys").addEventListener("click", e => {
+    const b = e.target.closest(".xl-key"); if (!b) return;
+    stopPlay();
+    let ins = b.dataset.ins;
+    if (document.activeElement !== inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    if (ins !== "=" && !inp.value.trim().startsWith("=")) { inp.value = ""; ins = "=" + ins; }
+    if (ins === "=") { inp.value = ""; }
+    const st = inp.selectionStart;
+    putText(st, inp.selectionEnd - st, ins);
+  });
+  grid.addEventListener("dblclick", e => { if (e.target.closest("td[data-k]")) { inp.focus(); inp.select(); } });
+  grid.addEventListener("keydown", e => {
+    const k = S.sel, c = COLS.indexOf(k[0]), r = +k.slice(1);
+    const mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+    if (mv) {
+      e.preventDefault();
+      const nc = Math.min(Math.max(c + mv[0], 0), COLS.length - 1), nr = Math.min(Math.max(r + mv[1], 1), ROWS);
+      select(COLS[nc] + nr, true);
+    } else if (e.key === "Enter" || e.key === "F2") { e.preventDefault(); inp.focus(); }
+  });
+  inp.addEventListener("focus", stopPlay);
+  inp.addEventListener("input", () => { S.cells[S.sel] = inp.value; recalc(); render(); if (opts.onChange) opts.onChange(); });
+  inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const r = +S.sel.slice(1);
+      select(S.sel[0] + Math.min(r + 1, ROWS));
+    }
+  });
+  root.xlState = S;
+  root.xlSet = (k, v) => { S.cells[k] = v; recalc(); if (k === S.sel) inp.value = v; render(); };
+  root.xlReset = () => load(S.ex);
+  root.xlLoad = i => { stopPlay(); load(i); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  root.xlTry = (f, cells) => { stopPlay(); if (cells) S.cells = { ...cells }; S.cells.H10 = f; recalc(); select("H10"); root.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  load(0);
+}
+document.addEventListener("click", e => {
+  const sx = e.target.closest(".showex");
+  if (sx) { const xl = document.querySelector('.xl[data-sheet="all"]'); if (xl && xl.xlLoad) xl.xlLoad(+sx.dataset.ex); return; }
+  const b = e.target.closest(".tryf"); if (!b) return;
+  const xl = b.closest(".fcard").querySelector(".xl");
+  if (xl && xl.xlTry) xl.xlTry(b.dataset.f, b.dataset.cells ? JSON.parse(b.dataset.cells) : null);
+});
+document.querySelectorAll(".xl[data-sheet]").forEach(el => xlMount(el, XL_SHEETS[el.dataset.sheet]));
+
+/* Практика: разминка и задания трёх уровней с автопроверкой формулы на других числах */
+const PR_KEY = "practice-l2";
+const LEVELS_PR = {
+  "0": { name: "0 · Салыстыру", who: "жаттығу", desc: "Шартты мына таңбалармен жаз: > < = >= <= <>. Кесте ИСТИНА немесе ЛОЖЬ деп жауап береді. Мұнсыз ЕСЛИ жазу мүмкін емес." },
+  A: { name: "A · Базалық", who: "барлығы үшін", desc: "Бір шарты бар ЕСЛИ функциясы: сөзді немесе санды таңдау." },
+  B: { name: "B · Орташа", who: "көпшілігі үшін", desc: "ЕСЛИ тармағында есептеу және И мен ИЛИ арқылы бірнеше шарт." },
+  C: { name: "C · Жоғары", who: "кейбіреулер үшін", desc: "Кірістірілген функциялар: ЕСЛИ(И(…)), ЕСЛИ ішінде ЕСЛИ, ЕСЛИ(НЕ(…))." }
+};
+const TASKS_PR = [
+  { id: "Z1", lv: "0", fn: "салыстыру", q: "Тимур 50 немесе одан көп балл жинады ма? C2-ге салыстыру жаз — кесте ИСТИНА немесе ЛОЖЬ деп жауап береді.",
+    cells: { A1: "Оқушы", B1: "Балл", C1: "50 және одан көп пе?", A2: "Тимур", B2: "64" },
+    ref: { C2: "=B2>=50" }, must: { C2: [] }, vary: { keys: ["B2"], pick: [30, 49, 50, 51, 90] },
+    hint: "Салыстыру функциясыз жазылады: =B2>=50. «Үлкен немесе тең» — қатар тұрған екі таңба: > және =." },
+  { id: "Z2", lv: "0", fn: "салыстыру", q: "Далада аяз ба? Аяз — температура нөлден төмен болғанда. Тексеруді B2-ге жаз.",
+    cells: { A1: "Температура", B1: "-3", A2: "Аяз ба?" },
+    ref: { B2: "=B1<0" }, must: { B2: [] }, vary: { keys: ["B1"], pick: [-10, -1, 0, 1, 5] },
+    hint: "«Нөлден төмен» — таңба <: =B1<0. Нөл — аяз емес." },
+  { id: "Z3", lv: "0", fn: "салыстыру", q: "Айданаға кітапқа ақша жете ме? B1-де — оның қанша ақшасы бар, B2-де — баға. B3-ке жаз: ақша кітаптың бағасымен тең немесе одан көп.",
+    cells: { A1: "Бар ақша, тг", B1: "2500", A2: "Кітап бағасы, тг", B2: "2300", A3: "Жете ме?" },
+    ref: { B3: "=B1>=B2" }, must: { B3: [] }, vary: { groups: [{ keys: ["B1"], pick: [2000, 2300, 2500] }, { keys: ["B2"], pick: [2300, 2400] }] },
+    hint: "Екі ұяшықты салыстыр: =B1>=B2. Ақша дәл кітаптың бағасындай болса — жетеді." },
+  { id: "Z4", lv: "0", fn: "салыстыру", q: "B1-де — оқушының жауабы, B2-де — дұрыс жауап. B3-ке «жауап дұрыс жауаппен сәйкес КЕЛМЕЙДІ» деген тексеруді жаз.",
+    cells: { A1: "Оқушының жауабы", B1: "12", A2: "Дұрыс жауап", B2: "12", A3: "Қате ме?" },
+    ref: { B3: "=B1<>B2" }, must: { B3: [] }, vary: { groups: [{ keys: ["B1"], pick: [10, 12, 15] }, { keys: ["B2"], pick: [12] }] },
+    hint: "«Тең емес» екі таңбамен жазылады: <>. =B1<>B2." },
+
+  { id: "A1", lv: "A", fn: "ЕСЛИ", q: "Балл 50 немесе одан көп болса — C2-де «есептелді», әйтпесе «есептелмеді» болуы керек.",
+    cells: { A1: "Оқушы", B1: "Балл", C1: "Қорытынды", A2: "Айдана", B2: "72" },
+    ref: { C2: "=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\")" }, must: { C2: ["ЕСЛИ"] }, vary: { keys: ["B2"], pick: [20, 49, 50, 51, 100] },
+    hint: "=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\"). Мәтін — тырнақшада, бөліктер — «;» арқылы." },
+  { id: "A2", lv: "A", fn: "ЕСЛИ", q: "Температура нөлден төмен болса, B2-ге «көктайғақ», әйтпесе «құрғақ» деп жазу керек.",
+    cells: { A1: "Температура", B1: "-4", A2: "Жол" },
+    ref: { B2: "=ЕСЛИ(B1<0;\"көктайғақ\";\"құрғақ\")" }, must: { B2: ["ЕСЛИ"] }, vary: { keys: ["B1"], pick: [-10, -1, 0, 1, 8] },
+    hint: "Шарт — B1<0. =ЕСЛИ(B1<0;\"көктайғақ\";\"құрғақ\")." },
+  { id: "A3", lv: "A", fn: "ЕСЛИ", q: "Интернет-дүкен: сатып алу 5000 тг немесе одан көп болса, жеткізу тегін (0), әйтпесе — 700 тг. B2-де жеткізу құнын тап.",
+    cells: { A1: "Сатып алу, тг", B1: "3500", A2: "Жеткізу, тг" },
+    ref: { B2: "=ЕСЛИ(B1>=5000;0;700)" }, must: { B2: ["ЕСЛИ"] }, vary: { keys: ["B1"], pick: [1000, 4999, 5000, 5001, 8000] },
+    hint: "ЕСЛИ тармақтарында сандарды жазуға болады — тырнақшасыз: =ЕСЛИ(B1>=5000;0;700)." },
+
+  { id: "B1", lv: "B", fn: "ЕСЛИ", q: "10% жеңілдік: сатып алу 10 000 тг-ден көп болса, соманың 90%-ын төлейміз, әйтпесе — толық соманы. B2-де төленетін соманы тап.",
+    cells: { A1: "Сатып алу, тг", B1: "12000", A2: "Төлеуге, тг" },
+    ref: { B2: "=ЕСЛИ(B1>10000;B1*0,9;B1)" }, must: { B2: ["ЕСЛИ"] }, vary: { keys: ["B1"], pick: [5000, 9999, 10000, 10001, 20000] },
+    hint: "ЕСЛИ тармағында есептеуге болады: B1*0,9 — бұл соманың 90%-ы. =ЕСЛИ(B1>10000;B1*0,9;B1)." },
+  { id: "B2", lv: "B", fn: "И", q: "Дене шынықтырудан сынақ есептеледі, егер 60 м жүгіру 10 с-тан ұзақ болмаса ЖӘНЕ ұзындыққа секіру 150 см-ден кем болмаса. D2-ге екі норманы тексеретін формула жаз — жауап ИСТИНА немесе ЛОЖЬ.",
+    cells: { A1: "Оқушы", B1: "Жүгіру, с", C1: "Секіру, см", D1: "Екі норма да ма?", A2: "Арман", B2: "9,5", C2: "160" },
+    ref: { D2: "=И(B2<=10;C2>=150)" }, must: { D2: ["И"] }, vary: { groups: [{ keys: ["B2"], pick: [9, 10, 10.5, 11] }, { keys: ["C2"], pick: [140, 149, 150, 170] }] },
+    hint: "И ішінде «;» арқылы екі шарт: =И(B2<=10;C2>=150)." },
+  { id: "B3", lv: "B", fn: "ЕСЛИ + ИЛИ", q: "Мұражай: келушіге 7 жастан кем НЕМЕСЕ 65 жастан көп болса, кіру тегін. C2-ге «тегін» немесе «ақылы» деп жаз.",
+    cells: { A1: "Келуші", B1: "Жасы", C1: "Билет", A2: "Дана", B2: "5" },
+    ref: { C2: "=ЕСЛИ(ИЛИ(B2<7;B2>65);\"тегін\";\"ақылы\")" }, must: { C2: ["ЕСЛИ", "ИЛИ"] }, vary: { keys: ["B2"], pick: [3, 6, 7, 30, 65, 66, 80] },
+    hint: "ЕСЛИ шарты — екі салыстырудан тұратын ИЛИ: =ЕСЛИ(ИЛИ(B2<7;B2>65);\"тегін\";\"ақылы\")." },
+
+  { id: "C1", lv: "C", fn: "ЕСЛИ + И", q: "Олимпиада: математикадан 5 ЖӘНЕ информатикадан 5 алғандарды жібереді. D2, D3 және D4 ұяшықтарын толтыр: «жіберілді» немесе «жоқ».",
+    cells: { A1: "Оқушы", B1: "Математика", C1: "Информатика", D1: "Олимпиада", A2: "Айдана", B2: "5", C2: "5", A3: "Тимур", B3: "5", C3: "4", A4: "Дана", B4: "4", C4: "5" },
+    ref: { D2: "=ЕСЛИ(И(B2=5;C2=5);\"жіберілді\";\"жоқ\")", D3: "=ЕСЛИ(И(B3=5;C3=5);\"жіберілді\";\"жоқ\")", D4: "=ЕСЛИ(И(B4=5;C4=5);\"жіберілді\";\"жоқ\")" },
+    must: { D2: ["ЕСЛИ", "И"], D3: ["ЕСЛИ", "И"], D4: ["ЕСЛИ", "И"] }, vary: { keys: ["B2", "C2", "B3", "C3", "B4", "C4"], pick: [3, 4, 5] },
+    hint: "D2 үшін: =ЕСЛИ(И(B2=5;C2=5);\"жіберілді\";\"жоқ\"). D3 және D4 ұяшықтарында — 3 және 4-жолдар үшін дәл солай." },
+  { id: "C2", lv: "C", fn: "ЕСЛИ ішінде ЕСЛИ", q: "Балды бағаға аудар: 85 және одан жоғары — 5, 70-тен 84-ке дейін — 4, 50-ден 69-ға дейін — 3, 50-ден төмен — 2. Формуланы C2-ге жаз.",
+    cells: { A1: "Оқушы", B1: "Балл", C1: "Баға", A2: "Мадина", B2: "77" },
+    ref: { C2: "=ЕСЛИ(B2>=85;5;ЕСЛИ(B2>=70;4;ЕСЛИ(B2>=50;3;2)))" }, must: { C2: ["ЕСЛИ"] }, vary: { keys: ["B2"], pick: [20, 49, 50, 69, 70, 84, 85, 100] },
+    hint: "ЕСЛИ ішінде ЕСЛИ, ең жоғары шектен бастап: =ЕСЛИ(B2>=85;5;ЕСЛИ(B2>=70;4;ЕСЛИ(B2>=50;3;2)))." },
+  { id: "C3", lv: "C", fn: "ЕСЛИ + НЕ", q: "B2-де — оқушы үй тапсырмасын тапсырды ма: ИСТИНА немесе ЛОЖЬ. Егер тапсырмаса — C2-ге «еске салу» деп жаз, әйтпесе ұяшықты бос қалдыр (қатар тұрған екі тырнақша: \"\").",
+    cells: { A1: "Оқушы", B1: "ҮТ тапсырды", C1: "Еске салу", A2: "Арман", B2: "ЛОЖЬ" },
+    ref: { C2: "=ЕСЛИ(НЕ(B2);\"еске салу\";\"\")" }, must: { C2: ["ЕСЛИ", "НЕ"] }, vary: { keys: ["B2"], pick: ["ИСТИНА", "ЛОЖЬ"] },
+    hint: "Шарт — НЕ(B2): «тапсырды деген дұрыс емес». =ЕСЛИ(НЕ(B2);\"еске салу\";\"\")." }
+];
+const TASKS_Z = TASKS_PR.filter(t => t.lv === "0");
+
+function prLoad() { return store.get(PR_KEY, {}); }
+function prSave(d) { store.set(PR_KEY, d); }
+function prCalls(n, out) {
+  if (!n) return out;
+  if (n.t === "call") { out.add(n.f); n.args.forEach(a => prCalls(a, out)); }
+  else if (n.t === "bin") { prCalls(n.l, out); prCalls(n.r, out); }
+  else if (n.a) prCalls(n.a, out);
+  return out;
+}
+function prEval(cells, k, f) {
+  const S = { cells: { ...cells, [k]: f }, cache: new Map() };
+  return xlEvalCell(S, k, new Set());
+}
+const prText = v => String(v ?? "").trim().toLowerCase().replace(/ё/g, "е");
+const prSame = (a, b) => typeof a === "number" && typeof b === "number" ? Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b))
+  : typeof a === "boolean" || typeof b === "boolean" ? a === b : (a ?? "") === (b ?? "") || (typeof a === "string" && typeof b === "string" && prText(a) === prText(b));
+const prShow = v => v === "" || v === null ? "бос" : typeof v === "string" ? `«${v}»` : xlFmt(v);
+/* Почему ответ не тот: подсказка по типу ответа */
+function prWhy(mine, want) {
+  if (typeof mine === "boolean" && typeof want !== "boolean") return "Формула ИСТИНА немесе ЛОЖЬ көрсетеді, ал сөз немесе сан керек — шартты ЕСЛИ ішіне сал.";
+  if (typeof want === "boolean" && typeof mine !== "boolean") return "Мұнда ИСТИНА немесе ЛОЖЬ жауабы керек: салыстырудың өзі немесе И, ИЛИ, НЕ — ЕСЛИ-сіз және тырнақшасыз.";
+  if (typeof mine === "string" && typeof want === "string") return prText(mine).replace(/\s+/g, "") === prText(want).replace(/\s+/g, "") ? "Тырнақшадағы мәтіндегі бос орындарды тексер." : "Тырнақшадағы мәтінді және жауаптардың ретін тексер: алдымен — «иә» үшін, содан кейін — «жоқ» үшін.";
+  return "Салыстыру таңбасын және формулаға дұрыс ұяшықтар алынғанын тексер.";
+}
+/* Данные для проверки: каждое значение из списков pick (граница условия) и несколько случайных наборов */
+function prVariants(v, base) {
+  const out = [];
+  (v.groups || [v]).forEach(g => { if (g.pick) g.pick.forEach(x => { const c = { ...base }; g.keys.forEach(k => { c[k] = String(x); }); out.push(c); }); });
+  for (let i = 0; i < 8; i++) { const c = { ...base }; rndFill(v, c); out.push(c); }
+  return out;
+}
+function prRandom(v) {
+  if (v.pick) return v.pick[Math.floor(Math.random() * v.pick.length)];
+  const step = v.step || 1, n = Math.floor((v.max - v.min) / step) + 1;
+  return v.min + Math.floor(Math.random() * n) * step;
+}
+
+/* Проверка: формула, нужная функция, верный результат и тот же результат на других числах */
+function prCheck(t, S) {
+  for (const k of Object.keys(t.ref)) {
+    const raw = String(S.cells[k] ?? "").trim();
+    if (!raw) return { ok: false, cell: k, msg: `${k} ұяшығы бос. Оған формула жаз.` };
+    if (!raw.startsWith("=")) return { ok: false, cell: k, msg: `${k} ұяшығында жай сан немесе мәтін тұр. Формула керек — ол «=» таңбасынан басталады.` };
+    let ast;
+    try { ast = xlParse(raw.slice(1)); } catch (e) {
+      if (!(e instanceof XSyntax)) throw e;
+      return { ok: false, cell: k, msg: `${k} ұяшығындағы формула қате жазылған: ${e.message}` };
+    }
+    const used = prCalls(ast, new Set());
+    const miss = t.must[k].filter(f => !used.has(f));
+    if (miss.length) return { ok: false, cell: k, msg: miss.length > 1 ? `${k} ұяшығындағы формулада ${miss.join(" және ")} функциялары болуы керек. Тапсырма дәл соларды тексереді.` : `${k} ұяшығындағы формулада ${miss[0]} функциясы болуы керек. Тапсырма дәл соны тексереді.` };
+    const mine = xlEvalCell({ cells: S.cells, cache: new Map() }, k, new Set());
+    if (mine instanceof XErr) return { ok: false, cell: k, msg: `${k} ұяшығындағы формула ${mine.code} береді. ` + (XL_ERR[mine.code] || "Қалай жазылғанын тексер.") };
+    const want = prEval(S.cells, k, t.ref[k]);
+    if (!prSame(mine, want)) return { ok: false, cell: k, msg: `${k} ұяшығында ${prShow(mine)} шықты, ал басқа мән болуы керек. ` + prWhy(mine, want) };
+    for (const cells of prVariants(t.vary, S.cells)) {
+      const a = prEval(cells, k, raw), b = prEval(cells, k, t.ref[k]);
+      if (b instanceof XErr) continue;
+      if (!prSame(a, b)) {
+        const keys = [...new Set((t.vary.groups || [t.vary]).flatMap(g => g.keys))];
+        return { ok: false, cell: k, msg: `Қазір жауап сәйкес келді, бірақ басқа деректермен тексергенде қате табылды: егер ${keys.map(x => x + " = " + (xlNum(cells[x]) !== null ? xlFmt(xlNum(cells[x])) : cells[x])).join(", ")} болса, ${k} ұяшығында ${prShow(b)} болуы керек, ал формула ${prShow(a)} береді. Шекарадағы таңбаны (> немесе >=) және формулада дайын сандар емес, ұяшық адрестері тұрғанын тексер.` };
+      }
+    }
+  }
+  return { ok: true };
+}
+
+function prAll() { return TASKS_PR; }
+/* Задание открывается, когда решено предыдущее; уровень — когда открыто его первое задание */
+function prUnlocked(id) {
+  const order = prAll(), i = order.findIndex(t => t.id === id), d = prLoad();
+  return i <= 0 || !!(d[order[i - 1].id] && d[order[i - 1].id].ever);
+}
+function prLocks() {
+  const order = prAll();
+  order.forEach((t, i) => {
+    const card = document.getElementById("pt-" + t.id); if (!card) return;
+    const open = prUnlocked(t.id);
+    card.classList.toggle("locked", !open);
+    card.inert = !open;
+    let l = card.querySelector(".tc-lock");
+    if (!l) { l = document.createElement("p"); l.className = "tc-lock"; card.querySelector(".tc-head").after(l); }
+    l.textContent = open ? "" : `Жабық. ${order[i - 1].id} тапсырмасы шешілгенде ашылады.`;
+  });
+  document.querySelectorAll(".lv").forEach(b => {
+    const first = order.find(t => t.lv === b.dataset.lv);
+    const open = first && prUnlocked(first.id);
+    b.disabled = !open;
+    b.title = open ? "" : "Алдыңғы деңгейдің барлық тапсырмасы шешілгенде деңгей ашылады";
+  });
+  const nx = document.getElementById("lvNext");
+  if (nx && !nx.hidden) { const first = order.find(t => t.lv === nx.dataset.lv); nx.disabled = !(first && prUnlocked(first.id)); }
+}
+function prRender() {
+  const d = prLoad();
+  const solved = prAll().filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("prBar").style.width = (solved / prAll().length * 100) + "%";
+  document.getElementById("prNum").textContent = `Шешілді: ${solved} / ${prAll().length}`;
+  Object.keys(LEVELS_PR).forEach(lv => {
+    const list = prAll().filter(t => t.lv === lv), ok = list.filter(t => d[t.id] && d[t.id].ok).length;
+    document.getElementById("lvc" + lv).textContent = `${ok}/${list.length}`;
+    document.querySelector(`.lv[data-lv="${lv}"]`).classList.toggle("full", ok === list.length);
+  });
+  prLocks();
+}
+function prShowLevel(lv) {
+  document.querySelectorAll(".lv").forEach(b => b.setAttribute("aria-selected", b.dataset.lv === lv));
+  document.querySelectorAll("#prTasks .task-card").forEach(c => { c.hidden = c.dataset.lv !== lv; });
+  document.getElementById("lvDesc").textContent = LEVELS_PR[lv].desc;
+  const order = Object.keys(LEVELS_PR), nx = order[order.indexOf(lv) + 1];
+  const btn = document.getElementById("lvNext");
+  btn.hidden = !nx; if (nx) { btn.dataset.lv = nx; btn.textContent = `${LEVELS_PR[nx].name} деңгейіне өту →`; }
+  store.set("practice-lv", lv);
+  prLocks();
+}
+
+function prBuild() {
+  const box = document.getElementById("prTasks");
+  box.innerHTML = TASKS_PR.map(t => `
+    <section class="block task-card" data-lv="${t.lv}" id="pt-${t.id}" hidden>
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">${t.fn}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <p class="tc-where">Формуланы <b>${Object.keys(t.ref).join(", ")}</b> ${Object.keys(t.ref).length > 1 ? "ұяшықтарына" : "ұяшығына"} жаз — ${Object.keys(t.ref).length > 1 ? "олар" : "ол"} сарымен белгіленген.</p>
+      <div class="xl xl-task"></div>
+      <div class="tc-actions">
+        <button type="button" class="btn main tc-check">Тексеру</button>
+        <button type="button" class="btn tc-hintbtn">Кеңес</button>
+        <button type="button" class="btn tc-reset">Қайта бастау</button>
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join("");
+  const d = prLoad();
+  TASKS_PR.forEach(t => {
+    const card = document.getElementById("pt-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg");
+    const targets = Object.keys(t.ref);
+    const setStatus = ok => {
+      card.classList.toggle("done", ok);
+      card.querySelector(".tc-status").textContent = ok ? "✓ шешілді" : "";
+    };
+    xlMount(root, [{ name: t.id, text: "", cells: t.cells, sel: targets[0] }], {
+      task: true, cols: 5, rows: 8, targets,
+      onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; }
+    });
+    const saved = d[t.id];
+    if (saved && saved.f && (saved.ver || 1) === (t.ver || 1)) { Object.entries(saved.f).forEach(([k, v]) => { if (targets.includes(k)) root.xlSet(k, v); }); }
+    if (saved) setStatus(!!saved.ok && (saved.ver || 1) === (t.ver || 1));
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = prCheck(t, root.xlState);
+      if (window.__onAttempt) window.__onAttempt("7. Практика", t.id + " · " + t.fn, targets.map(k => k + ": " + (root.xlState.cells[k] ?? "")).join("   "), r.ok, r.ok ? "" : r.msg);
+      const all = prLoad();
+      const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
+      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), f, tries, ver: t.ver || 1 };
+      prSave(all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad");
+      msg.textContent = r.ok ? "Дұрыс! Формула басқа сандармен де жұмыс істейді." : r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(r.ok);
+      prRender();
+      if (r.ok && TASKS_PR.filter(x => x.lv === t.lv).every(x => (prLoad()[x.id] || {}).ok)) {
+        msg.textContent += t.lv === "C" ? " Сен барлық деңгейді шештің!" : ` ${t.lv} деңгейі өтілді — келесісіне өтуге болады.`;
+      }
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => {
+      root.xlReset(); msg.textContent = ""; card.querySelector(".tc-hint").hidden = true;
+      const all = prLoad(); all[t.id] = { ok: false, ever: !!(all[t.id] && all[t.id].ever) }; prSave(all); setStatus(false); prRender();
+    });
+  });
+  document.querySelectorAll(".lv").forEach(b => b.addEventListener("click", () => prShowLevel(b.dataset.lv)));
+  document.getElementById("lvNext").addEventListener("click", e => { prShowLevel(e.currentTarget.dataset.lv); document.getElementById("practice").scrollIntoView({ behavior: "smooth" }); });
+  {
+    const want = store.get("practice-lv", "0"), first = prAll().find(t => t.lv === want);
+    const cur = prAll().find(t => prUnlocked(t.id) && !(prLoad()[t.id] || {}).ever) || prAll()[prAll().length - 1];
+    prShowLevel(first && prUnlocked(first.id) ? want : cur.lv);
+  }
+  prRender();
+}
+prBuild();
+
+
+/* Какая функция подходит: ситуации из жизни */
+const MT_KEY = "match-l2";
+const MT_FNS = ["ЕСЛИ", "И", "ИЛИ", "НЕ"];
+const MT_WHAT = {
+  "ЕСЛИ": "ЕСЛИ бір шартты тексеріп, екі жауаптың бірін таңдайды.",
+  "И": "Барлық шарт бірден орындалуы керек болғанда И керек.",
+  "ИЛИ": "Ең болмаса бір шарт жеткілікті болғанда ИЛИ керек.",
+  "НЕ": "НЕ тек жауапты аударады: ИСТИНА ЛОЖЬ-қа айналады."
+};
+const MT_CASES = [
+  { q: "БЖБ балы 50 немесе одан көп болса — «есептелді», әйтпесе «есептелмеді» деп жазу.", a: "ЕСЛИ", why: "Бір шарт және таңдауға екі жауап.", f: "=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\")", note: "балл B2-де жазылса" },
+  { q: "Сатып алу 5000 тг-ден көп болса және сатып алушының дүкен картасы болса, жеңілдік беріледі.", a: "И", why: "Екі шарт бірден керек: сома да, карта да.", f: "=ЕСЛИ(И(B2>5000;C2=\"иә\");\"жеңілдік\";\"жоқ\")", note: "сома B2-де, карта бар-жоғы («иә»/«жоқ») C2-де" },
+  { q: "Мұражайға келушіге 7 жастан кем немесе 65 жастан көп болса, тегін кіргізеді.", a: "ИЛИ", why: "Екі шарттың біреуі жеткілікті.", f: "=ИЛИ(B2<7;B2>65)", note: "жасы B2-де болса" },
+  { q: "8А-дан ЕМЕС оқушылардың бәрін белгілеу керек.", a: "НЕ", why: "«Керісінше» шарты керек: сынып 8А емес.", f: "=НЕ(A2=\"8А\")", note: "дәл солай: =A2<>\"8А\"" },
+  { q: "A1-дегі сан 10-нан 20-ға дейін (қоса алғанда) екенін тексеру.", a: "И", why: "Сан бір мезгілде ≥ 10 және ≤ 20 болуы керек — екі шарт та.", f: "=И(A1>=10;A1<=20)", note: "Назар аудар: =10<=A1<=20 жазуы қате жұмыс істейді" },
+  { q: "Сенбі мен жексенбіде кинотеатрда билет бағасы басқа. Күннің демалыс екенін қалай тексеруге болады?", a: "ИЛИ", why: "Демалыс — бұл сенбі немесе жексенбі: бір сәйкестік жеткілікті.", f: "=ИЛИ(A2=\"сн\";A2=\"жс\")", note: "апта күні A2-де жазылса" },
+  { q: "Температура нөлден төмен болса, таблода «көктайғақ», әйтпесе «құрғақ» деп жазылады.", a: "ЕСЛИ", why: "Бір шарт (нөлден төмен) және екі жауап.", f: "=ЕСЛИ(B1<0;\"көктайғақ\";\"құрғақ\")", note: "температура B1-де болса" },
+  { q: "Математикадан бесі және информатикадан бесі бар оқушыны олимпиадаға жібереді.", a: "И", why: "Екі бес те бір мезгілде керек.", f: "=ЕСЛИ(И(B2=5;C2=5);\"жіберілді\";\"жоқ\")", note: "бағалар B2 және C2-де" },
+  { q: "Жолаушы оқушы немесе зейнеткер болса, билет жеңілдікпен беріледі.", a: "ИЛИ", why: "Екі шарттың біреуі орындалса жеткілікті.", f: "=ИЛИ(C2=\"оқушы\";C2=\"зейнеткер\")", note: "жолаушы санаты C2-де болса" },
+  { q: "Оқушы ҮТ тапсырса, B2-де ИСТИНА жазылған. Әлі тапсырмағандар үшін ИСТИНА алу керек.", a: "НЕ", why: "Жауапты аудару керек: тапсырды → тапсырмады.", f: "=НЕ(B2)", note: "«еске салу» үшін: =ЕСЛИ(НЕ(B2);\"еске салу\";\"\")" }
+];
+function mtLoad() { return store.get(MT_KEY, {}); }
+function mtBuild() {
+  const d = mtLoad();
+  document.getElementById("mtList").innerHTML = MT_CASES.map((c, i) => `
+    <section class="block mt-card" id="mt-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${c.q}</p>
+      <div class="mt-opts" role="group" aria-label="Функцияны таңда">
+        ${MT_FNS.map(f => `<button type="button" class="mt-opt" data-f="${f}">${f}</button>`).join("")}
+      </div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  MT_CASES.forEach((c, i) => {
+    const card = document.getElementById("mt-" + i), msg = card.querySelector(".tc-msg");
+    const show = (st, quiet) => {
+      card.querySelectorAll(".mt-opt").forEach(b => {
+        b.classList.toggle("ok", !!st.ok && b.dataset.f === c.a);
+        b.classList.toggle("bad", (st.wrong || []).includes(b.dataset.f));
+        b.disabled = !!st.ok;
+      });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ бірінші әрекеттен" : "✓ шешілді") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.innerHTML = `Дұрыс: <b>${c.a}</b>. ${c.why}<span class="mt-ex">Мысал: <code></code> <span></span></span>`; msg.querySelector("code").textContent = c.f; msg.querySelector(".mt-ex span").textContent = c.note ? "— " + c.note : ""; }
+      else if (!quiet && st.wrong && st.wrong.length) { const w = st.wrong[st.wrong.length - 1]; msg.className = "tc-msg bad"; msg.textContent = `${w} сәйкес келмейді: ${MT_WHAT[w]} Бұл жағдайда не істеу керегін ойлан да, қайта таңда.`; }
+    };
+    show(d[i] || {}, true);
+    card.querySelector(".mt-opts").addEventListener("click", e => {
+      const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      if (window.__onAttempt) window.__onAttempt("6. Какая функция?", "Ситуация " + (i + 1), b.dataset.f, b.dataset.f === c.a, b.dataset.f === c.a ? "" : "нужно " + c.a);
+      const all = mtLoad(), st = all[i] || { wrong: [] };
+      st.wrong = st.wrong || [];
+      if (b.dataset.f === c.a) { st.ok = true; st.first = st.wrong.length === 0; }
+      else if (!st.wrong.includes(b.dataset.f)) st.wrong.push(b.dataset.f);
+      all[i] = st; store.set(MT_KEY, all);
+      show(st); mtRender();
+    });
+  });
+  mtRender();
+}
+function mtRender() {
+  const d = mtLoad(), n = MT_CASES.length;
+  const ok = MT_CASES.filter((_, i) => d[i] && d[i].ok).length, first = MT_CASES.filter((_, i) => d[i] && d[i].first).length;
+  document.getElementById("mtBar").style.width = (ok / n * 100) + "%";
+  document.getElementById("mtNum").textContent = `Шешілді: ${ok} / ${n}`;
+  document.getElementById("mtFirst").textContent = ok ? `Бірінші әрекеттен: ${first} / ${ok}` : "";
+  const done = ok === n;
+  document.getElementById("mtDone").hidden = !done;
+  if (done) document.getElementById("mtDoneText").textContent = first >= 8 ? `Керемет! ${n} жағдайдың ${first}-і бірінші әрекеттен. Сен И, ИЛИ және НЕ функцияларын жақсы ажыратасың — практикаға өт.`
+    : first >= 5 ? `${n} жағдайдың ${first}-і бірінші әрекеттен. Жақсы. Қателескен жерлердің түсіндірмесін қайта оқы да, практикаға өт.`
+    : `${n} жағдайдың ${first}-і бірінші әрекеттен. «Жаңа тақырыпқа» оралып, әр функцияның «Қарапайым тілмен» бөлімін тағы бір рет қара.`;
+}
+document.getElementById("mtRetry").addEventListener("click", () => { store.set(MT_KEY, {}); mtBuild(); document.getElementById("match").scrollIntoView({ behavior: "smooth" }); });
+mtBuild();
+
+/* Актуализация знаний: сравнения и логические значения */
+const AC_KEY = "actual-l2";
+const AC_CASES = [
+  { q: "Мына >= таңбасы формулада нені білдіреді?", opts: ["үлкен немесе тең", "үлкен", "кіші немесе тең", "тең емес"], a: "үлкен немесе тең", why: "Қатар тұрған екі таңба: «үлкен» немесе «тең». 5>=5 — ИСТИНА." },
+  { q: "Excel-де «тең емес» қалай жазылады?", opts: ["<>", "≠", "!=", "=/="], a: "<>", why: "«Тең емес» кестеде екі таңбамен жазылады: <> — «кіші немесе үлкен»." },
+  { q: "Мынау дұрыс па: 7 > 7?", opts: ["ЛОЖЬ", "ИСТИНА", "қате"], a: "ЛОЖЬ", why: "7 саны 7-ден үлкен емес — олар тең. Ал 7 >= 7 — ИСТИНА." },
+  { q: "A1-де 12 жазылған. Формула не көрсетеді: =A1>10?", opts: ["ИСТИНА", "ЛОЖЬ", "12", "10"], a: "ИСТИНА", why: "Салыстыру ИСТИНА немесе ЛОЖЬ деп жауап береді: 12 саны 10-нан үлкен — ИСТИНА." },
+  { q: "Қай теңсіздік дұрыс?", opts: ["−5 < −2", "−5 > −2", "0 < −1", "3 = 3,5"], a: "−5 < −2", why: "Сан түзуінде −5 саны −2-ден сол жақта, демек, ол кіші." },
+  { q: "Формулада «тапсырды» мәтіні қалай жазылады?", opts: ["\"тапсырды\"", "тапсырды", "'тапсырды'", "(тапсырды)"], a: "\"тапсырды\"", why: "Формуладағы мәтін қос тырнақшаға алынады. Онсыз кесте сөзді атау деп қабылдап, #ИМЯ? көрсетеді." },
+  { q: "B2-де 50 жазылған. =B2=50 формуласы не көрсетеді?", opts: ["ИСТИНА", "ЛОЖЬ", "50", "қате"], a: "ИСТИНА", why: "Бірінші = таңбасы формуланы бастайды, екіншісі салыстырады: 50 саны 50-ге тең." }
+];
+/* Повторение прошлого урока: математические функции */
+const RV_KEY = "review-l2";
+const RV_CASES = [
+  { q: "A1-де −8 жазылған. =ABS(A1) не көрсетеді?", opts: ["8", "−8", "0", "#ЧИСЛО!"], a: "8", why: "ABS минусты алып тастайды: |−8| = 8." },
+  { q: "Тек 500 тг-ден қымбат сатып алуларды қай функция қосады?", opts: ["СУММЕСЛИ", "СУММ", "ABS", "СТЕПЕНЬ"], a: "СУММЕСЛИ", why: "СУММЕСЛИ тек шартқа сәйкес келетін сандарды қосады: =СУММЕСЛИ(B2:B9;\">500\")." },
+  { q: "=КОРЕНЬ(49) не көрсетеді?", opts: ["7", "49", "24,5", "#ЧИСЛО!"], a: "7", why: "7 · 7 = 49." },
+  { q: "Қай жазуда қате жоқ?", opts: ["=СТЕПЕНЬ(2;3)", "=СТЕПЕНЬ(2,3)", "=СТЕПЕНЬ(2 3)", "СТЕПЕНЬ(2;3)"], a: "=СТЕПЕНЬ(2;3)", why: "Формула «=» таңбасынан басталады, аргументтер нүктелі үтірмен бөлінеді." },
+  { q: "B1:B3-те 4, 6 және 10 жазылған. =СУММ(B1:B3) не көрсетеді?", opts: ["20", "10", "4", "3"], a: "20", why: "4 + 6 + 10 = 20." },
+  { q: "A1:A4-те 5, −2, 3 және −1 жазылған. Не көрсетеді: =СУММЕСЛИ(A1:A4;\">0\")?", opts: ["8", "5", "11", "−3"], a: "8", why: "Тек 5 пен 3 сәйкес келеді: 5 + 3 = 8. Шарт \">0\" — бұл салыстыру, бүгін ол ЕСЛИ-де керек болады." }
+];
+function shuffleSeeded(arr, seed) {
+  let h = 2166136261;
+  for (const ch of String(seed)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 10000) / 10000; };
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function quizBuild(cfg) {
+  const load = () => store.get(cfg.key, {});
+  function render() {
+    const d = load(), n = cfg.cases.length;
+    const ok = cfg.cases.filter((_, i) => d[i] && d[i].ok).length, first = cfg.cases.filter((_, i) => d[i] && d[i].first).length;
+    document.getElementById(cfg.bar).style.width = (ok / n * 100) + "%";
+    document.getElementById(cfg.num).textContent = `Шешілді: ${ok} / ${n}`;
+    document.getElementById(cfg.first).textContent = ok ? `Бірінші әрекеттен: ${first} / ${ok}` : "";
+    document.getElementById(cfg.done).hidden = ok !== n;
+    if (ok === n) document.getElementById(cfg.doneText).textContent = cfg.summary(first, n);
+  }
+  document.getElementById(cfg.list).innerHTML = cfg.cases.map((c, i) => `
+    <section class="block mt-card" id="${cfg.prefix}-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q"></p>
+      <div class="mt-opts" role="group" aria-label="Жауап нұсқалары">${c.opts.map(o => `<button type="button" class="mt-opt" data-f=""></button>`).join("")}</div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  cfg.cases.forEach((c, i) => {
+    const card = document.getElementById(`${cfg.prefix}-${i}`), msg = card.querySelector(".tc-msg");
+    card.querySelector(".tc-q").textContent = c.q;
+    // варианты перемешаны: у каждого ученика свой порядок, при перезагрузке он не меняется
+    const opts = shuffleSeeded(c.opts, NS + cfg.prefix + i);
+    card.querySelectorAll(".mt-opt").forEach((b, j) => { b.dataset.f = opts[j]; b.textContent = opts[j]; });
+    const show = (st, quiet) => {
+      card.querySelectorAll(".mt-opt").forEach(b => {
+        b.classList.toggle("ok", !!st.ok && b.dataset.f === c.a);
+        b.classList.toggle("bad", (st.wrong || []).includes(b.dataset.f));
+        b.disabled = !!st.ok;
+      });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ бірінші әрекеттен" : "✓ шешілді") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.textContent = `Дұрыс: ${c.a}. ${c.why}`; }
+      else if (!quiet && st.wrong && st.wrong.length) { msg.className = "tc-msg bad"; msg.textContent = `«${st.wrong[st.wrong.length - 1]}» — дұрыс емес. Тағы ойлан.`; }
+    };
+    show(load()[i] || {}, true);
+    card.querySelector(".mt-opts").addEventListener("click", e => {
+      const b = e.target.closest(".mt-opt"); if (!b || b.disabled) return;
+      const ok = b.dataset.f === c.a;
+      if (window.__onAttempt) window.__onAttempt(cfg.stage, "Вопрос " + (i + 1), b.dataset.f, ok, ok ? "" : "верно: " + c.a);
+      const all = load(), st = all[i] || { wrong: [] };
+      st.wrong = st.wrong || [];
+      if (ok) { st.ok = true; st.first = st.wrong.length === 0; } else if (!st.wrong.includes(b.dataset.f)) st.wrong.push(b.dataset.f);
+      all[i] = st; store.set(cfg.key, all); show(st); render();
+    });
+  });
+  render();
+}
+quizBuild({ key: AC_KEY, cases: AC_CASES, prefix: "ac", list: "acList", bar: "acBar", num: "acNum", first: "acFirst", done: "acDone", doneText: "acDoneText", stage: "4. Вспомним",
+  summary: (first, n) => first >= 6 ? `${n} сұрақтың ${first}-і бірінші әрекеттен. Салыстыру таңбаларын білесің — жаңа тақырыпқа өт.`
+    : `${n} сұрақтың ${first}-і бірінші әрекеттен. Қателескен сұрақтардың түсіндірмесін қайта оқы: салыстыру таңбалары сабақтың әр формуласында керек.` });
+quizBuild({ key: RV_KEY, cases: RV_CASES, prefix: "rv", list: "rvList", bar: "rvBar", num: "rvNum", first: "rvFirst", done: "rvDone", doneText: "rvDoneText", stage: "1. Повторим",
+  summary: (first, n) => first >= 5 ? `${n} сұрақтың ${first}-і бірінші әрекеттен. Өткен сабақты есіңде сақтапсың — жаңасының тақырыбын анықта.`
+    : `${n} сұрақтың ${first}-і бірінші әрекеттен. Қателескен сұрақтардың түсіндірмесін қайта оқы да, жаңа тақырыпқа өт.` });
+
+/* Критерии оценивания и дескрипторы: отмечаются по заданиям урока */
+const DESC = [
+  { id: "Д1", text: "шартты салыстыру таңбаларымен жазады", lv: "Барлығы", where: "Практика: Z1–Z4 жаттығуы", tasks: ["Z1", "Z2", "Z3", "Z4"] },
+  { id: "Д2", text: "жағдайға сәйкес логикалық функцияны таңдайды", lv: "Барлығы", where: "«Қай функция?»: 10 жағдайдың кемінде 7-і бірінші әрекеттен", matchFirst: 7 },
+  { id: "Д3", text: "екі мәннің бірін таңдау үшін ЕСЛИ() қолданады", lv: "Барлығы", where: "Практика A1–A3", tasks: ["A1", "A2", "A3"] },
+  { id: "Д4", text: "ЕСЛИ() функциясының тармақтарында есептеулер орындайды", lv: "Оқушылардың көпшілігі", where: "Практика B1", tasks: ["B1"] },
+  { id: "Д5", text: "И() және ИЛИ() функцияларымен бірнеше шартты тексереді", lv: "Оқушылардың көпшілігі", where: "Практика B2, B3", tasks: ["B2", "B3"] },
+  { id: "Д6", text: "кірістірілген логикалық функциялардан формулалар құрады", lv: "Кейбір оқушылар", where: "Практика C1–C3", tasks: ["C1", "C2", "C3"] }
+];
+function descStatus() {
+  const pr = store.get("practice-l2", {}), mt = store.get("match-l2", {});
+  return DESC.map(d => {
+    if (d.matchFirst) {
+      const first = Object.values(mt).filter(x => x && x.first).length;
+      return { ...d, ok: first >= d.matchFirst, progress: `10 жағдайдың ${first}-і бірінші әрекеттен` };
+    }
+    const done = d.tasks.filter(id => pr[id] && (pr[id].ok || pr[id].ever)).length;
+    return { ...d, ok: done === d.tasks.length, progress: `${done} / ${d.tasks.length} шешілді` };
+  });
+}
+(function renderCrit() {
+  const t = document.getElementById("critTable");
+  t.innerHTML = "<tr><th>Дескриптор · білім алушы</th><th>Деңгей</th><th>Қайда тексеріледі</th></tr>" +
+    DESC.map(d => `<tr><td><b>${d.id}</b> ${d.text}</td><td>${d.lv}</td><td>${d.where}</td></tr>`).join("");
+})();
+function renderDescMine(box) {
+  const st = descStatus(), got = st.filter(d => d.ok).length;
+  box.innerHTML = `<p class="plain desc-sum"></p><div class="tablewrap"><table class="th-args crit"><tr><th>Дескриптор</th><th>Деңгей</th><th>Нәтиже</th></tr>` +
+    st.map(d => `<tr class="${d.ok ? "d-ok" : "d-no"}"><td><b>${d.id}</b> ${d.text}</td><td>${d.lv}</td><td>${d.ok ? "✓ орындалды" : "әзірге жоқ"} <span class="small">(${d.progress})</span></td></tr>`).join("") + "</table></div>";
+  box.querySelector(".desc-sum").textContent = `Орындалған дескрипторлар: ${got} / ${st.length}.`;
+}
+window.__descStatus = descStatus;
+window.__prNow = () => {
+  const d = store.get("practice-l2", {}), t = TASKS_PR.find(x => !(d[x.id] && (d[x.id].ever || d[x.id].ok)));
+  return t ? `${t.lv} · ${t.id}` : "всё решено";
+};
+
+/* Физминутка: 4 упражнения по 15 секунд */
+const BREAK = [
+  ["Көз", "Алысқа, терезеге қара, содан кейін мұрныңның ұшына қара. Бірнеше рет қайтала."],
+  ["Сегіз", "Басыңды бұрмай, көзіңмен үлкен сегіз сал. Содан кейін екінші жаққа."],
+  ["Қол басы", "Жұдырығыңды түйіп, аш. Қол басыңды бір жаққа, сосын екінші жаққа айналдыр."],
+  ["Созыл", "Орныңнан тұр, қолыңды жоғары көтеріп, созыл. Басыңды баяу оңға және солға еңкейт."]
+];
+let brkTimer = null, brkI = 0, brkLeft = 0;
+function breakStep(i) {
+  brkI = i;
+  if (i >= BREAK.length) return breakEnd();
+  document.getElementById("brkStep").textContent = `${i + 1} / ${BREAK.length} · ${BREAK[i][0]}`;
+  document.getElementById("brkText").textContent = BREAK[i][1];
+  brkLeft = 15; breakTick();
+}
+function breakTick() {
+  document.getElementById("brkTime").textContent = brkLeft;
+  document.getElementById("brkBar").style.width = ((brkI * 15 + (15 - brkLeft)) / (BREAK.length * 15) * 100) + "%";
+}
+function breakStart() {
+  clearInterval(brkTimer);
+  document.getElementById("breakOv").hidden = false;
+  breakStep(0);
+  brkTimer = setInterval(() => { brkLeft--; if (brkLeft < 0) breakStep(brkI + 1); else breakTick(); }, 1000);
+}
+function breakEnd() {
+  clearInterval(brkTimer); brkTimer = null;
+  document.getElementById("breakOv").hidden = true;
+  if (window.__onBreakEnd) window.__onBreakEnd();
+}
+window.__breakStart = breakStart;
+["breakBtn", "breakBtn2"].forEach(id => document.getElementById(id).addEventListener("click", breakStart));
+document.getElementById("brkSkip").addEventListener("click", () => breakStep(brkI + 1));
+document.getElementById("brkEnd").addEventListener("click", breakEnd);
+
+/* Домашнее задание: по одному заданию на уровень, проверка как в практике */
+const HW_KEY = "hw-l2";
+const TASKS_HW = [
+  { id: "H1", lv: "A", fn: "ЕСЛИ", q: "B2-де — Тимурдың бір күнде жүрген қадам саны. 10 000 немесе одан көп болса — C2-ге «норма», әйтпесе «аз» деп жаз.",
+    cells: { A1: "Оқушы", B1: "Қадамдар", C1: "Қорытынды", A2: "Тимур", B2: "8500" },
+    ref: { C2: "=ЕСЛИ(B2>=10000;\"норма\";\"аз\")" }, must: { C2: ["ЕСЛИ"] }, vary: { keys: ["B2"], pick: [5000, 9999, 10000, 10001, 15000] },
+    hint: "Шарт — B2>=10000. «норма» және «аз» мәтіндері — тырнақшада." },
+  { id: "H2", lv: "B", fn: "ЕСЛИ + И", q: "Жел 10 м/с-тан күшті болмаса ЖӘНЕ жаңбыр болмаса (C2-де «жоқ» деп жазылған), шатыр құруға болады. D2-ге «болады» немесе «болмайды» деп жаз.",
+    cells: { A1: "Күн", B1: "Жел, м/с", C1: "Жаңбыр", D1: "Шатыр", A2: "Сенбі", B2: "6", C2: "жоқ" },
+    ref: { D2: "=ЕСЛИ(И(B2<=10;C2=\"жоқ\");\"болады\";\"болмайды\")" }, must: { D2: ["ЕСЛИ", "И"] }, vary: { groups: [{ keys: ["B2"], pick: [5, 10, 11, 15] }, { keys: ["C2"], pick: ["жоқ", "иә"] }] },
+    hint: "ЕСЛИ ішінде — екі шарттан тұратын И: B2<=10 және C2=\"жоқ\"." },
+  { id: "H3", lv: "C", fn: "ЕСЛИ + ИЛИ", q: "Такси: түнде (23:00-ден 6:00-ге дейін) — километріне 300 тг, күндіз — 200 тг. Сапардың басталу сағаты — B1-де, километр — B2-де. B3-те сапардың құнын тап.",
+    cells: { A1: "Сапар сағаты", B1: "23", A2: "Километр", B2: "10", A3: "Құны, тг" },
+    ref: { B3: "=ЕСЛИ(ИЛИ(B1>=23;B1<6);300;200)*B2" }, must: { B3: ["ЕСЛИ", "ИЛИ"] }, vary: { groups: [{ keys: ["B1"], pick: [0, 5, 6, 12, 22, 23] }, { keys: ["B2"], pick: [3, 10] }] },
+    hint: "Түн — бұл сағат 23 және одан кейін НЕМЕСЕ 6-ға дейін. Бір километр бағасы — ЕСЛИ(ИЛИ(…);300;200), содан кейін B2-ге көбейт." }
+];
+function hwRender() {
+  const d = store.get(HW_KEY, {}), ok = TASKS_HW.filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("hwBar").style.width = (ok / TASKS_HW.length * 100) + "%";
+  document.getElementById("hwNum").textContent = `Орындалды: ${ok} / ${TASKS_HW.length}`;
+}
+(function hwBuild() {
+  const box = document.getElementById("hwTasks");
+  box.innerHTML = TASKS_HW.map(t => `
+    <section class="block task-card" id="hw-${t.id}">
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">Деңгей ${t.lv} · ${t.fn}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q">${t.q}</p>
+      <p class="tc-where">Формуланы <b>${Object.keys(t.ref).join(", ")}</b> ұяшығына жаз — ол сарымен белгіленген.</p>
+      <div class="xl xl-task"></div>
+      <div class="tc-actions"><button type="button" class="btn main tc-check">Тексеру</button><button type="button" class="btn tc-hintbtn">Кеңес</button><button type="button" class="btn tc-reset">Қайта бастау</button></div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <p class="tc-hint" hidden>${t.hint}</p>
+    </section>`).join("");
+  const d = store.get(HW_KEY, {});
+  TASKS_HW.forEach(t => {
+    const card = document.getElementById("hw-" + t.id), root = card.querySelector(".xl"), msg = card.querySelector(".tc-msg"), targets = Object.keys(t.ref);
+    const setStatus = ok => { card.classList.toggle("done", ok); card.querySelector(".tc-status").textContent = ok ? "✓ орындалды" : ""; };
+    xlMount(root, [{ name: t.id, text: "", cells: t.cells, sel: targets[0] }], { task: true, cols: 5, rows: 9, targets, onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; } });
+    if (d[t.id] && d[t.id].f) { Object.entries(d[t.id].f).forEach(([k, v]) => root.xlSet(k, v)); setStatus(!!d[t.id].ok); }
+    card.querySelector(".tc-check").addEventListener("click", () => {
+      const r = prCheck(t, root.xlState), all = store.get(HW_KEY, {});
+      const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
+      const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
+      if (window.__onAttempt) window.__onAttempt("10. Домашнее задание", t.id + " · " + t.fn, targets.map(k => k + ": " + f[k]).join("   "), r.ok, r.ok ? "" : r.msg);
+      all[t.id] = { ok: r.ok, f, tries }; store.set(HW_KEY, all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.ok ? "Дұрыс! Формула басқа сандармен де жұмыс істейді." : r.msg;
+      if (!r.ok && tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(r.ok); hwRender();
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => { root.xlReset(); msg.textContent = ""; const all = store.get(HW_KEY, {}); delete all[t.id]; store.set(HW_KEY, all); setStatus(false); hwRender(); });
+  });
+  hwRender();
+})();
+
+
+/* Работа в Excel: условия сценариев; формулы ученик пишет в файле «Самопроверка_логика.xlsx» */
+const EX_KEY = "excel-l2";
+/* f — эталонная формула шага (для ключа и файла самопроверки), fill — диапазон, до которого протягивают формулу,
+   change — данные, которые ученик меняет на этом шаге; ans — ответ в ячейке cell после шага */
+const EX_SC = [
+  { id: "S1", fn: "ЕСЛИ", title: "БЖБ журналы", goal: "Шарт жазу, сөз немесе сан таңдау және формуланы төмен созып көшіру.",
+    data: { A1: "Оқушы", B1: "Балл", C1: "Қорытынды", D1: "50 және одан көп пе?", E1: "Бонус", F1: "Есептелді = 1",
+      A2: "Айдана", B2: "72", A3: "Тимур", B3: "45", A4: "Дана", B4: "50", A5: "Арман", B5: "38", A6: "Мадина", B6: "91", A7: "Ерлан", B7: "64" },
+    tasks: [
+      { tag: "салыстыру", cell: "D2", q: "D2-ге салыстыру жаз: Айданың балы 50 немесе одан көп пе? Excel ИСТИНА немесе ЛОЖЬ көрсетеді.", f: "=B2>=50", ans: "ИСТИНА", fn: [], hint: "=B2>=50 — функциясыз салыстыру." },
+      { tag: "Мәтінмен ЕСЛИ", cell: "C2", q: "C2-ге: балл 50 немесе одан көп болса — «есептелді», әйтпесе «есептелмеді».", f: "=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\")", ans: "есептелді", fn: ["ЕСЛИ"], hint: "=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\") — мәтін тырнақшада." },
+      { tag: "төмен созып көшіру", cell: "C4", fill: "C2:C7", q: "C2-дегі формуланы C7-ге дейін төмен созып көшір: ұяшықтың оң жақ төменгі бұрышындағы кішкентай шаршыдан тарт. Данада не шықты (C4)?", f: "=ЕСЛИ(B2>=50;\"есептелді\";\"есептелмеді\")", ans: "есептелді", fn: ["ЕСЛИ"], hint: "Данада дәл 50 — мына таңба >= 50-ді қамтиды, сондықтан «есептелді»." },
+      { tag: "Сандармен ЕСЛИ", cell: "E6", fill: "E2:E7", q: "Бонус: балл 85 немесе одан көп болса — 5 балл, әйтпесе 0. E2-ге жазып, E7-ге дейін созып көшір. Мадинаның бонусы қандай (E6)?", f: "=ЕСЛИ(B2>=85;5;0)", ans: 5, fn: ["ЕСЛИ"], hint: "=ЕСЛИ(B2>=85;5;0) — сандар тырнақшасыз." },
+      { tag: "мәтіні бар шарт", cell: "F3", fill: "F2:F7", q: "C2-де «есептелді» деп жазылса, F2-ге 1 қой, әйтпесе 0. F7-ге дейін созып көшір. Тимурда не (F3)?", f: "=ЕСЛИ(C2=\"есептелді\";1;0)", ans: 0, fn: ["ЕСЛИ"], hint: "Мәтінді де салыстыруға болады: =ЕСЛИ(C2=\"есептелді\";1;0)." },
+      { tag: "күрделі: шекара", cell: "C3", change: { B3: "50" }, q: "Тимур жұмысын түзетті: оның B3-тегі балын 50-ге өзгерт, формулаларға тиме. Енді C3-те не тұр? Егер >= орнына > таңбасы тұрса, жауап осындай болар ма еді?", f: "=ЕСЛИ(B3>=50;\"есептелді\";\"есептелмеді\")", ans: "есептелді", hint: "50 >= 50 — ИСТИНА, сондықтан «есептелді». Мына таңбамен > Тимур «есептелмеді» болып қалар еді: бұл логикалық қате болар еді." }
+    ] },
+  { id: "S2", fn: "ЕСЛИ", title: "Интернет-дүкен", goal: "ЕСЛИ тармақтарына сандар мен есептеулерді жазу және нәтижені қосу.",
+    data: { A1: "Тапсырыс", B1: "Сомасы, тг", C1: "Жеткізу, тг", D1: "Жеңілдік, тг", E1: "Төлеуге, тг", F1: "Тапсырыс түрі",
+      A2: "№1", B2: "3500", A3: "№2", B3: "5000", A4: "№3", B4: "12000", A5: "№4", B5: "800", A6: "№5", B6: "10000", A7: "Барлығы" },
+    tasks: [
+      { tag: "тармақтағы сан", cell: "C3", fill: "C2:C6", q: "Жеткізу: сома 5000 тг немесе одан көп болса — 0, әйтпесе 700. C2-ге жазып, C6-ға дейін созып көшір. №2 тапсырыстың жеткізу ақысы қанша (C3)?", f: "=ЕСЛИ(B2>=5000;0;700)", ans: 0, fn: ["ЕСЛИ"], hint: "=ЕСЛИ(B2>=5000;0;700)" },
+      { tag: "тармақта есептеу", cell: "D4", fill: "D2:D6", q: "Жеңілдік: сома 10 000 тг-ден көп болса — соманың 10%-ы, әйтпесе 0. D2-ге жазып, созып көшір. №3 тапсырыстың жеңілдігі қандай (D4)?", f: "=ЕСЛИ(B2>10000;B2*0,1;0)", ans: 1200, fn: ["ЕСЛИ"], hint: "Соманың 10%-ы — B2*0,1: =ЕСЛИ(B2>10000;B2*0,1;0)." },
+      { tag: "жол бойынша қорытынды", cell: "E5", fill: "E2:E6", q: "Төлеуге = сома + жеткізу − жеңілдік. E2-ге жазып, созып көшір. №4 тапсырыс қанша төлейді (E5)?", f: "=B2+C2-D2", ans: 1500, fn: [], hint: "=B2+C2-D2" },
+      { tag: "СУММ", cell: "E7", q: "Дүкен барлық тапсырыстан қанша ақша алады? E2:E6-ны E7-ге қос.", f: "=СУММ(E2:E6)", ans: 31500, fn: ["СУММ"], hint: "=СУММ(E2:E6)" },
+      { tag: "сан бойынша мәтін", cell: "F4", fill: "F2:F6", q: "Төленетін сома 5000 тг-ден көп болса — «ірі», әйтпесе «кәдімгі». F2-ге жазып, созып көшір. №3 тапсырыста не (F4)?", f: "=ЕСЛИ(E2>5000;\"ірі\";\"кәдімгі\")", ans: "ірі", fn: ["ЕСЛИ"], hint: "=ЕСЛИ(E2>5000;\"ірі\";\"кәдімгі\")" },
+      { tag: "күрделі: деректерді өзгерт", cell: "E5", change: { B5: "4900" }, q: "№4 тапсырыс 4900 тг-ге өсті — B5-ті өзгерт. Енді төлеуге қанша (E5)? Неге жеткізу ақысы жойылмады?", f: "=B5+C5-D5", ans: 5600, hint: "4900 саны 5000-нан кіші, сондықтан 700 жеткізу ақысы қалды: 4900 + 700 = 5600." }
+    ] },
+  { id: "S3", fn: "И", title: "Дене шынықтыру нормалары", goal: "И арқылы екі және үш шартты бірден тексеру, ЕСЛИ(И(…)) арқылы сөз шығару.",
+    data: { A1: "Оқушы", B1: "60 м жүгіру, с", C1: "Секіру, см", D1: "Жерден итерілу", E1: "Жүгіру және секіру", F1: "Үш норма да", G1: "Қорытынды", H1: "Секіру 150–180", I1: "Қайта тапсыру ма?",
+      A2: "Айдана", B2: "9,8", C2: "155", D2: "12", A3: "Тимур", B3: "10,4", C3: "170", D3: "25", A4: "Дана", B4: "9,2", C4: "140", D4: "18",
+      A5: "Арман", B5: "8,9", C5: "182", D5: "30", A6: "Мадина", B6: "11", C6: "130", D6: "8" },
+    tasks: [
+      { tag: "Екі шарттан тұратын И", cell: "E3", fill: "E2:E6", q: "E2-де екі норманы тексер: жүгіру 10 с-тан ұзақ емес ЖӘНЕ секіру 150 см-ден кем емес. E6-ға дейін созып көшір. Тимурда не (E3)?", f: "=И(B2<=10;C2>=150)", ans: "ЛОЖЬ", fn: ["И"], hint: "=И(B2<=10;C2>=150). Тимурдың жүгіруі 10,4 с — 10-нан ұзақ." },
+      { tag: "Үш шарттан тұратын И", cell: "F5", fill: "F2:F6", q: "Үшінші норманы қос: жерден итерілу кемінде 15. F2-ге — үш шарты бар И, созып көшір. Арманда не (F5)?", f: "=И(B2<=10;C2>=150;D2>=15)", ans: "ИСТИНА", fn: ["И"], hint: "=И(B2<=10;C2>=150;D2>=15)" },
+      { tag: "ЕСЛИ + И", cell: "G2", fill: "G2:G6", q: "G2-ге сөзбен шығар: үш норма да орындалса — «есептелді», әйтпесе «қайта тапсыру». Созып көшір. Айданада не (G2)?", f: "=ЕСЛИ(И(B2<=10;C2>=150;D2>=15);\"есептелді\";\"қайта тапсыру\")", ans: "қайта тапсыру", fn: ["ЕСЛИ", "И"], hint: "F2-дегі дайын жауапты алуға болады: =ЕСЛИ(F2;\"есептелді\";\"қайта тапсыру\")." },
+      { tag: "аралық", cell: "H5", fill: "H2:H6", q: "Секіру 150-ден 180 см-ге дейін (қоса алғанда) болса, «нормада». H2-де И арқылы тексеріп, созып көшір. Арманда не (H5)?", f: "=И(C2>=150;C2<=180)", ans: "ЛОЖЬ", fn: ["И"], hint: "=И(C2>=150;C2<=180). Арманда 182 — 180-нен көп." },
+      { tag: "НЕ", cell: "I6", fill: "I2:I6", q: "I2-де қайта тапсыратындар үшін ИСТИНА ал: НЕ(үш норма). Созып көшір. Мадинада не (I6)?", f: "=НЕ(F2)", ans: "ИСТИНА", fn: ["НЕ"], hint: "=НЕ(F2)" },
+      { tag: "күрделі: деректерді өзгерт", cell: "G2", change: { D2: "15" }, q: "Айдана жерден итерілуді қайта тапсырды — 15 рет. D2-ні өзгерт. Енді G2-де не тұр?", f: "=ЕСЛИ(И(B2<=10;C2>=150;D2>=15);\"есептелді\";\"қайта тапсыру\")", ans: "есептелді", hint: "15 >= 15 — ИСТИНА, енді үш норманың бәрі орындалды." }
+    ] },
+  { id: "S4", fn: "ИЛИ", title: "Кинотеатр", goal: "ИЛИ арқылы «ең болмаса бір шартты» тексеру, ИЛИ, ЕСЛИ және НЕ біріктіру.",
+    data: { A1: "Көрермен", B1: "Жасы", C1: "Күн", D1: "Жеңілдік", E1: "Демалыс", F1: "Бағасы, тг", G1: "Төлеуге, тг", H1: "Жұмыс күні",
+      A2: "Айдана", B2: "13", C2: "дс", A3: "Серік", B3: "68", C3: "ср", A4: "Тимур", B4: "6", C4: "сн", A5: "Дана", B5: "25", C5: "жс", A6: "Арман", B6: "30", C6: "сс", A7: "Мадина", B7: "15", C7: "сн", A8: "Түсім" },
+    tasks: [
+      { tag: "ИЛИ: жас", cell: "D3", fill: "D2:D7", q: "Жеңілдік — 7 жастан кіші балаларға НЕМЕСЕ 65 жастан асқан көрермендерге. D2-ге — ИЛИ, D7-ге дейін созып көшір. Серікте не (D3)?", f: "=ИЛИ(B2<7;B2>65)", ans: "ИСТИНА", fn: ["ИЛИ"], hint: "=ИЛИ(B2<7;B2>65)" },
+      { tag: "Мәтінмен ИЛИ", cell: "E5", fill: "E2:E7", q: "Күн «сн» НЕМЕСЕ «жс» болса — демалыс. E2-де тексеріп, созып көшір. Данада не (E5)?", f: "=ИЛИ(C2=\"сн\";C2=\"жс\")", ans: "ИСТИНА", fn: ["ИЛИ"], hint: "=ИЛИ(C2=\"сн\";C2=\"жс\") — мәтін тырнақшада." },
+      { tag: "ЕСЛИ: баға", cell: "F4", fill: "F2:F7", q: "Билет бағасы: демалыс күні 2500 тг, жұмыс күні 1800 тг. F2-ге ЕСЛИ арқылы жаз (шарт — E2 ұяшығы) және созып көшір. Тимурдың бағасы қандай (F4)?", f: "=ЕСЛИ(E2;2500;1800)", ans: 2500, fn: ["ЕСЛИ"], hint: "E2-де ИСТИНА немесе ЛОЖЬ тұр, сондықтан шарт ретінде ұяшықтың өзін алуға болады: =ЕСЛИ(E2;2500;1800)." },
+      { tag: "ЕСЛИ: жеңілдік", cell: "G4", fill: "G2:G7", q: "Жеңілдікпен бағаның жартысын төлейді. G2-ге: D2-де ИСТИНА болса — F2/2, әйтпесе F2. Созып көшір. Тимур қанша төлейді (G4)?", f: "=ЕСЛИ(D2;F2/2;F2)", ans: 1250, fn: ["ЕСЛИ"], hint: "=ЕСЛИ(D2;F2/2;F2)" },
+      { tag: "НЕ", cell: "H6", fill: "H2:H7", q: "Жұмыс күні — бұл демалыс ЕМЕС. H2-ге НЕ арқылы жазып, төмен созып көшір. Арманда не (H6)?", f: "=НЕ(E2)", ans: "ИСТИНА", fn: ["НЕ"], hint: "=НЕ(E2)" },
+      { tag: "күрделі: түсім", cell: "G8", q: "Кинотеатр барлық көрерменнен қанша ақша алады? G2:G7-ні G8-ге қос.", f: "=СУММ(G2:G7)", ans: 10750, fn: ["СУММ"], hint: "=СУММ(G2:G7)" }
+    ] },
+  { id: "S5", fn: "ЕСЛИ · И · ИЛИ · НЕ", title: "Шәкіртақы", goal: "Бір тапсырмада барлық логикалық функцияны және кірістірілген ЕСЛИ-ді біріктіру.",
+    data: { A1: "Студент", B1: "Орташа балл", C1: "Сабақ босату", D1: "Олимпиада", E1: "Шәкіртақы", F1: "Жоғары", G1: "Мақтау қағазы", H1: "Әңгіме", I1: "Сомасы, тг",
+      A2: "Айдана", B2: "4,8", C2: "2", D2: "иә", A3: "Тимур", B3: "4,2", C3: "0", D3: "жоқ", A4: "Дана", B4: "3,9", C4: "5", D4: "иә",
+      A5: "Арман", B5: "4,6", C5: "12", D5: "жоқ", A6: "Мадина", B6: "5", C6: "1", D6: "жоқ", A8: "Барлығы" },
+    tasks: [
+      { tag: "И", cell: "E5", fill: "E2:E6", q: "Орташа балл 4,5-тен төмен болмаса ЖӘНЕ сабақ босату 5-тен көп болмаса, шәкіртақы беріледі. E2-ге — И, E6-ға дейін созып көшір. Арманда не (E5)?", f: "=И(B2>=4,5;C2<=5)", ans: "ЛОЖЬ", fn: ["И"], hint: "=И(B2>=4,5;C2<=5). Арманның 12 сабақ босатуы бар." },
+      { tag: "ЕСЛИ + И", cell: "F2", fill: "F2:F6", q: "Жоғарылатылған шәкіртақы — шәкіртақы болса (E2) ЖӘНЕ студент олимпиадаға қатысса (D2 = «иә»). F2-ге — «иә» немесе «жоқ». Айданада не (F2)?", f: "=ЕСЛИ(И(E2;D2=\"иә\");\"иә\";\"жоқ\")", ans: "иә", fn: ["ЕСЛИ", "И"], hint: "=ЕСЛИ(И(E2;D2=\"иә\");\"иә\";\"жоқ\")" },
+      { tag: "ИЛИ", cell: "G4", fill: "G2:G6", q: "Мақтау қағазы — орташа балл 5 НЕМЕСЕ олимпиада «иә» болса. G2-ге — ИЛИ, созып көшір. Данада не (G4)?", f: "=ИЛИ(B2=5;D2=\"иә\")", ans: "ИСТИНА", fn: ["ИЛИ"], hint: "=ИЛИ(B2=5;D2=\"иә\")" },
+      { tag: "НЕ", cell: "H3", fill: "H2:H6", q: "Шәкіртақысы ЖОҚ студенттермен әңгіме өткізу керек. H2-ге — НЕ, төмен созып көшір. Тимурда не (H3)?", f: "=НЕ(E2)", ans: "ИСТИНА", fn: ["НЕ"], hint: "=НЕ(E2)" },
+      { tag: "ЕСЛИ ішінде ЕСЛИ", cell: "I6", fill: "I2:I6", q: "Шәкіртақы мөлшері: жоғарылатылған — 60 000 тг, кәдімгі — 40 000 тг, шәкіртақы жоқ — 0. I2-ге — ЕСЛИ ішінде ЕСЛИ, созып көшір. Мадинада қанша (I6)?", f: "=ЕСЛИ(F2=\"иә\";60000;ЕСЛИ(E2;40000;0))", ans: 40000, fn: ["ЕСЛИ"], hint: "=ЕСЛИ(F2=\"иә\";60000;ЕСЛИ(E2;40000;0))" },
+      { tag: "күрделі: барлығы", cell: "I8", q: "Барлық шәкіртақыға қанша ақша керек? I2:I6-ны I8-ге қос.", f: "=СУММ(I2:I6)", ans: 100000, fn: ["СУММ"], hint: "=СУММ(I2:I6)" }
+    ] }
+];
+EX_SC.forEach(sc => sc.tasks.forEach((t, i) => { t.id = sc.id + "." + (i + 1); t.sc = sc; }));
+const EX_ALL = EX_SC.flatMap(sc => sc.tasks);
+
+function exNum(v) {
+  const s = String(v).trim().replace(/\s+/g, "").replace(/ /g, "").replace("−", "-").replace(",", ".");
+  return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : null;
+}
+function exGrid(data) {
+  const keys = Object.keys(data);
+  const maxC = Math.max(...keys.map(k => k.charCodeAt(0))), maxR = Math.max(...keys.map(k => +k.slice(1)));
+  const cols = []; for (let c = 65; c <= maxC; c++) cols.push(String.fromCharCode(c));
+  let h = '<div class="tablewrap"><table class="mini ex-data ex-grid"><tr><th></th>' + cols.map(c => `<th>${c}</th>`).join("") + "</tr>";
+  for (let r = 1; r <= maxR; r++) h += `<tr><th>${r}</th>` + cols.map(c => { const v = data[c + r] ?? ""; return `<td class="${exNum(v) !== null ? "n" : "t"}">${v.replace(/</g, "&lt;")}</td>`; }).join("") + "</tr>";
+  return h + "</table></div>";
+}
+function exShow(id) {
+  document.querySelectorAll(".ex-pill").forEach(b => b.setAttribute("aria-selected", b.dataset.sc === id));
+  document.querySelectorAll(".ex-sc").forEach(s => { s.hidden = s.dataset.sc !== id; });
+  store.set("excel-sc", id);
+}
+(function exBuild() {
+  const d = store.get(EX_KEY, {});
+  document.getElementById("exPills").innerHTML = EX_SC.map((sc, i) => `<button type="button" class="ex-pill" data-sc="${sc.id}" role="tab"><span class="ex-n">${i + 1}-сценарий · ${sc.id} парағы</span><b>${sc.fn}</b></button>`).join("");
+  document.getElementById("exList").innerHTML = EX_SC.map((sc, i) => `
+    <section class="block ex-sc" data-sc="${sc.id}" hidden>
+      <p class="fname">Сценарий ${i + 1}. ${sc.title} <code>${sc.fn}</code></p>
+      <p class="plain"><b>Мақсаты:</b> ${sc.goal}</p>
+      <h3 class="ex-h">«Өзін-өзі_тексеру_логика.xlsx» файлындағы ${sc.id} парағын аш</h3>
+      <p class="ex-cap">Парақтағы кесте осылай көрінеді</p>
+      ${exGrid(sc.data)}
+      <h3 class="ex-h">Қадамдар: оңайдан күрделіге</h3>
+      <div class="ex-tasks">${sc.tasks.map((t, j) => `
+        <div class="ex-task" id="ex-${t.id.replace(".", "-")}">
+          <div class="tc-head"><span class="tc-id">${j + 1}</span><span class="ex-tag${t.tag.startsWith("күрделі") ? " hard" : ""}">${t.tag}</span></div>
+          <p class="tc-q">${t.q} <span class="ex-where">${t.fill ? `Формула: <b>${t.fill.split(":")[0]}</b>, <b>${t.fill.split(":")[1]}</b> ұяшығына дейін созып көшір · жауапты <b>${t.cell}</b> ұяшығынан қара` : t.change ? `Өзгерт: <b>${Object.entries(t.change).map(([k, v]) => k + " → " + v).join(", ")}</b> · жауапты <b>${t.cell}</b> ұяшығынан қара` : `Ұяшық: <b>${t.cell}</b>`}</span></p>
+          <div class="ex-inputs"><button type="button" class="btn ex-hintbtn">Кеңес</button></div>
+          <p class="tc-hint" hidden></p>
+        </div>`).join("")}
+      </div>
+    </section>`).join("");
+  EX_ALL.forEach(t => {
+    const box = document.getElementById("ex-" + t.id.replace(".", "-"));
+    box.querySelector(".tc-hint").textContent = "Кеңес: " + t.hint;
+    box.querySelector(".ex-hintbtn").addEventListener("click", () => { const h = box.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+  });
+  document.querySelectorAll(".ex-pill").forEach(b => b.addEventListener("click", () => exShow(b.dataset.sc)));
+  exShow(store.get("excel-sc", "S1"));
+})();
+
+/* Итоги урока: ожидания, цель и самооценка по каждому результату */
+const REF_KEY = "reflect-l2";
+const LEVELS = ["Барлық оқушылар", "Оқушылардың көпшілігі", "Кейбір оқушылар"];
+const MARK = { "2": "Шықты", "1": "Ішінара", "0": "Әзірге жоқ" };
+const EXP_MARK = { "2": "Иә", "1": "Ішінара", "0": "Жоқ" };
+let refBuilt = false;
+function fillReflect() {
+  const saved = store.get(REF_KEY, null);
+  document.getElementById("refExp").textContent = store.get(EXP_KEY, "");
+  document.getElementById("refGoal").textContent = document.querySelector("#afterExp .plain").textContent;
+  if (!refBuilt) {
+    const texts = [...document.querySelectorAll("#afterExp .res p")].map(p => p.innerHTML);
+    document.getElementById("refRes").innerHTML = texts.map((t, i) => `
+      <div class="rr">
+        <span class="lvl">${LEVELS[i]}</span>
+        <p>${t}</p>
+        <fieldset class="seg"><legend class="sr">Қол жеткіздім бе: ${LEVELS[i]}</legend>
+          ${["2", "1", "0"].map(v => `<label><input type="radio" name="r-res-${i}" id="r-res-${i}-${v}" value="${v}"><span>${MARK[v]}</span></label>`).join("")}
+        </fieldset>
+      </div>`).join("");
+    refBuilt = true;
+    if (saved) {
+      const set = (name, v) => { const el = document.querySelector(`input[name="${name}"][value="${v}"]`); if (el) el.checked = true; };
+      if (saved.exp != null) set("r-exp", saved.exp);
+      (saved.res || []).forEach((v, i) => { if (v != null) set("r-res-" + i, v); });
+      document.getElementById("refNote").value = saved.note || "";
+      document.getElementById("refUse").value = saved.use || "";
+    }
+  }
+  document.getElementById("useReq").hidden = !wantsUse();
+  renderDescMine(document.getElementById("refDesc"));
+  const pd = prLoad();
+  document.querySelectorAll("#refRes .rr").forEach((el, i) => {
+    const lv = "ABC"[i], list = TASKS_PR.filter(t => t.lv === lv), ok = list.filter(t => pd[t.id] && pd[t.id].ok).length;
+    let n = el.querySelector(".pr-note");
+    if (!n) { n = document.createElement("p"); n.className = "pr-note"; el.insertBefore(n, el.querySelector("fieldset")); }
+    let txt = `Практика, ${lv} деңгейі: ${ok} / ${list.length} шешілді`, full = ok === list.length;
+    if (i === 0) { const z = TASKS_Z.filter(t => pd[t.id] && pd[t.id].ok).length; txt = `«Салыстыру» жаттығуы: ${z} / ${TASKS_Z.length} · ` + txt; full = full && z === TASKS_Z.length; }
+    n.textContent = txt;
+    n.classList.toggle("full", full);
+  });
+  if (saved) showSummary(saved);
+}
+/* Ученик в начале спрашивал «где пригодится / зачем» — тогда пример обязателен */
+function wantsUse() { return /пригод|зачем|для чего|пайда|қажет|не үшін|қайда/i.test(store.get(EXP_KEY, "")); }
+function val(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : null; }
+function showSummary(s) {
+  const rows = [`<div class="sumrow"><span>Күтулер</span><span class="mark m${s.exp}">${EXP_MARK[s.exp]}</span></div>`]
+    .concat(s.res.map((v, i) => `<div class="sumrow"><span>${LEVELS[i]}</span><span class="mark m${v}">${MARK[v]}</span></div>`));
+  const got = s.res.filter(v => v === "2").length;
+  let next = got === 3 ? "Барлық мақсатқа жеттің. Керемет жұмыс!"
+    : s.res[0] !== "2" ? "«Салыстыру» жаттығуына және A деңгейіндегі ЕСЛИ тапсырмаларына орал да, түсініксізін мұғалімнен сұра."
+    : "Жақсы нәтиже. Келесі сабақта «Ішінара» немесе «Әзірге жоқ» деп белгіленгенді жаттықтыр.";
+  const use = s.use ? `<p class="mine use-ex" style="margin-top:10px"></p>` : "";
+  const note = s.note ? `<p class="mine note-ex" style="margin-top:10px"></p>` : "";
+  const body = document.getElementById("refSumBody");
+  body.innerHTML = rows.join("") + use + note + `<p class="plain" style="margin-top:10px">${next}</p>`;
+  if (s.use) body.querySelector(".use-ex").textContent = "Қайда пайдалы: " + s.use;
+  if (s.note) body.querySelector(".note-ex").textContent = s.note;
+  document.getElementById("refSummary").hidden = false;
+}
+document.getElementById("refSave").addEventListener("click", () => {
+  const s = { exp: val("r-exp"), res: [0, 1, 2].map(i => val("r-res-" + i)), note: document.getElementById("refNote").value.trim(), use: document.getElementById("refUse").value.trim() };
+  const msg = document.getElementById("refMsg");
+  if (s.exp === null || s.res.includes(null)) { msg.className = "msg bad"; msg.textContent = "Барлық сұраққа жауап бер: күтулер және үш нәтиже."; return; }
+  if (wantsUse() && s.use.length < 5) { msg.className = "msg bad"; msg.textContent = "Функция қайда пайдалы екеніне мысал келтір: мұны өзің түсінгің келді."; return; }
+  store.set(REF_KEY, s);
+  msg.className = "msg ok"; msg.textContent = "Сақталды.";
+  showSummary(s);
+  document.getElementById("refSummary").scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+document.querySelectorAll(".starter").forEach(b => b.addEventListener("click", () => {
+  const s = b.textContent.replace("…", " ");
+  expText.value = (expText.value.trim() ? expText.value.trim() + "\n" : "") + s;
+  expText.focus();
+  expText.setSelectionRange(expText.value.length, expText.value.length);
+}));
+document.getElementById("expSave").addEventListener("click", () => {
+  const v = expText.value.trim();
+  const msg = document.getElementById("expMsg");
+  if (v.length < 5) { msg.className = "msg bad"; msg.textContent = "Кемінде бір сөйлем жаз."; return; }
+  msg.textContent = "";
+  store.set(EXP_KEY, v);
+  showExp(v);
+});
+document.getElementById("expEdit").addEventListener("click", () => {
+  expText.value = store.get(EXP_KEY, "");
+  document.getElementById("expForm").hidden = false;
+  document.getElementById("expSaved").hidden = true;
+  expText.focus();
+});
+showExp(store.get(EXP_KEY, ""));
+
+buildGrid(); buildTasks();
+unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+render();
+if (unlocked) document.getElementById("tab-goal").disabled = false;
+window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
+  A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
+
+}
+/* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
+const STAGES = { review: "1. Повторим", puzzle: "2. Разгадка темы", goal: "3. Тема и цель", actual: "4. Вспомним", learn: "5. Новая тема", match: "6. Какая функция?", practice: "7. Практика", excel: "8. Работа в Excel", reflect: "9. Итоги", hw: "10. Домашнее задание" };
+let me = null, curStage = "review", syncTimer = null;
+const gsr = (fn, ...args) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+function lessonSummary() {
+  const g = k => lsGet(NS + k, null), info = window.__lessonInfo;
+  const pr = g("practice-l2") || {}, mt = g("match-l2") || {}, rf = g("reflect-l2");
+  const cnt = ids => ids.filter(id => pr[id] && pr[id].ok).length + "/" + ids.length;
+  const MARK = { "2": "Получилось", "1": "Частично", "0": "Пока нет" }, EXP = { "2": "Да", "1": "Частично", "0": "Нет" };
+  const mv = Object.values(mt);
+  return {
+    id: me.id, cls: me.cls, name: me.name, stage: STAGES[curStage] || curStage,
+    expect: g("expect-l2") || "",
+    match: mv.filter(x => x && x.ok).length + "/" + info.matchN,
+    matchFirst: mv.filter(x => x && x.first).length,
+    z: cnt(info.Z), a: cnt(info.A), b: cnt(info.B), c: cnt(info.C),
+    expOk: rf ? EXP[rf.exp] || "" : "", r0: rf ? MARK[rf.res[0]] || "" : "", r1: rf ? MARK[rf.res[1]] || "" : "", r2: rf ? MARK[rf.res[2]] || "" : "",
+    use: rf ? rf.use || "" : "", note: rf ? rf.note || "" : "",
+    act: (() => { const a = Object.values(g("actual-l2") || {}); return a.filter(x => x && x.ok).length + "/" + info.actN; })(),
+    actFirst: Object.values(g("actual-l2") || {}).filter(x => x && x.first).length,
+    now: window.__prNow(),
+    hw: (() => { const h = g("hw-l2") || {}; return Object.values(h).filter(x => x && x.ok).length + "/3"; })(),
+    rev: (() => { const a = Object.values(g("review-l2") || {}); return a.filter(x => x && x.ok).length + "/" + info.rvN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
+    desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
+  };
+}
+function syncSoon() { if (!me) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 1500); }
+function syncNow() { if (!me) return; gsr("saveProgress", lessonSummary()).then(() => setNet(true)).catch(() => setNet(false)); }
+function setNet(ok) { const n = document.getElementById("netState"); if (n) { n.textContent = ok ? "мұғаліммен байланыс бар" : "байланыс жоқ — жауаптар кейін жіберіледі"; n.className = "net " + (ok ? "on" : "off"); } }
+
+/* Вход: ученик сам вписывает класс, фамилию и имя */
+const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", F: "Ф", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
+function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[A-Z]/g, ch => LAT2CYR[ch] || ch); }
+function normName(v) { return v.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" "); }
+/* Вход: онлайн — через сервер (проверка по списку класса), без сервера — только на этом компьютере */
+function register(c, n) {
+  return ONLINE ? gsr("registerStudent", c, n, "kz") : Promise.resolve({ id: c + " | " + n, cls: c, name: n });
+}
+function loginUI() {
+  const ov = document.getElementById("login"), body = document.getElementById("loginBody");
+  ov.hidden = false;
+  body.innerHTML = `<p class="lg-q">Деректеріңді жаз</p>
+    <label class="lg-l" for="lgCls">Сынып</label><input id="lgCls" class="lg-in" maxlength="20" placeholder="мысалы, 8А" autocomplete="off">
+    <label class="lg-l" for="lgName">Тегі мен аты</label><input id="lgName" class="lg-in" maxlength="80" placeholder="мысалы, Сейткали Айдана" autocomplete="off">
+    <p class="lg-err" id="lgErr" aria-live="polite"></p>
+    <button type="button" class="btn main lg-big" id="lgGo">Сабақты бастау</button>`;
+  const go = () => {
+    const c = normClass(document.getElementById("lgCls").value), n = normName(document.getElementById("lgName").value);
+    const err = document.getElementById("lgErr");
+    if (!/^\d{1,2}[А-ЯЁӘҒҚҢӨҰҮҺІ]?$/.test(c)) { err.textContent = "Сынып былай жазылады: сан мен әріп, мысалы, 8А."; return; }
+    if (n.split(" ").length < 2 || n.length < 5) { err.textContent = "Тегің мен атыңды бос орын арқылы жаз."; return; }
+    err.textContent = "Сақтап жатырмын…";
+    document.getElementById("lgGo").disabled = true;
+    const old = document.getElementById("lgSug"); if (old) old.remove();
+    register(c, n).then(r => { document.getElementById("lgGo").disabled = false; if (r && r.suggest) suggest(r); else enter(r); })
+      .catch(e => { document.getElementById("lgGo").disabled = false; err.textContent = (e && e.message) ? e.message : "Болмады. Байланысты тексеріп, тағы бір рет көр."; });
+  };
+  function suggest(r) {
+    const err = document.getElementById("lgErr"); err.textContent = "";
+    const box = document.createElement("div"); box.className = "lg-sug"; box.id = "lgSug";
+    box.innerHTML = `<p>Мұндай оқушы тізімде жоқ. Мүмкін, сен — <b></b>?</p><div class="lg-row"><button type="button" class="btn main" id="sugYes">Иә, бұл менмін</button><button type="button" class="btn" id="sugNo">Жоқ</button></div>`;
+    box.querySelector("b").textContent = `${r.suggest}, ${r.cls}`;
+    err.after(box);
+    document.getElementById("sugYes").onclick = () => { box.remove(); err.textContent = "Кіріп жатырмын…"; register(r.cls, r.suggest).then(enter).catch(e => { err.textContent = e.message || "Болмады."; }); };
+    document.getElementById("sugNo").onclick = () => { box.remove(); err.textContent = "Онда тегің мен атыңның қалай жазылғанын тексер немесе мұғалімге айт, сені тізімге қоссын."; };
+  }
+  document.getElementById("lgGo").onclick = go;
+  ["lgCls", "lgName"].forEach(id => document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") go(); }));
+  document.getElementById("lgCls").focus();
+  function enter(st) {
+    me = st;
+    NS = "st:" + st.id + ":";
+    ov.hidden = true;
+    document.getElementById("whoName").textContent = `${st.name}, ${st.cls}`;
+    document.getElementById("who").hidden = false;
+    startLesson();
+    if (!ONLINE) return;
+    syncNow();
+    setInterval(syncNow, 60000);
+    pollQuestion(); setInterval(pollQuestion, 5000);
+  }
+}
+
+/* Вопрос учителя всплывает у всех учеников */
+let shownQ = null;
+function pollQuestion() {
+  gsr("getQuestion").then(q => {
+    setNet(true);
+    const answered = lsGet(NS + "answered", []);
+    const modal = document.getElementById("qModal");
+    if (q && q.open && q.type === "break") {
+      if (!answered.includes(q.id) && shownQ !== q.id) {
+        shownQ = q.id;
+        window.__onBreakEnd = () => { const a = lsGet(NS + "answered", []); if (!a.includes(q.id)) { a.push(q.id); lsSet(NS + "answered", a); } shownQ = null; };
+        window.__breakStart();
+      }
+      return;
+    }
+    if (q && q.open && !answered.includes(q.id)) {
+      if (shownQ !== q.id) {
+        shownQ = q.id;
+        document.getElementById("qText").textContent = q.text;
+        document.getElementById("qAns").value = "";
+        document.getElementById("qErr").textContent = "";
+        modal.hidden = false;
+        document.getElementById("qAns").focus();
+      }
+    } else if (!modal.hidden) {
+      modal.hidden = true; shownQ = null;
+      if (q && !q.open) toast("Мұғалім сұрақты жапты.");
+    }
+  }).catch(() => setNet(false));
+}
+function sendAnswer() {
+  const text = document.getElementById("qAns").value.trim(), err = document.getElementById("qErr");
+  if (!text) { err.textContent = "Жауапты жаз."; return; }
+  const btn = document.getElementById("qSend"); btn.disabled = true; err.textContent = "Жіберіп жатырмын…";
+  gsr("submitAnswer", { qid: shownQ, lang: "kz", text, cls: me.cls, name: me.name, id: me.id }).then(() => {
+    const a = lsGet(NS + "answered", []); a.push(shownQ); lsSet(NS + "answered", a);
+    document.getElementById("qModal").hidden = true; shownQ = null; btn.disabled = false;
+    toast("Жауап мұғалімге жіберілді.");
+  }).catch(e => { btn.disabled = false; err.textContent = (e && e.message) || "Жіберу мүмкін болмады. Тағы бір рет көр."; });
+}
+function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 3500); }
+
+function onlineBoot() {
+  window.__onStore = syncSoon;
+  window.__onStage = id => { curStage = id; syncSoon(); };
+  window.__onAttempt = (stage, task, answer, ok, note) => { if (me) gsr("logAttempt", { id: me.id, cls: me.cls, name: me.name, stage, task, answer: String(answer), ok: !!ok, note: note || "" }).catch(() => setNet(false)); };
+  document.getElementById("qSend").addEventListener("click", sendAnswer);
+  document.getElementById("qAns").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) sendAnswer(); });
+  document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
+  loginUI();
+}
+if (ONLINE) onlineBoot();
+else {
+  loginUI();
+  const n = document.getElementById("netState"); n.textContent = "жауаптар осы компьютерде сақталады"; n.className = "net";
+  document.getElementById("whoChange").addEventListener("click", () => { document.getElementById("whoHint").hidden = false; });
+}
+
+
+}
 </script>
 
 </html>
