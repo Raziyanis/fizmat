@@ -2200,6 +2200,14 @@ const AC_CASES = [
   { q: "Каким знаком обозначают деление в формуле?", opts: ["/", ":", "÷", "\\"], a: "/", why: "В формулах делят знаком «/», например =A1/2." },
   { q: "В A3 записана формула =A1*2. Число в A1 поменяли с 5 на 10. Что станет в A3?", opts: ["20", "10", "5", "ошибка"], a: "20", why: "Формула пересчитывается сама: 10 · 2 = 20. Поэтому в формулах пишут адреса ячеек, а не числа." }
 ];
+function shuffleSeeded(arr, seed) {
+  let h = 2166136261;
+  for (const ch of String(seed)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 10000) / 10000; };
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
 function quizBuild(cfg) {
   const load = () => store.get(cfg.key, {});
   function render() {
@@ -2221,7 +2229,9 @@ function quizBuild(cfg) {
   cfg.cases.forEach((c, i) => {
     const card = document.getElementById(`${cfg.prefix}-${i}`), msg = card.querySelector(".tc-msg");
     card.querySelector(".tc-q").textContent = c.q;
-    card.querySelectorAll(".mt-opt").forEach((b, j) => { b.dataset.f = c.opts[j]; b.textContent = c.opts[j]; });
+    // варианты перемешаны: у каждого ученика свой порядок, при перезагрузке он не меняется
+    const opts = shuffleSeeded(c.opts, NS + cfg.prefix + i);
+    card.querySelectorAll(".mt-opt").forEach((b, j) => { b.dataset.f = opts[j]; b.textContent = opts[j]; });
     const show = (st, quiet) => {
       card.querySelectorAll(".mt-opt").forEach(b => {
         b.classList.toggle("ok", !!st.ok && b.dataset.f === c.a);
