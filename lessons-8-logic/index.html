@@ -1872,7 +1872,7 @@ function prCheck(t, S) {
     }
     const used = prCalls(ast, new Set());
     const miss = t.must[k].filter(f => !used.has(f));
-    if (miss.length) return { ok: false, cell: k, msg: `В формуле в ${k} нужна функция ${miss.join(" и ")}. Задание проверяет именно её.` };
+    if (miss.length) return { ok: false, cell: k, msg: miss.length > 1 ? `В формуле в ${k} нужны функции ${miss.join(" и ")}. Задание проверяет именно их.` : `В формуле в ${k} нужна функция ${miss[0]}. Задание проверяет именно её.` };
     const mine = xlEvalCell({ cells: S.cells, cache: new Map() }, k, new Set());
     if (mine instanceof XErr) return { ok: false, cell: k, msg: `Формула в ${k} выдаёт ${mine.code}. ` + (XL_ERR[mine.code] || "Проверь, как она записана.") };
     const want = prEval(S.cells, k, t.ref[k]);
