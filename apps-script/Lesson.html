@@ -1891,11 +1891,12 @@ const TASKS_PR = [
     ref: { B2: "=СТЕПЕНЬ(B1;3)" }, must: { B2: ["СТЕПЕНЬ"] },
     vary: { keys: ["B1"], min: 1, max: 20 },
     hint: "У СТЕПЕНЬ два аргумента через «;»: что возводим и в какую степень. =СТЕПЕНЬ(B1;3)." },
-  { id: "B2", lv: "B", fn: "ABS", q: "Загадано число 50. Найди, на сколько ошибся каждый ученик. Неважно, назвал он больше или меньше.",
-    cells: { A1: "Загадано", B1: "50", C1: "Ошибка", A2: "Айдана", B2: "42", A3: "Тимур", B3: "61", A4: "Дана", B4: "55" },
-    ref: { C2: "=ABS(B2-B1)", C3: "=ABS(B3-B1)", C4: "=ABS(B4-B1)" }, must: { C2: ["ABS"], C3: ["ABS"], C4: ["ABS"] },
-    vary: { keys: ["B1", "B2", "B3", "B4"], min: 1, max: 100 },
-    hint: "В C2: =ABS(B2-B1). В C3 и C4 — так же, только со своей строкой: B3 и B4." },
+  { id: "B2", lv: "B", fn: "ABS", ver: 2,
+    q: "Учитель загадал число 50 (ячейка B1). Три ученика попробовали его угадать — их числа в столбце B. Найди, на сколько ошибся каждый. Ошибка — это разница между загаданным числом и названным, без минуса. Например, Айдана назвала 42: 50 − 42 = 8.",
+    cells: { A1: "Загадано число", B1: "50", A2: "Ученик", B2: "Назвал", C2: "На сколько ошибся", A3: "Айдана", B3: "42", A4: "Тимур", B4: "61", A5: "Дана", B5: "55" },
+    ref: { C3: "=ABS(B3-B1)", C4: "=ABS(B4-B1)", C5: "=ABS(B5-B1)" }, must: { C3: ["ABS"], C4: ["ABS"], C5: ["ABS"] },
+    vary: { keys: ["B1", "B3", "B4", "B5"], min: 1, max: 100 },
+    hint: "Для Айданы в C3: =ABS(B3-B1) — её число минус загаданное, без минуса. Для Тимура в C4: =ABS(B4-B1), для Даны в C5: =ABS(B5-B1). Тимур назвал 61: 61 − 50 = 11." },
   { id: "B3", lv: "B", fn: "СТЕПЕНЬ", q: "Есть две квадратные комнаты со сторонами 4 м и 6 м. Найди их общую площадь одной формулой.",
     cells: { A1: "Сторона 1, м", B1: "4", A2: "Сторона 2, м", B2: "6", A3: "Общая площадь" },
     ref: { B3: "=СТЕПЕНЬ(B1;2)+СТЕПЕНЬ(B2;2)" }, must: { B3: ["СТЕПЕНЬ"] },
@@ -2048,14 +2049,15 @@ function prBuild() {
       onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; }
     });
     const saved = d[t.id];
-    if (saved && saved.f) { Object.entries(saved.f).forEach(([k, v]) => root.xlSet(k, v)); setStatus(!!saved.ok); }
+    if (saved && saved.f && (saved.ver || 1) === (t.ver || 1)) { Object.entries(saved.f).forEach(([k, v]) => { if (targets.includes(k)) root.xlSet(k, v); }); }
+    if (saved) setStatus(!!saved.ok && (saved.ver || 1) === (t.ver || 1));
     card.querySelector(".tc-check").addEventListener("click", () => {
       const r = prCheck(t, root.xlState);
       if (window.__onAttempt) window.__onAttempt("6. Практика", t.id + " · " + t.fn, targets.map(k => k + ": " + (root.xlState.cells[k] ?? "")).join("   "), r.ok, r.ok ? "" : r.msg);
       const all = prLoad();
       const f = {}; targets.forEach(k => { f[k] = root.xlState.cells[k] ?? ""; });
       const tries = ((all[t.id] && all[t.id].tries) || 0) + 1;
-      all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), f, tries };
+      all[t.id] = { ok: r.ok, ever: r.ok || !!(all[t.id] && all[t.id].ever), f, tries, ver: t.ver || 1 };
       prSave(all);
       msg.className = "tc-msg " + (r.ok ? "ok" : "bad");
       msg.textContent = r.ok ? "Верно! Формула работает и с другими числами." : r.msg;
