@@ -6,7 +6,7 @@
 в функциях L_ru / L_kz; язык выбирается кнопками РУС | ҚАЗ и запоминается в браузере.
 Так же собирается экран учителя: tools/teacher/<папка>.html → apps-script*/Teacher.html.
 
-    python3 tools/build_bilingual.py          # три урока и три экрана учителя
+    python3 tools/build_bilingual.py          # уроки и экраны учителя
 """
 import json, re, sys
 from pathlib import Path
@@ -79,6 +79,19 @@ def kz_lesson3(js):
     return replace_once(js, 'const KEY = "topic-l3";', 'const KEY = "topic-l3-kz";')
 
 
+def kz_lesson4(js):
+    # казахские слова сортируются иначе: Қ и І идут после Я
+    js = replace_once(js, 'out: "[\'қарбыз\', \'бал\', \'ірімшік\']", note: "Сөздер — әліпби бойынша."',
+                      'out: "[\'бал\', \'ірімшік\', \'қарбыз\']", note: "Сөздер әріп кодтары бойынша реттелді: қазақ әріптері І мен Қ — Я-дан кейін, сондықтан «қарбыз» соңында."')
+    return replace_once(js, 'const KEY = "topic-l4";', 'const KEY = "topic-l4-kz";')
+
+
+def tpl_lesson4(src):
+    """Урок 4: ребус «Робот-список» на казахском — свои программы, ответы которых складываются в БІР ӨЛШЕМДІ МАССИВ."""
+    a = src.index("const ROWS = ["); b = src.index("TASKS.forEach(t => { const o")
+    return {src[a:b]: (root / "tools" / "kz_lists_puzzle.js").read_text(encoding="utf-8")}
+
+
 # Строки, где перевод по фрагментам ломает порядок слов: заменяются целиком уже в казахском тексте
 KZ_FIX = {
     "lessons-8-logic": [
@@ -92,7 +105,10 @@ LESSONS = {
     "lessons-8": ("Математические функции · 8 класс", "Математикалық функциялар · 8 сынып", kz_lesson1),
     "lessons-8-logic": ("Логические функции · 8 класс", "Логикалық функциялар · 8 сынып", kz_lesson2),
     "lessons-8-stats": ("Статистические функции · 8 класс", "Статистикалық функциялар · 8 сынып", kz_lesson3),
+    "lessons-8-lists": ("Одномерный массив. Список · 8 класс", "Бір өлшемді массив. Тізім · 8 сынып", kz_lesson4),
 }
+# Свои шаблоны урока: фрагменты исходника, которые заменяются готовым казахским текстом целиком
+LESSON_TPL = {"lessons-8-lists": tpl_lesson4}
 
 LANG_CSS = """
 .lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
@@ -152,9 +168,9 @@ def split(page):
     return page[:a], page[a:b] + pre, body, page[c + len("<script>"):d], page[d + len("</script>"):]
 
 
-def assemble(src, titles, places, fix_kz, name):
+def assemble(src, titles, places, fix_kz, name, tpl=None):
     assert src.count("<script>") == 1 and "</template>" not in src
-    kz, missing = translate(src, DIC, tpl=TPL)
+    kz, missing = translate(src, DIC, tpl={**TPL, **(tpl or {})})
     if missing:
         raise SystemExit(f"{name}: нет перевода для {len(missing)} фрагментов, например: {missing[:5]}")
     head, style, body_ru, js_ru, tail = split(src)
@@ -184,7 +200,8 @@ def build(folder):
         # сервер отвечает ученику на его языке
         js = replace_once(js, 'gsr("registerStudent", c, n)', 'gsr("registerStudent", c, n, "kz")')
         return replace_once(js, 'gsr("submitAnswer", { qid: shownQ,', 'gsr("submitAnswer", { qid: shownQ, lang: "kz",')
-    page = assemble(src, (ru_title, kz_title), [".top .tools", "#login .lg-card"], fix_kz, folder)
+    tpl = LESSON_TPL[folder](src) if folder in LESSON_TPL else None
+    page = assemble(src, (ru_title, kz_title), [".top .tools", "#login .lg-card"], fix_kz, folder, tpl)
     (root / folder / "index.html").write_text(page, encoding="utf-8")
     print(f"{folder}/index.html: {len(page)} bytes")
 
