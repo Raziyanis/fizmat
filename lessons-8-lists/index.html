@@ -1708,7 +1708,8 @@ def _calls(code):
 `;
 let pyPromise = null, pyLastErr = "";
 /* Сначала копия Pyodide рядом со страницей (в артефакте внешние загрузки, кроме скриптов, запрещены), потом CDN */
-const PY_SOURCES = (() => { const out = []; try { out.push(new URL("pyodide/", document.baseURI).href); } catch (e) {} out.push(PY_URL); return out; })();
+/* в артефакте .zip не публикуется, поэтому рядом со страницей стандартная библиотека лежит как python_stdlib.wasm */
+const PY_SOURCES = (() => { const out = []; try { const b = new URL("pyodide/", document.baseURI).href; out.push({ base: b, stdLibURL: b + "python_stdlib.wasm" }); } catch (e) {} out.push({ base: PY_URL }); return out; })();
 function pyStatus(s) {
   const el = document.getElementById("pyState"); if (!el) return;
   el.hidden = false; el.className = "py-state " + s;
@@ -1720,8 +1721,9 @@ function pyStatus(s) {
     el.append(" · ", b);
   }
 }
-function pyFrom(base) {
-  const go = () => window.loadPyodide({ indexURL: base });
+function pyFrom(src) {
+  const base = src.base;
+  const go = () => window.loadPyodide(src.stdLibURL ? { indexURL: base, stdLibURL: src.stdLibURL } : { indexURL: base });
   if (window.loadPyodide) return go();
   return new Promise((res, rej) => {
     const s = document.createElement("script");
@@ -1737,8 +1739,8 @@ function pyLoad() {
   const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error("истекло время ожидания (2 мин)")), 120000));
   pyPromise = Promise.race([(async () => {
     let err;
-    for (const base of PY_SOURCES) {
-      try { const py = await pyFrom(base); py.runPython(PY_HELPER); return py; } catch (e) { err = e; }
+    for (const src of PY_SOURCES) {
+      try { const py = await pyFrom(src); py.runPython(PY_HELPER); return py; } catch (e) { err = e; }
     }
     throw err;
   })(), timeout]).then(py => { pyLastErr = ""; pyStatus("ok"); return py; }, e => {
@@ -3118,7 +3120,8 @@ def _calls(code):
 `;
 let pyPromise = null, pyLastErr = "";
 /* Сначала копия Pyodide рядом со страницей (в артефакте внешние загрузки, кроме скриптов, запрещены), потом CDN */
-const PY_SOURCES = (() => { const out = []; try { out.push(new URL("pyodide/", document.baseURI).href); } catch (e) {} out.push(PY_URL); return out; })();
+/* в артефакте .zip не публикуется, поэтому рядом со страницей стандартная библиотека лежит как python_stdlib.wasm */
+const PY_SOURCES = (() => { const out = []; try { const b = new URL("pyodide/", document.baseURI).href; out.push({ base: b, stdLibURL: b + "python_stdlib.wasm" }); } catch (e) {} out.push({ base: PY_URL }); return out; })();
 function pyStatus(s) {
   const el = document.getElementById("pyState"); if (!el) return;
   el.hidden = false; el.className = "py-state " + s;
@@ -3130,8 +3133,9 @@ function pyStatus(s) {
     el.append(" · ", b);
   }
 }
-function pyFrom(base) {
-  const go = () => window.loadPyodide({ indexURL: base });
+function pyFrom(src) {
+  const base = src.base;
+  const go = () => window.loadPyodide(src.stdLibURL ? { indexURL: base, stdLibURL: src.stdLibURL } : { indexURL: base });
   if (window.loadPyodide) return go();
   return new Promise((res, rej) => {
     const s = document.createElement("script");
@@ -3147,8 +3151,8 @@ function pyLoad() {
   const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error("күту уақыты өтті (2 мин)")), 120000));
   pyPromise = Promise.race([(async () => {
     let err;
-    for (const base of PY_SOURCES) {
-      try { const py = await pyFrom(base); py.runPython(PY_HELPER); return py; } catch (e) { err = e; }
+    for (const src of PY_SOURCES) {
+      try { const py = await pyFrom(src); py.runPython(PY_HELPER); return py; } catch (e) { err = e; }
     }
     throw err;
   })(), timeout]).then(py => { pyLastErr = ""; pyStatus("ok"); return py; }, e => {
