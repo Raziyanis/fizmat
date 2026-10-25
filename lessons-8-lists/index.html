@@ -472,7 +472,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <section class="block">
       <h2>Словарик робота</h2>
       <ul class="legend">
-        <li><code>a = ["К", "О", "Т"]</code> — список из трёх букв</li>
+        <li><code>a = ["Э", "О", "У"]</code> — список из трёх букв</li>
         <li><code>a[0]</code> — элемент с номером 0, счёт начинается с нуля</li>
         <li><code>a[-1]</code> — последний элемент</li>
         <li><code>len(a)</code> — сколько элементов в списке</li>
@@ -507,7 +507,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <section class="block">
       <h2>Тема урока</h2>
       <p class="reveal-title">Одномерный массив. Список: list. Методы списка</p>
-      <div class="fns"><code>list</code><code>append()</code><code>insert()</code><code>pop()</code><code>remove()</code><code>sort()</code><code>reverse()</code><code>index()</code><code>count()</code></div>
+      <div class="fns"><code>list</code><code>append()</code><code>insert()</code><code>pop()</code><code>remove()</code><code>sort()</code><code>reverse()</code><code>index()</code><code>count()</code><code>extend()</code><code>clear()</code><code>copy()</code><code>del</code></div>
       <p class="small" id="forkNote">Разгадывая тему, ты уже работал как Python: брал элемент списка по номеру и выполнял команды робота — методы списка. Сегодня научишься писать такие программы сам.</p>
     </section>
     <section class="block expect" id="expect">
@@ -632,7 +632,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <section class="block fcard" data-card="1" hidden>
       <p class="fname"><code>a[i]</code> — элемент по индексу</p>
       <p class="simple"><b>Простыми словами:</b> индекс — номер места в списке, как номер места в очереди. Только счёт начинается с нуля. С конца считают отрицательными номерами: −1 — последний.</p>
-      <div class="tablewrap"><table class="idx"><tr><th>элемент</th><td class="v">К</td><td class="v">О</td><td class="v">Т</td><td class="v">И</td><td class="v">К</td></tr><tr><th>индекс</th><td class="i">0</td><td class="i">1</td><td class="i">2</td><td class="i">3</td><td class="i">4</td></tr><tr><th>с конца</th><td class="n">−5</td><td class="n">−4</td><td class="n">−3</td><td class="n">−2</td><td class="n">−1</td></tr></table></div>
+      <div class="tablewrap"><table class="idx"><tr><th>элемент</th><td class="v">Пн</td><td class="v">Вт</td><td class="v">Ср</td><td class="v">Чт</td><td class="v">Пт</td></tr><tr><th>индекс</th><td class="i">0</td><td class="i">1</td><td class="i">2</td><td class="i">3</td><td class="i">4</td></tr><tr><th>с конца</th><td class="n">−5</td><td class="n">−4</td><td class="n">−3</td><td class="n">−2</td><td class="n">−1</td></tr></table></div>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Первая оценка в четверти:</span> <code>marks[0]</code></li><li><span>Температура в воскресенье, последний день:</span> <code>t[-1]</code></li><li><span>Исправить цену третьего товара:</span> <code>price[2] = 900</code></li></ul><p class="apply-no"><b>Не подходит:</b> номер, которого нет в списке, — будет ошибка <code>IndexError</code>.</p></div>
       <p class="how"><span>Как записать:</span> <code>a[0]</code>, <code>a[-1]</code>, <code>a[2] = 7</code></p>
       <div class="theory">
@@ -643,7 +643,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <h3>Примеры</h3>
       <div class="exlist" data-ex="idx"></div>
       <h3>Важно знать</h3>
-      <ul><li>Первый элемент — <code>a[0]</code>, а не <code>a[1]</code>.</li><li>Последний — <code>a[-1]</code> или <code>a[len(a) - 1]</code>. Индекс <code>a[len(a)]</code> уже не существует.</li><li>Индекс — только целое число: <code>a[1.5]</code> — ошибка <code>TypeError</code>.</li></ul>
+      <ul><li>Первый элемент — <code>a[0]</code>, а не <code>a[1]</code>.</li><li>Последний — <code>a[-1]</code> или <code>a[len(a) - 1]</code>.</li><li>Индекс — только целое число: <code>a[1.5]</code> — ошибка <code>TypeError</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="idx"></div></div>
       <p class="remember"><b>Запомни:</b> первый — <code>a[0]</code>, последний — <code>a[-1]</code>.</p>
@@ -699,71 +699,71 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     </section>
 
     <div class="fpills" role="tablist" aria-label="Методы">
-      <button type="button" class="fpill" data-f="3" aria-selected="true">1 · append, insert</button>
-      <button type="button" class="fpill" data-f="4" aria-selected="false">2 · pop, remove</button>
-      <button type="button" class="fpill" data-f="5" aria-selected="false">3 · sort, reverse</button>
+      <button type="button" class="fpill" data-f="3" aria-selected="true">1 · append, insert, extend</button>
+      <button type="button" class="fpill" data-f="4" aria-selected="false">2 · pop, remove, del, clear</button>
+      <button type="button" class="fpill" data-f="5" aria-selected="false">3 · sort, reverse, copy</button>
       <button type="button" class="fpill" data-f="6" aria-selected="false">4 · index, count</button>
       <button type="button" class="fpill" data-f="7" aria-selected="false">Шпаргалка и ошибки</button>
     </div>
 
     <!-- append, insert -->
     <section class="block fcard" data-card="3">
-      <p class="fname"><code>append()</code> и <code>insert()</code> — добавить</p>
-      <p class="simple"><b>Простыми словами:</b> <code>append</code> — встать в конец очереди. <code>insert</code> — пропустить кого-то вперёд на нужное место: остальные сдвигаются.</p>
-      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Добавить покупку в конец списка:</span> <code>shop.append("сыр")</code></li><li><span>Записать в список оценки, введённые с клавиатуры:</span> <code>marks.append(int(input()))</code></li><li><span>Поставить срочное дело первым:</span> <code>todo.insert(0, "уроки")</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы заменить элемент, метод не нужен — <code>a[i] = x</code>.</p></div>
-      <p class="how"><span>Как записать:</span> <code>a.append(x)</code>, <code>a.insert(i, x)</code></p>
+      <p class="fname"><code>append()</code>, <code>insert()</code> и <code>extend()</code> — добавить</p>
+      <p class="simple"><b>Простыми словами:</b> <code>append</code> — встать в конец очереди. <code>insert</code> — пропустить кого-то вперёд на нужное место: остальные сдвигаются. <code>extend</code> — в конец очереди встаёт сразу целая группа.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Добавить покупку в конец списка:</span> <code>shop.append("сыр")</code></li><li><span>Записать в список оценки, введённые с клавиатуры:</span> <code>marks.append(int(input()))</code></li><li><span>Поставить срочное дело первым:</span> <code>todo.insert(0, "уроки")</code></li><li><span>Добавить сразу несколько покупок:</span> <code>shop.extend(["сыр", "чай"])</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы заменить элемент, метод не нужен — <code>a[i] = x</code>.</p></div>
+      <p class="how"><span>Как записать:</span> <code>a.append(x)</code>, <code>a.insert(i, x)</code>, <code>a.extend(b)</code></p>
       <div class="theory">
       <h3>Определение</h3>
-      <p><code>append(x)</code> добавляет элемент x в конец списка. <code>insert(i, x)</code> вставляет элемент x на место с индексом i, а элементы правее сдвигаются на одну позицию.</p>
+      <p><code>append(x)</code> добавляет элемент x в конец списка. <code>insert(i, x)</code> вставляет элемент x на место с индексом i, а элементы правее сдвигаются на одну позицию. <code>extend(b)</code> добавляет в конец списка все элементы списка b.</p>
       <h3>Синтаксис</h3>
-      <p class="syn"><code>список.append(x)</code> · <code>список.insert(индекс, x)</code></p>
+      <p class="syn"><code>список.append(x)</code> · <code>список.insert(индекс, x)</code> · <code>список.extend(другой_список)</code></p>
       <h3>Примеры</h3>
       <div class="exlist" data-ex="add"></div>
       <h3>Важно знать</h3>
-      <ul><li><code>append</code> добавляет ровно один элемент за раз.</li><li>Методы ничего не возвращают: <code>a = a.append(5)</code> — ошибка, в <code>a</code> окажется <code>None</code>. Пиши просто <code>a.append(5)</code>.</li><li><code>insert</code>: сначала номер, потом значение — <code>insert(0, "а")</code>.</li><li>Ввод списка с клавиатуры: пустой список и цикл с <code>append</code>.</li></ul>
+      <ul><li><code>append</code> добавляет ровно один элемент за раз: <code>append([7, 8])</code> добавит один элемент — весь список <code>[7, 8]</code>. Чтобы добавить 7 и 8 по отдельности, нужен <code>extend([7, 8])</code>.</li><li>Методы ничего не возвращают: <code>a = a.append(5)</code> — ошибка, в <code>a</code> окажется <code>None</code>. Пиши просто <code>a.append(5)</code>.</li><li><code>insert</code>: сначала номер, потом значение — <code>insert(0, "а")</code>.</li><li>Ввод списка с клавиатуры: пустой список и цикл с <code>append</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="add"></div></div>
-      <p class="remember"><b>Запомни:</b> <code>append</code> — в конец, <code>insert(i, x)</code> — на место i.</p>
+      <p class="remember"><b>Запомни:</b> <code>append</code> — в конец, <code>insert(i, x)</code> — на место i, <code>extend(b)</code> — все элементы b в конец.</p>
     </section>
 
     <!-- pop, remove -->
     <section class="block fcard" data-card="4" hidden>
-      <p class="fname"><code>pop()</code> и <code>remove()</code> — удалить</p>
-      <p class="simple"><b>Простыми словами:</b> <code>pop</code> достаёт ящик по номеру — по умолчанию последний — и отдаёт его тебе. <code>remove</code> ищет вещь по названию и выбрасывает первую такую.</p>
-      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Отменить последнее действие:</span> <code>history.pop()</code></li><li><span>Вычеркнуть купленный товар:</span> <code>shop.remove("хлеб")</code></li><li><span>Обслужить первого в очереди:</span> <code>queue.pop(0)</code></li></ul><p class="apply-no"><b>Не подходит:</b> удалить все одинаковые элементы сразу — <code>remove</code> убирает только первый.</p></div>
-      <p class="how"><span>Как записать:</span> <code>a.pop()</code>, <code>a.pop(i)</code>, <code>a.remove(x)</code></p>
+      <p class="fname"><code>pop()</code>, <code>remove()</code>, <code>del</code> и <code>clear()</code> — удалить</p>
+      <p class="simple"><b>Простыми словами:</b> <code>pop</code> достаёт ящик по номеру — по умолчанию последний — и отдаёт его тебе. <code>remove</code> ищет вещь по названию и выбрасывает первую такую. <code>del a[i]</code> выбрасывает ящик с номером i, ничего не отдавая. <code>clear</code> освобождает всю полку.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Отменить последнее действие:</span> <code>history.pop()</code></li><li><span>Вычеркнуть купленный товар:</span> <code>shop.remove("хлеб")</code></li><li><span>Обслужить первого в очереди:</span> <code>queue.pop(0)</code></li><li><span>Очистить корзину после оплаты:</span> <code>cart.clear()</code></li></ul><p class="apply-no"><b>Не подходит:</b> удалить все одинаковые элементы сразу — <code>remove</code> убирает только первый.</p></div>
+      <p class="how"><span>Как записать:</span> <code>a.pop()</code>, <code>a.pop(i)</code>, <code>a.remove(x)</code>, <code>del a[i]</code>, <code>a.clear()</code></p>
       <div class="theory">
       <h3>Определение</h3>
-      <p><code>pop(i)</code> удаляет элемент с индексом i и возвращает его; без аргумента удаляет последний. <code>remove(x)</code> удаляет первый элемент, равный x.</p>
+      <p><code>pop(i)</code> удаляет элемент с индексом i и возвращает его; без аргумента удаляет последний. <code>remove(x)</code> удаляет первый элемент, равный x. <code>del a[i]</code> удаляет элемент с индексом i и ничего не возвращает; <code>del</code> — не метод, а команда языка Python, поэтому её пишут без точки и скобок. <code>clear()</code> удаляет все элементы: список становится пустым.</p>
       <h3>Синтаксис</h3>
-      <p class="syn"><code>список.pop(индекс)</code> · <code>список.remove(x)</code></p>
+      <p class="syn"><code>список.pop(индекс)</code> · <code>список.remove(x)</code> · <code>del список[индекс]</code> · <code>список.clear()</code></p>
       <h3>Примеры</h3>
       <div class="exlist" data-ex="del"></div>
       <h3>Важно знать</h3>
-      <ul><li><code>pop</code> удаляет по номеру, <code>remove</code> — по значению.</li><li>Если элемента нет, <code>remove</code> выдаёт ошибку <code>ValueError</code>. Сначала проверь: <code>if x in a:</code>.</li><li><code>pop</code> из пустого списка выдаёт ошибку <code>IndexError</code>.</li></ul>
+      <ul><li><code>pop</code> удаляет по номеру, <code>remove</code> — по значению.</li><li><code>pop(i)</code> и <code>del a[i]</code> удаляют один и тот же элемент, но <code>pop</code> возвращает его, а <code>del</code> — нет.</li><li>Если элемента нет, <code>remove</code> выдаёт ошибку <code>ValueError</code>. Сначала проверь: <code>if x in a:</code>.</li><li><code>pop</code> из пустого списка выдаёт ошибку <code>IndexError</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="del"></div></div>
-      <p class="remember"><b>Запомни:</b> <code>pop(i)</code> — «убери номер i», <code>remove(x)</code> — «убери значение x».</p>
+      <p class="remember"><b>Запомни:</b> <code>pop(i)</code> — «убери номер i», <code>remove(x)</code> — «убери значение x», <code>del a[i]</code> — «убери номер i, он не нужен», <code>clear()</code> — «убери всё».</p>
     </section>
 
     <!-- sort, reverse -->
     <section class="block fcard" data-card="5" hidden>
-      <p class="fname"><code>sort()</code> и <code>reverse()</code> — порядок</p>
-      <p class="simple"><b>Простыми словами:</b> <code>sort</code> — построить класс по росту, от низкого к высокому. <code>reverse</code> — развернуть строй задом наперёд, не сравнивая рост.</p>
-      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Оценки по возрастанию:</span> <code>marks.sort()</code></li><li><span>Рейтинг от лучшего к худшему:</span> <code>scores.sort(reverse=True)</code></li><li><span>Новые сообщения сверху:</span> <code>msgs.reverse()</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы узнать только самое большое число, сортировать не нужно — есть <code>max(a)</code>.</p></div>
-      <p class="how"><span>Как записать:</span> <code>a.sort()</code>, <code>a.sort(reverse=True)</code>, <code>a.reverse()</code></p>
+      <p class="fname"><code>sort()</code>, <code>reverse()</code> и <code>copy()</code> — порядок</p>
+      <p class="simple"><b>Простыми словами:</b> <code>sort</code> — построить класс по росту, от низкого к высокому. <code>reverse</code> — развернуть строй: последний встаёт первым, рост не сравнивают. <code>copy</code> — сфотографировать строй, чтобы помнить, как стояли до перестановки.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Оценки по возрастанию:</span> <code>marks.sort()</code></li><li><span>Рейтинг от лучшего к худшему:</span> <code>scores.sort(reverse=True)</code></li><li><span>Новые сообщения сверху:</span> <code>msgs.reverse()</code></li><li><span>Отсортировать, но сохранить исходный порядок:</span> <code>b = a.copy()</code>, затем <code>b.sort()</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы узнать только самое большое число, сортировать не нужно — есть <code>max(a)</code>.</p></div>
+      <p class="how"><span>Как записать:</span> <code>a.sort()</code>, <code>a.sort(reverse=True)</code>, <code>a.reverse()</code>, <code>b = a.copy()</code></p>
       <div class="theory">
       <h3>Определение</h3>
-      <p><code>sort()</code> упорядочивает элементы списка по возрастанию: числа — от меньшего к большему, слова — по алфавиту. С аргументом <code>reverse=True</code> — по убыванию. <code>reverse()</code> переставляет элементы в обратном порядке.</p>
+      <p><code>sort()</code> упорядочивает элементы списка по возрастанию: числа — от меньшего к большему, слова — по алфавиту. С аргументом <code>reverse=True</code> — по убыванию. <code>reverse()</code> переставляет элементы в обратном порядке. <code>copy()</code> возвращает новый список с теми же элементами: изменения копии не меняют исходный список.</p>
       <h3>Синтаксис</h3>
-      <p class="syn"><code>список.sort()</code> · <code>список.reverse()</code></p>
+      <p class="syn"><code>список.sort()</code> · <code>список.reverse()</code> · <code>список.copy()</code></p>
       <h3>Примеры</h3>
       <div class="exlist" data-ex="order"></div>
       <h3>Важно знать</h3>
-      <ul><li><code>sort</code> меняет сам список и возвращает <code>None</code>: <code>b = a.sort()</code> — в <code>b</code> окажется <code>None</code>.</li><li><code>reverse</code> не сортирует, а только переворачивает.</li><li>Слова Python сравнивает по кодам букв: заглавные идут раньше строчных, а казахские буквы Ә, Ғ, Қ, Ң, Ө, Ұ, Ү, Һ, І и буква Ё — после Я.</li><li>Числа и слова в одном списке отсортировать нельзя — ошибка <code>TypeError</code>.</li></ul>
+      <ul><li><code>sort</code> меняет сам список и возвращает <code>None</code>: <code>b = a.sort()</code> — в <code>b</code> окажется <code>None</code>.</li><li><code>reverse</code> не сортирует, а только переворачивает: <code>[3, 1, 2]</code> → <code>[2, 1, 3]</code>. По убыванию сортирует <code>sort(reverse=True)</code>.</li><li><code>b = a</code> не копирует список: это второе имя того же списка, и <code>b.sort()</code> изменит и <code>a</code>. Копия — <code>b = a.copy()</code>.</li><li>Слова Python сравнивает по кодам букв: заглавные идут раньше строчных, а казахские буквы Ә, Ғ, Қ, Ң, Ө, Ұ, Ү, Һ, І и буква Ё — после Я.</li><li>Числа и слова в одном списке отсортировать нельзя — ошибка <code>TypeError</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="order"></div></div>
-      <p class="remember"><b>Запомни:</b> <code>sort()</code> — по порядку, <code>reverse()</code> — задом наперёд. Оба меняют список и ничего не возвращают.</p>
+      <p class="remember"><b>Запомни:</b> <code>sort()</code> — по возрастанию, <code>sort(reverse=True)</code> — по убыванию, <code>reverse()</code> — в обратном порядке. Они меняют сам список; чтобы сохранить исходный, сначала сделай <code>copy()</code>.</p>
     </section>
 
     <!-- index, count -->
@@ -794,11 +794,16 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
           <tr><th>Команда</th><th>Что делает</th><th>Было <code>a = [3, 1, 2]</code>, стало</th></tr>
           <tr><td><code>a.append(5)</code></td><td>добавляет 5 в конец</td><td><code>[3, 1, 2, 5]</code></td></tr>
           <tr><td><code>a.insert(0, 5)</code></td><td>вставляет 5 на место 0</td><td><code>[5, 3, 1, 2]</code></td></tr>
+          <tr><td><code>a.extend([7, 8])</code></td><td>добавляет все элементы в конец</td><td><code>[3, 1, 2, 7, 8]</code></td></tr>
           <tr><td><code>a.pop()</code></td><td>удаляет последний и возвращает его</td><td><code>[3, 1]</code></td></tr>
           <tr><td><code>a.pop(0)</code></td><td>удаляет элемент с индексом 0</td><td><code>[1, 2]</code></td></tr>
           <tr><td><code>a.remove(1)</code></td><td>удаляет первое значение 1</td><td><code>[3, 2]</code></td></tr>
+          <tr><td><code>del a[0]</code></td><td>удаляет элемент с индексом 0, ничего не возвращает</td><td><code>[1, 2]</code></td></tr>
+          <tr><td><code>a.clear()</code></td><td>удаляет все элементы</td><td><code>[]</code></td></tr>
           <tr><td><code>a.sort()</code></td><td>по возрастанию</td><td><code>[1, 2, 3]</code></td></tr>
-          <tr><td><code>a.reverse()</code></td><td>задом наперёд</td><td><code>[2, 1, 3]</code></td></tr>
+          <tr><td><code>a.sort(reverse=True)</code></td><td>по убыванию</td><td><code>[3, 2, 1]</code></td></tr>
+          <tr><td><code>a.reverse()</code></td><td>в обратном порядке, без сортировки</td><td><code>[2, 1, 3]</code></td></tr>
+          <tr><td><code>b = a.copy()</code></td><td>копия списка</td><td><code>b</code> = <code>[3, 1, 2]</code>, a не меняется</td></tr>
           <tr><td><code>a.index(2)</code></td><td>индекс значения 2</td><td>2, список не меняется</td></tr>
           <tr><td><code>a.count(3)</code></td><td>сколько раз встречается 3</td><td>1, список не меняется</td></tr>
           <tr><td><code>len(a)</code>, <code>sum(a)</code>, <code>max(a)</code>, <code>min(a)</code></td><td>функции, а не методы: длина, сумма, наибольший, наименьший</td><td>3, 6, 3, 1</td></tr>
@@ -1062,7 +1067,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <section class="block">
       <h2>Робот сөздігі</h2>
       <ul class="legend">
-        <li><code>a = ["К", "О", "Т"]</code> — үш әріптен тұратын тізім</li>
+        <li><code>a = ["Э", "О", "У"]</code> — үш әріптен тұратын тізім</li>
         <li><code>a[0]</code> — 0 нөмірлі элемент, санау нөлден басталады</li>
         <li><code>a[-1]</code> — соңғы элемент</li>
         <li><code>len(a)</code> — тізімдегі элементтер саны</li>
@@ -1097,7 +1102,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <section class="block">
       <h2>Сабақтың тақырыбы</h2>
       <p class="reveal-title">Бір өлшемді массив. Тізім: list. Тізім әдістері</p>
-      <div class="fns"><code>list</code><code>append()</code><code>insert()</code><code>pop()</code><code>remove()</code><code>sort()</code><code>reverse()</code><code>index()</code><code>count()</code></div>
+      <div class="fns"><code>list</code><code>append()</code><code>insert()</code><code>pop()</code><code>remove()</code><code>sort()</code><code>reverse()</code><code>index()</code><code>count()</code><code>extend()</code><code>clear()</code><code>copy()</code><code>del</code></div>
       <p class="small" id="forkNote">Тақырыпты шешу кезінде сен Python сияқты жұмыс істедің: тізім элементін нөмірі бойынша алдың және робот командаларын — тізім әдістерін орындадың. Бүгін осындай бағдарламаларды өзің жазуды үйренесің.</p>
     </section>
     <section class="block expect" id="expect">
@@ -1222,7 +1227,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <section class="block fcard" data-card="1" hidden>
       <p class="fname"><code>a[i]</code> — индекс бойынша элемент</p>
       <p class="simple"><b>Қарапайым тілмен:</b> индекс — тізімдегі орынның нөмірі, кезектегі орын нөмірі сияқты. Тек санау нөлден басталады. Соңынан теріс нөмірлермен санайды: −1 — соңғысы.</p>
-      <div class="tablewrap"><table class="idx"><tr><th>элемент</th><td class="v">К</td><td class="v">О</td><td class="v">Т</td><td class="v">И</td><td class="v">К</td></tr><tr><th>индекс</th><td class="i">0</td><td class="i">1</td><td class="i">2</td><td class="i">3</td><td class="i">4</td></tr><tr><th>соңынан</th><td class="n">−5</td><td class="n">−4</td><td class="n">−3</td><td class="n">−2</td><td class="n">−1</td></tr></table></div>
+      <div class="tablewrap"><table class="idx"><tr><th>элемент</th><td class="v">Дс</td><td class="v">Сс</td><td class="v">Ср</td><td class="v">Бс</td><td class="v">Жм</td></tr><tr><th>индекс</th><td class="i">0</td><td class="i">1</td><td class="i">2</td><td class="i">3</td><td class="i">4</td></tr><tr><th>соңынан</th><td class="n">−5</td><td class="n">−4</td><td class="n">−3</td><td class="n">−2</td><td class="n">−1</td></tr></table></div>
       <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Тоқсандағы бірінші баға:</span> <code>marks[0]</code></li><li><span>Жексенбідегі, яғни соңғы күнгі температура:</span> <code>t[-1]</code></li><li><span>Үшінші тауардың бағасын түзету:</span> <code>price[2] = 900</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> тізімде жоқ нөмір — мына қате шығады: <code>IndexError</code>.</p></div>
       <p class="how"><span>Қалай жазылады:</span> <code>a[0]</code>, <code>a[-1]</code>, <code>a[2] = 7</code></p>
       <div class="theory">
@@ -1233,7 +1238,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="idx"></div>
       <h3>Білу маңызды</h3>
-      <ul><li>Бірінші элемент — <code>a[0]</code>, мынау емес: <code>a[1]</code>.</li><li>Соңғысы — <code>a[-1]</code> немесе <code>a[len(a) - 1]</code>. Мына индекс <code>a[len(a)]</code> енді жоқ.</li><li>Индекс — тек бүтін сан: <code>a[1.5]</code> — қате <code>TypeError</code>.</li></ul>
+      <ul><li>Бірінші элемент — <code>a[0]</code>, мынау емес: <code>a[1]</code>.</li><li>Соңғысы — <code>a[-1]</code> немесе <code>a[len(a) - 1]</code>.</li><li>Индекс — тек бүтін сан: <code>a[1.5]</code> — қате <code>TypeError</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="idx"></div></div>
       <p class="remember"><b>Есте сақта:</b> бірінші — <code>a[0]</code>, соңғысы — <code>a[-1]</code>.</p>
@@ -1289,71 +1294,71 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     </section>
 
     <div class="fpills" role="tablist" aria-label="Әдістер">
-      <button type="button" class="fpill" data-f="3" aria-selected="true">1 · append, insert</button>
-      <button type="button" class="fpill" data-f="4" aria-selected="false">2 · pop, remove</button>
-      <button type="button" class="fpill" data-f="5" aria-selected="false">3 · sort, reverse</button>
+      <button type="button" class="fpill" data-f="3" aria-selected="true">1 · append, insert, extend</button>
+      <button type="button" class="fpill" data-f="4" aria-selected="false">2 · pop, remove, del, clear</button>
+      <button type="button" class="fpill" data-f="5" aria-selected="false">3 · sort, reverse, copy</button>
       <button type="button" class="fpill" data-f="6" aria-selected="false">4 · index, count</button>
       <button type="button" class="fpill" data-f="7" aria-selected="false">Анықтамалық және қателер</button>
     </div>
 
     <!-- append, insert -->
     <section class="block fcard" data-card="3">
-      <p class="fname"><code>append()</code> және <code>insert()</code> — қосу</p>
-      <p class="simple"><b>Қарапайым тілмен:</b> <code>append</code> — кезектің соңына тұру. <code>insert</code> — біреуді алдыға, керекті орынға өткізу: қалғандары жылжиды.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Сатып алуды тізімнің соңына қосу:</span> <code>shop.append("ірімшік")</code></li><li><span>Пернетақтадан енгізілген бағаларды тізімге жазу:</span> <code>marks.append(int(input()))</code></li><li><span>Шұғыл істі бірінші қою:</span> <code>todo.insert(0, "сабақ")</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> элементті ауыстыру үшін әдіс керек емес — <code>a[i] = x</code>.</p></div>
-      <p class="how"><span>Қалай жазылады:</span> <code>a.append(x)</code>, <code>a.insert(i, x)</code></p>
+      <p class="fname"><code>append()</code>, <code>insert()</code> және <code>extend()</code> — қосу</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> <code>append</code> — кезектің соңына тұру. <code>insert</code> — біреуді алдыға, керекті орынға өткізу: қалғандары жылжиды. <code>extend</code> — кезектің соңына бірден тұтас топ тұрады.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Сатып алуды тізімнің соңына қосу:</span> <code>shop.append("ірімшік")</code></li><li><span>Пернетақтадан енгізілген бағаларды тізімге жазу:</span> <code>marks.append(int(input()))</code></li><li><span>Шұғыл істі бірінші қою:</span> <code>todo.insert(0, "сабақ")</code></li><li><span>Бірнеше сатып алуды бірден қосу:</span> <code>shop.extend(["ірімшік", "шай"])</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> элементті ауыстыру үшін әдіс керек емес — <code>a[i] = x</code>.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>a.append(x)</code>, <code>a.insert(i, x)</code>, <code>a.extend(b)</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p><code>append(x)</code> x элементін тізімнің соңына қосады. <code>insert(i, x)</code> x элементін i индексті орынға қояды, ал оң жақтағы элементтер бір орынға жылжиды.</p>
+      <p><code>append(x)</code> x элементін тізімнің соңына қосады. <code>insert(i, x)</code> x элементін i индексті орынға қояды, ал оң жақтағы элементтер бір орынға жылжиды. <code>extend(b)</code> b тізімінің барлық элементін тізімнің соңына қосады.</p>
       <h3>Синтаксис</h3>
-      <p class="syn"><code>тізім.append(x)</code> · <code>тізім.insert(индекс, x)</code></p>
+      <p class="syn"><code>тізім.append(x)</code> · <code>тізім.insert(индекс, x)</code> · <code>тізім.extend(басқа_тізім)</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="add"></div>
       <h3>Білу маңызды</h3>
-      <ul><li><code>append</code> бір жолы тек бір элемент қосады.</li><li>Әдістер ештеңе қайтармайды: <code>a = a.append(5)</code> — қате, <code>a</code> ішіне мынау түседі: <code>None</code>. Жай ғана былай жаз: <code>a.append(5)</code>.</li><li><code>insert</code>: алдымен нөмір, содан кейін мән — <code>insert(0, "а")</code>.</li><li>Тізімді пернетақтадан енгізу: бос тізім және циклдегі <code>append</code>.</li></ul>
+      <ul><li><code>append</code> бір жолы тек бір элемент қосады: <code>append([7, 8])</code> бір элемент қосады — мына тізімді толығымен: <code>[7, 8]</code>. 7 мен 8-ді бөлек қосу үшін мынау керек: <code>extend([7, 8])</code>.</li><li>Әдістер ештеңе қайтармайды: <code>a = a.append(5)</code> — қате, <code>a</code> ішіне мынау түседі: <code>None</code>. Жай ғана былай жаз: <code>a.append(5)</code>.</li><li><code>insert</code>: алдымен нөмір, содан кейін мән — <code>insert(0, "а")</code>.</li><li>Тізімді пернетақтадан енгізу: бос тізім және циклдегі <code>append</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="add"></div></div>
-      <p class="remember"><b>Есте сақта:</b> <code>append</code> — соңына, <code>insert(i, x)</code> — i орнына.</p>
+      <p class="remember"><b>Есте сақта:</b> <code>append</code> — соңына, <code>insert(i, x)</code> — i орнына, <code>extend(b)</code> — b-ның барлық элементін соңына.</p>
     </section>
 
     <!-- pop, remove -->
     <section class="block fcard" data-card="4" hidden>
-      <p class="fname"><code>pop()</code> және <code>remove()</code> — жою</p>
-      <p class="simple"><b>Қарапайым тілмен:</b> <code>pop</code> жәшікті нөмірі бойынша — әдепкіде соңғысын — алып, саған береді. <code>remove</code> затты атауы бойынша іздеп, бірінші табылғанын лақтырады.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Соңғы әрекетті болдырмау:</span> <code>history.pop()</code></li><li><span>Сатып алынған тауарды сызып тастау:</span> <code>shop.remove("нан")</code></li><li><span>Кезектегі біріншіге қызмет көрсету:</span> <code>queue.pop(0)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> бірдей элементтердің бәрін бірден жою — <code>remove</code> тек біріншісін жояды.</p></div>
-      <p class="how"><span>Қалай жазылады:</span> <code>a.pop()</code>, <code>a.pop(i)</code>, <code>a.remove(x)</code></p>
+      <p class="fname"><code>pop()</code>, <code>remove()</code>, <code>del</code> және <code>clear()</code> — жою</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> <code>pop</code> жәшікті нөмірі бойынша — әдепкіде соңғысын — алып, саған береді. <code>remove</code> затты атауы бойынша іздеп, бірінші табылғанын лақтырады. <code>del a[i]</code> i нөмірлі жәшікті ештеңе бермей лақтырады. <code>clear</code> бүкіл сөрені босатады.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Соңғы әрекетті болдырмау:</span> <code>history.pop()</code></li><li><span>Сатып алынған тауарды сызып тастау:</span> <code>shop.remove("нан")</code></li><li><span>Кезектегі біріншіге қызмет көрсету:</span> <code>queue.pop(0)</code></li><li><span>Төлемнен кейін себетті тазалау:</span> <code>cart.clear()</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> бірдей элементтердің бәрін бірден жою — <code>remove</code> тек біріншісін жояды.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>a.pop()</code>, <code>a.pop(i)</code>, <code>a.remove(x)</code>, <code>del a[i]</code>, <code>a.clear()</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p><code>pop(i)</code> i индексті элементті жойып, оны қайтарады; аргументсіз соңғысын жояды. <code>remove(x)</code> x-ке тең бірінші элементті жояды.</p>
+      <p><code>pop(i)</code> i индексті элементті жойып, оны қайтарады; аргументсіз соңғысын жояды. <code>remove(x)</code> x-ке тең бірінші элементті жояды. <code>del a[i]</code> i индексті элементті жояды және ештеңе қайтармайды; <code>del</code> — әдіс емес, Python тілінің командасы, сондықтан ол нүктесіз және жақшасыз жазылады. <code>clear()</code> барлық элементті жояды: тізім бос болып қалады.</p>
       <h3>Синтаксис</h3>
-      <p class="syn"><code>тізім.pop(индекс)</code> · <code>тізім.remove(x)</code></p>
+      <p class="syn"><code>тізім.pop(индекс)</code> · <code>тізім.remove(x)</code> · <code>del тізім[индекс]</code> · <code>тізім.clear()</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="del"></div>
       <h3>Білу маңызды</h3>
-      <ul><li><code>pop</code> нөмір бойынша жояды, <code>remove</code> — мән бойынша.</li><li>Элемент жоқ болса, <code>remove</code> мына қатені береді: <code>ValueError</code>. Алдымен тексер: <code>if x in a:</code>.</li><li><code>pop</code> бос тізімнен мына қатені береді: <code>IndexError</code>.</li></ul>
+      <ul><li><code>pop</code> нөмір бойынша жояды, <code>remove</code> — мән бойынша.</li><li><code>pop(i)</code> және <code>del a[i]</code> бір элементті жояды, бірақ <code>pop</code> оны қайтарады, ал <code>del</code> — өткізбейді.</li><li>Элемент жоқ болса, <code>remove</code> мына қатені береді: <code>ValueError</code>. Алдымен тексер: <code>if x in a:</code>.</li><li><code>pop</code> бос тізімнен мына қатені береді: <code>IndexError</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="del"></div></div>
-      <p class="remember"><b>Есте сақта:</b> <code>pop(i)</code> — «i нөмірін алып таста», <code>remove(x)</code> — «x мәнін алып таста».</p>
+      <p class="remember"><b>Есте сақта:</b> <code>pop(i)</code> — «i нөмірін алып таста», <code>remove(x)</code> — «x мәнін алып таста», <code>del a[i]</code> — «i нөмірін алып таста, ол керек емес», <code>clear()</code> — «бәрін алып таста».</p>
     </section>
 
     <!-- sort, reverse -->
     <section class="block fcard" data-card="5" hidden>
-      <p class="fname"><code>sort()</code> және <code>reverse()</code> — рет</p>
-      <p class="simple"><b>Қарапайым тілмен:</b> <code>sort</code> — сыныпты бойы бойынша аласадан биікке қарай тұрғызу. <code>reverse</code> — сапты бойын салыстырмай, кері бұру.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Бағалар өсу ретімен:</span> <code>marks.sort()</code></li><li><span>Рейтинг ең жақсыдан ең нашарға:</span> <code>scores.sort(reverse=True)</code></li><li><span>Жаңа хабарламалар жоғарыда:</span> <code>msgs.reverse()</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> тек ең үлкен санды білу үшін сұрыптау керек емес — мына функция бар: <code>max(a)</code>.</p></div>
-      <p class="how"><span>Қалай жазылады:</span> <code>a.sort()</code>, <code>a.sort(reverse=True)</code>, <code>a.reverse()</code></p>
+      <p class="fname"><code>sort()</code>, <code>reverse()</code> және <code>copy()</code> — рет</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> <code>sort</code> — сыныпты бойы бойынша аласадан биікке қарай тұрғызу. <code>reverse</code> — сапты кері бұру: соңғысы бірінші тұрады, бойы салыстырылмайды. <code>copy</code> — орын ауыстырғанға дейін қалай тұрғанын есте сақтау үшін сапты суретке түсіру.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Бағалар өсу ретімен:</span> <code>marks.sort()</code></li><li><span>Рейтинг ең жақсыдан ең нашарға:</span> <code>scores.sort(reverse=True)</code></li><li><span>Жаңа хабарламалар жоғарыда:</span> <code>msgs.reverse()</code></li><li><span>Сұрыптау, бірақ бастапқы ретті сақтау:</span> <code>b = a.copy()</code>, содан кейін <code>b.sort()</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> тек ең үлкен санды білу үшін сұрыптау керек емес — мына функция бар: <code>max(a)</code>.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>a.sort()</code>, <code>a.sort(reverse=True)</code>, <code>a.reverse()</code>, <code>b = a.copy()</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p><code>sort()</code> тізім элементтерін өсу ретімен реттейді: сандарды — кішісінен үлкеніне, сөздерді — әліпби бойынша. Мына аргументпен <code>reverse=True</code> — кему ретімен. <code>reverse()</code> элементтерді кері ретпен орналастырады.</p>
+      <p><code>sort()</code> тізім элементтерін өсу ретімен реттейді: сандарды — кішісінен үлкеніне, сөздерді — әліпби бойынша. Мына аргументпен <code>reverse=True</code> — кему ретімен. <code>reverse()</code> элементтерді кері ретпен орналастырады. <code>copy()</code> сол элементтері бар жаңа тізім қайтарады: көшірмені өзгерту бастапқы тізімді өзгертпейді.</p>
       <h3>Синтаксис</h3>
-      <p class="syn"><code>тізім.sort()</code> · <code>тізім.reverse()</code></p>
+      <p class="syn"><code>тізім.sort()</code> · <code>тізім.reverse()</code> · <code>тізім.copy()</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="order"></div>
       <h3>Білу маңызды</h3>
-      <ul><li><code>sort</code> тізімнің өзін өзгертеді және мынаны қайтарады: <code>None</code>: <code>b = a.sort()</code> — мұнда <code>b</code> ішіне мынау түседі: <code>None</code>.</li><li><code>reverse</code> сұрыптамайды, тек кері бұрады.</li><li>Python сөздерді әріп кодтары бойынша салыстырады: бас әріптер кіші әріптерден бұрын тұрады, ал қазақ әріптері Ә, Ғ, Қ, Ң, Ө, Ұ, Ү, Һ, І және Ё әрпі Я-дан кейін тұрады.</li><li>Бір тізімдегі сандар мен сөздерді сұрыптауға болмайды — қате <code>TypeError</code>.</li></ul>
+      <ul><li><code>sort</code> тізімнің өзін өзгертеді және мынаны қайтарады: <code>None</code>: <code>b = a.sort()</code> — мұнда <code>b</code> ішіне мынау түседі: <code>None</code>.</li><li><code>reverse</code> сұрыптамайды, тек кері бұрады: <code>[3, 1, 2]</code> → <code>[2, 1, 3]</code>. Кему ретімен мынау сұрыптайды: <code>sort(reverse=True)</code>.</li><li><code>b = a</code> тізімді көшірмейді: бұл сол тізімнің екінші атауы, сондықтан <code>b.sort()</code> мынаны да өзгертеді: <code>a</code>. Көшірме — <code>b = a.copy()</code>.</li><li>Python сөздерді әріп кодтары бойынша салыстырады: бас әріптер кіші әріптерден бұрын тұрады, ал қазақ әріптері Ә, Ғ, Қ, Ң, Ө, Ұ, Ү, Һ, І және Ё әрпі Я-дан кейін тұрады.</li><li>Бір тізімдегі сандар мен сөздерді сұрыптауға болмайды — қате <code>TypeError</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="order"></div></div>
-      <p class="remember"><b>Есте сақта:</b> <code>sort()</code> — рет бойынша, <code>reverse()</code> — кері ретпен. Екеуі де тізімді өзгертеді және ештеңе қайтармайды.</p>
+      <p class="remember"><b>Есте сақта:</b> <code>sort()</code> — өсу ретімен, <code>sort(reverse=True)</code> — кему ретімен, <code>reverse()</code> — кері ретпен. Олар тізімнің өзін өзгертеді; бастапқысын сақтау үшін алдымен мынаны жаса: <code>copy()</code>.</p>
     </section>
 
     <!-- index, count -->
@@ -1384,11 +1389,16 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
           <tr><th>Команда</th><th>Не істейді</th><th>Бастапқыда <code>a = [3, 1, 2]</code>, кейін</th></tr>
           <tr><td><code>a.append(5)</code></td><td>соңына 5 қосады</td><td><code>[3, 1, 2, 5]</code></td></tr>
           <tr><td><code>a.insert(0, 5)</code></td><td>5-ті 0 орнына қояды</td><td><code>[5, 3, 1, 2]</code></td></tr>
+          <tr><td><code>a.extend([7, 8])</code></td><td>барлық элементті соңына қосады</td><td><code>[3, 1, 2, 7, 8]</code></td></tr>
           <tr><td><code>a.pop()</code></td><td>соңғысын жойып, оны қайтарады</td><td><code>[3, 1]</code></td></tr>
           <tr><td><code>a.pop(0)</code></td><td>0 индексті элементті жояды</td><td><code>[1, 2]</code></td></tr>
           <tr><td><code>a.remove(1)</code></td><td>бірінші 1 мәнін жояды</td><td><code>[3, 2]</code></td></tr>
+          <tr><td><code>del a[0]</code></td><td>0 индексті элементті жояды, ештеңе қайтармайды</td><td><code>[1, 2]</code></td></tr>
+          <tr><td><code>a.clear()</code></td><td>барлық элементті жояды</td><td><code>[]</code></td></tr>
           <tr><td><code>a.sort()</code></td><td>өсу ретімен</td><td><code>[1, 2, 3]</code></td></tr>
-          <tr><td><code>a.reverse()</code></td><td>кері ретпен</td><td><code>[2, 1, 3]</code></td></tr>
+          <tr><td><code>a.sort(reverse=True)</code></td><td>кему ретімен</td><td><code>[3, 2, 1]</code></td></tr>
+          <tr><td><code>a.reverse()</code></td><td>кері ретпен, сұрыптаусыз</td><td><code>[2, 1, 3]</code></td></tr>
+          <tr><td><code>b = a.copy()</code></td><td>тізімнің көшірмесі</td><td><code>b</code> = <code>[3, 1, 2]</code>, a өзгермейді</td></tr>
           <tr><td><code>a.index(2)</code></td><td>2 мәнінің индексі</td><td>2, тізім өзгермейді</td></tr>
           <tr><td><code>a.count(3)</code></td><td>3 неше рет кездеседі</td><td>1, тізім өзгермейді</td></tr>
           <tr><td><code>len(a)</code>, <code>sum(a)</code>, <code>max(a)</code>, <code>min(a)</code></td><td>әдістер емес, функциялар: ұзындық, қосынды, ең үлкені, ең кішісі</td><td>3, 6, 3, 1</td></tr>
@@ -1696,29 +1706,44 @@ def _calls(code):
                 names.add(f.id)
     return json.dumps(sorted(names))
 `;
-let pyPromise = null;
+let pyPromise = null, pyLastErr = "";
+/* Сначала копия Pyodide рядом со страницей (в артефакте внешние загрузки, кроме скриптов, запрещены), потом CDN */
+const PY_SOURCES = (() => { const out = []; try { out.push(new URL("pyodide/", document.baseURI).href); } catch (e) {} out.push(PY_URL); return out; })();
 function pyStatus(s) {
   const el = document.getElementById("pyState"); if (!el) return;
   el.hidden = false; el.className = "py-state " + s;
   el.textContent = s === "load" ? "Python загружается…" : s === "ok" ? "Python готов" : "Python не загрузился";
+  el.title = s === "fail" ? pyLastErr : "";
   if (s === "fail") {
     const b = document.createElement("button"); b.type = "button"; b.className = "linkbtn"; b.textContent = "повторить";
     b.addEventListener("click", () => { pyLoad().catch(() => {}); });
     el.append(" · ", b);
   }
 }
+function pyFrom(base) {
+  const go = () => window.loadPyodide({ indexURL: base });
+  if (window.loadPyodide) return go();
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = base + "pyodide.js";
+    s.onload = () => go().then(res, rej);
+    s.onerror = () => { s.remove(); rej(new Error(base + "pyodide.js не загрузился")); };
+    document.head.appendChild(s);
+  });
+}
 function pyLoad() {
   if (pyPromise) return pyPromise;
   pyStatus("load");
-  pyPromise = new Promise((res, rej) => {
-    const go = () => window.loadPyodide({ indexURL: PY_URL }).then(py => { py.runPython(PY_HELPER); res(py); }).catch(rej);
-    if (window.loadPyodide) { go(); return; }
-    const s = document.createElement("script");
-    s.src = PY_URL + "pyodide.js";
-    s.onload = go;
-    s.onerror = () => { s.remove(); rej(new Error("pyodide")); };
-    document.head.appendChild(s);
-  }).then(py => { pyStatus("ok"); return py; }, e => { pyPromise = null; pyStatus("fail"); throw e; });
+  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error("истекло время ожидания (2 мин)")), 120000));
+  pyPromise = Promise.race([(async () => {
+    let err;
+    for (const base of PY_SOURCES) {
+      try { const py = await pyFrom(base); py.runPython(PY_HELPER); return py; } catch (e) { err = e; }
+    }
+    throw err;
+  })(), timeout]).then(py => { pyLastErr = ""; pyStatus("ok"); return py; }, e => {
+    pyPromise = null; pyLastErr = String((e && e.message) || e).slice(0, 200); pyStatus("fail"); throw e;
+  });
   return pyPromise;
 }
 async function pyCall(name, ...args) {
@@ -1730,7 +1755,7 @@ async function pyCall(name, ...args) {
 }
 const pyRun = (code, inputs) => pyCall("_run", code, (inputs || []).map(String));
 const pyCalls = code => pyCall("_calls", code);
-const PY_FAIL = "Python не загрузился: нужен интернет. Нажми «повторить» вверху страницы или обнови страницу.";
+const pyFailText = () => "Python не загрузился: нужен интернет. Нажми «повторить» вверху страницы или обнови страницу." + (pyLastErr ? "\nПричина: " + pyLastErr : "");
 
 /* Ошибки Python простыми словами */
 const PY_ERR = {
@@ -1802,7 +1827,7 @@ function edMount(box, o) {
         const r = await pyRun(ta.value, api.inputs);
         out.textContent = r.shown; er.textContent = r.err ? pyErrText(r.err) : "";
         return r;
-      } catch (e) { er.textContent = PY_FAIL; return null; }
+      } catch (e) { er.textContent = pyFailText(); return null; }
       finally { runBtn.disabled = false; }
     }
   };
@@ -1818,8 +1843,8 @@ function startLesson() {
 const ROWS = ["ОДНОМЕРНЫЙ", "МАССИВ"];
 /* opts: [вариант, буква, пояснение для неверного варианта] — верный вариант в ans */
 const TASKS = [
-  { n: 1, code: "a = [\"К\", \"О\", \"Т\"]\nprint(a[1])", ans: "О",
-    opts: [["К", "К", "Счёт номеров начинается с нуля: «К» — это a[0], а a[1] — следующая буква."], ["О", "О"], ["Т", "Т", "«Т» — это a[2]. Номер 1 — вторая буква."], ["ошибка", "Ж", "Номер 1 есть: в списке три элемента с номерами 0, 1, 2."]] },
+  { n: 1, code: "a = [\"Э\", \"О\", \"У\"]\nprint(a[1])", ans: "О",
+    opts: [["Э", "Э", "Счёт номеров начинается с нуля: «Э» — это a[0], а a[1] — следующая буква."], ["О", "О"], ["У", "У", "«У» — это a[2]. Номер 1 — вторая буква."], ["ошибка", "Ж", "Номер 1 есть: в списке три элемента с номерами 0, 1, 2."]] },
   { n: 2, code: "a = [\"Д\", \"У\", \"Б\"]\nprint(a[0])", ans: "Д",
     opts: [["У", "У", "a[0] — первый элемент, счёт начинается с нуля."], ["Б", "Б", "«Б» — последний элемент, это a[2] или a[-1]."], ["Д", "Д"], ["0", "Ф", "print(a[0]) выводит сам элемент, а не его номер."]] },
   { n: 3, code: "a = [\"С\", \"Ы\", \"Н\"]\nprint(a[-1])", ans: "Н",
@@ -2017,7 +2042,7 @@ function showExp(text) {
 }
 
 /* Карточки нового материала: 0–2 — список, 3–7 — методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["список", "индексы", "перебор и функции", "append, insert", "pop, remove", "sort, reverse", "index, count", "шпаргалка и ошибки"];
+const CARD_NAMES = ["список", "индексы", "перебор и функции", "append, insert, extend", "pop, remove, del, clear", "sort, reverse, copy", "index, count", "шпаргалка и ошибки"];
 const CARD_SETS = { learn: [0, 1, 2], methods: [3, 4, 5, 6, 7] };
 const cardCur = { learn: 0, methods: 3 };
 function showCard(i) {
@@ -2046,9 +2071,9 @@ const EX = {
     { code: "shop = [хлеб, молоко]\nprint(shop)", err: "NameError: name 'хлеб' is not defined", note: "Слово без кавычек Python принимает за имя переменной, а такой переменной нет." }
   ],
   idx: [
-    { code: "a = [\"К\", \"О\", \"Т\", \"И\", \"К\"]\nprint(a[0], a[2])", out: "К Т", note: "a[0] — первый элемент, a[2] — третий." },
-    { code: "a = [\"К\", \"О\", \"Т\", \"И\", \"К\"]\nprint(a[-1], a[-2])", out: "К И", note: "Отрицательные индексы считают с конца." },
-    { code: "a = [\"К\", \"О\", \"Т\", \"И\", \"К\"]\nprint(a[len(a) - 1])", out: "К", note: "Последний индекс — len(a) − 1, то есть 4." },
+    { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[0], a[2])", out: "Пн Ср", note: "a[0] — первый элемент, a[2] — третий." },
+    { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[-1], a[-2])", out: "Пт Чт", note: "Отрицательные индексы считают с конца." },
+    { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[len(a) - 1])", out: "Пт", note: "Последний индекс — len(a) − 1, то есть 4." },
     { code: "a = [3, 8, 1]\na[1] = a[1] + 2\nprint(a)", out: "[3, 10, 1]", note: "Элемент можно взять, изменить и записать обратно." },
     { code: "a = [3, 8, 1]\nprint(a[3])", err: "IndexError: list index out of range", note: "В списке из трёх элементов индексы только 0, 1, 2." }
   ],
@@ -2064,12 +2089,16 @@ const EX = {
     { code: "a = [3, 1, 2]\na.insert(0, 5)\nprint(a)", out: "[5, 3, 1, 2]", note: "insert(0, 5) — пятёрка встала на место 0, остальные сдвинулись." },
     { code: "a = [3, 1, 2]\na.insert(1, 9)\nprint(a)", out: "[3, 9, 1, 2]", note: "Вставка в середину: на место с индексом 1." },
     { code: "marks = []\nfor i in range(3):\n    marks.append(int(input()))\nprint(marks)", inputs: ["5", "4", "5"], out: "5\n4\n5\n[5, 4, 5]", note: "Ввод списка: пустой список, цикл и append. Ввели 5, 4, 5." },
+    { code: "a = [3, 1]\na.extend([7, 8])\nprint(a)", out: "[3, 1, 7, 8]", note: "extend добавил в конец оба элемента." },
+    { code: "a = [3, 1]\na.append([7, 8])\nprint(a, len(a))", out: "[3, 1, [7, 8]] 3", note: "append добавил один элемент — список [7, 8] целиком." },
     { code: "a = [3, 1]\na = a.append(5)\nprint(a)", out: "None", note: "Логическая ошибка: append меняет список сам и возвращает None — его и записали в a." }
   ],
   del: [
     { code: "a = [3, 1, 2]\nx = a.pop()\nprint(x, a)", out: "2 [3, 1]", note: "pop() убрал последний элемент и вернул его в x." },
     { code: "q = [\"Айдана\", \"Тимур\", \"Дана\"]\nq.pop(0)\nprint(q)", out: "['Тимур', 'Дана']", note: "pop(0) — первый в очереди обслужен и ушёл." },
     { code: "a = [5, 3, 5]\na.remove(5)\nprint(a)", out: "[3, 5]", note: "remove удаляет только первую пятёрку." },
+    { code: "a = [3, 1, 2]\ndel a[0]\nprint(a)", out: "[1, 2]", note: "del удалил элемент с индексом 0 и ничего не вернул." },
+    { code: "cart = [\"хлеб\", \"сыр\"]\ncart.clear()\nprint(cart, len(cart))", out: "[] 0", note: "clear() очистил список полностью." },
     { code: "shop = [\"хлеб\", \"сыр\"]\nshop.remove(\"чай\")", err: "ValueError: list.remove(x): x not in list", note: "Чая в списке нет — удалять нечего." },
     { code: "shop = [\"хлеб\", \"сыр\"]\nif \"чай\" in shop:\n    shop.remove(\"чай\")\nprint(shop)", out: "['хлеб', 'сыр']", note: "С проверкой in ошибки нет." }
   ],
@@ -2078,6 +2107,8 @@ const EX = {
     { code: "a = [3, 1, 2]\na.sort(reverse=True)\nprint(a)", out: "[3, 2, 1]", note: "По убыванию." },
     { code: "a = [3, 1, 2]\na.reverse()\nprint(a)", out: "[2, 1, 3]", note: "reverse не сортирует, а переворачивает." },
     { code: "w = [\"сыр\", \"арбуз\", \"мёд\"]\nw.sort()\nprint(w)", out: "['арбуз', 'мёд', 'сыр']", note: "Слова — по алфавиту." },
+    { code: "a = [3, 1, 2]\nb = a.copy()\nb.sort()\nprint(a, b)", out: "[3, 1, 2] [1, 2, 3]", note: "Отсортирована копия, исходный список не изменился." },
+    { code: "a = [3, 1, 2]\nb = a\nb.sort()\nprint(a)", out: "[1, 2, 3]", note: "b = a — не копия, а второе имя: отсортировался и a." },
     { code: "a = [3, 1, 2]\nb = a.sort()\nprint(b)", out: "None", note: "sort ничего не возвращает: в b попал None. Отсортирован сам список a." }
   ],
   find: [
@@ -2091,7 +2122,7 @@ const EX = {
 /* Начальный код редакторов «Попробуй сам» */
 const ED_START = {
   list: "a = [3, 8, 1]\nprint(a)\nprint(len(a))",
-  idx: "a = [\"К\", \"О\", \"Т\", \"И\", \"К\"]\nprint(a[1])\nprint(a[-1])",
+  idx: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[1])\nprint(a[-1])",
   loop: "marks = [5, 4, 5, 3]\nfor x in marks:\n    print(x)\nprint(\"Средний балл:\", sum(marks) / len(marks))",
   add: "shop = [\"хлеб\", \"молоко\"]\nshop.append(\"сыр\")\nshop.insert(0, \"яблоки\")\nprint(shop)",
   del: "a = [3, 1, 2, 5]\nx = a.pop()\nprint(x, a)\na.remove(1)\nprint(a)",
@@ -2183,7 +2214,7 @@ async function codeCheck(t, code) {
     const calls = await pyCalls(code), miss = (t.must || []).filter(m => !calls.includes(m));
     if (miss.length) return { ok: false, msg: `Вывод верный, но задание проверяет ${miss.length > 1 ? "методы" : "метод"} ${miss.map(m => m + "()").join(", ")}: используй ${miss.length > 1 ? "их" : "его"}.` };
     return { ok: true };
-  } catch (e) { return { ok: false, msg: PY_FAIL }; }
+  } catch (e) { return { ok: false, msg: pyFailText() }; }
 }
 
 /* Практика: разминка и задания трёх уровней */
@@ -2349,7 +2380,7 @@ function taskCard(t, cfg) {
         if (saved && saved.a != null) inp.value = saved.a;
         card.querySelector(".tc-run").addEventListener("click", async () => {
           const out = card.querySelector(".tc-out"); out.hidden = false; out.textContent = "Выполняется…";
-          try { const r = await pyRun(t.code, []); out.textContent = r.shown + (r.err ? "\n" + pyErrText(r.err) : ""); } catch (e) { out.textContent = PY_FAIL; }
+          try { const r = await pyRun(t.code, []); out.textContent = r.shown + (r.err ? "\n" + pyErrText(r.err) : ""); } catch (e) { out.textContent = pyFailText(); }
         });
       } else {
         const t0 = (t.tests || [{}])[0];
@@ -2486,7 +2517,7 @@ const MT_WHAT = {
   pop: "pop удаляет элемент по номеру, без номера — последний.",
   remove: "remove удаляет элемент по значению — по названию.",
   sort: "sort расставляет элементы по порядку и меняет весь список.",
-  reverse: "reverse переворачивает список задом наперёд, ничего не сравнивая.",
+  reverse: "reverse ставит элементы в обратном порядке, ничего не сравнивая.",
   index: "index отвечает, на каком месте стоит элемент.",
   count: "count считает, сколько раз элемент встречается.",
   len: "len — функция: количество элементов в списке.",
@@ -2567,7 +2598,7 @@ const AC_CASES = [
   { q: "Ввели 5 и ещё раз 5. Что выведет программа?", code: "a = input()\nb = input()\nprint(a + b)", opts: ["55", "10", "5 5", "ошибку"], a: "55", why: "input() возвращает текст, а текст при сложении склеивается." },
   { q: "Как прочитать с клавиатуры целое число?", opts: ["int(input())", "input(int())", "str(input())", "input()"], a: "int(input())", why: "Сначала input() читает текст, потом int() превращает его в число." },
   { q: "Что выведет программа?", code: "print(len(\"массив\"))", opts: ["6", "5", "7", "1"], a: "6", why: "len считает символы: м-а-с-с-и-в — шесть. Для списка len считает элементы." },
-  { q: "Что выведет программа?", code: "s = \"кот\"\nprint(s[0])", opts: ["к", "о", "т", "кот"], a: "к", why: "Символы строки нумеруются с нуля. Так же нумеруются и элементы списка." },
+  { q: "Что выведет программа?", code: "s = \"Python\"\nprint(s[0])", opts: ["P", "y", "n", "Python"], a: "P", why: "Символы строки нумеруются с нуля. Так же нумеруются и элементы списка." },
   { q: "Что выведет программа?", code: "x = 3\nprint(x * 2 + 1)", opts: ["7", "9", "6", "x * 2 + 1"], a: "7", why: "Сначала умножение: 3 · 2 = 6, потом + 1 = 7." }
 ];
 /* Повторение прошлого урока: циклы */
@@ -3085,29 +3116,44 @@ def _calls(code):
                 names.add(f.id)
     return json.dumps(sorted(names))
 `;
-let pyPromise = null;
+let pyPromise = null, pyLastErr = "";
+/* Сначала копия Pyodide рядом со страницей (в артефакте внешние загрузки, кроме скриптов, запрещены), потом CDN */
+const PY_SOURCES = (() => { const out = []; try { out.push(new URL("pyodide/", document.baseURI).href); } catch (e) {} out.push(PY_URL); return out; })();
 function pyStatus(s) {
   const el = document.getElementById("pyState"); if (!el) return;
   el.hidden = false; el.className = "py-state " + s;
   el.textContent = s === "load" ? "Python жүктелуде…" : s === "ok" ? "Python дайын" : "Python жүктелмеді";
+  el.title = s === "fail" ? pyLastErr : "";
   if (s === "fail") {
     const b = document.createElement("button"); b.type = "button"; b.className = "linkbtn"; b.textContent = "қайталау";
     b.addEventListener("click", () => { pyLoad().catch(() => {}); });
     el.append(" · ", b);
   }
 }
+function pyFrom(base) {
+  const go = () => window.loadPyodide({ indexURL: base });
+  if (window.loadPyodide) return go();
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = base + "pyodide.js";
+    s.onload = () => go().then(res, rej);
+    s.onerror = () => { s.remove(); rej(new Error(base + "pyodide.js жүктелмеді")); };
+    document.head.appendChild(s);
+  });
+}
 function pyLoad() {
   if (pyPromise) return pyPromise;
   pyStatus("load");
-  pyPromise = new Promise((res, rej) => {
-    const go = () => window.loadPyodide({ indexURL: PY_URL }).then(py => { py.runPython(PY_HELPER); res(py); }).catch(rej);
-    if (window.loadPyodide) { go(); return; }
-    const s = document.createElement("script");
-    s.src = PY_URL + "pyodide.js";
-    s.onload = go;
-    s.onerror = () => { s.remove(); rej(new Error("pyodide")); };
-    document.head.appendChild(s);
-  }).then(py => { pyStatus("ok"); return py; }, e => { pyPromise = null; pyStatus("fail"); throw e; });
+  const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error("күту уақыты өтті (2 мин)")), 120000));
+  pyPromise = Promise.race([(async () => {
+    let err;
+    for (const base of PY_SOURCES) {
+      try { const py = await pyFrom(base); py.runPython(PY_HELPER); return py; } catch (e) { err = e; }
+    }
+    throw err;
+  })(), timeout]).then(py => { pyLastErr = ""; pyStatus("ok"); return py; }, e => {
+    pyPromise = null; pyLastErr = String((e && e.message) || e).slice(0, 200); pyStatus("fail"); throw e;
+  });
   return pyPromise;
 }
 async function pyCall(name, ...args) {
@@ -3119,7 +3165,7 @@ async function pyCall(name, ...args) {
 }
 const pyRun = (code, inputs) => pyCall("_run", code, (inputs || []).map(String));
 const pyCalls = code => pyCall("_calls", code);
-const PY_FAIL = "Python жүктелмеді: интернет керек. Беттің жоғарғы жағындағы «қайталау» батырмасын бас немесе бетті жаңарт.";
+const pyFailText = () => "Python жүктелмеді: интернет керек. Беттің жоғарғы жағындағы «қайталау» батырмасын бас немесе бетті жаңарт." + (pyLastErr ? "\nСебебі: " + pyLastErr : "");
 
 /* Ошибки Python простыми словами */
 const PY_ERR = {
@@ -3191,7 +3237,7 @@ function edMount(box, o) {
         const r = await pyRun(ta.value, api.inputs);
         out.textContent = r.shown; er.textContent = r.err ? pyErrText(r.err) : "";
         return r;
-      } catch (e) { er.textContent = PY_FAIL; return null; }
+      } catch (e) { er.textContent = pyFailText(); return null; }
       finally { runBtn.disabled = false; }
     }
   };
@@ -3406,7 +3452,7 @@ function showExp(text) {
 }
 
 /* Карточки нового материала: 0–2 — список, 3–7 — методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["тізім", "индекстер", "аралау және функциялар", "append, insert", "pop, remove", "sort, reverse", "index, count", "анықтамалық және қателер"];
+const CARD_NAMES = ["тізім", "индекстер", "аралау және функциялар", "append, insert, extend", "pop, remove, del, clear", "sort, reverse, copy", "index, count", "анықтамалық және қателер"];
 const CARD_SETS = { learn: [0, 1, 2], methods: [3, 4, 5, 6, 7] };
 const cardCur = { learn: 0, methods: 3 };
 function showCard(i) {
@@ -3435,9 +3481,9 @@ const EX = {
     { code: "shop = [нан, сүт]\nprint(shop)", err: "NameError: name 'нан' is not defined", note: "Тырнақшасыз сөзді Python айнымалының атауы деп қабылдайды, ал мұндай айнымалы жоқ." }
   ],
   idx: [
-    { code: "a = [\"К\", \"О\", \"Т\", \"И\", \"К\"]\nprint(a[0], a[2])", out: "К Т", note: "a[0] — бірінші элемент, a[2] — үшінші." },
-    { code: "a = [\"К\", \"О\", \"Т\", \"И\", \"К\"]\nprint(a[-1], a[-2])", out: "К И", note: "Теріс индекстер соңынан санайды." },
-    { code: "a = [\"К\", \"О\", \"Т\", \"И\", \"К\"]\nprint(a[len(a) - 1])", out: "К", note: "Соңғы индекс — len(a) − 1, яғни 4." },
+    { code: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[0], a[2])", out: "Дс Ср", note: "a[0] — бірінші элемент, a[2] — үшінші." },
+    { code: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[-1], a[-2])", out: "Жм Бс", note: "Теріс индекстер соңынан санайды." },
+    { code: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[len(a) - 1])", out: "Жм", note: "Соңғы индекс — len(a) − 1, яғни 4." },
     { code: "a = [3, 8, 1]\na[1] = a[1] + 2\nprint(a)", out: "[3, 10, 1]", note: "Элементті алып, өзгертіп, қайта жазуға болады." },
     { code: "a = [3, 8, 1]\nprint(a[3])", err: "IndexError: list index out of range", note: "Үш элементтен тұратын тізімде индекстер тек 0, 1, 2." }
   ],
@@ -3453,12 +3499,16 @@ const EX = {
     { code: "a = [3, 1, 2]\na.insert(0, 5)\nprint(a)", out: "[5, 3, 1, 2]", note: "insert(0, 5) — бестік 0 орнына тұрды, қалғандары жылжыды." },
     { code: "a = [3, 1, 2]\na.insert(1, 9)\nprint(a)", out: "[3, 9, 1, 2]", note: "Ортасына қою: 1 индексті орынға." },
     { code: "marks = []\nfor i in range(3):\n    marks.append(int(input()))\nprint(marks)", inputs: ["5", "4", "5"], out: "5\n4\n5\n[5, 4, 5]", note: "Тізімді енгізу: бос тізім, цикл және append. 5, 4, 5 енгізілді." },
+    { code: "a = [3, 1]\na.extend([7, 8])\nprint(a)", out: "[3, 1, 7, 8]", note: "extend екі элементті де соңына қосты." },
+    { code: "a = [3, 1]\na.append([7, 8])\nprint(a, len(a))", out: "[3, 1, [7, 8]] 3", note: "append бір элемент қосты — [7, 8] тізімін толығымен." },
     { code: "a = [3, 1]\na = a.append(5)\nprint(a)", out: "None", note: "Логикалық қате: append тізімнің өзін өзгертеді және None қайтарады — a-ға соны жазып қойдық." }
   ],
   del: [
     { code: "a = [3, 1, 2]\nx = a.pop()\nprint(x, a)", out: "2 [3, 1]", note: "pop() соңғы элементті алып тастап, оны x-ке қайтарды." },
     { code: "q = [\"Айдана\", \"Тимур\", \"Дана\"]\nq.pop(0)\nprint(q)", out: "['Тимур', 'Дана']", note: "pop(0) — кезектегі біріншіге қызмет көрсетілді, ол кетті." },
     { code: "a = [5, 3, 5]\na.remove(5)\nprint(a)", out: "[3, 5]", note: "remove тек бірінші бестікті жояды." },
+    { code: "a = [3, 1, 2]\ndel a[0]\nprint(a)", out: "[1, 2]", note: "del 0 индексті элементті жойды және ештеңе қайтармады." },
+    { code: "cart = [\"нан\", \"ірімшік\"]\ncart.clear()\nprint(cart, len(cart))", out: "[] 0", note: "clear() тізімді толық тазалады." },
     { code: "shop = [\"нан\", \"ірімшік\"]\nshop.remove(\"шай\")", err: "ValueError: list.remove(x): x not in list", note: "Тізімде шай жоқ — жоятын ештеңе жоқ." },
     { code: "shop = [\"нан\", \"ірімшік\"]\nif \"шай\" in shop:\n    shop.remove(\"шай\")\nprint(shop)", out: "['нан', 'ірімшік']", note: "in арқылы тексерсе, қате болмайды." }
   ],
@@ -3467,6 +3517,8 @@ const EX = {
     { code: "a = [3, 1, 2]\na.sort(reverse=True)\nprint(a)", out: "[3, 2, 1]", note: "Кему ретімен." },
     { code: "a = [3, 1, 2]\na.reverse()\nprint(a)", out: "[2, 1, 3]", note: "reverse сұрыптамайды, кері бұрады." },
     { code: "w = [\"ірімшік\", \"қарбыз\", \"бал\"]\nw.sort()\nprint(w)", out: "['бал', 'ірімшік', 'қарбыз']", note: "Сөздер әріп кодтары бойынша реттелді: қазақ әріптері І мен Қ — Я-дан кейін, сондықтан «қарбыз» соңында." },
+    { code: "a = [3, 1, 2]\nb = a.copy()\nb.sort()\nprint(a, b)", out: "[3, 1, 2] [1, 2, 3]", note: "Көшірме сұрыпталды, бастапқы тізім өзгермеді." },
+    { code: "a = [3, 1, 2]\nb = a\nb.sort()\nprint(a)", out: "[1, 2, 3]", note: "b = a — көшірме емес, екінші атау: a да сұрыпталды." },
     { code: "a = [3, 1, 2]\nb = a.sort()\nprint(b)", out: "None", note: "sort ештеңе қайтармайды: b-ға None түсті. a тізімінің өзі сұрыпталды." }
   ],
   find: [
@@ -3480,7 +3532,7 @@ const EX = {
 /* Начальный код редакторов «Попробуй сам» */
 const ED_START = {
   list: "a = [3, 8, 1]\nprint(a)\nprint(len(a))",
-  idx: "a = [\"К\", \"О\", \"Т\", \"И\", \"К\"]\nprint(a[1])\nprint(a[-1])",
+  idx: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[1])\nprint(a[-1])",
   loop: "marks = [5, 4, 5, 3]\nfor x in marks:\n    print(x)\nprint(\"Орташа балл:\", sum(marks) / len(marks))",
   add: "shop = [\"нан\", \"сүт\"]\nshop.append(\"ірімшік\")\nshop.insert(0, \"алма\")\nprint(shop)",
   del: "a = [3, 1, 2, 5]\nx = a.pop()\nprint(x, a)\na.remove(1)\nprint(a)",
@@ -3572,7 +3624,7 @@ async function codeCheck(t, code) {
     const calls = await pyCalls(code), miss = (t.must || []).filter(m => !calls.includes(m));
     if (miss.length) return { ok: false, msg: `Шығарылғаны дұрыс, бірақ тапсырма ${miss.map(m => m + "()").join(", ")} ${miss.length > 1 ? "әдістерін" : "әдісін"} тексереді: ${miss.length > 1 ? "оларды" : "оны"} қолдан.` };
     return { ok: true };
-  } catch (e) { return { ok: false, msg: PY_FAIL }; }
+  } catch (e) { return { ok: false, msg: pyFailText() }; }
 }
 
 /* Практика: разминка и задания трёх уровней */
@@ -3738,7 +3790,7 @@ function taskCard(t, cfg) {
         if (saved && saved.a != null) inp.value = saved.a;
         card.querySelector(".tc-run").addEventListener("click", async () => {
           const out = card.querySelector(".tc-out"); out.hidden = false; out.textContent = "Орындалуда…";
-          try { const r = await pyRun(t.code, []); out.textContent = r.shown + (r.err ? "\n" + pyErrText(r.err) : ""); } catch (e) { out.textContent = PY_FAIL; }
+          try { const r = await pyRun(t.code, []); out.textContent = r.shown + (r.err ? "\n" + pyErrText(r.err) : ""); } catch (e) { out.textContent = pyFailText(); }
         });
       } else {
         const t0 = (t.tests || [{}])[0];
@@ -3875,7 +3927,7 @@ const MT_WHAT = {
   pop: "pop элементті нөмірі бойынша жояды, нөмірсіз — соңғысын.",
   remove: "remove элементті мәні — атауы бойынша жояды.",
   sort: "sort элементтерді рет бойынша орналастырады және бүкіл тізімді өзгертеді.",
-  reverse: "reverse тізімді ештеңені салыстырмай кері бұрады.",
+  reverse: "reverse элементтерді ештеңені салыстырмай кері ретпен қояды.",
   index: "index элементтің қай орында тұрғанын айтады.",
   count: "count элементтің неше рет кездесетінін санайды.",
   len: "len — функция: тізімдегі элементтер саны.",
@@ -3956,7 +4008,7 @@ const AC_CASES = [
   { q: "5, содан кейін тағы 5 енгізілді. Бағдарлама не шығарады?", code: "a = input()\nb = input()\nprint(a + b)", opts: ["55", "10", "5 5", "қате"], a: "55", why: "input() мәтін қайтарады, ал мәтіндер қосқанда жалғасып кетеді." },
   { q: "Пернетақтадан бүтін санды қалай оқимыз?", opts: ["int(input())", "input(int())", "str(input())", "input()"], a: "int(input())", why: "Алдымен input() мәтінді оқиды, содан кейін int() оны санға айналдырады." },
   { q: "Бағдарлама не шығарады?", code: "print(len(\"массив\"))", opts: ["6", "5", "7", "1"], a: "6", why: "len символдарды санайды: м-а-с-с-и-в — алты. Тізім үшін len элементтерді санайды." },
-  { q: "Бағдарлама не шығарады?", code: "s = \"көл\"\nprint(s[0])", opts: ["к", "ө", "л", "көл"], a: "к", why: "Жолдың символдары нөлден бастап нөмірленеді. Тізім элементтері де солай нөмірленеді." },
+  { q: "Бағдарлама не шығарады?", code: "s = \"Python\"\nprint(s[0])", opts: ["P", "y", "n", "Python"], a: "P", why: "Жолдың символдары нөлден бастап нөмірленеді. Тізім элементтері де солай нөмірленеді." },
   { q: "Бағдарлама не шығарады?", code: "x = 3\nprint(x * 2 + 1)", opts: ["7", "9", "6", "x * 2 + 1"], a: "7", why: "Алдымен көбейту: 3 · 2 = 6, содан кейін + 1 = 7." }
 ];
 /* Повторение прошлого урока: циклы */
