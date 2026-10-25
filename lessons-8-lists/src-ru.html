@@ -1735,7 +1735,7 @@ function taskCard(t, cfg) {
       <p class="tc-q">${t.q}</p>
       ${t.plan ? `<ol class="plan">${t.plan.map(s => `<li>${s}</li>`).join("")}</ol>` : ""}
       ${isPred ? `<pre class="code-view"></pre>
-      <div class="pred"><label for="${cfg.idp}-in-${t.id}">Мой ответ — что появится на экране</label><textarea class="pred-in" id="${cfg.idp}-in-${t.id}" rows="1" spellcheck="false" autocomplete="off"></textarea></div>`
+      <div class="pred"><label for="${cfg.idp}-in-${t.id}">Мой ответ — что появится на экране</label><textarea class="pred-in" id="${cfg.idp}-in-${t.id}" rows="1" spellcheck="false" autocomplete="off" placeholder="Точно как на экране: список — в квадратных скобках"></textarea></div>`
       : `<div class="pyed"></div>${t.kind === "write" || t.sampleShow ? `<div class="sample-box"><p class="small">Пример: при таких данных программа должна вывести</p><div class="sample"><pre class="s-in"></pre><pre class="s-out"></pre></div></div>` : ""}`}
       <div class="tc-actions">
         <button type="button" class="btn main tc-check">Проверить</button>
@@ -1787,7 +1787,10 @@ function taskCard(t, cfg) {
           answer = inp.value;
           if (!answer.trim()) { msg.className = "tc-msg bad"; msg.textContent = "Впиши ответ."; return; }
           const n = predNorm(answer);
-          r = n === predNorm(t.ans) ? { ok: true } : { ok: false, msg: (t.traps && t.traps[n] ? t.traps[n] + " " : "Неверно. ") + "Выполни программу по строкам и записывай, каким становится список после каждой строки." };
+          const want = predNorm(t.ans), noBr = x => x.replace(/[\[\]]/g, "");
+          r = n === want ? { ok: true }
+            : /\[/.test(want) && noBr(n) === noBr(want) ? { ok: false, msg: "Почти! Элементы и их порядок верные. Но print выводит список целиком — в квадратных скобках. Допиши скобки [ ]." }
+            : { ok: false, msg: (t.traps && t.traps[n] ? t.traps[n] + " " : "Неверно. ") + "Выполни программу по строкам и записывай, каким становится список после каждой строки." };
         } else {
           answer = ed.code;
           btn.disabled = true; msg.className = "tc-msg"; msg.textContent = "Проверяю программу…";
