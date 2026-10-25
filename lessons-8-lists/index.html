@@ -390,6 +390,14 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
 .top .who { flex-direction: row; font-weight: 400; }
 .tools { align-items: center; }
 .syn code { white-space: normal; overflow-wrap: anywhere; }
+.theory-fab { position: fixed; z-index: 40; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--c); color: #fff; border-color: var(--c); font-weight: 700; box-shadow: 0 6px 20px rgba(0, 0, 0, .2); }
+.th-card { max-width: 900px; max-height: 88vh; overflow-y: auto; align-content: start; }
+.th-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; position: sticky; top: -24px; background: var(--surface); padding: 6px 0; z-index: 1; }
+.th-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.th-item { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.th-item p { margin: 0; }
+.th-item .fname { font-size: 1rem; }
+.th-item .th-more { justify-self: start; }
 
 .lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
 .lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
@@ -545,7 +553,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <section class="block">
       <h2>Ожидаемые результаты · к концу урока я смогу</h2>
       <div class="res"><div class="who">Все учащиеся<span class="bar"><i style="width:100%"></i></span></div><p>создать список, взять элемент по индексу и применить методы <code>append()</code>, <code>pop()</code>, <code>sort()</code>.</p></div>
-      <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>применять методы <code>insert()</code>, <code>remove()</code>, <code>reverse()</code>, <code>index()</code>, <code>count()</code> и находить ошибки <code>IndexError</code> и <code>ValueError</code>.</p></div>
+      <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>применять методы <code>insert()</code>, <code>remove()</code>, <code>reverse()</code>, <code>index()</code>, <code>count()</code>, <code>extend()</code>, <code>copy()</code>, команду <code>del</code> и находить ошибки <code>IndexError</code> и <code>ValueError</code>.</p></div>
       <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>составить программу, которая читает данные в список и обрабатывает их циклом, методами и функциями <code>len()</code>, <code>sum()</code>, <code>max()</code>, <code>min()</code>.</p></div>
     </section>
     <section class="block">
@@ -990,6 +998,13 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <button type="button" class="btn main" id="qSend">Отправить ответ</button>
   </div>
 </div>
+<button type="button" class="btn theory-fab" id="thBtn" hidden>Теория</button>
+<div class="overlay" id="thOv" hidden>
+  <div class="lg-card th-card" role="dialog" aria-modal="true" aria-labelledby="thTitle">
+    <div class="th-top"><p class="eyebrow" id="thTitle">Теория · списки и методы</p><button type="button" class="btn" id="thClose">Закрыть</button></div>
+    <div id="thBody"></div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status" hidden></div>
 
 </template>
@@ -1140,7 +1155,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <section class="block">
       <h2>Күтілетін нәтижелер · сабақтың соңында мен</h2>
       <div class="res"><div class="who">Барлық оқушылар<span class="bar"><i style="width:100%"></i></span></div><p>тізім құру, элементті индексі бойынша алу және мына әдістерді қолдану: <code>append()</code>, <code>pop()</code>, <code>sort()</code>.</p></div>
-      <div class="res"><div class="who">Оқушылардың көпшілігі<span class="bar"><i style="width:70%"></i></span></div><p>мына әдістерді қолдану: <code>insert()</code>, <code>remove()</code>, <code>reverse()</code>, <code>index()</code>, <code>count()</code> және мына қателерді табу: <code>IndexError</code> және <code>ValueError</code>.</p></div>
+      <div class="res"><div class="who">Оқушылардың көпшілігі<span class="bar"><i style="width:70%"></i></span></div><p>мына әдістерді қолдану: <code>insert()</code>, <code>remove()</code>, <code>reverse()</code>, <code>index()</code>, <code>count()</code>, <code>extend()</code>, <code>copy()</code>, мына команданы: <code>del</code> және мына қателерді табу: <code>IndexError</code> және <code>ValueError</code>.</p></div>
       <div class="res"><div class="who">Кейбір оқушылар<span class="bar"><i style="width:35%"></i></span></div><p>деректерді тізімге оқып, оларды цикл, әдістер және мына функциялар арқылы өңдейтін бағдарлама құру: <code>len()</code>, <code>sum()</code>, <code>max()</code>, <code>min()</code>.</p></div>
     </section>
     <section class="block">
@@ -1585,6 +1600,13 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <button type="button" class="btn main" id="qSend">Жауапты жіберу</button>
   </div>
 </div>
+<button type="button" class="btn theory-fab" id="thBtn" hidden>Теория</button>
+<div class="overlay" id="thOv" hidden>
+  <div class="lg-card th-card" role="dialog" aria-modal="true" aria-labelledby="thTitle">
+    <div class="th-top"><p class="eyebrow" id="thTitle">Теория · тізімдер мен әдістер</p><button type="button" class="btn" id="thClose">Жабу</button></div>
+    <div id="thBody"></div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status" hidden></div>
 
 </template>
@@ -1857,16 +1879,16 @@ const TASKS = [
     opts: [["Л", "Л", "len(a) − 2 = 3 − 2 = 1, а не 0."], ["Е", "Е"], ["С", "С", "len(a) = 3, значит, нужен a[3 − 2], то есть a[1]."], ["ошибка", "Ю", "len(a) − 2 = 1 — такой номер есть."]] },
   { n: 6, code: "a = [\"Ы\", \"Б\", \"А\"]\na.insert(0, \"Р\")  # вставить на место 0\nprint(a[0])", ans: "Р",
     opts: [["Ы", "Ы", "insert(0, …) ставит новый элемент на место 0, а «Ы» сдвигается вправо."], ["А", "А", "«А» в конце списка, а нужен a[0]."], ["Р", "Р"], ["0", "Ц", "print(a[0]) выводит элемент, а не номер."]] },
-  { n: 7, code: "a = [\"М\", \"Ы\", \"Ш\", \"Ь\"]\na.pop()  # убрать последний\nprint(a[-2])", ans: "Ы",
-    opts: [["Ш", "Ш", "После pop() «Ь» исчез: последний теперь «Ш», а a[-2] — предпоследний."], ["Ы", "Ы"], ["Ь", "Ь", "pop() убрал «Ь» из списка."], ["М", "М", "a[-2] — второй с конца, а «М» — первый."]] },
+  { n: 7, code: "a = [\"Ж\", \"Ы\", \"Р\", \"Ф\"]\na.pop()  # убрать последний\nprint(a[-2])", ans: "Ы",
+    opts: [["Р", "Р", "После pop() «Ф» исчез: последний теперь «Р», а a[-2] — предпоследний."], ["Ы", "Ы"], ["Ф", "Ф", "pop() убрал «Ф» из списка."], ["Ж", "Ж", "a[-2] — второй с конца, а «Ж» — первый."]] },
   { n: 8, code: "a = [\"Й\", \"О\", \"Г\"]\na.reverse()  # перевернуть\nprint(a[2])", ans: "Й",
     opts: [["Г", "Г", "После переворота «Г» стоит первым — это a[0]."], ["О", "О", "«О» осталась в середине — это a[1]."], ["Й", "Й"], ["ошибка", "Я", "В списке три элемента, номер 2 есть."]] },
   { n: 9, code: "a = [\"Б\", \"А\", \"Л\"]\na.remove(\"Б\")  # убрать букву «Б»\nprint(a[0])", ans: "А",
     opts: [["Б", "Б", "remove(\"Б\") удалил «Б» из списка."], ["А", "А"], ["Л", "Л", "После удаления «Б» остались «А» и «Л»: a[0] — «А»."], ["ошибка", "Э", "«Б» есть в списке, поэтому remove сработал без ошибки."]] },
   { n: 10, code: "a = [\"Т\", \"С\", \"У\"]\na.sort()  # по алфавиту\nprint(a[0])", ans: "С",
     opts: [["Т", "Т", "sort() расставил буквы по алфавиту: С, Т, У."], ["У", "У", "По алфавиту «У» — последняя."], ["С", "С"], ["ошибка", "Х", "Буквы можно сортировать: по алфавиту."]] },
-  { n: 11, code: "a = [\"Л\", \"И\", \"С\", \"А\"]\nb = a.pop(1)  # убрать a[1]\nprint(b)", ans: "И",
-    opts: [["Л", "Л", "pop(1) убирает элемент с номером 1 — второй по счёту."], ["И", "И"], ["С", "С", "Номер 1 — это «И»: счёт с нуля."], ["список", "Ч", "В b попадает убранный элемент, а не весь список."]] },
+  { n: 11, code: "a = [\"П\", \"И\", \"Т\", \"У\"]\nb = a.pop(1)  # убрать a[1]\nprint(b)", ans: "И",
+    opts: [["П", "П", "pop(1) убирает элемент с номером 1 — второй по счёту."], ["И", "И"], ["Т", "Т", "Номер 1 — это «И»: счёт с нуля."], ["список", "Ч", "В b попадает убранный элемент, а не весь список."]] },
   { n: 12, code: "a = [\"В\", \"А\", \"В\", \"А\"]\nn = a.count(\"В\")  # сколько раз «В»\nprint(a[n])", ans: "В",
     opts: [["2", "П", "print(a[n]) выводит элемент с номером n, а не само число n."], ["А", "А", "count(\"В\") = 2, а a[2] — третий элемент: «В»."], ["В", "В"], ["ошибка", "З", "Номер 2 есть: элементы 0, 1, 2, 3."]] }
 ];
@@ -2002,6 +2024,7 @@ function show(id) {
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
   if (["learn", "methods", "practice", "project", "hw"].includes(id)) pyLoad().catch(() => {});
+  const th = document.getElementById("thBtn"); if (th) th.hidden = !["match", "practice", "project", "hw"].includes(id);
   if (id === "practice" || id === "project" || id === "hw") samplesFill();
 }
 document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => { if (!b.disabled) show(b.getAttribute("aria-controls")); }));
@@ -2225,7 +2248,7 @@ const KIND = { predict: "Что выведет программа?", fill: "До
 const LEVELS_PR = {
   "0": { name: "0 · Индексы", desc: "Взять элемент по номеру, с конца и узнать длину списка." },
   A: { name: "A · Базовый", desc: "Методы append(), pop(), sort(): предскажи результат, допиши и напиши программу." },
-  B: { name: "B · Средний", desc: "Методы insert(), remove(), reverse(), index(), count() и поиск ошибки." },
+  B: { name: "B · Средний", desc: "Методы insert(), remove(), reverse(), index(), count(), extend(), copy(), команда del и поиск ошибки." },
   C: { name: "C · Высокий", desc: "Ошибка ValueError и программы, которые читают данные в список и обрабатывают их." }
 };
 const TASKS_PR = [
@@ -2271,6 +2294,15 @@ const TASKS_PR = [
     tests: [{ data: { a: [3, 7, 2, 7, 5, 7] }, inputs: ["7"] }, { data: { a: [1, 2, 3] }, inputs: ["3"] }, { data: { a: [4, 4, 9, 4] }, inputs: ["9"] }],
     hint: "print(a.count(x)) и print(a.index(x))." },
 
+  { id: "B4", lv: "B", kind: "predict", fn: "copy, extend, del", q: "Что выведет программа? Следи за двумя списками: a и b.",
+    code: "a = [4, 1, 3]\nb = a.copy()\nb.sort()\na.extend([9, 2])\ndel a[0]\nprint(a, b)", ans: "[1, 3, 9, 2] [1, 3, 4]",
+    traps: { "[1,3,4,9,2] [1,3,4]": "Строка del a[0] удалила первый элемент списка a — четвёрку.", "[1,3,9,2] [1,3,9,2]": "b — копия: изменения a её не касаются.", "[4,1,3,9,2] [1,3,4]": "Не забудь строку del a[0].", "[1,3,4] [1,3,4]": "b = a.copy() — копия, поэтому b.sort() не сортирует a." },
+    hint: "a: [4, 1, 3] → extend([9, 2]) → [4, 1, 3, 9, 2] → del a[0] → … ; b — отсортированная копия первоначального a." },
+  { id: "B5", lv: "B", kind: "fix", fn: "copy, sort", q: "Программа должна вывести оценки в том порядке, в каком их поставили, а на следующей строке — по возрастанию. Но обе строки выходят отсортированными. Найди и исправь ошибку.",
+    start: "marks = [5, 3, 4, 2]\nsorted_marks = marks\nsorted_marks.sort()\nprint(marks)\nprint(sorted_marks)",
+    ref: "marks = [5, 3, 4, 2]\nsorted_marks = marks.copy()\nsorted_marks.sort()\nprint(marks)\nprint(sorted_marks)", must: ["copy", "sort"],
+    tests: [{ data: { marks: [5, 3, 4, 2] } }, { data: { marks: [2, 5, 4] } }, { data: { marks: [3] } }],
+    hint: "sorted_marks = marks — это не копия, а второе имя того же списка. Нужна копия: marks.copy()." },
   { id: "C1", lv: "C", kind: "fix", fn: "in, remove", q: "Программа вычёркивает товар, который ввёл пользователь. Если товара нет в списке, она останавливается с ошибкой. Исправь: если товар есть — удали его и выведи список, если нет — выведи <code>нет в списке</code>.",
     start: "shop = [\"хлеб\", \"молоко\", \"сыр\"]\nx = input()\nshop.remove(x)\nprint(shop)",
     ref: "shop = [\"хлеб\", \"молоко\", \"сыр\"]\nx = input()\nif x in shop:\n    shop.remove(x)\n    print(shop)\nelse:\n    print(\"нет в списке\")", must: ["remove"],
@@ -2524,7 +2556,11 @@ const MT_WHAT = {
   count: "count считает, сколько раз элемент встречается.",
   len: "len — функция: количество элементов в списке.",
   sum: "sum — функция: сумма всех элементов.",
-  max: "max — функция: наибольший элемент."
+  max: "max — функция: наибольший элемент.",
+  extend: "extend добавляет в конец все элементы другого списка.",
+  clear: "clear удаляет все элементы сразу.",
+  copy: "copy создаёт копию списка, сам список не меняется.",
+  del: "del удаляет элемент по номеру и ничего не возвращает."
 };
 const MT_FN = new Set(["len", "sum", "max", "min"]);
 const MT_CASES = [
@@ -2537,9 +2573,13 @@ const MT_CASES = [
   { q: "На каком месте в списке рейтинга стоит Тимур?", opts: ["index", "count", "max", "insert"], a: "index", why: "«На каком месте?» — index. Место в рейтинге — индекс плюс один.", f: "top.index(\"Тимур\") + 1" },
   { q: "Сообщения хранятся от старых к новым. Покажи новые сверху.", opts: ["reverse", "sort", "pop", "append"], a: "reverse", why: "Нужно перевернуть порядок, а не сравнивать сообщения, — reverse.", f: "msgs.reverse()" },
   { q: "Сколько учеников в списке класса?", opts: ["len", "count", "sum", "max"], a: "len", why: "Количество элементов — функция len. Её пишут перед скобками: len(pupils), а не через точку.", f: "len(pupils)" },
+  { q: "Мама прислала свой список покупок. Добавь все его товары в конец твоего списка одной командой.", opts: ["extend", "append", "insert", "count"], a: "extend", why: "Все элементы другого списка в конец — extend. append добавил бы весь список одним элементом.", f: "shop.extend(mom_list)" },
+  { q: "Покупка оплачена. Очисти корзину полностью.", opts: ["clear", "pop", "remove", "reverse"], a: "clear", why: "Удалить всё сразу — clear().", f: "cart.clear()" },
+  { q: "Нужно расставить оценки по возрастанию, но сохранить и исходный порядок.", opts: ["copy", "sort", "reverse", "index"], a: "copy", why: "Сначала копия, потом сортировка копии: исходный список не изменится.", f: "b = marks.copy()" },
+  { q: "Элемент с номером 2 больше не нужен — удали его, возвращать его не надо.", opts: ["del", "remove", "clear", "count"], a: "del", why: "Удалить по номеру без возврата — команда del. Подошёл бы и pop(2).", f: "del a[2]" },
   { q: "Какой была самая высокая температура недели?", opts: ["max", "sort", "count", "index"], a: "max", why: "Чтобы узнать наибольшее, хватит функции max: она не меняет список.", f: "max(t)" }
 ];
-const mtLabel = f => (MT_FN.has(f) ? f + "()" : "." + f + "()");
+const mtLabel = f => (MT_FN.has(f) ? f + "()" : f === "del" ? "del" : "." + f + "()");
 function mtLoad() { return store.get(MT_KEY, {}); }
 function mtBuild() {
   const d = mtLoad();
@@ -2587,8 +2627,8 @@ function mtRender() {
   document.getElementById("mtFirst").textContent = ok ? `С первой попытки: ${first} из ${ok}` : "";
   const done = ok === n;
   document.getElementById("mtDone").hidden = !done;
-  if (done) document.getElementById("mtDoneText").textContent = first >= 8 ? `Отлично! ${first} из ${n} с первой попытки. Ты хорошо различаешь методы — переходи к практике.`
-    : first >= 5 ? `${first} из ${n} с первой попытки. Хорошо. Перечитай пояснения там, где ошибся, и переходи к практике.`
+  if (done) document.getElementById("mtDoneText").textContent = first >= Math.ceil(n * 0.8) ? `Отлично! ${first} из ${n} с первой попытки. Ты хорошо различаешь методы — переходи к практике.`
+    : first >= Math.ceil(n * 0.5) ? `${first} из ${n} с первой попытки. Хорошо. Перечитай пояснения там, где ошибся, и переходи к практике.`
     : `${first} из ${n} с первой попытки. Вернись в «Методы списка» и посмотри ещё раз раздел «Простыми словами» у каждого метода.`;
 }
 document.getElementById("mtRetry").addEventListener("click", () => { store.set(MT_KEY, {}); mtBuild(); document.getElementById("match").scrollIntoView({ behavior: "smooth" }); });
@@ -2681,10 +2721,10 @@ quizBuild({ key: RV_KEY, cases: RV_CASES, prefix: "rv", list: "rvList", bar: "rv
 /* Критерии оценивания и дескрипторы: отмечаются по заданиям урока */
 const DESC = [
   { id: "Д1", text: "создаёт список и обращается к элементу по индексу, в том числе с конца", lv: "Все", where: "Практика: разминка Z1–Z3", tasks: ["Z1", "Z2", "Z3"] },
-  { id: "Д2", text: "различает методы списка и функции и выбирает подходящий для ситуации", lv: "Все", where: "«Какой метод?»: не меньше 7 из 10 с первой попытки", matchFirst: 7 },
+  { id: "Д2", text: "различает методы списка и функции и выбирает подходящий для ситуации", lv: "Все", where: "«Какой метод?»: не меньше 10 из 14 с первой попытки", matchFirst: 10 },
   { id: "Д3", text: "применяет методы append(), pop(), sort()", lv: "Все", where: "Практика A1–A3", tasks: ["A1", "A2", "A3"] },
-  { id: "Д4", text: "применяет методы insert(), remove(), reverse(), index(), count()", lv: "Большинство", where: "Практика B1–B3", tasks: ["B1", "B2", "B3"] },
-  { id: "Д5", text: "находит и исправляет ошибки в программе со списком", lv: "Большинство", where: "Практика B2, C1", tasks: ["B2", "C1"] },
+  { id: "Д4", text: "применяет методы insert(), remove(), reverse(), index(), count(), extend(), copy() и команду del", lv: "Большинство", where: "Практика B1, B3, B4", tasks: ["B1", "B3", "B4"] },
+  { id: "Д5", text: "находит и исправляет ошибки в программе со списком", lv: "Большинство", where: "Практика B2, B5, C1", tasks: ["B2", "B5", "C1"] },
   { id: "Д6", text: "составляет программу, которая читает данные в список и обрабатывает их", lv: "Некоторые", where: "Практика C2, C3", tasks: ["C2", "C3"] }
 ];
 function descStatus() {
@@ -2878,6 +2918,31 @@ document.getElementById("expEdit").addEventListener("click", () => {
 });
 showExp(store.get(EXP_KEY, ""));
 showCard(0); showCard(3);
+
+/* Теория во время заданий: окно поверх этапа, ученик не уходит со своей задачи */
+(function theoryBuild() {
+  const body = document.getElementById("thBody");
+  const cards = [...document.querySelectorAll(".fcard")];
+  let html = `<div class="th-list">` + cards.filter(c => +c.dataset.card !== 7).map(c => {
+    const i = +c.dataset.card, how = c.querySelector(".how"), rem = c.querySelector(".remember");
+    return `<section class="th-item"><p class="fname">${c.querySelector(".fname").innerHTML}</p>${how ? `<p class="how">${how.innerHTML}</p>` : ""}${rem ? `<p class="remember">${rem.innerHTML}</p>` : ""}<button type="button" class="linkbtn th-more" data-card="${i}">Подробнее с примерами →</button></section>`;
+  }).join("") + `</div>`;
+  html += `<h3 class="th-h">Шпаргалка</h3><div class="tablewrap">${document.querySelector(".cheat").outerHTML}</div>`;
+  html += `<h3 class="th-h">Ошибки</h3><div class="tablewrap">${document.querySelector(".err-table").outerHTML}</div>`;
+  body.innerHTML = html;
+  body.querySelectorAll(".err-table tr").forEach(tr => { if (tr.children[3]) tr.children[3].remove(); });
+  const ov = document.getElementById("thOv"), btn = document.getElementById("thBtn");
+  const close = () => { ov.hidden = true; btn.focus(); };
+  btn.addEventListener("click", () => { ov.hidden = false; document.getElementById("thClose").focus(); });
+  document.getElementById("thClose").addEventListener("click", close);
+  ov.addEventListener("click", e => { if (e.target === ov) close(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !ov.hidden) close(); });
+  body.addEventListener("click", e => {
+    const b = e.target.closest(".th-more"); if (!b) return;
+    const i = +b.dataset.card; ov.hidden = true;
+    show(i < 3 ? "learn" : "methods"); showCard(i); window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
 
 buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
@@ -3414,6 +3479,7 @@ function show(id) {
     document.getElementById("tab-" + p).setAttribute("aria-selected", p === id);
   });
   if (["learn", "methods", "practice", "project", "hw"].includes(id)) pyLoad().catch(() => {});
+  const th = document.getElementById("thBtn"); if (th) th.hidden = !["match", "practice", "project", "hw"].includes(id);
   if (id === "practice" || id === "project" || id === "hw") samplesFill();
 }
 document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () => { if (!b.disabled) show(b.getAttribute("aria-controls")); }));
@@ -3637,7 +3703,7 @@ const KIND = { predict: "Бағдарлама не шығарады?", fill: "Т
 const LEVELS_PR = {
   "0": { name: "0 · Индекстер", desc: "Элементті нөмірі бойынша, соңынан алу және тізімнің ұзындығын білу." },
   A: { name: "A · Базалық", desc: "append(), pop(), sort() әдістері: нәтижені болжа, толықтыр және бағдарлама жаз." },
-  B: { name: "B · Орташа", desc: "insert(), remove(), reverse(), index(), count() әдістері және қатені іздеу." },
+  B: { name: "B · Орташа", desc: "insert(), remove(), reverse(), index(), count(), extend(), copy() әдістері, del командасы және қатені іздеу." },
   C: { name: "C · Жоғары", desc: "ValueError қатесі және деректерді тізімге оқып, оларды өңдейтін бағдарламалар." }
 };
 const TASKS_PR = [
@@ -3683,6 +3749,15 @@ const TASKS_PR = [
     tests: [{ data: { a: [3, 7, 2, 7, 5, 7] }, inputs: ["7"] }, { data: { a: [1, 2, 3] }, inputs: ["3"] }, { data: { a: [4, 4, 9, 4] }, inputs: ["9"] }],
     hint: "print(a.count(x)) және print(a.index(x))." },
 
+  { id: "B4", lv: "B", kind: "predict", fn: "copy, extend, del", q: "Бағдарлама не шығарады? Екі тізімді бақыла: a және b.",
+    code: "a = [4, 1, 3]\nb = a.copy()\nb.sort()\na.extend([9, 2])\ndel a[0]\nprint(a, b)", ans: "[1, 3, 9, 2] [1, 3, 4]",
+    traps: { "[1,3,4,9,2] [1,3,4]": "del a[0] жолы a тізімінің бірінші элементін — төртті жойды.", "[1,3,9,2] [1,3,9,2]": "b — көшірме: a-ның өзгерістері оған әсер етпейді.", "[4,1,3,9,2] [1,3,4]": "del a[0] жолын ұмытпа.", "[1,3,4] [1,3,4]": "b = a.copy() — көшірме, сондықтан b.sort() a-ны сұрыптамайды." },
+    hint: "a: [4, 1, 3] → extend([9, 2]) → [4, 1, 3, 9, 2] → del a[0] → … ; b — бастапқы a-ның сұрыпталған көшірмесі." },
+  { id: "B5", lv: "B", kind: "fix", fn: "copy, sort", q: "Бағдарлама бағаларды қойылған ретімен, ал келесі жолда — өсу ретімен шығаруы керек. Бірақ екі жол да сұрыпталып шығады. Қатені тауып, түзет.",
+    start: "marks = [5, 3, 4, 2]\nsorted_marks = marks\nsorted_marks.sort()\nprint(marks)\nprint(sorted_marks)",
+    ref: "marks = [5, 3, 4, 2]\nsorted_marks = marks.copy()\nsorted_marks.sort()\nprint(marks)\nprint(sorted_marks)", must: ["copy", "sort"],
+    tests: [{ data: { marks: [5, 3, 4, 2] } }, { data: { marks: [2, 5, 4] } }, { data: { marks: [3] } }],
+    hint: "sorted_marks = marks — бұл көшірме емес, сол тізімнің екінші атауы. Көшірме керек: marks.copy()." },
   { id: "C1", lv: "C", kind: "fix", fn: "in, remove", q: "Бағдарлама пайдаланушы енгізген тауарды сызып тастайды. Тауар тізімде болмаса, ол қатемен тоқтайды. Түзет: тауар болса — оны жойып, тізімді шығар, болмаса — мынаны шығар: <code>тізімде жоқ</code>.",
     start: "shop = [\"нан\", \"сүт\", \"ірімшік\"]\nx = input()\nshop.remove(x)\nprint(shop)",
     ref: "shop = [\"нан\", \"сүт\", \"ірімшік\"]\nx = input()\nif x in shop:\n    shop.remove(x)\n    print(shop)\nelse:\n    print(\"тізімде жоқ\")", must: ["remove"],
@@ -3936,7 +4011,11 @@ const MT_WHAT = {
   count: "count элементтің неше рет кездесетінін санайды.",
   len: "len — функция: тізімдегі элементтер саны.",
   sum: "sum — функция: барлық элементтердің қосындысы.",
-  max: "max — функция: ең үлкен элемент."
+  max: "max — функция: ең үлкен элемент.",
+  extend: "extend басқа тізімнің барлық элементін соңына қосады.",
+  clear: "clear барлық элементті бірден жояды.",
+  copy: "copy тізімнің көшірмесін жасайды, тізімнің өзі өзгермейді.",
+  del: "del элементті нөмірі бойынша жояды және ештеңе қайтармайды."
 };
 const MT_FN = new Set(["len", "sum", "max", "min"]);
 const MT_CASES = [
@@ -3949,9 +4028,13 @@ const MT_CASES = [
   { q: "Рейтинг тізімінде Тимур қай орында тұр?", opts: ["index", "count", "max", "insert"], a: "index", why: "«Қай орында?» — index. Рейтингтегі орын — индекс қосу бір.", f: "top.index(\"Тимур\") + 1" },
   { q: "Хабарламалар ескісінен жаңасына қарай сақталады. Жаңаларын жоғарыда көрсет.", opts: ["reverse", "sort", "pop", "append"], a: "reverse", why: "Хабарламаларды салыстыру емес, ретін кері бұру керек — reverse.", f: "msgs.reverse()" },
   { q: "Сынып тізімінде неше оқушы бар?", opts: ["len", "count", "sum", "max"], a: "len", why: "Элементтер саны — len функциясы. Ол жақшаның алдына жазылады: len(pupils), нүкте арқылы емес.", f: "len(pupils)" },
+  { q: "Анаң өзінің сатып алу тізімін жіберді. Оның барлық тауарын бір командамен өз тізіміңнің соңына қос.", opts: ["extend", "append", "insert", "count"], a: "extend", why: "Басқа тізімнің барлық элементі соңына — extend. append бүкіл тізімді бір элемент етіп қосар еді.", f: "shop.extend(mom_list)" },
+  { q: "Сатып алу төленді. Себетті толық тазала.", opts: ["clear", "pop", "remove", "reverse"], a: "clear", why: "Бәрін бірден жою — clear().", f: "cart.clear()" },
+  { q: "Бағаларды өсу ретімен орналастыру керек, бірақ бастапқы ретін де сақтау қажет.", opts: ["copy", "sort", "reverse", "index"], a: "copy", why: "Алдымен көшірме, содан кейін көшірмені сұрыптау: бастапқы тізім өзгермейді.", f: "b = marks.copy()" },
+  { q: "2 нөмірлі элемент енді керек емес — оны жой, қайтарудың қажеті жоқ.", opts: ["del", "remove", "clear", "count"], a: "del", why: "Нөмір бойынша қайтармай жою — del командасы. pop(2) те жарар еді.", f: "del a[2]" },
   { q: "Аптаның ең жоғары температурасы қандай болды?", opts: ["max", "sort", "count", "index"], a: "max", why: "Ең үлкенін білу үшін max функциясы жеткілікті: ол тізімді өзгертпейді.", f: "max(t)" }
 ];
-const mtLabel = f => (MT_FN.has(f) ? f + "()" : "." + f + "()");
+const mtLabel = f => (MT_FN.has(f) ? f + "()" : f === "del" ? "del" : "." + f + "()");
 function mtLoad() { return store.get(MT_KEY, {}); }
 function mtBuild() {
   const d = mtLoad();
@@ -3999,8 +4082,8 @@ function mtRender() {
   document.getElementById("mtFirst").textContent = ok ? `Бірінші әрекеттен: ${first} / ${ok}` : "";
   const done = ok === n;
   document.getElementById("mtDone").hidden = !done;
-  if (done) document.getElementById("mtDoneText").textContent = first >= 8 ? `Керемет! ${n} жағдайдың ${first}-і бірінші әрекеттен. Сен әдістерді жақсы ажыратасың — практикаға өт.`
-    : first >= 5 ? `${n} жағдайдың ${first}-і бірінші әрекеттен. Жақсы. Қателескен жерлердің түсіндірмесін қайта оқы да, практикаға өт.`
+  if (done) document.getElementById("mtDoneText").textContent = first >= Math.ceil(n * 0.8) ? `Керемет! ${n} жағдайдың ${first}-і бірінші әрекеттен. Сен әдістерді жақсы ажыратасың — практикаға өт.`
+    : first >= Math.ceil(n * 0.5) ? `${n} жағдайдың ${first}-і бірінші әрекеттен. Жақсы. Қателескен жерлердің түсіндірмесін қайта оқы да, практикаға өт.`
     : `${n} жағдайдың ${first}-і бірінші әрекеттен. «Тізім әдістеріне» оралып, әр әдістің «Қарапайым тілмен» бөлімін тағы бір рет қара.`;
 }
 document.getElementById("mtRetry").addEventListener("click", () => { store.set(MT_KEY, {}); mtBuild(); document.getElementById("match").scrollIntoView({ behavior: "smooth" }); });
@@ -4093,10 +4176,10 @@ quizBuild({ key: RV_KEY, cases: RV_CASES, prefix: "rv", list: "rvList", bar: "rv
 /* Критерии оценивания и дескрипторы: отмечаются по заданиям урока */
 const DESC = [
   { id: "Д1", text: "тізім құрады және элементке индекс арқылы, соның ішінде соңынан жүгінеді", lv: "Барлығы", where: "Практика: Z1–Z3 жаттығуы", tasks: ["Z1", "Z2", "Z3"] },
-  { id: "Д2", text: "тізім әдістері мен функцияларды ажыратады және жағдайға сәйкесін таңдайды", lv: "Барлығы", where: "«Қай әдіс?»: 10 жағдайдың кемінде 7-і бірінші әрекеттен", matchFirst: 7 },
+  { id: "Д2", text: "тізім әдістері мен функцияларды ажыратады және жағдайға сәйкесін таңдайды", lv: "Барлығы", where: "«Қай әдіс?»: 14 жағдайдың кемінде 10-ы бірінші әрекеттен", matchFirst: 10 },
   { id: "Д3", text: "append(), pop(), sort() әдістерін қолданады", lv: "Барлығы", where: "Практика A1–A3", tasks: ["A1", "A2", "A3"] },
-  { id: "Д4", text: "insert(), remove(), reverse(), index(), count() әдістерін қолданады", lv: "Оқушылардың көпшілігі", where: "Практика B1–B3", tasks: ["B1", "B2", "B3"] },
-  { id: "Д5", text: "тізімі бар бағдарламадағы қателерді тауып, түзетеді", lv: "Оқушылардың көпшілігі", where: "Практика B2, C1", tasks: ["B2", "C1"] },
+  { id: "Д4", text: "insert(), remove(), reverse(), index(), count(), extend(), copy() әдістерін және del командасын қолданады", lv: "Оқушылардың көпшілігі", where: "Практика B1, B3, B4", tasks: ["B1", "B3", "B4"] },
+  { id: "Д5", text: "тізімі бар бағдарламадағы қателерді тауып, түзетеді", lv: "Оқушылардың көпшілігі", where: "Практика B2, B5, C1", tasks: ["B2", "B5", "C1"] },
   { id: "Д6", text: "деректерді тізімге оқып, оларды өңдейтін бағдарлама құрады", lv: "Кейбір оқушылар", where: "Практика C2, C3", tasks: ["C2", "C3"] }
 ];
 function descStatus() {
@@ -4290,6 +4373,31 @@ document.getElementById("expEdit").addEventListener("click", () => {
 });
 showExp(store.get(EXP_KEY, ""));
 showCard(0); showCard(3);
+
+/* Теория во время заданий: окно поверх этапа, ученик не уходит со своей задачи */
+(function theoryBuild() {
+  const body = document.getElementById("thBody");
+  const cards = [...document.querySelectorAll(".fcard")];
+  let html = `<div class="th-list">` + cards.filter(c => +c.dataset.card !== 7).map(c => {
+    const i = +c.dataset.card, how = c.querySelector(".how"), rem = c.querySelector(".remember");
+    return `<section class="th-item"><p class="fname">${c.querySelector(".fname").innerHTML}</p>${how ? `<p class="how">${how.innerHTML}</p>` : ""}${rem ? `<p class="remember">${rem.innerHTML}</p>` : ""}<button type="button" class="linkbtn th-more" data-card="${i}">Толығырақ, мысалдармен →</button></section>`;
+  }).join("") + `</div>`;
+  html += `<h3 class="th-h">Анықтамалық</h3><div class="tablewrap">${document.querySelector(".cheat").outerHTML}</div>`;
+  html += `<h3 class="th-h">Қателер</h3><div class="tablewrap">${document.querySelector(".err-table").outerHTML}</div>`;
+  body.innerHTML = html;
+  body.querySelectorAll(".err-table tr").forEach(tr => { if (tr.children[3]) tr.children[3].remove(); });
+  const ov = document.getElementById("thOv"), btn = document.getElementById("thBtn");
+  const close = () => { ov.hidden = true; btn.focus(); };
+  btn.addEventListener("click", () => { ov.hidden = false; document.getElementById("thClose").focus(); });
+  document.getElementById("thClose").addEventListener("click", close);
+  ov.addEventListener("click", e => { if (e.target === ov) close(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !ov.hidden) close(); });
+  body.addEventListener("click", e => {
+    const b = e.target.closest(".th-more"); if (!b) return;
+    const i = +b.dataset.card; ov.hidden = true;
+    show(i < 3 ? "learn" : "methods"); showCard(i); window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
 
 buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
