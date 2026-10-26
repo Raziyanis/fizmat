@@ -959,6 +959,8 @@ const store = {
 /* picks: номер вопроса → выбранный вариант */
 let picks = store.get(KEY, {});
 let solved = new Set(TASKS.filter(t => picks[t.n] === t.ans).map(t => t.n));
+/* тема, разгаданная на другом языке, считается разгаданной и здесь: буквы ребуса у языков разные */
+if (store.get(KEY.replace(/-kz$/, "") + "-done", false)) TASKS.forEach(t => { picks[t.n] = t.ans; solved.add(t.n); });
 
 /* Столбчатая диаграмма: один ряд, подписи значений над столбиками, бледная сетка */
 function barChart(c) {
@@ -1076,6 +1078,7 @@ function unlock() {
   tab.disabled = false;
   if (unlocked) return;
   unlocked = true;
+  store.set(KEY.replace(/-kz$/, "") + "-done", true);
   setTimeout(() => showExp(store.get(EXP_KEY, "")), 0);  // после загрузки остальных частей урока
   document.getElementById("guessMsg").className = "msg ok";
   document.getElementById("guessMsg").textContent = "Тема разгадана! Открываем тему и цель урока…";
@@ -1095,7 +1098,7 @@ document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () =
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); window.scrollTo({ top: 0, behavior: "smooth" }); }));
 
 document.getElementById("resetBtn").addEventListener("click", () => {
-  picks = {}; solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
+  picks = {}; solved = new Set(); store.del(KEY); store.del(KEY.replace(/-kz$/, "") + "-done"); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
   refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refUse").value = ""; document.getElementById("refSummary").hidden = true;
   document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
   expText.value = ""; showExp("");
@@ -2521,6 +2524,7 @@ showExp(store.get(EXP_KEY, ""));
 
 buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+if (unlocked) store.set(KEY.replace(/-kz$/, "") + "-done", true);
 render();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
 window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),

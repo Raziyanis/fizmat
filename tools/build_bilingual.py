@@ -158,6 +158,35 @@ BOOT = r"""<script>
   document.title = TITLES[lang];
   var root = document.getElementById("lang-root");
   root.parentNode.replaceChild(document.getElementById("t-" + lang).content.cloneNode(true), root);
+  /* Смена языка перезагружает страницу: запоминаем ученика, этап, открытую карточку и прокрутку и возвращаемся туда же */
+  function here() {
+    var who = document.getElementById("who"), name = document.getElementById("whoName");
+    var step = document.querySelector('.step[aria-selected="true"]');
+    var panel = step && document.getElementById(step.getAttribute("aria-controls"));
+    var pill = panel && panel.querySelector('.fpill[aria-selected="true"]');
+    return { path: location.pathname, who: who && !who.hidden && name ? name.textContent : "",
+      step: step ? step.id : "", pill: pill ? pill.getAttribute("data-f") : "", y: window.scrollY };
+  }
+  function resume() {
+    var r = null;
+    try { r = JSON.parse(sessionStorage.getItem("fizmat-resume") || "null"); sessionStorage.removeItem("fizmat-resume"); } catch (e) {}
+    if (!r || r.path !== location.pathname) return;
+    var login = document.getElementById("login"), cls = document.getElementById("lgCls"), nm = document.getElementById("lgName");
+    var i = r.who.lastIndexOf(", ");
+    if (login && !login.hidden && cls && nm && i > 0) {
+      nm.value = r.who.slice(0, i); cls.value = r.who.slice(i + 2);
+      document.getElementById("lgGo").click();
+    }
+    var tries = 0;
+    (function wait() {
+      if (login && !login.hidden) { if (++tries < 150) setTimeout(wait, 100); return; }
+      var tab = r.step && document.getElementById(r.step);
+      if (tab && !tab.disabled) tab.click();
+      var pill = r.pill && document.querySelector('.fpill[data-f="' + r.pill + '"]');
+      if (pill) pill.click();
+      [100, 500].forEach(function (ms) { setTimeout(function () { window.scrollTo(0, r.y || 0); }, ms); });
+    })();
+  }
   function sw() {
     var s = document.createElement("span");
     s.className = "lang-sw"; s.setAttribute("role", "group"); s.setAttribute("aria-label", "Тіл / Язык");
@@ -167,6 +196,7 @@ BOOT = r"""<script>
       b.addEventListener("click", function () {
         if (p[0] === lang) return;
         try { localStorage.setItem("fizmat-lang", p[0]); } catch (e) {}
+        try { sessionStorage.setItem("fizmat-resume", JSON.stringify(here())); } catch (e) {}
         location.hash = p[0];
         location.reload();
       });
@@ -179,6 +209,7 @@ BOOT = r"""<script>
     if (box) box.insertBefore(sw(), box.firstChild);
   });
   (lang === "kz" ? L_kz : L_ru)();
+  resume();
 })();
 """
 

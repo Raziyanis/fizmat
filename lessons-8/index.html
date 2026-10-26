@@ -1487,6 +1487,35 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
   document.title = TITLES[lang];
   var root = document.getElementById("lang-root");
   root.parentNode.replaceChild(document.getElementById("t-" + lang).content.cloneNode(true), root);
+  /* Смена языка перезагружает страницу: запоминаем ученика, этап, открытую карточку и прокрутку и возвращаемся туда же */
+  function here() {
+    var who = document.getElementById("who"), name = document.getElementById("whoName");
+    var step = document.querySelector('.step[aria-selected="true"]');
+    var panel = step && document.getElementById(step.getAttribute("aria-controls"));
+    var pill = panel && panel.querySelector('.fpill[aria-selected="true"]');
+    return { path: location.pathname, who: who && !who.hidden && name ? name.textContent : "",
+      step: step ? step.id : "", pill: pill ? pill.getAttribute("data-f") : "", y: window.scrollY };
+  }
+  function resume() {
+    var r = null;
+    try { r = JSON.parse(sessionStorage.getItem("fizmat-resume") || "null"); sessionStorage.removeItem("fizmat-resume"); } catch (e) {}
+    if (!r || r.path !== location.pathname) return;
+    var login = document.getElementById("login"), cls = document.getElementById("lgCls"), nm = document.getElementById("lgName");
+    var i = r.who.lastIndexOf(", ");
+    if (login && !login.hidden && cls && nm && i > 0) {
+      nm.value = r.who.slice(0, i); cls.value = r.who.slice(i + 2);
+      document.getElementById("lgGo").click();
+    }
+    var tries = 0;
+    (function wait() {
+      if (login && !login.hidden) { if (++tries < 150) setTimeout(wait, 100); return; }
+      var tab = r.step && document.getElementById(r.step);
+      if (tab && !tab.disabled) tab.click();
+      var pill = r.pill && document.querySelector('.fpill[data-f="' + r.pill + '"]');
+      if (pill) pill.click();
+      [100, 500].forEach(function (ms) { setTimeout(function () { window.scrollTo(0, r.y || 0); }, ms); });
+    })();
+  }
   function sw() {
     var s = document.createElement("span");
     s.className = "lang-sw"; s.setAttribute("role", "group"); s.setAttribute("aria-label", "Тіл / Язык");
@@ -1496,6 +1525,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
       b.addEventListener("click", function () {
         if (p[0] === lang) return;
         try { localStorage.setItem("fizmat-lang", p[0]); } catch (e) {}
+        try { sessionStorage.setItem("fizmat-resume", JSON.stringify(here())); } catch (e) {}
         location.hash = p[0];
         location.reload();
       });
@@ -1508,6 +1538,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
     if (box) box.insertBefore(sw(), box.firstChild);
   });
   (lang === "kz" ? L_kz : L_ru)();
+  resume();
 })();
 function L_ru() {
 
@@ -1546,6 +1577,8 @@ const store = {
 };
 
 let solved = new Set(store.get(KEY, []));
+/* тема, разгаданная на другом языке, считается разгаданной и здесь: буквы ребуса у языков разные */
+if (store.get(KEY.replace(/-kz$/, "") + "-done", false)) TASKS.forEach(t => solved.add(t.n));
 
 function buildGrid() {
   const width = Math.max(...ROWS.map(r => r.length));
@@ -1648,6 +1681,7 @@ function unlock() {
   tab.disabled = false;
   if (unlocked) return;
   unlocked = true;
+  store.set(KEY.replace(/-kz$/, "") + "-done", true);
   setTimeout(() => showExp(store.get(EXP_KEY, "")), 0);  // после загрузки остальных частей урока
   document.getElementById("guessMsg").className = "msg ok";
   document.getElementById("guessMsg").textContent = "Тема разгадана! Открываем тему и цель урока…";
@@ -1666,7 +1700,7 @@ document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () =
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => show(b.dataset.go)));
 
 document.getElementById("resetBtn").addEventListener("click", () => {
-  solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
+  solved = new Set(); store.del(KEY); store.del(KEY.replace(/-kz$/, "") + "-done"); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
   refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refUse").value = ""; document.getElementById("refSummary").hidden = true;
   document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
   expText.value = ""; showExp("");
@@ -3196,6 +3230,7 @@ showExp(store.get(EXP_KEY, ""));
 
 buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+if (unlocked) store.set(KEY.replace(/-kz$/, "") + "-done", true);
 render();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
 window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, Z: TASKS_CELL.map(t => t.id),
@@ -3384,6 +3419,8 @@ const store = {
 };
 
 let solved = new Set(store.get(KEY, []));
+/* тема, разгаданная на другом языке, считается разгаданной и здесь: буквы ребуса у языков разные */
+if (store.get(KEY.replace(/-kz$/, "") + "-done", false)) TASKS.forEach(t => solved.add(t.n));
 
 function buildGrid() {
   const width = Math.max(...ROWS.map(r => r.length));
@@ -3486,6 +3523,7 @@ function unlock() {
   tab.disabled = false;
   if (unlocked) return;
   unlocked = true;
+  store.set(KEY.replace(/-kz$/, "") + "-done", true);
   setTimeout(() => showExp(store.get(EXP_KEY, "")), 0);  // после загрузки остальных частей урока
   document.getElementById("guessMsg").className = "msg ok";
   document.getElementById("guessMsg").textContent = "Тақырып анықталды! Сабақтың тақырыбы мен мақсатын ашамыз…";
@@ -3504,7 +3542,7 @@ document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () =
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => show(b.dataset.go)));
 
 document.getElementById("resetBtn").addEventListener("click", () => {
-  solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
+  solved = new Set(); store.del(KEY); store.del(KEY.replace(/-kz$/, "") + "-done"); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
   refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refUse").value = ""; document.getElementById("refSummary").hidden = true;
   document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
   expText.value = ""; showExp("");
@@ -5034,6 +5072,7 @@ showExp(store.get(EXP_KEY, ""));
 
 buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+if (unlocked) store.set(KEY.replace(/-kz$/, "") + "-done", true);
 render();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
 window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, Z: TASKS_CELL.map(t => t.id),
