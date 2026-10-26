@@ -401,6 +401,10 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .apply li span { color: var(--ink); }
 .apply-no { margin: 0; font-size: .95rem; color: var(--muted); }
 .reset { font-size: .82rem; color: var(--muted); background: none; border: 0; text-decoration: underline; padding: 0; }
+
+/* Телефон: длинный код переносится, карточки не шире экрана */
+.panel > * { min-width: 0; }
+@media (max-width: 600px) { code, .mt-opt { white-space: normal; overflow-wrap: anywhere; } .panel p { overflow-wrap: anywhere; } }
 </style>
 
 <div class="wrap">

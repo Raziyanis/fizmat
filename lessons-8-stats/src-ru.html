@@ -429,6 +429,10 @@ td.wrongl .ch { color: var(--bad); }
 .ch-bar:hover path { fill: color-mix(in srgb, var(--c) 75%, var(--ink)); }
 .chart details { margin-top: 6px; font-size: .85rem; }
 .chart summary { cursor: pointer; color: var(--muted); }
+
+/* Телефон: длинный код переносится, карточки не шире экрана */
+.panel > * { min-width: 0; }
+@media (max-width: 600px) { code, .mt-opt { white-space: normal; overflow-wrap: anywhere; } .panel p { overflow-wrap: anywhere; } }
 </style>
 
 <div class="wrap">

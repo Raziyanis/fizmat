@@ -417,6 +417,15 @@ input.blank.bad { border-color: var(--bad); }
 .ol-list li.ok { color: var(--c); }
 .ol-list li.bad { color: var(--bad); }
 .th-item.th-wide { grid-column: 1 / -1; }
+
+/* Таблица сравнения коллекций: одно действие — в каждой коллекции */
+.cmp { min-width: 620px; }
+.cmp td:first-child { font-weight: 600; white-space: nowrap; }
+.cmp td code { white-space: nowrap; }
+
+/* Телефон: длинный код переносится, карточки не шире экрана */
+.panel > * { min-width: 0; }
+@media (max-width: 600px) { code { white-space: normal; overflow-wrap: anywhere; } .cmp td code { white-space: nowrap; } }
 </style>
 
 <div class="wrap">
@@ -761,7 +770,7 @@ input.blank.bad { border-color: var(--bad); }
     <div class="fpills" role="tablist" aria-label="Методы">
       <button type="button" class="fpill" data-f="5" aria-selected="true">1 · + и *</button>
       <button type="button" class="fpill" data-f="6" aria-selected="false">2 · count, index</button>
-      <button type="button" class="fpill" data-f="7" aria-selected="false">3 · Кортеж или список?</button>
+      <button type="button" class="fpill" data-f="7" aria-selected="false">3 · Сравнение со списком</button>
       <button type="button" class="fpill" data-f="8" aria-selected="false">Шпаргалка и ошибки</button>
     </div>
 
@@ -810,13 +819,22 @@ input.blank.bad { border-color: var(--bad); }
       <p class="fname">Кортеж или список?</p>
       <p class="simple"><b>Простыми словами:</b> список — тетрадь в клетку, в ней пишут и стирают. Кортеж — напечатанная таблица: её только читают.</p>
       <div class="tablewrap">
-        <table class="cheat">
+        <table class="cheat cmp">
           <tr><th></th><th>Список (list)</th><th>Кортеж (tuple)</th></tr>
-          <tr><td>Скобки</td><td><code>[1, 2, 3]</code></td><td><code>(1, 2, 3)</code></td></tr>
-          <tr><td>Можно изменить</td><td>да: заменить, добавить, удалить</td><td>нет, только создать новый</td></tr>
-          <tr><td>Индексы и срезы</td><td>да</td><td>да</td></tr>
+          <tr><td>Как создать</td><td><code>a = [1, 2, 3]</code></td><td><code>t = (1, 2, 3)</code></td></tr>
+          <tr><td>Из одного элемента</td><td><code>[5]</code></td><td><code>(5,)</code> — с запятой</td></tr>
+          <tr><td>Пустой</td><td><code>[]</code></td><td><code>()</code></td></tr>
+          <tr><td>Элемент по номеру</td><td><code>a[0]</code>, <code>a[-1]</code></td><td><code>t[0]</code>, <code>t[-1]</code></td></tr>
+          <tr><td>Срез</td><td><code>a[1:3]</code></td><td><code>t[1:3]</code></td></tr>
+          <tr><td>Изменить элемент</td><td><code>a[0] = 9</code></td><td>нельзя — ошибка <code>TypeError</code></td></tr>
+          <tr><td>Добавить элемент</td><td><code>a.append(4)</code></td><td>нельзя; можно создать новый: <code>t + (4,)</code></td></tr>
+          <tr><td>Удалить элемент</td><td><code>a.remove(2)</code></td><td>нельзя</td></tr>
+          <tr><td>Есть ли элемент</td><td><code>2 in a</code></td><td><code>2 in t</code></td></tr>
+          <tr><td>Сколько раз, где</td><td><code>a.count(2)</code>, <code>a.index(2)</code></td><td><code>t.count(2)</code>, <code>t.index(2)</code></td></tr>
+          <tr><td>Длина, сумма</td><td><code>len(a)</code>, <code>sum(a)</code></td><td><code>len(t)</code>, <code>sum(t)</code></td></tr>
+          <tr><td>Соединить, повторить</td><td><code>a + [4]</code>, <code>a * 2</code></td><td><code>t + (4,)</code>, <code>t * 2</code></td></tr>
           <tr><td>Методы</td><td>11: append, insert, extend, pop, remove, clear, sort, reverse, copy, index, count</td><td>2: index, count</td></tr>
-          <tr><td>+ и *</td><td>да</td><td>да</td></tr>
+          <tr><td>Ключ словаря</td><td>не может быть</td><td>может быть</td></tr>
           <tr><td>Когда выбирать</td><td>данные будут меняться</td><td>данные постоянные</td></tr>
           <tr><td>Превратить в другой тип</td><td><code>tuple(a)</code> — кортеж из списка</td><td><code>list(t)</code> — список из кортежа</td></tr>
         </table>
@@ -1521,7 +1539,7 @@ function showExp(text) {
 }
 
 /* Карточки нового материала: 0–4 — кортеж, 5–8 — операции и методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["список", "индексы", "срезы", "изменение элементов", "перебор: for, while, генератор", "append, insert, extend", "pop, remove, del, clear", "sort, reverse, copy", "index, count", "шпаргалка и ошибки"];
+const CARD_NAMES = ["кортеж", "индексы, срезы, in", "неизменяемость", "распаковка", "перебор", "+ и *", "count, index", "сравнение со списком", "шпаргалка и ошибки"];
 const CARD_SETS = { learn: [0, 1, 2, 3, 4], methods: [5, 6, 7, 8] };
 const LEARN_LAST = 4, METHODS_FIRST = 5, METHODS_LAST = 8;
 const cardCur = { learn: 0, methods: METHODS_FIRST };
@@ -1599,7 +1617,8 @@ const EX = {
   tvs: [
     { code: "a = [3, 1, 2]\nt = tuple(a)\nprint(t)", out: "(3, 1, 2)", note: "tuple() делает кортеж из списка." },
     { code: "t = (3, 1, 2)\na = list(t)\na.sort()\nprint(a, t)", out: "[1, 2, 3] (3, 1, 2)", note: "Сортируем список-копию, кортеж не меняется." },
-    { code: "days = (\"Пн\", \"Вт\")\nshop = [\"хлеб\"]\nshop.append(\"сыр\")\nprint(days, shop)", out: "('Пн', 'Вт') ['хлеб', 'сыр']", note: "Постоянное — в кортеже, меняющееся — в списке." }
+    { code: "days = (\"Пн\", \"Вт\")\nshop = [\"хлеб\"]\nshop.append(\"сыр\")\nprint(days, shop)", out: "('Пн', 'Вт') ['хлеб', 'сыр']", note: "Постоянное — в кортеже, меняющееся — в списке." },
+    { code: "a = [1, 2, 3]\nt = (1, 2, 3)\nprint(a[0], t[0], len(a), len(t), 2 in a, 2 in t)\na[0] = 9\nprint(a)\nt[0] = 9", err: "TypeError: 'tuple' object does not support item assignment", note: "Читать одинаково, а изменить можно только список." }
   ]
 };
 /* Начальный код редакторов «Попробуй сам» */

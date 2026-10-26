@@ -418,6 +418,15 @@ input.blank.bad { border-color: var(--bad); }
 .ol-list li.bad { color: var(--bad); }
 .th-item.th-wide { grid-column: 1 / -1; }
 
+/* Таблица сравнения коллекций: одно действие — в каждой коллекции */
+.cmp { min-width: 620px; }
+.cmp td:first-child { font-weight: 600; white-space: nowrap; }
+.cmp td code { white-space: nowrap; }
+
+/* Телефон: длинный код переносится, карточки не шире экрана */
+.panel > * { min-width: 0; }
+@media (max-width: 600px) { code { white-space: normal; overflow-wrap: anywhere; } .cmp td code { white-space: nowrap; } }
+
 .lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
 .lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
 .lang-sw button[aria-pressed="true"]{background:var(--c, #1d7652);color:#fff}
@@ -802,7 +811,7 @@ globalThis._createPyodideModule = _createPyodideModule;
       <button type="button" class="fpill" data-f="6" aria-selected="false">2 · Разность</button>
       <button type="button" class="fpill" data-f="7" aria-selected="false">3 · Подмножества</button>
       <button type="button" class="fpill" data-f="8" aria-selected="false">4 · Все методы</button>
-      <button type="button" class="fpill" data-f="9" aria-selected="false">5 · Что выбрать?</button>
+      <button type="button" class="fpill" data-f="9" aria-selected="false">5 · Сравнение со списком, кортежем и словарём</button>
       <button type="button" class="fpill" data-f="10" aria-selected="false">Шпаргалка и ошибки</button>
     </div>
 
@@ -907,12 +916,20 @@ globalThis._createPyodideModule = _createPyodideModule;
       <p class="fname">Список, кортеж, множество или словарь?</p>
       <p class="simple"><b>Простыми словами:</b> список — очередь по порядку, кортеж — напечатанная таблица, множество — список участников без повторов, словарь — телефонная книга с поиском по имени.</p>
       <div class="tablewrap">
-        <table class="cheat">
+        <table class="cheat cmp">
           <tr><th></th><th>Список (list)</th><th>Кортеж (tuple)</th><th>Множество (set)</th><th>Словарь (dict)</th></tr>
-          <tr><td>Скобки</td><td><code>[1, 2]</code></td><td><code>(1, 2)</code></td><td><code>{1, 2}</code></td><td><code>{"a": 1}</code></td></tr>
-          <tr><td>Порядок и индексы</td><td>есть</td><td>есть</td><td>нет</td><td>порядок есть, индексов нет — доступ по ключу</td></tr>
-          <tr><td>Можно изменить</td><td>да</td><td>нет</td><td>да: добавить и удалить</td><td>да</td></tr>
+          <tr><td>Как создать</td><td><code>[1, 2, 2]</code></td><td><code>(1, 2, 2)</code></td><td><code>{1, 2}</code></td><td><code>{"a": 1}</code></td></tr>
+          <tr><td>Пустой</td><td><code>[]</code></td><td><code>()</code></td><td><code>set()</code></td><td><code>{}</code></td></tr>
+          <tr><td>Порядок</td><td>есть</td><td>есть</td><td>нет</td><td>порядок добавления</td></tr>
+          <tr><td>Доступ к элементу</td><td><code>a[0]</code></td><td><code>t[0]</code></td><td>нет: только <code>in</code> и перебор</td><td><code>d["a"]</code> — по ключу</td></tr>
           <tr><td>Повторы</td><td>да</td><td>да</td><td>нет</td><td>ключи — нет, значения — да</td></tr>
+          <tr><td>Изменить элемент</td><td><code>a[0] = 5</code></td><td>нельзя</td><td>нельзя: удалить и добавить</td><td><code>d["a"] = 5</code></td></tr>
+          <tr><td>Добавить</td><td><code>a.append(3)</code></td><td>нельзя</td><td><code>s.add(3)</code></td><td><code>d["b"] = 2</code></td></tr>
+          <tr><td>Удалить</td><td><code>a.remove(3)</code></td><td>нельзя</td><td><code>s.discard(3)</code></td><td><code>d.pop("a")</code></td></tr>
+          <tr><td><code>in</code> проверяет</td><td>элементы</td><td>элементы</td><td>элементы — быстро</td><td>ключи</td></tr>
+          <tr><td>Длина</td><td><code>len(a)</code></td><td><code>len(t)</code></td><td><code>len(s)</code></td><td><code>len(d)</code> — пар</td></tr>
+          <tr><td>Особые возможности</td><td>сортировка <code>sort()</code>, срезы</td><td>неизменность, ключ словаря</td><td>объединение, пересечение, разность: <code>| &amp; - ^</code></td><td><code>keys()</code>, <code>values()</code>, <code>items()</code></td></tr>
+          <tr><td>Превратить в этот тип</td><td><code>list(x)</code></td><td><code>tuple(x)</code></td><td><code>set(x)</code> — повторы исчезнут</td><td><code>dict(пары)</code></td></tr>
           <tr><td>Когда выбирать</td><td>ряд значений, который меняется</td><td>постоянные данные</td><td>набор без повторов, общие и различные элементы</td><td>данные «имя → значение»</td></tr>
         </table>
       </div>
@@ -1515,7 +1532,7 @@ s = {1, 3, 5}</pre>
       <button type="button" class="fpill" data-f="6" aria-selected="false">2 · Айырма</button>
       <button type="button" class="fpill" data-f="7" aria-selected="false">3 · Ішкі жиындар</button>
       <button type="button" class="fpill" data-f="8" aria-selected="false">4 · Барлық әдіс</button>
-      <button type="button" class="fpill" data-f="9" aria-selected="false">5 · Нені таңдау керек?</button>
+      <button type="button" class="fpill" data-f="9" aria-selected="false">5 · Тізіммен, кортежбен және сөздікпен салыстыру</button>
       <button type="button" class="fpill" data-f="10" aria-selected="false">Анықтамалық және қателер</button>
     </div>
 
@@ -1620,12 +1637,20 @@ s = {1, 3, 5}</pre>
       <p class="fname">Тізім, кортеж, жиын әлде сөздік пе?</p>
       <p class="simple"><b>Қарапайым тілмен:</b> тізім — ретімен тұрған кезек, кортеж — басылып шыққан кесте, жиын — қатысушылардың қайталаусыз тізімі, сөздік — аты бойынша іздейтін телефон кітапшасы.</p>
       <div class="tablewrap">
-        <table class="cheat">
+        <table class="cheat cmp">
           <tr><th></th><th>Тізім (list)</th><th>Кортеж (tuple)</th><th>Жиын (set)</th><th>Сөздік (dict)</th></tr>
-          <tr><td>Жақшалар</td><td><code>[1, 2]</code></td><td><code>(1, 2)</code></td><td><code>{1, 2}</code></td><td><code>{"a": 1}</code></td></tr>
-          <tr><td>Реті және индекстері</td><td>бар</td><td>бар</td><td>жоқ</td><td>реті бар, индексі жоқ — кілт бойынша жүгіну</td></tr>
-          <tr><td>Өзгертуге бола ма</td><td>иә</td><td>жоқ</td><td>иә: қосу және өшіру</td><td>иә</td></tr>
+          <tr><td>Қалай құрылады</td><td><code>[1, 2, 2]</code></td><td><code>(1, 2, 2)</code></td><td><code>{1, 2}</code></td><td><code>{"a": 1}</code></td></tr>
+          <tr><td>Бос</td><td><code>[]</code></td><td><code>()</code></td><td><code>set()</code></td><td><code>{}</code></td></tr>
+          <tr><td>Реті</td><td>бар</td><td>бар</td><td>жоқ</td><td>қосылу реті</td></tr>
+          <tr><td>Элементке жүгіну</td><td><code>a[0]</code></td><td><code>t[0]</code></td><td>жоқ: тек <code>in</code> және аралау</td><td><code>d["a"]</code> — кілт бойынша</td></tr>
           <tr><td>Қайталаулар</td><td>иә</td><td>иә</td><td>жоқ</td><td>кілттер — жоқ, мәндер — иә</td></tr>
+          <tr><td>Элементті өзгерту</td><td><code>a[0] = 5</code></td><td>болмайды</td><td>болмайды: өшіріп, қайта қосу керек</td><td><code>d["a"] = 5</code></td></tr>
+          <tr><td>Қосу</td><td><code>a.append(3)</code></td><td>болмайды</td><td><code>s.add(3)</code></td><td><code>d["b"] = 2</code></td></tr>
+          <tr><td>Өшіру</td><td><code>a.remove(3)</code></td><td>болмайды</td><td><code>s.discard(3)</code></td><td><code>d.pop("a")</code></td></tr>
+          <tr><td><code>in</code> нені тексереді</td><td>элементтерді</td><td>элементтерді</td><td>элементтерді — жылдам</td><td>кілттерді</td></tr>
+          <tr><td>Ұзындық</td><td><code>len(a)</code></td><td><code>len(t)</code></td><td><code>len(s)</code></td><td><code>len(d)</code> — жұптар саны</td></tr>
+          <tr><td>Ерекше мүмкіндіктер</td><td>сұрыптау <code>sort()</code>, кесінділер</td><td>өзгермейді, сөздік кілті бола алады</td><td>бірігу, қиылысу, айырма: <code>| &amp; - ^</code></td><td><code>keys()</code>, <code>values()</code>, <code>items()</code></td></tr>
+          <tr><td>Осы типке айналдыру</td><td><code>list(x)</code></td><td><code>tuple(x)</code></td><td><code>set(x)</code> — қайталанулар жойылады</td><td><code>dict(жұптар)</code></td></tr>
           <tr><td>Қашан таңдау керек</td><td>өзгеретін мәндер қатары</td><td>тұрақты деректер</td><td>қайталаусыз жиынтық, ортақ және әртүрлі элементтер</td><td>«аты → мәні» деректері</td></tr>
         </table>
       </div>
@@ -2413,7 +2438,7 @@ function showExp(text) {
 }
 
 /* Карточки нового материала: 0–4 — множество, 5–10 — операции и методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["множество", "проверка и перебор", "добавление и удаление", "список → множество", "frozenset", "объединение и пересечение", "разность", "подмножества", "все методы", "что выбрать?", "шпаргалка и ошибки"];
+const CARD_NAMES = ["множество", "проверка и перебор", "добавление и удаление", "список → множество", "frozenset", "объединение и пересечение", "разность", "подмножества", "все методы", "сравнение со списком, кортежем и словарём", "шпаргалка и ошибки"];
 const CARD_SETS = { learn: [0, 1, 2, 3, 4], methods: [5, 6, 7, 8, 9, 10] };
 const LEARN_LAST = 4, METHODS_FIRST = 5, METHODS_LAST = 10;
 const cardCur = { learn: 0, methods: METHODS_FIRST };
@@ -2511,6 +2536,7 @@ const EX = {
     { code: "a = {1, 2, 3}\na.symmetric_difference_update({3, 4})\nprint(a)", out: "{1, 2, 4}", note: "a заменилось симметрической разностью." }
   ],
   svs: [
+    { code: "names = [\"Айдана\", \"Тимур\", \"Айдана\"]\nt = tuple(names)\ns = set(names)\nd = dict.fromkeys(names, 0)\nprint(len(names), len(t), len(s), len(d))", out: "3 3 2 2", note: "Одни и те же данные: список и кортеж хранят повтор, множество и ключи словаря — нет." },
     { code: "visits = [\"Айдана\", \"Тимур\", \"Айдана\"]\nprint(len(visits), len(set(visits)))", out: "3 2", note: "Список помнит каждое посещение, множество — только разных посетителей." },
     { code: "a = [1, 5, 9]\ns = {1, 5, 9}\nprint(5 in a, 5 in s, a[0])", out: "True True 1", note: "in работает в обоих; номер элемента есть только у списка." }
   ]
@@ -4179,7 +4205,7 @@ function showExp(text) {
 }
 
 /* Карточки нового материала: 0–4 — множество, 5–10 — операции и методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["жиын", "тексеру және аралау", "қосу және өшіру", "тізім → жиын", "frozenset", "бірігу және қиылысу", "айырма", "ішкі жиындар", "барлық әдіс", "нені таңдау керек?", "анықтамалық және қателер"];
+const CARD_NAMES = ["жиын", "тексеру және аралау", "қосу және өшіру", "тізім → жиын", "frozenset", "бірігу және қиылысу", "айырма", "ішкі жиындар", "барлық әдіс", "тізіммен, кортежбен және сөздікпен салыстыру", "анықтамалық және қателер"];
 const CARD_SETS = { learn: [0, 1, 2, 3, 4], methods: [5, 6, 7, 8, 9, 10] };
 const LEARN_LAST = 4, METHODS_FIRST = 5, METHODS_LAST = 10;
 const cardCur = { learn: 0, methods: METHODS_FIRST };
@@ -4277,6 +4303,7 @@ const EX = {
     { code: "a = {1, 2, 3}\na.symmetric_difference_update({3, 4})\nprint(a)", out: "{1, 2, 4}", note: "a симметриялық айырмамен ауыстырылды." }
   ],
   svs: [
+    { code: "names = [\"Айдана\", \"Тимур\", \"Айдана\"]\nt = tuple(names)\ns = set(names)\nd = dict.fromkeys(names, 0)\nprint(len(names), len(t), len(s), len(d))", out: "3 3 2 2", note: "Деректер бірдей: тізім мен кортеж қайталануды сақтайды, ал жиын мен сөздік кілттері — жоқ." },
     { code: "visits = [\"Айдана\", \"Тимур\", \"Айдана\"]\nprint(len(visits), len(set(visits)))", out: "3 2", note: "Тізім әр келуді есте сақтайды, жиын — тек әртүрлі келушілерді." },
     { code: "a = [1, 5, 9]\ns = {1, 5, 9}\nprint(5 in a, 5 in s, a[0])", out: "True True 1", note: "in екеуінде де жұмыс істейді; элемент нөмірі тек тізімде бар." }
   ]

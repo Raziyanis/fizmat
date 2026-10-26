@@ -430,6 +430,10 @@ td.wrongl .ch { color: var(--bad); }
 .chart details { margin-top: 6px; font-size: .85rem; }
 .chart summary { cursor: pointer; color: var(--muted); }
 
+/* Телефон: длинный код переносится, карточки не шире экрана */
+.panel > * { min-width: 0; }
+@media (max-width: 600px) { code, .mt-opt { white-space: normal; overflow-wrap: anywhere; } .panel p { overflow-wrap: anywhere; } }
+
 .lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
 .lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
 .lang-sw button[aria-pressed="true"]{background:var(--c, #1d7652);color:#fff}

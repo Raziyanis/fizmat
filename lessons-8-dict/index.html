@@ -418,6 +418,15 @@ input.blank.bad { border-color: var(--bad); }
 .ol-list li.bad { color: var(--bad); }
 .th-item.th-wide { grid-column: 1 / -1; }
 
+/* Таблица сравнения коллекций: одно действие — в каждой коллекции */
+.cmp { min-width: 620px; }
+.cmp td:first-child { font-weight: 600; white-space: nowrap; }
+.cmp td code { white-space: nowrap; }
+
+/* Телефон: длинный код переносится, карточки не шире экрана */
+.panel > * { min-width: 0; }
+@media (max-width: 600px) { code { white-space: normal; overflow-wrap: anywhere; } .cmp td code { white-space: nowrap; } }
+
 .lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
 .lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
 .lang-sw button[aria-pressed="true"]{background:var(--c, #1d7652);color:#fff}
@@ -821,7 +830,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     <div class="fpills" role="tablist" aria-label="Методы">
       <button type="button" class="fpill" data-f="6" aria-selected="true">1 · Списки и кортежи → словарь</button>
       <button type="button" class="fpill" data-f="7" aria-selected="false">2 · Методы словаря</button>
-      <button type="button" class="fpill" data-f="8" aria-selected="false">3 · Что выбрать?</button>
+      <button type="button" class="fpill" data-f="8" aria-selected="false">3 · Сравнение со списком и кортежем</button>
       <button type="button" class="fpill" data-f="9" aria-selected="false">Шпаргалка и ошибки</button>
     </div>
 
@@ -882,12 +891,20 @@ globalThis._createPyodideModule = _createPyodideModule;
       <p class="fname">Список, кортеж или словарь?</p>
       <p class="simple"><b>Простыми словами:</b> список — очередь по порядку, кортеж — напечатанная таблица, словарь — телефонная книга с поиском по имени.</p>
       <div class="tablewrap">
-        <table class="cheat">
+        <table class="cheat cmp">
           <tr><th></th><th>Список (list)</th><th>Кортеж (tuple)</th><th>Словарь (dict)</th></tr>
-          <tr><td>Скобки</td><td><code>[1, 2]</code></td><td><code>(1, 2)</code></td><td><code>{"a": 1}</code></td></tr>
-          <tr><td>Как найти элемент</td><td>по номеру</td><td>по номеру</td><td>по ключу</td></tr>
-          <tr><td>Можно изменить</td><td>да</td><td>нет</td><td>да</td></tr>
+          <tr><td>Как создать</td><td><code>a = [250, 1800]</code></td><td><code>t = (250, 1800)</code></td><td><code>d = {"хлеб": 250, "сыр": 1800}</code></td></tr>
+          <tr><td>Пустой</td><td><code>[]</code></td><td><code>()</code></td><td><code>{}</code> или <code>dict()</code></td></tr>
+          <tr><td>Как найти элемент</td><td>по номеру: <code>a[0]</code></td><td>по номеру: <code>t[0]</code></td><td>по ключу: <code>d["хлеб"]</code></td></tr>
+          <tr><td>Если такого нет</td><td>ошибка <code>IndexError</code></td><td>ошибка <code>IndexError</code></td><td>ошибка <code>KeyError</code>; без ошибки — <code>d.get("чай", 0)</code></td></tr>
+          <tr><td>Изменить</td><td><code>a[0] = 260</code></td><td>нельзя</td><td><code>d["хлеб"] = 260</code></td></tr>
+          <tr><td>Добавить</td><td><code>a.append(900)</code></td><td>нельзя</td><td><code>d["чай"] = 900</code></td></tr>
+          <tr><td>Удалить</td><td><code>a.pop(0)</code></td><td>нельзя</td><td><code>d.pop("хлеб")</code></td></tr>
+          <tr><td><code>in</code> проверяет</td><td>элементы</td><td>элементы</td><td>ключи</td></tr>
           <tr><td>Повторы</td><td>да</td><td>да</td><td>ключи — нет, значения — да</td></tr>
+          <tr><td>Перебор</td><td><code>for x in a:</code></td><td><code>for x in t:</code></td><td><code>for k, v in d.items():</code></td></tr>
+          <tr><td>Длина</td><td><code>len(a)</code> — элементов</td><td><code>len(t)</code> — элементов</td><td><code>len(d)</code> — пар</td></tr>
+          <tr><td>Ключ словаря</td><td>не может быть</td><td>может быть</td><td>не может быть</td></tr>
           <tr><td>Когда выбирать</td><td>ряд значений, который меняется</td><td>постоянные данные</td><td>данные «имя → значение»</td></tr>
           <tr><td>Превратить в словарь</td><td><code>dict(список_пар)</code></td><td><code>dict(кортеж_пар)</code></td><td>—</td></tr>
         </table>
@@ -1508,7 +1525,7 @@ name, score = input().split()        # строка «имя балл» — в �
     <div class="fpills" role="tablist" aria-label="Әдістер">
       <button type="button" class="fpill" data-f="6" aria-selected="true">1 · Тізімдер мен кортеждер → сөздік</button>
       <button type="button" class="fpill" data-f="7" aria-selected="false">2 · Сөздік әдістері</button>
-      <button type="button" class="fpill" data-f="8" aria-selected="false">3 · Нені таңдау керек?</button>
+      <button type="button" class="fpill" data-f="8" aria-selected="false">3 · Тізіммен және кортежбен салыстыру</button>
       <button type="button" class="fpill" data-f="9" aria-selected="false">Анықтамалық және қателер</button>
     </div>
 
@@ -1569,12 +1586,20 @@ name, score = input().split()        # строка «имя балл» — в �
       <p class="fname">Тізім, кортеж бе, әлде сөздік пе?</p>
       <p class="simple"><b>Қарапайым тілмен:</b> тізім — ретімен тұрған кезек, кортеж — басылған кесте, сөздік — аты бойынша іздейтін телефон кітапшасы.</p>
       <div class="tablewrap">
-        <table class="cheat">
+        <table class="cheat cmp">
           <tr><th></th><th>Тізім (list)</th><th>Кортеж (tuple)</th><th>Сөздік (dict)</th></tr>
-          <tr><td>Жақшалар</td><td><code>[1, 2]</code></td><td><code>(1, 2)</code></td><td><code>{"a": 1}</code></td></tr>
-          <tr><td>Элементті қалай табады</td><td>нөмірі бойынша</td><td>нөмірі бойынша</td><td>кілт бойынша</td></tr>
-          <tr><td>Өзгертуге бола ма</td><td>иә</td><td>жоқ</td><td>иә</td></tr>
+          <tr><td>Қалай құрылады</td><td><code>a = [250, 1800]</code></td><td><code>t = (250, 1800)</code></td><td><code>d = {"нан": 250, "ірімшік": 1800}</code></td></tr>
+          <tr><td>Бос</td><td><code>[]</code></td><td><code>()</code></td><td><code>{}</code> немесе <code>dict()</code></td></tr>
+          <tr><td>Элементті қалай табады</td><td>нөмірі бойынша: <code>a[0]</code></td><td>нөмірі бойынша: <code>t[0]</code></td><td>кілті бойынша: <code>d["нан"]</code></td></tr>
+          <tr><td>Ондай элемент жоқ болса</td><td>қате <code>IndexError</code></td><td>қате <code>IndexError</code></td><td>қате <code>KeyError</code>; қатесіз — <code>d.get("шай", 0)</code></td></tr>
+          <tr><td>Өзгерту</td><td><code>a[0] = 260</code></td><td>болмайды</td><td><code>d["нан"] = 260</code></td></tr>
+          <tr><td>Қосу</td><td><code>a.append(900)</code></td><td>болмайды</td><td><code>d["шай"] = 900</code></td></tr>
+          <tr><td>Өшіру</td><td><code>a.pop(0)</code></td><td>болмайды</td><td><code>d.pop("нан")</code></td></tr>
+          <tr><td><code>in</code> нені тексереді</td><td>элементтерді</td><td>элементтерді</td><td>кілттерді</td></tr>
           <tr><td>Қайталаулар</td><td>иә</td><td>иә</td><td>кілттер — жоқ, мәндер — иә</td></tr>
+          <tr><td>Аралау</td><td><code>for x in a:</code></td><td><code>for x in t:</code></td><td><code>for k, v in d.items():</code></td></tr>
+          <tr><td>Ұзындық</td><td><code>len(a)</code> — элементтер саны</td><td><code>len(t)</code> — элементтер саны</td><td><code>len(d)</code> — жұптар саны</td></tr>
+          <tr><td>Сөздік кілті</td><td>бола алмайды</td><td>бола алады</td><td>бола алмайды</td></tr>
           <tr><td>Қашан таңдау керек</td><td>өзгеретін мәндер қатары</td><td>тұрақты деректер</td><td>«аты → мәні» деректері</td></tr>
           <tr><td>Сөздікке айналдыру</td><td><code>dict(жұптар_тізімі)</code></td><td><code>dict(жұптар_кортежі)</code></td><td>—</td></tr>
         </table>
@@ -2356,7 +2381,7 @@ function showExp(text) {
 }
 
 /* Карточки нового материала: 0–5 — словарь, 6–9 — преобразование и методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["словарь", "доступ по ключу", "изменение", "перебор", "подсчёт", "вложенные словари", "списки и кортежи → словарь", "методы словаря", "что выбрать?", "шпаргалка и ошибки"];
+const CARD_NAMES = ["словарь", "доступ по ключу", "изменение", "перебор", "подсчёт", "вложенные словари", "списки и кортежи → словарь", "методы словаря", "сравнение со списком и кортежем", "шпаргалка и ошибки"];
 const CARD_SETS = { learn: [0, 1, 2, 3, 4, 5], methods: [6, 7, 8, 9] };
 const LEARN_LAST = 5, METHODS_FIRST = 6, METHODS_LAST = 9;
 const cardCur = { learn: 0, methods: METHODS_FIRST };
@@ -2439,7 +2464,8 @@ const EX = {
   ],
   dvs: [
     { code: "days = (\"Пн\", \"Вт\")\nshop = [\"хлеб\"]\nprices = {\"хлеб\": 250}\nprint(days[0], shop[-1], prices[\"хлеб\"])", out: "Пн хлеб 250", note: "Кортеж и список — по номеру, словарь — по ключу." },
-    { code: "names = [\"Айдана\", \"Тимур\"]\nmarks = [5, 4]\nprint(marks[names.index(\"Тимур\")])\njournal = dict(zip(names, marks))\nprint(journal[\"Тимур\"])", out: "4\n4", note: "Со словарём поиск по имени — одна запись вместо двух шагов." }
+    { code: "names = [\"Айдана\", \"Тимур\"]\nmarks = [5, 4]\nprint(marks[names.index(\"Тимур\")])\njournal = dict(zip(names, marks))\nprint(journal[\"Тимур\"])", out: "4\n4", note: "Со словарём поиск по имени — одна запись вместо двух шагов." },
+    { code: "a = [5, 4]\nt = (5, 4)\nd = {\"Айдана\": 5, \"Тимур\": 4}\nprint(a[1], t[1], d[\"Тимур\"])\nprint(4 in a, 4 in d, \"Тимур\" in d)", out: "4 4 4\nTrue False True", note: "Список и кортеж — по номеру, словарь — по ключу; in у словаря проверяет ключи." }
   ]
 };
 /* Начальный код редакторов «Попробуй сам» */
@@ -4095,7 +4121,7 @@ function showExp(text) {
 }
 
 /* Карточки нового материала: 0–5 — словарь, 6–9 — преобразование и методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["сөздік", "кілт бойынша жүгіну", "өзгерту", "аралап шығу", "санау", "кірістірілген сөздіктер", "тізімдер мен кортеждер → сөздік", "сөздік әдістері", "нені таңдау керек?", "анықтамалық және қателер"];
+const CARD_NAMES = ["сөздік", "кілт бойынша жүгіну", "өзгерту", "аралап шығу", "санау", "кірістірілген сөздіктер", "тізімдер мен кортеждер → сөздік", "сөздік әдістері", "тізіммен және кортежбен салыстыру", "анықтамалық және қателер"];
 const CARD_SETS = { learn: [0, 1, 2, 3, 4, 5], methods: [6, 7, 8, 9] };
 const LEARN_LAST = 5, METHODS_FIRST = 6, METHODS_LAST = 9;
 const cardCur = { learn: 0, methods: METHODS_FIRST };
@@ -4178,7 +4204,8 @@ const EX = {
   ],
   dvs: [
     { code: "days = (\"Дс\", \"Сс\")\nshop = [\"нан\"]\nprices = {\"нан\": 250}\nprint(days[0], shop[-1], prices[\"нан\"])", out: "Дс нан 250", note: "Кортеж бен тізім — нөмір бойынша, сөздік — кілт бойынша." },
-    { code: "names = [\"Айдана\", \"Тимур\"]\nmarks = [5, 4]\nprint(marks[names.index(\"Тимур\")])\njournal = dict(zip(names, marks))\nprint(journal[\"Тимур\"])", out: "4\n4", note: "Сөздікпен аты бойынша іздеу — екі қадамның орнына бір жазба." }
+    { code: "names = [\"Айдана\", \"Тимур\"]\nmarks = [5, 4]\nprint(marks[names.index(\"Тимур\")])\njournal = dict(zip(names, marks))\nprint(journal[\"Тимур\"])", out: "4\n4", note: "Сөздікпен аты бойынша іздеу — екі қадамның орнына бір жазба." },
+    { code: "a = [5, 4]\nt = (5, 4)\nd = {\"Айдана\": 5, \"Тимур\": 4}\nprint(a[1], t[1], d[\"Тимур\"])\nprint(4 in a, 4 in d, \"Тимур\" in d)", out: "4 4 4\nTrue False True", note: "Тізім мен кортеж — нөмір бойынша, сөздік — кілт бойынша; сөздікте in кілттерді тексереді." }
   ]
 };
 /* Начальный код редакторов «Попробуй сам» */
