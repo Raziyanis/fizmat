@@ -1388,7 +1388,7 @@ s = {1, 3, 5}</pre>
       <p class="how"><span>Қалай жазылады:</span> <code>s = {1, 2, 3}</code>, <code>s = set(коллекция)</code>, <code>s = set()</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p>Жиын (set) — белгілі бір реті жоқ, қайталанбайтын элементтерден тұратын өзгермелі коллекция. Элементтер фигуралық жақшада үтір арқылы жазылады. Мына функция: <code>set()</code> тізімнен, кортежден немесе жолдан жиын жасайды, ал аргументсіз — бос жиын жасайды.</p>
+      <p>Жиын (set) — қайталанбайтын элементтердің жиынтығы. Элементтердің белгілі бір реті болмайды, ал жиынды өзгертуге болады: элемент қосуға да, өшіруге де болады. Элементтер фигуралық жақшаға алынып, үтір арқылы жазылады. <code>set()</code> функциясы тізімнен, кортежден немесе жолдан жиын жасайды; жақшасына ештеңе жазылмаса, бос жиын жасайды.</p>
       <h3>Синтаксис</h3>
       <p class="syn"><code>атау = {элемент1, элемент2, …}</code> · <code>аты = set(коллекция)</code></p>
       <p>Бос жиын — тек <code>set()</code>: ал мына жазба <code>{}</code> бос сөздік жасайды.</p>
@@ -1396,52 +1396,52 @@ s = {1, 3, 5}</pre>
       <p class="small-note">«Редакторда ашу» батырмасы мысалды төмендегі редакторға көшіреді — онда оны өзгертіп, іске қосуға болады.</p>
       <div class="exlist" data-ex="screate"></div>
       <h3>Жиынның қасиеттері</h3>
-      <ul><li><b>Ретсіз:</b> элементтерде нөмір жоқ, сондықтан <code>s[0]</code> — қате. Шығару реті жазылу ретінен де өзгеше болуы мүмкін, бір іске қосудан екіншісіне дейін де өзгеруі мүмкін; элементтерді ретімен шығару үшін мынаны қолданады: <code>sorted(s)</code>.</li><li><b>Қайталаусыз:</b> қайталанатын мәндер бір рет сақталады. <code>True</code> және <code>1</code>, <code>False</code> және <code>0</code> бір мән болып саналады.</li><li><b>Өзгермелі:</b> элементтерді қосуға және өшіруге болады, бірақ элементтердің өзін өзгертуге болмайды.</li></ul>
+      <ul><li><b>Реті жоқ:</b> элементтердің нөмірі болмайды, сондықтан <code>s[0]</code> деп жазу — қате. Python элементтерді жазылған ретпен шығармауы мүмкін, ал бағдарламаны қайта іске қосқанда рет тағы өзгеруі мүмкін. Элементтерді ретімен шығару үшін <code>sorted(s)</code> қолданылады.</li><li><b>Қайталанбайды:</b> бірдей мәндер жиында бір-ақ рет сақталады. Python <code>True</code> мен <code>1</code>-ді, <code>False</code> пен <code>0</code>-ді бір мән деп санайды.</li><li><b>Өзгертуге болады:</b> жиынға элемент қосуға және одан элемент өшіруге болады, бірақ жиын ішіндегі элементтің өзін өзгерту мүмкін емес.</li></ul>
       <h3>Білу маңызды</h3>
-      <ul><li>Жиын элементі тек өзгермейтін мән бола алады: сан, жол, кортеж. Тізім элемент бола алмайды.</li><li>Элементтер әртүрлі типті болуы мүмкін: <code>{"abc", 34, True}</code>.</li><li><code>type(s)</code> жиын үшін — <code>&lt;class 'set'&gt;</code>; <code>len(s)</code> — элементтер саны.</li></ul>
+      <ul><li>Жиынның элементі тек өзгермейтін мән бола алады: сан, жол немесе кортеж. Тізім жиынның элементі бола алмайды.</li><li>Бір жиында әртүрлі типтегі элементтер бола береді: <code>{"abc", 34, True}</code>.</li><li><code>type(s)</code> жиын үшін <code>&lt;class 'set'&gt;</code> деп көрсетеді, ал <code>len(s)</code> жиындағы элементтер санын береді.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="screate"></div></div>
-      <p class="remember"><b>Есте сақта:</b> жиын — қос нүктесіз фигуралық жақша. Қайталану жоқ, рет жоқ. Бос жиын — <code>set()</code>.</p>
+      <p class="remember"><b>Есте сақта:</b> жиын фигуралық жақшада жазылады, қос нүкте қойылмайды. Қайталану да, рет те жоқ. Бос жиын — <code>set()</code>.</p>
     </section>
 
     <!-- Проверка и перебор -->
     <section class="block fcard" data-card="1" hidden>
       <p class="fname"><code>in</code>, <code>for</code>, <code>sorted</code> — тексеру және аралау</p>
       <p class="simple"><b>Қарапайым тілмен:</b> жиыннан «үшінші кім?» деп сұрауға болмайды, бірақ «Тимур бар ма?» деп сұрауға және барлық қатысушыны аралап шығуға болады.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Оқушы үйірмеге жазылған ба:</span> <code>"Тимур" in chess</code></li><li><span>Қатысушыларды әліпби бойынша шығару:</span> <code>for name in sorted(chess):</code></li><li><span>Ең үлкен ұтыс нөмірі:</span> <code>max(win)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> нөмір бойынша жүгіну <code>s[0]</code> — қате: жиында индекс жоқ.</p></div>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Оқушы үйірмеге жазылған ба:</span> <code>"Тимур" in chess</code></li><li><span>Қатысушыларды әліпби бойынша шығару:</span> <code>for name in sorted(chess):</code></li><li><span>Ең үлкен ұтыс нөмірі:</span> <code>max(win)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> <code>s[0]</code> сияқты нөмір бойынша жүгіну қате береді: жиында индекс жоқ.</p></div>
       <p class="how"><span>Қалай жазылады:</span> <code>x in s</code>, <code>x not in s</code>, <code>for x in s:</code>, <code>sorted(s)</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p>Мына оператор <code>x in s</code> элементтің жиында бар-жоғын тексереді, <code>x not in s</code> — оның жоқ екенін. Мына цикл: <code>for x in s</code> барлық элементті аралайды, бірақ қандай ретпен — кепілдік жоқ. <code>sorted(s)</code> элементтердің тізімін өсу ретімен қайтарады. Мына функциялар: <code>len</code>, <code>min</code>, <code>max</code>, <code>sum</code> жиынмен тізіммен бірдей жұмыс істейді.</p>
+      <p><code>x in s</code> операторы x элементі жиында бар-жоғын тексереді, ал <code>x not in s</code> — оның жоқ екенін тексереді. <code>for x in s</code> циклі жиынның барлық элементін аралап шығады, бірақ қандай ретпен аралайтыны алдын ала белгісіз. <code>sorted(s)</code> жиын элементтерін өсу ретімен тізім түрінде қайтарады. <code>len</code>, <code>min</code>, <code>max</code>, <code>sum</code> функциялары жиынмен де тізіммен жұмыс істегендей жұмыс істейді.</p>
       <h3>Синтаксис</h3>
       <p class="syn"><code>элемент in жиын</code> · <code>for элемент in sorted(жиын):</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="saccess"></div>
       <h3>Білу маңызды</h3>
-      <ul><li>Тексеру <code>in</code> жиында тіпті өте үлкен жиынтықта да жылдам жұмыс істейді: Python тізімдегідей элементтерді бір-бірлеп аралап шықпайды.</li><li><code>sorted(s)</code> жиынды өзгертпейді, жаңа тізім жасайды.</li></ul>
+      <ul><li>Жиында <code>in</code> арқылы тексеру өте үлкен жиынтықта да жылдам орындалады: Python тізімдегідей элементтерді бір-бірлеп қарап шықпайды.</li><li><code>sorted(s)</code> жиынның өзін өзгертпейді, ол жаңа тізім жасайды.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="saccess"></div></div>
-      <p class="remember"><b>Есте сақта:</b> элемент бар ма — <code>in</code>; барлық элемент ретімен — <code>sorted(s)</code>.</p>
+      <p class="remember"><b>Есте сақта:</b> элементтің бар-жоғын <code>in</code> тексереді; барлық элементті ретімен <code>sorted(s)</code> береді.</p>
     </section>
 
     <!-- Добавление и удаление -->
     <section class="block fcard" data-card="2" hidden>
       <p class="fname">Қосу және өшіру: <code>add</code>, <code>update</code>, <code>remove</code>, <code>discard</code></p>
       <p class="simple"><b>Қарапайым тілмен:</b> үйірмеге жаңа оқушыны жазуға немесе кеткен оқушыны сызып тастауға болады. Бұрыннан бар оқушыны жазсаң — ештеңе өзгермейді.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Жаңа қатысушы:</span> <code>chess.add("Арман")</code></li><li><span>Бүтін тізімді бірден жазу:</span> <code>chess.update(["Ерлан", "Асель"])</code></li><li><span>Оқушыны сызып тастау, ол жоқ болса да:</span> <code>chess.discard("Тимур")</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> <code>remove</code> жоқ элемент үшін — мына қате: <code>KeyError</code>. Сонда мынаны қолданады: <code>discard</code>.</p></div>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Жаңа қатысушы:</span> <code>chess.add("Арман")</code></li><li><span>Бүтін тізімді бірден жазу:</span> <code>chess.update(["Ерлан", "Асель"])</code></li><li><span>Оқушыны сызып тастау, ол жоқ болса да:</span> <code>chess.discard("Тимур")</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> жиында жоқ элементті <code>remove</code> арқылы өшірсек, <code>KeyError</code> қатесі шығады. Мұндай жағдайда <code>discard</code> қолданылады.</p></div>
       <p class="how"><span>Қалай жазылады:</span> <code>s.add(x)</code>, <code>s.update(коллекция)</code>, <code>s.remove(x)</code>, <code>s.discard(x)</code>, <code>s.pop()</code>, <code>s.clear()</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p><code>add(x)</code> бір элемент қосады, <code>update(…)</code> — басқа коллекцияның барлық элементін қосады: жиынның, тізімнің, кортеждің. <code>remove(x)</code> элементті өшіреді, ал ол жоқ болса — қате <code>KeyError</code>. <code>discard(x)</code> элементті өшіреді және ол жоқ болса, қате бермейді. <code>pop()</code> бір элементті өшіріп, қайтарады — нақты қайсысы екені алдын ала белгісіз. <code>clear()</code> жиынды тазалайды, <code>del s</code> оны толығымен өшіреді.</p>
+      <p><code>add(x)</code> әдісі жиынға бір элемент қосады, ал <code>update(…)</code> басқа коллекцияның (жиынның, тізімнің, кортеждің) барлық элементін қосады. <code>remove(x)</code> x элементін өшіреді; егер ондай элемент жоқ болса, <code>KeyError</code> қатесі шығады. <code>discard(x)</code> да элементті өшіреді, бірақ элемент жоқ болса, қате бермейді. <code>pop()</code> жиыннан бір элементті өшіріп, соны қайтарады; қай элемент өшетіні алдын ала белгісіз. <code>clear()</code> жиынды толық тазалайды, ал <code>del s</code> жиынды атымен қоса жояды.</p>
       <h3>Синтаксис</h3>
       <p class="syn"><code>жиын.add(элемент)</code> · <code>жиын.discard(элемент)</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="schange"></div>
       <h3>Білу маңызды</h3>
-      <ul><li>Бұрыннан бар элементті қосу — қате емес: жиын өзгермейді.</li><li>Жиынның көшірмесі — <code>s.copy()</code>; мына жазу <code>b = s</code> көшірме жасамайды: бұл сол жиынның екінші аты.</li><li>Жиында мына әдістер жоқ: <code>append</code> және <code>insert</code>— элементтің орны болмайды, оны жай ғана қосады.</li></ul>
+      <ul><li>Жиында бұрыннан бар элементті қайта қосу қате емес: жиын өзгермейді.</li><li>Жиынның көшірмесін <code>s.copy()</code> жасайды. <code>b = s</code> деп жазсақ, көшірме жасалмайды: <code>b</code> — сол жиынның екінші аты ғана.</li><li>Жиында <code>append</code> және <code>insert</code> әдістері жоқ: жиында элементтің орны болмайды, сондықтан элемент жай ғана қосылады.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="schange"></div></div>
-      <p class="remember"><b>Есте сақта:</b> қосу — <code>add</code>; қатесіз өшіру — <code>discard</code>; <code>remove</code> элементтің болуын талап етеді.</p>
+      <p class="remember"><b>Есте сақта:</b> қосу — <code>add</code>; қатесіз өшіру — <code>discard</code>; <code>remove</code> үшін элемент жиында болуы керек.</p>
     </section>
 
     <!-- Список → множество -->
@@ -1452,33 +1452,33 @@ s = {1, 3, 5}</pre>
       <p class="how"><span>Қалай жазылады:</span> <code>set(a)</code>, <code>len(set(a))</code>, <code>sorted(set(a))</code>, <code>list(set(a))</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p><code>set(a)</code> тізімді, кортежді немесе жолды жиынға айналдырады — бұл кезде қайталанулар жойылады. Кері қарай жиынды тізімге мына функциялар айналдырады: <code>list(s)</code> немесе <code>sorted(s)</code>; екінші жағдайда элементтер өсу ретімен тұрады.</p>
+      <p><code>set(a)</code> тізімді, кортежді немесе жолды жиынға айналдырады, сонда қайталанатын мәндер жойылады. Жиынды қайтадан тізімге айналдыру үшін <code>list(s)</code> немесе <code>sorted(s)</code> функциясы қолданылады; <code>sorted(s)</code> элементтерді өсу ретімен орналастырады.</p>
       <h3>Синтаксис</h3>
       <p class="syn"><code>set(тізім)</code> · <code>sorted(set(тізім))</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="sconv"></div>
       <h3>Білу маңызды</h3>
-      <ul><li><code>list(set(a))</code> қайталануларды алып тастайды, бірақ элементтердің реті өзгеруі мүмкін. Өсу реті керек болса — <code>sorted(set(a))</code>.</li><li><code>set("жол")</code> — жолдағы әріптер жиыны.</li></ul>
+      <ul><li><code>list(set(a))</code> қайталануларды жояды, бірақ элементтердің реті өзгеріп кетуі мүмкін. Элементтер өсу ретімен тұруы керек болса, <code>sorted(set(a))</code> жазылады.</li><li><code>set("жол")</code> жолдағы әріптердің жиынын береді.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="sconv"></div></div>
-      <p class="remember"><b>Есте сақта:</b> қайталануларды алып тастау — <code>set(a)</code>; әртүрлілерінің саны — <code>len(set(a))</code>.</p>
+      <p class="remember"><b>Есте сақта:</b> қайталануларды жою — <code>set(a)</code>; неше түрлі мән бар екенін білу — <code>len(set(a))</code>.</p>
     </section>
 
     <!-- frozenset -->
     <section class="block fcard" data-card="4" hidden>
       <p class="fname"><code>frozenset</code> — өзгермейтін жиын</p>
       <p class="simple"><b>Қарапайым тілмен:</b> frozenset — «мұздатылған» жиын: оны оқуға және салыстыруға болады, бірақ толықтыруға немесе қысқартуға болмайды.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Бүлінбеуі керек тұрақты жиынтық:</span> <code>VOWELS = frozenset("aeiou")</code></li><li><span>Жиынтық сөздік кілті ретінде:</span> <code>d[frozenset({1, 2})] = "жұп"</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> элементтерді қосу және өшіру керек болса — мына кәдімгі жиын керек: <code>set</code>.</p></div>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Бүлінбеуі керек тұрақты жиынтық:</span> <code>VOWELS = frozenset("aeiou")</code></li><li><span>Жиынтық сөздік кілті ретінде:</span> <code>d[frozenset({1, 2})] = "жұп"</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> элементтерді қосу және өшіру керек болса, кәдімгі <code>set</code> керек.</p></div>
       <p class="how"><span>Қалай жазылады:</span> <code>x = frozenset(коллекция)</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p><code>frozenset</code> — жиынның өзгермейтін нұсқасы. Ол кәдімгі <code>set</code>сияқты, қайталанбайтын элементтерді ретсіз сақтайды. Бірақ кәдімгі <code>set</code>жиыннан айырмашылығы — элементтерді қосуға және өшіруге болмайды: мына әдістер <code>add</code>, <code>remove</code>, <code>discard</code>, <code>update</code> онда жоқ. Жиынды өзгертпейтін барлық амал жұмыс істейді: <code>union</code>, <code>intersection</code>, <code>difference</code>, <code>issubset</code> және мына таңбалар: <code>| &amp; - ^</code>.</p>
+      <p><code>frozenset</code> — өзгермейтін жиын. Ол да <code>set</code> сияқты қайталанбайтын элементтерді ретсіз сақтайды. Айырмашылығы: <code>frozenset</code>-ке элемент қосуға да, одан өшіруге де болмайды, сондықтан онда <code>add</code>, <code>remove</code>, <code>discard</code>, <code>update</code> әдістері жоқ. Ал жиынды өзгертпейтін амалдардың бәрі жұмыс істейді: <code>union</code>, <code>intersection</code>, <code>difference</code>, <code>issubset</code> әдістері және <code>| &amp; - ^</code> таңбалары.</p>
       <h3>Синтаксис</h3>
       <p class="syn"><code>frozenset(коллекция)</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="sfrozen"></div>
       <h3>Білу маңызды</h3>
-      <ul><li>frozenset өзгермейді, сондықтан ол сөздік кілті немесе басқа жиынның элементі бола алады, ал кәдімгі set — бола алмайды.</li><li>Типі: <code>&lt;class 'frozenset'&gt;</code>.</li></ul>
+      <ul><li>frozenset өзгермейтіндіктен, ол сөздіктің кілті немесе басқа жиынның элементі бола алады. Кәдімгі set мұндай бола алмайды.</li><li>Типі: <code>&lt;class 'frozenset'&gt;</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="sfrozen"></div></div>
       <p class="remember"><b>Есте сақта:</b> <code>frozenset</code> — өзгертуге болмайтын жиын.</p>
@@ -1507,7 +1507,7 @@ s = {1, 3, 5}</pre>
         <div class="part"><span class="tok arg">robo</span><span class="lab">немен</span></div>
         <div class="part"><span class="tok">)</span><span class="lab">жаптық</span></div>
       </div>
-      <p class="tip">Әдістер <code>union</code>, <code>intersection</code>, <code>difference</code>, <code>symmetric_difference</code>, <code>copy</code> <b>жаңа жиын қайтарады</b>; <code>add</code>, <code>remove</code>, <code>discard</code>, <code>update</code>, <code>clear</code> жиынның өзін өзгертеді және мынаны қайтарады: <code>None</code>.</p>
+      <p class="tip"><code>union</code>, <code>intersection</code>, <code>difference</code>, <code>symmetric_difference</code>, <code>copy</code> әдістері <b>жаңа жиын қайтарады</b>; ал <code>add</code>, <code>remove</code>, <code>discard</code>, <code>update</code>, <code>clear</code> жиынның өзін өзгертеді және <code>None</code> қайтарады.</p>
     </section>
 
     <div class="fpills" role="tablist" aria-label="Әдістер">
@@ -1523,17 +1523,17 @@ s = {1, 3, 5}</pre>
     <section class="block fcard" data-card="5">
       <p class="fname">Бірігу <code>|</code> және қиылысу <code>&amp;</code></p>
       <p class="simple"><b>Қарапайым тілмен:</b> екі үйірме бар — шахмат және робототехника. Бірігу — кемінде бір үйірмеге қатысатындардың бәрі. Қиылысу — екі үйірмеге де қатысатындар.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Екі үйірменің барлық қатысушысы:</span> <code>chess | robo</code></li><li><span>Екі үйірмеге де кім қатысады:</span> <code>chess &amp; robo</code></li><li><span>Билет пен ұтыстың ортақ нөмірлері:</span> <code>ticket.intersection(win)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> жиын мен тізім арасында <code>|</code> таңбасын қою — қате; тізіммен тек мына әдіс жұмыс істейді: <code>union</code>.</p></div>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Екі үйірменің барлық қатысушысы:</span> <code>chess | robo</code></li><li><span>Екі үйірмеге де кім қатысады:</span> <code>chess &amp; robo</code></li><li><span>Билет пен ұтыстың ортақ нөмірлері:</span> <code>ticket.intersection(win)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> жиын мен тізімнің арасына <code>|</code> таңбасын қою қате береді; тізіммен тек <code>union</code> әдісі жұмыс істейді.</p></div>
       <p class="how"><span>Қалай жазылады:</span> <code>a | b</code>, <code>a.union(b)</code>, <code>a &amp; b</code>, <code>a.intersection(b)</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p>Бірігу <code>a.union(b)</code> немесе <code>a | b</code> — екі жиынның барлық элементінен тұратын жаңа жиын; ортақ элементтер бір рет кіреді. Қиылысу <code>a.intersection(b)</code> немесе <code>a &amp; b</code> — тек ортақ элементтерден тұратын жаңа жиын. Әдістер бірден бірнеше коллекцияны үтір арқылы қабылдайды, тек жиындарды ғана емес: <code>a.union(b, c, тізім)</code>. Таңбалар тек жиындар арасында жұмыс істейді: <code>a | b | c</code>.</p>
+      <p><b>Бірігу</b> — екі жиынның барлық элементінен тұратын жаңа жиын; екеуіне ортақ элемент бір-ақ рет кіреді. Ол <code>a.union(b)</code> немесе <code>a | b</code> деп жазылады. <b>Қиылысу</b> — екі жиынға да ортақ элементтерден ғана тұратын жаңа жиын: <code>a.intersection(b)</code> немесе <code>a &amp; b</code>. Әдістердің жақшасына бірнеше коллекцияны үтір арқылы беруге болады, олар тек жиын болуы міндетті емес: <code>a.union(b, c, тізім)</code>. Ал таңбалар тек жиындардың арасында жұмыс істейді: <code>a | b | c</code>.</p>
       <h3>Синтаксис</h3>
       <p class="syn"><code>a.union(b)</code> = <code>a | b</code> · <code>a.intersection(b)</code> = <code>a &amp; b</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="sunion"></div>
       <h3>Білу маңызды</h3>
-      <ul><li><code>union</code> және <code>intersection</code> мынаны өзгертпейді: <code>a</code>, жаңа жиын қайтарады.</li><li>Мынаның өзін өзгерту: <code>a</code>: <code>a.update(b)</code> немесе <code>a |= b</code>; <code>a.intersection_update(b)</code> немесе <code>a &amp;= b</code>.</li></ul>
+      <ul><li><code>union</code> мен <code>intersection</code> <code>a</code> жиынын өзгертпейді, олар жаңа жиын қайтарады.</li><li><code>a</code> жиынының өзін өзгерту керек болса: <code>a.update(b)</code> немесе <code>a |= b</code>; <code>a.intersection_update(b)</code> немесе <code>a &amp;= b</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="sunion"></div></div>
       <p class="remember"><b>Есте сақта:</b> <code>|</code> — бәрі бірге, <code>&amp;</code> — тек ортақтары.</p>
@@ -1543,40 +1543,40 @@ s = {1, 3, 5}</pre>
     <section class="block fcard" data-card="6" hidden>
       <p class="fname">Айырма <code>-</code> және симметриялық айырма <code>^</code></p>
       <p class="simple"><b>Қарапайым тілмен:</b> айырма — шахматқа қатысатын, бірақ робототехникаға қатыспайтындар. Симметриялық айырма — екі үйірменің дәл біреуіне ғана қатысатындар.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Сыныптан жұмысты кім тапсырмады:</span> <code>pupils - done</code></li><li><span>Тек шахмат:</span> <code>chess - robo</code></li><li><span>Дәл бір үйірме:</span> <code>chess ^ robo</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> ретін шатастыру: <code>a - b</code> және <code>b - a</code> — әртүрлі жиындар.</p></div>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Сыныптан жұмысты кім тапсырмады:</span> <code>pupils - done</code></li><li><span>Тек шахмат:</span> <code>chess - robo</code></li><li><span>Дәл бір үйірме:</span> <code>chess ^ robo</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> ретін шатастыру: <code>a - b</code> мен <code>b - a</code> — әртүрлі жиындар.</p></div>
       <p class="how"><span>Қалай жазылады:</span> <code>a - b</code>, <code>a.difference(b)</code>, <code>a ^ b</code>, <code>a.symmetric_difference(b)</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p>Айырма <code>a.difference(b)</code> немесе <code>a - b</code> — элементтері мына жиыннан: <code>a</code>, тек мына жиында жоқтары: <code>b</code>. Симметриялық айырма <code>a.symmetric_difference(b)</code> немесе <code>a ^ b</code> — жиындардың тек біреуінде ғана бар элементтер: ортақтарынан басқасының бәрі.</p>
+      <p><b>Айырма</b> — <code>a</code> жиынының <code>b</code> жиынында жоқ элементтері. Ол <code>a.difference(b)</code> немесе <code>a - b</code> деп жазылады. <b>Симметриялық айырма</b> — екі жиынның тек біреуінде ғана бар элементтер, яғни ортақ элементтерден басқасының бәрі: <code>a.symmetric_difference(b)</code> немесе <code>a ^ b</code>.</p>
       <h3>Синтаксис</h3>
       <p class="syn"><code>a.difference(b)</code> = <code>a - b</code> · <code>a.symmetric_difference(b)</code> = <code>a ^ b</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="sdiff"></div>
       <h3>Білу маңызды</h3>
-      <ul><li><code>a ^ b</code> = <code>(a | b) - (a &amp; b)</code>: ортақтан басқасының бәрі.</li><li>Мынаның өзін өзгерту: <code>a</code>: <code>a.difference_update(b)</code> немесе <code>a -= b</code>; <code>a.symmetric_difference_update(b)</code> немесе <code>a ^= b</code>.</li></ul>
+      <ul><li><code>a ^ b</code> = <code>(a | b) - (a &amp; b)</code>: ортақ элементтерден басқасының бәрі.</li><li><code>a</code> жиынының өзін өзгерту керек болса: <code>a.difference_update(b)</code> немесе <code>a -= b</code>; <code>a.symmetric_difference_update(b)</code> немесе <code>a ^= b</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="sdiff"></div></div>
-      <p class="remember"><b>Есте сақта:</b> <code>a - b</code> — a-да бар, b-да жоқ; <code>a ^ b</code> — ортақтан басқасының бәрі.</p>
+      <p class="remember"><b>Есте сақта:</b> <code>a - b</code> — a-да бар, b-да жоқ элементтер; <code>a ^ b</code> — ортақтан басқасының бәрі.</p>
     </section>
 
     <!-- Подмножества -->
     <section class="block fcard" data-card="7" hidden>
       <p class="fname">Жиындарды салыстыру: <code>issubset</code>, <code>issuperset</code>, <code>isdisjoint</code></p>
       <p class="simple"><b>Қарапайым тілмен:</b> «8А-ның барлық оқушысы концертке келді ме?», «екі команданың ортақ ойыншылары жоқ па?» — мұндай сұрақтарға жиындар бір сөзбен жауап береді: True немесе False.</p>
-      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Бәрі жұмысты тапсырды ма:</span> <code>pupils.issubset(done)</code></li><li><span>Ортақ ойыншылар жоқ па:</span> <code>team1.isdisjoint(team2)</code></li><li><span>Жиынтықтар бірдей ме:</span> <code>a == b</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> ортақ элементтердің <i>нақты қайсысы</i> екенін білу керек болса, — қиылысу керек, мына әдіс емес: <code>isdisjoint</code>.</p></div>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Бәрі жұмысты тапсырды ма:</span> <code>pupils.issubset(done)</code></li><li><span>Ортақ ойыншылар жоқ па:</span> <code>team1.isdisjoint(team2)</code></li><li><span>Жиынтықтар бірдей ме:</span> <code>a == b</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> нақты <i>қай</i> элементтер ортақ екенін білу керек болса, <code>isdisjoint</code> емес, қиылысу керек.</p></div>
       <p class="how"><span>Қалай жазылады:</span> <code>a.issubset(b)</code> немесе <code>a &lt;= b</code>, <code>a.issuperset(b)</code> немесе <code>a &gt;= b</code>, <code>a.isdisjoint(b)</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
-      <p><code>a.issubset(b)</code> (<code>a &lt;= b</code>) — True, егер мына жиынның: <code>a</code> барлық элементі мына жиында болса: <code>b</code>: <code>a</code> — мына жиынның ішкі жиыны: <code>b</code>. <code>a &lt; b</code> — қатаң ішкі жиын: оған қоса мына жиында: <code>b</code> мына жиында жоқ элементтер бар: <code>a</code>. <code>a.issuperset(b)</code> (<code>a &gt;= b</code>) — True, егер <code>a</code> мына жиынның барлық элементін қамтыса: <code>b</code>. <code>a.isdisjoint(b)</code> — True, егер ортақ элементтер жоқ болса. <code>a == b</code> — True, егер элементтер бірдей болса, ретіне қарамастан.</p>
+      <p><code>a.issubset(b)</code> (немесе <code>a &lt;= b</code>) <code>a</code> жиынының барлық элементі <code>b</code> жиынында болса, True береді. Мұндайда <code>a</code> жиыны <code>b</code> жиынының <b>ішкі жиыны</b> деп аталады. <code>a &lt; b</code> — қатаң ішкі жиын: <code>a</code> жиынының барлық элементі <code>b</code>-да бар, әрі <code>b</code>-да <code>a</code>-да жоқ элементтер де бар. <code>a.issuperset(b)</code> (немесе <code>a &gt;= b</code>) <code>a</code> жиыны <code>b</code> жиынының барлық элементін қамтыса, True береді. <code>a.isdisjoint(b)</code> екі жиынның ортақ элементі болмаса, True береді. <code>a == b</code> екі жиынның элементтері бірдей болса, True береді; элементтердің реті маңызды емес.</p>
       <h3>Синтаксис</h3>
       <p class="syn"><code>a.issubset(b)</code> · <code>a.issuperset(b)</code> · <code>a.isdisjoint(b)</code></p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="ssub"></div>
       <h3>Білу маңызды</h3>
-      <ul><li>Бұл әдістер ештеңені өзгертпейді, тек True немесе False деп жауап береді.</li><li>Кез келген жиын — өзінің ішкі жиыны: <code>a &lt;= a</code> — True, ал <code>a &lt; a</code> — False.</li></ul>
+      <ul><li>Бұл әдістер жиынды өзгертпейді, тек True немесе False деп жауап береді.</li><li>Кез келген жиын өзінің ішкі жиыны болады: <code>a &lt;= a</code> — True, ал <code>a &lt; a</code> — False.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="ssub"></div></div>
-      <p class="remember"><b>Есте сақта:</b> «a-ның бәрі b-да бар» — <code>a.issubset(b)</code>; «ортағы жоқ» — <code>a.isdisjoint(b)</code>.</p>
+      <p class="remember"><b>Есте сақта:</b> «a-ның бәрі b-да бар» — <code>a.issubset(b)</code>; «ортақ элемент жоқ» — <code>a.isdisjoint(b)</code>.</p>
     </section>
 
     <!-- Все методы -->
@@ -1609,10 +1609,10 @@ s = {1, 3, 5}</pre>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="smeth"></div>
       <h3>Білу маңызды</h3>
-      <ul><li>Әдістер <code>frozenset</code> — тек жиынды өзгертпейтіндері: <code>copy</code>, <code>union</code>, <code>intersection</code>, <code>difference</code>, <code>symmetric_difference</code>, <code>issubset</code>, <code>issuperset</code>, <code>isdisjoint</code>.</li><li>Атында мынасы бар әдістер: <code>_update</code> және соңында мынасы бар таңбалар: <code>=</code> жиынның өзін өзгертеді және мынаны қайтарады: <code>None</code>.</li></ul>
+      <ul><li><code>frozenset</code>-те тек жиынды өзгертпейтін әдістер бар: <code>copy</code>, <code>union</code>, <code>intersection</code>, <code>difference</code>, <code>symmetric_difference</code>, <code>issubset</code>, <code>issuperset</code>, <code>isdisjoint</code>.</li><li>Атауы <code>_update</code> деп аяқталатын әдістер мен соңында <code>=</code> бар таңбалар жиынның өзін өзгертеді және <code>None</code> қайтарады.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="smeth"></div></div>
-      <p class="remember"><b>Есте сақта:</b> мынасыз әдіс: <code>_update</code> жаңа жиын қайтарады; мынасы барлары: <code>_update</code> — ескісін өзгертеді.</p>
+      <p class="remember"><b>Есте сақта:</b> атауында <code>_update</code> жоқ әдіс жаңа жиын қайтарады; <code>_update</code> бар әдіс бұрынғы жиынның өзін өзгертеді.</p>
     </section>
 
     <!-- Что выбрать -->
@@ -1631,7 +1631,7 @@ s = {1, 3, 5}</pre>
       </div>
       <div class="theory">
       <h3>Қалай таңдау керек</h3>
-      <p>Өзіңе сұрақ қой: «Реті мен қайталануы маңызды ма?» Иә — тізім немесе кортеж. Жоқ, тек «бар ма, жоқ па» маңызды — жиын. Мәнді аты бойынша табу керек — сөздік.</p>
+      <p>Өзіңе сұрақ қой: «Маған элементтердің реті мен қайталануы маңызды ма?» Иә болса — тізім немесе кортеж. Жоқ, тек элементтің бар-жоғы маңызды болса — жиын. Мәнді аты бойынша табу керек болса — сөздік.</p>
       <h3>Мысалдар</h3>
       <div class="exlist" data-ex="svs"></div>
       </div>

@@ -107,6 +107,17 @@ def tpl_puzzle(file):
     return tpl
 
 
+def tpl_blocks(puzzle, blocks):
+    """Ребус урока плюс абзацы теории, переведённые целиком: определение с кодом внутри по кускам переводится неестественно."""
+    def tpl(src):
+        d = json.loads((root / "tools" / blocks).read_text(encoding="utf-8"))
+        lost = [ru[:60] for ru in d if ru not in src]
+        if lost:
+            raise SystemExit(f"{blocks}: абзац не найден в исходнике (поменялся русский текст?): {lost}")
+        return {**tpl_puzzle(puzzle)(src), **d}
+    return tpl
+
+
 def tpl_lesson4(src):
     """Урок 4: ребус «Робот-список» на казахском — свои программы, ответы которых складываются в БІР ӨЛШЕМДІ МАССИВ."""
     a = src.index("const ROWS = ["); b = src.index("TASKS.forEach(t => { const o")
@@ -156,7 +167,7 @@ LESSONS = {
     "lessons-8-set": ("Множество: set · 8 класс", "Жиын: set · 8 сынып", kz_lesson7),
 }
 # Свои шаблоны урока: фрагменты исходника, которые заменяются готовым казахским текстом целиком
-LESSON_TPL = {"lessons-8-lists": tpl_lesson4, "lessons-8-dict": tpl_puzzle("kz_dict_puzzle.js"), "lessons-8-set": tpl_puzzle("kz_set_puzzle.js")}
+LESSON_TPL = {"lessons-8-lists": tpl_lesson4, "lessons-8-dict": tpl_puzzle("kz_dict_puzzle.js"), "lessons-8-set": tpl_blocks("kz_set_puzzle.js", "kz_set_blocks.json")}
 # Уроки, в которые встраивается Python (Pyodide)
 LESSON_PY = {"lessons-8-lists", "lessons-8-tuples", "lessons-8-dict", "lessons-8-set"}
 
