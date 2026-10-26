@@ -91,6 +91,18 @@ def kz_lesson5(js):
     return js
 
 
+def kz_lesson6(js):
+    return replace_once(js, 'const KEY = "topic-l6";', 'const KEY = "topic-l6-kz";')
+
+
+def tpl_puzzle(file):
+    """Свой казахский ребус урока: блок ROWS…TASKS заменяется готовым текстом из tools/<file> целиком."""
+    def tpl(src):
+        a = src.index("const ROWS = ["); b = src.index("TASKS.forEach(t => { const o")
+        return {src[a:b]: (root / "tools" / file).read_text(encoding="utf-8")}
+    return tpl
+
+
 def tpl_lesson4(src):
     """Урок 4: ребус «Робот-список» на казахском — свои программы, ответы которых складываются в БІР ӨЛШЕМДІ МАССИВ."""
     a = src.index("const ROWS = ["); b = src.index("TASKS.forEach(t => { const o")
@@ -136,11 +148,12 @@ LESSONS = {
     "lessons-8-stats": ("Статистические функции · 8 класс", "Статистикалық функциялар · 8 сынып", kz_lesson3),
     "lessons-8-lists": ("Одномерный массив. Список · 8 класс", "Бір өлшемді массив. Тізім · 8 сынып", kz_lesson4),
     "lessons-8-tuples": ("Кортеж: tuple · 8 класс", "Кортеж: tuple · 8 сынып", kz_lesson5),
+    "lessons-8-dict": ("Словарь: dict · 8 класс", "Сөздік: dict · 8 сынып", kz_lesson6),
 }
 # Свои шаблоны урока: фрагменты исходника, которые заменяются готовым казахским текстом целиком
-LESSON_TPL = {"lessons-8-lists": tpl_lesson4}
+LESSON_TPL = {"lessons-8-lists": tpl_lesson4, "lessons-8-dict": tpl_puzzle("kz_dict_puzzle.js")}
 # Уроки, в которые встраивается Python (Pyodide)
-LESSON_PY = {"lessons-8-lists", "lessons-8-tuples"}
+LESSON_PY = {"lessons-8-lists", "lessons-8-tuples", "lessons-8-dict"}
 
 LANG_CSS = """
 .lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
