@@ -402,6 +402,20 @@ input.blank { font-family: var(--f-mono); font-size: 1rem; padding: 0 4px; margi
 input.blank.ok { border-color: var(--c); color: var(--c); font-weight: 600; }
 input.blank.bad { border-color: var(--bad); }
 .ts-code { line-height: 1.9; }
+.ol-intro { display: grid; gap: 8px; }
+.ol-meta { margin: 0; font-size: .85rem; color: var(--muted); }
+.ol-stars { color: #c98a00; letter-spacing: 1px; }
+.ol-st { display: grid; gap: 6px; }
+.ol-st p { margin: 0; }
+.ol-st h3 { margin: 8px 0 0; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
+.ol-ex { border-collapse: collapse; width: 100%; }
+.ol-ex th, .ol-ex td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+.ol-ex th { background: var(--head); font-size: .85rem; }
+.ol-ex pre { margin: 0; font-family: var(--f-mono); font-size: .95rem; white-space: pre; }
+.ol-detail { margin: 0; font-family: var(--f-mono); font-size: .9rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; max-height: 20rem; overflow: auto; }
+.ol-list { margin: 0; padding-left: 1.2rem; font-size: .9rem; display: grid; gap: 2px; list-style: none; padding: 0; }
+.ol-list li.ok { color: var(--c); }
+.ol-list li.bad { color: var(--bad); }
 
 .lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
 .lang-sw button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.04em;padding:.3rem .65rem;border:0;background:transparent;color:inherit;cursor:pointer}
@@ -988,6 +1002,18 @@ globalThis._createPyodideModule = _createPyodideModule;
       <div class="progress"><div class="pbar"><i id="pjBar"></i></div><span class="pnum" id="pjNum"></span></div>
     </section>
     <div class="panel" id="pjList"></div>
+    <section class="block ol-intro">
+      <h2>Олимпиадные задачи</h2>
+      <p class="plain">Задачи в стиле олимпиад и сайта Codeforces. У каждой задачи — условие, формат входных и выходных данных и примеры. Нажми «Отправить»: программа пройдёт все тесты, а ты получишь вердикт. Если тест не пройден, увидишь его входные данные, правильный ответ и вывод своей программы.</p>
+      <p class="plain"><b>Как в олимпиадах читают и выводят список.</b> Числа часто записаны в одной строке через пробел:</p>
+      <pre class="code-view">n = int(input())                     # первая строка: количество чисел
+a = list(map(int, input().split()))  # вторая строка: все числа — в список
+print(*a)                            # вывести элементы через пробел</pre>
+      <p class="small-note"><code>input().split()</code> разрезает строку по пробелам, <code>map(int, …)</code> превращает каждую часть в число, <code>list(…)</code> собирает числа в список. <code>print(*a)</code> выводит элементы списка через пробел, без скобок.</p>
+      <div class="ex-pills" id="olPills" role="tablist" aria-label="Олимпиадные задачи"></div>
+      <div class="progress"><div class="pbar"><i id="olBar"></i></div><span class="pnum" id="olNum"></span></div>
+    </section>
+    <div class="panel" id="olList"></div>
     <div class="next"><button class="btn" type="button" data-go="practice">← Практика</button><button class="btn main" type="button" data-go="test">Дальше: тест →</button></div>
   </div>
 
@@ -1666,6 +1692,18 @@ globalThis._createPyodideModule = _createPyodideModule;
       <div class="progress"><div class="pbar"><i id="pjBar"></i></div><span class="pnum" id="pjNum"></span></div>
     </section>
     <div class="panel" id="pjList"></div>
+    <section class="block ol-intro">
+      <h2>Олимпиадалық есептер</h2>
+      <p class="plain">Олимпиадалар мен Codeforces сайтының үлгісіндегі есептер. Әр есептің шарты, кіріс және шығыс деректерінің пішімі және мысалдары бар. «Жіберу» батырмасын бас: бағдарлама барлық тесттен өтеді, ал сен вердикт аласың. Тест өтпесе, оның кіріс деректерін, дұрыс жауапты және өз бағдарламаңның шығарғанын көресің.</p>
+      <p class="plain"><b>Олимпиадаларда тізім қалай оқылады және шығарылады.</b> Сандар көбіне бір жолда бос орын арқылы жазылады:</p>
+      <pre class="code-view">n = int(input())                     # бірінші жол: сандар саны
+a = list(map(int, input().split()))  # екінші жол: барлық сан — тізімге
+print(*a)                            # элементтерді бос орын арқылы шығару</pre>
+      <p class="small-note"><code>input().split()</code> жолды бос орындар бойынша бөледі, <code>map(int, …)</code> әр бөлікті санға айналдырады, <code>list(…)</code> сандарды тізімге жинайды. <code>print(*a)</code> тізім элементтерін бос орын арқылы, жақшасыз шығарады.</p>
+      <div class="ex-pills" id="olPills" role="tablist" aria-label="Олимпиадалық есептер"></div>
+      <div class="progress"><div class="pbar"><i id="olBar"></i></div><span class="pnum" id="olNum"></span></div>
+    </section>
+    <div class="panel" id="olList"></div>
     <div class="next"><button class="btn" type="button" data-go="practice">← Практика</button><button class="btn main" type="button" data-go="test">Әрі қарай: тест →</button></div>
   </div>
 
@@ -2818,6 +2856,163 @@ function pjShow(id) {
 })();
 
 
+/* Олимпиадные задачи в стиле Codeforces: условие, формат ввода и вывода, примеры, скрытые тесты и вердикт.
+   Ответ сверяется по словам (лишние пробелы и переводы строк не важны). Тесты: примеры, крайние случаи и случайные. */
+const OL_KEY = "olymp-l4";
+function olRnd(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const olInt = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+const olArr = (r, n, lo, hi) => Array.from({ length: n }, () => olInt(r, lo, hi));
+const TASKS_OL = [
+  { id: "A", stars: 1, name: "Разброс температур",
+    text: "Метеостанция записывала температуру воздуха n дней подряд. Найди разницу между самой высокой и самой низкой температурой.",
+    inp: "В первой строке — целое число n (1 ≤ n ≤ 100). Во второй строке — n целых чисел через пробел, каждое от −50 до 50.",
+    out: "Выведи одно число — разницу между наибольшей и наименьшей температурой.",
+    samples: [["5\n3 -2 7 0 4", "9"], ["1\n-5", "0"]],
+    hidden: ["3\n-50 50 0", "4\n7 7 7 7", "2\n-10 -20"],
+    gen: r => { const n = olInt(r, 1, 100); return n + "\n" + olArr(r, n, -50, 50).join(" "); },
+    start: "n = int(input())\nt = list(map(int, input().split()))\n",
+    ref: "n = int(input())\nt = list(map(int, input().split()))\nprint(max(t) - min(t))",
+    hint: "Функции max(t) и min(t)." },
+  { id: "B", stars: 1, name: "Пятёрки и двойки",
+    text: "В журнале записаны n оценок. Сколько среди них пятёрок и сколько двоек?",
+    inp: "В первой строке — целое число n (1 ≤ n ≤ 100). Во второй — n оценок через пробел, каждая от 2 до 5.",
+    out: "Выведи в одной строке через пробел два числа: количество пятёрок и количество двоек.",
+    samples: [["6\n5 4 2 5 3 5", "3 1"], ["3\n4 4 3", "0 0"]],
+    hidden: ["1\n2", "5\n5 5 5 5 5", "4\n2 2 3 2"],
+    gen: r => { const n = olInt(r, 1, 100); return n + "\n" + olArr(r, n, 2, 5).join(" "); },
+    start: "n = int(input())\nmarks = list(map(int, input().split()))\n",
+    ref: "n = int(input())\nmarks = list(map(int, input().split()))\nprint(marks.count(5), marks.count(2))",
+    hint: "Метод count: marks.count(5) и marks.count(2). Оба числа — в одном print через запятую." },
+  { id: "C", stars: 2, name: "Журнал наоборот",
+    text: "Учитель записал n чисел и хочет прочитать их с конца. Выведи числа в обратном порядке.",
+    inp: "В первой строке — целое число n (1 ≤ n ≤ 100). Во второй — n целых чисел через пробел, каждое от −1000 до 1000.",
+    out: "Выведи эти n чисел в обратном порядке через пробел.",
+    samples: [["4\n1 2 3 4", "4 3 2 1"], ["3\n10 -5 10", "10 -5 10"]],
+    hidden: ["1\n42", "2\n-1 1", "5\n0 0 0 0 7"],
+    gen: r => { const n = olInt(r, 1, 100); return n + "\n" + olArr(r, n, -1000, 1000).join(" "); },
+    start: "n = int(input())\na = list(map(int, input().split()))\n",
+    ref: "n = int(input())\na = list(map(int, input().split()))\na.reverse()\nprint(*a)",
+    hint: "a.reverse(), затем print(*a) — элементы через пробел без скобок." },
+  { id: "D", stars: 2, name: "Второй призёр",
+    text: "На олимпиаде n участников набрали баллы. Второе место занимает тот, у кого второй по величине результат среди различных значений баллов. Сколько баллов у второго места?",
+    inp: "В первой строке — целое число n (2 ≤ n ≤ 100). Во второй — n целых чисел через пробел, каждое от 0 до 100. Гарантируется, что среди них есть хотя бы два различных числа.",
+    out: "Выведи одно число — второй по величине результат среди различных значений.",
+    samples: [["5\n10 30 30 20 5", "20"], ["3\n7 7 1", "1"]],
+    hidden: ["2\n0 100", "6\n50 50 50 50 50 49", "4\n100 100 90 90"],
+    gen: r => { const n = olInt(r, 2, 100), a = olArr(r, n, 0, 100); if (a.every(x => x === a[0])) a[0] = (a[0] + 1) % 101; return n + "\n" + a.join(" "); },
+    start: "n = int(input())\na = list(map(int, input().split()))\n",
+    ref: "n = int(input())\na = list(map(int, input().split()))\nm = max(a)\nb = []\nfor x in a:\n    if x != m:\n        b.append(x)\nprint(max(b))",
+    note: "В первом примере у двух участников по 30 баллов — это первое место. Следующий результат — 20.",
+    hint: "Найди наибольшее m = max(a). Собери в новый список все числа, не равные m, и выведи наибольшее из них." },
+  { id: "E", stars: 3, name: "Сдвиг очереди",
+    text: "В очереди стоят n человек. Каждую минуту последний человек переходит в начало очереди. Какой будет очередь через k минут?",
+    inp: "В первой строке — два целых числа n и k через пробел (1 ≤ n ≤ 100, 0 ≤ k ≤ 10⁹). Во второй — n целых чисел: номера людей в очереди от начала к концу.",
+    out: "Выведи через пробел номера людей в очереди через k минут.",
+    samples: [["5 2\n1 2 3 4 5", "4 5 1 2 3"], ["3 4\n7 8 9", "9 7 8"]],
+    hidden: ["1 1000000000\n5", "4 0\n1 2 3 4", "4 4\n1 2 3 4", "6 1000000000\n1 2 3 4 5 6"],
+    gen: r => { const n = olInt(r, 1, 100), ks = [0, n, olInt(r, 0, 1000000000)], k = ks[olInt(r, 0, 2)]; return n + " " + k + "\n" + olArr(r, n, 1, 1000).join(" "); },
+    start: "n, k = map(int, input().split())\na = list(map(int, input().split()))\n",
+    ref: "n, k = map(int, input().split())\na = list(map(int, input().split()))\nk = k % n\nprint(*(a[n - k:] + a[:n - k]))",
+    note: "Если переставлять людей по одному k раз, при k = 10⁹ программа не успеет. Подумай, через сколько минут очередь возвращается к исходной.",
+    hint: "Через n минут очередь такая же, как в начале, поэтому достаточно k = k % n. Ответ — срезы: a[n - k:] + a[:n - k]." },
+  { id: "F", stars: 3, name: "Вершины",
+    text: "Туристы записали высоты n точек маршрута. Вершиной назовём точку, которая выше обеих соседних. Первая и последняя точки вершинами не считаются. Сколько вершин на маршруте?",
+    inp: "В первой строке — целое число n (1 ≤ n ≤ 100). Во второй — n целых чисел через пробел: высоты точек, каждая от 1 до 1000.",
+    out: "Выведи одно число — количество вершин.",
+    samples: [["7\n1 3 2 4 4 5 1", "2"], ["2\n5 1", "0"]],
+    hidden: ["1\n10", "3\n1 2 1", "5\n3 3 3 3 3", "6\n1 5 1 5 1 5"],
+    gen: r => { const n = olInt(r, 1, 100); return n + "\n" + olArr(r, n, 1, 10).join(" "); },
+    start: "n = int(input())\nh = list(map(int, input().split()))\n",
+    ref: "n = int(input())\nh = list(map(int, input().split()))\nk = 0\nfor i in range(1, n - 1):\n    if h[i] > h[i - 1] and h[i] > h[i + 1]:\n        k = k + 1\nprint(k)",
+    note: "В первом примере вершины — точки с высотами 3 и 5. Точки с высотой 4 не вершины: у каждой сосед такой же высоты.",
+    hint: "Перебери индексы i от 1 до n − 2: for i in range(1, n - 1). Сравни h[i] с h[i − 1] и h[i + 1]." }
+];
+TASKS_OL.forEach((t, i) => {
+  const r = olRnd(1000 + i);
+  t.tests = t.samples.map(x => x[0]).concat(t.hidden, Array.from({ length: 5 }, () => t.gen(r)));
+});
+const olTok = s => String(s).split(/\s+/).filter(Boolean).join(" ");
+const olLines = s => s.replace(/\r/g, "").split("\n");
+async function olJudge(t, code) {
+  if (!code.trim()) return { ok: false, verdict: "Редактор пустой. Напиши программу." };
+  try {
+    for (let i = 0; i < t.tests.length; i++) {
+      const test = t.tests[i], num = i + 1;
+      const r = await pyRun(code, olLines(test));
+      const show = want => `\nВходные данные:\n${test}\nПравильный ответ:\n${want}\nВывод программы:\n${outShow(r.out)}`;
+      if (r.err && (r.err.type === "SyntaxError" || r.err.type === "IndentationError" || r.err.type === "TabError"))
+        return { ok: false, verdict: "Ошибка компиляции (Compilation error)", detail: pyErrText(r.err) };
+      const w = await pyRun(t.ref, olLines(test)), want = outShow(w.out);
+      if (r.err && r.err.type === "Timeout") return { ok: false, test: num, verdict: `Превышено время на тесте ${num} (Time limit exceeded)`, detail: "Программа работает слишком долго. Нужен способ быстрее." + show(want) };
+      if (r.err) return { ok: false, test: num, verdict: `Ошибка выполнения на тесте ${num} (Runtime error)`, detail: pyErrText(r.err) + show(want) };
+      if (olTok(r.out) !== olTok(w.out)) return { ok: false, test: num, verdict: `Неправильный ответ на тесте ${num} (Wrong answer)`, detail: show(want).slice(1) };
+    }
+    return { ok: true, verdict: `Полное решение (Accepted): пройдены все тесты — ${t.tests.length}` };
+  } catch (e) { return { ok: false, verdict: pyFailText() }; }
+}
+function olRender() {
+  const d = store.get(OL_KEY, {}), ok = TASKS_OL.filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("olBar").style.width = (ok / TASKS_OL.length * 100) + "%";
+  document.getElementById("olNum").textContent = `Решено задач: ${ok} из ${TASKS_OL.length}`;
+  document.querySelectorAll("#olPills .ex-pill").forEach(p => p.classList.toggle("full", !!(d[p.dataset.p] && d[p.dataset.p].ok)));
+}
+function olShow(id) {
+  document.querySelectorAll("#olList .ol-card").forEach(c => { c.hidden = c.id !== "ol-" + id; });
+  document.querySelectorAll("#olPills .ex-pill").forEach(p => p.setAttribute("aria-selected", p.dataset.p === id));
+  store.set("olymp-cur", id);
+}
+(function olBuild() {
+  const esc = x => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  document.getElementById("olPills").innerHTML = TASKS_OL.map(t => `<button type="button" class="ex-pill" role="tab" data-p="${t.id}" aria-selected="false">${t.id} · ${t.name} <span class="ol-stars">${"★".repeat(t.stars)}</span></button>`).join("");
+  document.getElementById("olList").innerHTML = TASKS_OL.map(t => `
+    <section class="block task-card ol-card" id="ol-${t.id}" hidden>
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">${t.name}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="ol-meta">Сложность: ${"★".repeat(t.stars)} · ограничение: 300 000 шагов программы · тестов: ${t.tests.length}</p>
+      <div class="ol-st">
+        <p>${t.text}</p>
+        <h3>Входные данные</h3><p>${t.inp}</p>
+        <h3>Выходные данные</h3><p>${t.out}</p>
+        <h3>Примеры</h3>
+        <div class="tablewrap"><table class="ol-ex"><tr><th>Входные данные</th><th>Выходные данные</th></tr>${t.samples.map(x => `<tr><td><pre>${esc(x[0])}</pre></td><td><pre>${esc(x[1])}</pre></td></tr>`).join("")}</table></div>
+        ${t.note ? `<h3>Примечание</h3><p>${t.note}</p>` : ""}
+      </div>
+      <div class="pyed"></div>
+      <div class="tc-actions"><button type="button" class="btn main ol-send">Отправить на проверку</button><button type="button" class="btn tc-hintbtn">Подсказка</button><button type="button" class="btn tc-reset">Начать заново</button></div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <pre class="ol-detail" hidden></pre>
+      <p class="tc-hint" hidden>${t.hint}</p>
+      <div class="ol-hist"></div>
+    </section>`).join("");
+  TASKS_OL.forEach(t => {
+    const card = document.getElementById("ol-" + t.id), msg = card.querySelector(".tc-msg"), det = card.querySelector(".ol-detail"), btn = card.querySelector(".ol-send");
+    const saved = store.get(OL_KEY, {})[t.id] || {};
+    const ed = edMount(card.querySelector(".pyed"), { code: saved.code != null ? saved.code : t.start, inputs: olLines(t.samples[0][0]), onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; det.hidden = true; } });
+    const hist = h => { card.querySelector(".ol-hist").innerHTML = (h || []).length ? `<p class="small">Мои посылки</p><ol class="ol-list">${h.map(x => `<li class="${x.ok ? "ok" : "bad"}"></li>`).join("")}</ol>` : "";
+      card.querySelectorAll(".ol-list li").forEach((li, i) => { li.textContent = h[i].v; }); };
+    const setStatus = ok => { card.classList.toggle("done", ok); card.querySelector(".tc-status").textContent = ok ? "✓ решено" : ""; };
+    setStatus(!!saved.ok); hist(saved.hist);
+    btn.addEventListener("click", async () => {
+      btn.disabled = true; msg.className = "tc-msg"; msg.textContent = "Проверяю на тестах…"; det.hidden = true;
+      const r = await olJudge(t, ed.code);
+      btn.disabled = false;
+      if (window.__onAttempt) window.__onAttempt("9. Практическая работа", "Олимпиада " + t.id, ed.code, r.ok, r.ok ? "" : r.verdict);
+      const all = store.get(OL_KEY, {}), st = all[t.id] || {};
+      st.tries = (st.tries || 0) + 1; st.code = ed.code; st.ok = r.ok || !!st.ok;
+      st.hist = [{ v: `${st.tries}. ${r.verdict}`, ok: r.ok }].concat(st.hist || []).slice(0, 5);
+      all[t.id] = st; store.set(OL_KEY, all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.verdict;
+      if (r.detail) { det.textContent = r.detail; det.hidden = false; }
+      if (!r.ok && st.tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(st.ok); hist(st.hist); olRender();
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => { ed.code = t.start; ed.inputs = olLines(t.samples[0][0]); ed.clearOut(); msg.textContent = ""; det.hidden = true; });
+  });
+  document.querySelectorAll("#olPills .ex-pill").forEach(p => p.addEventListener("click", () => olShow(p.dataset.p)));
+  olShow(store.get("olymp-cur", "A"));
+  olRender();
+})();
+
 /* Какой метод подходит: ситуации из жизни, у каждой свои варианты */
 const MT_KEY = "match-l4";
 const MT_WHAT = {
@@ -3301,10 +3496,10 @@ buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
 render();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
-window.__lessonInfo = { matchN: MT_CASES.length, tsN: TS_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, pjN: TASKS_PJ.length, hwN: TASKS_HW.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
+window.__lessonInfo = { olN: TASKS_OL.length, matchN: MT_CASES.length, tsN: TS_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, pjN: TASKS_PJ.length, hwN: TASKS_HW.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
   A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
 /* для автотестов */
-window.__lesson = { TASKS, TS_CASES, AC_CASES, RV_CASES, TASKS_PR, TASKS_PJ, TASKS_HW, EX, ERR_EX, codeCheck, pyRun, predNorm, withData };
+window.__lesson = { TASKS, TASKS_OL, olJudge, TS_CASES, AC_CASES, RV_CASES, TASKS_PR, TASKS_PJ, TASKS_HW, EX, ERR_EX, codeCheck, pyRun, predNorm, withData };
 
 }
 /* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
@@ -3332,6 +3527,7 @@ function lessonSummary() {
     actFirst: Object.values(g("actual-l4") || {}).filter(x => x && x.first).length,
     now: window.__prNow(),
     hw: (() => { const h = g("hw-l4") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.hwN; })(),
+    olymp: (() => { const h = g("olymp-l4") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.olN; })(),
     pj: (() => { const h = g("project-l4") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.pjN; })(),
     test: (() => { const a = Object.values(g("test-l4") || {}); return a.filter(x => x && x.ok).length + "/" + info.tsN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
     rev: (() => { const a = Object.values(g("review-l4") || {}); return a.filter(x => x && x.ok).length + "/" + info.rvN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
@@ -4408,6 +4604,163 @@ function pjShow(id) {
 })();
 
 
+/* Олимпиадные задачи в стиле Codeforces: условие, формат ввода и вывода, примеры, скрытые тесты и вердикт.
+   Ответ сверяется по словам (лишние пробелы и переводы строк не важны). Тесты: примеры, крайние случаи и случайные. */
+const OL_KEY = "olymp-l4";
+function olRnd(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const olInt = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+const olArr = (r, n, lo, hi) => Array.from({ length: n }, () => olInt(r, lo, hi));
+const TASKS_OL = [
+  { id: "A", stars: 1, name: "Температура айырмасы",
+    text: "Метеостанция ауа температурасын қатарынан n күн жазып отырды. Ең жоғары және ең төменгі температураның айырмасын тап.",
+    inp: "Бірінші жолда — n бүтін саны (1 ≤ n ≤ 100). Екінші жолда — бос орын арқылы жазылған n бүтін сан, әрқайсысы −50-ден 50-ге дейін.",
+    out: "Бір санды шығар — ең үлкен және ең кіші температураның айырмасын.",
+    samples: [["5\n3 -2 7 0 4", "9"], ["1\n-5", "0"]],
+    hidden: ["3\n-50 50 0", "4\n7 7 7 7", "2\n-10 -20"],
+    gen: r => { const n = olInt(r, 1, 100); return n + "\n" + olArr(r, n, -50, 50).join(" "); },
+    start: "n = int(input())\nt = list(map(int, input().split()))\n",
+    ref: "n = int(input())\nt = list(map(int, input().split()))\nprint(max(t) - min(t))",
+    hint: "max(t) және min(t) функциялары." },
+  { id: "B", stars: 1, name: "Бестер мен екілер",
+    text: "Журналда n баға жазылған. Олардың ішінде неше бес және неше екі бар?",
+    inp: "Бірінші жолда — n бүтін саны (1 ≤ n ≤ 100). Екіншісінде — бос орын арқылы n баға, әрқайсысы 2-ден 5-ке дейін.",
+    out: "Бір жолға бос орын арқылы екі санды шығар: бестер саны және екілер саны.",
+    samples: [["6\n5 4 2 5 3 5", "3 1"], ["3\n4 4 3", "0 0"]],
+    hidden: ["1\n2", "5\n5 5 5 5 5", "4\n2 2 3 2"],
+    gen: r => { const n = olInt(r, 1, 100); return n + "\n" + olArr(r, n, 2, 5).join(" "); },
+    start: "n = int(input())\nmarks = list(map(int, input().split()))\n",
+    ref: "n = int(input())\nmarks = list(map(int, input().split()))\nprint(marks.count(5), marks.count(2))",
+    hint: "count әдісі: marks.count(5) және marks.count(2). Екі сан да — бір print ішінде үтір арқылы." },
+  { id: "C", stars: 2, name: "Журнал керісінше",
+    text: "Мұғалім n сан жазды және оларды соңынан оқығысы келеді. Сандарды кері ретпен шығар.",
+    inp: "Бірінші жолда — n бүтін саны (1 ≤ n ≤ 100). Екіншісінде — бос орын арқылы n бүтін сан, әрқайсысы −1000-нан 1000-ға дейін.",
+    out: "Осы n санды кері ретпен бос орын арқылы шығар.",
+    samples: [["4\n1 2 3 4", "4 3 2 1"], ["3\n10 -5 10", "10 -5 10"]],
+    hidden: ["1\n42", "2\n-1 1", "5\n0 0 0 0 7"],
+    gen: r => { const n = olInt(r, 1, 100); return n + "\n" + olArr(r, n, -1000, 1000).join(" "); },
+    start: "n = int(input())\na = list(map(int, input().split()))\n",
+    ref: "n = int(input())\na = list(map(int, input().split()))\na.reverse()\nprint(*a)",
+    hint: "a.reverse(), содан кейін print(*a) — элементтер бос орын арқылы, жақшасыз." },
+  { id: "D", stars: 2, name: "Екінші жүлдегер",
+    text: "Олимпиадада n қатысушы балл жинады. Екінші орынды балдардың әртүрлі мәндерінің ішінде шамасы бойынша екінші нәтижесі бар қатысушы алады. Екінші орында неше балл?",
+    inp: "Бірінші жолда — n бүтін саны (2 ≤ n ≤ 100). Екіншісінде — бос орын арқылы n бүтін сан, әрқайсысы 0-ден 100-ге дейін. Олардың ішінде кемінде екі әртүрлі сан бар екені кепілдендіріледі.",
+    out: "Бір санды шығар — әртүрлі мәндердің ішіндегі шамасы бойынша екінші нәтижені.",
+    samples: [["5\n10 30 30 20 5", "20"], ["3\n7 7 1", "1"]],
+    hidden: ["2\n0 100", "6\n50 50 50 50 50 49", "4\n100 100 90 90"],
+    gen: r => { const n = olInt(r, 2, 100), a = olArr(r, n, 0, 100); if (a.every(x => x === a[0])) a[0] = (a[0] + 1) % 101; return n + "\n" + a.join(" "); },
+    start: "n = int(input())\na = list(map(int, input().split()))\n",
+    ref: "n = int(input())\na = list(map(int, input().split()))\nm = max(a)\nb = []\nfor x in a:\n    if x != m:\n        b.append(x)\nprint(max(b))",
+    note: "Бірінші мысалда екі қатысушыда 30 балдан — бұл бірінші орын. Келесі нәтиже — 20.",
+    hint: "Ең үлкенін тап: m = max(a). m-ге тең емес барлық санды жаңа тізімге жинап, олардың ең үлкенін шығар." },
+  { id: "E", stars: 3, name: "Кезектің жылжуы",
+    text: "Кезекте n адам тұр. Әр минут сайын соңғы адам кезектің басына өтеді. k минуттан кейін кезек қандай болады?",
+    inp: "Бірінші жолда — бос орын арқылы екі бүтін сан n және k (1 ≤ n ≤ 100, 0 ≤ k ≤ 10⁹). Екіншісінде — n бүтін сан: кезектегі адамдардың басынан соңына дейінгі нөмірлері.",
+    out: "k минуттан кейінгі кезектегі адамдардың нөмірлерін бос орын арқылы шығар.",
+    samples: [["5 2\n1 2 3 4 5", "4 5 1 2 3"], ["3 4\n7 8 9", "9 7 8"]],
+    hidden: ["1 1000000000\n5", "4 0\n1 2 3 4", "4 4\n1 2 3 4", "6 1000000000\n1 2 3 4 5 6"],
+    gen: r => { const n = olInt(r, 1, 100), ks = [0, n, olInt(r, 0, 1000000000)], k = ks[olInt(r, 0, 2)]; return n + " " + k + "\n" + olArr(r, n, 1, 1000).join(" "); },
+    start: "n, k = map(int, input().split())\na = list(map(int, input().split()))\n",
+    ref: "n, k = map(int, input().split())\na = list(map(int, input().split()))\nk = k % n\nprint(*(a[n - k:] + a[:n - k]))",
+    note: "Адамдарды бір-бірлеп k рет ауыстырсаң, k = 10⁹ болғанда бағдарлама үлгермейді. Кезек неше минуттан кейін бастапқы күйіне оралатынын ойлан.",
+    hint: "n минуттан кейін кезек бастапқыдай болады, сондықтан k = k % n жеткілікті. Жауап — кесінділер: a[n - k:] + a[:n - k]." },
+  { id: "F", stars: 3, name: "Шыңдар",
+    text: "Туристер маршруттың n нүктесінің биіктігін жазды. Екі көршісінен де биік нүктені шың деп атаймыз. Бірінші және соңғы нүктелер шың болып саналмайды. Маршрутта неше шың бар?",
+    inp: "Бірінші жолда — n бүтін саны (1 ≤ n ≤ 100). Екіншісінде — бос орын арқылы n бүтін сан: нүктелердің биіктігі, әрқайсысы 1-ден 1000-ға дейін.",
+    out: "Бір санды шығар — шыңдар санын.",
+    samples: [["7\n1 3 2 4 4 5 1", "2"], ["2\n5 1", "0"]],
+    hidden: ["1\n10", "3\n1 2 1", "5\n3 3 3 3 3", "6\n1 5 1 5 1 5"],
+    gen: r => { const n = olInt(r, 1, 100); return n + "\n" + olArr(r, n, 1, 10).join(" "); },
+    start: "n = int(input())\nh = list(map(int, input().split()))\n",
+    ref: "n = int(input())\nh = list(map(int, input().split()))\nk = 0\nfor i in range(1, n - 1):\n    if h[i] > h[i - 1] and h[i] > h[i + 1]:\n        k = k + 1\nprint(k)",
+    note: "Бірінші мысалда шыңдар — биіктігі 3 және 5 нүктелер. Биіктігі 4 нүктелер шың емес: әрқайсысының көршісі дәл сондай биіктікте.",
+    hint: "i индекстерін 1-ден n − 2-ге дейін арала: for i in range(1, n - 1). h[i]-ді h[i − 1] және h[i + 1]-мен салыстыр." }
+];
+TASKS_OL.forEach((t, i) => {
+  const r = olRnd(1000 + i);
+  t.tests = t.samples.map(x => x[0]).concat(t.hidden, Array.from({ length: 5 }, () => t.gen(r)));
+});
+const olTok = s => String(s).split(/\s+/).filter(Boolean).join(" ");
+const olLines = s => s.replace(/\r/g, "").split("\n");
+async function olJudge(t, code) {
+  if (!code.trim()) return { ok: false, verdict: "Редактор бос. Бағдарлама жаз." };
+  try {
+    for (let i = 0; i < t.tests.length; i++) {
+      const test = t.tests[i], num = i + 1;
+      const r = await pyRun(code, olLines(test));
+      const show = want => `\nКіріс деректері:\n${test}\nДұрыс жауап:\n${want}\nБағдарлама шығарғаны:\n${outShow(r.out)}`;
+      if (r.err && (r.err.type === "SyntaxError" || r.err.type === "IndentationError" || r.err.type === "TabError"))
+        return { ok: false, verdict: "Компиляция қатесі (Compilation error)", detail: pyErrText(r.err) };
+      const w = await pyRun(t.ref, olLines(test)), want = outShow(w.out);
+      if (r.err && r.err.type === "Timeout") return { ok: false, test: num, verdict: `${num}-тестте уақыт асып кетті (Time limit exceeded)`, detail: "Бағдарлама тым ұзақ жұмыс істейді. Тезірек тәсіл керек." + show(want) };
+      if (r.err) return { ok: false, test: num, verdict: `${num}-тестте орындау қатесі (Runtime error)`, detail: pyErrText(r.err) + show(want) };
+      if (olTok(r.out) !== olTok(w.out)) return { ok: false, test: num, verdict: `${num}-тестте қате жауап (Wrong answer)`, detail: show(want).slice(1) };
+    }
+    return { ok: true, verdict: `Толық шешім (Accepted): барлық тест өтті — ${t.tests.length}` };
+  } catch (e) { return { ok: false, verdict: pyFailText() }; }
+}
+function olRender() {
+  const d = store.get(OL_KEY, {}), ok = TASKS_OL.filter(t => d[t.id] && d[t.id].ok).length;
+  document.getElementById("olBar").style.width = (ok / TASKS_OL.length * 100) + "%";
+  document.getElementById("olNum").textContent = `Шешілген есептер: ${ok} / ${TASKS_OL.length}`;
+  document.querySelectorAll("#olPills .ex-pill").forEach(p => p.classList.toggle("full", !!(d[p.dataset.p] && d[p.dataset.p].ok)));
+}
+function olShow(id) {
+  document.querySelectorAll("#olList .ol-card").forEach(c => { c.hidden = c.id !== "ol-" + id; });
+  document.querySelectorAll("#olPills .ex-pill").forEach(p => p.setAttribute("aria-selected", p.dataset.p === id));
+  store.set("olymp-cur", id);
+}
+(function olBuild() {
+  const esc = x => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  document.getElementById("olPills").innerHTML = TASKS_OL.map(t => `<button type="button" class="ex-pill" role="tab" data-p="${t.id}" aria-selected="false">${t.id} · ${t.name} <span class="ol-stars">${"★".repeat(t.stars)}</span></button>`).join("");
+  document.getElementById("olList").innerHTML = TASKS_OL.map(t => `
+    <section class="block task-card ol-card" id="ol-${t.id}" hidden>
+      <div class="tc-head"><span class="tc-id">${t.id}</span><span class="tc-fn">${t.name}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="ol-meta">Күрделілігі: ${"★".repeat(t.stars)} · шектеу: бағдарламаның 300 000 қадамы · тест саны: ${t.tests.length}</p>
+      <div class="ol-st">
+        <p>${t.text}</p>
+        <h3>Кіріс деректері</h3><p>${t.inp}</p>
+        <h3>Шығыс деректері</h3><p>${t.out}</p>
+        <h3>Мысалдар</h3>
+        <div class="tablewrap"><table class="ol-ex"><tr><th>Кіріс деректері</th><th>Шығыс деректері</th></tr>${t.samples.map(x => `<tr><td><pre>${esc(x[0])}</pre></td><td><pre>${esc(x[1])}</pre></td></tr>`).join("")}</table></div>
+        ${t.note ? `<h3>Ескерту</h3><p>${t.note}</p>` : ""}
+      </div>
+      <div class="pyed"></div>
+      <div class="tc-actions"><button type="button" class="btn main ol-send">Тексеруге жіберу</button><button type="button" class="btn tc-hintbtn">Кеңес</button><button type="button" class="btn tc-reset">Қайта бастау</button></div>
+      <p class="tc-msg" aria-live="polite"></p>
+      <pre class="ol-detail" hidden></pre>
+      <p class="tc-hint" hidden>${t.hint}</p>
+      <div class="ol-hist"></div>
+    </section>`).join("");
+  TASKS_OL.forEach(t => {
+    const card = document.getElementById("ol-" + t.id), msg = card.querySelector(".tc-msg"), det = card.querySelector(".ol-detail"), btn = card.querySelector(".ol-send");
+    const saved = store.get(OL_KEY, {})[t.id] || {};
+    const ed = edMount(card.querySelector(".pyed"), { code: saved.code != null ? saved.code : t.start, inputs: olLines(t.samples[0][0]), onChange: () => { msg.textContent = ""; msg.className = "tc-msg"; det.hidden = true; } });
+    const hist = h => { card.querySelector(".ol-hist").innerHTML = (h || []).length ? `<p class="small">Менің жіберулерім</p><ol class="ol-list">${h.map(x => `<li class="${x.ok ? "ok" : "bad"}"></li>`).join("")}</ol>` : "";
+      card.querySelectorAll(".ol-list li").forEach((li, i) => { li.textContent = h[i].v; }); };
+    const setStatus = ok => { card.classList.toggle("done", ok); card.querySelector(".tc-status").textContent = ok ? "✓ шешілді" : ""; };
+    setStatus(!!saved.ok); hist(saved.hist);
+    btn.addEventListener("click", async () => {
+      btn.disabled = true; msg.className = "tc-msg"; msg.textContent = "Тесттерде тексерілуде…"; det.hidden = true;
+      const r = await olJudge(t, ed.code);
+      btn.disabled = false;
+      if (window.__onAttempt) window.__onAttempt("9. Практическая работа", "Олимпиада " + t.id, ed.code, r.ok, r.ok ? "" : r.verdict);
+      const all = store.get(OL_KEY, {}), st = all[t.id] || {};
+      st.tries = (st.tries || 0) + 1; st.code = ed.code; st.ok = r.ok || !!st.ok;
+      st.hist = [{ v: `${st.tries}. ${r.verdict}`, ok: r.ok }].concat(st.hist || []).slice(0, 5);
+      all[t.id] = st; store.set(OL_KEY, all);
+      msg.className = "tc-msg " + (r.ok ? "ok" : "bad"); msg.textContent = r.verdict;
+      if (r.detail) { det.textContent = r.detail; det.hidden = false; }
+      if (!r.ok && st.tries >= 2) card.querySelector(".tc-hint").hidden = false;
+      setStatus(st.ok); hist(st.hist); olRender();
+    });
+    card.querySelector(".tc-hintbtn").addEventListener("click", () => { const h = card.querySelector(".tc-hint"); h.hidden = !h.hidden; });
+    card.querySelector(".tc-reset").addEventListener("click", () => { ed.code = t.start; ed.inputs = olLines(t.samples[0][0]); ed.clearOut(); msg.textContent = ""; det.hidden = true; });
+  });
+  document.querySelectorAll("#olPills .ex-pill").forEach(p => p.addEventListener("click", () => olShow(p.dataset.p)));
+  olShow(store.get("olymp-cur", "A"));
+  olRender();
+})();
+
 /* Какой метод подходит: ситуации из жизни, у каждой свои варианты */
 const MT_KEY = "match-l4";
 const MT_WHAT = {
@@ -4891,10 +5244,10 @@ buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
 render();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
-window.__lessonInfo = { matchN: MT_CASES.length, tsN: TS_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, pjN: TASKS_PJ.length, hwN: TASKS_HW.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
+window.__lessonInfo = { olN: TASKS_OL.length, matchN: MT_CASES.length, tsN: TS_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, pjN: TASKS_PJ.length, hwN: TASKS_HW.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
   A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
 /* для автотестов */
-window.__lesson = { TASKS, TS_CASES, AC_CASES, RV_CASES, TASKS_PR, TASKS_PJ, TASKS_HW, EX, ERR_EX, codeCheck, pyRun, predNorm, withData };
+window.__lesson = { TASKS, TASKS_OL, olJudge, TS_CASES, AC_CASES, RV_CASES, TASKS_PR, TASKS_PJ, TASKS_HW, EX, ERR_EX, codeCheck, pyRun, predNorm, withData };
 
 }
 /* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
@@ -4922,6 +5275,7 @@ function lessonSummary() {
     actFirst: Object.values(g("actual-l4") || {}).filter(x => x && x.first).length,
     now: window.__prNow(),
     hw: (() => { const h = g("hw-l4") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.hwN; })(),
+    olymp: (() => { const h = g("olymp-l4") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.olN; })(),
     pj: (() => { const h = g("project-l4") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.pjN; })(),
     test: (() => { const a = Object.values(g("test-l4") || {}); return a.filter(x => x && x.ok).length + "/" + info.tsN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
     rev: (() => { const a = Object.values(g("review-l4") || {}); return a.filter(x => x && x.ok).length + "/" + info.rvN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
