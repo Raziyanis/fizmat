@@ -398,6 +398,10 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
 .th-item p { margin: 0; }
 .th-item .fname { font-size: 1rem; }
 .th-item .th-more { justify-self: start; }
+input.blank { font-family: var(--f-mono); font-size: 1rem; padding: 0 4px; margin: 0 2px; border: 1px solid var(--line); border-bottom: 2px solid var(--c); border-radius: 4px; background: var(--surface); color: var(--ink); min-width: 3ch; box-sizing: content-box; }
+input.blank.ok { border-color: var(--c); color: var(--c); font-weight: 600; }
+input.blank.bad { border-color: var(--bad); }
+.ts-code { line-height: 1.9; }
 </style>
 
 <div class="wrap">
@@ -422,8 +426,9 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
     <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>7</b>Какой метод?</button>
     <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>8</b>Практика</button>
     <button type="button" class="step" role="tab" id="tab-project" aria-controls="project" aria-selected="false" disabled><b>9</b>Практическая работа</button>
-    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>10</b>Итоги урока</button>
-    <button type="button" class="step" role="tab" id="tab-hw" aria-controls="hw" aria-selected="false" disabled><b>11</b>Домашнее задание</button>
+    <button type="button" class="step" role="tab" id="tab-test" aria-controls="test" aria-selected="false" disabled><b>10</b>Тест</button>
+    <button type="button" class="step" role="tab" id="tab-reflect" aria-controls="reflect" aria-selected="false" disabled><b>11</b>Итоги урока</button>
+    <button type="button" class="step" role="tab" id="tab-hw" aria-controls="hw" aria-selected="false" disabled><b>12</b>Домашнее задание</button>
   </div>
 
   <!-- Этап 1: повторение прошлого урока -->
@@ -620,7 +625,10 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <p class="small-note">Кнопка «Открыть в редакторе» переносит пример в редактор ниже — там его можно изменить и запустить.</p>
       <div class="exlist" data-ex="list"></div>
       <h3>Важно знать</h3>
-      <ul><li>Скобки у списка <b>квадратные</b>, элементы разделяют <b>запятой</b>.</li><li>Текст в списке пишут в кавычках: <code>["хлеб", "молоко"]</code>. Без кавычек Python примет слово за имя переменной и выдаст <code>NameError</code>.</li><li>Список можно менять: заменять, добавлять и удалять элементы.</li></ul>
+      <ul><li>Скобки у списка <b>квадратные</b>, элементы разделяют <b>запятой</b>.</li><li>Текст в списке пишут в кавычках: <code>["хлеб", "молоко"]</code>. Без кавычек Python примет слово за имя переменной и выдаст <code>NameError</code>.</li></ul>
+      <h3>Свойства списка</h3>
+      <ul><li><b>Упорядочен:</b> у элементов постоянный порядок; новые элементы <code>append</code> ставит в конец.</li><li><b>Изменяем:</b> после создания элементы можно заменять, добавлять и удалять.</li><li><b>Допускает повторы:</b> одно и то же значение может стоять в списке несколько раз — <code>[5, 4, 5]</code>.</li></ul>
+      <p class="small-note">Список — одна из четырёх встроенных коллекций Python. Остальные — кортеж (tuple), множество (set) и словарь (dict) — изучают позже.</p>
       <h3>Связь с математикой</h3>
       <p>В математике последовательность записывают как a₁, a₂, …, aₙ. В Python нумерация начинается с нуля: a[0], a[1], …, a[n − 1].</p>
       </div>
@@ -630,11 +638,11 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
 
     <!-- Индексы -->
     <section class="block fcard" data-card="1" hidden>
-      <p class="fname"><code>a[i]</code> — элемент по индексу</p>
+      <p class="fname"><code>a[i]</code> и <code>a[i:j]</code> — элемент и срез</p>
       <p class="simple"><b>Простыми словами:</b> индекс — номер места в списке, как номер места в очереди. Только счёт начинается с нуля. С конца считают отрицательными номерами: −1 — последний.</p>
       <div class="tablewrap"><table class="idx"><tr><th>элемент</th><td class="v">Пн</td><td class="v">Вт</td><td class="v">Ср</td><td class="v">Чт</td><td class="v">Пт</td></tr><tr><th>индекс</th><td class="i">0</td><td class="i">1</td><td class="i">2</td><td class="i">3</td><td class="i">4</td></tr><tr><th>с конца</th><td class="n">−5</td><td class="n">−4</td><td class="n">−3</td><td class="n">−2</td><td class="n">−1</td></tr></table></div>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Первая оценка в четверти:</span> <code>marks[0]</code></li><li><span>Температура в воскресенье, последний день:</span> <code>t[-1]</code></li><li><span>Исправить цену третьего товара:</span> <code>price[2] = 900</code></li></ul><p class="apply-no"><b>Не подходит:</b> номер, которого нет в списке, — будет ошибка <code>IndexError</code>.</p></div>
-      <p class="how"><span>Как записать:</span> <code>a[0]</code>, <code>a[-1]</code>, <code>a[2] = 7</code></p>
+      <p class="how"><span>Как записать:</span> <code>a[0]</code>, <code>a[-1]</code>, <code>a[2] = 7</code>, <code>a[1:3]</code></p>
       <div class="theory">
       <h3>Определение</h3>
       <p>Индекс — целое число, номер элемента в списке. Выражение <code>a[i]</code> даёт элемент с индексом i. В списке из n элементов индексы идут от 0 до n − 1, а с конца — от −1 до −n.</p>
@@ -644,9 +652,13 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <div class="exlist" data-ex="idx"></div>
       <h3>Важно знать</h3>
       <ul><li>Первый элемент — <code>a[0]</code>, а не <code>a[1]</code>.</li><li>Последний — <code>a[-1]</code> или <code>a[len(a) - 1]</code>.</li><li>Индекс — только целое число: <code>a[1.5]</code> — ошибка <code>TypeError</code>.</li></ul>
+      <h3>Срез — несколько элементов сразу</h3>
+      <p>Срез <code>a[i:j]</code> — новый список из элементов с индексами от i до j − 1: элемент с индексом j <b>не входит</b>. Без начала срез идёт с первого элемента: <code>a[:3]</code>; без конца — до последнего: <code>a[2:]</code>.</p>
+      <p>Через срез можно заменить сразу несколько элементов: <code>a[1:3] = [20, 21]</code>. Если новых элементов больше или меньше, чем заменяемых, длина списка меняется.</p>
+      <div class="exlist" data-ex="slice" data-ed="idx"></div>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="idx"></div></div>
-      <p class="remember"><b>Запомни:</b> первый — <code>a[0]</code>, последний — <code>a[-1]</code>.</p>
+      <p class="remember"><b>Запомни:</b> первый — <code>a[0]</code>, последний — <code>a[-1]</code>. Срез <code>a[i:j]</code> не включает элемент с индексом j.</p>
     </section>
 
     <!-- Перебор и функции -->
@@ -665,6 +677,12 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <div class="exlist" data-ex="loop"></div>
       <h3>Важно знать</h3>
       <ul><li><code>sum</code>, <code>max</code> и <code>min</code> работают с числами. Для пустого списка <code>max([])</code> выдаёт ошибку <code>ValueError</code>.</li><li>Деление <code>/</code> даёт дробное число: <code>sum([4, 5]) / 2</code> = 4.5.</li><li>Строки внутри цикла сдвигают на 4 пробела.</li></ul>
+      <h3>Перебор циклом while</h3>
+      <p>Индекс заводят вручную: начинают с 0 и после каждого шага увеличивают на 1, пока он меньше <code>len(a)</code>.</p>
+      <div class="exlist" data-ex="while" data-ed="loop"></div>
+      <h3>Генератор списка</h3>
+      <p>Короткая запись, которая строит новый список из элементов другого списка: <code>[выражение for x in список if условие]</code>. Условие можно не писать. Исходный список не меняется.</p>
+      <div class="exlist" data-ex="comp" data-ed="loop"></div>
       <h3>Связь с математикой</h3>
       <p>Среднее арифметическое = сумма элементов : их количество, в Python — <code>sum(a) / len(a)</code>.</p>
       </div>
@@ -720,7 +738,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <h3>Примеры</h3>
       <div class="exlist" data-ex="add"></div>
       <h3>Важно знать</h3>
-      <ul><li><code>append</code> добавляет ровно один элемент за раз: <code>append([7, 8])</code> добавит один элемент — весь список <code>[7, 8]</code>. Чтобы добавить 7 и 8 по отдельности, нужен <code>extend([7, 8])</code>.</li><li>Методы ничего не возвращают: <code>a = a.append(5)</code> — ошибка, в <code>a</code> окажется <code>None</code>. Пиши просто <code>a.append(5)</code>.</li><li><code>insert</code>: сначала номер, потом значение — <code>insert(0, "а")</code>.</li><li>Ввод списка с клавиатуры: пустой список и цикл с <code>append</code>.</li></ul>
+      <ul><li><code>append</code> добавляет ровно один элемент за раз: <code>append([7, 8])</code> добавит один элемент — весь список <code>[7, 8]</code>. Чтобы добавить 7 и 8 по отдельности, нужен <code>extend([7, 8])</code>.</li><li>Соединить два списка можно знаком <code>+</code>: <code>c = a + b</code> — получится новый список, а <code>a</code> и <code>b</code> не изменятся. <code>extend</code> же меняет сам список.</li><li>Методы ничего не возвращают: <code>a = a.append(5)</code> — ошибка, в <code>a</code> окажется <code>None</code>. Пиши просто <code>a.append(5)</code>.</li><li><code>insert</code>: сначала номер, потом значение — <code>insert(0, "а")</code>.</li><li>Ввод списка с клавиатуры: пустой список и цикл с <code>append</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="add"></div></div>
       <p class="remember"><b>Запомни:</b> <code>append</code> — в конец, <code>insert(i, x)</code> — на место i, <code>extend(b)</code> — все элементы b в конец.</p>
@@ -740,7 +758,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <h3>Примеры</h3>
       <div class="exlist" data-ex="del"></div>
       <h3>Важно знать</h3>
-      <ul><li><code>pop</code> удаляет по номеру, <code>remove</code> — по значению.</li><li><code>pop(i)</code> и <code>del a[i]</code> удаляют один и тот же элемент, но <code>pop</code> возвращает его, а <code>del</code> — нет.</li><li>Если элемента нет, <code>remove</code> выдаёт ошибку <code>ValueError</code>. Сначала проверь: <code>if x in a:</code>.</li><li><code>pop</code> из пустого списка выдаёт ошибку <code>IndexError</code>.</li></ul>
+      <ul><li><code>pop</code> удаляет по номеру, <code>remove</code> — по значению.</li><li><code>pop(i)</code> и <code>del a[i]</code> удаляют один и тот же элемент, но <code>pop</code> возвращает его, а <code>del</code> — нет.</li><li><code>del a</code> без индекса удаляет весь список вместе с именем: после этого <code>print(a)</code> выдаст <code>NameError</code>. Чтобы оставить пустой список, используют <code>clear()</code>.</li><li>Если элемента нет, <code>remove</code> выдаёт ошибку <code>ValueError</code>. Сначала проверь: <code>if x in a:</code>.</li><li><code>pop</code> из пустого списка выдаёт ошибку <code>IndexError</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="del"></div></div>
       <p class="remember"><b>Запомни:</b> <code>pop(i)</code> — «убери номер i», <code>remove(x)</code> — «убери значение x», <code>del a[i]</code> — «убери номер i, он не нужен», <code>clear()</code> — «убери всё».</p>
@@ -760,7 +778,7 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <h3>Примеры</h3>
       <div class="exlist" data-ex="order"></div>
       <h3>Важно знать</h3>
-      <ul><li><code>sort</code> меняет сам список и возвращает <code>None</code>: <code>b = a.sort()</code> — в <code>b</code> окажется <code>None</code>.</li><li><code>reverse</code> не сортирует, а только переворачивает: <code>[3, 1, 2]</code> → <code>[2, 1, 3]</code>. По убыванию сортирует <code>sort(reverse=True)</code>.</li><li><code>b = a</code> не копирует список: это второе имя того же списка, и <code>b.sort()</code> изменит и <code>a</code>. Копия — <code>b = a.copy()</code>.</li><li>Слова Python сравнивает по кодам букв: заглавные идут раньше строчных, а казахские буквы Ә, Ғ, Қ, Ң, Ө, Ұ, Ү, Һ, І и буква Ё — после Я.</li><li>Числа и слова в одном списке отсортировать нельзя — ошибка <code>TypeError</code>.</li></ul>
+      <ul><li><code>sort</code> меняет сам список и возвращает <code>None</code>: <code>b = a.sort()</code> — в <code>b</code> окажется <code>None</code>.</li><li><code>reverse</code> не сортирует, а только переворачивает: <code>[3, 1, 2]</code> → <code>[2, 1, 3]</code>. По убыванию сортирует <code>sort(reverse=True)</code>.</li><li><code>b = a</code> не копирует список: это второе имя того же списка, и <code>b.sort()</code> изменит и <code>a</code>. Копия — <code>b = a.copy()</code>; так же работают <code>list(a)</code> и срез <code>a[:]</code>.</li><li>Слова Python сравнивает по кодам букв: заглавные идут раньше строчных, а казахские буквы Ә, Ғ, Қ, Ң, Ө, Ұ, Ү, Һ, І и буква Ё — после Я.</li><li>Числа и слова в одном списке отсортировать нельзя — ошибка <code>TypeError</code>.</li></ul>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="order"></div></div>
       <p class="remember"><b>Запомни:</b> <code>sort()</code> — по возрастанию, <code>sort(reverse=True)</code> — по убыванию, <code>reverse()</code> — в обратном порядке. Они меняют сам список; чтобы сохранить исходный, сначала сделай <code>copy()</code>.</p>
@@ -804,6 +822,8 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
           <tr><td><code>a.sort(reverse=True)</code></td><td>по убыванию</td><td><code>[3, 2, 1]</code></td></tr>
           <tr><td><code>a.reverse()</code></td><td>в обратном порядке, без сортировки</td><td><code>[2, 1, 3]</code></td></tr>
           <tr><td><code>b = a.copy()</code></td><td>копия списка</td><td><code>b</code> = <code>[3, 1, 2]</code>, a не меняется</td></tr>
+          <tr><td><code>a[0:2]</code></td><td>срез: элементы с индексами 0 и 1</td><td><code>[3, 1]</code>, a не меняется</td></tr>
+          <tr><td><code>a + [7]</code></td><td>новый список: сначала a, потом 7</td><td><code>[3, 1, 2, 7]</code>, a не меняется</td></tr>
           <tr><td><code>a.index(2)</code></td><td>индекс значения 2</td><td>2, список не меняется</td></tr>
           <tr><td><code>a.count(3)</code></td><td>сколько раз встречается 3</td><td>1, список не меняется</td></tr>
           <tr><td><code>len(a)</code>, <code>sum(a)</code>, <code>max(a)</code>, <code>min(a)</code></td><td>функции, а не методы: длина, сумма, наибольший, наименьший</td><td>3, 6, 3, 1</td></tr>
@@ -887,7 +907,26 @@ textarea.pred-in { font-family: var(--f-mono); font-size: 1rem; flex: 1 1 260px;
       <div class="progress"><div class="pbar"><i id="pjBar"></i></div><span class="pnum" id="pjNum"></span></div>
     </section>
     <div class="panel" id="pjList"></div>
-    <div class="next"><button class="btn" type="button" data-go="practice">← Практика</button><button class="btn main" type="button" data-go="reflect">Итоги урока →</button></div>
+    <div class="next"><button class="btn" type="button" data-go="practice">← Практика</button><button class="btn main" type="button" data-go="test">Дальше: тест →</button></div>
+  </div>
+
+  <!-- Этап 10: тест — впиши пропущенное в код -->
+  <div class="panel" id="test" role="tabpanel" aria-labelledby="tab-test" hidden>
+    <div>
+      <h1>Тест: впиши пропущенное</h1>
+      <p class="lead">В каждой программе пропущено одно или два слова. Впиши их и нажми «Проверить» или Enter. Во всех заданиях, где не сказано иначе, список такой:</p>
+    </div>
+    <section class="block">
+      <pre class="code-view">fruits = ["яблоко", "банан", "вишня", "киви", "лимон"]</pre>
+      <div class="progress"><div class="pbar"><i id="tsBar"></i></div><span class="pnum" id="tsNum"></span></div>
+      <p class="small" id="tsFirst"></p>
+    </section>
+    <div class="mt-list" id="tsList"></div>
+    <section class="block mt-done" id="tsDone" hidden>
+      <h2>Итог</h2>
+      <p class="plain" id="tsDoneText"></p>
+    </section>
+    <div class="next"><button class="btn" type="button" data-go="project">← Практическая работа</button><button class="btn main" type="button" data-go="reflect">Итоги урока →</button></div>
   </div>
 
   <!-- Этап 10: итоги урока -->
@@ -1391,7 +1430,7 @@ function unlock() {
   setTimeout(() => { show("goal"); window.scrollTo({ top: 0, behavior: "smooth" }); }, 1400);
 }
 
-const PANELS = ["review", "puzzle", "goal", "actual", "learn", "methods", "match", "practice", "project", "reflect", "hw"];
+const PANELS = ["review", "puzzle", "goal", "actual", "learn", "methods", "match", "practice", "project", "test", "reflect", "hw"];
 function show(id) {
   if (window.__onStage) window.__onStage(id);
   if (id === "reflect") fillReflect();
@@ -1438,7 +1477,7 @@ function showExp(text) {
   document.getElementById("expSaved").hidden = !has;
   document.getElementById("expShow").textContent = text || "";
   document.getElementById("afterExp").hidden = !has;
-  ["reflect", "actual", "learn", "methods", "match", "practice", "project", "hw"].forEach(p => { document.getElementById("tab-" + p).disabled = !has; });
+  ["reflect", "actual", "learn", "methods", "match", "practice", "project", "test", "hw"].forEach(p => { document.getElementById("tab-" + p).disabled = !has; });
   document.getElementById("toLearn").hidden = !has;
 }
 
@@ -1469,6 +1508,7 @@ const EX = {
     { code: "shop = [\"хлеб\", \"молоко\"]\nprint(shop)", out: "['хлеб', 'молоко']", note: "Текст Python показывает в одинарных кавычках." },
     { code: "a = [3, 8, 1]\na[0] = 10\nprint(a)", out: "[10, 8, 1]", note: "Элемент с индексом 0 заменили на 10." },
     { code: "a = []\nprint(a, len(a))", out: "[] 0", note: "Пустой список: в нём 0 элементов." },
+    { code: "marks = [5, 4, 5, 3, 5]\nprint(marks, len(marks))", out: "[5, 4, 5, 3, 5] 5", note: "Повторы разрешены: пятёрка стоит в списке три раза." },
     { code: "shop = [хлеб, молоко]\nprint(shop)", err: "NameError: name 'хлеб' is not defined", note: "Слово без кавычек Python принимает за имя переменной, а такой переменной нет." }
   ],
   idx: [
@@ -1477,6 +1517,20 @@ const EX = {
     { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[len(a) - 1])", out: "Пт", note: "Последний индекс — len(a) − 1, то есть 4." },
     { code: "a = [3, 8, 1]\na[1] = a[1] + 2\nprint(a)", out: "[3, 10, 1]", note: "Элемент можно взять, изменить и записать обратно." },
     { code: "a = [3, 8, 1]\nprint(a[3])", err: "IndexError: list index out of range", note: "В списке из трёх элементов индексы только 0, 1, 2." }
+  ],
+  slice: [
+    { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[1:4])", out: "['Вт', 'Ср', 'Чт']", note: "Индексы 1, 2, 3; элемент с индексом 4 не входит." },
+    { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[:2])", out: "['Пн', 'Вт']", note: "Без начала — с первого элемента." },
+    { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[3:])", out: "['Чт', 'Пт']", note: "Без конца — до последнего элемента." },
+    { code: "t = [12, 15, 9, 18]\nt[1:3] = [20, 21]\nprint(t)", out: "[12, 20, 21, 18]", note: "Два элемента заменены двумя." },
+    { code: "a = [1, 2, 3]\na[1:2] = [7, 8]\nprint(a, len(a))", out: "[1, 7, 8, 3] 4", note: "Один элемент заменён двумя: список стал длиннее." }
+  ],
+  while: [
+    { code: "t = [12, 15, 9]\ni = 0\nwhile i < len(t):\n    print(t[i])\n    i = i + 1", out: "12\n15\n9", note: "Без строки i = i + 1 цикл не закончится." }
+  ],
+  comp: [
+    { code: "a = [4, -2, 7, -5]\nb = [x for x in a if x > 0]\nprint(b)", out: "[4, 7]", note: "В новый список попали только положительные числа." },
+    { code: "a = [1, 2, 3]\nprint([x * 10 for x in a])", out: "[10, 20, 30]", note: "Каждый элемент умножен на 10, условия нет." }
   ],
   loop: [
     { code: "marks = [5, 4, 5, 3]\nfor x in marks:\n    print(x)", out: "5\n4\n5\n3", note: "x по очереди принимает значение каждого элемента." },
@@ -1492,6 +1546,7 @@ const EX = {
     { code: "marks = []\nfor i in range(3):\n    marks.append(int(input()))\nprint(marks)", inputs: ["5", "4", "5"], out: "5\n4\n5\n[5, 4, 5]", note: "Ввод списка: пустой список, цикл и append. Ввели 5, 4, 5." },
     { code: "a = [3, 1]\na.extend([7, 8])\nprint(a)", out: "[3, 1, 7, 8]", note: "extend добавил в конец оба элемента." },
     { code: "a = [3, 1]\na.append([7, 8])\nprint(a, len(a))", out: "[3, 1, [7, 8]] 3", note: "append добавил один элемент — список [7, 8] целиком." },
+    { code: "a = [1, 2]\nb = [3, 4]\nc = a + b\nprint(c, a)", out: "[1, 2, 3, 4] [1, 2]", note: "Знак + создал новый список, a не изменился." },
     { code: "a = [3, 1]\na = a.append(5)\nprint(a)", out: "None", note: "Логическая ошибка: append меняет список сам и возвращает None — его и записали в a." }
   ],
   del: [
@@ -1500,6 +1555,7 @@ const EX = {
     { code: "a = [5, 3, 5]\na.remove(5)\nprint(a)", out: "[3, 5]", note: "remove удаляет только первую пятёрку." },
     { code: "a = [3, 1, 2]\ndel a[0]\nprint(a)", out: "[1, 2]", note: "del удалил элемент с индексом 0 и ничего не вернул." },
     { code: "cart = [\"хлеб\", \"сыр\"]\ncart.clear()\nprint(cart, len(cart))", out: "[] 0", note: "clear() очистил список полностью." },
+    { code: "a = [3, 1, 2]\ndel a\nprint(a)", err: "NameError: name 'a' is not defined", note: "del a удалил сам список вместе с именем." },
     { code: "shop = [\"хлеб\", \"сыр\"]\nshop.remove(\"чай\")", err: "ValueError: list.remove(x): x not in list", note: "Чая в списке нет — удалять нечего." },
     { code: "shop = [\"хлеб\", \"сыр\"]\nif \"чай\" in shop:\n    shop.remove(\"чай\")\nprint(shop)", out: "['хлеб', 'сыр']", note: "С проверкой in ошибки нет." }
   ],
@@ -1509,6 +1565,7 @@ const EX = {
     { code: "a = [3, 1, 2]\na.reverse()\nprint(a)", out: "[2, 1, 3]", note: "reverse не сортирует, а переворачивает." },
     { code: "w = [\"сыр\", \"арбуз\", \"мёд\"]\nw.sort()\nprint(w)", out: "['арбуз', 'мёд', 'сыр']", note: "Слова — по алфавиту." },
     { code: "a = [3, 1, 2]\nb = a.copy()\nb.sort()\nprint(a, b)", out: "[3, 1, 2] [1, 2, 3]", note: "Отсортирована копия, исходный список не изменился." },
+    { code: "a = [3, 1, 2]\nb = a[:]\nb.sort()\nprint(a, b)", out: "[3, 1, 2] [1, 2, 3]", note: "a[:] — тоже копия." },
     { code: "a = [3, 1, 2]\nb = a\nb.sort()\nprint(a)", out: "[1, 2, 3]", note: "b = a — не копия, а второе имя: отсортировался и a." },
     { code: "a = [3, 1, 2]\nb = a.sort()\nprint(b)", out: "None", note: "sort ничего не возвращает: в b попал None. Отсортирован сам список a." }
   ],
@@ -1565,7 +1622,7 @@ document.querySelectorAll(".exlist[data-ex]").forEach(box => {
   });
   box.addEventListener("click", ev => {
     const b = ev.target.closest(".ex-open"); if (!b) return;
-    const e = EX[k][+b.dataset.i]; edOpen(k, e.code, e.inputs);
+    const e = EX[k][+b.dataset.i]; edOpen(box.dataset.ed || k, e.code, e.inputs);
   });
 });
 document.addEventListener("click", e => {
@@ -2097,6 +2154,84 @@ quizBuild({ key: RV_KEY, cases: RV_CASES, prefix: "rv", list: "rvList", bar: "rv
   summary: (first, n) => first >= 5 ? `${first} из ${n} с первой попытки. Циклы ты помнишь — разгадай тему нового урока.`
     : `${first} из ${n} с первой попытки. Перечитай пояснения к вопросам, где ошибся: цикл for сегодня понадобится, чтобы обходить список.` });
 
+/* Тест «впиши пропущенное»: ___ в коде — поле ввода; ans — допустимые ответы для каждого пропуска */
+const TS_KEY = "test-l4";
+const TS_CASES = [
+  { q: "Выведи второй элемент списка.", code: "print(fruits[___])", ans: [["1"]], why: "Счёт начинается с нуля: второй элемент — fruits[1]." },
+  { q: "Выведи последний элемент, не считая длину списка.", code: "print(fruits[___])", ans: [["-1"]], why: "Отрицательный индекс считает с конца: −1 — последний." },
+  { q: "Замени первый элемент на «груша».", code: "fruits[___] = \"груша\"", ans: [["0"]], why: "Первый элемент — индекс 0." },
+  { q: "Добавь «слива» в конец списка.", code: "fruits.___(\"слива\")", ans: [["append"]], why: "В конец — append." },
+  { q: "Вставь «манго» на место с индексом 2.", code: "fruits.___(2, \"манго\")", ans: [["insert"]], why: "На нужное место — insert(индекс, значение)." },
+  { q: "Удали «банан», зная только значение.", code: "fruits.___(\"банан\")", ans: [["remove"]], why: "По значению удаляет remove." },
+  { q: "Удали последний элемент списка.", code: "fruits.___()", ans: [["pop"]], why: "pop() без номера удаляет последний элемент." },
+  { q: "Удали элемент с индексом 0 командой, которая ничего не возвращает.", code: "___ fruits[0]", ans: [["del"]], why: "del — команда Python, пишется без точки и скобок." },
+  { q: "Выведи элементы с индексами 1, 2 и 3 одним срезом.", code: "print(fruits[___:___])", ans: [["1"], ["4"]], why: "Конец среза не входит: fruits[1:4] — индексы 1, 2, 3." },
+  { q: "Выведи, сколько элементов в списке.", code: "print(___(fruits))", ans: [["len"]], why: "Длину списка даёт функция len." },
+  { q: "Выведи каждый элемент списка на отдельной строке.", code: "for x ___ fruits:\n    print(x)", ans: [["in"]], why: "Перебор списка: for x in список." },
+  { q: "Отсортируй список по убыванию.", code: "fruits.sort(___=True)", ans: [["reverse"]], why: "По убыванию — sort(reverse=True)." },
+  { q: "Сделай копию списка, чтобы менять её, не трогая fruits.", code: "b = fruits.___()", ans: [["copy"]], why: "Копию возвращает copy(); b = fruits копией не будет." },
+  { q: "Добавь в конец fruits все элементы списка more.", code: "fruits.___(more)", ans: [["extend"]], why: "Все элементы другого списка — extend." },
+  { q: "Очисти список, чтобы он стал пустым.", code: "fruits.___()", ans: [["clear"]], why: "clear() удаляет все элементы, а сам список остаётся." },
+  { q: "Выведи, сколько раз в списке встречается «киви».", code: "print(fruits.___(\"киви\"))", ans: [["count"]], why: "Сколько раз — count." },
+  { q: "Выведи индекс элемента «лимон».", code: "print(fruits.___(\"лимон\"))", ans: [["index"]], why: "На каком месте — index." },
+  { q: "Собери в новый список big числа из nums, которые больше 10.", code: "big = [x for x in nums if x ___ 10]", ans: [[">"]], why: "Генератор списка с условием x > 10." }
+];
+const tsNorm = s => String(s).trim().replace(/\s+/g, "").replace(/'/g, "\"").replace(/[−–]/g, "-");
+const htmlEsc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function testBuild() {
+  const load = () => store.get(TS_KEY, {}), n = TS_CASES.length;
+  function render() {
+    const d = load(), ok = TS_CASES.filter((_, i) => d[i] && d[i].ok).length, first = TS_CASES.filter((_, i) => d[i] && d[i].first).length;
+    document.getElementById("tsBar").style.width = (ok / n * 100) + "%";
+    document.getElementById("tsNum").textContent = `Решено: ${ok} из ${n}`;
+    document.getElementById("tsFirst").textContent = ok ? `С первой попытки: ${first} из ${ok}` : "";
+    document.getElementById("tsDone").hidden = ok !== n;
+    if (ok === n) document.getElementById("tsDoneText").textContent = first >= Math.ceil(n * 0.8) ? `${first} из ${n} с первой попытки. Отличный результат!`
+      : first >= Math.ceil(n * 0.5) ? `${first} из ${n} с первой попытки. Хорошо. Повтори темы заданий, где ошибся.`
+      : `${first} из ${n} с первой попытки. Вернись к карточкам «Список» и «Методы списка» и пройди тест ещё раз дома.`;
+  }
+  document.getElementById("tsList").innerHTML = TS_CASES.map((c, i) => `
+    <section class="block mt-card" id="ts-${i}">
+      <div class="tc-head"><span class="tc-id">${i + 1}</span><span class="tc-status" aria-live="polite"></span></div>
+      <p class="tc-q"></p>
+      <pre class="code-view ts-code">${c.code.split("___").map(htmlEsc).join("\u0000").split("\u0000").reduce((h, part, j) => h + (j ? `<input type="text" class="blank" id="ts-${i}-${j - 1}" aria-label="Пропуск ${j}" autocomplete="off" autocapitalize="off" spellcheck="false">` : "") + part, "")}</pre>
+      <div class="tc-actions"><button type="button" class="btn main ts-check">Проверить</button></div>
+      <p class="tc-msg" aria-live="polite"></p>
+    </section>`).join("");
+  TS_CASES.forEach((c, i) => {
+    const card = document.getElementById("ts-" + i), msg = card.querySelector(".tc-msg"), inputs = [...card.querySelectorAll(".blank")];
+    card.querySelector(".tc-q").textContent = c.q;
+    const fit = el => { el.style.width = Math.max(3, el.value.length + 1) + "ch"; };
+    const show = (st, quiet) => {
+      inputs.forEach((el, j) => { if (st.a && st.a[j] != null) el.value = st.a[j]; fit(el); el.disabled = !!st.ok; el.classList.toggle("ok", !!st.ok); });
+      card.classList.toggle("done", !!st.ok);
+      card.querySelector(".ts-check").disabled = !!st.ok;
+      card.querySelector(".tc-status").textContent = st.ok ? (st.first ? "✓ с первой попытки" : "✓ решено") : "";
+      if (st.ok) { msg.className = "tc-msg ok"; msg.textContent = "Верно. " + c.why; }
+      else if (!quiet && st.tries) { msg.className = "tc-msg bad"; msg.textContent = st.tries >= 2 ? "Неверно. Подсказка: " + c.why : "Неверно. Подумай ещё раз."; }
+    };
+    const check = () => {
+      const a = inputs.map(el => el.value);
+      if (a.some(v => !v.trim())) { msg.className = "tc-msg bad"; msg.textContent = "Заполни все пропуски."; return; }
+      const ok = a.every((v, j) => c.ans[j].some(x => tsNorm(x) === tsNorm(v)));
+      if (window.__onAttempt) window.__onAttempt("10. Тест", "Вопрос " + (i + 1), a.join(" | "), ok, ok ? "" : "верно: " + c.ans.map(x => x[0]).join(" | "));
+      const all = load(), st = all[i] || { tries: 0 };
+      st.tries = (st.tries || 0) + 1; st.a = a;
+      if (ok) { st.ok = true; st.first = st.tries === 1; }
+      inputs.forEach(el => el.classList.toggle("bad", !ok));
+      all[i] = st; store.set(TS_KEY, all); show(st); render();
+    };
+    inputs.forEach(el => {
+      el.addEventListener("input", () => { fit(el); el.classList.remove("bad"); });
+      el.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); check(); } });
+    });
+    card.querySelector(".ts-check").addEventListener("click", check);
+    show(load()[i] || {}, true);
+  });
+  render();
+}
+testBuild();
+
 /* Критерии оценивания и дескрипторы: отмечаются по заданиям урока */
 const DESC = [
   { id: "Д1", text: "создаёт список и обращается к элементу по индексу, в том числе с конца", lv: "Все", where: "Практика: разминка Z1–Z3", tasks: ["Z1", "Z2", "Z3"] },
@@ -2194,7 +2329,7 @@ function hwRender() {
   document.getElementById("hwNum").textContent = `Сделано: ${ok} из ${TASKS_HW.length}`;
 }
 (function hwBuild() {
-  const cards = TASKS_HW.map(t => taskCard(t, { key: HW_KEY, stage: "11. Домашнее задание", idp: "hw", doneText: "✓ сделано", onDone: hwRender }));
+  const cards = TASKS_HW.map(t => taskCard(t, { key: HW_KEY, stage: "12. Домашнее задание", idp: "hw", doneText: "✓ сделано", onDone: hwRender }));
   document.getElementById("hwTasks").innerHTML = cards.map(c => c.html).join("");
   cards.forEach(c => c.mount());
   hwRender();
@@ -2327,14 +2462,14 @@ buildGrid(); buildTasks();
 unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
 render();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
-window.__lessonInfo = { matchN: MT_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, pjN: TASKS_PJ.length, hwN: TASKS_HW.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
+window.__lessonInfo = { matchN: MT_CASES.length, tsN: TS_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, pjN: TASKS_PJ.length, hwN: TASKS_HW.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
   A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
 /* для автотестов */
-window.__lesson = { TASKS, AC_CASES, RV_CASES, TASKS_PR, TASKS_PJ, TASKS_HW, EX, ERR_EX, codeCheck, pyRun, predNorm, withData };
+window.__lesson = { TASKS, TS_CASES, AC_CASES, RV_CASES, TASKS_PR, TASKS_PJ, TASKS_HW, EX, ERR_EX, codeCheck, pyRun, predNorm, withData };
 
 }
 /* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
-const STAGES = { review: "1. Повторим", puzzle: "2. Разгадка темы", goal: "3. Тема и цель", actual: "4. Вспомним", learn: "5. Список", methods: "6. Методы списка", match: "7. Какой метод?", practice: "8. Практика", project: "9. Практическая работа", reflect: "10. Итоги", hw: "11. Домашнее задание" };
+const STAGES = { review: "1. Повторим", puzzle: "2. Разгадка темы", goal: "3. Тема и цель", actual: "4. Вспомним", learn: "5. Список", methods: "6. Методы списка", match: "7. Какой метод?", practice: "8. Практика", project: "9. Практическая работа", test: "10. Тест", reflect: "11. Итоги", hw: "12. Домашнее задание" };
 let me = null, curStage = "review", syncTimer = null;
 const gsr = (fn, ...args) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
@@ -2359,6 +2494,7 @@ function lessonSummary() {
     now: window.__prNow(),
     hw: (() => { const h = g("hw-l4") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.hwN; })(),
     pj: (() => { const h = g("project-l4") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.pjN; })(),
+    test: (() => { const a = Object.values(g("test-l4") || {}); return a.filter(x => x && x.ok).length + "/" + info.tsN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
     rev: (() => { const a = Object.values(g("review-l4") || {}); return a.filter(x => x && x.ok).length + "/" + info.rvN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
     desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
   };
