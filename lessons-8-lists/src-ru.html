@@ -1081,9 +1081,6 @@ def _calls(code):
     return json.dumps(sorted(names))
 `;
 let pyPromise = null, pyLastErr = "";
-/* Сначала копия Pyodide рядом со страницей (в артефакте внешние загрузки, кроме скриптов, запрещены), потом CDN */
-/* в артефакте .zip не публикуется, поэтому рядом со страницей стандартная библиотека лежит как python_stdlib.wasm */
-const PY_SOURCES = (() => { const out = []; try { const b = new URL("pyodide/", document.baseURI).href; out.push({ base: b, stdLibURL: b + "python_stdlib.wasm" }); } catch (e) {} out.push({ base: PY_URL }); return out; })();
 function pyStatus(s) {
   const el = document.getElementById("pyState"); if (!el) return;
   el.hidden = false; el.className = "py-state " + s;
@@ -1095,9 +1092,36 @@ function pyStatus(s) {
     el.append(" · ", b);
   }
 }
+/* Сначала копия Pyodide рядом со страницей (в артефакте внешние загрузки, кроме скриптов, запрещены), потом CDN */
+/* Pyodide встроен в index.html (сжатые файлы в <script type="application/octet-stream">): страница работает одним файлом,
+   без сети. Запросы Pyodide к своим файлам перехватываются и отдаются из страницы. Без встроенной копии — CDN. */
+const PY_INLINE = "https://pyodide.inline/";
+const PY_TYPES = { "pyodide.asm.wasm": "application/wasm", "python_stdlib.zip": "application/zip", "pyodide-lock.json": "application/json" };
+async function pyInlineFile(name) {
+  const el = document.getElementById("pyb-" + name.replace(/\W/g, "-"));
+  if (!el) throw new Error(name + " нет в странице");
+  const bin = atob(el.textContent.trim()), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+}
+function pyInlineFetch() {
+  if (window.__pyFetchPatched) return;
+  const orig = window.fetch.bind(window);
+  window.fetch = (u, o) => {
+    const s = typeof u === "string" ? u : u instanceof URL ? u.href : u && u.url;
+    if (s && s.startsWith(PY_INLINE)) {
+      const name = s.slice(PY_INLINE.length).split("?")[0];
+      return pyInlineFile(name).then(buf => new Response(buf, { headers: { "Content-Type": PY_TYPES[name] || "application/octet-stream" } }));
+    }
+    return orig(u, o);
+  };
+  window.__pyFetchPatched = true;
+}
+const PY_SOURCES = (document.getElementById("pyb-pyodide-asm-wasm") ? [{ inline: true }] : []).concat([{ base: PY_URL }]);
 function pyFrom(src) {
+  if (src.inline) { pyInlineFetch(); return window.loadPyodide({ indexURL: PY_INLINE }); }
   const base = src.base;
-  const go = () => window.loadPyodide(src.stdLibURL ? { indexURL: base, stdLibURL: src.stdLibURL } : { indexURL: base });
+  const go = () => window.loadPyodide({ indexURL: base });
   if (window.loadPyodide) return go();
   return new Promise((res, rej) => {
     const s = document.createElement("script");

@@ -92,6 +92,30 @@ def tpl_lesson4(src):
     return {src[a:b]: (root / "tools" / "kz_lists_puzzle.js").read_text(encoding="utf-8")}
 
 
+PYODIDE = "0.26.4"
+
+
+def pyodide_payload():
+    """Pyodide для урока «Список» встраивается в index.html: страница работает одним файлом и без сети.
+    Пакет берётся из npm один раз и лежит в tools/.cache (в git не попадает)."""
+    import base64, gzip, subprocess, tarfile
+    cache = root / "tools" / ".cache" / f"pyodide-{PYODIDE}"
+    if not (cache / "package" / "pyodide.asm.wasm").exists():
+        cache.mkdir(parents=True, exist_ok=True)
+        name = subprocess.run(["npm", "pack", f"pyodide@{PYODIDE}", "--silent"], cwd=cache, check=True,
+                              capture_output=True, text=True).stdout.strip().splitlines()[-1]
+        with tarfile.open(cache / name) as t:
+            t.extractall(cache, filter="data")
+    pkg = cache / "package"
+    blobs = "".join(
+        f'<script type="application/octet-stream" id="pyb-{f.replace(".", "-")}">'
+        + base64.b64encode(gzip.compress((pkg / f).read_bytes(), 9, mtime=0)).decode() + "</script>\n"
+        for f in ["pyodide.asm.wasm", "python_stdlib.zip", "pyodide-lock.json"])
+    js = "".join("<script>\n" + (pkg / f).read_text(encoding="utf-8") + "\n</script>\n" for f in ["pyodide.js", "pyodide.asm.js"])
+    assert "</script" not in js.replace("\n</script>\n", "")
+    return blobs + js
+
+
 # Строки, где перевод по фрагментам ломает порядок слов: заменяются целиком уже в казахском тексте
 KZ_FIX = {
     "lessons-8-logic": [
@@ -109,6 +133,8 @@ LESSONS = {
 }
 # Свои шаблоны урока: фрагменты исходника, которые заменяются готовым казахским текстом целиком
 LESSON_TPL = {"lessons-8-lists": tpl_lesson4}
+# Уроки, в которые встраивается Python (Pyodide)
+LESSON_PY = {"lessons-8-lists"}
 
 LANG_CSS = """
 .lang-sw{display:inline-flex;align-self:center;flex:none;border:1px solid var(--line, #c9d3d8);border-radius:999px;overflow:hidden;vertical-align:middle}
@@ -202,6 +228,8 @@ def build(folder):
         return replace_once(js, 'gsr("submitAnswer", { qid: shownQ,', 'gsr("submitAnswer", { qid: shownQ, lang: "kz",')
     tpl = LESSON_TPL[folder](src) if folder in LESSON_TPL else None
     page = assemble(src, (ru_title, kz_title), [".top .tools", "#login .lg-card"], fix_kz, folder, tpl)
+    if folder in LESSON_PY:
+        page = page.replace('<div id="lang-root"></div>\n', '<div id="lang-root"></div>\n' + pyodide_payload(), 1)
     (root / folder / "index.html").write_text(page, encoding="utf-8")
     print(f"{folder}/index.html: {len(page)} bytes")
 
