@@ -646,7 +646,9 @@ globalThis._createPyodideModule = _createPyodideModule;
     <div class="fpills" role="tablist" aria-label="Разделы">
       <button type="button" class="fpill" data-f="0" aria-selected="true">1 · Список</button>
       <button type="button" class="fpill" data-f="1" aria-selected="false">2 · Индексы</button>
-      <button type="button" class="fpill" data-f="2" aria-selected="false">3 · Перебор и функции</button>
+      <button type="button" class="fpill" data-f="2" aria-selected="false">3 · Срезы</button>
+      <button type="button" class="fpill" data-f="3" aria-selected="false">4 · Изменение элементов</button>
+      <button type="button" class="fpill" data-f="4" aria-selected="false">5 · Перебор: for, while, генератор</button>
     </div>
 
     <!-- Список -->
@@ -678,11 +680,11 @@ globalThis._createPyodideModule = _createPyodideModule;
 
     <!-- Индексы -->
     <section class="block fcard" data-card="1" hidden>
-      <p class="fname"><code>a[i]</code> и <code>a[i:j]</code> — элемент и срез</p>
+      <p class="fname"><code>a[i]</code> — элемент по индексу</p>
       <p class="simple"><b>Простыми словами:</b> индекс — номер места в списке, как номер места в очереди. Только счёт начинается с нуля. С конца считают отрицательными номерами: −1 — последний.</p>
       <div class="tablewrap"><table class="idx"><tr><th>элемент</th><td class="v">Пн</td><td class="v">Вт</td><td class="v">Ср</td><td class="v">Чт</td><td class="v">Пт</td></tr><tr><th>индекс</th><td class="i">0</td><td class="i">1</td><td class="i">2</td><td class="i">3</td><td class="i">4</td></tr><tr><th>с конца</th><td class="n">−5</td><td class="n">−4</td><td class="n">−3</td><td class="n">−2</td><td class="n">−1</td></tr></table></div>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Первая оценка в четверти:</span> <code>marks[0]</code></li><li><span>Температура в воскресенье, последний день:</span> <code>t[-1]</code></li><li><span>Исправить цену третьего товара:</span> <code>price[2] = 900</code></li></ul><p class="apply-no"><b>Не подходит:</b> номер, которого нет в списке, — будет ошибка <code>IndexError</code>.</p></div>
-      <p class="how"><span>Как записать:</span> <code>a[0]</code>, <code>a[-1]</code>, <code>a[2] = 7</code>, <code>a[1:3]</code></p>
+      <p class="how"><span>Как записать:</span> <code>a[0]</code>, <code>a[-1]</code></p>
       <div class="theory">
       <h3>Определение</h3>
       <p>Индекс — целое число, номер элемента в списке. Выражение <code>a[i]</code> даёт элемент с индексом i. В списке из n элементов индексы идут от 0 до n − 1, а с конца — от −1 до −n.</p>
@@ -692,17 +694,53 @@ globalThis._createPyodideModule = _createPyodideModule;
       <div class="exlist" data-ex="idx"></div>
       <h3>Важно знать</h3>
       <ul><li>Первый элемент — <code>a[0]</code>, а не <code>a[1]</code>.</li><li>Последний — <code>a[-1]</code> или <code>a[len(a) - 1]</code>.</li><li>Индекс — только целое число: <code>a[1.5]</code> — ошибка <code>TypeError</code>.</li></ul>
-      <h3>Срез — несколько элементов сразу</h3>
-      <p>Срез <code>a[i:j]</code> — новый список из элементов с индексами от i до j − 1: элемент с индексом j <b>не входит</b>. Без начала срез идёт с первого элемента: <code>a[:3]</code>; без конца — до последнего: <code>a[2:]</code>.</p>
-      <p>Через срез можно заменить сразу несколько элементов: <code>a[1:3] = [20, 21]</code>. Если новых элементов больше или меньше, чем заменяемых, длина списка меняется.</p>
-      <div class="exlist" data-ex="slice" data-ed="idx"></div>
       </div>
       <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="idx"></div></div>
-      <p class="remember"><b>Запомни:</b> первый — <code>a[0]</code>, последний — <code>a[-1]</code>. Срез <code>a[i:j]</code> не включает элемент с индексом j.</p>
+      <p class="remember"><b>Запомни:</b> первый — <code>a[0]</code>, последний — <code>a[-1]</code>. Несколько элементов подряд — срез, о нём в следующей карточке.</p>
+    </section>
+
+    <!-- Срезы -->
+    <section class="block fcard" data-card="2" hidden>
+      <p class="fname"><code>a[i:j]</code> — срез</p>
+      <p class="simple"><b>Простыми словами:</b> срез — взять из ряда ящиков несколько подряд: с ящика i до ящика j, но сам ящик j не брать.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Дни со вторника по четверг:</span> <code>days[1:4]</code></li><li><span>Оценки за первые три урока:</span> <code>marks[:3]</code></li><li><span>Температура с четвёртого дня до конца недели:</span> <code>t[3:]</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы взять один элемент, срез не нужен — <code>a[i]</code>.</p></div>
+      <p class="how"><span>Как записать:</span> <code>a[1:4]</code>, <code>a[:3]</code>, <code>a[2:]</code></p>
+      <div class="theory">
+      <h3>Определение</h3>
+      <p>Срез <code>a[i:j]</code> — новый список из элементов с индексами от i до j − 1: элемент с индексом j <b>не входит</b>. Без начала срез идёт с первого элемента, без конца — до последнего.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>список[начало:конец]</code></p>
+      <h3>Примеры</h3>
+      <div class="exlist" data-ex="slice"></div>
+      <h3>Важно знать</h3>
+      <ul><li>Конец среза не входит: в <code>a[1:4]</code> три элемента — с индексами 1, 2, 3.</li><li>Срез — новый список, исходный список не меняется.</li><li><code>a[:]</code> — срез от начала до конца, то есть копия всего списка.</li></ul>
+      </div>
+      <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="slice"></div></div>
+      <p class="remember"><b>Запомни:</b> <code>a[i:j]</code> — элементы с i по j − 1; элемент с индексом j в срез не входит.</p>
+    </section>
+
+    <!-- Изменение элементов -->
+    <section class="block fcard" data-card="3" hidden>
+      <p class="fname"><code>a[i] = x</code> и <code>a[i:j] = [...]</code> — изменить элементы</p>
+      <p class="simple"><b>Простыми словами:</b> заменить вещь в ящике — положить новую на то же место. Срезом можно заменить сразу несколько ящиков подряд.</p>
+      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Исправить третью оценку:</span> <code>marks[2] = 5</code></li><li><span>Заменить два дела одним:</span> <code>todo[0:2] = ["спорт"]</code></li><li><span>Обновить цены двух товаров:</span> <code>price[1:3] = [900, 1200]</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы добавить новый элемент, нужен <code>append</code> или <code>insert</code>: индекса, которого нет, присвоить нельзя.</p></div>
+      <p class="how"><span>Как записать:</span> <code>a[1] = 10</code>, <code>a[1:3] = [20, 21]</code></p>
+      <div class="theory">
+      <h3>Определение</h3>
+      <p>Присваивание <code>a[i] = x</code> записывает значение x на место элемента с индексом i. Присваивание срезу <code>a[i:j] = новый_список</code> заменяет элементы с индексами от i до j − 1 элементами нового списка.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>список[индекс] = значение</code> · <code>список[начало:конец] = новый_список</code></p>
+      <h3>Примеры</h3>
+      <div class="exlist" data-ex="chg"></div>
+      <h3>Важно знать</h3>
+      <ul><li>Если новых элементов больше, чем заменяемых, список становится длиннее; если меньше — короче.</li><li>Индекс должен существовать: в списке из трёх элементов <code>a[5] = 1</code> — ошибка <code>IndexError</code>.</li></ul>
+      </div>
+      <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="chg"></div></div>
+      <p class="remember"><b>Запомни:</b> <code>a[i] = x</code> — заменить один элемент, <code>a[i:j] = [...]</code> — заменить несколько.</p>
     </section>
 
     <!-- Перебор и функции -->
-    <section class="block fcard" data-card="2" hidden>
+    <section class="block fcard" data-card="4" hidden>
       <p class="fname"><code>for x in a</code> — перебор списка, <code>len()</code>, <code>sum()</code>, <code>max()</code>, <code>min()</code></p>
       <p class="simple"><b>Простыми словами:</b> цикл <code>for</code> проходит по списку, как учитель по журналу: берёт по очереди каждый элемент. Функции <code>len</code>, <code>sum</code>, <code>max</code>, <code>min</code> смотрят на весь список сразу. Это не методы списка: их пишут перед скобками — <code>len(a)</code>, а не <code>a.len()</code>.</p>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Средний балл:</span> <code>sum(marks) / len(marks)</code></li><li><span>Самая высокая температура недели:</span> <code>max(t)</code></li><li><span>Вывести все покупки по одной:</span> <code>for x in shop: print(x)</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы изменить список — добавить или удалить элемент, — нужны методы списка.</p></div>
@@ -758,15 +796,15 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <div class="fpills" role="tablist" aria-label="Методы">
-      <button type="button" class="fpill" data-f="3" aria-selected="true">1 · append, insert, extend</button>
-      <button type="button" class="fpill" data-f="4" aria-selected="false">2 · pop, remove, del, clear</button>
-      <button type="button" class="fpill" data-f="5" aria-selected="false">3 · sort, reverse, copy</button>
-      <button type="button" class="fpill" data-f="6" aria-selected="false">4 · index, count</button>
-      <button type="button" class="fpill" data-f="7" aria-selected="false">Шпаргалка и ошибки</button>
+      <button type="button" class="fpill" data-f="5" aria-selected="true">1 · append, insert, extend</button>
+      <button type="button" class="fpill" data-f="6" aria-selected="false">2 · pop, remove, del, clear</button>
+      <button type="button" class="fpill" data-f="7" aria-selected="false">3 · sort, reverse, copy</button>
+      <button type="button" class="fpill" data-f="8" aria-selected="false">4 · index, count</button>
+      <button type="button" class="fpill" data-f="9" aria-selected="false">Шпаргалка и ошибки</button>
     </div>
 
     <!-- append, insert -->
-    <section class="block fcard" data-card="3">
+    <section class="block fcard" data-card="5">
       <p class="fname"><code>append()</code>, <code>insert()</code> и <code>extend()</code> — добавить</p>
       <p class="simple"><b>Простыми словами:</b> <code>append</code> — встать в конец очереди. <code>insert</code> — пропустить кого-то вперёд на нужное место: остальные сдвигаются. <code>extend</code> — в конец очереди встаёт сразу целая группа.</p>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Добавить покупку в конец списка:</span> <code>shop.append("сыр")</code></li><li><span>Записать в список оценки, введённые с клавиатуры:</span> <code>marks.append(int(input()))</code></li><li><span>Поставить срочное дело первым:</span> <code>todo.insert(0, "уроки")</code></li><li><span>Добавить сразу несколько покупок:</span> <code>shop.extend(["сыр", "чай"])</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы заменить элемент, метод не нужен — <code>a[i] = x</code>.</p></div>
@@ -786,7 +824,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <!-- pop, remove -->
-    <section class="block fcard" data-card="4" hidden>
+    <section class="block fcard" data-card="6" hidden>
       <p class="fname"><code>pop()</code>, <code>remove()</code>, <code>del</code> и <code>clear()</code> — удалить</p>
       <p class="simple"><b>Простыми словами:</b> <code>pop</code> достаёт ящик по номеру — по умолчанию последний — и отдаёт его тебе. <code>remove</code> ищет вещь по названию и выбрасывает первую такую. <code>del a[i]</code> выбрасывает ящик с номером i, ничего не отдавая. <code>clear</code> освобождает всю полку.</p>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Отменить последнее действие:</span> <code>history.pop()</code></li><li><span>Вычеркнуть купленный товар:</span> <code>shop.remove("хлеб")</code></li><li><span>Обслужить первого в очереди:</span> <code>queue.pop(0)</code></li><li><span>Очистить корзину после оплаты:</span> <code>cart.clear()</code></li></ul><p class="apply-no"><b>Не подходит:</b> удалить все одинаковые элементы сразу — <code>remove</code> убирает только первый.</p></div>
@@ -806,7 +844,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <!-- sort, reverse -->
-    <section class="block fcard" data-card="5" hidden>
+    <section class="block fcard" data-card="7" hidden>
       <p class="fname"><code>sort()</code>, <code>reverse()</code> и <code>copy()</code> — порядок</p>
       <p class="simple"><b>Простыми словами:</b> <code>sort</code> — построить класс по росту, от низкого к высокому. <code>reverse</code> — развернуть строй: последний встаёт первым, рост не сравнивают. <code>copy</code> — сфотографировать строй, чтобы помнить, как стояли до перестановки.</p>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Оценки по возрастанию:</span> <code>marks.sort()</code></li><li><span>Рейтинг от лучшего к худшему:</span> <code>scores.sort(reverse=True)</code></li><li><span>Новые сообщения сверху:</span> <code>msgs.reverse()</code></li><li><span>Отсортировать, но сохранить исходный порядок:</span> <code>b = a.copy()</code>, затем <code>b.sort()</code></li></ul><p class="apply-no"><b>Не подходит:</b> чтобы узнать только самое большое число, сортировать не нужно — есть <code>max(a)</code>.</p></div>
@@ -826,7 +864,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <!-- index, count -->
-    <section class="block fcard" data-card="6" hidden>
+    <section class="block fcard" data-card="8" hidden>
       <p class="fname"><code>index()</code> и <code>count()</code> — найти</p>
       <p class="simple"><b>Простыми словами:</b> <code>index</code> отвечает на вопрос «на каком месте стоит?», <code>count</code> — «сколько раз встречается?». Сам список они не меняют.</p>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Место ученика в рейтинге:</span> <code>top.index("Тимур") + 1</code></li><li><span>Сколько пятёрок в журнале:</span> <code>marks.count(5)</code></li><li><span>Есть ли товар в списке:</span> <code>"сыр" in shop</code></li></ul><p class="apply-no"><b>Не подходит:</b> <code>index</code> для элемента, которого нет, — будет <code>ValueError</code>. Сначала проверь через <code>in</code>.</p></div>
@@ -846,7 +884,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <!-- Шпаргалка -->
-    <section class="block fcard" data-card="7" hidden>
+    <section class="block fcard" data-card="9" hidden>
       <p class="fname">Шпаргалка и ошибки</p>
       <div class="tablewrap">
         <table class="cheat">
@@ -1284,7 +1322,9 @@ globalThis._createPyodideModule = _createPyodideModule;
     <div class="fpills" role="tablist" aria-label="Бөлімдер">
       <button type="button" class="fpill" data-f="0" aria-selected="true">1 · Тізім</button>
       <button type="button" class="fpill" data-f="1" aria-selected="false">2 · Индекстер</button>
-      <button type="button" class="fpill" data-f="2" aria-selected="false">3 · Аралау және функциялар</button>
+      <button type="button" class="fpill" data-f="2" aria-selected="false">3 · Кесінділер</button>
+      <button type="button" class="fpill" data-f="3" aria-selected="false">4 · Элементтерді өзгерту</button>
+      <button type="button" class="fpill" data-f="4" aria-selected="false">5 · Аралау: for, while, генератор</button>
     </div>
 
     <!-- Список -->
@@ -1316,11 +1356,11 @@ globalThis._createPyodideModule = _createPyodideModule;
 
     <!-- Индексы -->
     <section class="block fcard" data-card="1" hidden>
-      <p class="fname"><code>a[i]</code> және <code>a[i:j]</code> — элемент және кесінді</p>
+      <p class="fname"><code>a[i]</code> — индекс бойынша элемент</p>
       <p class="simple"><b>Қарапайым тілмен:</b> индекс — тізімдегі орынның нөмірі, кезектегі орын нөмірі сияқты. Тек санау нөлден басталады. Соңынан теріс нөмірлермен санайды: −1 — соңғысы.</p>
       <div class="tablewrap"><table class="idx"><tr><th>элемент</th><td class="v">Дс</td><td class="v">Сс</td><td class="v">Ср</td><td class="v">Бс</td><td class="v">Жм</td></tr><tr><th>индекс</th><td class="i">0</td><td class="i">1</td><td class="i">2</td><td class="i">3</td><td class="i">4</td></tr><tr><th>соңынан</th><td class="n">−5</td><td class="n">−4</td><td class="n">−3</td><td class="n">−2</td><td class="n">−1</td></tr></table></div>
       <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Тоқсандағы бірінші баға:</span> <code>marks[0]</code></li><li><span>Жексенбідегі, яғни соңғы күнгі температура:</span> <code>t[-1]</code></li><li><span>Үшінші тауардың бағасын түзету:</span> <code>price[2] = 900</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> тізімде жоқ нөмір — мына қате шығады: <code>IndexError</code>.</p></div>
-      <p class="how"><span>Қалай жазылады:</span> <code>a[0]</code>, <code>a[-1]</code>, <code>a[2] = 7</code>, <code>a[1:3]</code></p>
+      <p class="how"><span>Қалай жазылады:</span> <code>a[0]</code>, <code>a[-1]</code></p>
       <div class="theory">
       <h3>Анықтама</h3>
       <p>Индекс — бүтін сан, тізімдегі элементтің нөмірі. <code>a[i]</code> өрнегі i индексті элементті береді. n элементтен тұратын тізімде индекстер 0-ден n − 1-ге дейін, ал соңынан — −1-ден −n-ге дейін.</p>
@@ -1330,17 +1370,53 @@ globalThis._createPyodideModule = _createPyodideModule;
       <div class="exlist" data-ex="idx"></div>
       <h3>Білу маңызды</h3>
       <ul><li>Бірінші элемент — <code>a[0]</code>, мынау емес: <code>a[1]</code>.</li><li>Соңғысы — <code>a[-1]</code> немесе <code>a[len(a) - 1]</code>.</li><li>Индекс — тек бүтін сан: <code>a[1.5]</code> — қате <code>TypeError</code>.</li></ul>
-      <h3>Кесінді — бірнеше элемент бірден</h3>
-      <p>Кесінді <code>a[i:j]</code> — i-ден j − 1-ге дейінгі индексті элементтерден тұратын жаңа тізім: j индексті элемент <b>кірмейді</b>. Басы көрсетілмесе, кесінді бірінші элементтен басталады: <code>a[:3]</code>; соңы көрсетілмесе — соңғысына дейін барады: <code>a[2:]</code>.</p>
-      <p>Кесінді арқылы бірнеше элементті бірден ауыстыруға болады: <code>a[1:3] = [20, 21]</code>. Жаңа элементтер ауыстырылатындардан көп немесе аз болса, тізімнің ұзындығы өзгереді.</p>
-      <div class="exlist" data-ex="slice" data-ed="idx"></div>
       </div>
       <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="idx"></div></div>
-      <p class="remember"><b>Есте сақта:</b> бірінші — <code>a[0]</code>, соңғысы — <code>a[-1]</code>. Кесінді <code>a[i:j]</code> j индексті элементті қамтымайды.</p>
+      <p class="remember"><b>Есте сақта:</b> бірінші — <code>a[0]</code>, соңғысы — <code>a[-1]</code>. Қатар тұрған бірнеше элемент — кесінді, ол туралы келесі карточкада.</p>
+    </section>
+
+    <!-- Срезы -->
+    <section class="block fcard" data-card="2" hidden>
+      <p class="fname"><code>a[i:j]</code> — кесінді</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> кесінді — жәшіктер қатарынан бірнешеуін қатарынан алу: i жәшігінен j жәшігіне дейін, бірақ j жәшігінің өзін алмау.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Сейсенбіден бейсенбіге дейінгі күндер:</span> <code>days[1:4]</code></li><li><span>Алғашқы үш сабақтың бағалары:</span> <code>marks[:3]</code></li><li><span>Төртінші күннен апта соңына дейінгі температура:</span> <code>t[3:]</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> бір элементті алу үшін кесінді керек емес — <code>a[i]</code>.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>a[1:4]</code>, <code>a[:3]</code>, <code>a[2:]</code></p>
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>Кесінді <code>a[i:j]</code> — i-ден j − 1-ге дейінгі индексті элементтерден тұратын жаңа тізім: j индексті элемент <b>кірмейді</b>. Басы көрсетілмесе, кесінді бірінші элементтен, соңы көрсетілмесе — соңғысына дейін барады.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>тізім[басы:соңы]</code></p>
+      <h3>Мысалдар</h3>
+      <div class="exlist" data-ex="slice"></div>
+      <h3>Білу маңызды</h3>
+      <ul><li>Кесіндінің соңы кірмейді: <code>a[1:4]</code> кесіндісінде үш элемент — 1, 2, 3 индекстері.</li><li>Кесінді — жаңа тізім, бастапқы тізім өзгермейді.</li><li><code>a[:]</code> — басынан соңына дейінгі кесінді, яғни бүкіл тізімнің көшірмесі.</li></ul>
+      </div>
+      <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="slice"></div></div>
+      <p class="remember"><b>Есте сақта:</b> <code>a[i:j]</code> — i-ден j − 1-ге дейінгі элементтер; j индексті элемент кесіндіге кірмейді.</p>
+    </section>
+
+    <!-- Изменение элементов -->
+    <section class="block fcard" data-card="3" hidden>
+      <p class="fname"><code>a[i] = x</code> және <code>a[i:j] = [...]</code> — элементтерді өзгерту</p>
+      <p class="simple"><b>Қарапайым тілмен:</b> жәшіктегі затты ауыстыру — сол орынға жаңасын қою. Кесінді арқылы қатар тұрған бірнеше жәшікті бірден ауыстыруға болады.</p>
+      <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Үшінші бағаны түзету:</span> <code>marks[2] = 5</code></li><li><span>Екі істі біреуімен ауыстыру:</span> <code>todo[0:2] = ["спорт"]</code></li><li><span>Екі тауардың бағасын жаңарту:</span> <code>price[1:3] = [900, 1200]</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> жаңа элемент қосу үшін мыналар керек: <code>append</code> немесе <code>insert</code>: жоқ индекске мән беруге болмайды.</p></div>
+      <p class="how"><span>Қалай жазылады:</span> <code>a[1] = 10</code>, <code>a[1:3] = [20, 21]</code></p>
+      <div class="theory">
+      <h3>Анықтама</h3>
+      <p>Меншіктеу <code>a[i] = x</code> x мәнін i индексті элементтің орнына жазады. Кесіндіге меншіктеу <code>a[i:j] = жаңа_тізім</code> i-ден j − 1-ге дейінгі индексті элементтерді жаңа тізімнің элементтерімен ауыстырады.</p>
+      <h3>Синтаксис</h3>
+      <p class="syn"><code>тізім[индекс] = мән</code> · <code>тізім[басы:соңы] = жаңа_тізім</code></p>
+      <h3>Мысалдар</h3>
+      <div class="exlist" data-ex="chg"></div>
+      <h3>Білу маңызды</h3>
+      <ul><li>Жаңа элементтер ауыстырылатындардан көп болса, тізім ұзарады; аз болса — қысқарады.</li><li>Индекс бар болуы керек: үш элементтен тұратын тізімде <code>a[5] = 1</code> — қате <code>IndexError</code>.</li></ul>
+      </div>
+      <div class="tryed"><span class="trylab">Өзің байқап көр</span><div class="pyed" data-ed="chg"></div></div>
+      <p class="remember"><b>Есте сақта:</b> <code>a[i] = x</code> — бір элементті ауыстыру, <code>a[i:j] = [...]</code> — бірнеше элементті ауыстыру.</p>
     </section>
 
     <!-- Перебор и функции -->
-    <section class="block fcard" data-card="2" hidden>
+    <section class="block fcard" data-card="4" hidden>
       <p class="fname"><code>for x in a</code> — тізімді аралау, <code>len()</code>, <code>sum()</code>, <code>max()</code>, <code>min()</code></p>
       <p class="simple"><b>Қарапайым тілмен:</b> цикл <code>for</code> тізімді журналды қарап шыққан мұғалім сияқты аралайды: әр элементті кезекпен алады. Функциялар <code>len</code>, <code>sum</code>, <code>max</code>, <code>min</code> бүкіл тізімге бірден қарайды. Бұлар тізім әдістері емес: оларды жақшаның алдына жазады — <code>len(a)</code>, мынау емес: <code>a.len()</code>.</p>
       <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Орташа балл:</span> <code>sum(marks) / len(marks)</code></li><li><span>Аптаның ең жоғары температурасы:</span> <code>max(t)</code></li><li><span>Барлық сатып алуды бір-бірлеп шығару:</span> <code>for x in shop: print(x)</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> тізімді өзгерту үшін — элемент қосу немесе жою үшін — тізім әдістері керек.</p></div>
@@ -1396,15 +1472,15 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <div class="fpills" role="tablist" aria-label="Әдістер">
-      <button type="button" class="fpill" data-f="3" aria-selected="true">1 · append, insert, extend</button>
-      <button type="button" class="fpill" data-f="4" aria-selected="false">2 · pop, remove, del, clear</button>
-      <button type="button" class="fpill" data-f="5" aria-selected="false">3 · sort, reverse, copy</button>
-      <button type="button" class="fpill" data-f="6" aria-selected="false">4 · index, count</button>
-      <button type="button" class="fpill" data-f="7" aria-selected="false">Анықтамалық және қателер</button>
+      <button type="button" class="fpill" data-f="5" aria-selected="true">1 · append, insert, extend</button>
+      <button type="button" class="fpill" data-f="6" aria-selected="false">2 · pop, remove, del, clear</button>
+      <button type="button" class="fpill" data-f="7" aria-selected="false">3 · sort, reverse, copy</button>
+      <button type="button" class="fpill" data-f="8" aria-selected="false">4 · index, count</button>
+      <button type="button" class="fpill" data-f="9" aria-selected="false">Анықтамалық және қателер</button>
     </div>
 
     <!-- append, insert -->
-    <section class="block fcard" data-card="3">
+    <section class="block fcard" data-card="5">
       <p class="fname"><code>append()</code>, <code>insert()</code> және <code>extend()</code> — қосу</p>
       <p class="simple"><b>Қарапайым тілмен:</b> <code>append</code> — кезектің соңына тұру. <code>insert</code> — біреуді алдыға, керекті орынға өткізу: қалғандары жылжиды. <code>extend</code> — кезектің соңына бірден тұтас топ тұрады.</p>
       <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Сатып алуды тізімнің соңына қосу:</span> <code>shop.append("ірімшік")</code></li><li><span>Пернетақтадан енгізілген бағаларды тізімге жазу:</span> <code>marks.append(int(input()))</code></li><li><span>Шұғыл істі бірінші қою:</span> <code>todo.insert(0, "сабақ")</code></li><li><span>Бірнеше сатып алуды бірден қосу:</span> <code>shop.extend(["ірімшік", "шай"])</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> элементті ауыстыру үшін әдіс керек емес — <code>a[i] = x</code>.</p></div>
@@ -1424,7 +1500,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <!-- pop, remove -->
-    <section class="block fcard" data-card="4" hidden>
+    <section class="block fcard" data-card="6" hidden>
       <p class="fname"><code>pop()</code>, <code>remove()</code>, <code>del</code> және <code>clear()</code> — жою</p>
       <p class="simple"><b>Қарапайым тілмен:</b> <code>pop</code> жәшікті нөмірі бойынша — әдепкіде соңғысын — алып, саған береді. <code>remove</code> затты атауы бойынша іздеп, бірінші табылғанын лақтырады. <code>del a[i]</code> i нөмірлі жәшікті ештеңе бермей лақтырады. <code>clear</code> бүкіл сөрені босатады.</p>
       <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Соңғы әрекетті болдырмау:</span> <code>history.pop()</code></li><li><span>Сатып алынған тауарды сызып тастау:</span> <code>shop.remove("нан")</code></li><li><span>Кезектегі біріншіге қызмет көрсету:</span> <code>queue.pop(0)</code></li><li><span>Төлемнен кейін себетті тазалау:</span> <code>cart.clear()</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> бірдей элементтердің бәрін бірден жою — <code>remove</code> тек біріншісін жояды.</p></div>
@@ -1444,7 +1520,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <!-- sort, reverse -->
-    <section class="block fcard" data-card="5" hidden>
+    <section class="block fcard" data-card="7" hidden>
       <p class="fname"><code>sort()</code>, <code>reverse()</code> және <code>copy()</code> — рет</p>
       <p class="simple"><b>Қарапайым тілмен:</b> <code>sort</code> — сыныпты бойы бойынша аласадан биікке қарай тұрғызу. <code>reverse</code> — сапты кері бұру: соңғысы бірінші тұрады, бойы салыстырылмайды. <code>copy</code> — орын ауыстырғанға дейін қалай тұрғанын есте сақтау үшін сапты суретке түсіру.</p>
       <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Бағалар өсу ретімен:</span> <code>marks.sort()</code></li><li><span>Рейтинг ең жақсыдан ең нашарға:</span> <code>scores.sort(reverse=True)</code></li><li><span>Жаңа хабарламалар жоғарыда:</span> <code>msgs.reverse()</code></li><li><span>Сұрыптау, бірақ бастапқы ретті сақтау:</span> <code>b = a.copy()</code>, содан кейін <code>b.sort()</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> тек ең үлкен санды білу үшін сұрыптау керек емес — мына функция бар: <code>max(a)</code>.</p></div>
@@ -1464,7 +1540,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <!-- index, count -->
-    <section class="block fcard" data-card="6" hidden>
+    <section class="block fcard" data-card="8" hidden>
       <p class="fname"><code>index()</code> және <code>count()</code> — табу</p>
       <p class="simple"><b>Қарапайым тілмен:</b> <code>index</code> «қай орында тұр?» деген сұраққа жауап береді, <code>count</code> — «неше рет кездеседі?». Тізімнің өзін олар өзгертпейді.</p>
       <div class="apply"><p class="apply-h">Қайда қолданылады</p><ul><li><span>Оқушының рейтингтегі орны:</span> <code>top.index("Тимур") + 1</code></li><li><span>Журналда неше бес бар:</span> <code>marks.count(5)</code></li><li><span>Тізімде тауар бар ма:</span> <code>"ірімшік" in shop</code></li></ul><p class="apply-no"><b>Сәйкес келмейді:</b> <code>index</code> жоқ элемент үшін — мына қате болады: <code>ValueError</code>. Алдымен мынамен тексер: <code>in</code>.</p></div>
@@ -1484,7 +1560,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     </section>
 
     <!-- Шпаргалка -->
-    <section class="block fcard" data-card="7" hidden>
+    <section class="block fcard" data-card="9" hidden>
       <p class="fname">Анықтамалық және қателер</p>
       <div class="tablewrap">
         <table class="cheat">
@@ -2229,12 +2305,13 @@ function showExp(text) {
   document.getElementById("toLearn").hidden = !has;
 }
 
-/* Карточки нового материала: 0–2 — список, 3–7 — методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["список", "индексы", "перебор и функции", "append, insert, extend", "pop, remove, del, clear", "sort, reverse, copy", "index, count", "шпаргалка и ошибки"];
-const CARD_SETS = { learn: [0, 1, 2], methods: [3, 4, 5, 6, 7] };
-const cardCur = { learn: 0, methods: 3 };
+/* Карточки нового материала: 0–4 — список, 5–9 — методы; каждая панель листается своими кнопками */
+const CARD_NAMES = ["список", "индексы", "срезы", "изменение элементов", "перебор: for, while, генератор", "append, insert, extend", "pop, remove, del, clear", "sort, reverse, copy", "index, count", "шпаргалка и ошибки"];
+const CARD_SETS = { learn: [0, 1, 2, 3, 4], methods: [5, 6, 7, 8, 9] };
+const LEARN_LAST = 4, METHODS_FIRST = 5, METHODS_LAST = 9;
+const cardCur = { learn: 0, methods: METHODS_FIRST };
 function showCard(i) {
-  const panel = i < 3 ? "learn" : "methods", set = CARD_SETS[panel], first = set[0], last = set[set.length - 1];
+  const panel = i <= LEARN_LAST ? "learn" : "methods", set = CARD_SETS[panel], first = set[0], last = set[set.length - 1];
   cardCur[panel] = i;
   document.querySelectorAll(`#${panel} .fcard`).forEach(c => { c.hidden = +c.dataset.card !== i; });
   document.querySelectorAll(`#${panel} .fpill`).forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
@@ -2245,9 +2322,9 @@ function showCard(i) {
 document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
 const toTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 document.getElementById("lPrev").addEventListener("click", () => { if (cardCur.learn === 0) { show("actual"); toTop(); } else showCard(cardCur.learn - 1); });
-document.getElementById("lNext").addEventListener("click", () => { if (cardCur.learn === 2) { show("methods"); showCard(3); toTop(); } else showCard(cardCur.learn + 1); });
-document.getElementById("mPrev").addEventListener("click", () => { if (cardCur.methods === 3) { show("learn"); showCard(2); toTop(); } else showCard(cardCur.methods - 1); });
-document.getElementById("mNext").addEventListener("click", () => { if (cardCur.methods === 7) { show("match"); toTop(); } else showCard(cardCur.methods + 1); });
+document.getElementById("lNext").addEventListener("click", () => { if (cardCur.learn === LEARN_LAST) { show("methods"); showCard(METHODS_FIRST); toTop(); } else showCard(cardCur.learn + 1); });
+document.getElementById("mPrev").addEventListener("click", () => { if (cardCur.methods === METHODS_FIRST) { show("learn"); showCard(LEARN_LAST); toTop(); } else showCard(cardCur.methods - 1); });
+document.getElementById("mNext").addEventListener("click", () => { if (cardCur.methods === METHODS_LAST) { show("match"); toTop(); } else showCard(cardCur.methods + 1); });
 
 /* Примеры к карточкам: код, ввод и результат (результаты сверены с Python) */
 const EX = {
@@ -2270,8 +2347,14 @@ const EX = {
     { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[1:4])", out: "['Вт', 'Ср', 'Чт']", note: "Индексы 1, 2, 3; элемент с индексом 4 не входит." },
     { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[:2])", out: "['Пн', 'Вт']", note: "Без начала — с первого элемента." },
     { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[3:])", out: "['Чт', 'Пт']", note: "Без конца — до последнего элемента." },
-    { code: "t = [12, 15, 9, 18]\nt[1:3] = [20, 21]\nprint(t)", out: "[12, 20, 21, 18]", note: "Два элемента заменены двумя." },
-    { code: "a = [1, 2, 3]\na[1:2] = [7, 8]\nprint(a, len(a))", out: "[1, 7, 8, 3] 4", note: "Один элемент заменён двумя: список стал длиннее." }
+    { code: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[:])", out: "['Пн', 'Вт', 'Ср', 'Чт', 'Пт']", note: "Срез без начала и конца — весь список, его копия." }
+  ],
+  chg: [
+    { code: "a = [3, 8, 1]\na[1] = 10\nprint(a)", out: "[3, 10, 1]", note: "Элемент с индексом 1 заменили на 10." },
+    { code: "t = [12, 15, 9, 18]\nt[1:3] = [20, 21]\nprint(t)", out: "[12, 20, 21, 18]", note: "Два элемента заменены двумя: длина та же." },
+    { code: "a = [1, 2, 3]\na[1:2] = [7, 8]\nprint(a, len(a))", out: "[1, 7, 8, 3] 4", note: "Один элемент заменён двумя: список стал длиннее." },
+    { code: "a = [1, 2, 3, 4]\na[1:3] = [9]\nprint(a, len(a))", out: "[1, 9, 4] 3", note: "Два элемента заменены одним: список стал короче." },
+    { code: "a = [3, 8, 1]\na[5] = 7", err: "IndexError: list assignment index out of range", note: "Индекса 5 нет: присвоить можно только существующему элементу." }
   ],
   while: [
     { code: "t = [12, 15, 9]\ni = 0\nwhile i < len(t):\n    print(t[i])\n    i = i + 1", out: "12\n15\n9", note: "Без строки i = i + 1 цикл не закончится." }
@@ -2328,6 +2411,8 @@ const EX = {
 /* Начальный код редакторов «Попробуй сам» */
 const ED_START = {
   list: "a = [3, 8, 1]\nprint(a)\nprint(len(a))",
+  slice: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[1:4])\nprint(a[:2])\nprint(a[3:])",
+  chg: "t = [12, 15, 9, 18]\nt[0] = 14\nt[1:3] = [20, 21, 22]\nprint(t, len(t))",
   idx: "a = [\"Пн\", \"Вт\", \"Ср\", \"Чт\", \"Пт\"]\nprint(a[1])\nprint(a[-1])",
   loop: "marks = [5, 4, 5, 3]\nfor x in marks:\n    print(x)\nprint(\"Средний балл:\", sum(marks) / len(marks))",
   add: "shop = [\"хлеб\", \"молоко\"]\nshop.append(\"сыр\")\nshop.insert(0, \"яблоки\")\nprint(shop)",
@@ -3179,13 +3264,13 @@ document.getElementById("expEdit").addEventListener("click", () => {
   expText.focus();
 });
 showExp(store.get(EXP_KEY, ""));
-showCard(0); showCard(3);
+showCard(0); showCard(METHODS_FIRST);
 
 /* Теория во время заданий: окно поверх этапа, ученик не уходит со своей задачи */
 (function theoryBuild() {
   const body = document.getElementById("thBody");
   const cards = [...document.querySelectorAll(".fcard")];
-  let html = `<div class="th-list">` + cards.filter(c => +c.dataset.card !== 7).map(c => {
+  let html = `<div class="th-list">` + cards.filter(c => +c.dataset.card !== METHODS_LAST).map(c => {
     const i = +c.dataset.card, how = c.querySelector(".how"), rem = c.querySelector(".remember");
     return `<section class="th-item"><p class="fname">${c.querySelector(".fname").innerHTML}</p>${how ? `<p class="how">${how.innerHTML}</p>` : ""}${rem ? `<p class="remember">${rem.innerHTML}</p>` : ""}<button type="button" class="linkbtn th-more" data-card="${i}">Подробнее с примерами →</button></section>`;
   }).join("") + `</div>`;
@@ -3202,7 +3287,7 @@ showCard(0); showCard(3);
   body.addEventListener("click", e => {
     const b = e.target.closest(".th-more"); if (!b) return;
     const i = +b.dataset.card; ov.hidden = true;
-    show(i < 3 ? "learn" : "methods"); showCard(i); window.scrollTo({ top: 0, behavior: "smooth" });
+    show(i <= LEARN_LAST ? "learn" : "methods"); showCard(i); window.scrollTo({ top: 0, behavior: "smooth" });
   });
 })();
 
@@ -3808,12 +3893,13 @@ function showExp(text) {
   document.getElementById("toLearn").hidden = !has;
 }
 
-/* Карточки нового материала: 0–2 — список, 3–7 — методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["тізім", "индекстер", "аралау және функциялар", "append, insert, extend", "pop, remove, del, clear", "sort, reverse, copy", "index, count", "анықтамалық және қателер"];
-const CARD_SETS = { learn: [0, 1, 2], methods: [3, 4, 5, 6, 7] };
-const cardCur = { learn: 0, methods: 3 };
+/* Карточки нового материала: 0–4 — список, 5–9 — методы; каждая панель листается своими кнопками */
+const CARD_NAMES = ["тізім", "индекстер", "кесінділер", "элементтерді өзгерту", "аралау: for, while, генератор", "append, insert, extend", "pop, remove, del, clear", "sort, reverse, copy", "index, count", "анықтамалық және қателер"];
+const CARD_SETS = { learn: [0, 1, 2, 3, 4], methods: [5, 6, 7, 8, 9] };
+const LEARN_LAST = 4, METHODS_FIRST = 5, METHODS_LAST = 9;
+const cardCur = { learn: 0, methods: METHODS_FIRST };
 function showCard(i) {
-  const panel = i < 3 ? "learn" : "methods", set = CARD_SETS[panel], first = set[0], last = set[set.length - 1];
+  const panel = i <= LEARN_LAST ? "learn" : "methods", set = CARD_SETS[panel], first = set[0], last = set[set.length - 1];
   cardCur[panel] = i;
   document.querySelectorAll(`#${panel} .fcard`).forEach(c => { c.hidden = +c.dataset.card !== i; });
   document.querySelectorAll(`#${panel} .fpill`).forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
@@ -3824,9 +3910,9 @@ function showCard(i) {
 document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
 const toTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 document.getElementById("lPrev").addEventListener("click", () => { if (cardCur.learn === 0) { show("actual"); toTop(); } else showCard(cardCur.learn - 1); });
-document.getElementById("lNext").addEventListener("click", () => { if (cardCur.learn === 2) { show("methods"); showCard(3); toTop(); } else showCard(cardCur.learn + 1); });
-document.getElementById("mPrev").addEventListener("click", () => { if (cardCur.methods === 3) { show("learn"); showCard(2); toTop(); } else showCard(cardCur.methods - 1); });
-document.getElementById("mNext").addEventListener("click", () => { if (cardCur.methods === 7) { show("match"); toTop(); } else showCard(cardCur.methods + 1); });
+document.getElementById("lNext").addEventListener("click", () => { if (cardCur.learn === LEARN_LAST) { show("methods"); showCard(METHODS_FIRST); toTop(); } else showCard(cardCur.learn + 1); });
+document.getElementById("mPrev").addEventListener("click", () => { if (cardCur.methods === METHODS_FIRST) { show("learn"); showCard(LEARN_LAST); toTop(); } else showCard(cardCur.methods - 1); });
+document.getElementById("mNext").addEventListener("click", () => { if (cardCur.methods === METHODS_LAST) { show("match"); toTop(); } else showCard(cardCur.methods + 1); });
 
 /* Примеры к карточкам: код, ввод и результат (результаты сверены с Python) */
 const EX = {
@@ -3849,8 +3935,14 @@ const EX = {
     { code: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[1:4])", out: "['Сс', 'Ср', 'Бс']", note: "1, 2, 3 индекстері; 4 индексті элемент кірмейді." },
     { code: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[:2])", out: "['Дс', 'Сс']", note: "Басы жоқ — бірінші элементтен." },
     { code: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[3:])", out: "['Бс', 'Жм']", note: "Соңы жоқ — соңғы элементке дейін." },
-    { code: "t = [12, 15, 9, 18]\nt[1:3] = [20, 21]\nprint(t)", out: "[12, 20, 21, 18]", note: "Екі элемент екі элементке ауыстырылды." },
-    { code: "a = [1, 2, 3]\na[1:2] = [7, 8]\nprint(a, len(a))", out: "[1, 7, 8, 3] 4", note: "Бір элемент екі элементке ауыстырылды: тізім ұзарды." }
+    { code: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[:])", out: "['Дс', 'Сс', 'Ср', 'Бс', 'Жм']", note: "Басы мен соңы жоқ кесінді — бүкіл тізім, оның көшірмесі." }
+  ],
+  chg: [
+    { code: "a = [3, 8, 1]\na[1] = 10\nprint(a)", out: "[3, 10, 1]", note: "1 индексті элемент 10-ға ауыстырылды." },
+    { code: "t = [12, 15, 9, 18]\nt[1:3] = [20, 21]\nprint(t)", out: "[12, 20, 21, 18]", note: "Екі элемент екі элементке ауыстырылды: ұзындық өзгермеді." },
+    { code: "a = [1, 2, 3]\na[1:2] = [7, 8]\nprint(a, len(a))", out: "[1, 7, 8, 3] 4", note: "Бір элемент екі элементке ауыстырылды: тізім ұзарды." },
+    { code: "a = [1, 2, 3, 4]\na[1:3] = [9]\nprint(a, len(a))", out: "[1, 9, 4] 3", note: "Екі элемент бір элементке ауыстырылды: тізім қысқарды." },
+    { code: "a = [3, 8, 1]\na[5] = 7", err: "IndexError: list assignment index out of range", note: "5 индексі жоқ: тек бар элементке мән беруге болады." }
   ],
   while: [
     { code: "t = [12, 15, 9]\ni = 0\nwhile i < len(t):\n    print(t[i])\n    i = i + 1", out: "12\n15\n9", note: "i = i + 1 жолынсыз цикл аяқталмайды." }
@@ -3907,6 +3999,8 @@ const EX = {
 /* Начальный код редакторов «Попробуй сам» */
 const ED_START = {
   list: "a = [3, 8, 1]\nprint(a)\nprint(len(a))",
+  slice: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[1:4])\nprint(a[:2])\nprint(a[3:])",
+  chg: "t = [12, 15, 9, 18]\nt[0] = 14\nt[1:3] = [20, 21, 22]\nprint(t, len(t))",
   idx: "a = [\"Дс\", \"Сс\", \"Ср\", \"Бс\", \"Жм\"]\nprint(a[1])\nprint(a[-1])",
   loop: "marks = [5, 4, 5, 3]\nfor x in marks:\n    print(x)\nprint(\"Орташа балл:\", sum(marks) / len(marks))",
   add: "shop = [\"нан\", \"сүт\"]\nshop.append(\"ірімшік\")\nshop.insert(0, \"алма\")\nprint(shop)",
@@ -4758,13 +4852,13 @@ document.getElementById("expEdit").addEventListener("click", () => {
   expText.focus();
 });
 showExp(store.get(EXP_KEY, ""));
-showCard(0); showCard(3);
+showCard(0); showCard(METHODS_FIRST);
 
 /* Теория во время заданий: окно поверх этапа, ученик не уходит со своей задачи */
 (function theoryBuild() {
   const body = document.getElementById("thBody");
   const cards = [...document.querySelectorAll(".fcard")];
-  let html = `<div class="th-list">` + cards.filter(c => +c.dataset.card !== 7).map(c => {
+  let html = `<div class="th-list">` + cards.filter(c => +c.dataset.card !== METHODS_LAST).map(c => {
     const i = +c.dataset.card, how = c.querySelector(".how"), rem = c.querySelector(".remember");
     return `<section class="th-item"><p class="fname">${c.querySelector(".fname").innerHTML}</p>${how ? `<p class="how">${how.innerHTML}</p>` : ""}${rem ? `<p class="remember">${rem.innerHTML}</p>` : ""}<button type="button" class="linkbtn th-more" data-card="${i}">Толығырақ, мысалдармен →</button></section>`;
   }).join("") + `</div>`;
@@ -4781,7 +4875,7 @@ showCard(0); showCard(3);
   body.addEventListener("click", e => {
     const b = e.target.closest(".th-more"); if (!b) return;
     const i = +b.dataset.card; ov.hidden = true;
-    show(i < 3 ? "learn" : "methods"); showCard(i); window.scrollTo({ top: 0, behavior: "smooth" });
+    show(i <= LEARN_LAST ? "learn" : "methods"); showCard(i); window.scrollTo({ top: 0, behavior: "smooth" });
   });
 })();
 
