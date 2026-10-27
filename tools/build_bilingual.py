@@ -83,7 +83,7 @@ def kz_lesson4(js):
     # казахские слова сортируются иначе: Қ и І идут после Я
     js = replace_once(js, 'out: "[\'қарбыз\', \'бал\', \'ірімшік\']", note: "Сөздер — әліпби бойынша."',
                       'out: "[\'бал\', \'ірімшік\', \'қарбыз\']", note: "Сөздер әріп кодтары бойынша реттелді: қазақ әріптері І мен Қ — Я-дан кейін, сондықтан «қарбыз» соңында."')
-    return replace_once(js, 'const KEY = "topic-l4";', 'const KEY = "topic-l4-kz";')
+    return js  # ключ игры на казахском задан в tools/kz_*_puzzle.js
 
 
 def kz_lesson5(js):
@@ -92,17 +92,17 @@ def kz_lesson5(js):
 
 
 def kz_lesson6(js):
-    return replace_once(js, 'const KEY = "topic-l6";', 'const KEY = "topic-l6-kz";')
+    return js  # ключ игры на казахском задан в tools/kz_*_puzzle.js
 
 
 def kz_lesson7(js):
-    return replace_once(js, 'const KEY = "topic-l7";', 'const KEY = "topic-l7-kz";')
+    return js  # ключ игры на казахском задан в tools/kz_*_puzzle.js
 
 
 def tpl_puzzle(file):
     """Свой казахский ребус урока: блок ROWS…TASKS заменяется готовым текстом из tools/<file> целиком."""
     def tpl(src):
-        a = src.index("const ROWS = ["); b = src.index("TASKS.forEach(t => { const o")
+        a = src.index("const GAME = {"); b = src.index("/* Игра «Разгадай тему»: четыре вида")
         return {src[a:b]: (root / "tools" / file).read_text(encoding="utf-8")}
     return tpl
 
@@ -120,7 +120,7 @@ def tpl_blocks(puzzle, blocks):
 
 def tpl_lesson4(src):
     """Урок 4: ребус «Робот-список» на казахском — свои программы, ответы которых складываются в БІР ӨЛШЕМДІ МАССИВ."""
-    a = src.index("const ROWS = ["); b = src.index("TASKS.forEach(t => { const o")
+    a = src.index("const GAME = {"); b = src.index("/* Игра «Разгадай тему»: четыре вида")
     return {src[a:b]: (root / "tools" / "kz_lists_puzzle.js").read_text(encoding="utf-8")}
 
 

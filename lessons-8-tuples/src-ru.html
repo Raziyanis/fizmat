@@ -335,6 +335,7 @@ select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid
 .task.fork.wrongp { border-color: var(--bad); }
 td.wrongl { background: color-mix(in srgb, var(--bad) 12%, var(--surface)); }
 td.wrongl .ch { color: var(--bad); }
+.howto .hn { color: var(--surface); }
 /* Python: код, редактор, вывод */
 .code-view { margin: 0; font-family: var(--f-mono); font-size: 1rem; line-height: 1.45; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; overflow-x: auto; white-space: pre; tab-size: 4; }
 .code-view .cm { color: var(--muted); }
@@ -426,6 +427,64 @@ input.blank.bad { border-color: var(--bad); }
 /* Телефон: длинный код переносится, карточки не шире экрана */
 .panel > * { min-width: 0; }
 @media (max-width: 600px) { code { white-space: normal; overflow-wrap: anywhere; } .cmp td code { white-space: nowrap; } }
+
+/* Игра «Разгадай тему»: шифр, кроссворд, лабиринт, найди пару */
+.g-h2 { margin-top: 18px !important; }
+.g-q { margin: 0; font-weight: 700; }
+.g-in { font: inherit; font-family: var(--f-mono); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 9rem; min-width: 0; }
+.task.done .g-in { border-color: var(--c); }
+.cph-t { border-collapse: collapse; font-family: var(--f-mono); }
+.cph-t th, .cph-t td { border: 1px solid var(--line); padding: 4px 8px; text-align: center; }
+.cph-t th { background: var(--head); color: var(--muted); font-weight: 400; font-size: .8rem; text-align: left; }
+.cph-t b { font-family: var(--f-display); color: var(--c); }
+.cph-word { display: grid; gap: 8px; }
+.cph-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.cph-cell, .cph-gap { width: 2.8rem; height: 3.3rem; }
+.cph-cell { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.cph-cell b { font-family: var(--f-display); font-size: 1.4rem; color: var(--line); line-height: 1; }
+.cph-cell small { font-family: var(--f-mono); font-size: .66rem; color: var(--muted); margin-top: 3px; }
+.cph-cell.open { background: color-mix(in srgb, var(--c) 14%, var(--surface)); border-color: var(--c); }
+.cph-cell.open b { color: var(--c); }
+.cph-cell.wrongl b { color: var(--bad); }
+.xw td { width: 2.4rem; height: 2.6rem; }
+.xw td.xw-key { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--c) 55%, transparent); }
+.xw td .ch { font-size: 1.15rem; color: var(--ink); }
+.xw td.open .ch { color: var(--c); }
+.xw td.wrongl .ch { color: var(--bad); }
+.mz-path { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.mz-room { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 2.8rem; height: 2.8rem; border: 2px solid var(--line); border-radius: 6px; background: var(--surface); }
+.mz-room small { font-family: var(--f-mono); font-size: .66rem; color: var(--muted); }
+.mz-room b { line-height: 1; color: var(--muted); }
+.mz-room.cur { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
+.mz-room.open { background: color-mix(in srgb, var(--c) 14%, var(--surface)); border-color: var(--c); }
+.mz-room.open b { color: var(--c); }
+.mz-door { width: 14px; height: 4px; background: var(--line); border-radius: 2px; }
+.mz-exit { text-transform: uppercase; font-family: var(--f-mono); font-weight: 700; font-size: .8rem; padding: 6px 10px; border: 2px dashed var(--line); border-radius: 6px; color: var(--muted); }
+.mz-exit.open { border-style: solid; border-color: var(--c); color: var(--c); }
+.mz-sign { display: flex; flex-wrap: wrap; gap: 4px; margin: 14px 0; }
+.mz-l { width: 2.2rem; height: 2.6rem; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 4px; font-family: var(--f-display); font-size: 1.2rem; color: var(--line); }
+.mz-l.open { color: var(--c); border-color: var(--c); background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+.mz-sp { width: 1rem; }
+.mz-doors { display: flex; flex-wrap: wrap; gap: 8px; }
+.mz-opt { font-family: var(--f-mono); font-size: 1rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; display: inline-flex; gap: 8px; align-items: center; }
+.mz-opt:hover:not(:disabled) { border-color: var(--c); color: var(--c); }
+.mz-opt.no { border-color: var(--bad); color: var(--bad); text-decoration: line-through; opacity: .7; }
+.pr-title { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.pr-tile { min-width: 2.6rem; height: 3rem; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: var(--ink); }
+.pr-tile b { font-family: var(--f-display); font-size: 1.3rem; visibility: hidden; color: var(--c); }
+.pr-tile.open { background: color-mix(in srgb, var(--c) 14%, var(--surface)); border: 1px solid var(--c); }
+.pr-tile.open b { visibility: visible; }
+.pr-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+@media (max-width: 600px) { .pc pre { font-size: .8rem; overflow-wrap: anywhere; } }
+.pc { text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 8px 10px; min-height: 3.2rem; }
+.pc pre { margin: 0; font-family: var(--f-mono); font-size: .88rem; white-space: pre-wrap; }
+.pc-out { background: var(--bg); text-align: center; display: flex; align-items: center; justify-content: center; }
+.pc-out pre { font-size: 1.1rem; font-weight: 700; }
+.pc:hover:not(:disabled) { border-color: var(--c); }
+.pc.sel { border: 2px solid var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 20%, transparent); }
+.pc.ok { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, var(--surface)); opacity: .75; }
+.pc.no { border-color: var(--bad); }
+@media (prefers-reduced-motion: no-preference) { .pc.no { animation: shake .3s; } .cph-cell.flip b, .xw td.flip .ch { animation: flip .45s ease-out; } }
 </style>
 
 <div class="wrap">
@@ -476,43 +535,23 @@ input.blank.bad { border-color: var(--bad); }
   <!-- Этап 2: разгадать тему — робот-кортеж -->
   <div class="panel" id="puzzle" role="tabpanel" aria-labelledby="tab-puzzle" hidden>
     <div>
-      <h1>Робот-кортеж</h1>
-      <p class="lead">Тема урока спрятана в листе «Тема». Робот выполняет короткие программы на Python с кортежами букв. Предскажи, что он выведет, — и верная буква откроется на листе.</p>
+      <h1>Кроссворд</h1>
+      <p class="lead">Тема урока спрятана в кроссворде. Вспомни команды для работы со списком: в каждой программе одна команда пропущена.</p>
     </div>
 
     <section class="block how">
       <h2>Как играть</h2>
       <ol class="howto">
-        <li><span class="hn">1</span><span>Прочитай программу робота. Комментарий после <code>#</code> подсказывает, что делает команда.</span></li>
-        <li><span class="hn">2</span><span>Выбери, что выведет программа. Маленькая цифра под «?» на листе — номер программы.</span></li>
-        <li><span class="hn">3</span><span>У каждого варианта своя буква. Верный ответ открывает нужную букву, неверный ставит лишнюю — и слово на листе «ломается».</span></li>
-        <li><span class="hn">4</span><span>Сломалось слово — выбери другой вариант. Открой все буквы или впиши тему целиком — откроется <b>тема и цель урока</b>.</span></li>
+        <li><span class="hn">1</span><span>В каждой программе пропущено одно слово — команда Python. Комментарий после <code>#</code> показывает, что должно получиться.</span></li>
+        <li><span class="hn">2</span><span>Впиши слово латинскими буквами и нажми «Вписать».</span></li>
+        <li><span class="hn">3</span><span>Слово встанет в свою строку кроссворда. В выделенном столбце сложится тема.</span></li>
+        <li><span class="hn">4</span><span>Отгадай все слова или впиши тему целиком — откроется <b>тема и цель урока</b>.</span></li>
       </ol>
-      <div class="example">
-        <span class="ex-label">Пример</span>
-        <code>t = ("Я", "Б")</code><code>print(t[0])</code>
-        <span class="arrow">→</span>
-        <span>выбираем <b>Я</b></span>
-        <span class="arrow">→</span>
-        <span class="ex-cell open"><b>Я</b><small>0</small></span>
-      </div>
     </section>
 
-    <section class="block">
-      <h2>Словарик робота</h2>
-      <ul class="legend">
-        <li><code>t = ("Э", "О", "У")</code> — кортеж из трёх букв</li>
-        <li><code>t[0]</code> — элемент с номером 0, счёт начинается с нуля</li>
-        <li><code>t[-1]</code> — последний элемент</li>
-        <li><code>t + u</code> — соединить кортежи, <code>t * 2</code> — повторить</li>
-        <li><code>x, y = t</code> — разложить элементы по переменным</li>
-        <li><code>print(…)</code> — вывести на экран</li>
-      </ul>
-    </section>
+    <div id="game"></div>
 
     <section class="block">
-      <h2>Лист «Тема»</h2>
-      <div class="sheetwrap"><table class="grid" id="grid"></table></div>
       <div class="progress">
         <div class="pbar"><i id="pbar"></i></div>
         <span class="pnum" id="pnum"></span>
@@ -524,11 +563,6 @@ input.blank.bad { border-color: var(--bad); }
       </div>
       <p class="msg" id="guessMsg" aria-live="polite"></p>
     </section>
-
-    <section class="block">
-      <h2>Программы робота</h2>
-      <div class="tasks" id="tasks"></div>
-    </section>
     <div class="next"><button class="btn" type="button" data-go="review">← Повторим</button><button class="reset" type="button" id="resetBtn">Начать заново</button></div>
   </div>
 
@@ -538,7 +572,7 @@ input.blank.bad { border-color: var(--bad); }
       <h2>Тема урока</h2>
       <p class="reveal-title">Кортеж: tuple</p>
       <div class="fns"><code>tuple</code><code>( , )</code><code>t[i]</code><code>t[i:j]</code><code>in</code><code>count()</code><code>index()</code><code>+</code><code>*</code><code>a, b = t</code><code>list()</code><code>tuple()</code></div>
-      <p class="small" id="forkNote">Разгадывая тему, ты уже работал с кортежами: брал элементы по номеру, соединял, распаковывал. Сегодня узнаешь, чем кортеж отличается от списка и когда его выбирать.</p>
+      <p class="small" id="forkNote">Разгадывая тему, ты вспомнил команды для списка. Сегодня узнаешь, чем на список похож кортеж и чем от него отличается.</p>
     </section>
     <section class="block expect" id="expect">
       <h2>Мои ожидания от урока</h2>
@@ -1338,138 +1372,244 @@ function edMount(box, o) {
 function startLesson() {
 
 /* Тема в двух строках листа; буквы открываются ответами на программы робота */
-const ROWS = ["КОРТЕЖ", "TUPLE"];
-/* opts: [вариант, буква, пояснение для неверного варианта] — верный вариант в ans. Вторая строка — латинские буквы */
-const TASKS = [
-  { n: 1, code: "t = (\"Л\", \"К\", \"М\")\nprint(t[1])", ans: "К",
-    opts: [["Л", "Л", "Счёт номеров начинается с нуля: «Л» — это t[0]."], ["К", "К"], ["М", "М", "«М» — это t[2]."], ["ошибка", "Щ", "Индекс 1 есть: в кортеже три элемента."]] },
-  { n: 2, code: "t = (\"А\", \"Б\", \"О\")\nprint(t[-1])", ans: "О",
-    opts: [["А", "А", "t[-1] — последний элемент."], ["Б", "Б", "«Б» — это t[-2], предпоследний."], ["О", "О"], ["ошибка", "Э", "Отрицательный индекс — не ошибка: t[-1] — последний."]] },
-  { n: 3, code: "t = (\"Р\", \"Ы\") * 2  # повторить 2 раза\nprint(t[2])", ans: "Р",
-    opts: [["Ы", "Ы", "* 2 повторяет кортеж: («Р», «Ы», «Р», «Ы»), t[2] — «Р»."], ["Р", "Р"], ["ошибка", "Ю", "После умножения в кортеже 4 элемента, индекс 2 есть."], ["2", "Ф", "print(t[2]) выводит элемент, а не номер."]] },
-  { n: 4, code: "a = (\"С\",)\nb = (\"Т\", \"У\")\nt = a + b  # соединить\nprint(t[1])", ans: "Т",
-    opts: [["С", "С", "«С» — это t[0]."], ["Т", "Т"], ["У", "У", "«У» — это t[2]."], ["ошибка", "Ц", "Кортежи можно соединять знаком +."]] },
-  { n: 5, code: "t = (\"Д\", \"Е\", \"Н\", \"Ь\")\ns = t[1:3]  # срез\nprint(s[0])", ans: "Е",
-    opts: [["Д", "Д", "Срез t[1:3] начинается с индекса 1."], ["Е", "Е"], ["Н", "Н", "Срез — («Е», «Н»), его элемент 0 — «Е»."], ["ошибка", "Я", "Срез кортежа — тоже кортеж, у него есть индексы."]] },
-  { n: 6, code: "x, y, z = (\"Ж\", \"И\", \"Р\")  # распаковка\nprint(x)", ans: "Ж",
-    opts: [["Ж", "Ж"], ["И", "И", "x получает первый элемент, y — второй."], ["Р", "Р", "«Р» попал в z."], ["ошибка", "Ы", "Переменных три и элементов три — распаковка работает."]] },
-  { n: 7, code: "t = (\"S\", \"T\", \"S\")\nn = t.count(\"S\")  # сколько раз\nprint(t[n - 1])", ans: "T",
-    opts: [["S", "S", "count(\"S\") = 2, а t[2 − 1] = t[1] — «T»."], ["T", "T"], ["2", "Z", "Выводится элемент t[1], а не число."], ["ошибка", "X", "Индекс 1 есть."]] },
-  { n: 8, code: "t = (\"Q\", \"U\", \"I\", \"Z\")\nk = t.index(\"I\")  # где стоит «I»\nprint(t[k - 1])", ans: "U",
-    opts: [["Q", "Q", "index(\"I\") = 2, а 2 − 1 = 1: t[1] — «U»."], ["U", "U"], ["I", "I", "Нужен элемент перед «I»."], ["Z", "Z", "«Z» стоит после «I»."]] },
-  { n: 9, code: "first, *rest = (\"P\", \"Y\", \"T\")\nprint(first)", ans: "P",
-    opts: [["P", "P"], ["Y", "Y", "*rest собрал остальные элементы, а first — первый."], ["список", "W", "В first попадает только первый элемент."], ["ошибка", "V", "Звёздочка собирает лишние элементы — ошибки нет."]] },
-  { n: 10, code: "t = tuple([\"B\", \"L\", \"O\"])  # список → кортеж\nprint(t[1])", ans: "L",
-    opts: [["B", "B", "«B» — это t[0]."], ["L", "L"], ["O", "O", "«O» — это t[2]."], ["ошибка", "K", "tuple() превращает список в кортеж."]] },
-  { n: 11, code: "y = list((\"A\", \"B\"))  # кортеж → список\ny[1] = \"E\"\nt = tuple(y)\nprint(t[-1])", ans: "E",
-    opts: [["B", "B", "В списке y элемент 1 заменили на «E»."], ["E", "E"], ["A", "A", "t[-1] — последний элемент."], ["ошибка", "N", "Меняли список y, а не кортеж, — ошибки нет."]] }
-];
-TASKS.forEach(t => { const o = t.opts.find(x => x[0] === t.ans); t.letter = o[1]; });
-/* буква может открываться группой («УН»): каждая буква листа знает своё задание */
-const BY_LETTER = {}; TASKS.forEach(t => [...t.letter].forEach(ch => { BY_LETTER[ch] = t; }));
-const ANSWER = ROWS.join("").replace(/ /g, "");
-const COLS = "ABCDEFGHIJKLMN";
-const KEY = "topic-l5";
+const GAME = {
+  mode: "cross", key: "topic-l5",
+  answers: ["КОРТЕЖ", "TUPLE", "КОРТЕЖ TUPLE"],
+  /* key — номер буквы слова, которая попадает в выделенный столбец */
+  tasks: [
+    { n: 1, q: "Расставить элементы списка по возрастанию.", code: "a = [3, 1, 2]\na.___()\nprint(a)  # [1, 2, 3]", ans: "sort", key: 3, run: "a = [3, 1, 2]\na.sort()\nprint(a)", out: "[1, 2, 3]" },
+    { n: 2, q: "Сложить все элементы списка.", code: "a = [3, 1, 2]\nprint(___(a))  # 6", ans: "sum", key: 1, run: "a = [3, 1, 2]\nprint(sum(a))", out: "6" },
+    { n: 3, q: "Добавить элемент в конец списка.", code: "a = [1, 2]\na.___(3)\nprint(a)  # [1, 2, 3]", ans: "append", key: 1, run: "a = [1, 2]\na.append(3)\nprint(a)", out: "[1, 2, 3]" },
+    { n: 4, q: "Узнать, сколько элементов в списке.", code: "a = [4, 7, 9]\nprint(___(a))  # 3", ans: "len", key: 0, run: "a = [4, 7, 9]\nprint(len(a))", out: "3" },
+    { n: 5, q: "Переставить элементы списка в обратном порядке.", code: "a = [1, 2, 3]\na.___()\nprint(a)  # [3, 2, 1]", ans: "reverse", key: 1, run: "a = [1, 2, 3]\na.reverse()\nprint(a)", out: "[3, 2, 1]" }
+  ]
+};
+/* Игра «Разгадай тему»: четыре вида — шифр, кроссворд, лабиринт, найди пару. Вид и задания задаёт GAME выше.
+   Каждое задание: n — номер, code — что видит ученик, ans — верный ответ, run/out — программа и её вывод для автопроверки. */
+const TASKS = GAME.tasks;
+TASKS.forEach(t => { if (t.run == null) t.run = t.code; if (t.out == null) t.out = t.ans; });
+const ANSWERS = GAME.answers.map(a => norm(a));
+const KEY = GAME.key;
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem(NS + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} if (window.__onStore) window.__onStore(k); },
   del(k) { try { localStorage.removeItem(NS + k); } catch (e) {} if (window.__onStore) window.__onStore(k); }
 };
+const gEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const gNorm = s => String(s).trim().toLowerCase().replace(/\s+/g, " ").replace(/\s*([,\[\]\(\)\{\}:])\s*/g, "$1").replace(/['"«»]/g, "");
 
-/* picks: номер программы → выбранный вариант */
+/* picks: номер задания → последний ответ ученика; solved — номера решённых */
 let picks = store.get(KEY, {});
-let solved = new Set(TASKS.filter(t => picks[t.n] === t.ans).map(t => t.n));
-
-function buildGrid() {
-  const width = Math.max(...ROWS.map(r => r.length));
-  let html = "<tr><th class=\"rh\"></th>" + [...COLS.slice(0, width)].map(c => `<th>${c}</th>`).join("") + "</tr>";
-  ROWS.forEach((row, ri) => {
-    html += `<tr><th class="rh">${ri + 1}</th>`;
-    for (let i = 0; i < width; i++) {
-      const ch = row[i];
-      if (!ch || ch === " ") { html += "<td class=\"gap\"></td>"; continue; }
-      const t = BY_LETTER[ch];
-      html += `<td data-n="${t.n}" data-ch="${ch}" aria-label="ячейка ${COLS[i]}${ri + 1}, программа ${t.n}"><div class="cell"><span class="ch">?</span><span class="no">${t.n}</span></div></td>`;
-    }
-    html += "</tr>";
-  });
-  document.getElementById("grid").innerHTML = html;
-}
-
-function buildTasks() {
-  document.getElementById("tasks").innerHTML = TASKS.map(t => `
-    <div class="task fork" id="task-${t.n}">
-      <div class="hd"><span class="tn">Программа ${t.n}</span><span class="fn">что выведет?</span></div>
-      <pre class="code-view"></pre>
-      <div class="fork-br opts4" role="group" aria-label="Ответ к программе ${t.n}">
-        ${t.opts.map(o => `<button type="button" class="fork-b" data-n="${t.n}" data-b="${o[0]}" aria-pressed="false"><span>${o[0]}</span><span class="lt">?</span></button>`).join("")}
-      </div>
-      <p class="msg" id="msg-${t.n}" aria-live="polite"></p>
-    </div>`).join("");
-  TASKS.forEach(t => { document.querySelector(`#task-${t.n} .code-view`).textContent = t.code; });
-}
-
-function render(animateN) {
-  document.querySelectorAll("#grid td[data-n]").forEach(td => {
-    const n = +td.dataset.n, t = TASKS[n - 1], p = picks[n];
-    const open = solved.has(n), wrong = !!p && !open, o = wrong ? t.opts.find(x => x[0] === p) : null;
-    td.classList.toggle("open", open);
-    td.classList.toggle("wrongl", wrong);
-    td.querySelector(".ch").textContent = open ? td.dataset.ch : o ? o[1][[...t.letter].indexOf(td.dataset.ch)] : "?";
-    if (p && n === animateN) { td.classList.remove("flip"); void td.offsetWidth; td.classList.add("flip"); }
-  });
-  TASKS.forEach(t => {
-    const box = document.getElementById("task-" + t.n), p = picks[t.n], done = solved.has(t.n);
-    box.classList.toggle("done", done);
-    box.classList.toggle("wrongp", !!p && !done);
-    box.querySelectorAll(".fork-b").forEach(b => {
-      const mine = b.dataset.b === p, o = t.opts.find(x => x[0] === b.dataset.b);
-      b.setAttribute("aria-pressed", mine);
-      b.classList.toggle("ok", mine && done);
-      b.classList.toggle("no", mine && !done);
-      b.querySelector(".lt").textContent = mine ? o[1] : "?";
-      b.disabled = done;
-    });
-    const msg = document.getElementById("msg-" + t.n);
-    const o = p ? t.opts.find(x => x[0] === p) : null;
-    if (done) { msg.className = "msg ok"; msg.textContent = `Верно! Открыта буква «${t.letter}».`; }
-    else if (o) { msg.className = "msg bad"; msg.textContent = `Буква «${o[1]}» ломает слово. ${o[2] || ""} Выбери другой ответ.`; }
-    else { msg.className = "msg"; msg.textContent = ""; }
-  });
-  const total = ANSWER.length;
-  const open = [...ANSWER].filter(ch => solved.has(BY_LETTER[ch].n)).length;
-  document.getElementById("pbar").style.width = (open / total * 100) + "%";
-  document.getElementById("pnum").textContent = `Открыто букв: ${open} из ${total}`;
-  if (open === total) unlock();
-}
-
-function choose(n, b) {
-  const t = TASKS[n - 1];
-  if (solved.has(n)) return;
-  picks[n] = b;
-  const ok = b === t.ans;
-  if (ok) solved.add(n);
-  if (window.__onAttempt) window.__onAttempt("2. Разгадка темы", "Программа " + n, b, ok, ok ? "" : "верно: " + t.ans);
+let solved = new Set(TASKS.filter(t => picks[t.n] != null && gNorm(picks[t.n]) === gNorm(t.ans)).map(t => t.n));
+/* тема разгадана хотя бы на одном языке — этапы открыты и после смены языка */
+const DONE_KEY = KEY.replace(/-kz$/, "") + "-done";
+function gameDone() { return TASKS.every(t => solved.has(t.n)) || store.get(DONE_KEY, false); }
+function gameAttempt(t, a) {
+  picks[t.n] = a;
+  const ok = gNorm(a) === gNorm(t.ans);
+  if (ok) solved.add(t.n);
+  if (window.__onAttempt) window.__onAttempt("2. Разгадка темы", "Задание " + t.n, a, ok, ok ? "" : "верно: " + t.ans);
   store.set(KEY, picks);
-  render(n);
+  return ok;
+}
+function gameProgress(open, total, word) {
+  document.getElementById("pbar").style.width = (open / total * 100) + "%";
+  document.getElementById("pnum").textContent = `${word}: ${open} из ${total}`;
 }
 
-document.getElementById("tasks").addEventListener("click", e => {
-  const b = e.target.closest(".fork-b"); if (b && !b.disabled) choose(+b.dataset.n, b.dataset.b);
-});
+/* ---------- Шифр: ответ — число, по таблице шифра число превращается в букву ---------- */
+const CIPHER = {
+  build(box) {
+    const nums = Object.keys(GAME.cipher).map(Number).sort((a, b) => a - b);
+    box.innerHTML = `
+      <h2>Таблица шифра · число → буква</h2>
+      <div class="tablewrap"><table class="cph-t"><tr><th>Число</th>${nums.map(n => `<td>${n}</td>`).join("")}</tr><tr><th>Буква</th>${nums.map(n => `<td><b>${gEsc(GAME.cipher[n])}</b></td>`).join("")}</tr></table></div>
+      <h2 class="g-h2">Зашифрованная тема</h2>
+      <div class="cph-word">${GAME.slots.map((row, ri) => `<div class="cph-row">${row.map(n => n === 0 ? `<span class="cph-gap"></span>` : `<span class="cph-cell" data-n="${n}"><b>?</b><small>${n}</small></span>`).join("")}</div>`).join("")}</div>
+      <h2 class="g-h2">Программы · какое число выведет программа?</h2>
+      <div class="tasks">${TASKS.map(t => `
+        <div class="task" id="task-${t.n}">
+          <div class="hd"><span class="tn">Программа ${t.n}</span><span class="fn">какое число?</span></div>
+          <pre class="code-view"></pre>
+          <div class="row"><input type="text" inputmode="numeric" class="g-in" id="cin-${t.n}" aria-label="Ответ к программе ${t.n}" autocomplete="off"><button type="button" class="btn g-check" data-n="${t.n}">Проверить</button></div>
+          <p class="msg" id="msg-${t.n}" aria-live="polite"></p>
+        </div>`).join("")}</div>`;
+    TASKS.forEach(t => { box.querySelector(`#task-${t.n} .code-view`).textContent = t.code; const p = picks[t.n]; if (p != null) box.querySelector("#cin-" + t.n).value = p; });
+    const go = n => { const inp = box.querySelector("#cin-" + n); if (!inp.value.trim()) return; gameAttempt(TASKS.find(t => t.n === n), inp.value.trim()); gameRender(n); };
+    box.addEventListener("click", e => { const b = e.target.closest(".g-check"); if (b) go(+b.dataset.n); });
+    box.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.classList.contains("g-in")) go(+e.target.id.split("-")[1]); });
+  },
+  render(anim) {
+    TASKS.forEach(t => {
+      const p = picks[t.n], done = solved.has(t.n), letter = p != null ? GAME.cipher[+p] : null;
+      document.querySelectorAll(`.cph-cell[data-n="${t.n}"]`).forEach(c => {
+        c.classList.toggle("open", done); c.classList.toggle("wrongl", p != null && !done);
+        c.querySelector("b").textContent = done ? GAME.cipher[+t.ans] : letter || "?";
+        if (anim === t.n) { c.classList.remove("flip"); void c.offsetWidth; c.classList.add("flip"); }
+      });
+      const box = document.getElementById("task-" + t.n), msg = document.getElementById("msg-" + t.n), inp = document.getElementById("cin-" + t.n);
+      box.classList.toggle("done", done); inp.disabled = done; box.querySelector(".g-check").disabled = done;
+      if (done) { msg.className = "msg ok"; msg.textContent = `Верно! Число ${t.ans} — буква «${GAME.cipher[+t.ans]}».`; }
+      else if (p != null) { msg.className = "msg bad"; msg.textContent = letter ? `Число ${p} — буква «${letter}», она ломает слово. ${(t.why && t.why[p]) || "Выполни программу по шагам ещё раз."}` : `Числа ${p} нет в таблице шифра. Пересчитай.`; }
+      else { msg.className = "msg"; msg.textContent = ""; }
+    });
+    gameProgress(solved.size, TASKS.length, "Расшифровано программ");
+  },
+  fill() { TASKS.forEach(t => { const i = document.getElementById("cin-" + t.n); if (i) i.value = t.ans; }); }
+};
 
-function norm(s) { return s.toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯЁӘҒҚҢӨҰҮҺІA-Z]/g, ""); }
+/* ---------- Кроссворд: ответ — слово, выделенный столбец складывается в тему ---------- */
+const CROSS = {
+  build(box) {
+    const col = Math.max(...TASKS.map(t => t.key));
+    const width = Math.max(...TASKS.map(t => col - t.key + t.ans.length));
+    box.innerHTML = `
+      <div class="sheetwrap"><table class="grid xw">${TASKS.map(t => {
+        const start = col - t.key;
+        let row = `<tr><th class="rh">${t.n}</th>`;
+        for (let i = 0; i < width; i++) {
+          const j = i - start;
+          row += j >= 0 && j < t.ans.length ? `<td class="${i === col ? "xw-key" : ""}" data-n="${t.n}" data-j="${j}"><div class="cell"><span class="ch"></span></div></td>` : `<td class="gap"></td>`;
+        }
+        return row + "</tr>";
+      }).join("")}</table></div>
+      <p class="small-note">Ответы вписываются по горизонтали. Выделенный столбец — тема урока.</p>
+      <h2 class="g-h2">Вопросы · какое слово пропущено?</h2>
+      <div class="tasks">${TASKS.map(t => `
+        <div class="task" id="task-${t.n}">
+          <div class="hd"><span class="tn">${t.n} · по горизонтали</span><span class="fn">${t.ans.length} букв</span></div>
+          <p class="g-q"></p>
+          <pre class="code-view"></pre>
+          <div class="row"><input type="text" class="g-in" id="xin-${t.n}" maxlength="${t.ans.length}" aria-label="Слово ${t.n}" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="button" class="btn g-check" data-n="${t.n}">Вписать</button></div>
+          <p class="msg" id="msg-${t.n}" aria-live="polite"></p>
+        </div>`).join("")}</div>`;
+    TASKS.forEach(t => { box.querySelector(`#task-${t.n} .code-view`).textContent = t.code; box.querySelector(`#task-${t.n} .g-q`).textContent = t.q; const p = picks[t.n]; if (p != null) box.querySelector("#xin-" + t.n).value = p; });
+    const go = n => { const inp = box.querySelector("#xin-" + n); if (!inp.value.trim()) return; gameAttempt(TASKS.find(t => t.n === n), inp.value.trim().toLowerCase()); gameRender(n); };
+    box.addEventListener("click", e => { const b = e.target.closest(".g-check"); if (b) go(+b.dataset.n); });
+    box.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.classList.contains("g-in")) go(+e.target.id.split("-")[1]); });
+  },
+  render(anim) {
+    TASKS.forEach(t => {
+      const p = picks[t.n], done = solved.has(t.n);
+      document.querySelectorAll(`.xw td[data-n="${t.n}"]`).forEach(td => {
+        const j = +td.dataset.j;
+        td.classList.toggle("open", done); td.classList.toggle("wrongl", p != null && !done);
+        td.querySelector(".ch").textContent = done ? t.ans[j].toUpperCase() : p != null && p[j] ? p[j].toUpperCase() : "";
+        if (anim === t.n && done) { td.classList.remove("flip"); void td.offsetWidth; td.classList.add("flip"); }
+      });
+      const box = document.getElementById("task-" + t.n), msg = document.getElementById("msg-" + t.n);
+      box.classList.toggle("done", done); document.getElementById("xin-" + t.n).disabled = done; box.querySelector(".g-check").disabled = done;
+      if (done) { msg.className = "msg ok"; msg.textContent = "Верно! Слово вписано в кроссворд."; }
+      else if (p != null) { msg.className = "msg bad"; msg.textContent = p.length !== t.ans.length ? `Нужно слово из ${t.ans.length} букв.` : (t.why || "Это слово не подходит. Подумай, какая команда делает то, что написано в комментарии."); }
+      else { msg.className = "msg"; msg.textContent = ""; }
+    });
+    gameProgress(solved.size, TASKS.length, "Отгадано слов");
+  },
+  fill() { TASKS.forEach(t => { const i = document.getElementById("xin-" + t.n); if (i) i.value = t.ans; }); }
+};
+
+/* ---------- Лабиринт: в каждой комнате развилка, верный ответ ведёт дальше, неверный — в тупик ---------- */
+const MAZE = {
+  build(box) {
+    box.innerHTML = `
+      <div class="mz-path" aria-label="Путь по лабиринту">${TASKS.map(t => `<span class="mz-room" data-n="${t.n}"><small>${t.n}</small><b>?</b></span>`).join('<span class="mz-door" aria-hidden="true"></span>')}<span class="mz-door" aria-hidden="true"></span><span class="mz-exit" id="mzExit">Выход</span></div>
+      <div class="mz-sign" id="mzSign">${GAME.sign.split("").map((ch, i) => ch === " " ? `<span class="mz-sp"></span>` : `<span class="mz-l" data-i="${i}">?</span>`).join("")}</div>
+      <section class="task mz-card" id="mzCard">
+        <div class="hd"><span class="tn" id="mzTitle"></span><span class="fn">что выведет программа?</span></div>
+        <pre class="code-view" id="mzCode"></pre>
+        <div class="mz-doors" id="mzDoors" role="group" aria-label="Двери"></div>
+        <p class="msg" id="mzMsg" aria-live="polite"></p>
+      </section>`;
+    box.querySelector("#mzDoors").addEventListener("click", e => {
+      const b = e.target.closest(".mz-opt"); if (!b) return;
+      const t = TASKS.find(x => !solved.has(x.n)); if (!t) return;
+      const ok = gameAttempt(t, b.dataset.a);
+      const msg = document.getElementById("mzMsg");
+      if (ok) { gameRender(t.n); msg.className = "msg ok"; msg.textContent = `Дверь открыта! Комната ${t.n} пройдена.`; }
+      else { b.disabled = true; b.classList.add("no"); msg.className = "msg bad"; msg.textContent = `Тупик! ${(t.why && t.why[b.dataset.a]) || ""} Вернись и выбери другую дверь.`; }
+    });
+  },
+  render(anim) {
+    const cur = TASKS.find(t => !solved.has(t.n));
+    document.querySelectorAll(".mz-room").forEach(r => { const n = +r.dataset.n; r.classList.toggle("open", solved.has(n)); r.classList.toggle("cur", !!cur && cur.n === n); r.querySelector("b").textContent = solved.has(n) ? "✓" : "?"; });
+    const opened = Math.round(GAME.sign.replace(/ /g, "").length * solved.size / TASKS.length);
+    let k = 0;
+    document.querySelectorAll(".mz-l").forEach(l => { const on = k++ < opened; l.textContent = on ? GAME.sign[+l.dataset.i] : "?"; l.classList.toggle("open", on); });
+    document.getElementById("mzExit").classList.toggle("open", !cur);
+    const card = document.getElementById("mzCard");
+    if (!cur) { card.hidden = true; } else {
+      card.hidden = false;
+      document.getElementById("mzTitle").textContent = `Комната ${cur.n} из ${TASKS.length}`;
+      document.getElementById("mzCode").textContent = cur.code;
+      const doors = document.getElementById("mzDoors");
+      if (doors.dataset.n !== String(cur.n)) {
+        doors.dataset.n = cur.n;
+        doors.innerHTML = shuffleSeeded(cur.opts, NS + "mz" + cur.n).map(o => `<button type="button" class="mz-opt" data-a="${gEsc(o)}"><span class="mz-d">🚪</span>${gEsc(o)}</button>`).join("");
+        if (anim == null) document.getElementById("mzMsg").textContent = "";
+      }
+    }
+    gameProgress(solved.size, TASKS.length, "Пройдено комнат");
+  },
+  fill() {}
+};
+
+/* ---------- Найди пару: программа и её вывод; каждая найденная пара снимает плитку с темы ---------- */
+const PAIRS = {
+  sel: null,
+  build(box) {
+    const cards = shuffleSeeded(TASKS.flatMap(t => [{ k: "p" + t.n, n: t.n, txt: t.code, code: true }, { k: "o" + t.n, n: t.n, txt: t.ans }]), NS + "pairs");
+    const tiles = GAME.tiles;
+    box.innerHTML = `
+      <div class="pr-title" aria-label="Тема под плитками">${tiles.map((s, i) => `<span class="pr-tile" data-i="${i}"><b>${gEsc(s)}</b></span>`).join("")}</div>
+      <p class="small-note">Нажми на программу, потом на то, что она выведет. Верная пара снимает одну плитку с темы.</p>
+      <div class="pr-board">${cards.map(c => `<button type="button" class="pc${c.code ? " pc-code" : " pc-out"}" data-k="${c.k}" data-n="${c.n}"><pre></pre></button>`).join("")}</div>
+      <p class="msg" id="prMsg" aria-live="polite"></p>`;
+    cards.forEach(c => { box.querySelector(`.pc[data-k="${c.k}"] pre`).textContent = c.txt; });
+    box.querySelector(".pr-board").addEventListener("click", e => {
+      const b = e.target.closest(".pc"); if (!b || b.disabled) return;
+      const msg = document.getElementById("prMsg");
+      if (!this.sel) { this.sel = b; b.classList.add("sel"); return; }
+      const a = this.sel; this.sel = null; a.classList.remove("sel");
+      if (a === b) return;
+      if (a.classList.contains("pc-code") === b.classList.contains("pc-code")) { msg.className = "msg bad"; msg.textContent = "Пара — это программа и её результат. Выбери одно и другое."; return; }
+      const prog = a.classList.contains("pc-code") ? a : b, out = prog === a ? b : a, t = TASKS.find(x => x.n === +prog.dataset.n);
+      const ok = gameAttempt(t, out.querySelector("pre").textContent);
+      if (ok) { msg.className = "msg ok"; msg.textContent = "Пара найдена! Одна плитка снята."; gameRender(t.n); }
+      else { [a, b].forEach(x => { x.classList.remove("no"); void x.offsetWidth; x.classList.add("no"); }); msg.className = "msg bad"; msg.textContent = "Эта программа выведет другое. Выполни её по шагам и попробуй ещё раз."; }
+    });
+  },
+  render() {
+    document.querySelectorAll(".pc").forEach(c => { const done = solved.has(+c.dataset.n); c.disabled = done; c.classList.toggle("ok", done); });
+    const order = TASKS.map(t => t.n);
+    document.querySelectorAll(".pr-tile").forEach(tl => { const i = +tl.dataset.i; tl.classList.toggle("open", solved.has(order[i])); });
+    gameProgress(solved.size, TASKS.length, "Найдено пар");
+  },
+  fill() {}
+};
+
+const GAMES = { cipher: CIPHER, cross: CROSS, maze: MAZE, pairs: PAIRS };
+const G = GAMES[GAME.mode];
+function gameBuild() { const box = document.getElementById("game"); box.className = "block game-" + GAME.mode; G.build(box); }
+function gameRender(anim) {
+  G.render(anim);
+  if (TASKS.every(t => solved.has(t.n)) && !store.get(DONE_KEY, false)) store.set(DONE_KEY, true);
+  if (gameDone()) unlock();
+}
+function gameSolveAll() { TASKS.forEach(t => { picks[t.n] = t.ans; solved.add(t.n); }); store.set(KEY, picks); G.fill(); }
+function gameReset() { picks = {}; solved = new Set(); PAIRS.sel = null; store.del(DONE_KEY); }
+
+function norm(s) { return String(s).toUpperCase().replace(/Ё/g, "Е").replace(/[^А-ЯЁӘҒҚҢӨҰҮҺІA-Z]/g, ""); }
 function guess() {
   const inp = document.getElementById("guessIn"), msg = document.getElementById("guessMsg");
   inp.classList.remove("wrong");
-  if (norm(inp.value) === ANSWER) {
-    TASKS.forEach(t => { picks[t.n] = t.ans; solved.add(t.n); }); store.set(KEY, picks);
+  if (ANSWERS.includes(norm(inp.value))) {
+    gameSolveAll();
     msg.className = "msg ok"; msg.textContent = "Верно! Тема открыта.";
-    render();
+    gameRender();
   } else {
     void inp.offsetWidth; inp.classList.add("wrong");
-    msg.className = "msg bad"; msg.textContent = "Пока не то. Откройте ещё несколько букв.";
+    msg.className = "msg bad"; msg.textContent = "Пока не то. Реши ещё несколько заданий.";
   }
 }
 document.getElementById("guessBtn").addEventListener("click", guess);
@@ -1503,14 +1643,14 @@ document.querySelectorAll(".step").forEach(b => b.addEventListener("click", () =
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); window.scrollTo({ top: 0, behavior: "smooth" }); }));
 
 document.getElementById("resetBtn").addEventListener("click", () => {
-  picks = {}; solved = new Set(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
+  gameReset(); store.del(KEY); store.del(EXP_KEY); store.del(REF_KEY); unlocked = false;
   refBuilt = false; document.getElementById("refNote").value = ""; document.getElementById("refUse").value = ""; document.getElementById("refSummary").hidden = true;
   document.querySelectorAll("input[name='r-exp']").forEach(r => { r.checked = false; });
   expText.value = ""; showExp("");
   document.getElementById("tab-goal").disabled = true;
   document.getElementById("guessIn").value = "";
   document.getElementById("guessMsg").textContent = "";
-  buildTasks(); render(); show("puzzle");
+  gameBuild(); gameRender(); show("puzzle");
 });
 
 const bigBtn = document.getElementById("bigBtn");
@@ -1529,7 +1669,7 @@ const EXP_KEY = "expect-l5";
 const expText = document.getElementById("expText");
 function showExp(text) {
   // этапы 4–11 открыты, только когда тема разгадана и ожидания записаны
-  const has = !!text && [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
+  const has = !!text && gameDone();
   document.getElementById("expForm").hidden = has;
   document.getElementById("expSaved").hidden = !has;
   document.getElementById("expShow").textContent = text || "";
@@ -2652,14 +2792,14 @@ showCard(0); showCard(METHODS_FIRST);
   });
 })();
 
-buildGrid(); buildTasks();
-unlocked = [...ANSWER].every(ch => solved.has(BY_LETTER[ch].n));
-render();
+gameBuild();
+unlocked = gameDone();
+gameRender();
 if (unlocked) document.getElementById("tab-goal").disabled = false;
 window.__lessonInfo = { olN: TASKS_OL.length, matchN: MT_CASES.length, tsN: TS_CASES.length, actN: AC_CASES.length, rvN: RV_CASES.length, pjN: TASKS_PJ.length, hwN: TASKS_HW.length, Z: TASKS_PR.filter(t => t.lv === "0").map(t => t.id),
   A: TASKS_PR.filter(t => t.lv === "A").map(t => t.id), B: TASKS_PR.filter(t => t.lv === "B").map(t => t.id), C: TASKS_PR.filter(t => t.lv === "C").map(t => t.id) };
 /* для автотестов */
-window.__lesson = { TASKS, TASKS_OL, olJudge, TS_CASES, AC_CASES, RV_CASES, TASKS_PR, TASKS_PJ, TASKS_HW, EX, ERR_EX, codeCheck, pyRun, predNorm, withData };
+window.__lesson = { TASKS, GAME, TASKS_OL, olJudge, TS_CASES, AC_CASES, RV_CASES, TASKS_PR, TASKS_PJ, TASKS_HW, EX, ERR_EX, codeCheck, pyRun, predNorm, withData };
 
 }
 /* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
