@@ -29,7 +29,7 @@ n = s.count(old_t)
 assert n == 2, n
 import re
 s, k = re.subn(r'toast\(ok \? ("[^"]*") : ("[^"]*")\); \}\); \};',
-               r'toast(ok ? \1 : \2 + " " + offWhy); const st = document.getElementById("offStat"); if (st) { st.textContent = ok ? \1 : \2 + " " + offWhy; st.style.color = ok ? "#1d7652" : "#b3372b"; } }); };', s)
+               r'const msgNo = "⛔ " + (offWhy || "?") + " [v5]"; toast(ok ?  : msgNo); const st = document.getElementById("offStat"); if (st) { st.textContent = ok ?  : msgNo; st.style.color = ok ? "#1d7652" : "#b3372b"; } }); };', s)
 assert k == 2, k
 old_box = "box.innerHTML = \"<p style='margin:0 0 10px'></p><button type='button' class='btn main'></button>\";"
 assert s.count(old_box) == 2
