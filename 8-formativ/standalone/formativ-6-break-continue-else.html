@@ -2640,7 +2640,8 @@ function setup() {
 function doGet(e) {
   var p = (e && e.parameter) || {};
   if (p.a === 'claim') return claim_(p);
-  if (p.a === 'ping') return ContentService.createTextOutput('ok: формативки + уроки (версия 4)');
+  if (p.a === 'ping') return ContentService.createTextOutput('ok: формативки + уроки (версия 5)');
+  if (p.a === 'lstat') return lessonStat_(p);
   return ContentService.createTextOutput('Формативтік жұмыстар: нәтижелерді қабылдау жұмыс істеп тұр.');
 }
 
@@ -2685,7 +2686,8 @@ function norm_(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim(
 
 function doPost(e) {
   try {
-    var d = JSON.parse(e.postData.contents);
+    // обычный POST (fetch) или HTML-форма с полем payload (запасной способ урока)
+    var d = JSON.parse((e.parameter && e.parameter.payload) || e.postData.contents);
     if (d && d.app === LESSON_APP) return lesson_(d);
     if (!d || (String(d.app || '').indexOf(APP) !== 0 && !OTHER_APPS[d.app])) return out_('skip');
     if (!d.topic) d.topic = OTHER_APPS[d.app] || d.app;
@@ -2807,7 +2809,7 @@ function lesson_(d) {
     var ids = n > 1 ? ss.getRange(2, head.length, n - 1, 1).getValues() : [];
     for (var r = 0; r < ids.length; r++) if (String(ids[r][0]) === key) { at = r + 2; break; }
     var mailed = at ? ss.getRange(at, head.length - 1).getValue() : '';
-    if (d.finish && SEND_EMAIL) { lessonMail_(d, key); mailed = new Date(); }
+    if (d.finish && SEND_EMAIL) { lessonMail_(d, key); mailed = new Date(); props.setProperty('m:' + key, String(Date.now())); }
     var row = [new Date(), safe_(d.lesson), safe_(d.cls), safe_(d.name)].concat(LESSON_COLS.map(function (c) { return safe_(sum[c[0]] == null ? '' : String(sum[c[0]])); })).concat([mailed, key]);
     if (at) ss.getRange(at, 1, 1, row.length).setValues([row]); else ss.appendRow(row);
   } finally { lock.releaseLock(); }
@@ -2833,6 +2835,14 @@ function lessonMail_(d, key) {
   });
   h.push('</table>');
   MailApp.sendEmail({ to: to, subject: 'Урок: ' + clip_(d.lesson, 70) + ' · ' + clip_(d.cls, 20) + ' · ' + clip_(d.name, 60), htmlBody: h.join('') });
+}
+
+// Подтверждение для урока (JSONP): сколько ответов ученика уже записано и когда ушло письмо
+function lessonStat_(p) {
+  var cb = /^[A-Za-z_$][\w$]{0,40}$/.test(p.cb || '') ? p.cb : 'cb';
+  var key = clip_(p.lesson, 80) + '|' + clip_(p.id, 120), props = PropertiesService.getScriptProperties();
+  var res = { n: Number(props.getProperty('n:' + key) || 0), mailed: Number(props.getProperty('m:' + key) || 0) };
+  return ContentService.createTextOutput(cb + '(' + JSON.stringify(res) + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
 
 </script>
