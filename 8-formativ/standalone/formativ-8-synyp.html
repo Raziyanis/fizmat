@@ -3250,6 +3250,7 @@ function setup() {
 function doGet(e) {
   var p = (e && e.parameter) || {};
   if (p.a === 'claim') return claim_(p);
+  if (p.a === 'ping') return ContentService.createTextOutput('ok: формативки + уроки (версия 4)');
   return ContentService.createTextOutput('Формативтік жұмыстар: нәтижелерді қабылдау жұмыс істеп тұр.');
 }
 
