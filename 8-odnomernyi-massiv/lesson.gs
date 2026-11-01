@@ -100,9 +100,14 @@ var SUM_HEAD = ['Обновлено', 'Класс', 'Ученик', 'Этап', 
   'Какой метод?', 'Практика Z', 'Практика A', 'Практика B', 'Практика C', 'Сейчас решает', 'Практ. работа',
   'Тест', 'Описания', 'ДЗ', 'Олимпиада', 'Ожидания', 'Ожидания сбылись', 'Итог 1', 'Итог 2', 'Итог 3',
   'Где применю', 'Заметка', 'Сдал (нажал кнопку)', 'Письмо', 'id'];
-var ATT_HEAD = ['Время', 'Класс', 'Ученик', 'Этап', 'Задание', 'Ответ', 'Верно', 'Примечание', 'id'];
+var ATT_HEAD = ['Время', 'Класс', 'Ученик', 'Этап', 'Задание', 'Ответ ученика', 'Правильный ответ', 'Верно', 'Комментарий', 'id'];
+var ATT_ID = 9;                  // номер столбца id в ATT_HEAD (с нуля)
 function sheet_(name, head) {
   var ss = book_(), sh = ss.getSheetByName(name);
+  if (sh && sh.getLastRow() > 0 && String(sh.getRange(1, head.length).getValue()) !== head[head.length - 1]) {
+    sh.setName(name + ' (старый формат ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd.MM HH:mm') + ')');
+    sh = null;                     // столбцы изменились: старый лист сохраняется под другим именем
+  }
   if (!sh) { sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1); sh.getRange(1, 1, 1, head.length).setFontWeight('bold'); }
   return sh;
 }
@@ -183,7 +188,8 @@ function saveAttempts_(p) {
   a.forEach(function (x, i) {
     if (from + i < have) return;
     rows.push([Utilities.formatDate(new Date(x.t || Date.now()), tz, 'dd.MM.yyyy HH:mm:ss'), p.cls, p.name,
-      x.stage || '', x.task || '', String(x.answer || '').slice(0, 3000), x.ok ? 'да' : 'нет', x.note || '', p.id]);
+      x.stage || '', x.task || '', String(x.answer || '').slice(0, 3000), String(x.right || '').slice(0, 3000),
+      x.ok ? 'да' : 'нет', String(x.note || '').slice(0, 3000), p.id]);
   });
   if (rows.length) {
     var sh = sheet_('Попытки', ATT_HEAD);
@@ -220,15 +226,17 @@ function mail_(p, row) {
     ['Ожидания', s.expect], ['Ожидания сбылись', s.expOk], ['Итоги', [s.r0, s.r1, s.r2].join(' · ')],
     ['Где применю', s.use], ['Заметка', s.note]];
   var att = sheet_('Попытки', ATT_HEAD).getDataRange().getValues().slice(1)
-    .filter(function (r) { return String(r[8]) === String(p.id); });
+    .filter(function (r) { return String(r[ATT_ID]) === String(p.id); });
   var html = '<h3>' + esc_(p.name) + ', ' + esc_(p.cls) + '</h3><p>' + esc_(p.lesson || '') + '</p>' +
     '<table border="1" cellpadding="4" style="border-collapse:collapse">' +
     sum.map(function (x) { return '<tr><td><b>' + esc_(x[0]) + '</b></td><td>' + esc_(x[1] == null ? '' : x[1]) + '</td></tr>'; }).join('') +
     '</table><h4>Попытки (' + att.length + ')</h4>' +
-    '<table border="1" cellpadding="4" style="border-collapse:collapse;font-size:13px"><tr><th>Время</th><th>Этап</th><th>Задание</th><th>Ответ</th><th>Верно</th></tr>' +
+    '<table border="1" cellpadding="4" style="border-collapse:collapse;font-size:13px">' +
+    '<tr><th>Время</th><th>Этап</th><th>Задание</th><th>Ответ ученика</th><th>Правильный ответ</th><th>Верно</th><th>Комментарий</th></tr>' +
     att.map(function (r) {
-      return '<tr><td>' + esc_(r[0]) + '</td><td>' + esc_(r[3]) + '</td><td>' + esc_(r[4]) + '</td><td><pre style="margin:0;white-space:pre-wrap">' +
-        esc_(String(r[5]).slice(0, 1500)) + '</pre></td><td>' + esc_(r[6]) + '</td></tr>';
+      var ok = r[7] === 'да', pre = function (t) { return '<pre style="margin:0;white-space:pre-wrap;font-family:monospace">' + esc_(String(t).slice(0, 1500)) + '</pre>'; };
+      return '<tr style="background:' + (ok ? '#eef7f2' : '#fdeceb') + '"><td>' + esc_(r[0]) + '</td><td>' + esc_(r[3]) + '</td><td>' + esc_(r[4]) +
+        '</td><td>' + pre(r[5]) + '</td><td>' + pre(r[6]) + '</td><td>' + (ok ? '✓' : '✗') + '</td><td>' + (ok ? '' : pre(r[8])) + '</td></tr>';
     }).join('') + '</table><p><a href="' + book_().getUrl() + '">Открыть таблицу с ответами</a></p>';
   try {
     MailApp.sendEmail({ to: teacher_(), subject: 'Урок: ' + p.cls + ' · ' + p.name + ' — ответы',
