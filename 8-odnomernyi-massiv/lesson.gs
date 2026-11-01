@@ -15,7 +15,7 @@
  * → ✏ → Версия: Новая версия → Развернуть». Доступ: «Все» (Anyone).
  */
 
-var VERSION = 'версия 4: правильный ответ + PDF во вложении';
+var VERSION = 'версия 5: отчёт по заданиям + PDF + автоотправка при закрытии';
 var TEACHER_EMAIL = '';          // пусто = почта владельца скрипта; можно вписать другой адрес
 var MAIL_GAP_SEC = 60;           // не чаще одного письма в минуту от одного ученика
 
@@ -215,37 +215,59 @@ function saveSummary_(p) {
 
 /* ---------- письмо учителю ---------- */
 function esc_(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+/* Тест и домашнее задание — дополнительные: в отчёт и балл не входят (в таблице «Попытки» они остаются) */
+var SKIP_STAGES = /^(10\.|12\.)|Тест|Домашн|Нарушение|Бұзушылық/;
+
+/* Отчёт по заданиям: одна строка на задание.
+   ✓ — задание решено (показан верный ответ ученика), ✗ — не решено (показан последний ответ). */
+function taskReport_(id) {
+  var att = sheet_('Попытки', ATT_HEAD).getDataRange().getValues().slice(1)
+    .filter(function (r) { return String(r[ATT_ID]) === String(id) && !SKIP_STAGES.test(String(r[3])); });
+  var map = {}, order = [];
+  att.forEach(function (r) {
+    var k = r[3] + '\u0001' + r[4], t = map[k];
+    if (!t) { t = map[k] = { stage: String(r[3]), task: String(r[4]), n: 0, ok: false }; order.push(k); }
+    t.n++;
+    if (!t.ok) { t.ok = r[7] === 'да'; t.answer = r[5]; t.right = r[6]; t.note = r[8]; }
+  });
+  var tasks = order.map(function (k) { return map[k]; });
+  tasks.sort(function (a, b) { return (parseInt(a.stage, 10) || 99) - (parseInt(b.stage, 10) || 99); });
+  return tasks;
+}
+
 function mail_(p, row) {
   var cache = CacheService.getScriptCache(), ck = 'm:' + p.id;
   if (cache.get(ck)) return '';                      // письмо уже ушло меньше минуты назад
   if (MailApp.getRemainingDailyQuota() < 1) return 'исчерпан дневной лимит писем Google (у gmail.com — 100 в сутки); ответы есть в таблице';
-  var s = p.summary || {};
+  var s = p.summary || {}, tasks = taskReport_(p.id);
+  var good = tasks.filter(function (t) { return t.ok; }).length;
   var sum = [['Этап', s.stage], ['Повторение', s.rev], ['Вспомним', s.act], ['Какой метод?', s.match],
-    ['Практика Z / A / B / C', [s.z, s.a, s.b, s.c].join(' · ')], ['Практическая работа', s.pj], ['Тест', s.test],
-    ['Описания', s.desc], ['Домашнее задание', s.hw], ['Олимпиада', s.olymp], ['Нарушения', s.viol],
+    ['Практика 0 / A / B / C', [s.z, s.a, s.b, s.c].join(' · ')], ['Описания', s.desc],
+    ['Практическая работа: задачи 1–3', s.pj], ['Практическая работа: задачи 4–10', s.olymp], ['Нарушения', s.viol],
     ['Ожидания', s.expect], ['Ожидания сбылись', s.expOk], ['Итоги', [s.r0, s.r1, s.r2].join(' · ')],
     ['Где применю', s.use], ['Заметка', s.note]];
-  var att = sheet_('Попытки', ATT_HEAD).getDataRange().getValues().slice(1)
-    .filter(function (r) { return String(r[ATT_ID]) === String(p.id); });
-  var html = '<h3>' + esc_(p.name) + ', ' + esc_(p.cls) + '</h3><p>' + esc_(p.lesson || '') + '</p>' +
+  var pre = function (t) { return '<pre style="margin:0;white-space:pre-wrap;font-family:monospace">' + esc_(String(t == null ? '' : t).slice(0, 1500)) + '</pre>'; };
+  var html = '<h3>' + esc_(p.name) + ', ' + esc_(p.cls) + '</h3><p>' + esc_(p.lesson || '') +
+    (p.auto ? ' · <i>отправлено автоматически: ученик закрыл окно урока</i>' : '') + '</p>' +
+    '<p style="font-size:16px"><b>Решено верно: ' + good + ' из ' + tasks.length + ' заданий, к которым ученик приступал</b>' +
+    ' <span style="color:#666">(тест и домашнее задание не учитываются)</span></p>' +
     '<table border="1" cellpadding="4" style="border-collapse:collapse">' +
     sum.map(function (x) { return '<tr><td><b>' + esc_(x[0]) + '</b></td><td>' + esc_(x[1] == null ? '' : x[1]) + '</td></tr>'; }).join('') +
-    '</table><h4>Попытки (' + att.length + ')</h4>' +
+    '</table><h4>Отчёт по заданиям</h4>' +
     '<table border="1" cellpadding="4" style="border-collapse:collapse;font-size:13px">' +
-    '<tr><th>Время</th><th>Этап</th><th>Задание</th><th>Ответ ученика</th><th>Правильный ответ</th><th>Верно</th><th>Комментарий</th></tr>' +
-    att.map(function (r) {
-      var ok = r[7] === 'да', pre = function (t) { return '<pre style="margin:0;white-space:pre-wrap;font-family:monospace">' + esc_(String(t).slice(0, 1500)) + '</pre>'; };
-      return '<tr style="background:' + (ok ? '#eef7f2' : '#fdeceb') + '"><td>' + esc_(r[0]) + '</td><td>' + esc_(r[3]) + '</td><td>' + esc_(r[4]) +
-        '</td><td>' + pre(r[5]) + '</td><td>' + pre(r[6]) + '</td><td>' + (ok ? '✓' : '✗') + '</td><td>' + (ok ? '' : pre(r[8])) + '</td></tr>';
-    }).join('') + '</table><p><a href="' + book_().getUrl() + '">Открыть таблицу с ответами</a></p>';
+    '<tr><th>Этап</th><th>Задание</th><th>Итог</th><th>Ответ ученика</th><th>Правильный ответ</th><th>Попыток</th><th>Комментарий</th></tr>' +
+    tasks.map(function (t) {
+      return '<tr style="background:' + (t.ok ? '#eef7f2' : '#fdeceb') + '"><td>' + esc_(t.stage) + '</td><td>' + esc_(t.task) + '</td><td style="text-align:center;font-size:16px">' +
+        (t.ok ? '✓' : '✗') + '</td><td>' + pre(t.answer) + '</td><td>' + pre(t.right) + '</td><td style="text-align:center">' + t.n + '</td><td>' + (t.ok ? '' : pre(t.note)) + '</td></tr>';
+    }).join('') + '</table><p><a href="' + book_().getUrl() + '">Открыть таблицу с ответами</a> (все попытки — на листе «Попытки»)</p>';
   try {
     var pdf = Utilities.newBlob('<html><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif">' + html + '</body></html>', 'text/html', 'report.html')
-      .getAs('application/pdf').setName(p.cls + ' ' + p.name + ' — ответы.pdf');
-    MailApp.sendEmail({ to: teacher_(), subject: 'Урок: ' + p.cls + ' · ' + p.name + ' — ответы (PDF во вложении)',
-      htmlBody: html, attachments: [pdf], body: p.name + ', ' + p.cls + ': ответы урока. Таблица: ' + book_().getUrl(), name: 'Урок fizmat' });
+      .getAs('application/pdf').setName(p.cls + ' ' + p.name + ' — отчёт.pdf');
+    MailApp.sendEmail({ to: teacher_(), subject: 'Отчёт: ' + p.cls + ' · ' + p.name + ' — верно ' + good + ' из ' + tasks.length + (p.auto ? ' (окно закрыто)' : ''),
+      htmlBody: html, attachments: [pdf], body: p.name + ', ' + p.cls + ': отчёт во вложении (PDF). Таблица: ' + book_().getUrl(), name: 'Урок fizmat' });
   } catch (x) { return x && x.message ? x.message : String(x); }
   cache.put(ck, '1', MAIL_GAP_SEC);
-  sheet_('Итоги', SUM_HEAD).getRange(row, 27).setValue('отправлено ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd.MM HH:mm'));
+  sheet_('Итоги', SUM_HEAD).getRange(row, 27).setValue((p.auto ? 'авто ' : 'отправлено ') + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd.MM HH:mm'));
   return '';
 }
 
