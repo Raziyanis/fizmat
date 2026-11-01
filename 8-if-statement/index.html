@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Ветвления и циклы · 8 класс</title>
+<title>Условный оператор if · 8 класс</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -477,7 +477,7 @@ globalThis._createPyodideModule = _createPyodideModule;
     <button type="button" class="step" role="tab" id="tab-goal" aria-controls="goal" aria-selected="false" disabled><b>3</b>Тема и цель</button>
     <button type="button" class="step" role="tab" id="tab-actual" aria-controls="actual" aria-selected="false" disabled><b>4</b>Вспомним</button>
     <button type="button" class="step" role="tab" id="tab-learn" aria-controls="learn" aria-selected="false" disabled><b>5</b>Ветвление</button>
-    <button type="button" class="step" role="tab" id="tab-methods" aria-controls="methods" aria-selected="false" disabled><b>6</b>Циклы</button>
+    <button type="button" class="step" role="tab" id="tab-methods" aria-controls="methods" aria-selected="false" disabled><b>6</b>Вложенный if</button>
     <button type="button" class="step" role="tab" id="tab-match" aria-controls="match" aria-selected="false" disabled><b>7</b>Что подходит?</button>
     <button type="button" class="step" role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" disabled><b>8</b>Практика</button>
     <button type="button" class="step" role="tab" id="tab-project" aria-controls="project" aria-selected="false" disabled><b>9</b>Практическая работа</button>
@@ -508,7 +508,7 @@ globalThis._createPyodideModule = _createPyodideModule;
   <div class="panel" id="puzzle" role="tabpanel" aria-labelledby="tab-puzzle" hidden>
     <div>
       <h1>Робот на развилке</h1>
-      <p class="lead">Тема урока спрятана в листе «Тема». Робот выполняет короткие программы на Python: проверяет условия и повторяет команды. Предскажи, что он выведет, — и верная буква откроется на листе.</p>
+      <p class="lead">Тема урока спрятана в листе «Тема». Робот выполняет короткие программы на Python: проверяет условие и выбирает, что вывести. Предскажи, что он выведет, — и верная буква откроется на листе.</p>
     </div>
 
     <section class="block how">
@@ -535,9 +535,8 @@ globalThis._createPyodideModule = _createPyodideModule;
         <li><code>if условие:</code> — если условие верно, выполнить команды с отступом</li>
         <li><code>else:</code> — иначе; <code>elif</code> — «иначе если»</li>
         <li><code>==</code> — равно, <code>!=</code> — не равно, <code>%</code> — остаток от деления</li>
-        <li><code>for i in range(3):</code> — повторить 3 раза, i = 0, 1, 2</li>
-        <li><code>while условие:</code> — повторять, пока условие верно</li>
-        <li><code>print(x, end="")</code> — вывести без перехода на новую строку</li>
+        <li><code>and</code> — оба условия, <code>or</code> — хотя бы одно, <code>not</code> — наоборот</li>
+        <li><code>print(…)</code> — вывести на экран</li>
       </ul>
     </section>
 
@@ -567,14 +566,14 @@ globalThis._createPyodideModule = _createPyodideModule;
   <div class="panel" id="goal" role="tabpanel" aria-labelledby="tab-goal" hidden>
     <section class="block">
       <h2>Тема урока</h2>
-      <p class="reveal-title">Условный оператор if, вложенный оператор if. Разработка циклического алгоритма. Организация вложенных циклов</p>
-      <div class="fns"><code>if</code><code>else</code><code>elif</code><code>and</code><code>or</code><code>not</code><code>for</code><code>range()</code><code>while</code><code>break</code><code>continue</code></div>
-      <p class="small" id="forkNote">Разгадывая тему, ты уже работал как Python: проверял условие и выбирал ветку, считал, сколько раз повторится цикл. Сегодня научишься писать такие программы сам.</p>
+      <p class="reveal-title">Условный оператор if. Вложенный оператор if</p>
+      <div class="fns"><code>if</code><code>else</code><code>elif</code><code>==</code><code>!=</code><code>and</code><code>or</code><code>not</code></div>
+      <p class="small" id="forkNote">Разгадывая тему, ты уже работал как Python: проверял условие и выбирал ветку. Сегодня научишься писать такие программы сам.</p>
     </section>
     <section class="block expect" id="expect">
       <h2>Мои ожидания от урока</h2>
       <div id="expForm">
-        <label for="expText" class="q">Тема открыта. Чему ты хочешь научиться на этом уроке? Где в жизни приходится выбирать действие или повторять его?</label>
+        <label for="expText" class="q">Тема открыта. Чему ты хочешь научиться на этом уроке? Где в жизни приходится выбирать действие в зависимости от условия?</label>
         <div class="starters" aria-label="Начало фразы">
           <button type="button" class="starter">Я хочу научиться…</button>
           <button type="button" class="starter">Я уже знаю…</button>
@@ -598,24 +597,23 @@ globalThis._createPyodideModule = _createPyodideModule;
     <section class="block">
       <h2>Цели обучения</h2>
       <div class="goal">
-        <span class="code">if</span><p>создавать программы на языке Python с использованием условного оператора if, в том числе вложенного</p>
-        <span class="code">for</span><p>разрабатывать циклические алгоритмы и реализовывать их циклами for и while</p>
-        <span class="code">for×for</span><p>организовывать вложенные циклы</p>
+        <span class="code">if</span><p>создавать программы на языке Python с использованием условного оператора if</p>
+        <span class="code">if → if</span><p>использовать вложенный условный оператор и сложные условия</p>
       </div>
     </section>
     <section class="block">
       <h2>Цель урока</h2>
-      <p class="plain">научиться записывать ветвление (if, if–else, if–elif–else, вложенный if) и циклы for и while, в том числе вложенные, и применять их в программах.</p>
+      <p class="plain">научиться записывать неполное и полное ветвление, выбор из нескольких вариантов и вложенный if, составлять сложные условия с and, or, not.</p>
     </section>
     <section class="block">
       <h2>Ожидаемые результаты · к концу урока я смогу</h2>
-      <div class="res"><div class="who">Все учащиеся<span class="bar"><i style="width:100%"></i></span></div><p>записать условие с операциями сравнения, применить <code>if</code>, <code>if–else</code>, <code>elif</code> и цикл <code>for</code> с <code>range()</code>.</p></div>
-      <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>использовать вложенный <code>if</code>, операции <code>and</code>, <code>or</code>, цикл <code>while</code>, счётчик и сумму в цикле и исправлять ошибки в ветвлениях и циклах.</p></div>
-      <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>организовать вложенные циклы: вывести таблицу, узор из символов или перебрать все пары значений.</p></div>
+      <div class="res"><div class="who">Все учащиеся<span class="bar"><i style="width:100%"></i></span></div><p>записать условие с операциями сравнения и применить <code>if</code>, <code>if–else</code> и <code>if–elif–else</code>.</p></div>
+      <div class="res"><div class="who">Большинство<span class="bar"><i style="width:70%"></i></span></div><p>использовать вложенный <code>if</code> и операции <code>and</code>, <code>or</code>, <code>not</code> и находить ошибки в условиях.</p></div>
+      <div class="res"><div class="who">Некоторые<span class="bar"><i style="width:35%"></i></span></div><p>составить программу с несколькими уровнями ветвления и сложными условиями.</p></div>
     </section>
     <section class="block">
       <h2>Критерии оценивания · как проверим, что цель достигнута</h2>
-      <p class="plain crit-main"><b>Критерий:</b> создаёт программы на Python с ветвлениями и циклами, в том числе вложенными.</p>
+      <p class="plain crit-main"><b>Критерий:</b> создаёт программы на Python с условным оператором if, в том числе вложенным.</p>
       <div class="tablewrap"><table class="th-args crit" id="critTable"></table></div>
       <p class="small-note">Дескрипторы отмечаются автоматически по заданиям урока. Свои результаты увидишь в «Итогах урока».</p>
     </section>
@@ -658,8 +656,8 @@ globalThis._createPyodideModule = _createPyodideModule;
         <div><b>Ветвление</b><p>алгоритм, в котором выбор действий зависит от условия.</p></div>
         <div><b>Ветка</b><p>команды, которые выполняются, если программа пошла по этой дороге.</p></div>
         <div><b>Отступ</b><p>4 пробела перед командами ветки. По отступу Python понимает, где ветка начинается и где заканчивается.</p></div>
-        <div><b>Вложенный if</b><p>условный оператор внутри ветки другого условного оператора.</p></div>
-        <div><b>Логические операции</b><p><code>and</code>, <code>or</code>, <code>not</code> — соединяют несколько условий в одно.</p></div>
+        <div><b>Неполное ветвление</b><p>только <code>if</code>: при неверном условии ничего не делается.</p></div>
+        <div><b>Полное ветвление</b><p><code>if</code> и <code>else</code>: одна из двух веток выполняется всегда.</p></div>
       </div>
     </section>
 
@@ -667,11 +665,8 @@ globalThis._createPyodideModule = _createPyodideModule;
       <button type="button" class="fpill" data-f="0" aria-selected="true">1 · if</button>
       <button type="button" class="fpill" data-f="1" aria-selected="false">2 · if–else</button>
       <button type="button" class="fpill" data-f="2" aria-selected="false">3 · elif</button>
-      <button type="button" class="fpill" data-f="3" aria-selected="false">4 · Вложенный if</button>
-      <button type="button" class="fpill" data-f="4" aria-selected="false">5 · and, or, not</button>
     </div>
 
-    <!-- if -->
     <section class="block fcard" data-card="0">
       <p class="fname"><code>if</code> — условный оператор</p>
       <p class="simple"><b>Простыми словами:</b> if — шлагбаум на дороге. Условие верно — шлагбаум поднимается, и программа выполняет команды ветки. Неверно — команды ветки пропускаются, и программа идёт дальше.</p>
@@ -699,7 +694,6 @@ globalThis._createPyodideModule = _createPyodideModule;
       <p class="remember"><b>Запомни:</b> <code>if условие:</code> — двоеточие в конце, команды ветки — с отступом 4 пробела. Сравнение — <code>==</code>.</p>
     </section>
 
-    <!-- if–else -->
     <section class="block fcard" data-card="1" hidden>
       <p class="fname"><code>if – else</code> — полное ветвление</p>
       <p class="simple"><b>Простыми словами:</b> развилка с двумя дорогами. Условие верно — идём по первой, иначе — по второй. Одна из двух веток выполнится обязательно, и только одна.</p>
@@ -719,7 +713,6 @@ globalThis._createPyodideModule = _createPyodideModule;
       <p class="remember"><b>Запомни:</b> из двух веток выполняется ровно одна. <code>else</code> — без условия.</p>
     </section>
 
-    <!-- elif -->
     <section class="block fcard" data-card="2" hidden>
       <p class="fname"><code>if – elif – else</code> — выбор из нескольких вариантов</p>
       <p class="simple"><b>Простыми словами:</b> дорог несколько. Программа проверяет условия по очереди, сверху вниз. Как только нашлось верное — выполняет его ветку, а остальные условия уже не проверяет.</p>
@@ -739,8 +732,39 @@ globalThis._createPyodideModule = _createPyodideModule;
       <p class="remember"><b>Запомни:</b> условия проверяются сверху вниз, выполняется первая верная ветка — и только она.</p>
     </section>
 
-    <!-- Вложенный if -->
-    <section class="block fcard" data-card="3" hidden>
+    <div class="next">
+      <button class="btn" type="button" id="lPrev">← Вспомним</button>
+      <button class="btn main" type="button" id="lNext">Дальше: if–else →</button>
+    </div>
+  </div>
+
+  <!-- Этап 6: вложенный if -->
+  <div class="panel" id="methods" role="tabpanel" aria-labelledby="tab-methods" hidden>
+    <div>
+      <h1>Вложенный if и сложные условия</h1>
+      <p class="lead">Иногда одного вопроса мало: сначала проверяют одно, а потом, в зависимости от ответа, — другое. Так появляется развилка внутри развилки. А несколько условий можно соединить в одно словами «и», «или», «не».</p>
+    </div>
+
+    <section class="block">
+      <h2>Как устроен вложенный if</h2>
+      <pre class="code-view">if условие 1:            # внешний if
+    if условие 2:        # внутренний if — ещё 4 пробела
+        команды А        # условие 1 верно и условие 2 верно
+    else:
+        команды Б        # условие 1 верно, условие 2 неверно
+else:
+    команды В            # условие 1 неверно — условие 2 не проверяется</pre>
+      <p class="tip">Каждый <code>else</code> стоит точно под своим <code>if</code>: по отступу видно, к какому вопросу он относится.</p>
+      <p class="tip"><b>Вложенный if или and?</b> Если для двух условий нужна одна общая ветка — короче написать <code>and</code>. Если для каждого ответа нужны свои действия — вложенный if.</p>
+    </section>
+
+    <div class="fpills" role="tablist" aria-label="Вложенный if">
+      <button type="button" class="fpill" data-f="3" aria-selected="true">1 · Вложенный if</button>
+      <button type="button" class="fpill" data-f="4" aria-selected="false">2 · and, or, not</button>
+      <button type="button" class="fpill" data-f="5" aria-selected="false">Шпаргалка и ошибки</button>
+    </div>
+
+    <section class="block fcard" data-card="3">
       <p class="fname">Вложенный <code>if</code> — развилка внутри развилки</p>
       <p class="simple"><b>Простыми словами:</b> сначала задаём первый вопрос, а следующий — только в зависимости от ответа. Охранник сначала проверяет пропуск. Если пропуск есть — спрашивает, в какой кабинет вы идёте. Если пропуска нет, второй вопрос не задаёт.</p>
       <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Вход в систему:</span> логин верный → проверить пароль</li><li><span>Билет в кино:</span> есть свободные места → проверить возраст для скидки</li><li><span>Уравнение ax = b:</span> a ≠ 0 → один корень; иначе: b = 0 → корней бесконечно много, b ≠ 0 → корней нет</li></ul><p class="apply-no"><b>Не подходит:</b> когда два условия просто должны выполняться одновременно и одна общая ветка — короче написать <code>and</code>.</p></div>
@@ -759,7 +783,6 @@ globalThis._createPyodideModule = _createPyodideModule;
       <p class="remember"><b>Запомни:</b> внутренний if проверяется, только когда программа вошла во внешнюю ветку. Каждый уровень — ещё 4 пробела.</p>
     </section>
 
-    <!-- and, or, not -->
     <section class="block fcard" data-card="4" hidden>
       <p class="fname"><code>and</code>, <code>or</code>, <code>not</code> — сложные условия</p>
       <p class="simple"><b>Простыми словами:</b> <code>and</code> — «и то, и другое», <code>or</code> — «хотя бы одно из двух», <code>not</code> — «наоборот».</p>
@@ -785,176 +808,50 @@ globalThis._createPyodideModule = _createPyodideModule;
       <p class="remember"><b>Запомни:</b> <code>and</code> — нужны оба условия, <code>or</code> — достаточно одного, <code>not</code> — наоборот.</p>
     </section>
 
-    <div class="next">
-      <button class="btn" type="button" id="lPrev">← Вспомним</button>
-      <button class="btn main" type="button" id="lNext">Дальше: if–else →</button>
-    </div>
-  </div>
-
-  <!-- Этап 6: циклы -->
-  <div class="panel" id="methods" role="tabpanel" aria-labelledby="tab-methods" hidden>
-    <div>
-      <h1>Циклический алгоритм и вложенные циклы</h1>
-      <p class="lead">Цикл — повторение одних и тех же действий. Вывести 100 строк, сложить оценки всего класса, нарисовать узор: вместо сотни одинаковых строк программы пишут одну, а повторяет её цикл.</p>
-    </div>
-
-    <section class="block">
-      <h2>Как записать цикл for</h2>
-      <div class="anatomy">
-        <div class="part"><span class="tok fnc">for</span><span class="lab">повторить</span></div>
-        <div class="part"><span class="tok arg">i</span><span class="lab">переменная цикла</span></div>
-        <div class="part"><span class="tok fnc">in</span><span class="lab">по</span></div>
-        <div class="part"><span class="tok fnc">range</span><span class="lab">ряду чисел</span></div>
-        <div class="part"><span class="tok">(</span><span class="lab">открыли</span></div>
-        <div class="part"><span class="tok arg">1</span><span class="lab">от</span></div>
-        <div class="part"><span class="tok">,</span><span class="lab"></span></div>
-        <div class="part"><span class="tok arg">6</span><span class="lab">до, не включая</span></div>
-        <div class="part"><span class="tok">)</span><span class="lab">закрыли</span></div>
-        <div class="part"><span class="tok dot">:</span><span class="lab">двоеточие</span></div>
-      </div>
-      <p class="tip">Команды, которые повторяются, — <b>тело цикла</b>. Их пишут с отступом 4 пробела, как ветку if. Здесь i по очереди примет значения 1, 2, 3, 4, 5.</p>
-      <p class="tip"><b>Шаг цикла</b> (итерация) — одно выполнение тела цикла.</p>
-    </section>
-
-    <div class="fpills" role="tablist" aria-label="Циклы">
-      <button type="button" class="fpill" data-f="5" aria-selected="true">1 · for и range</button>
-      <button type="button" class="fpill" data-f="6" aria-selected="false">2 · while</button>
-      <button type="button" class="fpill" data-f="7" aria-selected="false">3 · Счётчик, сумма, break</button>
-      <button type="button" class="fpill" data-f="8" aria-selected="false">4 · Вложенные циклы</button>
-      <button type="button" class="fpill" data-f="9" aria-selected="false">Шпаргалка и ошибки</button>
-    </div>
-
-    <!-- for -->
-    <section class="block fcard" data-card="5">
-      <p class="fname"><code>for i in range()</code> — цикл с известным числом повторений</p>
-      <p class="simple"><b>Простыми словами:</b> тренер говорит: «10 приседаний». Сколько раз повторять, известно заранее, — это цикл <code>for</code>. А <code>range</code> — счёт тренера: «раз, два, три…».</p>
-      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Таблица умножения на 7:</span> <code>for i in range(1, 11): print(7 * i)</code></li><li><span>Ввести оценки n учеников:</span> <code>for i in range(n): m = int(input())</code></li><li><span>Сумма чисел от 1 до 100:</span> <code>for i in range(1, 101): s = s + i</code></li></ul><p class="apply-no"><b>Не подходит:</b> если число повторений заранее неизвестно — «пока не введут 0», — нужен <code>while</code>.</p></div>
-      <p class="how"><span>Как записать:</span> <code>for i in range(n):</code>, <code>for i in range(a, b):</code>, <code>for i in range(a, b, шаг):</code></p>
-      <div class="theory">
-      <h3>Определение</h3>
-      <p>Циклический алгоритм — алгоритм, в котором группа действий (тело цикла) выполняется многократно. Цикл <code>for</code> перебирает значения: переменная цикла по очереди принимает каждое значение из <code>range</code>, и для каждого значения выполняется тело цикла.</p>
-      <h3>Что даёт range</h3>
-      <div class="tablewrap"><table class="th-args"><tr><th>Запись</th><th>Значения i</th><th>Повторений</th></tr>
-        <tr><td><code>range(5)</code></td><td>0, 1, 2, 3, 4</td><td>5</td></tr>
-        <tr><td><code>range(2, 6)</code></td><td>2, 3, 4, 5</td><td>4</td></tr>
-        <tr><td><code>range(1, 10, 3)</code></td><td>1, 4, 7</td><td>3</td></tr>
-        <tr><td><code>range(5, 0, -1)</code></td><td>5, 4, 3, 2, 1</td><td>5</td></tr>
-      </table></div>
-      <h3>Примеры</h3>
-      <div class="exlist" data-ex="for"></div>
-      <h3>Важно знать</h3>
-      <ul><li>Конец <code>range</code> <b>не входит</b>: <code>range(1, 5)</code> — это 1, 2, 3, 4. Чтобы дойти до n включительно, пишут <code>range(1, n + 1)</code>.</li><li>Переменную цикла не нужно увеличивать вручную — это делает for.</li><li>Команда без отступа после цикла выполнится один раз, когда цикл закончится.</li></ul>
-      </div>
-      <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="for"></div></div>
-      <p class="remember"><b>Запомни:</b> <code>range(a, b)</code> — от a до b − 1. Число повторений известно — <code>for</code>.</p>
-    </section>
-
-    <!-- while -->
-    <section class="block fcard" data-card="6" hidden>
-      <p class="fname"><code>while</code> — цикл «пока»</p>
-      <p class="simple"><b>Простыми словами:</b> «Пока чайник не закипел — жди». Сколько раз придётся проверять, заранее неизвестно: повторяем, пока условие верно.</p>
-      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Читать числа, пока не введут 0:</span> <code>while x != 0:</code></li><li><span>Сколько лет копить до нужной суммы:</span> <code>while s &lt; goal:</code></li><li><span>Перебрать цифры числа:</span> <code>while n &gt; 0: n = n // 10</code></li></ul><p class="apply-no"><b>Не подходит:</b> когда число повторений известно — короче и надёжнее <code>for</code>.</p></div>
-      <p class="how"><span>Как записать:</span> <code>while условие:</code> и тело цикла с отступом</p>
-      <div class="theory">
-      <h3>Определение</h3>
-      <p><code>while</code> — цикл с предусловием: перед каждым шагом проверяется условие. Пока оно истинно, тело цикла выполняется; как только стало ложным, цикл заканчивается. Если условие ложно с самого начала, тело не выполнится ни разу.</p>
-      <h3>Синтаксис</h3>
-      <p class="syn"><code>while условие:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;команды</code></p>
-      <h3>Примеры</h3>
-      <div class="exlist" data-ex="while"></div>
-      <h3>Важно знать</h3>
-      <ul><li>В теле цикла что-то должно менять условие. Иначе цикл станет <b>бесконечным</b>, и программа никогда не закончится.</li><li>Переменную из условия задают <b>до</b> цикла.</li><li>Любой цикл for можно записать через while, но не наоборот.</li></ul>
-      </div>
-      <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="while"></div></div>
-      <p class="remember"><b>Запомни:</b> while повторяет, пока условие верно. Не забудь изменить переменную условия в теле цикла.</p>
-    </section>
-
-    <!-- счётчик, сумма, break -->
-    <section class="block fcard" data-card="7" hidden>
-      <p class="fname">Счётчик, сумма, <code>break</code> и <code>continue</code> — цикл вместе с if</p>
-      <p class="simple"><b>Простыми словами:</b> учитель проходит по журналу и ставит палочку за каждую пятёрку — это счётчик. Кассир прибавляет к сумме цену каждого товара — это сумма. Нашёл, что искал, — останавливаешься: это <code>break</code>.</p>
-      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Сколько двоек в журнале:</span> <code>if m == 2: k = k + 1</code></li><li><span>Сумма чека:</span> <code>s = s + price</code></li><li><span>Остановиться на первом отрицательном числе:</span> <code>if x &lt; 0: break</code></li></ul><p class="apply-no"><b>Не подходит:</b> <code>break</code> и <code>continue</code> вне цикла — Python выдаст SyntaxError.</p></div>
-      <p class="how"><span>Как записать:</span> <code>k = 0</code> до цикла, <code>k = k + 1</code> в цикле; <code>break</code>, <code>continue</code></p>
-      <div class="theory">
-      <h3>Определение</h3>
-      <p><b>Счётчик</b> — переменная, которая считает, сколько раз выполнилось условие: до цикла <code>k = 0</code>, в цикле <code>k = k + 1</code>. <b>Сумма</b> накапливается так же: <code>s = 0</code>, затем <code>s = s + x</code>. Команда <code>break</code> досрочно завершает цикл, <code>continue</code> пропускает остаток текущего шага и переходит к следующему.</p>
-      <h3>Примеры</h3>
-      <div class="exlist" data-ex="acc"></div>
-      <h3>Важно знать</h3>
-      <ul><li>Счётчик и сумму обнуляют <b>до</b> цикла. Если написать <code>k = 0</code> внутри цикла, счёт начнётся заново на каждом шаге.</li><li>Ответ выводят <b>после</b> цикла — без отступа.</li><li><code>k += 1</code> — короткая запись <code>k = k + 1</code>.</li></ul>
-      </div>
-      <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="acc"></div></div>
-      <p class="remember"><b>Запомни:</b> обнулить до цикла, накопить в цикле, вывести после цикла. <code>break</code> — выйти из цикла, <code>continue</code> — к следующему шагу.</p>
-    </section>
-
-    <!-- вложенные циклы -->
-    <section class="block fcard" data-card="8" hidden>
-      <p class="fname">Вложенные циклы — цикл внутри цикла</p>
-      <p class="simple"><b>Простыми словами:</b> как стрелки часов. Пока минутная стрелка проходит полный круг (внутренний цикл), часовая сдвигается всего на одно деление (внешний цикл).</p>
-      <div class="apply"><p class="apply-h">Где применяется</p><ul><li><span>Таблица умножения:</span> строки — внешний цикл, столбцы — внутренний</li><li><span>Узор из символов:</span> строки и символы в строке</li><li><span>Все пары:</span> расписание матчей «каждый с каждым»</li></ul><p class="apply-no"><b>Не подходит:</b> если действия просто нужно повторить n раз — хватит одного цикла.</p></div>
-      <p class="how"><span>Как записать:</span> <code>for i in range(n):</code> → внутри <code>for j in range(m):</code></p>
-      <div class="theory">
-      <h3>Определение</h3>
-      <p>Вложенный цикл — цикл, записанный в теле другого цикла. Для <b>каждого</b> шага внешнего цикла внутренний цикл выполняется <b>полностью</b>, от начала до конца. Если внешний цикл делает n шагов, а внутренний — m шагов, тело внутреннего цикла выполнится n · m раз.</p>
-      <h3>Как работает: i — внешний, j — внутренний</h3>
-      <div class="tablewrap"><table class="idx"><tr><th>i</th><td class="v">1</td><td class="v">1</td><td class="v">1</td><td class="v">2</td><td class="v">2</td><td class="v">2</td></tr><tr><th>j</th><td class="i">1</td><td class="i">2</td><td class="i">3</td><td class="i">1</td><td class="i">2</td><td class="i">3</td></tr><tr><th>i · j</th><td class="n">1</td><td class="n">2</td><td class="n">3</td><td class="n">2</td><td class="n">4</td><td class="n">6</td></tr></table></div>
-      <p class="small-note">Так выполняются циклы <code>for i in range(1, 3):</code> и <code>for j in range(1, 4):</code>: j пробегает все значения, потом i увеличивается, и j начинает сначала.</p>
-      <h3>Примеры</h3>
-      <div class="exlist" data-ex="nested"></div>
-      <h3>Важно знать</h3>
-      <ul><li>У циклов разные переменные: обычно <code>i</code> — внешний, <code>j</code> — внутренний.</li><li><code>print(x, end=" ")</code> выводит без перехода на новую строку, а пустой <code>print()</code> после внутреннего цикла переносит строку.</li><li>Внутренний цикл может зависеть от внешнего: <code>range(i)</code> даёт треугольник.</li><li><code>break</code> во внутреннем цикле завершает только внутренний цикл.</li></ul>
-      </div>
-      <div class="tryed"><span class="trylab">Попробуй сам</span><div class="pyed" data-ed="nested"></div></div>
-      <p class="remember"><b>Запомни:</b> для каждого шага внешнего цикла внутренний выполняется целиком. Всего шагов — n · m.</p>
-    </section>
-
     <!-- Шпаргалка -->
-    <section class="block fcard" data-card="9" hidden>
+    <section class="block fcard" data-card="5" hidden>
       <p class="fname">Шпаргалка и ошибки</p>
       <div class="tablewrap">
         <table class="cheat">
-          <tr><th>Запись</th><th>Что делает</th><th>Пример результата</th></tr>
+          <tr><th>Запись</th><th>Что делает</th><th>Пример</th></tr>
           <tr><td><code>if x &gt; 0:</code></td><td>выполняет ветку, если условие верно</td><td>при x = 3 — выполнит, при x = −1 — пропустит</td></tr>
           <tr><td><code>else:</code></td><td>ветка «иначе», без условия</td><td>при x = −1 выполнится else</td></tr>
           <tr><td><code>elif x == 0:</code></td><td>ещё одно условие, проверяется, если предыдущие неверны</td><td>при x = 0 — выполнит</td></tr>
+          <tr><td><code>==</code>, <code>!=</code></td><td>равно, не равно</td><td><code>5 == 5</code> → True, <code>5 != 5</code> → False</td></tr>
+          <tr><td><code>&lt;=</code>, <code>&gt;=</code></td><td>меньше или равно, больше или равно</td><td><code>5 &gt;= 5</code> → True</td></tr>
+          <tr><td><code>n % 2 == 0</code></td><td>n чётное</td><td>n = 6 → True</td></tr>
           <tr><td><code>a &gt; 0 and b &gt; 0</code></td><td>оба условия</td><td>a = 1, b = −1 → False</td></tr>
           <tr><td><code>a &gt; 0 or b &gt; 0</code></td><td>хотя бы одно</td><td>a = 1, b = −1 → True</td></tr>
           <tr><td><code>not x &gt; 0</code></td><td>наоборот</td><td>x = 3 → False</td></tr>
-          <tr><td><code>n % 2 == 0</code></td><td>n чётное</td><td>n = 6 → True</td></tr>
-          <tr><td><code>for i in range(4):</code></td><td>4 повтора, i = 0, 1, 2, 3</td><td>тело выполнится 4 раза</td></tr>
-          <tr><td><code>for i in range(1, n + 1):</code></td><td>i от 1 до n включительно</td><td>n = 3 → 1, 2, 3</td></tr>
-          <tr><td><code>while x != 0:</code></td><td>повторять, пока x не равно 0</td><td>число повторов заранее неизвестно</td></tr>
-          <tr><td><code>break</code></td><td>сразу завершить цикл</td><td>—</td></tr>
-          <tr><td><code>continue</code></td><td>перейти к следующему шагу цикла</td><td>—</td></tr>
-          <tr><td><code>print(x, end=" ")</code></td><td>вывод без перехода на новую строку</td><td><code>1 2 3</code> в одной строке</td></tr>
-          <tr><td>цикл в цикле</td><td>внутренний выполняется целиком на каждом шаге внешнего</td><td>3 · 4 = 12 выполнений тела</td></tr>
+          <tr><td><code>10 &lt;= n &lt;= 99</code></td><td>двойное неравенство</td><td>n = 57 → True</td></tr>
+          <tr><td>if внутри if</td><td>второй вопрос задаётся, только если программа вошла в ветку</td><td>логин верный → проверить пароль</td></tr>
         </table>
       </div>
-      <p class="remember"><b>Три частые ошибки:</b> забытое двоеточие после <code>if</code>, <code>for</code>, <code>while</code>; <code>=</code> вместо <code>==</code> в условии; <code>range(1, n)</code> там, где нужно до n включительно, — <code>range(1, n + 1)</code>.</p>
+      <p class="remember"><b>Три частые ошибки:</b> забытое двоеточие после <code>if</code>, <code>elif</code>, <code>else</code>; <code>=</code> вместо <code>==</code> в условии; условия <code>elif</code> в неверном порядке.</p>
       <h3 class="th-h">Ошибки и почему они возникают</h3>
       <p class="small-note">Кнопка «Показать» открывает программу с ошибкой в редакторе ниже. Запусти её, прочитай сообщение и исправь.</p>
       <div class="tablewrap"><table class="th-ex err-table"><tr><th>Ошибка</th><th>Что значит</th><th>Почему возникает</th><th>Пример</th><th>Как исправить</th></tr>
-<tr><td class="ecode">SyntaxError</td><td>ошибка записи</td><td>Нет двоеточия после <code>if</code>, <code>else</code>, <code>for</code>, <code>while</code>; в условии <code>=</code> вместо <code>==</code>.</td><td><button type="button" class="showex" data-err="0">Показать</button></td><td>Поставь двоеточие; сравнение — <code>==</code>.</td></tr>
-<tr><td class="ecode">IndentationError</td><td>ошибка отступа</td><td>Команды ветки или тела цикла без отступа, или отступы разной ширины.</td><td><button type="button" class="showex" data-err="1">Показать</button></td><td>Сдвинь команды ветки на 4 пробела.</td></tr>
-<tr><td class="ecode">TypeError</td><td>неподходящий тип</td><td>Сравнивают текст с числом: забыли <code>int()</code> при вводе.</td><td><button type="button" class="showex" data-err="2">Показать</button></td><td><code>x = int(input())</code>.</td></tr>
-<tr><td class="ecode">Бесконечный цикл</td><td>программа не заканчивается</td><td>В цикле <code>while</code> не меняется переменная из условия.</td><td><button type="button" class="showex" data-err="3">Показать</button></td><td>Измени переменную в теле цикла: <code>i = i + 1</code>.</td></tr>
-<tr><td class="ecode">Логическая ошибка</td><td>программа работает, но ответ неверный</td><td>Счётчик обнуляется внутри цикла; <code>range(1, n)</code> вместо <code>range(1, n + 1)</code>; условия <code>elif</code> в неверном порядке.</td><td><button type="button" class="showex" data-err="4">Показать</button></td><td>Выполни программу по шагам и сравни с тем, что задумано.</td></tr>
-<tr><td class="ecode">Логическая ошибка</td><td>все строки узора слиплись в одну</td><td>Во вложенном цикле забыли пустой <code>print()</code> после внутреннего цикла.</td><td><button type="button" class="showex" data-err="5">Показать</button></td><td>Добавь <code>print()</code> с отступом внешнего цикла.</td></tr>
+<tr><td class="ecode">SyntaxError</td><td>ошибка записи</td><td>Нет двоеточия после <code>if</code>, <code>elif</code>, <code>else</code>.</td><td><button type="button" class="showex" data-err="0">Показать</button></td><td>Поставь двоеточие в конце строки.</td></tr>
+<tr><td class="ecode">SyntaxError</td><td>ошибка записи</td><td>В условии <code>=</code> вместо <code>==</code>.</td><td><button type="button" class="showex" data-err="1">Показать</button></td><td>Сравнение — два знака: <code>==</code>.</td></tr>
+<tr><td class="ecode">IndentationError</td><td>ошибка отступа</td><td>Команды ветки без отступа или <code>else</code> сдвинут не так, как его <code>if</code>.</td><td><button type="button" class="showex" data-err="2">Показать</button></td><td>Команды ветки — 4 пробела; <code>else</code> — под своим <code>if</code>.</td></tr>
+<tr><td class="ecode">TypeError</td><td>неподходящий тип</td><td>Сравнивают текст с числом: забыли <code>int()</code> при вводе.</td><td><button type="button" class="showex" data-err="3">Показать</button></td><td><code>x = int(input())</code>.</td></tr>
+<tr><td class="ecode">Логическая ошибка</td><td>программа работает, но ответ неверный</td><td>Условия <code>elif</code> в неверном порядке: первым стоит самое слабое.</td><td><button type="button" class="showex" data-err="4">Показать</button></td><td>Начинай с самого строгого условия.</td></tr>
+<tr><td class="ecode">Логическая ошибка</td><td>условие верно почти всегда</td><td><code>or</code> вместо <code>and</code>: «от 10 до 99» записали как <code>n &gt;= 10 or n &lt;= 99</code>.</td><td><button type="button" class="showex" data-err="5">Показать</button></td><td>Когда нужны оба условия — <code>and</code>.</td></tr>
 </table></div>
       <div class="tryed"><span class="trylab">Песочница</span><div class="pyed" data-ed="all"></div></div>
     </section>
 
     <div class="next">
       <button class="btn" type="button" id="mPrev">← Ветвление</button>
-      <button class="btn main" type="button" id="mNext">Дальше: while →</button>
+      <button class="btn main" type="button" id="mNext">Дальше: and, or, not →</button>
     </div>
   </div>
 
   <!-- Этап 7: что подходит -->
   <div class="panel" id="match" role="tabpanel" aria-labelledby="tab-match" hidden>
     <div>
-      <h1>Что подходит: ветвление или цикл?</h1>
-      <p class="lead">Прочитай ситуацию и выбери конструкцию. Подсказка: «если» — <b>if</b>, «если…, иначе…» — <b>if–else</b>, вариантов больше двух — <b>elif</b>, «n раз» — <b>for</b>, «пока» — <b>while</b>, «строки и столбцы» — <b>вложенный for</b>.</p>
+      <h1>Какое ветвление подходит?</h1>
+      <p class="lead">Прочитай ситуацию и выбери конструкцию. Подсказка: «если» — <b>if</b>, «если…, иначе…» — <b>if–else</b>, вариантов больше двух — <b>if–elif–else</b>, «сначала проверить одно, потом другое» — <b>вложенный if</b>, «и» — <b>and</b>, «или» — <b>or</b>, «не» — <b>not</b>.</p>
     </div>
     <section class="block">
       <div class="progress"><div class="pbar"><i id="mtBar"></i></div><span class="pnum" id="mtNum"></span></div>
@@ -967,7 +864,7 @@ globalThis._createPyodideModule = _createPyodideModule;
       <button class="btn" type="button" id="mtRetry">Пройти ещё раз</button>
     </section>
     <div class="next">
-      <button class="btn" type="button" data-go="methods">← Циклы</button>
+      <button class="btn" type="button" data-go="methods">← Вложенный if</button>
       <button class="btn" type="button" id="breakBtn2">Физминутка · 1 мин</button>
       <button class="btn main" type="button" data-go="practice">Дальше: практика →</button>
     </div>
@@ -1012,7 +909,7 @@ globalThis._createPyodideModule = _createPyodideModule;
       <h2>Задачи 4–10</h2>
       <p class="plain">У каждой задачи — условие, формат входных и выходных данных и примеры. Нажми «Отправить»: программа пройдёт все тесты, а ты получишь вердикт. Если тест не пройден, увидишь входные данные, правильный ответ и вывод своей программы.</p>
       <p class="plain"><b>Как в задачах читают несколько чисел из одной строки.</b></p>
-      <pre class="code-view">n = int(input())                    # одно число в строке
+      <pre class="code-view">x = int(input())                     # одно число в строке
 a, b, c = map(int, input().split())  # три числа в строке через пробел
 print(a, b, c)                       # вывести через пробел</pre>
       <p class="small-note"><code>input().split()</code> разрезает строку по пробелам, <code>map(int, …)</code> превращает каждую часть в число. Количество переменных слева должно совпадать с количеством чисел в строке.</p>
@@ -1027,7 +924,7 @@ print(a, b, c)                       # вывести через пробел</p
   <div class="panel" id="test" role="tabpanel" aria-labelledby="tab-test" hidden>
     <div>
       <h1>Тест: впиши пропущенное</h1>
-      <p class="lead">В каждой программе пропущено слово, знак или число. Впиши его и нажми «Проверить» или Enter. Переменные <code>x</code>, <code>n</code>, <code>d</code> и <code>m</code> уже заданы.</p>
+      <p class="lead">В каждой программе пропущено слово, знак или число. Впиши его и нажми «Проверить» или Enter. Переменные <code>x</code>, <code>n</code>, <code>d</code> и <code>age</code> уже заданы.</p>
     </div>
     <section class="block">
       <div class="progress"><div class="pbar"><i id="tsBar"></i></div><span class="pnum" id="tsNum"></span></div>
@@ -1076,15 +973,15 @@ print(a, b, c)                       # вывести через пробел</p
 
     <section class="block">
       <h2>Где мне это пригодится</h2>
-      <label for="refUse" class="q">Приведи один пример из жизни: где программе нужно выбрать действие (if) или повторить его (цикл)?</label>
+      <label for="refUse" class="q">Приведи один пример из жизни: где программе нужно выбрать действие в зависимости от условия?</label>
       <p class="small" id="useReq" hidden>В начале урока ты хотел понять, где это пригодится. Если сможешь привести пример — значит, ожидание сбылось.</p>
-      <textarea id="refUse" rows="2" placeholder="Например: светофор — if выбирает цвет, а цикл while повторяет смену цветов, пока светофор включён"></textarea>
+      <textarea id="refUse" rows="2" placeholder="Например: светофор — если горит красный, стоять, иначе — идти"></textarea>
     </section>
 
     <section class="block">
       <h2>Мой комментарий</h2>
       <label for="refNote" class="q">Что получилось лучше всего? Что было трудно?</label>
-      <textarea id="refNote" rows="3" placeholder="Например: легко было с if–else, трудно понять, сколько раз выполняется вложенный цикл…"></textarea>
+      <textarea id="refNote" rows="3" placeholder="Например: легко было с if–else, трудно запомнить, к какому if относится else…"></textarea>
       <div class="exp-actions">
         <button class="btn main" type="button" id="refSave">Сохранить итог</button>
         <span class="msg" id="refMsg" aria-live="polite"></span>
@@ -1128,7 +1025,7 @@ print(a, b, c)                       # вывести через пробел</p
 <div class="overlay" id="login" hidden>
   <div class="lg-card" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
     <p class="eyebrow">Информатика · 8 класс</p>
-    <h2 class="lg-title" id="lgTitle">Ветвления и циклы</h2>
+    <h2 class="lg-title" id="lgTitle">Условный оператор if</h2>
     <div id="loginBody"></div>
   </div>
 </div>
@@ -1144,7 +1041,7 @@ print(a, b, c)                       # вывести через пробел</p
 <button type="button" class="btn theory-fab" id="thBtn" hidden>Теория</button>
 <div class="overlay" id="thOv" hidden>
   <div class="lg-card th-card" role="dialog" aria-modal="true" aria-labelledby="thTitle">
-    <div class="th-top"><p class="eyebrow" id="thTitle">Теория · ветвления и циклы</p><button type="button" class="btn" id="thClose">Закрыть</button></div>
+    <div class="th-top"><p class="eyebrow" id="thTitle">Теория · условный оператор if</p><button type="button" class="btn" id="thClose">Закрыть</button></div>
     <div id="thBody"></div>
   </div>
 </div>
@@ -1182,7 +1079,7 @@ window.__rosterCheck = function (cls, name, normClass) {
 <script>
 (function () {
   document.documentElement.lang = "ru";
-  document.title = "Ветвления и циклы · 8 класс";
+  document.title = "Условный оператор if · 8 класс";
   var root = document.getElementById("lang-root");
   root.parentNode.replaceChild(document.getElementById("t-ru").content.cloneNode(true), root);
   L_ru();
@@ -1456,78 +1353,79 @@ function edMount(box, o) {
 function startLesson() {
 
 /* Тема в двух строках листа; буквы открываются ответами на программы робота */
-const ROWS = ["ВЕТВЛЕНИЯ", "И ЦИКЛЫ"];
-/* opts: [вариант, буква, пояснение для неверного варианта] — верный вариант в ans */
+const ROWS = ["УСЛОВИЕ", "И ВЕТВЛЕНИЕ"];
 const TASKS = [
   { n: 1, code: `x = 7
 if x > 5:
-    print("В")
+    print("У")
 else:
-    print("Б")`, ans: "В",
-    opts: [["Б", "Б", "7 > 5 — верно, поэтому выполняется ветка if, а не else."], ["В", "В"], ["В Б", "Ж", "Из двух веток if и else выполняется только одна."], ["ничего", "Щ", "Условие верно, значит, print внутри if выполнится."]] },
+    print("Б")`, ans: "У",
+    opts: [["Б", "Б", "7 > 5 — верно, поэтому выполняется ветка if, а не else."], ["У", "У"], ["У Б", "Ж", "Из двух веток if и else выполняется только одна."], ["ничего", "Щ", "Условие верно, значит, print внутри if выполнится."]] },
   { n: 2, code: `n = 10
 if n % 2 == 0:  # остаток от деления на 2
-    print("Е")
+    print("С")
 else:
-    print("Э")`, ans: "Е",
-    opts: [["Э", "Э", "10 % 2 = 0: десять делится на 2 без остатка, условие верно."], ["0", "Ф", "print выводит букву в кавычках, а не остаток."], ["Е", "Е"], ["ошибка", "Ш", "% — остаток от деления, такая запись верна."]] },
+    print("Э")`, ans: "С",
+    opts: [["Э", "Э", "10 % 2 = 0: десять делится на 2 без остатка, условие верно."], ["0", "Ф", "print выводит букву в кавычках, а не остаток."], ["С", "С"], ["ошибка", "Ш", "% — остаток от деления, такая запись верна."]] },
   { n: 3, code: `t = 15
 if t > 25:
     print("Ж")
 elif t > 10:  # иначе если
-    print("Т")
+    print("Л")
 else:
-    print("Х")`, ans: "Т",
-    opts: [["Ж", "Ж", "15 > 25 — неверно, первая ветка пропущена."], ["Т", "Т"], ["Х", "Х", "else выполняется, только если все условия неверны, а 15 > 10 — верно."], ["Т Х", "Ч", "Выполняется только одна ветка — первая, где условие верно."]] },
+    print("Х")`, ans: "Л",
+    opts: [["Ж", "Ж", "15 > 25 — неверно, первая ветка пропущена."], ["Л", "Л"], ["Х", "Х", "else выполняется, только если все условия неверны, а 15 > 10 — верно."], ["Л Х", "Ч", "Выполняется только одна ветка — первая, где условие верно."]] },
   { n: 4, code: `a = 4
 b = 9
 if a > 0:
     if b > 10:
         print("М")
     else:
-        print("Л")`, ans: "Л",
-    opts: [["М", "М", "Внешнее условие верно, а внутреннее 9 > 10 — нет: выполнится внутренний else."], ["ничего", "Ъ", "a > 0 — верно, программа заходит внутрь и проверяет второе условие."], ["М Л", "Ю", "Из двух веток вложенного if выполняется одна."], ["Л", "Л"]] },
+        print("О")`, ans: "О",
+    opts: [["М", "М", "Внешнее условие верно, а внутреннее 9 > 10 — нет: выполнится внутренний else."], ["ничего", "Ъ", "a > 0 — верно, программа заходит внутрь и проверяет второе условие."], ["М О", "Ю", "Из двух веток вложенного if выполняется одна."], ["О", "О"]] },
   { n: 5, code: `x = 12
 if x > 10 and x % 2 == 1:  # оба условия
     print("Р")
 else:
-    print("Н")`, ans: "Н",
-    opts: [["Р", "Р", "and требует, чтобы были верны оба условия, а 12 — чётное: 12 % 2 = 0."], ["Н", "Н"], ["Р Н", "Щ", "Выполняется одна ветка: либо if, либо else."], ["ошибка", "Ш", "Условия, соединённые and, записаны верно."]] },
-  { n: 6, code: `for i in range(3):  # повторить 3 раза
-    print("И", end="")`, ans: "ИИИ",
-    opts: [["ИИ", "Б", "range(3) — три значения: 0, 1, 2. Значит, три повторения."], ["ИИИ", "И"], ["ИИИИ", "Ж", "Конец range не входит: 3 повторения, а не 4."], ["И", "Ф", "Тело цикла выполняется для каждого значения i."]] },
-  { n: 7, code: `s = 0
-for i in range(1, 5):
-    s = s + i
-print(s)`, ans: "10",
-    opts: [["15", "Ю", "range(1, 5) — числа 1, 2, 3, 4; пятёрка не входит."], ["4", "Ъ", "s накапливает сумму значений i, а не количество повторений."], ["10", "Я"], ["6", "Щ", "Не забудь последнее число: 1 + 2 + 3 + 4."]] },
-  { n: 8, code: `n = 1
-while n < 20:  # пока n меньше 20
-    n = n * 3
-print(n)`, ans: "27",
-    opts: [["9", "Ч", "При n = 9 условие 9 < 20 ещё верно — цикл делает ещё один шаг."], ["20", "Ш", "n умножается на 3: 1, 3, 9, 27. Ровно 20 не получится."], ["81", "Щ", "При n = 27 условие 27 < 20 неверно — цикл остановился."], ["27", "Ц"]] },
-  { n: 9, code: `for i in range(1, 10):
-    if i % 4 == 0:
-        break  # выйти из цикла
-    print(i, end=" ")`, ans: "1 2 3",
-    opts: [["1 2 3", "К"], ["1 2 3 4", "Х", "break срабатывает раньше print: четвёрка не выводится."], ["4", "Ж", "До break цикл успел вывести 1, 2, 3."], ["1 2 3 5 6 7 9", "Ф", "break не пропускает шаг, а завершает весь цикл. Пропускает шаг continue."]] },
-  { n: 10, code: `k = 0
-for i in range(3):
-    for j in range(4):
-        k = k + 1
-print(k)`, ans: "12",
-    opts: [["7", "Ь", "3 + 4 — так было бы, если бы циклы шли друг за другом. Здесь внутренний цикл выполняется целиком для каждого i: 3 · 4."], ["4", "Э", "Внутренний цикл выполняется заново для каждого из трёх значений i."], ["3", "Ю", "k увеличивается во внутреннем цикле — 4 раза на каждом шаге внешнего."], ["12", "Ы"]] }
+    print("В")`, ans: "В",
+    opts: [["Р", "Р", "and требует, чтобы были верны оба условия, а 12 — чётное: 12 % 2 = 0."], ["В", "В"], ["Р В", "Щ", "Выполняется одна ветка: либо if, либо else."], ["ошибка", "Ш", "Условия, соединённые and, записаны верно."]] },
+  { n: 6, code: `d = 3
+if d == 6 or d == 7:  # хотя бы одно
+    print("Ж")
+else:
+    print("И")`, ans: "И",
+    opts: [["Ж", "Ж", "3 не равно ни 6, ни 7: оба условия неверны, поэтому or даёт False."], ["Ж И", "Щ", "Выполняется одна ветка: либо if, либо else."], ["И", "И"], ["ошибка", "Ш", "Условия, соединённые or, записаны верно."]] },
+  { n: 7, code: `a = 2
+if a > 5:
+    print("Ф")
+print("Е")`, ans: "Е",
+    opts: [["Ф Е", "Ю", "2 > 5 — неверно: ветка пропущена. А print без отступа выполнится всегда."], ["Е", "Е"], ["Ф", "Ф", "2 > 5 — неверно, поэтому «Ф» не выводится."], ["ничего", "Ъ", "Последний print без отступа — он не входит в ветку и выполняется всегда."]] },
+  { n: 8, code: `x = 0
+if not x > 0:  # not — наоборот
+    print("Т")
+else:
+    print("Ч")`, ans: "Т",
+    opts: [["Ч", "Ч", "x > 0 — неверно, а not превращает «неверно» в «верно»."], ["Т", "Т"], ["ошибка", "Ш", "not можно ставить перед условием."], ["ничего", "Ъ", "Одна из двух веток выполнится обязательно."]] },
+  { n: 9, code: `t = -2
+if t > 0:
+    print("Р")
+else:
+    if t == 0:
+        print("Ж")
+    else:
+        print("Н")`, ans: "Н",
+    opts: [["Р", "Р", "−2 > 0 — неверно, программа идёт во внешний else."], ["Ж", "Ж", "−2 не равно 0: выполняется внутренний else."], ["Н", "Н"], ["ничего", "Ъ", "Во внешнем else стоит вложенный if — одна из его веток выполнится."]] }
 ];
 TASKS.forEach(t => { const o = t.opts.find(x => x[0] === t.ans); t.letter = o[1]; });
 /* буква может открываться группой («УН»): каждая буква листа знает своё задание */
 const BY_LETTER = {}; TASKS.forEach(t => [...t.letter].forEach(ch => { BY_LETTER[ch] = t; }));
 const ANSWER = ROWS.join("").replace(/ /g, "");
 const COLS = "ABCDEFGHIJKLMN";
-const KEY = "topic-vc";
+const KEY = "topic-if";
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem(NS + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} if (window.__onStore) window.__onStore(k); if (k === "practice-vc" && typeof prGate === "function") setTimeout(prGate, 0); },
+  set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} if (window.__onStore) window.__onStore(k); if (k === "practice-if" && typeof prGate === "function") setTimeout(prGate, 0); },
   del(k) { try { localStorage.removeItem(NS + k); } catch (e) {} if (window.__onStore) window.__onStore(k); }
 };
 
@@ -1643,7 +1541,7 @@ function unlock() {
 
 const PANELS = ["review", "puzzle", "goal", "actual", "learn", "methods", "match", "practice", "project", "test", "reflect", "hw"];
 /* Практическая работа — только после всех заданий уровней A, B, C */
-function prLeft() { try { const pr = store.get("practice-vc", {}) || {}; return TASKS_PR.filter(t => ["A", "B", "C"].includes(t.lv) && !(pr[t.id] && (pr[t.id].ok || pr[t.id].ever))).map(t => t.id); } catch (e) { return ["…"]; } }
+function prLeft() { try { const pr = store.get("practice-if", {}) || {}; return TASKS_PR.filter(t => ["A", "B", "C"].includes(t.lv) && !(pr[t.id] && (pr[t.id].ok || pr[t.id].ever))).map(t => t.id); } catch (e) { return ["…"]; } }
 setTimeout(() => { try { prGate(); } catch (e) {} }, 0);
 function prGate() {
   const left = prLeft(), tab = document.getElementById("tab-project");
@@ -1669,11 +1567,11 @@ function guardBox() {
 function guardHide() { const b = document.getElementById("guardBox"); if (b) b.remove(); }
 function guardLog(kind, n) { if (window.__onAttempt) window.__onAttempt(GT.stage, kind, n ? n + " / " + GUARD_MAX : "", false, ""); }
 function guardLock() {
-  const n = store.get("viol-vc", 0), b = guardBox();
+  const n = store.get("viol-if", 0), b = guardBox();
   b.innerHTML = "<div style='max-width:560px'><p style='font-size:22px;margin:0 0 14px'></p><input type='password' inputmode='numeric' style='font-size:20px;padding:8px;width:160px;border-radius:8px;border:0'> <button type='button' style='font-size:18px;padding:8px 16px;border-radius:8px;border:0;cursor:pointer'></button><p class='gerr' style='min-height:1.5em'></p></div>";
   b.querySelector("p").textContent = GT.lock.replace("{n}", n); const inp = b.querySelector("input"); inp.placeholder = GT.pin;
   const btn = b.querySelector("button"); btn.textContent = GT.open;
-  const go = () => { if (guardHash(inp.value.trim()) === GUARD_PIN) { store.set("viol-vc", GUARD_MAX - 1); guardLog(GT.unlock, 0); guardHide(); guardFs(); } else b.querySelector(".gerr").textContent = GT.bad; };
+  const go = () => { if (guardHash(inp.value.trim()) === GUARD_PIN) { store.set("viol-if", GUARD_MAX - 1); guardLog(GT.unlock, 0); guardHide(); guardFs(); } else b.querySelector(".gerr").textContent = GT.bad; };
   btn.onclick = go; inp.onkeydown = e => { if (e.key === "Enter") go(); }; inp.focus();
 }
 function guardWarn(n, kind) {
@@ -1685,14 +1583,14 @@ function guardWarn(n, kind) {
 function guardViolation(kind) {
   if (!guardOn || Date.now() < guardPause || document.getElementById("guardBox")) return;
   guardPause = Date.now() + 1500;
-  const n = store.get("viol-vc", 0) + 1; store.set("viol-vc", n); guardLog(kind, n);
+  const n = store.get("viol-if", 0) + 1; store.set("viol-if", n); guardLog(kind, n);
   if (n >= GUARD_MAX) guardLock(); else guardWarn(n, kind);
 }
 function guardStage(id) {
   guardOn = GUARD_STAGES.includes(id);
   if (!guardOn) { guardHide(); return; }
   guardPause = Date.now() + 1500; guardFs();
-  if (store.get("viol-vc", 0) >= GUARD_MAX) guardLock();
+  if (store.get("viol-if", 0) >= GUARD_MAX) guardLock();
 }
 document.addEventListener("visibilitychange", () => { if (document.hidden) guardViolation(GT.tab); });
 window.addEventListener("blur", () => setTimeout(() => { if (!document.hidden && !document.hasFocus()) guardViolation(GT.win); }, 400));
@@ -1743,7 +1641,7 @@ document.getElementById("fsBtn").addEventListener("click", () => {
 });
 
 /* Ожидания ученика: пока хранятся только в его браузере */
-const EXP_KEY = "expect-vc";
+const EXP_KEY = "expect-if";
 const expText = document.getElementById("expText");
 function showExp(text) {
   // этапы 4–11 открыты, только когда тема разгадана и ожидания записаны
@@ -1757,9 +1655,9 @@ function showExp(text) {
 }
 
 /* Карточки нового материала: 0–4 — список, 5–9 — методы; каждая панель листается своими кнопками */
-const CARD_NAMES = ["if", "if–else", "elif", "вложенный if", "and, or, not", "for и range", "while", "счётчик, сумма, break", "вложенные циклы", "шпаргалка и ошибки"];
-const CARD_SETS = { learn: [0, 1, 2, 3, 4], methods: [5, 6, 7, 8, 9] };
-const LEARN_LAST = 4, METHODS_FIRST = 5, METHODS_LAST = 9;
+const CARD_NAMES = ["if", "if–else", "elif", "вложенный if", "and, or, not", "шпаргалка и ошибки"];
+const CARD_SETS = { learn: [0, 1, 2], methods: [3, 4, 5] };
+const LEARN_LAST = 2, METHODS_FIRST = 3, METHODS_LAST = 5;
 const cardCur = { learn: 0, methods: METHODS_FIRST };
 function showCard(i) {
   const panel = i <= LEARN_LAST ? "learn" : "methods", set = CARD_SETS[panel], first = set[0], last = set[set.length - 1];
@@ -1768,7 +1666,7 @@ function showCard(i) {
   document.querySelectorAll(`#${panel} .fpill`).forEach(p => p.setAttribute("aria-selected", +p.dataset.f === i));
   const pv = document.getElementById(panel === "learn" ? "lPrev" : "mPrev"), nx = document.getElementById(panel === "learn" ? "lNext" : "mNext");
   pv.textContent = i === first ? (panel === "learn" ? "← Вспомним" : "← Ветвление") : "← Назад";
-  nx.textContent = i === last ? (panel === "learn" ? "Дальше: циклы →" : "Дальше: что подходит? →") : "Дальше: " + CARD_NAMES[i + 1] + " →";
+  nx.textContent = i === last ? (panel === "learn" ? "Дальше: вложенный if →" : "Дальше: что подходит? →") : "Дальше: " + CARD_NAMES[i + 1] + " →";
 }
 document.querySelectorAll(".fpill").forEach(p => p.addEventListener("click", () => showCard(+p.dataset.f)));
 const toTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1911,234 +1809,48 @@ const EX = {
    "note": "Каждое условие пишут полностью: x > 0 and x < 10.",
    "err": "SyntaxError: invalid syntax"
   }
- ],
- "for": [
-  {
-   "code": "for i in range(5):\n    print(\"Привет\")",
-   "note": "Тело цикла выполнилось 5 раз.",
-   "out": "Привет\nПривет\nПривет\nПривет\nПривет"
-  },
-  {
-   "code": "for i in range(1, 6):\n    print(i, i * i)",
-   "note": "i принимает значения от 1 до 5: число и его квадрат.",
-   "out": "1 1\n2 4\n3 9\n4 16\n5 25"
-  },
-  {
-   "code": "for i in range(1, 11):\n    print(\"7 ×\", i, \"=\", 7 * i)",
-   "note": "Таблица умножения на 7 — одна строка программы вместо десяти.",
-   "out": "7 × 1 = 7\n7 × 2 = 14\n7 × 3 = 21\n7 × 4 = 28\n7 × 5 = 35\n7 × 6 = 42\n7 × 7 = 49\n7 × 8 = 56\n7 × 9 = 63\n7 × 10 = 70"
-  },
-  {
-   "code": "for i in range(10, 0, -2):\n    print(i, end=\" \")",
-   "note": "Третье число в range — шаг. Отрицательный шаг — счёт вниз; 0 не входит.",
-   "out": "10 8 6 4 2"
-  },
-  {
-   "code": "n = int(input())\nfor i in range(1, n + 1):\n    print(i, end=\" \")",
-   "inputs": [
-    "4"
-   ],
-   "note": "Ввели 4. До n включительно — range(1, n + 1).",
-   "out": "4\n1 2 3 4"
-  }
- ],
- "while": [
-  {
-   "code": "i = 1\nwhile i <= 5:\n    print(i)\n    i = i + 1",
-   "note": "Без строки i = i + 1 цикл не закончится никогда.",
-   "out": "1\n2\n3\n4\n5"
-  },
-  {
-   "code": "s = 0\nx = int(input())\nwhile x != 0:\n    s = s + x\n    x = int(input())\nprint(\"Сумма:\", s)",
-   "inputs": [
-    "4",
-    "7",
-    "2",
-    "0"
-   ],
-   "note": "Ввели 4, 7, 2 и 0. Ноль — признак конца ввода, в сумму не входит.",
-   "out": "4\n7\n2\n0\nСумма: 13"
-  },
-  {
-   "code": "s = 100000\nyears = 0\nwhile s < 150000:\n    s = s * 1.1\n    years = years + 1\nprint(years)",
-   "note": "Вклад растёт на 10 % в год. Сколько лет понадобится, заранее неизвестно, — поэтому while.",
-   "out": "5"
-  },
-  {
-   "code": "n = 2024\nk = 0\nwhile n > 0:\n    n = n // 10\n    k = k + 1\nprint(k)",
-   "note": "Сколько цифр в числе: каждый шаг отбрасывает последнюю цифру — 2024, 202, 20, 2, 0.",
-   "out": "4"
-  },
-  {
-   "code": "i = 10\nwhile i < 5:\n    print(i)\nprint(\"готово\")",
-   "note": "Условие неверно с самого начала — тело цикла не выполнилось ни разу.",
-   "out": "готово"
-  }
- ],
- "acc": [
-  {
-   "code": "k = 0\nfor i in range(5):\n    m = int(input())\n    if m == 5:\n        k = k + 1\nprint(\"Пятёрок:\", k)",
-   "inputs": [
-    "5",
-    "4",
-    "5",
-    "3",
-    "5"
-   ],
-   "note": "Счётчик: ввели 5, 4, 5, 3, 5 — пятёрок три.",
-   "out": "5\n4\n5\n3\n5\nПятёрок: 3"
-  },
-  {
-   "code": "s = 0\nfor i in range(1, 101):\n    s = s + i\nprint(s)",
-   "note": "Сумма чисел от 1 до 100.",
-   "out": "5050"
-  },
-  {
-   "code": "mx = int(input())\nfor i in range(4):\n    x = int(input())\n    if x > mx:\n        mx = x\nprint(\"Максимум:\", mx)",
-   "inputs": [
-    "3",
-    "9",
-    "2",
-    "9",
-    "5"
-   ],
-   "note": "Наибольшее из пяти чисел: первое — кандидат, каждое следующее сравниваем с ним.",
-   "out": "3\n9\n2\n9\n5\nМаксимум: 9"
-  },
-  {
-   "code": "for x in range(1, 100):\n    if x * x > 50:\n        break\nprint(x)",
-   "note": "Цикл остановился на первом x, у которого квадрат больше 50.",
-   "out": "8"
-  },
-  {
-   "code": "for i in range(1, 8):\n    if i % 3 == 0:\n        continue\n    print(i, end=\" \")",
-   "note": "continue пропустил числа, кратные трём: 3 и 6.",
-   "out": "1 2 4 5 7"
-  }
- ],
- "nested": [
-  {
-   "code": "for i in range(3):\n    for j in range(5):\n        print(\"*\", end=\"\")\n    print()",
-   "note": "Прямоугольник 3 × 5: внешний цикл — строки, внутренний — звёздочки в строке, print() — перенос строки.",
-   "out": "*****\n*****\n*****"
-  },
-  {
-   "code": "for i in range(1, 4):\n    for j in range(1, 5):\n        print(i * j, end=\" \")\n    print()",
-   "note": "Таблица умножения: 3 строки по 4 числа.",
-   "out": "1 2 3 4\n2 4 6 8\n3 6 9 12"
-  },
-  {
-   "code": "for i in range(1, 5):\n    for j in range(i):\n        print(\"*\", end=\"\")\n    print()",
-   "note": "Внутренний цикл зависит от i: в строке i — i звёздочек.",
-   "out": "*\n**\n***\n****"
-  },
-  {
-   "code": "for i in range(1, 4):\n    for j in range(i + 1, 4):\n        print(i, \"–\", j)",
-   "note": "Матчи «каждый с каждым» для трёх команд: j начинается с i + 1, поэтому пары не повторяются.",
-   "out": "1 – 2\n1 – 3\n2 – 3"
-  },
-  {
-   "code": "k = 0\nfor i in range(4):\n    for j in range(6):\n        k = k + 1\nprint(k)",
-   "note": "Тело внутреннего цикла выполнилось 4 · 6 = 24 раза.",
-   "out": "24"
-  },
-  {
-   "code": "for i in range(4):\n    for j in range(4):\n        if (i + j) % 2 == 0:\n            print(\"#\", end=\"\")\n        else:\n            print(\".\", end=\"\")\n    print()",
-   "note": "Шахматная доска: вложенные циклы и ветвление внутри.",
-   "out": "#.#.\n.#.#\n#.#.\n.#.#"
-  }
  ]
 };
-/* Начальный код редакторов «Попробуй сам» */
 const ED_START = {
-  if: `t = int(input())
-if t < 0:
-    print("Мороз")
-print("Конец")`,
-  else: `n = int(input())
-if n % 2 == 0:
-    print("чётное")
-else:
-    print("нечётное")`,
-  elif: `b = int(input())
-if b >= 85:
-    print(5)
-elif b >= 70:
-    print(4)
-elif b >= 50:
-    print(3)
-else:
-    print(2)`,
-  nest: `age = int(input())
-if age >= 7:
-    if age < 18:
-        print("Школьный билет")
-    else:
-        print("Взрослый билет")
-else:
-    print("Бесплатно")`,
-  logic: `n = int(input())
-if 10 <= n <= 99 and n % 2 == 0:
-    print("чётное двузначное")
-else:
-    print("не подходит")`,
-  for: `for i in range(1, 6):
-    print(i, "× 3 =", i * 3)`,
-  while: `n = int(input())
-k = 0
-while n > 0:
-    n = n // 10
-    k = k + 1
-print("Цифр:", k)`,
-  acc: `n = int(input())
-s = 0
-for i in range(n):
-    x = int(input())
-    if x > 0:
-        s = s + x
-print("Сумма положительных:", s)`,
-  nested: `n = 4
-for i in range(1, n + 1):
-    for j in range(1, n + 1):
-        print(i * j, end=" ")
-    print()`,
-  all: `n = int(input())
-for i in range(n):
-    for j in range(n):
-        if i == j:
-            print("#", end="")
-        else:
-            print(".", end="")
-    print()`
+ "if": "t = int(input())\nif t < 0:\n    print(\"Мороз\")\nprint(\"Конец\")",
+ "else": "n = int(input())\nif n % 2 == 0:\n    print(\"чётное\")\nelse:\n    print(\"нечётное\")",
+ "elif": "b = int(input())\nif b >= 85:\n    print(5)\nelif b >= 70:\n    print(4)\nelif b >= 50:\n    print(3)\nelse:\n    print(2)",
+ "nest": "age = int(input())\nif age >= 7:\n    if age < 18:\n        print(\"Школьный билет\")\n    else:\n        print(\"Взрослый билет\")\nelse:\n    print(\"Бесплатно\")",
+ "logic": "n = int(input())\nif 10 <= n <= 99 and n % 2 == 0:\n    print(\"чётное двузначное\")\nelse:\n    print(\"не подходит\")",
+ "all": "x = int(input())\nif x > 0:\n    if x % 2 == 0:\n        print(\"положительное чётное\")\n    else:\n        print(\"положительное нечётное\")\nelif x < 0:\n    print(\"отрицательное\")\nelse:\n    print(\"ноль\")"
 };
-const ED_INPUTS = { if: ["-3"], else: ["10"], elif: ["77"], nest: ["14"], logic: ["42"], while: ["2025"], acc: ["4", "5", "-2", "3", "-7"], all: ["5"] };
-/* Программы с ошибками для кнопок «Показать» в шпаргалке */
+const ED_INPUTS = {"if": ["-3"], "else": ["10"], "elif": ["77"], "nest": ["14"], "logic": ["42"], "all": ["8"]};
 const ERR_EX = [
-  { code: `x = int(input())
-if x == 5
-    print("пять")`, inputs: ["5"] },
-  { code: `x = 3
-if x > 0:
-print("плюс")` },
-  { code: `x = input()
-if x > 10:
-    print("больше 10")`, inputs: ["25"] },
-  { code: `i = 1
-s = 0
-while i <= 5:
-    s = s + i
-print(s)` },
-  { code: `# считаем пятёрки среди четырёх оценок
-for i in range(4):
-    k = 0
-    m = int(input())
-    if m == 5:
-        k = k + 1
-print("Пятёрок:", k)`, inputs: ["5", "5", "5", "4"] },
-  { code: `# хотим прямоугольник 3 × 4
-for i in range(3):
-    for j in range(4):
-        print("*", end="")` }
+ {
+  "code": "x = int(input())\nif x == 5\n    print(\"пять\")",
+  "inputs": [
+   "5"
+  ]
+ },
+ {
+  "code": "x = int(input())\nif x = 5:\n    print(\"пять\")",
+  "inputs": [
+   "5"
+  ]
+ },
+ {
+  "code": "x = 3\nif x > 0:\nprint(\"плюс\")"
+ },
+ {
+  "code": "x = input()\nif x > 10:\n    print(\"больше 10\")",
+  "inputs": [
+   "25"
+  ]
+ },
+ {
+  "code": "b = 90\nif b >= 50:\n    print(3)\nelif b >= 70:\n    print(4)\nelif b >= 85:\n    print(5)"
+ },
+ {
+  "code": "# двузначное ли число?\nn = int(input())\nif n >= 10 or n <= 99:\n    print(\"двузначное\")\nelse:\n    print(\"не двузначное\")",
+  "inputs": [
+   "150"
+  ]
+ }
 ];
 const EDS = {};
 document.querySelectorAll(".pyed[data-ed]").forEach(el => {
@@ -2219,13 +1931,13 @@ async function codeCheck(t, code) {
 }
 
 /* Практика: разминка и задания трёх уровней */
-const PR_KEY = "practice-vc";
+const PR_KEY = "practice-if";
 const KIND = { predict: "Что выведет программа?", fill: "Допиши", fix: "Найди ошибку", write: "Напиши программу" };
 const LEVELS_PR = {
-  "0": { name: "0 · Условие", desc: "Условный оператор if: предскажи результат и допиши простое ветвление." },
-  A: { name: "A · Базовый", desc: "if–else, elif и цикл for с range: предскажи результат, допиши и напиши программу." },
-  B: { name: "B · Средний", desc: "Вложенный if, операция and, цикл while, счётчик в цикле и поиск ошибок." },
-  C: { name: "C · Высокий", desc: "Вложенные циклы: узоры, таблицы и перебор пар." }
+  "0": { name: "0 · Условие", desc: "Неполное ветвление: предскажи результат и допиши простое условие." },
+  A: { name: "A · Базовый", desc: "Полное ветвление if–else и выбор из нескольких вариантов if–elif–else." },
+  B: { name: "B · Средний", desc: "Вложенный if, операции and и or, поиск ошибок в условиях." },
+  C: { name: "C · Высокий", desc: "Программы с несколькими уровнями ветвления и сложными условиями." }
 };
 const TASKS_PR = [
   { id: "Z1", lv: "0", kind: "predict", fn: "if", q: "Что выведет программа?",
@@ -2276,14 +1988,20 @@ else:
     print("нечётное")`, must: ["if", "else"], cmp: "loose",
     tests: [{ inputs: ["14"] }, { inputs: ["7"] }, { inputs: ["0"] }, { inputs: ["-3"] }],
     hint: "if n % 2 == 0: … else: … — else пишут под if, без условия, с двоеточием." },
-  { id: "A3", lv: "A", kind: "write", fn: "for, range", q: "Введи целое <code>n</code> (n ≥ 1). Выведи квадраты чисел от 1 до n, каждый с новой строки.",
-    start: `n = int(input())
+  { id: "A3", lv: "A", kind: "write", fn: "if–elif–else", q: "Вводится оценка <code>m</code> (от 2 до 5). Выведи словами: 5 — <code>отлично</code>, 4 — <code>хорошо</code>, 3 — <code>удовлетворительно</code>, 2 — <code>неудовлетворительно</code>.", cmp: "loose",
+    start: `m = int(input())
 `,
-    ref: `n = int(input())
-for i in range(1, n + 1):
-    print(i * i)`, must: ["for"],
-    tests: [{ inputs: ["4"] }, { inputs: ["1"] }, { inputs: ["6"] }],
-    hint: "for i in range(1, n + 1): print(i * i). Конец range не входит, поэтому n + 1." },
+    ref: `m = int(input())
+if m == 5:
+    print("отлично")
+elif m == 4:
+    print("хорошо")
+elif m == 3:
+    print("удовлетворительно")
+else:
+    print("неудовлетворительно")`, must: ["elif"],
+    tests: [{ inputs: ["5"] }, { inputs: ["4"] }, { inputs: ["3"] }, { inputs: ["2"] }],
+    hint: "Четыре варианта: if m == 5, elif m == 4, elif m == 3, else." },
 
   { id: "B1", lv: "B", kind: "predict", fn: "вложенный if", q: "Что выведет программа?",
     code: `x = 15
@@ -2309,75 +2027,88 @@ else:
     print("не подходит")`, cmp: "loose",
     tests: [{ inputs: ["5"] }, { inputs: ["50"] }, { inputs: ["100"] }, { inputs: ["10"] }, { inputs: ["99"] }, { inputs: ["-20"] }],
     hint: "Число должно быть и не меньше 10, и не больше 99 — нужны оба условия сразу. Какая логическая операция значит «и»?" },
-  { id: "B3", lv: "B", kind: "write", fn: "while", q: "Вводятся целые числа, по одному в строке. Последнее число — 0, это признак конца ввода. Выведи сумму всех введённых чисел.",
-    start: `s = 0
-x = int(input())
+  { id: "B3", lv: "B", kind: "write", fn: "вложенный if", q: "Решаем уравнение <code>a · x = b</code>. Вводятся a и b, каждое с новой строки. Если a ≠ 0, выведи корень <code>b / a</code>. Если a = 0, то при b = 0 выведи <code>любое число</code>, иначе — <code>нет корней</code>.", cmp: "loose",
+    start: `a = int(input())
+b = int(input())
 `,
-    ref: `s = 0
-x = int(input())
-while x != 0:
-    s = s + x
-    x = int(input())
-print(s)`, must: ["while"],
-    tests: [{ inputs: ["5", "3", "-2", "0"] }, { inputs: ["0"] }, { inputs: ["10", "20", "30", "40", "0"] }],
-    hint: "while x != 0: прибавь x к s и прочитай следующее число. После цикла, без отступа, — print(s)." },
-  { id: "B4", lv: "B", kind: "predict", fn: "while", q: "Что выведет программа? Выполни цикл по шагам и записывай n и k.",
-    code: `n = 1234
-k = 0
-while n > 0:
-    n = n // 10
-    k = k + 1
-print(k)`, ans: "4",
-    traps: { "3": "Посчитай шаги: 1234 → 123 → 12 → 1 → 0. Шагов четыре.", "1234": "Выводится k — количество шагов, а не n.", "0": "Выводится k, а не n. n в конце действительно 0." },
-    hint: "n // 10 отбрасывает последнюю цифру. Сколько раз нужно отбросить цифру, чтобы получился 0?" },
-  { id: "B5", lv: "B", kind: "fix", fn: "счётчик", q: "Программа должна посчитать, сколько из n введённых оценок — пятёрки. Но она выводит только 0 или 1. Найди и исправь ошибку.",
-    start: `n = int(input())
-for i in range(n):
-    k = 0
-    m = int(input())
-    if m == 5:
-        k = k + 1
-print(k)`,
-    ref: `n = int(input())
-k = 0
-for i in range(n):
-    m = int(input())
-    if m == 5:
-        k = k + 1
-print(k)`, must: ["for", "if"],
-    tests: [{ inputs: ["4", "5", "3", "5", "5"] }, { inputs: ["3", "2", "3", "4"] }, { inputs: ["5", "5", "5", "5", "5", "5"] }],
-    hint: "Где обнуляется счётчик k? Если внутри цикла — счёт начинается заново на каждом шаге." },
+    ref: `a = int(input())
+b = int(input())
+if a != 0:
+    print(b / a)
+else:
+    if b == 0:
+        print("любое число")
+    else:
+        print("нет корней")`, must: ["if"],
+    tests: [{ inputs: ["2", "5"] }, { inputs: ["0", "0"] }, { inputs: ["0", "3"] }, { inputs: ["-4", "8"] }],
+    hint: "Внешний вопрос: a != 0? В ветке else — второй вопрос: b == 0?" },
+  { id: "B4", lv: "B", kind: "write", fn: "or", q: "Вводится номер месяца <code>m</code> (от 1 до 12). Выведи время года: <code>зима</code> (12, 1, 2), <code>весна</code> (3–5), <code>лето</code> (6–8) или <code>осень</code> (9–11).", cmp: "loose",
+    start: `m = int(input())
+`,
+    ref: `m = int(input())
+if m == 12 or m <= 2:
+    print("зима")
+elif m <= 5:
+    print("весна")
+elif m <= 8:
+    print("лето")
+else:
+    print("осень")`,
+    tests: [{ inputs: ["12"] }, { inputs: ["1"] }, { inputs: ["4"] }, { inputs: ["7"] }, { inputs: ["10"] }, { inputs: ["2"] }, { inputs: ["5"] }],
+    hint: "Зима — это m == 12 или m <= 2: два условия через or. Остальные времена года — через elif." },
 
-  { id: "C1", lv: "C", kind: "predict", fn: "вложенные циклы", q: "Что выведет программа? Каждую строку вывода пиши с новой строки (Shift+Enter).",
-    code: `for i in range(1, 4):
-    for j in range(i):
-        print("*", end="")
-    print()`, ans: "*\n**\n***",
-    traps: { "*** *** ***": "Внутренний цикл зависит от i: range(i) — сначала 1 звёздочка, потом 2, потом 3.", "******": "print() без аргументов переносит строку после каждого шага внешнего цикла.", "* ** *** ****": "i принимает значения 1, 2, 3: четвёрка в range(1, 4) не входит." },
-    hint: "i = 1: внутренний цикл — 1 раз; i = 2: 2 раза; i = 3: 3 раза. После каждой строки — перенос." },
-  { id: "C2", lv: "C", kind: "write", fn: "таблица умножения", q: "Введи <code>n</code>. Выведи таблицу умножения n × n: в строке i — произведения i · 1, i · 2, …, i · n через пробел.",
-    start: `n = int(input())
+  { id: "C1", lv: "C", kind: "predict", fn: "вложенный if, or", q: "Что выведет программа?",
+    code: `a = 5
+b = 8
+if a > b:
+    print(a - b)
+else:
+    if a % 2 == 0 or b % 2 == 0:
+        print(a + b)
+    else:
+        print(a * b)`, ans: "13",
+    traps: { "40": "b = 8 — чётное, значит, условие с or верно: выполнится a + b.", "-3": "5 > 8 — неверно, поэтому выполняется внешний else.", "3": "5 > 8 — неверно, поэтому выполняется внешний else." },
+    hint: "5 > 8? Нет → внешний else. 5 чётное или 8 чётное? Для or хватит одного." },
+  { id: "C2", lv: "C", kind: "write", fn: "треугольник", q: "Вводятся длины трёх отрезков a, b, c, каждая с новой строки. Если из них нельзя составить треугольник (какой-то отрезок не меньше суммы двух других), выведи <code>нет</code>. Иначе выведи вид треугольника: <code>равносторонний</code>, <code>равнобедренный</code> или <code>разносторонний</code>.", cmp: "loose",
+    start: `a = int(input())
+b = int(input())
+c = int(input())
 `,
-    ref: `n = int(input())
-for i in range(1, n + 1):
-    for j in range(1, n + 1):
-        print(i * j, end=" ")
-    print()`, must: ["nested-for"],
-    tests: [{ inputs: ["3"] }, { inputs: ["1"] }, { inputs: ["5"] }],
-    hint: "Внешний цикл по i от 1 до n, внутри — цикл по j от 1 до n: print(i * j, end=\" \"). После внутреннего цикла — print()." },
-  { id: "C3", lv: "C", kind: "write", fn: "все пары", q: "В турнире n команд с номерами от 1 до n, каждая играет с каждой один раз. Выведи все матчи — пары номеров <code>i j</code>, где i &lt; j, каждую с новой строки. Последней строкой выведи количество матчей.",
-    start: `n = int(input())
-k = 0
-`,
-    ref: `n = int(input())
-k = 0
-for i in range(1, n + 1):
-    for j in range(i + 1, n + 1):
-        print(i, j)
-        k = k + 1
-print(k)`, must: ["nested-for"],
-    tests: [{ inputs: ["3"] }, { inputs: ["4"] }, { inputs: ["2"] }],
-    hint: "Внутренний цикл начинай с i + 1: for j in range(i + 1, n + 1). Тогда пары не повторяются. Считай матчи счётчиком k." }
+    ref: `a = int(input())
+b = int(input())
+c = int(input())
+if a >= b + c or b >= a + c or c >= a + b:
+    print("нет")
+else:
+    if a == b and b == c:
+        print("равносторонний")
+    elif a == b or b == c or a == c:
+        print("равнобедренный")
+    else:
+        print("разносторонний")`, must: ["if"],
+    tests: [{ inputs: ["3", "4", "5"] }, { inputs: ["2", "2", "2"] }, { inputs: ["5", "5", "8"] }, { inputs: ["1", "2", "3"] }, { inputs: ["10", "3", "4"] }, { inputs: ["4", "7", "7"] }],
+    hint: "Сначала проверь, существует ли треугольник (три условия через or). Если да — внутри: все стороны равны (and), две равны (or) или ни одной." },
+  { id: "C3", lv: "C", kind: "fix", fn: "порядок elif", q: "Программа ставит оценку по баллам: 85–100 — 5, 70–84 — 4, 50–69 — 3, меньше 50 — 2. Но за 90 баллов она ставит 3. Найди и исправь ошибку.",
+    start: `b = int(input())
+if b >= 50:
+    print(3)
+elif b >= 70:
+    print(4)
+elif b >= 85:
+    print(5)
+else:
+    print(2)`,
+    ref: `b = int(input())
+if b >= 85:
+    print(5)
+elif b >= 70:
+    print(4)
+elif b >= 50:
+    print(3)
+else:
+    print(2)`, must: ["elif"],
+    tests: [{ inputs: ["90"] }, { inputs: ["75"] }, { inputs: ["60"] }, { inputs: ["30"] }, { inputs: ["85"] }],
+    hint: "Условия проверяются сверху вниз. При 90 баллах уже первое условие b >= 50 верно. С какого условия нужно начинать?" }
 ];
 const TASKS_Z = TASKS_PR.filter(t => t.lv === "0");
 
@@ -2428,7 +2159,7 @@ function prShowLevel(lv) {
   const order = Object.keys(LEVELS_PR), nx = order[order.indexOf(lv) + 1];
   const btn = document.getElementById("lvNext");
   btn.hidden = !nx; if (nx) { btn.dataset.lv = nx; btn.textContent = `Перейти на уровень ${LEVELS_PR[nx].name} →`; }
-  store.set("practice-lv-vc", lv);
+  store.set("practice-lv-if", lv);
   prLocks();
 }
 
@@ -2550,76 +2281,82 @@ function prBuild() {
   cards.forEach(c => c.mount());
   document.querySelectorAll(".lv").forEach(b => b.addEventListener("click", () => prShowLevel(b.dataset.lv)));
   document.getElementById("lvNext").addEventListener("click", e => { prShowLevel(e.currentTarget.dataset.lv); document.getElementById("practice").scrollIntoView({ behavior: "smooth" }); });
-  const want = store.get("practice-lv-vc", "0"), first = prAll().find(t => t.lv === want);
+  const want = store.get("practice-lv-if", "0"), first = prAll().find(t => t.lv === want);
   const cur = prAll().find(t => prUnlocked(t.id) && !(prLoad()[t.id] || {}).ever) || prAll()[prAll().length - 1];
   prShowLevel(first && prUnlocked(first.id) ? want : cur.lv);
   prRender();
 }
 
 /* Практическая работа: три проекта, каждый — программа целиком */
-const PJ_KEY = "project-vc";
+const PJ_KEY = "project-if";
 const TASKS_PJ = [
-  { id: "P1", lv: "", kind: "write", lvName: "Проект 1", fn: "Оценки за тест", cmp: "nums",
-    q: "Сначала вводится n — количество учеников, потом n результатов теста в баллах (от 0 до 100), по одному в строке. Программа выставляет оценки.",
-    plan: ["В цикле <code>for</code> прочитай баллы каждого ученика.", "Для каждого выведи оценку: 85–100 — <code>5</code>, 70–84 — <code>4</code>, 50–69 — <code>3</code>, меньше 50 — <code>2</code>. Используй <code>if – elif – else</code>.", "Посчитай счётчиком, сколько учеников получили 5.", "После цикла выведи количество пятёрок."],
-    start: `n = int(input())
-k5 = 0
+  { id: "P1", lv: "", kind: "write", lvName: "Проект 1", fn: "Калькулятор", cmp: "loose",
+    q: "Вводятся два целых числа и знак операции (<code>+</code>, <code>-</code>, <code>*</code> или <code>/</code>), каждое с новой строки. Программа выводит результат.",
+    plan: ["Прочитай числа <code>a</code>, <code>b</code> и знак <code>op</code> (знак — текст, без int).", "Для каждого знака — своя ветка: <code>if op == \"+\"</code>, <code>elif op == \"-\"</code> и так далее.", "При делении сначала проверь делитель: если <code>b == 0</code>, выведи <code>делить на ноль нельзя</code>.", "Если знак другой, выведи <code>неизвестная операция</code>."],
+    start: `a = int(input())
+b = int(input())
+op = input()
 `,
-    ref: `n = int(input())
-k5 = 0
-for i in range(n):
-    b = int(input())
-    if b >= 85:
-        print(5)
-        k5 = k5 + 1
-    elif b >= 70:
-        print(4)
-    elif b >= 50:
-        print(3)
+    ref: `a = int(input())
+b = int(input())
+op = input()
+if op == "+":
+    print(a + b)
+elif op == "-":
+    print(a - b)
+elif op == "*":
+    print(a * b)
+elif op == "/":
+    if b == 0:
+        print("делить на ноль нельзя")
     else:
-        print(2)
-print("Пятёрок:", k5)`,
-    must: ["for", "elif"],
-    tests: [{ inputs: ["4", "90", "72", "50", "10"] }, { inputs: ["3", "85", "84", "49"] }, { inputs: ["2", "100", "100"] }],
-    hint: "Подписи к числам можно писать свои: проверяются числа и их порядок — оценки учеников и в конце количество пятёрок." },
-  { id: "P2", lv: "", kind: "write", lvName: "Проект 2", fn: "Угадай число", cmp: "loose",
-    q: "Первая строка — число, которое загадал ведущий. Дальше вводятся попытки игрока, по одной в строке, пока он не угадает. Программа подсказывает игроку.",
-    plan: ["Прочитай загаданное число и первую попытку.", "Пока попытка не равна загаданному числу (<code>while</code>): если попытка меньше — выведи <code>больше</code>, иначе — <code>меньше</code>. Затем прочитай следующую попытку.", "Считай попытки счётчиком.", "Когда число угадано, выведи <code>угадал</code>, а на следующей строке — <code>попыток: k</code>."],
-    start: `secret = int(input())
-x = int(input())
-k = 1
+        print(a / b)
+else:
+    print("неизвестная операция")`,
+    must: ["elif"],
+    tests: [{ inputs: ["6", "3", "+"] }, { inputs: ["7", "2", "/"] }, { inputs: ["5", "0", "/"] }, { inputs: ["4", "5", "^"] }, { inputs: ["2", "3", "*"] }, { inputs: ["2", "8", "-"] }],
+    hint: "Деление 7 / 2 даёт 3.5 — так и выводи. Проверка b == 0 — вложенный if внутри ветки деления." },
+  { id: "P2", lv: "", kind: "write", lvName: "Проект 2", fn: "Билет в кино", cmp: "nums",
+    q: "Вводятся возраст зрителя и час начала сеанса (от 0 до 23). Программа выводит цену билета.",
+    plan: ["Детям до 7 лет билет бесплатный: <code>0</code>.", "Иначе смотрим на время: вечерний сеанс (с 17 часов) стоит <code>2500</code>.", "Дневной сеанс (до 17 часов) стоит <code>1500</code>, а школьникам от 7 до 17 лет — <code>1000</code>.", "Используй вложенный if: сначала возраст, потом время, потом снова возраст."],
+    start: `age = int(input())
+h = int(input())
 `,
-    ref: `secret = int(input())
-x = int(input())
-k = 1
-while x != secret:
-    if x < secret:
-        print("больше")
+    ref: `age = int(input())
+h = int(input())
+if age < 7:
+    print(0)
+else:
+    if h >= 17:
+        print(2500)
     else:
-        print("меньше")
-    x = int(input())
-    k = k + 1
-print("угадал")
-print("попыток:", k)`,
-    must: ["while"],
-    tests: [{ inputs: ["37", "50", "25", "37"] }, { inputs: ["8", "8"] }, { inputs: ["60", "10", "90", "70", "65", "60"] }],
-    hint: "«больше» значит «загаданное число больше твоей попытки». Первая попытка уже прочитана, поэтому k = 1." },
-  { id: "P3", lv: "", kind: "write", lvName: "Проект 3", fn: "Шахматная доска",
-    q: "Введи n. Нарисуй шахматную доску n × n из символов <code>#</code> и <code>.</code>: клетка в строке i и столбце j (счёт с нуля) — <code>#</code>, если i + j чётное, иначе <code>.</code>. Символы в строке — без пробелов.",
-    plan: ["Внешний цикл — строки: <code>for i in range(n)</code>.", "Внутренний цикл — клетки строки: <code>for j in range(n)</code>.", "Внутри — ветвление: если <code>(i + j) % 2 == 0</code>, выведи <code>#</code>, иначе <code>.</code>. Пиши <code>end=\"\"</code>, чтобы символы стояли в одной строке.", "После внутреннего цикла — <code>print()</code>: перенос строки."],
-    start: `n = int(input())
-`,
-    ref: `n = int(input())
-for i in range(n):
-    for j in range(n):
-        if (i + j) % 2 == 0:
-            print("#", end="")
+        if age <= 17:
+            print(1000)
         else:
-            print(".", end="")
-    print()`,
-    must: ["nested-for", "if"],
-    tests: [{ inputs: ["4"] }, { inputs: ["1"] }, { inputs: ["5"] }],
-    hint: "Если строки слиплись в одну — не хватает print() после внутреннего цикла, с отступом внешнего." }
+            print(1500)`,
+    must: ["nested-if"],
+    tests: [{ inputs: ["5", "20"] }, { inputs: ["12", "10"] }, { inputs: ["12", "19"] }, { inputs: ["30", "12"] }, { inputs: ["17", "16"] }, { inputs: ["18", "17"] }],
+    hint: "Возраст 17 — ещё школьник, час 17 — уже вечер." },
+  { id: "P3", lv: "", kind: "write", lvName: "Проект 3", fn: "Дни в месяце", cmp: "nums",
+    q: "Вводятся номер месяца (от 1 до 12) и год, каждый с новой строки. Программа выводит, сколько дней в этом месяце.",
+    plan: ["В апреле, июне, сентябре и ноябре — 30 дней: четыре условия через <code>or</code>.", "В феврале 28 дней, а в високосный год — 29.", "Год високосный, если делится на 4, но не на 100, или делится на 400.", "В остальных месяцах — 31 день."],
+    start: `m = int(input())
+y = int(input())
+`,
+    ref: `m = int(input())
+y = int(input())
+if m == 2:
+    if y % 4 == 0 and y % 100 != 0 or y % 400 == 0:
+        print(29)
+    else:
+        print(28)
+elif m == 4 or m == 6 or m == 9 or m == 11:
+    print(30)
+else:
+    print(31)`,
+    must: ["or"],
+    tests: [{ inputs: ["2", "2024"] }, { inputs: ["2", "1900"] }, { inputs: ["4", "2023"] }, { inputs: ["12", "2023"] }, { inputs: ["2", "2000"] }, { inputs: ["2", "2023"] }],
+    hint: "2000 — високосный (делится на 400), 1900 — нет (делится на 100, но не на 400)." }
 ];
 TASKS_PJ.forEach((t, i) => { t.no = i + 1; });
 function pjRender() {
@@ -2631,7 +2368,7 @@ function pjRender() {
 function pjShow(id) {
   document.querySelectorAll("#pjList .task-card").forEach(c => { c.hidden = false; });
   document.querySelectorAll("#pjPills .ex-pill").forEach(p => p.setAttribute("aria-selected", p.dataset.p === id));
-  store.set("project-cur-vc", id);
+  store.set("project-cur-if", id);
 }
 (function pjBuild() {
   document.getElementById("pjPills").innerHTML = TASKS_PJ.map(t => `<button type="button" class="ex-pill" role="tab" data-p="${t.id}" aria-selected="false">${t.lvName} · ${t.fn}</button>`).join("");
@@ -2639,14 +2376,14 @@ function pjShow(id) {
   document.getElementById("pjList").innerHTML = cards.map(c => c.html).join("");
   cards.forEach(c => c.mount());
   document.querySelectorAll("#pjPills .ex-pill").forEach(p => p.addEventListener("click", () => pjShow(p.dataset.p)));
-  pjShow(store.get("project-cur-vc", "P1"));
+  pjShow(store.get("project-cur-if", "P1"));
   pjRender();
 })();
 
 
 /* Олимпиадные задачи в стиле Codeforces: условие, формат ввода и вывода, примеры, скрытые тесты и вердикт.
    Ответ сверяется по словам (лишние пробелы и переводы строк не важны). Тесты: примеры, крайние случаи и случайные. */
-const OL_KEY = "olymp-vc";
+const OL_KEY = "olymp-if";
 function olRnd(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const olInt = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
 const olArr = (r, n, lo, hi) => Array.from({ length: n }, () => olInt(r, lo, hi));
@@ -2681,46 +2418,46 @@ const TASKS_OL = [
     start: "a, b, c = map(int, input().split())\n",
     ref: "a, b, c = map(int, input().split())\nm = a\nif b > m:\n    m = b\nif c > m:\n    m = c\nprint(m)",
     hint: "Пусть m = a — кандидат. Если b больше m, то m = b. Так же с c." },
-  { id: "D", stars: 2, name: "Сумма цифр",
-    text: "Найди сумму цифр натурального числа n.",
-    inp: "Одно целое число n (1 ≤ n ≤ 10<sup>9</sup>).",
-    out: "Выведи одно число — сумму цифр числа n.",
-    samples: [["2024", "8"], ["7", "7"]],
-    hidden: ["1000000000", "999999999", "10", "505"],
-    gen: r => String(olInt(r, 1, 1000000000)),
-    start: "n = int(input())\n",
-    ref: "n = int(input())\ns = 0\nwhile n > 0:\n    s = s + n % 10\n    n = n // 10\nprint(s)",
-    hint: "n % 10 — последняя цифра, n // 10 — число без последней цифры. Повторяй, пока n > 0." },
-  { id: "E", stars: 2, name: "Делители",
-    text: "Выпиши все делители натурального числа n в порядке возрастания.",
-    inp: "Одно целое число n (1 ≤ n ≤ 10 000).",
-    out: "Выведи все делители n через пробел в порядке возрастания.",
-    samples: [["12", "1 2 3 4 6 12"], ["1", "1"]],
-    hidden: ["13", "10000", "36", "2"],
-    gen: r => String(olInt(r, 1, 10000)),
-    start: "n = int(input())\n",
-    ref: "n = int(input())\nfor d in range(1, n + 1):\n    if n % d == 0:\n        print(d, end=\" \")",
-    hint: "Перебери d от 1 до n включительно; если n % d == 0, выведи d с end=\" \"." },
-  { id: "F", stars: 2, name: "Простое число",
-    text: "Число называется простым, если у него ровно два делителя: 1 и само число. Определи, простое ли число n.",
-    inp: "Одно целое число n (2 ≤ n ≤ 10 000).",
-    out: "Выведи <code>YES</code>, если число простое, и <code>NO</code>, если нет.",
-    samples: [["7", "YES"], ["9", "NO"]],
-    hidden: ["2", "9973", "10000", "4", "25"],
-    gen: r => String(olInt(r, 2, 10000)),
-    start: "n = int(input())\n",
-    ref: "n = int(input())\nprime = True\nfor d in range(2, n):\n    if n % d == 0:\n        prime = False\n        break\nif prime:\n    print(\"YES\")\nelse:\n    print(\"NO\")",
-    hint: "Ищи делитель от 2 до n − 1. Нашёл — число не простое, дальше искать не нужно: break." },
-  { id: "G", stars: 3, name: "Треугольник из чисел",
-    text: "Выведи треугольник из n строк: в первой строке одно число, во второй — два, в третьей — три и так далее. Числа идут подряд, начиная с 1.",
-    inp: "Одно целое число n (1 ≤ n ≤ 15).",
-    out: "Выведи n строк треугольника; числа в строке — через пробел.",
-    samples: [["3", "1\n2 3\n4 5 6"], ["1", "1"]],
-    hidden: ["5", "15", "2"],
-    gen: r => String(olInt(r, 1, 15)),
-    start: "n = int(input())\n",
-    ref: "n = int(input())\nx = 1\nfor i in range(1, n + 1):\n    for j in range(i):\n        print(x, end=\" \")\n        x = x + 1\n    print()",
-    hint: "Внешний цикл — строки, внутренний — i чисел в строке. Отдельная переменная x хранит следующее число и растёт на 1 после каждого вывода." }
+  { id: "D", stars: 2, name: "По росту",
+    text: "Три ученика встают в ряд по росту — от самого низкого к самому высокому. Выведи их рост в этом порядке.",
+    inp: "Одна строка — три целых числа a, b, c через пробел (100 ≤ a, b, c ≤ 220).",
+    out: "Выведи три числа через пробел в порядке неубывания.",
+    samples: [["162 150 158", "150 158 162"], ["170 170 165", "165 170 170"]],
+    hidden: ["101 102 103", "203 202 201", "180 180 180", "150 220 100"],
+    gen: r => [olInt(r, 100, 220), olInt(r, 100, 220), olInt(r, 100, 220)].join(" "),
+    start: "a, b, c = map(int, input().split())\n",
+    ref: "a, b, c = map(int, input().split())\nif a > b:\n    a, b = b, a\nif b > c:\n    b, c = c, b\nif a > b:\n    a, b = b, a\nprint(a, b, c)",
+    hint: "Если a > b — поменяй их местами: a, b = b, a. Три таких сравнения расставят числа по порядку." },
+  { id: "E", stars: 2, name: "Ход ферзя",
+    text: "На шахматной доске стоит ферзь. Он ходит по горизонтали, по вертикали и по диагонали на любое число клеток. Может ли он одним ходом попасть из клетки (x1, y1) в клетку (x2, y2)?",
+    inp: "Одна строка — четыре целых числа x1, y1, x2, y2 (от 1 до 8). Клетки разные.",
+    out: "Выведи <code>YES</code> или <code>NO</code>.",
+    samples: [["1 1 8 8", "YES"], ["2 3 4 4", "NO"]],
+    hidden: ["4 4 4 1", "4 4 7 4", "1 8 8 1", "1 1 2 3", "5 5 3 7"],
+    gen: r => { let a = [olInt(r, 1, 8), olInt(r, 1, 8), olInt(r, 1, 8), olInt(r, 1, 8)]; if (a[0] === a[2] && a[1] === a[3]) a[2] = a[2] % 8 + 1; return a.join(" "); },
+    start: "x1, y1, x2, y2 = map(int, input().split())\n",
+    ref: "x1, y1, x2, y2 = map(int, input().split())\nif x1 == x2 or y1 == y2 or abs(x1 - x2) == abs(y1 - y2):\n    print(\"YES\")\nelse:\n    print(\"NO\")",
+    hint: "Та же вертикаль, та же горизонталь или одна диагональ: разница по x равна разнице по y (abs — модуль числа)." },
+  { id: "F", stars: 2, name: "Координатная четверть",
+    text: "Точка (x, y) не лежит на осях координат. Определи, в какой координатной четверти она находится.",
+    inp: "Одна строка — два целых числа x и y, не равные нулю (−1000 ≤ x, y ≤ 1000).",
+    out: "Выведи номер четверти: 1, 2, 3 или 4.",
+    samples: [["3 5", "1"], ["-2 -7", "3"]],
+    hidden: ["-1 1", "1 -1", "1000 1000", "-1000 -1"],
+    gen: r => { const nz = () => { let v = olInt(r, -1000, 1000); return v === 0 ? 1 : v; }; return nz() + " " + nz(); },
+    start: "x, y = map(int, input().split())\n",
+    ref: "x, y = map(int, input().split())\nif x > 0:\n    if y > 0:\n        print(1)\n    else:\n        print(4)\nelse:\n    if y > 0:\n        print(2)\n    else:\n        print(3)",
+    hint: "Сначала знак x, потом внутри — знак y. Четверти идут против часовой стрелки: 1 — справа сверху, 2 — слева сверху." },
+  { id: "G", stars: 3, name: "Общий отрезок",
+    text: "На прямой даны два отрезка [a; b] и [c; d]. Найди длину их общей части. Если общей части нет, ответ 0.",
+    inp: "Одна строка — четыре целых числа a, b, c, d (−1000 ≤ a ≤ b ≤ 1000, −1000 ≤ c ≤ d ≤ 1000).",
+    out: "Выведи одно число — длину общей части отрезков.",
+    samples: [["1 5 3 8", "2"], ["1 2 4 6", "0"]],
+    hidden: ["0 10 2 3", "2 3 0 10", "1 4 4 9", "-5 -1 -3 7", "5 5 5 5"],
+    gen: r => { const p = () => { const x = olInt(r, -100, 100), y = olInt(r, -100, 100); return x <= y ? [x, y] : [y, x]; }; return p().concat(p()).join(" "); },
+    start: "a, b, c, d = map(int, input().split())\n",
+    ref: "a, b, c, d = map(int, input().split())\nleft = a\nif c > left:\n    left = c\nright = b\nif d < right:\n    right = d\nif right > left:\n    print(right - left)\nelse:\n    print(0)",
+    hint: "Общая часть начинается в большем из левых концов и заканчивается в меньшем из правых. Если начало не левее конца — общей части нет." }
 ];
 const OL_EXTRA = [];
 (function () {
@@ -2764,7 +2501,7 @@ function olRender() {
 function olShow(id) {
   document.querySelectorAll("#olList .ol-card").forEach(c => { c.hidden = false; });
   document.querySelectorAll("#olPills .ex-pill").forEach(p => p.setAttribute("aria-selected", p.dataset.p === id));
-  store.set("olymp-cur-vc", id);
+  store.set("olymp-cur-if", id);
 }
 (function olBuild() {
   const esc = x => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -2814,12 +2551,12 @@ function olShow(id) {
     card.querySelector(".tc-reset").addEventListener("click", () => { ed.code = t.start; ed.inputs = olLines(t.samples[0][0]); ed.clearOut(); msg.textContent = ""; det.hidden = true; });
   });
   document.querySelectorAll("#olPills .ex-pill").forEach(p => p.addEventListener("click", () => olShow(p.dataset.p)));
-  olShow(store.get("olymp-cur-vc", "A"));
+  olShow(store.get("olymp-cur-if", "A"));
   olRender();
 })();
 
 /* Какой метод подходит: ситуации из жизни, у каждой свои варианты */
-const MT_KEY = "match-vc";
+const MT_KEY = "match-if";
 const MT_WHAT = {
   "if": "if выполняет действие, только когда условие верно; второй ветки у него нет.",
   "if–else": "if–else выбирает одну из двух веток.",
@@ -2828,27 +2565,21 @@ const MT_WHAT = {
   "else": "else — ветка «иначе» у if; сама по себе ничего не проверяет.",
   "and": "and верно, только когда верны оба условия.",
   "or": "or верно, когда верно хотя бы одно условие.",
-  "for": "for повторяет действия заранее известное число раз.",
-  "while": "while повторяет, пока условие верно; число повторов заранее неизвестно.",
-  "вложенный for": "вложенный for — цикл внутри цикла: для строк и столбцов, для всех пар.",
-  "break": "break сразу завершает цикл.",
-  "continue": "continue пропускает остаток шага и переходит к следующему шагу цикла."
+  "not": "not меняет значение условия на противоположное."
 };
 const MT_CASES = [
-  { q: "Если на улице ниже 0°, вывести «Надень шапку». Иначе ничего выводить не нужно.", opts: ["if", "if–else", "while", "for"], a: "if", why: "Действие нужно только при одном условии, второй ветки нет, — хватит if.", f: "if t < 0: print(\"Надень шапку\")" },
-  { q: "Для введённого числа вывести «чётное» или «нечётное».", opts: ["if–else", "if", "for", "break"], a: "if–else", why: "Два варианта, и один из них выполнится обязательно, — if–else.", f: "if n % 2 == 0: … else: …" },
-  { q: "По баллам за тест выставить оценку 5, 4, 3 или 2.", opts: ["if–elif–else", "if–else", "for", "while"], a: "if–elif–else", why: "Вариантов больше двух — elif.", f: "if b >= 85: … elif b >= 70: … elif b >= 50: … else: …" },
-  { q: "Если логин верный — проверить пароль. Если и пароль верный — впустить, иначе — «Неверный пароль».", opts: ["вложенный if", "if", "or", "for"], a: "вложенный if", why: "Второй вопрос задаём только после первого — это вложенный if.", f: "if login == \"admin\": if password == \"1234\": …" },
-  { q: "Музей бесплатный по субботам и воскресеньям: day — номер дня недели. Проверь, бесплатный ли сегодня день.", opts: ["or", "and", "while", "break"], a: "or", why: "Достаточно, чтобы выполнилось хотя бы одно условие, — or.", f: "if day == 6 or day == 7:" },
-  { q: "Число подходит, если оно больше 10 и меньше 100.", opts: ["and", "or", "if–elif–else", "continue"], a: "and", why: "Нужны оба условия сразу — and.", f: "if n > 10 and n < 100:" },
-  { q: "Вывести слово «Привет» 5 раз.", opts: ["for", "while", "if", "вложенный for"], a: "for", why: "Число повторений известно заранее — for с range(5).", f: "for i in range(5): print(\"Привет\")" },
-  { q: "Читать числа, пока пользователь не введёт 0.", opts: ["while", "for", "if–else", "вложенный for"], a: "while", why: "Сколько чисел введут, заранее неизвестно, — while.", f: "while x != 0:" },
-  { q: "Нарисовать прямоугольник из звёздочек: 4 строки по 6 звёздочек.", opts: ["вложенный for", "for", "while", "if"], a: "вложенный for", why: "Строки и звёздочки в строке — два уровня повторения: цикл в цикле.", f: "for i in range(4): for j in range(6): …" },
-  { q: "Перебирать введённые числа и остановиться на первом отрицательном.", opts: ["break", "continue", "else", "and"], a: "break", why: "Досрочно выйти из цикла — break.", f: "if x < 0: break" },
-  { q: "Сложить все введённые числа, кроме отрицательных: отрицательные просто пропустить.", opts: ["continue", "break", "while", "or"], a: "continue", why: "Пропустить шаг и идти дальше — continue.", f: "if x < 0: continue" },
-  { q: "Вывести таблицу умножения 9 × 9.", opts: ["вложенный for", "for", "if–elif–else", "while"], a: "вложенный for", why: "Строки и столбцы таблицы — вложенный цикл.", f: "for i in range(1, 10): for j in range(1, 10): …" },
-  { q: "Сколько лет нужно копить, чтобы сумма на вкладе превысила 1 000 000? Сколько это лет, заранее неизвестно.", opts: ["while", "for", "вложенный for", "if"], a: "while", why: "Повторяем, пока сумма меньше цели, — while.", f: "while s <= 1000000: s = s * 1.1" },
-  { q: "Цикл перебирает оценки. Что поставить внутри цикла, чтобы считать только пятёрки?", opts: ["if", "else", "break", "for"], a: "if", why: "Цикл перебирает, а if внутри решает, считать ли эту оценку.", f: "if m == 5: k = k + 1" }
+  { q: "Если на улице ниже 0°, вывести «Надень шапку». Иначе ничего выводить не нужно.", opts: ["if", "if–else", "if–elif–else", "or"], a: "if", why: "Действие нужно только при одном условии, второй ветки нет, — хватит if.", f: "if t < 0: print(\"Надень шапку\")" },
+  { q: "Для введённого числа вывести «чётное» или «нечётное».", opts: ["if–else", "if", "вложенный if", "not"], a: "if–else", why: "Два варианта, и один из них выполнится обязательно, — if–else.", f: "if n % 2 == 0: … else: …" },
+  { q: "По баллам за тест выставить оценку 5, 4, 3 или 2.", opts: ["if–elif–else", "if–else", "and", "if"], a: "if–elif–else", why: "Вариантов больше двух — elif.", f: "if b >= 85: … elif b >= 70: … elif b >= 50: … else: …" },
+  { q: "Если логин верный — проверить пароль. Если и пароль верный — впустить, иначе — «Неверный пароль».", opts: ["вложенный if", "if", "or", "if–elif–else"], a: "вложенный if", why: "Второй вопрос задаём только после первого — это вложенный if.", f: "if login == \"admin\": if password == \"1234\": …" },
+  { q: "Музей бесплатный по субботам и воскресеньям: day — номер дня недели. Проверь, бесплатный ли сегодня день.", opts: ["or", "and", "not", "else"], a: "or", why: "Достаточно, чтобы выполнилось хотя бы одно условие, — or.", f: "if day == 6 or day == 7:" },
+  { q: "Число подходит, если оно больше 10 и меньше 100.", opts: ["and", "or", "if–elif–else", "not"], a: "and", why: "Нужны оба условия сразу — and.", f: "if n > 10 and n < 100:" },
+  { q: "Вывести «Доброе утро», «Добрый день» или «Добрый вечер» по номеру часа.", opts: ["if–elif–else", "if–else", "вложенный if", "and"], a: "if–elif–else", why: "Три варианта, выбирается один — if–elif–else.", f: "if h < 12: … elif h < 18: … else: …" },
+  { q: "Вывести «есть сообщения», если переменная empty (нет сообщений) неверна. Используй логическую операцию «наоборот».", opts: ["not", "and", "or", "else"], a: "not", why: "«Наоборот» — not.", f: "if not empty: print(\"есть сообщения\")" },
+  { q: "Уравнение ax = b: если a ≠ 0 — один корень. Иначе нужно отдельно проверить, равно ли b нулю.", opts: ["вложенный if", "if–else", "and", "if"], a: "вложенный if", why: "Вопрос про b задаётся только в ветке «a = 0» — вложенный if.", f: "if a != 0: … else: if b == 0: …" },
+  { q: "Пропустить в кинозал, если зрителю есть 12 лет и у него есть билет.", opts: ["and", "or", "not", "вложенный if"], a: "and", why: "Нужны оба условия, и ветка одна — короче всего and.", f: "if age >= 12 and ticket:" },
+  { q: "Вывести «Внимание!», если температура выше 30° или ниже −20°.", opts: ["or", "and", "if–else", "not"], a: "or", why: "Опасно, если выполнено хотя бы одно из условий, — or.", f: "if t > 30 or t < -20:" },
+  { q: "Предупредить, если заряд батареи меньше 20 %. В остальных случаях ничего не выводить.", opts: ["if", "if–else", "if–elif–else", "вложенный if"], a: "if", why: "Ветка одна — неполное ветвление if.", f: "if charge < 20: print(\"Зарядите телефон\")" }
 ];
 const mtLabel = f => f;
 function mtLoad() { return store.get(MT_KEY, {}); }
@@ -2898,14 +2629,14 @@ function mtRender() {
   document.getElementById("mtFirst").textContent = ok ? `С первой попытки: ${first} из ${ok}` : "";
   const done = ok === n;
   document.getElementById("mtDone").hidden = !done;
-  if (done) document.getElementById("mtDoneText").textContent = first >= Math.ceil(n * 0.8) ? `Отлично! ${first} из ${n} с первой попытки. Ты хорошо различаешь ветвления и циклы — переходи к практике.`
+  if (done) document.getElementById("mtDoneText").textContent = first >= Math.ceil(n * 0.8) ? `Отлично! ${first} из ${n} с первой попытки. Ты хорошо различаешь виды ветвления — переходи к практике.`
     : first >= Math.ceil(n * 0.5) ? `${first} из ${n} с первой попытки. Хорошо. Перечитай пояснения там, где ошибся, и переходи к практике.`
-    : `${first} из ${n} с первой попытки. Вернись к карточкам «Ветвление» и «Циклы» и перечитай раздел «Простыми словами».`;
+    : `${first} из ${n} с первой попытки. Вернись к карточкам «Ветвление» и «Вложенный if» и перечитай раздел «Простыми словами».`;
 }
 document.getElementById("mtRetry").addEventListener("click", () => { store.set(MT_KEY, {}); mtBuild(); document.getElementById("match").scrollIntoView({ behavior: "smooth" }); });
 
 /* Актуализация знаний: ввод, вывод, деление, номера символов строки */
-const AC_KEY = "actual-vc";
+const AC_KEY = "actual-if";
 const AC_CASES = [
   { q: "Что выведет программа?", code: "print(17 % 5, 17 // 5)", opts: ["2 3", "3 2", "3.4 0", "2 3.4"], a: "2 3", why: "% — остаток от деления, // — целая часть: 17 = 5 · 3 + 2." },
   { q: "Что выведет программа?", code: "print(5 > 3)", opts: ["True", "False", "5 > 3", "1"], a: "True", why: "Сравнение даёт логическое значение: True — истина, False — ложь." },
@@ -2914,13 +2645,12 @@ const AC_CASES = [
   { q: "Ввели 9. Что выведет программа?", code: "x = int(input())\nprint(x + 1)", opts: ["10", "91", "9 1", "ошибку"], a: "10", why: "int() превратил текст «9» в число, поэтому 9 + 1 = 10." },
   { q: "Что выведет программа?", code: "print(10 != 10)", opts: ["False", "True", "10", "ошибку"], a: "False", why: "!= — «не равно». 10 равно 10, поэтому «не равно» — ложь." }
 ];
-/* Повторение: линейная программа */
-const RV_KEY = "review-vc";
+const RV_KEY = "review-if";
 const RV_CASES = [
   { q: "Что выведет программа?", code: "a = 5\nb = 2\nprint(a * b - 1)", opts: ["9", "5", "10", "8"], a: "9", why: "Сначала умножение: 5 · 2 = 10, потом вычитание: 10 − 1 = 9." },
   { q: "Что выведет программа?", code: "print(\"Итог:\", 3 + 4)", opts: ["Итог: 7", "Итог: 3 + 4", "Итог:7", "7"], a: "Итог: 7", why: "Выражение 3 + 4 сначала вычисляется, а значения в print разделяются пробелом." },
   { q: "Что выведет программа?", code: "x = 3\nx = x + 2\nx = x * 2\nprint(x)", opts: ["10", "8", "5", "6"], a: "10", why: "Команды выполняются по очереди: 3 → 5 → 10." },
-  { q: "Как называется алгоритм, в котором команды выполняются одна за другой, по порядку?", opts: ["линейный", "циклический", "разветвляющийся", "вложенный"], a: "линейный", why: "В линейном алгоритме нет ни развилок, ни повторов. Сегодня научимся добавлять их в программу." },
+  { q: "Как называется алгоритм, в котором команды выполняются одна за другой, по порядку?", opts: ["линейный", "циклический", "разветвляющийся", "вложенный"], a: "линейный", why: "В линейном алгоритме нет развилок. Сегодня научимся добавлять их в программу." },
   { q: "Что выведет программа?", code: "print(2 ** 3)", opts: ["8", "6", "9", "23"], a: "8", why: "** — возведение в степень: 2 · 2 · 2 = 8." },
   { q: "Ввели 2, потом 3. Что выведет программа?", code: "a = input()\nb = input()\nprint(a + b)", opts: ["23", "5", "2 3", "ошибку"], a: "23", why: "input() возвращает текст, а текст при сложении склеивается. Чтобы сложить числа, нужен int()." }
 ];
@@ -2989,26 +2719,24 @@ quizBuild({ key: RV_KEY, cases: RV_CASES, prefix: "rv", list: "rvList", bar: "rv
   summary: (first, n) => first >= 5 ? `${first} из ${n} с первой попытки. Линейные программы ты помнишь — разгадай тему нового урока.`
     : `${first} из ${n} с первой попытки. Перечитай пояснения к вопросам, где ошибся: ввод, вывод и арифметика понадобятся в каждой программе урока.` });
 /* Тест «впиши пропущенное»: ___ в коде — поле ввода; ans — допустимые ответы для каждого пропуска */
-const TS_KEY = "test-vc";
+const TS_KEY = "test-if";
 const TS_CASES = [
   { q: "Выведи «плюс», если x больше нуля.", code: "if x ___ 0:\n    print(\"плюс\")", ans: [[">"]], why: "«Больше» — знак >." },
   { q: "Проверь, равно ли x десяти.", code: "if x ___ 10:\n    print(\"десять\")", ans: [["=="]], why: "Сравнение на равенство — два знака ==." },
   { q: "Проверь, что x не равно нулю.", code: "if x ___ 0:\n    print(10 / x)", ans: [["!="]], why: "«Не равно» — !=." },
+  { q: "Проверь, что возраст age не меньше 18.", code: "if age ___ 18:\n    print(\"взрослый\")", ans: [[">="]], why: "«Не меньше» — значит больше или равно: >=." },
+  { q: "Какой знак ставят в конце строки с условием?", code: "if x > 0___\n    print(x)", ans: [[":"]], why: "После условия и после else ставят двоеточие." },
   { q: "Допиши ветку «иначе».", code: "if x > 0:\n    print(\"плюс\")\n___:\n    print(\"не плюс\")", ans: [["else"]], why: "Ветка «иначе» — else, без условия, с двоеточием." },
   { q: "Допиши вторую проверку «иначе если».", code: "if x > 0:\n    print(\"плюс\")\n___ x < 0:\n    print(\"минус\")\nelse:\n    print(\"ноль\")", ans: [["elif"]], why: "«Иначе если» — elif." },
-  { q: "Какой знак ставят в конце строки с условием?", code: "if x > 0___\n    print(x)", ans: [[":"]], why: "После условия, else, for и while ставят двоеточие." },
+  { q: "Проверь, что n чётное.", code: "if n ___ 2 == 0:\n    print(\"чётное\")", ans: [["%"]], why: "Остаток от деления — %: у чётного числа n % 2 == 0." },
+  { q: "Проверь, что n делится на 3.", code: "if n % 3 ___ 0:\n    print(\"кратно 3\")", ans: [["=="]], why: "Делится без остатка — остаток равен нулю: n % 3 == 0." },
   { q: "Нужно, чтобы были верны оба условия.", code: "if x > 0 ___ x < 10:\n    print(\"цифра\")", ans: [["and"]], why: "Оба условия — and." },
   { q: "Достаточно, чтобы было верно хотя бы одно условие.", code: "if d == 6 ___ d == 7:\n    print(\"выходной\")", ans: [["or"]], why: "Хотя бы одно — or." },
-  { q: "Проверь, что n чётное.", code: "if n ___ 2 == 0:\n    print(\"чётное\")", ans: [["%"]], why: "Остаток от деления — %: у чётного числа n % 2 == 0." },
-  { q: "Повтори 5 раз.", code: "for i in ___(5):\n    print(\"Привет\")", ans: [["range"]], why: "Ряд чисел для цикла даёт range." },
-  { q: "Выведи числа от 1 до 10 включительно.", code: "for i in range(1, ___):\n    print(i)", ans: [["11"]], why: "Конец range не входит: до 10 включительно — range(1, 11)." },
-  { q: "Выведи чётные числа 0, 2, 4, …, 10.", code: "for i in range(0, 11, ___):\n    print(i)", ans: [["2"]], why: "Третье число в range — шаг." },
-  { q: "Повторяй, пока x не равно нулю.", code: "___ x != 0:\n    x = int(input())", ans: [["while"]], why: "«Пока» — while." },
-  { q: "Досрочно заверши цикл, если встретилось отрицательное число.", code: "for i in range(n):\n    x = int(input())\n    if x < 0:\n        ___", ans: [["break"]], why: "Выйти из цикла — break." },
-  { q: "Пропусти ноль и перейди к следующему шагу цикла.", code: "for i in range(n):\n    x = int(input())\n    if x == 0:\n        ___\n    print(10 / x)", ans: [["continue"]], why: "Пропустить шаг — continue." },
-  { q: "Выведи звёздочку без перехода на новую строку.", code: "print(\"*\", ___=\"\")", ans: [["end"]], why: "end=\"\" — что поставить в конце вывода вместо перехода на новую строку." },
-  { q: "Прямоугольник: n строк, в каждой m звёздочек.", code: "for i in range(n):\n    for j in range(___):\n        print(\"*\", end=\"\")\n    print()", ans: [["m"]], why: "Внутренний цикл — звёздочки в строке, их m." },
-  { q: "Сколько раз выведется звёздочка? Впиши число.", code: "for i in range(3):\n    for j in range(5):\n        print(\"*\")\n# звёздочек: ___", ans: [["15"]], why: "Внутренний цикл выполняется целиком на каждом шаге внешнего: 3 · 5 = 15." }
+  { q: "Условие «x не больше нуля» через логическую операцию.", code: "if ___ x > 0:\n    print(\"не положительное\")", ans: [["not"]], why: "«Наоборот» — not." },
+  { q: "Двойное неравенство: x от 1 до 9 включительно.", code: "if 1 ___ x <= 9:\n    print(\"цифра\")", ans: [["<="]], why: "1 ≤ x — в Python 1 <= x." },
+  { q: "Допиши вложенную проверку внутри ветки.", code: "if x > 0:\n    ___ x % 2 == 0:\n        print(\"положительное чётное\")", ans: [["if"]], why: "Внутри ветки — ещё один if, сдвинутый на 4 пробела." },
+  { q: "Сколько веток выполнится при x = 10? Впиши число.", code: "if x > 0:\n    print(\"A\")\nelif x > 5:\n    print(\"B\")\nelse:\n    print(\"C\")\n# веток выполнится: ___", ans: [["1"]], why: "Выполняется только первая ветка с верным условием, остальные не проверяются." },
+  { q: "Что выведет та же программа при x = 10? Впиши букву.", code: "if x > 0:\n    print(\"A\")\nelif x > 5:\n    print(\"B\")\nelse:\n    print(\"C\")\n# на экране: ___", ans: [["A", "А"]], why: "10 > 0 — первое условие верно, выполнилась первая ветка. До x > 5 дело не дошло." }
 ];
 const tsNorm = s => String(s).trim().replace(/\s+/g, "").replace(/'/g, "\"").replace(/[−–]/g, "-");
 const htmlEsc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -3022,7 +2750,7 @@ function testBuild() {
     document.getElementById("tsDone").hidden = ok !== n;
     if (ok === n) document.getElementById("tsDoneText").textContent = first >= Math.ceil(n * 0.8) ? `${first} из ${n} с первой попытки. Отличный результат!`
       : first >= Math.ceil(n * 0.5) ? `${first} из ${n} с первой попытки. Хорошо. Повтори темы заданий, где ошибся.`
-      : `${first} из ${n} с первой попытки. Вернись к карточкам «Ветвление» и «Циклы» и пройди тест ещё раз дома.`;
+      : `${first} из ${n} с первой попытки. Вернись к карточкам «Ветвление» и «Вложенный if» и пройди тест ещё раз дома.`;
   }
   document.getElementById("tsList").innerHTML = TS_CASES.map((c, i) => `
     <section class="block mt-card" id="ts-${i}">
@@ -3069,11 +2797,11 @@ testBuild();
 /* Критерии оценивания и дескрипторы: отмечаются по заданиям урока */
 const DESC = [
   { id: "Д1", text: "записывает условие с операциями сравнения и применяет оператор if", lv: "Все", where: "Практика: разминка Z1–Z3", tasks: ["Z1", "Z2", "Z3"] },
-  { id: "Д2", text: "выбирает подходящую конструкцию: ветвление или цикл, for или while", lv: "Все", where: "«Что подходит?»: не меньше 10 из 14 с первой попытки", matchFirst: 10 },
-  { id: "Д3", text: "применяет полное ветвление if–else, if–elif–else и цикл for с range()", lv: "Все", where: "Практика A1–A3", tasks: ["A1", "A2", "A3"] },
-  { id: "Д4", text: "использует вложенный if и цикл while", lv: "Большинство", where: "Практика B1, B3, B4", tasks: ["B1", "B3", "B4"] },
-  { id: "Д5", text: "находит и исправляет ошибки в условиях и циклах", lv: "Большинство", where: "Практика B2, B5", tasks: ["B2", "B5"] },
-  { id: "Д6", text: "организует вложенные циклы", lv: "Некоторые", where: "Практика C1–C3", tasks: ["C1", "C2", "C3"] }
+  { id: "Д2", text: "выбирает подходящий вид ветвления для ситуации", lv: "Все", where: "«Что подходит?»: не меньше 9 из 12 с первой попытки", matchFirst: 9 },
+  { id: "Д3", text: "применяет полное ветвление if–else и выбор из нескольких вариантов if–elif–else", lv: "Все", where: "Практика A1–A3", tasks: ["A1", "A2", "A3"] },
+  { id: "Д4", text: "использует вложенный условный оператор", lv: "Большинство", where: "Практика B1, B3", tasks: ["B1", "B3"] },
+  { id: "Д5", text: "составляет сложные условия с and, or и исправляет ошибки в условиях", lv: "Большинство", where: "Практика B2, B4", tasks: ["B2", "B4"] },
+  { id: "Д6", text: "составляет программы с несколькими уровнями ветвления", lv: "Некоторые", where: "Практика C1–C3", tasks: ["C1", "C2", "C3"] }
 ];
 function descStatus() {
   const pr = store.get(PR_KEY, {}), mt = store.get(MT_KEY, {});
@@ -3139,7 +2867,7 @@ document.getElementById("brkSkip").addEventListener("click", () => breakStep(brk
 document.getElementById("brkEnd").addEventListener("click", breakEnd);
 
 /* Домашнее задание: по одному заданию на уровень, проверка как в практике */
-const HW_KEY = "hw-vc";
+const HW_KEY = "hw-if";
 const TASKS_HW = [
   { id: "H1", lv: "A", kind: "write", lvName: "Уровень A", fn: "if–elif–else", q: "Введи два целых числа a и b, каждое с новой строки. Выведи большее из них, а если числа равны — выведи <code>равны</code>.", cmp: "loose",
     start: `a = int(input())
@@ -3155,36 +2883,44 @@ else:
     print("равны")`, must: ["if"],
     tests: [{ inputs: ["3", "8"] }, { inputs: ["9", "2"] }, { inputs: ["5", "5"] }],
     hint: "Три случая: a > b, b > a и иначе — равны." },
-  { id: "H2", lv: "B", kind: "write", lvName: "Уровень B", fn: "for, счётчики", q: "Сначала вводится n, потом n целых чисел. Выведи, каждое с новой строки: сколько среди них положительных, сколько отрицательных и сколько нулей.",
-    start: `n = int(input())
+  { id: "H2", lv: "B", kind: "write", lvName: "Уровень B", fn: "несколько if", q: "Введи три целых числа, каждое с новой строки. Выведи, сколько среди них чётных.",
+    start: `a = int(input())
+b = int(input())
+c = int(input())
+k = 0
 `,
-    ref: `n = int(input())
-pos = 0
-neg = 0
-zero = 0
-for i in range(n):
-    x = int(input())
-    if x > 0:
-        pos = pos + 1
-    elif x < 0:
-        neg = neg + 1
+    ref: `a = int(input())
+b = int(input())
+c = int(input())
+k = 0
+if a % 2 == 0:
+    k = k + 1
+if b % 2 == 0:
+    k = k + 1
+if c % 2 == 0:
+    k = k + 1
+print(k)`, must: ["if"],
+    tests: [{ inputs: ["2", "5", "8"] }, { inputs: ["1", "3", "5"] }, { inputs: ["0", "-4", "6"] }],
+    hint: "Здесь нужны три отдельных if, а не elif: проверить нужно каждое число." },
+  { id: "H3", lv: "C", kind: "write", lvName: "Уровень C", fn: "вложенный if, and/or", q: "Вводятся часы h и минуты m, каждое с новой строки. Если время записано неверно (h не от 0 до 23 или m не от 0 до 59), выведи <code>ошибка</code>. Иначе выведи время суток: <code>утро</code> (5:00–11:59), <code>день</code> (12:00–17:59), <code>вечер</code> (18:00–22:59) или <code>ночь</code>.", cmp: "loose",
+    start: `h = int(input())
+m = int(input())
+`,
+    ref: `h = int(input())
+m = int(input())
+if h < 0 or h > 23 or m < 0 or m > 59:
+    print("ошибка")
+else:
+    if 5 <= h <= 11:
+        print("утро")
+    elif 12 <= h <= 17:
+        print("день")
+    elif 18 <= h <= 22:
+        print("вечер")
     else:
-        zero = zero + 1
-print(pos)
-print(neg)
-print(zero)`, must: ["for"],
-    tests: [{ inputs: ["5", "3", "-1", "0", "7", "-4"] }, { inputs: ["3", "0", "0", "0"] }, { inputs: ["4", "-9", "1", "5", "2"] }],
-    hint: "Три счётчика обнули до цикла. В цикле — if, elif, else. Ответы выведи после цикла." },
-  { id: "H3", lv: "C", kind: "write", lvName: "Уровень C", fn: "вложенные циклы", q: "Введи n. Выведи «перевёрнутый» треугольник из звёздочек: в первой строке n звёздочек, во второй n − 1, …, в последней — одна. Используй вложенные циклы.",
-    start: `n = int(input())
-`,
-    ref: `n = int(input())
-for i in range(n, 0, -1):
-    for j in range(i):
-        print("*", end="")
-    print()`, must: ["nested-for"],
-    tests: [{ inputs: ["4"] }, { inputs: ["1"] }, { inputs: ["6"] }],
-    hint: "Внешний цикл с шагом −1: for i in range(n, 0, -1). Внутренний печатает i звёздочек, потом print()." }
+        print("ночь")`, must: ["if"],
+    tests: [{ inputs: ["7", "30"] }, { inputs: ["12", "0"] }, { inputs: ["22", "59"] }, { inputs: ["23", "15"] }, { inputs: ["3", "5"] }, { inputs: ["24", "0"] }, { inputs: ["10", "60"] }],
+    hint: "Сначала проверь, верно ли записано время (условия через or). Время суток зависит только от часов." }
 ];
 function hwRender() {
   const d = store.get(HW_KEY, {}), ok = TASKS_HW.filter(t => d[t.id] && d[t.id].ok).length;
@@ -3202,7 +2938,7 @@ mtBuild();
 setTimeout(() => pyLoad().catch(() => {}), 1500);
 
 /* Итоги урока: ожидания, цель и самооценка по каждому результату */
-const REF_KEY = "reflect-vc";
+const REF_KEY = "reflect-if";
 const LEVELS = ["Все учащиеся", "Большинство", "Некоторые"];
 const MARK = { "2": "Получилось", "1": "Частично", "0": "Пока нет" };
 const EXP_MARK = { "2": "Да", "1": "Частично", "0": "Нет" };
@@ -3253,7 +2989,7 @@ function showSummary(s) {
     .concat(s.res.map((v, i) => `<div class="sumrow"><span>${LEVELS[i]}</span><span class="mark m${v}">${MARK[v]}</span></div>`));
   const got = s.res.filter(v => v === "2").length;
   let next = got === 3 ? "Все цели достигнуты. Отличная работа!"
-    : s.res[0] !== "2" ? "Вернись к разминке «Условие» и заданиям уровня A на if–else, elif и for и спроси учителя, что непонятно."
+    : s.res[0] !== "2" ? "Вернись к разминке «Условие» и заданиям уровня A на if–else и elif и спроси учителя, что непонятно."
     : "Хороший результат. На следующем уроке потренируйся в том, что отмечено «Частично» или «Пока нет».";
   const use = s.use ? `<p class="mine use-ex" style="margin-top:10px"></p>` : "";
   const note = s.note ? `<p class="mine note-ex" style="margin-top:10px"></p>` : "";
@@ -3267,7 +3003,7 @@ document.getElementById("refSave").addEventListener("click", () => {
   const s = { exp: val("r-exp"), res: [0, 1, 2].map(i => val("r-res-" + i)), note: document.getElementById("refNote").value.trim(), use: document.getElementById("refUse").value.trim() };
   const msg = document.getElementById("refMsg");
   if (s.exp === null || s.res.includes(null)) { msg.className = "msg bad"; msg.textContent = "Ответь на все вопросы: ожидания и три результата."; return; }
-  if (wantsUse() && s.use.length < 5) { msg.className = "msg bad"; msg.textContent = "Приведи пример, где пригодятся ветвления или циклы: ты сам хотел это понять."; return; }
+  if (wantsUse() && s.use.length < 5) { msg.className = "msg bad"; msg.textContent = "Приведи пример, где пригодится ветвление: ты сам хотел это понять."; return; }
   store.set(REF_KEY, s);
   msg.className = "msg ok"; msg.textContent = "Сохранено.";
   showSummary(s);
@@ -3332,7 +3068,7 @@ window.__lesson = { TASKS, TASKS_OL, olJudge, TS_CASES, AC_CASES, RV_CASES, TASK
 
 }
 /* Онлайн-режим (Google Apps Script): вход ученика, отправка прогресса учителю, вопросы классу */
-const STAGES = { review: "1. Повторим", puzzle: "2. Разгадка темы", goal: "3. Тема и цель", actual: "4. Вспомним", learn: "5. Ветвление", methods: "6. Циклы", match: "7. Что подходит?", practice: "8. Практика", project: "9. Практическая работа", test: "10. Тест", reflect: "11. Итоги", hw: "12. Домашнее задание" };
+const STAGES = { review: "1. Повторим", puzzle: "2. Разгадка темы", goal: "3. Тема и цель", actual: "4. Вспомним", learn: "5. Ветвление", methods: "6. Вложенный if", match: "7. Что подходит?", practice: "8. Практика", project: "9. Практическая работа", test: "10. Тест", reflect: "11. Итоги", hw: "12. Домашнее задание" };
 let me = null, curStage = "review", syncTimer = null;
 const gsr = (fn, ...args) => new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
@@ -3340,26 +3076,26 @@ const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } ca
 
 function lessonSummary() {
   const g = k => lsGet(NS + k, null), info = window.__lessonInfo;
-  const pr = g("practice-vc") || {}, mt = g("match-vc") || {}, rf = g("reflect-vc");
+  const pr = g("practice-if") || {}, mt = g("match-if") || {}, rf = g("reflect-if");
   const cnt = ids => ids.filter(id => pr[id] && pr[id].ok).length + "/" + ids.length;
   const MARK = { "2": "Получилось", "1": "Частично", "0": "Пока нет" }, EXP = { "2": "Да", "1": "Частично", "0": "Нет" };
   const mv = Object.values(mt);
   return {
-    id: me.id, cls: me.cls, name: me.name, viol: g("viol-vc") || 0, stage: STAGES[curStage] || curStage,
-    expect: g("expect-vc") || "",
+    id: me.id, cls: me.cls, name: me.name, viol: g("viol-if") || 0, stage: STAGES[curStage] || curStage,
+    expect: g("expect-if") || "",
     match: mv.filter(x => x && x.ok).length + "/" + info.matchN,
     matchFirst: mv.filter(x => x && x.first).length,
     z: cnt(info.Z), a: cnt(info.A), b: cnt(info.B), c: cnt(info.C),
     expOk: rf ? EXP[rf.exp] || "" : "", r0: rf ? MARK[rf.res[0]] || "" : "", r1: rf ? MARK[rf.res[1]] || "" : "", r2: rf ? MARK[rf.res[2]] || "" : "",
     use: rf ? rf.use || "" : "", note: rf ? rf.note || "" : "",
-    act: (() => { const a = Object.values(g("actual-vc") || {}); return a.filter(x => x && x.ok).length + "/" + info.actN; })(),
-    actFirst: Object.values(g("actual-vc") || {}).filter(x => x && x.first).length,
+    act: (() => { const a = Object.values(g("actual-if") || {}); return a.filter(x => x && x.ok).length + "/" + info.actN; })(),
+    actFirst: Object.values(g("actual-if") || {}).filter(x => x && x.first).length,
     now: window.__prNow(),
-    hw: (() => { const h = g("hw-vc") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.hwN; })(),
-    olymp: (() => { const h = g("olymp-vc") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.olN; })(),
-    pj: (() => { const h = g("project-vc") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.pjN; })(),
-    test: (() => { const a = Object.values(g("test-vc") || {}); return a.filter(x => x && x.ok).length + "/" + info.tsN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
-    rev: (() => { const a = Object.values(g("review-vc") || {}); return a.filter(x => x && x.ok).length + "/" + info.rvN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
+    hw: (() => { const h = g("hw-if") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.hwN; })(),
+    olymp: (() => { const h = g("olymp-if") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.olN; })(),
+    pj: (() => { const h = g("project-if") || {}; return Object.values(h).filter(x => x && x.ok).length + "/" + info.pjN; })(),
+    test: (() => { const a = Object.values(g("test-if") || {}); return a.filter(x => x && x.ok).length + "/" + info.tsN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
+    rev: (() => { const a = Object.values(g("review-if") || {}); return a.filter(x => x && x.ok).length + "/" + info.rvN + " (1-я: " + a.filter(x => x && x.first).length + ")"; })(),
     desc: (() => { const d = window.__descStatus(); return d.filter(x => x.ok).length + "/" + d.length + (d.some(x => x.ok) ? ": " + d.filter(x => x.ok).map(x => x.id).join(" ") : ""); })()
   };
 }
