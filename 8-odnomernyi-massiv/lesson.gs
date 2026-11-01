@@ -100,8 +100,8 @@ var SUM_HEAD = ['Обновлено', 'Класс', 'Ученик', 'Этап', 
   'Какой метод?', 'Практика Z', 'Практика A', 'Практика B', 'Практика C', 'Сейчас решает', 'Практ. работа',
   'Тест', 'Описания', 'ДЗ', 'Олимпиада', 'Ожидания', 'Ожидания сбылись', 'Итог 1', 'Итог 2', 'Итог 3',
   'Где применю', 'Заметка', 'Сдал (нажал кнопку)', 'Письмо', 'id'];
-var ATT_HEAD = ['Время', 'Класс', 'Ученик', 'Этап', 'Задание', 'Ответ ученика', 'Правильный ответ', 'Верно', 'Комментарий', 'id'];
-var ATT_ID = 9;                  // номер столбца id в ATT_HEAD (с нуля)
+var ATT_HEAD = ['Время', 'Класс', 'Ученик', 'Этап', 'Задание', 'Ответ ученика', 'Правильный ответ', 'Верно', 'Комментарий', 'id', 'Ключ'];
+var ATT_ID = 9, ATT_KEY = 10;    // номера столбцов id и ключа попытки (с нуля)
 function sheet_(name, head) {
   var ss = book_(), sh = ss.getSheetByName(name);
   if (sh && sh.getLastRow() > 0 && String(sh.getRange(1, head.length).getValue()) !== head[head.length - 1]) {
@@ -177,25 +177,24 @@ function doPost(e) {
 }
 function out_(t) { return ContentService.createTextOutput(t).setMimeType(ContentService.MimeType.TEXT); }
 
-/* Попытки приходят порциями: from — номер первой попытки в порции.
-   Сервер помнит, сколько попыток ученика уже записано, и не пишет повторы. */
+/* Попытки приходят порциями, а при нажатии «Отправить ответы учителю» — все сразу.
+   У каждой попытки есть ключ (ученик + время + задание): записанные попытки не повторяются,
+   а пропавшие (например, если строки удалили) записываются заново. */
 function saveAttempts_(p) {
   var a = p.attempts || [];
   if (!a.length) return;
-  var props = PropertiesService.getScriptProperties(), key = 'n:' + p.id;
-  var have = Number(props.getProperty(key) || 0), from = Number(p.from || 0), tz = Session.getScriptTimeZone();
+  var sh = sheet_('Попытки', ATT_HEAD), tz = Session.getScriptTimeZone(), n = sh.getLastRow(), have = {};
+  if (n > 1) sh.getRange(2, ATT_KEY + 1, n - 1, 1).getValues().forEach(function (r) { have[r[0]] = 1; });
   var rows = [];
-  a.forEach(function (x, i) {
-    if (from + i < have) return;
+  a.forEach(function (x) {
+    var key = p.id + '|' + (x.t || '') + '|' + (x.task || '');
+    if (have[key]) return;
+    have[key] = 1;
     rows.push([Utilities.formatDate(new Date(x.t || Date.now()), tz, 'dd.MM.yyyy HH:mm:ss'), p.cls, p.name,
       x.stage || '', x.task || '', String(x.answer || '').slice(0, 3000), String(x.right || '').slice(0, 3000),
-      x.ok ? 'да' : 'нет', String(x.note || '').slice(0, 3000), p.id]);
+      x.ok ? 'да' : 'нет', String(x.note || '').slice(0, 3000), p.id, key]);
   });
-  if (rows.length) {
-    var sh = sheet_('Попытки', ATT_HEAD);
-    sh.getRange(sh.getLastRow() + 1, 1, rows.length, ATT_HEAD.length).setValues(rows);
-  }
-  props.setProperty(key, String(Math.max(have, from + a.length)));
+  if (rows.length) sh.getRange(n + 1, 1, rows.length, ATT_HEAD.length).setValues(rows);
 }
 
 function saveSummary_(p) {
@@ -239,8 +238,10 @@ function mail_(p, row) {
         '</td><td>' + pre(r[5]) + '</td><td>' + pre(r[6]) + '</td><td>' + (ok ? '✓' : '✗') + '</td><td>' + (ok ? '' : pre(r[8])) + '</td></tr>';
     }).join('') + '</table><p><a href="' + book_().getUrl() + '">Открыть таблицу с ответами</a></p>';
   try {
-    MailApp.sendEmail({ to: teacher_(), subject: 'Урок: ' + p.cls + ' · ' + p.name + ' — ответы',
-      htmlBody: html, body: p.name + ', ' + p.cls + ': ответы урока. Таблица: ' + book_().getUrl(), name: 'Урок fizmat' });
+    var pdf = Utilities.newBlob('<html><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif">' + html + '</body></html>', 'text/html', 'report.html')
+      .getAs('application/pdf').setName(p.cls + ' ' + p.name + ' — ответы.pdf');
+    MailApp.sendEmail({ to: teacher_(), subject: 'Урок: ' + p.cls + ' · ' + p.name + ' — ответы (PDF во вложении)',
+      htmlBody: html, attachments: [pdf], body: p.name + ', ' + p.cls + ': ответы урока. Таблица: ' + book_().getUrl(), name: 'Урок fizmat' });
   } catch (x) { return x && x.message ? x.message : String(x); }
   cache.put(ck, '1', MAIL_GAP_SEC);
   sheet_('Итоги', SUM_HEAD).getRange(row, 27).setValue('отправлено ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd.MM HH:mm'));
