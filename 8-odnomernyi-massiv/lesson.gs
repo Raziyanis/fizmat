@@ -15,6 +15,7 @@
  * → ✏ → Версия: Новая версия → Развернуть». Доступ: «Все» (Anyone).
  */
 
+var VERSION = 'версия 4: правильный ответ + PDF во вложении';
 var TEACHER_EMAIL = '';          // пусто = почта владельца скрипта; можно вписать другой адрес
 var MAIL_GAP_SEC = 60;           // не чаще одного письма в минуту от одного ученика
 
@@ -150,7 +151,7 @@ function doGet(e) {
     if (q.callback && /^[\w.$]+$/.test(q.callback)) js = q.callback + '(' + JSON.stringify(roster_()) + ');';
     return ContentService.createTextOutput(js).setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
-  return ContentService.createTextOutput('ok: скрипт урока работает. Таблица: ' + book_().getUrl());
+  return ContentService.createTextOutput('ok: скрипт урока работает (' + VERSION + '). Таблица: ' + book_().getUrl());
 }
 
 function doPost(e) {
@@ -256,6 +257,6 @@ function setup() {
   var def = book_().getSheetByName('Лист1') || book_().getSheetByName('Sheet1');
   if (def && book_().getSheets().length > 1 && def.getLastRow() === 0) book_().deleteSheet(def);
   MailApp.sendEmail(teacher_(), 'Урок fizmat: проверка почты', 'Письма приходят. Таблица с ответами: ' + book_().getUrl());
-  Logger.log('Таблица: ' + book_().getUrl());
+  Logger.log(VERSION + '. Таблица: ' + book_().getUrl());
   Logger.log('Письмо отправлено на ' + teacher_() + '. Осталось писем на сегодня: ' + MailApp.getRemainingDailyQuota());
 }
