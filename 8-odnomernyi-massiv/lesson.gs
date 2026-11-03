@@ -15,7 +15,7 @@
  * → ✏ → Версия: Новая версия → Развернуть». Доступ: «Все» (Anyone).
  */
 
-var VERSION = 'версия 7: добавлен 9B; setup дописывает новых учеников';
+var VERSION = 'версия 8: урок «Математические функции» (Excel) отправляет ответы';
 var TEACHER_EMAIL = '';          // пусто = почта владельца скрипта; можно вписать другой адрес
 var MAIL_GAP_SEC = 60;           // не чаще одного письма в минуту от одного ученика
 
@@ -253,7 +253,7 @@ function mail_(p, row) {
   var s = p.summary || {}, tasks = taskReport_(p.id);
   var good = tasks.filter(function (t) { return t.ok; }).length;
   var sum = [['Этап', s.stage], ['Повторение', s.rev], ['Вспомним', s.act], ['Какой метод?', s.match],
-    ['Практика 0 / A / B / C', [s.z, s.a, s.b, s.c].join(' · ')], ['Описания', s.desc],
+    ['Практика 0 / A / B / C', [s.z, s.a, s.b, s.c].join(' · ')], ['Работа в Excel', s.ex], ['Описания', s.desc],
     ['Практическая работа: задачи 1–3', s.pj], ['Практическая работа: задачи 4–10', s.olymp], ['Нарушения', s.viol],
     ['Ожидания', s.expect], ['Ожидания сбылись', s.expOk], ['Итоги', [s.r0, s.r1, s.r2].join(' · ')],
     ['Где применю', s.use], ['Заметка', s.note]];
@@ -263,7 +263,7 @@ function mail_(p, row) {
     '<p style="font-size:16px"><b>Решено верно: ' + good + ' из ' + tasks.length + ' заданий, к которым ученик приступал</b>' +
     ' <span style="color:#666">(тест и домашнее задание не учитываются)</span></p>' +
     '<table border="1" cellpadding="4" style="border-collapse:collapse">' +
-    sum.map(function (x) { return '<tr><td><b>' + esc_(x[0]) + '</b></td><td>' + esc_(x[1] == null ? '' : x[1]) + '</td></tr>'; }).join('') +
+    sum.filter(function (x) { return x[1] != null && String(x[1]).replace(/[ ·]/g, '') !== ''; }).map(function (x) { return '<tr><td><b>' + esc_(x[0]) + '</b></td><td>' + esc_(x[1]) + '</td></tr>'; }).join('') +
     '</table><h4>Отчёт по заданиям</h4>' +
     '<table border="1" cellpadding="4" style="border-collapse:collapse;font-size:13px">' +
     '<tr><th>Этап</th><th>Задание</th><th>Итог</th><th>Ответ ученика</th><th>Правильный ответ</th><th>Попыток</th><th>Комментарий</th></tr>' +
