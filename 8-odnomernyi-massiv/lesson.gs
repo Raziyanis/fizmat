@@ -15,7 +15,7 @@
  * → ✏ → Версия: Новая версия → Развернуть». Доступ: «Все» (Anyone).
  */
 
-var VERSION = 'версия 6: уроки «список», «кортеж», «словарь», «множество»';
+var VERSION = 'версия 7: добавлен 9B; setup дописывает новых учеников';
 var TEACHER_EMAIL = '';          // пусто = почта владельца скрипта; можно вписать другой адрес
 var MAIL_GAP_SEC = 60;           // не чаще одного письма в минуту от одного ученика
 
@@ -85,7 +85,18 @@ var ROSTER_INIT = [
   ['8F', 'Сартаев Алихан'],
   ['8F', 'Спирков Богдан'],
   ['8F', 'Темір Арыстан'],
-  ['8F', 'Хасенов Алихан']
+  ['8F', 'Хасенов Алихан'],
+  ['9B', 'Ахмадия Нұрәлі'],
+  ['9B', 'Бахтигереева Амира-Челси'],
+  ['9B', 'Бекмырза Асхат'],
+  ['9B', 'Елемес Әлинұр'],
+  ['9B', 'Кайроллин Даниял'],
+  ['9B', 'Қайратқызы Мумина'],
+  ['9B', 'Нығметолла Дания'],
+  ['9B', 'Рахметжан Арсен'],
+  ['9B', 'Серікбол Томирис'],
+  ['9B', 'Сидалеев Нұрасыл'],
+  ['9B', 'Шакизат Ерасыл']
 ];
 
 /* ---------- таблица ---------- */
@@ -274,7 +285,12 @@ function mail_(p, row) {
 /* ---------- запустить один раз из редактора ---------- */
 function setup() {
   var sh = sheet_('Список', ['Класс', 'Фамилия Имя']);
-  if (sh.getLastRow() < 2 && ROSTER_INIT.length) sh.getRange(2, 1, ROSTER_INIT.length, 2).setValues(ROSTER_INIT);
+  // новые ученики из ROSTER_INIT дописываются в конец листа; те, кто уже есть, не повторяются
+  var have = {};
+  sh.getDataRange().getValues().slice(1).forEach(function (r) { have[normClass_(r[0]) + '|' + sig_(r[1])] = 1; });
+  var add = ROSTER_INIT.filter(function (r) { return !have[normClass_(r[0]) + '|' + sig_(r[1])]; });
+  if (add.length) sh.getRange(sh.getLastRow() + 1, 1, add.length, 2).setValues(add);
+  Logger.log('Добавлено новых учеников: ' + add.length);
   sheet_('Итоги', SUM_HEAD); sheet_('Попытки', ATT_HEAD);
   var def = book_().getSheetByName('Лист1') || book_().getSheetByName('Sheet1');
   if (def && book_().getSheets().length > 1 && def.getLastRow() === 0) book_().deleteSheet(def);
