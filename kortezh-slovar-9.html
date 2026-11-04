@@ -4305,7 +4305,7 @@ function offStart() {
   window.addEventListener("online", () => offSend(false));
 }
 /* Вход: ученик сам вписывает класс, фамилию и имя */
-const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", F: "Ф", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
+const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
 function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[A-Z]/g, ch => LAT2CYR[ch] || ch); }
 function normName(v) { return v.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" "); }
 /* Вход: онлайн — через сервер (проверка по списку класса), без сервера — только на этом компьютере */
@@ -6308,7 +6308,7 @@ function offStart() {
   window.addEventListener("online", () => offSend(false));
 }
 /* Вход: ученик сам вписывает класс, фамилию и имя */
-const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", F: "Ф", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
+const LAT2CYR = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", D: "Д", G: "Г", L: "Л", I: "И", Z: "З", S: "С", Y: "У", R: "Р", N: "Н", V: "В", U: "У" };
 function normClass(v) { return v.toUpperCase().replace(/\s+/g, "").replace(/[A-Z]/g, ch => LAT2CYR[ch] || ch); }
 function normName(v) { return v.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" "); }
 /* Вход: онлайн — через сервер (проверка по списку класса), без сервера — только на этом компьютере */
