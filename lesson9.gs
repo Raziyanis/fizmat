@@ -102,7 +102,7 @@ function setup() {
     if (t.getHandlerFunction() === 'sendPendingMail') ScriptApp.deleteTrigger(t);
   });
   ScriptApp.newTrigger('sendPendingMail').timeBased().everyMinutes(5).create();
-  console.log('Готово. Таблица: ' + ss.getUrl());
+  console.log('Готово. Таблица с результатами: ' + ss.getUrl());
 }
 
 /* ===================== Ученики ===================== */
@@ -275,23 +275,31 @@ function testMail() {
 /* ===================== Служебное ===================== */
 function book_() {
   if (book_.ss) return book_.ss;
-  let ss = null;
-  try { ss = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) {}
+  const props = PropertiesService.getScriptProperties();
+  /* Таблица, к которой привязан скрипт (если он открыт из таблицы: «Расширения → Apps Script») */
+  let ss = usable_(function () { return SpreadsheetApp.getActiveSpreadsheet(); });
+  /* Иначе — своя таблица скрипта: открываем по сохранённому ID или создаём новую */
   if (!ss) {
-    const props = PropertiesService.getScriptProperties(), id = props.getProperty('SS_ID');
-    if (id) { try { ss = SpreadsheetApp.openById(id); } catch (e) { ss = null; } }
-    if (!ss) {
-      ss = SpreadsheetApp.create(TABLE_NAME);
-      props.setProperty('SS_ID', ss.getId());
-    }
+    const id = props.getProperty('SS_ID');
+    if (id) ss = usable_(function () { return SpreadsheetApp.openById(id); });
   }
-  try { /* таблица лежит в папке «ФО» на Диске */
+  if (!ss) {
+    const made = SpreadsheetApp.create(TABLE_NAME);
+    props.setProperty('SS_ID', made.getId());
+    SpreadsheetApp.flush();
+    for (let i = 0; i < 5 && !ss; i++) {
+      ss = usable_(function () { return SpreadsheetApp.openById(made.getId()); });
+      if (!ss) Utilities.sleep(1500);
+    }
+    if (!ss) throw new Error('не удалось открыть новую таблицу — запустите setup ещё раз');
+  }
+  try { /* таблица лежит в папке «ФО» на Диске (если доступ к Диску не разрешён — просто остаётся в «Мой диск») */
     const it = DriveApp.getFoldersByName(FO), folder = it.hasNext() ? it.next() : DriveApp.createFolder(FO);
     const file = DriveApp.getFileById(ss.getId()), parents = file.getParents();
     let inside = false;
     while (parents.hasNext()) if (parents.next().getId() === folder.getId()) inside = true;
     if (!inside) file.moveTo(folder);
-  } catch (e) { console.warn(e); }
+  } catch (e) { console.warn('Папка ФО на Диске: нет доступа к Google Диску — таблица осталась в «Мой диск».'); }
   book_.ss = ss;
   return ss;
 }
@@ -301,6 +309,11 @@ const HEADS = {
   'Добавленные': ['Когда', 'Класс', 'Фамилия и имя'],
   'Итоги': ['Обновлено', 'Ученик (id)', 'Класс', 'Фамилия и имя']
 };
+/* Таблица годится, только если из неё правда читаются листы */
+function usable_(get) {
+  try { const ss = get(); if (ss && ss.getId() && ss.getSheets().length) return ss; } catch (e) { console.warn(e); }
+  return null;
+}
 function sheet_(name) {
   const ss = book_();
   let sh = ss.getSheetByName(name);
