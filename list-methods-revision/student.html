@@ -563,7 +563,33 @@ function renderChat(messages) {
   chat.appendChild(send);
 }
 
-start();
+
+/* Эта страница — часть проекта Apps Script и работает только по ссылке
+   развёртывания (.../exec). Если файл открыли прямо с диска, объясняем это. */
+function offlineFile_() {
+  return (typeof google === 'undefined') || !google.script || !google.script.run;
+}
+function fileWarning_() {
+  var html =
+    '<div style="max-width:620px;margin:40px auto;padding:24px;border:2px solid #b3261e;' +
+    'border-radius:12px;font:16px/1.6 -apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif">' +
+    '<h2 style="margin:0 0 12px;color:#b3261e">Этот файл нельзя открывать с компьютера</h2>' +
+    '<p>Вы открыли файл напрямую с диска, поэтому он не может получить задания — ' +
+    'данные хранятся на сервере Google.</p>' +
+    '<p><b>Что сделать:</b></p>' +
+    '<ol><li>Откройте проект на <a href="https://script.google.com">script.google.com</a>.</li>' +
+    '<li>Вставьте содержимое этого файла в HTML-файл проекта ' +
+    '(имя ровно <code>student</code> или <code>teacher</code>, без «.html»).</li>' +
+    '<li>Нажмите <b>Начать развертывание → Управление развертываниями</b> и выберите версию ' +
+    '<b>«Новая»</b>.</li>' +
+    '<li>Откройте ссылку, которая заканчивается на <code>/exec</code>. ' +
+    'Для своей страницы добавьте в конец <code>?page=teacher&amp;key=КЛЮЧ</code>.</li></ol>' +
+    '<p style="color:#5b6471">Ключ выводится в журнале выполнения функции ' +
+    '<code>setup()</code> или <code>diagnose()</code>.</p></div>';
+  document.body.innerHTML = html;
+}
+
+if (offlineFile_()) fileWarning_(); else start();
 </script>
 </body>
 </html>
