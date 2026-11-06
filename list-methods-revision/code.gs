@@ -291,9 +291,37 @@ function key_(klass, name) {
 function doGet(e) {
   var page = (e && e.parameter && e.parameter.page) || 'student';
   var file = page === 'teacher' ? 'teacher' : 'student';
-  return HtmlService.createHtmlOutputFromFile(file)
+  return openPage_(file)
     .setTitle(file === 'teacher' ? 'Методы списка — экран учителя' : 'Методы списка — повторение')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/**
+ * Находит HTML-файл страницы. При создании файла легко ошибиться в имени
+ * («student.html» превращается в «student.html.html»), поэтому пробуем
+ * оба написания, а если файла нет совсем — объясняем, что делать.
+ */
+function openPage_(name) {
+  var tries = [name, name + '.html'];
+  for (var i = 0; i < tries.length; i++) {
+    try {
+      return HtmlService.createHtmlOutputFromFile(tries[i]);
+    } catch (err) {
+      // пробуем следующее написание
+    }
+  }
+  return HtmlService.createHtmlOutput(
+    '<div style="max-width:620px;margin:40px auto;padding:24px;border:2px solid #b3261e;' +
+    'border-radius:12px;font:16px/1.6 -apple-system,BlinkMacSystemFont,sans-serif">' +
+    '<h2 style="margin:0 0 12px;color:#b3261e">В проекте нет файла «' + name + '»</h2>' +
+    '<p>В редакторе Apps Script слева в панели «Файлы» должен быть HTML-файл, ' +
+    'который в списке выглядит как <code>' + name + '.html</code>.</p>' +
+    '<p>Если там <code>' + name + '.html.html</code> — наведите на него, нажмите три точки → ' +
+    '<b>Переименовать</b> и впишите ровно <code>' + name + '</code>.</p>' +
+    '<p>Если файла нет — <b>+ → HTML</b>, имя <code>' + name + '</code>, ' +
+    'и вставьте в него содержимое <code>' + name + '.html</code>.</p>' +
+    '<p style="color:#5b6471">Потом: Cmd+S, затем <b>Начать развертывание → ' +
+    'Управление развертываниями</b> → версия <b>«Новая версия»</b> → Развернуть.</p></div>');
 }
 
 function safeEmail_() {
@@ -700,11 +728,21 @@ function diagnose() {
   Logger.log('Ключ учителя: ' + (props.getProperty(PROP_KEY) || 'НЕ ЗАДАН — выполните setup()'));
 
   ['student', 'teacher'].forEach(function (name) {
-    try {
-      HtmlService.createHtmlOutputFromFile(name);
+    var found = '';
+    [name, name + '.html'].forEach(function (variant) {
+      if (found) return;
+      try {
+        HtmlService.createHtmlOutputFromFile(variant);
+        found = variant;
+      } catch (err) { /* пробуем следующее написание */ }
+    });
+    if (found === name) {
       Logger.log('HTML-файл «' + name + '»: найден');
-    } catch (err) {
-      Logger.log('HTML-файл «' + name + '»: НЕ НАЙДЕН. Создайте файл с этим именем (+ → HTML).');
+    } else if (found) {
+      Logger.log('HTML-файл «' + name + '»: найден как «' + found + '.html» — лишнее .html в имени. ' +
+                 'Страница работает, но лучше переименовать в «' + name + '».');
+    } else {
+      Logger.log('HTML-файл «' + name + '»: НЕ НАЙДЕН. Создайте его: + → HTML, имя ровно «' + name + '».');
     }
   });
 
