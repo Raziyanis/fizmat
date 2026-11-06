@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Методы списка — экран учителя</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #15181d; --muted: #5b6471;
+    --line: #dfe3e8; --accent: #1f6feb; --ok: #137333; --bad: #b3261e; --warn: #b06000;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text); padding: 16px;
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+  h1 { font-size: 21px; margin: 0; }
+  h2 { font-size: 16px; margin: 0 0 10px; }
+  .status { color: var(--muted); font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .tiles { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; flex: 1 1 150px; }
+  .tile .v { font-size: 26px; font-weight: 700; }
+  .tile .k { color: var(--muted); font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { padding: 7px 8px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  td.c, th.c { text-align: center; }
+  .scroll { overflow-x: auto; }
+  .mark { font-weight: 700; }
+  .mark.y { color: var(--ok); }
+  .mark.n { color: var(--bad); }
+  .bar { background: var(--line); border-radius: 4px; height: 8px; width: 100%; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--ok); }
+  .bar i.low { background: var(--bad); }
+  .bar i.mid { background: var(--warn); }
+  .qrow { display: grid; grid-template-columns: 120px 1fr 56px; gap: 10px; align-items: center; margin-bottom: 8px; font-size: 14px; }
+  .qrow .t { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .qrow .p { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .empty { color: var(--muted); }
+  a { color: var(--accent); }
+  button {
+    background: #fff; color: var(--accent); border: 1px solid var(--accent); border-radius: 8px;
+    padding: 8px 14px; font: 600 14px/1 inherit; font-family: inherit; cursor: pointer;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1216; --card: #171c22; --text: #e9edf2; --muted: #9aa5b1; --line: #2b323b;
+            --accent: #4c8dff; --ok: #6fd58f; --bad: #ff8a80; --warn: #ffc06e; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Методы списка — ответы класса</h1>
+    <div>
+      <span class="status" id="status">загружаем…</span>
+      <button id="refresh" style="margin-left:10px">Обновить</button>
+    </div>
+  </header>
+
+  <div class="tiles">
+    <div class="tile"><div class="v" id="t-students">—</div><div class="k">ответили</div></div>
+    <div class="tile"><div class="v" id="t-average">—</div><div class="k">средний балл</div></div>
+    <div class="tile"><div class="v" id="t-hard">—</div><div class="k">слабее всего</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Что разбирать в первую очередь</h2>
+    <div id="per-question"><span class="empty">Нет данных.</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Ученики</h2>
+    <div class="scroll" id="table-box"><span class="empty">Пока никто не сдал.</span></div>
+    <div style="margin-top:12px"><a id="sheet-link" href="#" target="_blank" rel="noopener" style="display:none">Открыть таблицу результатов</a></div>
+  </div>
+
+</div>
+
+<script>
+var CFG = <?!= payload ?>;
+var timer = null;
+
+function el(tag, cls, text) {
+  var node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function load() {
+  google.script.run
+    .withSuccessHandler(draw)
+    .withFailureHandler(function (err) {
+      document.getElementById('status').textContent = 'ошибка: ' + err.message;
+    })
+    .getResults(CFG.key);
+}
+
+function draw(data) {
+  var now = new Date();
+  document.getElementById('status').textContent = 'обновлено в ' +
+    ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+
+  document.getElementById('t-students').textContent = data.students.length;
+  document.getElementById('t-average').textContent =
+    data.students.length ? data.average + ' / ' + data.total : '—';
+
+  var sorted = data.perQuestion.slice().sort(function (a, b) { return a.percent - b.percent; });
+  document.getElementById('t-hard').textContent =
+    data.students.length ? sorted[0].topic : '—';
+
+  var qbox = document.getElementById('per-question');
+  qbox.textContent = '';
+  if (!data.students.length) {
+    qbox.appendChild(el('span', 'empty', 'Нет данных.'));
+  } else {
+    sorted.forEach(function (q) {
+      var row = el('div', 'qrow');
+      row.appendChild(el('div', 't', q.topic));
+      var bar = el('div', 'bar');
+      var fill = el('i');
+      fill.style.width = q.percent + '%';
+      if (q.percent < 50) fill.className = 'low';
+      else if (q.percent < 80) fill.className = 'mid';
+      bar.appendChild(fill);
+      row.appendChild(bar);
+      row.appendChild(el('div', 'p', q.percent + '%'));
+      qbox.appendChild(row);
+    });
+  }
+
+  var box = document.getElementById('table-box');
+  box.textContent = '';
+  if (!data.students.length) {
+    box.appendChild(el('span', 'empty', 'Пока никто не сдал.'));
+  } else {
+    var table = document.createElement('table');
+    var thead = document.createElement('thead');
+    var hrow = document.createElement('tr');
+    ['Ученик', 'Балл', 'Попыток', 'Время'].forEach(function (h) {
+      hrow.appendChild(el('th', null, h));
+    });
+    data.perQuestion.forEach(function (q, i) {
+      var th = el('th', 'c', String(i + 1));
+      th.title = q.topic;
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+
+    var tbody = document.createElement('tbody');
+    data.students.forEach(function (s) {
+      var tr = document.createElement('tr');
+      tr.appendChild(el('td', null, s.name));
+      tr.appendChild(el('td', null, s.score + ' / ' + s.total));
+      tr.appendChild(el('td', null, String(s.attempts)));
+      tr.appendChild(el('td', null, s.time));
+      s.marks.forEach(function (m) {
+        tr.appendChild(el('td', 'c mark ' + (m ? 'y' : 'n'), m ? '✓' : '✗'));
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    box.appendChild(table);
+  }
+
+  if (data.spreadsheetUrl) {
+    var link = document.getElementById('sheet-link');
+    link.href = data.spreadsheetUrl;
+    link.style.display = 'inline';
+  }
+}
+
+document.getElementById('refresh').addEventListener('click', load);
+load();
+timer = setInterval(load, 7000);
+</script>
+</body>
+</html>
