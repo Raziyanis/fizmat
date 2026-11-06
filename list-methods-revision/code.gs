@@ -3,14 +3,18 @@
  *
  * Веб-приложение с двумя страницами:
  *   - страница ученика  — ссылка веб-приложения (.../exec);
- *   - страница учителя  — та же ссылка с ?page=teacher, живая таблица ответов.
+ *   - страница учителя  — та же ссылка с ?page=teacher&key=КЛЮЧ.
  *
- * Ответы пишутся в Google Таблицу на лист «Результаты».
+ * Ученик выбирает класс, находит себя в списке и проходит тест.
+ * Списки классов хранятся на листе «Классы» вашей Google Таблицы,
+ * в коде их нет. Ответы пишутся на лист «Результаты».
+ *
  * Перед раздачей ссылки один раз выполните функцию setup().
  */
 
-var SHEET_NAME = 'Результаты';
-var SPREADSHEET_TITLE = 'Методы списка — повторение, результаты';
+var SHEET_RESULTS = 'Результаты';
+var SHEET_CLASSES = 'Классы';
+var SPREADSHEET_TITLE = 'Методы списка — повторение';
 
 var PROP_SPREADSHEET = 'SPREADSHEET_ID';
 var PROP_TEACHER = 'TEACHER_EMAIL';
@@ -144,7 +148,7 @@ var QUESTIONS = [
 /* Настройка                                                           */
 /* ------------------------------------------------------------------ */
 
-/** Выполните один раз: создаёт таблицу результатов и выдаёт ссылки. */
+/** Выполните один раз: создаёт таблицу, листы и ключ учителя. */
 function setup() {
   var props = PropertiesService.getScriptProperties();
   var ss = openSpreadsheet_();
@@ -154,24 +158,29 @@ function setup() {
     props.setProperty(PROP_SPREADSHEET, ss.getId());
   }
 
-  var sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-  }
-  if (sheet.getLastRow() === 0) {
-    var header = ['Время', 'Ученик', 'Email', 'Попытка', 'Балл', 'Максимум'];
+  var results = ss.getSheetByName(SHEET_RESULTS) || ss.insertSheet(SHEET_RESULTS);
+  if (results.getLastRow() === 0) {
+    var header = ['Время', 'Класс', 'Ученик', 'Email', 'Попытка', 'Балл', 'Максимум'];
     for (var i = 0; i < QUESTIONS.length; i++) {
       header.push(QUESTIONS[i].id + ' (' + QUESTIONS[i].topic + ')');
     }
-    sheet.appendRow(header);
-    sheet.setFrozenRows(1);
-    sheet.setFrozenColumns(2);
+    header.push('ID отправки');
+    results.appendRow(header);
+    results.setFrozenRows(1);
+    results.setFrozenColumns(3);
   }
 
-  var leftovers = ss.getSheets();
-  for (var j = 0; j < leftovers.length; j++) {
-    if (leftovers[j].getName() !== SHEET_NAME && leftovers[j].getLastRow() === 0) {
-      ss.deleteSheet(leftovers[j]);
+  var classes = ss.getSheetByName(SHEET_CLASSES) || ss.insertSheet(SHEET_CLASSES);
+  if (classes.getLastRow() === 0) {
+    classes.appendRow(['Класс', 'Фамилия и имя']);
+    classes.setFrozenRows(1);
+  }
+
+  var sheets = ss.getSheets();
+  for (var j = 0; j < sheets.length; j++) {
+    var name = sheets[j].getName();
+    if (name !== SHEET_RESULTS && name !== SHEET_CLASSES && sheets[j].getLastRow() === 0) {
+      ss.deleteSheet(sheets[j]);
     }
   }
 
@@ -180,11 +189,11 @@ function setup() {
     props.setProperty(PROP_KEY, Utilities.getUuid().replace(/-/g, '').substring(0, 10));
   }
 
-  Logger.log('Таблица результатов: ' + ss.getUrl());
+  Logger.log('Таблица: ' + ss.getUrl());
   Logger.log('Заданий в тесте: ' + QUESTIONS.length);
-  Logger.log('Ключ страницы учителя: ' + props.getProperty(PROP_KEY));
-  Logger.log('После развёртывания страница учителя: <ссылка>/exec?page=teacher&key=' +
-             props.getProperty(PROP_KEY));
+  Logger.log('Учеников в списках: ' + countStudents_());
+  Logger.log('КЛЮЧ УЧИТЕЛЯ: ' + props.getProperty(PROP_KEY));
+  Logger.log('Страница учителя: <ссылка веб-приложения>?page=teacher&key=' + props.getProperty(PROP_KEY));
 }
 
 function openSpreadsheet_() {
@@ -197,12 +206,52 @@ function openSpreadsheet_() {
   }
 }
 
-function resultsSheet_() {
+function sheet_(name) {
   var ss = openSpreadsheet_();
-  if (!ss) throw new Error('Таблица результатов не создана: выполните функцию setup().');
-  var sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) throw new Error('Лист «' + SHEET_NAME + '» не найден: выполните функцию setup().');
+  if (!ss) throw new Error('Таблица не создана: выполните функцию setup() в редакторе скрипта.');
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) throw new Error('Лист «' + name + '» не найден: выполните функцию setup().');
   return sheet;
+}
+
+function countStudents_() {
+  try {
+    return readClasses_().reduce(function (n, c) { return n + c.students.length; }, 0);
+  } catch (err) {
+    return 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Списки классов                                                      */
+/* ------------------------------------------------------------------ */
+
+/** Читает лист «Классы» → [{ klass: '8A', students: ['Иванов Иван', …] }, …] */
+function readClasses_() {
+  var sheet = sheet_(SHEET_CLASSES);
+  var last = sheet.getLastRow();
+  if (last < 2) return [];
+
+  var values = sheet.getRange(2, 1, last - 1, 2).getValues();
+  var order = [];
+  var map = {};
+
+  for (var i = 0; i < values.length; i++) {
+    var klass = String(values[i][0] || '').trim();
+    var name = String(values[i][1] || '').trim().replace(/\s+/g, ' ');
+    if (!klass || !name) continue;
+    if (!map[klass]) {
+      map[klass] = [];
+      order.push(klass);
+    }
+    if (map[klass].indexOf(name) === -1) map[klass].push(name);
+  }
+
+  order.sort(function (a, b) { return a.localeCompare(b, 'ru'); });
+  return order.map(function (klass) {
+    map[klass].sort(function (a, b) { return a.localeCompare(b, 'ru'); });
+    return { klass: klass, students: map[klass] };
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -210,55 +259,28 @@ function resultsSheet_() {
 /* ------------------------------------------------------------------ */
 
 function doGet(e) {
-  var params = (e && e.parameter) || {};
-
-  if (params.page === 'teacher') {
-    if (!isTeacher_(params.key)) {
-      return HtmlService.createHtmlOutput(
-        '<div style="font:16px/1.5 system-ui;padding:32px;max-width:640px">' +
-        '<h2>Страница учителя</h2>' +
-        '<p>Доступ только у учителя. Откройте ссылку с ключом: ' +
-        '<code>?page=teacher&amp;key=…</code>. Ключ выводится в журнале выполнения ' +
-        'функции <code>setup()</code>.</p></div>')
-        .setTitle('Методы списка — учитель');
-    }
-    var teacher = HtmlService.createTemplateFromFile('teacher');
-    teacher.payload = JSON.stringify({
-      questions: QUESTIONS.map(function (q) { return { id: q.id, topic: q.topic }; }),
-      key: params.key || ''
-    });
-    return teacher.evaluate()
-      .setTitle('Методы списка — экран учителя')
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-  }
-
-  var order = shuffled_(QUESTIONS);
-  var student = HtmlService.createTemplateFromFile('student');
-  student.payload = JSON.stringify({
-    email: safeEmail_(),
-    total: QUESTIONS.length,
-    questions: order.map(function (q) {
-      return { id: q.id, topic: q.topic, code: q.code, text: q.text, options: q.options };
-    })
-  });
-  return student.evaluate()
-    .setTitle('Методы списка — повторение')
+  var page = (e && e.parameter && e.parameter.page) || 'student';
+  var file = page === 'teacher' ? 'teacher' : 'student';
+  return HtmlService.createHtmlOutputFromFile(file)
+    .setTitle(file === 'teacher' ? 'Методы списка — экран учителя' : 'Методы списка — повторение')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
-function isTeacher_(key) {
-  var props = PropertiesService.getScriptProperties();
-  var expected = props.getProperty(PROP_KEY);
-  if (expected && key && key === expected) return true;
+/* ------------------------------------------------------------------ */
+/* Данные для страницы ученика                                         */
+/* ------------------------------------------------------------------ */
 
-  var owner = (props.getProperty(PROP_TEACHER) || '').toLowerCase();
-  var active = '';
-  try {
-    active = (Session.getActiveUser().getEmail() || '').toLowerCase();
-  } catch (err) {
-    active = '';
-  }
-  return !!owner && !!active && owner === active;
+/** Задания в случайном порядке плюс списки классов. */
+function getStudentData() {
+  var order = shuffled_(QUESTIONS);
+  return {
+    email: safeEmail_(),
+    total: QUESTIONS.length,
+    classes: readClasses_(),
+    questions: order.map(function (q) {
+      return { id: q.id, topic: q.topic, code: q.code, text: q.text, options: q.options };
+    })
+  };
 }
 
 function safeEmail_() {
@@ -281,23 +303,24 @@ function shuffled_(items) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Приём ответов ученика                                               */
+/* Приём ответов                                                       */
 /* ------------------------------------------------------------------ */
 
 /**
- * Принимает ответы, проверяет, пишет строку в таблицу.
- * submission = { name: String, answers: { q01: 2, q02: 0, ... } }
+ * submission = { klass: '8A', name: 'Иванов Иван', answers: { q01: 2, … },
+ *                uid: 'строка', addToClass: true }
+ *
+ * uid — номер отправки, который придумывает страница ученика. Если такая
+ * отправка уже записана (ответ ушёл повторно после обрыва связи), строка
+ * не дублируется, а ученик всё равно получает свой разбор.
  */
 function submitAnswers(submission) {
-  var name = String((submission && submission.name) || '').trim().replace(/\s+/g, ' ');
+  var klass = String((submission && submission.klass) || '').trim().substring(0, 20);
+  var name = String((submission && submission.name) || '').trim().replace(/\s+/g, ' ').substring(0, 80);
+  var uid = String((submission && submission.uid) || '').trim().substring(0, 50);
   var email = safeEmail_();
 
-  if (!name && !email) {
-    throw new Error('Укажите фамилию и имя.');
-  }
-  if (name && name.length > 80) {
-    name = name.substring(0, 80);
-  }
+  if (!name) throw new Error('Не выбрана фамилия.');
 
   var answers = (submission && submission.answers) || {};
   var feedback = [];
@@ -311,45 +334,77 @@ function submitAnswers(submission) {
     if (ok) score++;
     marks.push(ok ? 1 : 0);
     feedback.push({
-      id: q.id,
-      topic: q.topic,
-      code: q.code,
-      text: q.text,
-      options: q.options,
+      id: q.id, topic: q.topic, code: q.code, text: q.text, options: q.options,
       given: (typeof given === 'number') ? given : -1,
-      correct: q.correct,
-      ok: ok,
-      note: q.note
+      correct: q.correct, ok: ok, note: q.note
     });
   }
 
+  var duplicate = false;
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    var sheet = resultsSheet_();
-    var attempt = countAttempts_(sheet, name, email) + 1;
-    var row = [new Date(), name || email, email, attempt, score, QUESTIONS.length];
-    sheet.appendRow(row.concat(marks));
+    var sheet = sheet_(SHEET_RESULTS);
+    if (uid && hasSubmission_(sheet, uid)) {
+      duplicate = true;
+    } else {
+      var attempt = countAttempts_(sheet, klass, name) + 1;
+      sheet.appendRow(
+        [new Date(), klass, name, email, attempt, score, QUESTIONS.length].concat(marks).concat([uid]));
+      if (submission && submission.addToClass) {
+        addStudentIfMissing_(klass, name);
+      }
+    }
   } finally {
     lock.releaseLock();
   }
 
-  return { score: score, total: QUESTIONS.length, feedback: feedback };
+  return { score: score, total: QUESTIONS.length, feedback: feedback, duplicate: duplicate };
 }
 
-function countAttempts_(sheet, name, email) {
+/** Была ли уже записана отправка с таким номером. */
+function hasSubmission_(sheet, uid) {
+  var last = sheet.getLastRow();
+  if (last < 2) return false;
+  var col = 7 + QUESTIONS.length + 1;
+  var values = sheet.getRange(2, col, last - 1, 1).getValues();
+  for (var i = 0; i < values.length; i++) {
+    if (String(values[i][0] || '').trim() === uid) return true;
+  }
+  return false;
+}
+
+/** Дописывает ученика в список класса, если его там нет. */
+function addStudentIfMissing_(klass, name) {
+  if (!klass || !name) return;
+  try {
+    var sheet = sheet_(SHEET_CLASSES);
+    var last = sheet.getLastRow();
+    if (last >= 2) {
+      var values = sheet.getRange(2, 1, last - 1, 2).getValues();
+      for (var i = 0; i < values.length; i++) {
+        if (String(values[i][0] || '').trim().toLowerCase() === klass.toLowerCase() &&
+            String(values[i][1] || '').trim().replace(/\s+/g, ' ').toLowerCase() === name.toLowerCase()) {
+          return;
+        }
+      }
+    }
+    sheet.appendRow([klass, name]);
+  } catch (err) {
+    // список классов не настроен — ответ ученика всё равно записан
+  }
+}
+
+function countAttempts_(sheet, klass, name) {
   var last = sheet.getLastRow();
   if (last < 2) return 0;
   var values = sheet.getRange(2, 2, last - 1, 2).getValues();
+  var klassKey = klass.toLowerCase();
   var nameKey = name.toLowerCase();
-  var emailKey = (email || '').toLowerCase();
   var count = 0;
   for (var i = 0; i < values.length; i++) {
-    var rowName = String(values[i][0] || '').trim().toLowerCase();
-    var rowEmail = String(values[i][1] || '').trim().toLowerCase();
-    if (emailKey && rowEmail === emailKey) {
-      count++;
-    } else if (!emailKey && nameKey && rowName === nameKey) {
+    if (String(values[i][0] || '').trim().toLowerCase() === klassKey &&
+        String(values[i][1] || '').trim().toLowerCase() === nameKey) {
       count++;
     }
   }
@@ -360,87 +415,180 @@ function countAttempts_(sheet, name, email) {
 /* Данные для экрана учителя                                           */
 /* ------------------------------------------------------------------ */
 
-/** Возвращает сводку по классу: последняя попытка каждого ученика + статистика. */
+function isTeacher_(key) {
+  var props = PropertiesService.getScriptProperties();
+  var expected = props.getProperty(PROP_KEY);
+  if (expected && key && String(key) === expected) return true;
+
+  var owner = (props.getProperty(PROP_TEACHER) || '').toLowerCase();
+  var active = safeEmail_().toLowerCase();
+  return !!owner && !!active && owner === active;
+}
+
+/** Сводка по классу: последняя попытка каждого ученика плюс статистика. */
 function getResults(key) {
   if (!isTeacher_(key)) {
-    throw new Error('Доступ только у учителя.');
+    throw new Error('Доступ только у учителя. Откройте ссылку с ключом из журнала setup().');
   }
 
-  var sheet = resultsSheet_();
+  var sheet = sheet_(SHEET_RESULTS);
   var last = sheet.getLastRow();
-  var width = 6 + QUESTIONS.length;
+  var width = 7 + QUESTIONS.length + 1;
   var students = [];
-  var byKey = {};
+  var index = {};
 
   if (last >= 2) {
     var values = sheet.getRange(2, 1, last - 1, width).getValues();
     for (var i = 0; i < values.length; i++) {
       var row = values[i];
-      var name = String(row[1] || '').trim();
-      var email = String(row[2] || '').trim();
-      if (!name && !email) continue;
+      var name = String(row[2] || '').trim();
+      if (!name) continue;
 
-      var identity = (email || name).toLowerCase();
+      var klass = String(row[1] || '').trim();
       var marks = [];
       for (var m = 0; m < QUESTIONS.length; m++) {
-        marks.push(row[6 + m] === 1 || row[6 + m] === '1' ? 1 : 0);
+        marks.push(row[7 + m] === 1 || row[7 + m] === '1' ? 1 : 0);
       }
       var time = row[0] instanceof Date ? row[0] : new Date(row[0]);
+      var identity = (klass + '|' + name).toLowerCase();
 
       var entry = {
-        name: name || email,
-        email: email,
+        klass: klass,
+        name: name,
         time: time ? Utilities.formatDate(time, Session.getScriptTimeZone(), 'HH:mm') : '',
-        score: Number(row[4]) || 0,
-        total: Number(row[5]) || QUESTIONS.length,
+        score: Number(row[5]) || 0,
+        total: Number(row[6]) || QUESTIONS.length,
         attempts: 1,
         marks: marks
       };
 
-      if (byKey[identity]) {
-        entry.attempts = byKey[identity].attempts + 1;
-        students[byKey[identity].index] = entry;
-        byKey[identity] = { index: byKey[identity].index, attempts: entry.attempts };
+      if (index[identity] !== undefined) {
+        entry.attempts = students[index[identity]].attempts + 1;
+        students[index[identity]] = entry;
       } else {
-        byKey[identity] = { index: students.length, attempts: 1 };
+        index[identity] = students.length;
         students.push(entry);
       }
     }
   }
 
-  var perQuestion = [];
+  students.sort(function (a, b) {
+    return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
+  });
+
+  var expected = [];
+  try {
+    expected = readClasses_();
+  } catch (err) {
+    expected = [];
+  }
+
+  return {
+    students: students,
+    perQuestion: questionStats_(students),
+    classes: expected.map(function (c) {
+      var submitted = {};
+      students.forEach(function (s) {
+        if (s.klass === c.klass) submitted[s.name.toLowerCase()] = true;
+      });
+      // в счётчик идут только ученики из списка класса,
+      // иначе «сдали 2 из 2» соседствовало бы с фамилией в списке не сдавших
+      var answered = c.students.filter(function (n) {
+        return submitted[n.toLowerCase()];
+      }).length;
+      var extra = students.filter(function (s) { return s.klass === c.klass; }).length - answered;
+      return { klass: c.klass, expected: c.students.length, answered: answered, extra: extra };
+    }),
+    missing: missingStudents_(expected, students),
+    total: QUESTIONS.length,
+    average: average_(students),
+    spreadsheetUrl: openSpreadsheet_() ? openSpreadsheet_().getUrl() : ''
+  };
+}
+
+function questionStats_(students) {
+  var stats = [];
   for (var q = 0; q < QUESTIONS.length; q++) {
     var right = 0;
     for (var s = 0; s < students.length; s++) {
       if (students[s].marks[q] === 1) right++;
     }
-    perQuestion.push({
+    stats.push({
       id: QUESTIONS[q].id,
       topic: QUESTIONS[q].topic,
       right: right,
       percent: students.length ? Math.round((right / students.length) * 100) : 0
     });
   }
-
-  var sumScore = 0;
-  for (var k = 0; k < students.length; k++) sumScore += students[k].score;
-
-  students.sort(function (a, b) { return a.name.localeCompare(b.name, 'ru'); });
-
-  return {
-    students: students,
-    perQuestion: perQuestion,
-    total: QUESTIONS.length,
-    average: students.length ? Math.round((sumScore / students.length) * 10) / 10 : 0,
-    spreadsheetUrl: openSpreadsheet_() ? openSpreadsheet_().getUrl() : ''
-  };
+  return stats;
 }
 
-/** Очистить результаты перед новым уроком (строка заголовка остаётся). */
+function average_(students) {
+  if (!students.length) return 0;
+  var sum = 0;
+  for (var i = 0; i < students.length; i++) sum += students[i].score;
+  return Math.round((sum / students.length) * 10) / 10;
+}
+
+/** Кто из списка класса ещё не сдал. */
+function missingStudents_(expected, students) {
+  var answered = {};
+  for (var i = 0; i < students.length; i++) {
+    answered[(students[i].klass + '|' + students[i].name).toLowerCase()] = true;
+  }
+  var out = [];
+  for (var c = 0; c < expected.length; c++) {
+    for (var s = 0; s < expected[c].students.length; s++) {
+      var key = (expected[c].klass + '|' + expected[c].students[s]).toLowerCase();
+      if (!answered[key]) {
+        out.push({ klass: expected[c].klass, name: expected[c].students[s] });
+      }
+    }
+  }
+  return out;
+}
+
+/** Очистить ответы перед новым уроком (списки классов остаются). */
 function clearResults() {
-  var sheet = resultsSheet_();
+  var sheet = sheet_(SHEET_RESULTS);
   if (sheet.getLastRow() > 1) {
     sheet.deleteRows(2, sheet.getLastRow() - 1);
   }
-  Logger.log('Результаты очищены.');
+  Logger.log('Ответы очищены. Списки классов не тронуты.');
+}
+
+/** Проверка настройки: выполните, если что-то не работает. */
+function diagnose() {
+  var props = PropertiesService.getScriptProperties();
+  Logger.log('ID таблицы: ' + (props.getProperty(PROP_SPREADSHEET) || 'НЕ ЗАДАН — выполните setup()'));
+  Logger.log('Ключ учителя: ' + (props.getProperty(PROP_KEY) || 'НЕ ЗАДАН — выполните setup()'));
+
+  var names = ['student', 'teacher'];
+  for (var i = 0; i < names.length; i++) {
+    try {
+      HtmlService.createHtmlOutputFromFile(names[i]);
+      Logger.log('HTML-файл «' + names[i] + '»: найден');
+    } catch (err) {
+      Logger.log('HTML-файл «' + names[i] + '»: НЕ НАЙДЕН. Создайте файл с этим именем (+ → HTML).');
+    }
+  }
+
+  try {
+    var classes = readClasses_();
+    Logger.log('Классов в списке: ' + classes.length + ', учеников: ' + countStudents_());
+    for (var c = 0; c < classes.length; c++) {
+      Logger.log('  ' + classes[c].klass + ': ' + classes[c].students.length);
+    }
+    if (!classes.length) {
+      Logger.log('  Лист «Классы» пуст — ученик будет вводить фамилию вручную.');
+    }
+  } catch (err) {
+    Logger.log('Списки классов: ошибка — ' + err.message);
+  }
+
+  try {
+    Logger.log('Ответов записано: ' + Math.max(0, sheet_(SHEET_RESULTS).getLastRow() - 1));
+  } catch (err) {
+    Logger.log('Лист результатов: ошибка — ' + err.message);
+  }
 }

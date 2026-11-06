@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<base target="_top">
 <meta charset="utf-8">
 <title>Методы списка — экран учителя</title>
 <style>
@@ -19,6 +20,7 @@
   h2 { font-size: 16px; margin: 0 0 10px; }
   .status { color: var(--muted); font-size: 14px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .msg { padding: 11px 13px; border-radius: 8px; margin-bottom: 14px; font-size: 15px; background: #fce8e6; color: var(--bad); }
   .tiles { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
   .tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; flex: 1 1 150px; }
   .tile .v { font-size: 26px; font-weight: 700; }
@@ -35,18 +37,21 @@
   .bar i { display: block; height: 100%; background: var(--ok); }
   .bar i.low { background: var(--bad); }
   .bar i.mid { background: var(--warn); }
-  .qrow { display: grid; grid-template-columns: 120px 1fr 56px; gap: 10px; align-items: center; margin-bottom: 8px; font-size: 14px; }
+  .qrow { display: grid; grid-template-columns: 130px 1fr 56px; gap: 10px; align-items: center; margin-bottom: 8px; font-size: 14px; }
   .qrow .t { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .qrow .p { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
   .empty { color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .chips button { background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 20px; padding: 7px 14px; font: 500 14px inherit; font-family: inherit; cursor: pointer; }
+  .chips button.on { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .missing { font-size: 14px; color: var(--muted); line-height: 1.8; }
+  .missing b { color: var(--text); font-weight: 600; }
   a { color: var(--accent); }
-  button {
-    background: #fff; color: var(--accent); border: 1px solid var(--accent); border-radius: 8px;
-    padding: 8px 14px; font: 600 14px/1 inherit; font-family: inherit; cursor: pointer;
-  }
+  button.act { background: var(--card); color: var(--accent); border: 1px solid var(--accent); border-radius: 8px; padding: 8px 14px; font: 600 14px inherit; font-family: inherit; cursor: pointer; }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #0f1216; --card: #171c22; --text: #e9edf2; --muted: #9aa5b1; --line: #2b323b;
             --accent: #4c8dff; --ok: #6fd58f; --bad: #ff8a80; --warn: #ffc06e; }
+    .msg { background: #351b19; }
   }
 </style>
 </head>
@@ -57,12 +62,17 @@
     <h1>Методы списка — ответы класса</h1>
     <div>
       <span class="status" id="status">загружаем…</span>
-      <button id="refresh" style="margin-left:10px">Обновить</button>
+      <button class="act" id="refresh" style="margin-left:10px">Обновить</button>
     </div>
   </header>
 
+  <div id="banner"></div>
+
+  <div class="chips" id="class-filter"></div>
+
   <div class="tiles">
     <div class="tile"><div class="v" id="t-students">—</div><div class="k">ответили</div></div>
+    <div class="tile"><div class="v" id="t-missing">—</div><div class="k">ещё не сдали</div></div>
     <div class="tile"><div class="v" id="t-average">—</div><div class="k">средний балл</div></div>
     <div class="tile"><div class="v" id="t-hard">—</div><div class="k">слабее всего</div></div>
   </div>
@@ -75,14 +85,20 @@
   <div class="card">
     <h2>Ученики</h2>
     <div class="scroll" id="table-box"><span class="empty">Пока никто не сдал.</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Ещё не сдали</h2>
+    <div class="missing" id="missing-box"><span class="empty">Нет данных.</span></div>
     <div style="margin-top:12px"><a id="sheet-link" href="#" target="_blank" rel="noopener" style="display:none">Открыть таблицу результатов</a></div>
   </div>
 
 </div>
 
 <script>
-var CFG = <?!= payload ?>;
-var timer = null;
+var KEY = '';
+var FILTER = '';
+var LAST = null;
 
 function el(tag, cls, text) {
   var node = document.createElement(tag);
@@ -91,31 +107,82 @@ function el(tag, cls, text) {
   return node;
 }
 
+function banner(text) {
+  var box = document.getElementById('banner');
+  box.textContent = '';
+  if (text) box.appendChild(el('div', 'msg', text));
+}
+
+/* ключ берём из адреса страницы: внутри Apps Script это делается так */
+google.script.url.getLocation(function (location) {
+  KEY = (location && location.parameter && location.parameter.key) || '';
+  load();
+  setInterval(load, 7000);
+});
+
 function load() {
   google.script.run
-    .withSuccessHandler(draw)
+    .withSuccessHandler(function (data) { banner(''); draw(data); })
     .withFailureHandler(function (err) {
-      document.getElementById('status').textContent = 'ошибка: ' + err.message;
+      document.getElementById('status').textContent = 'ошибка';
+      banner((err && err.message ? err.message : String(err)));
     })
-    .getResults(CFG.key);
+    .getResults(KEY);
+}
+
+function visible(students) {
+  return FILTER ? students.filter(function (s) { return s.klass === FILTER; }) : students;
 }
 
 function draw(data) {
+  LAST = data;
   var now = new Date();
   document.getElementById('status').textContent = 'обновлено в ' +
     ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
 
-  document.getElementById('t-students').textContent = data.students.length;
-  document.getElementById('t-average').textContent =
-    data.students.length ? data.average + ' / ' + data.total : '—';
+  /* фильтр по классам */
+  var chips = document.getElementById('class-filter');
+  chips.textContent = '';
+  if (data.classes && data.classes.length) {
+    var all = el('button', FILTER ? '' : 'on', 'Все классы');
+    all.addEventListener('click', function () { FILTER = ''; draw(LAST); });
+    chips.appendChild(all);
+    data.classes.forEach(function (c) {
+      var label = c.klass + ' — ' + c.answered + '/' + c.expected;
+      if (c.extra) label += ' (+' + c.extra + ' не из списка)';
+      var b = el('button', FILTER === c.klass ? 'on' : '', label);
+      b.addEventListener('click', function () { FILTER = c.klass; draw(LAST); });
+      chips.appendChild(b);
+    });
+  }
 
-  var sorted = data.perQuestion.slice().sort(function (a, b) { return a.percent - b.percent; });
-  document.getElementById('t-hard').textContent =
-    data.students.length ? sorted[0].topic : '—';
+  var students = visible(data.students);
+  var missing = FILTER
+    ? data.missing.filter(function (m) { return m.klass === FILTER; })
+    : data.missing;
+
+  /* плитки */
+  document.getElementById('t-students').textContent = students.length;
+  document.getElementById('t-missing').textContent = missing.length;
+
+  var sum = 0;
+  students.forEach(function (s) { sum += s.score; });
+  document.getElementById('t-average').textContent = students.length
+    ? (Math.round((sum / students.length) * 10) / 10) + ' / ' + data.total : '—';
+
+  /* статистика по заданиям считается по видимым ученикам */
+  var stats = data.perQuestion.map(function (q, i) {
+    var right = 0;
+    students.forEach(function (s) { if (s.marks[i] === 1) right++; });
+    return { topic: q.topic, right: right,
+             percent: students.length ? Math.round((right / students.length) * 100) : 0 };
+  });
+  var sorted = stats.slice().sort(function (a, b) { return a.percent - b.percent; });
+  document.getElementById('t-hard').textContent = students.length ? sorted[0].topic : '—';
 
   var qbox = document.getElementById('per-question');
   qbox.textContent = '';
-  if (!data.students.length) {
+  if (!students.length) {
     qbox.appendChild(el('span', 'empty', 'Нет данных.'));
   } else {
     sorted.forEach(function (q) {
@@ -133,15 +200,15 @@ function draw(data) {
     });
   }
 
+  /* таблица */
   var box = document.getElementById('table-box');
   box.textContent = '';
-  if (!data.students.length) {
+  if (!students.length) {
     box.appendChild(el('span', 'empty', 'Пока никто не сдал.'));
   } else {
     var table = document.createElement('table');
-    var thead = document.createElement('thead');
     var hrow = document.createElement('tr');
-    ['Ученик', 'Балл', 'Попыток', 'Время'].forEach(function (h) {
+    ['Класс', 'Ученик', 'Балл', 'Попыток', 'Время'].forEach(function (h) {
       hrow.appendChild(el('th', null, h));
     });
     data.perQuestion.forEach(function (q, i) {
@@ -149,16 +216,16 @@ function draw(data) {
       th.title = q.topic;
       hrow.appendChild(th);
     });
+    var thead = document.createElement('thead');
     thead.appendChild(hrow);
     table.appendChild(thead);
 
     var tbody = document.createElement('tbody');
-    data.students.forEach(function (s) {
+    students.forEach(function (s) {
       var tr = document.createElement('tr');
-      tr.appendChild(el('td', null, s.name));
-      tr.appendChild(el('td', null, s.score + ' / ' + s.total));
-      tr.appendChild(el('td', null, String(s.attempts)));
-      tr.appendChild(el('td', null, s.time));
+      [s.klass, s.name, s.score + ' / ' + s.total, String(s.attempts), s.time].forEach(function (v) {
+        tr.appendChild(el('td', null, v));
+      });
       s.marks.forEach(function (m) {
         tr.appendChild(el('td', 'c mark ' + (m ? 'y' : 'n'), m ? '✓' : '✗'));
       });
@@ -166,6 +233,26 @@ function draw(data) {
     });
     table.appendChild(tbody);
     box.appendChild(table);
+  }
+
+  /* кто не сдал */
+  var mbox = document.getElementById('missing-box');
+  mbox.textContent = '';
+  if (!data.classes || !data.classes.length) {
+    mbox.appendChild(el('span', 'empty', 'Списки классов не заполнены — лист «Классы» в таблице.'));
+  } else if (!missing.length) {
+    mbox.appendChild(el('span', 'empty', 'Сдали все.'));
+  } else {
+    var byClass = {};
+    missing.forEach(function (m) {
+      (byClass[m.klass] = byClass[m.klass] || []).push(m.name);
+    });
+    Object.keys(byClass).sort().forEach(function (k) {
+      var line = el('div');
+      line.appendChild(el('b', null, k + ': '));
+      line.appendChild(el('span', null, byClass[k].join(', ')));
+      mbox.appendChild(line);
+    });
   }
 
   if (data.spreadsheetUrl) {
@@ -176,8 +263,6 @@ function draw(data) {
 }
 
 document.getElementById('refresh').addEventListener('click', load);
-load();
-timer = setInterval(load, 7000);
 </script>
 </body>
 </html>
