@@ -7,7 +7,8 @@
 <style>
   :root {
     --bg: #f6f7f9; --card: #fff; --text: #15181d; --muted: #5b6471;
-    --line: #dfe3e8; --accent: #1f6feb; --ok: #137333; --bad: #b3261e; --warn: #b06000;
+    --line: #dfe3e8; --accent: #1f6feb; --ok: #137333; --ok-bg: #e6f4ea;
+    --bad: #b3261e; --bad-bg: #fce8e6; --warn: #b06000; --warn-bg: #fff4d6;
   }
   * { box-sizing: border-box; }
   body {
@@ -17,14 +18,64 @@
   .wrap { max-width: 1100px; margin: 0 auto; }
   header { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
   h1 { font-size: 21px; margin: 0; }
-  h2 { font-size: 16px; margin: 0 0 10px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
   .status { color: var(--muted); font-size: 14px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
-  .msg { padding: 11px 13px; border-radius: 8px; margin-bottom: 14px; font-size: 15px; background: #fce8e6; color: var(--bad); }
+  .msg { padding: 11px 13px; border-radius: 8px; margin-bottom: 14px; font-size: 15px; background: var(--bad-bg); color: var(--bad); }
+  .msg.ok { background: var(--ok-bg); color: var(--ok); }
   .tiles { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
-  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; flex: 1 1 150px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; flex: 1 1 140px; }
   .tile .v { font-size: 26px; font-weight: 700; }
   .tile .k { color: var(--muted); font-size: 13px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .chips button, button.act {
+    background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 20px;
+    padding: 7px 14px; font: 500 14px inherit; font-family: inherit; cursor: pointer;
+  }
+  .chips button.on { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  button.act { border-radius: 8px; color: var(--accent); border-color: var(--accent); font-weight: 600; }
+  button.ask { border-radius: 20px; padding: 3px 10px; font-size: 13px; color: var(--accent); border: 1px solid var(--accent); background: transparent; cursor: pointer; font-family: inherit; margin-left: 6px; }
+  button.send { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; font: 600 15px inherit; font-family: inherit; cursor: pointer; }
+  /* разбор задания */
+  .q { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; background: var(--card); }
+  .q.hard { border-color: var(--bad); }
+  .q-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; cursor: pointer; }
+  .q-title { font-weight: 700; }
+  .q-title .topic { font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 500; color: var(--muted); }
+  .counts { font-size: 14px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .counts .y { color: var(--ok); font-weight: 600; }
+  .counts .n { color: var(--bad); font-weight: 600; }
+  .counts .s { color: var(--muted); font-weight: 600; }
+  .bar { background: var(--line); border-radius: 4px; height: 8px; overflow: hidden; margin: 10px 0 0; }
+  .bar i { display: block; height: 100%; background: var(--ok); }
+  .bar i.low { background: var(--bad); }
+  .bar i.mid { background: var(--warn); }
+  .q-body { margin-top: 14px; }
+  pre { background: #11161d; color: #e8edf3; padding: 11px 13px; border-radius: 8px; overflow-x: auto;
+        font: 13px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 8px 0 12px; }
+  .optline { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font: 14px "SF Mono", Menlo, Consolas, monospace; }
+  .optline .txt { flex: 0 0 auto; min-width: 180px; }
+  .optline .meter { flex: 1 1 auto; background: var(--line); border-radius: 4px; height: 10px; overflow: hidden; }
+  .optline .meter i { display: block; height: 100%; background: var(--bad); }
+  .optline.right .meter i { background: var(--ok); }
+  .optline .num { width: 34px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .optline.right .txt { color: var(--ok); font-weight: 700; }
+  .group { margin-top: 14px; }
+  .group h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); margin: 0 0 8px; }
+  .person { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .person:last-child { border-bottom: 0; }
+  .person .chose { color: var(--bad); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+  .person .kl { color: var(--muted); font-size: 13px; }
+  .right-names { font-size: 14px; color: var(--muted); }
+  .askbox { margin: 8px 0 12px; padding: 12px; background: var(--bg); border-radius: 8px; }
+  .askbox textarea { width: 100%; min-height: 70px; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
+                     font: 15px/1.5 inherit; font-family: inherit; background: var(--card); color: var(--text); resize: vertical; }
+  .askbox .row { display: flex; gap: 8px; margin-top: 8px; }
+  .thread { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .bubble { border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; font-size: 14px; }
+  .bubble.teacher { background: #eef4ff; }
+  .bubble.student { background: var(--bg); border: 1px solid var(--line); }
+  .bubble .from { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
   table { border-collapse: collapse; width: 100%; font-size: 14px; }
   th, td { padding: 7px 8px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
   th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
@@ -33,25 +84,16 @@
   .mark { font-weight: 700; }
   .mark.y { color: var(--ok); }
   .mark.n { color: var(--bad); }
-  .bar { background: var(--line); border-radius: 4px; height: 8px; width: 100%; overflow: hidden; }
-  .bar i { display: block; height: 100%; background: var(--ok); }
-  .bar i.low { background: var(--bad); }
-  .bar i.mid { background: var(--warn); }
-  .qrow { display: grid; grid-template-columns: 130px 1fr 56px; gap: 10px; align-items: center; margin-bottom: 8px; font-size: 14px; }
-  .qrow .t { font-family: "SF Mono", Menlo, Consolas, monospace; }
-  .qrow .p { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mark.q { color: var(--line); }
   .empty { color: var(--muted); }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-  .chips button { background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 20px; padding: 7px 14px; font: 500 14px inherit; font-family: inherit; cursor: pointer; }
-  .chips button.on { border-color: var(--accent); color: var(--accent); font-weight: 600; }
   .missing { font-size: 14px; color: var(--muted); line-height: 1.8; }
-  .missing b { color: var(--text); font-weight: 600; }
+  .missing b { color: var(--text); }
   a { color: var(--accent); }
-  button.act { background: var(--card); color: var(--accent); border: 1px solid var(--accent); border-radius: 8px; padding: 8px 14px; font: 600 14px inherit; font-family: inherit; cursor: pointer; }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #0f1216; --card: #171c22; --text: #e9edf2; --muted: #9aa5b1; --line: #2b323b;
-            --accent: #4c8dff; --ok: #6fd58f; --bad: #ff8a80; --warn: #ffc06e; }
-    .msg { background: #351b19; }
+            --accent: #4c8dff; --ok: #6fd58f; --ok-bg: #16301f; --bad: #ff8a80; --bad-bg: #351b19;
+            --warn: #ffc06e; --warn-bg: #332814; }
+    .bubble.teacher { background: #1b2740; }
   }
 </style>
 </head>
@@ -67,30 +109,34 @@
   </header>
 
   <div id="banner"></div>
-
   <div class="chips" id="class-filter"></div>
 
   <div class="tiles">
-    <div class="tile"><div class="v" id="t-students">—</div><div class="k">ответили</div></div>
-    <div class="tile"><div class="v" id="t-missing">—</div><div class="k">ещё не сдали</div></div>
+    <div class="tile"><div class="v" id="t-done">—</div><div class="k">сдали</div></div>
+    <div class="tile"><div class="v" id="t-doing">—</div><div class="k">ещё решают</div></div>
+    <div class="tile"><div class="v" id="t-missing">—</div><div class="k">не начали</div></div>
     <div class="tile"><div class="v" id="t-average">—</div><div class="k">средний балл</div></div>
     <div class="tile"><div class="v" id="t-hard">—</div><div class="k">слабее всего</div></div>
   </div>
 
   <div class="card">
-    <h2>Что разбирать в первую очередь</h2>
-    <div id="per-question"><span class="empty">Нет данных.</span></div>
+    <h2>Разбор по заданиям</h2>
+    <div class="chips" style="margin-bottom:12px">
+      <button id="sort-hard" class="on">Сначала трудные</button>
+      <button id="sort-order">По порядку</button>
+    </div>
+    <div id="questions"><span class="empty">Нет данных.</span></div>
   </div>
 
   <div class="card">
     <h2>Ученики</h2>
-    <div class="scroll" id="table-box"><span class="empty">Пока никто не сдал.</span></div>
+    <div class="scroll" id="table-box"><span class="empty">Пока никто не отвечал.</span></div>
   </div>
 
   <div class="card">
     <h2>Ещё не сдали</h2>
     <div class="missing" id="missing-box"><span class="empty">Нет данных.</span></div>
-    <div style="margin-top:12px"><a id="sheet-link" href="#" target="_blank" rel="noopener" style="display:none">Открыть таблицу результатов</a></div>
+    <div style="margin-top:12px"><a id="sheet-link" href="#" target="_blank" rel="noopener" style="display:none">Открыть таблицу</a></div>
   </div>
 
 </div>
@@ -98,162 +144,131 @@
 <script>
 var KEY = '';
 var FILTER = '';
+var SORT = 'hard';
 var LAST = null;
+var OPEN = {};          // какие задания развёрнуты
+var ASKING = null;      // кому сейчас пишем: 'qid|класс|имя'
+var DRAFT = '';         // набранный, но не отправленный текст
 
 function el(tag, cls, text) {
-  var node = document.createElement(tag);
-  if (cls) node.className = cls;
-  if (text !== undefined) node.textContent = text;
-  return node;
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  return n;
 }
-
-function banner(text) {
+function banner(text, kind) {
   var box = document.getElementById('banner');
   box.textContent = '';
-  if (text) box.appendChild(el('div', 'msg', text));
+  if (text) box.appendChild(el('div', 'msg ' + (kind || ''), text));
 }
 
-/* ключ берём из адреса страницы: внутри Apps Script это делается так */
-google.script.url.getLocation(function (location) {
-  KEY = (location && location.parameter && location.parameter.key) || '';
+google.script.url.getLocation(function (loc) {
+  KEY = (loc && loc.parameter && loc.parameter.key) || '';
   load();
-  setInterval(load, 7000);
+  // список обновляется сам, страницу перезагружать не нужно
+  setInterval(function () { load(true); }, 10000);
 });
 
-function load() {
+/**
+ * auto = true — это автообновление по таймеру. Пока учитель набирает
+ * вопрос ученику, перерисовку откладываем, иначе набранный текст пропадёт.
+ */
+function load(auto) {
   google.script.run
-    .withSuccessHandler(function (data) { banner(''); draw(data); })
+    .withSuccessHandler(function (data) {
+      banner('');
+      LAST = data;
+      if (auto && ASKING) {
+        document.getElementById('status').textContent = 'есть новые данные — покажем, как отправите вопрос';
+        return;
+      }
+      draw();
+    })
     .withFailureHandler(function (err) {
       document.getElementById('status').textContent = 'ошибка';
-      banner((err && err.message ? err.message : String(err)));
+      banner(err && err.message ? err.message : String(err));
     })
     .getResults(KEY);
 }
 
-function visible(students) {
-  return FILTER ? students.filter(function (s) { return s.klass === FILTER; }) : students;
-}
+function inFilter(p) { return !FILTER || p.klass === FILTER; }
 
-function draw(data) {
-  LAST = data;
+function draw() {
+  var data = LAST;
+  if (!data) return;
   var now = new Date();
   document.getElementById('status').textContent = 'обновлено в ' +
     ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
 
-  /* фильтр по классам */
+  /* классы */
   var chips = document.getElementById('class-filter');
   chips.textContent = '';
   if (data.classes && data.classes.length) {
     var all = el('button', FILTER ? '' : 'on', 'Все классы');
-    all.addEventListener('click', function () { FILTER = ''; draw(LAST); });
+    all.addEventListener('click', function () { FILTER = ''; draw(); });
     chips.appendChild(all);
     data.classes.forEach(function (c) {
       var label = c.klass + ' — ' + c.answered + '/' + c.expected;
-      if (c.extra) label += ' (+' + c.extra + ' не из списка)';
+      if (c.extra) label += ' (+' + c.extra + ')';
       var b = el('button', FILTER === c.klass ? 'on' : '', label);
-      b.addEventListener('click', function () { FILTER = c.klass; draw(LAST); });
+      b.addEventListener('click', function () { FILTER = c.klass; draw(); });
       chips.appendChild(b);
     });
   }
 
-  var students = visible(data.students);
-  var missing = FILTER
-    ? data.missing.filter(function (m) { return m.klass === FILTER; })
-    : data.missing;
+  var students = data.students.filter(inFilter);
+  var done = students.filter(function (s) { return s.finished; });
+  var doing = students.filter(function (s) { return !s.finished; });
+  var missing = data.missing.filter(inFilter);
 
-  /* плитки */
-  document.getElementById('t-students').textContent = students.length;
-  document.getElementById('t-missing').textContent = missing.length;
+  document.getElementById('t-done').textContent = done.length;
+  document.getElementById('t-doing').textContent = doing.length;
+  document.getElementById('t-missing').textContent =
+    Math.max(0, missing.length - doing.length);
 
-  var sum = 0;
-  students.forEach(function (s) { sum += s.score; });
-  document.getElementById('t-average').textContent = students.length
-    ? (Math.round((sum / students.length) * 10) / 10) + ' / ' + data.total : '—';
+  var sum = 0; done.forEach(function (s) { sum += s.score; });
+  document.getElementById('t-average').textContent =
+    done.length ? (Math.round((sum / done.length) * 10) / 10) + ' / ' + data.total : '—';
 
-  /* статистика по заданиям считается по видимым ученикам */
-  var stats = data.perQuestion.map(function (q, i) {
-    var right = 0;
-    students.forEach(function (s) { if (s.marks[i] === 1) right++; });
-    return { topic: q.topic, right: right,
-             percent: students.length ? Math.round((right / students.length) * 100) : 0 };
+  /* разбор по заданиям */
+  var qs = data.perQuestion.map(function (q) {
+    var right = q.right.filter(inFilter);
+    var wrong = q.wrong.filter(inFilter);
+    var silent = q.silent.filter(inFilter);
+    var answered = right.length + wrong.length;
+    return {
+      id: q.id, number: q.number, topic: q.topic, text: q.text, code: q.code,
+      options: q.options, correctText: q.correctText,
+      right: right, wrong: wrong, silent: silent, answered: answered,
+      percent: answered ? Math.round((right.length / answered) * 100) : 0
+    };
   });
-  var sorted = stats.slice().sort(function (a, b) { return a.percent - b.percent; });
-  document.getElementById('t-hard').textContent = students.length ? sorted[0].topic : '—';
 
-  var qbox = document.getElementById('per-question');
-  qbox.textContent = '';
-  if (!students.length) {
-    qbox.appendChild(el('span', 'empty', 'Нет данных.'));
-  } else {
-    sorted.forEach(function (q) {
-      var row = el('div', 'qrow');
-      row.appendChild(el('div', 't', q.topic));
-      var bar = el('div', 'bar');
-      var fill = el('i');
-      fill.style.width = q.percent + '%';
-      if (q.percent < 50) fill.className = 'low';
-      else if (q.percent < 80) fill.className = 'mid';
-      bar.appendChild(fill);
-      row.appendChild(bar);
-      row.appendChild(el('div', 'p', q.percent + '%'));
-      qbox.appendChild(row);
+  var touched = qs.filter(function (q) { return q.answered > 0; });
+  document.getElementById('t-hard').textContent = touched.length
+    ? touched.slice().sort(function (a, b) { return a.percent - b.percent; })[0].topic : '—';
+
+  var ordered = qs.slice();
+  if (SORT === 'hard') {
+    ordered.sort(function (a, b) {
+      if (!a.answered && b.answered) return 1;
+      if (a.answered && !b.answered) return -1;
+      return a.percent - b.percent || a.number - b.number;
     });
+  } else {
+    ordered.sort(function (a, b) { return a.number - b.number; });
   }
 
-  /* таблица */
-  var box = document.getElementById('table-box');
+  document.getElementById('sort-hard').className = SORT === 'hard' ? 'on' : '';
+  document.getElementById('sort-order').className = SORT === 'order' ? 'on' : '';
+
+  var box = document.getElementById('questions');
   box.textContent = '';
-  if (!students.length) {
-    box.appendChild(el('span', 'empty', 'Пока никто не сдал.'));
-  } else {
-    var table = document.createElement('table');
-    var hrow = document.createElement('tr');
-    ['Класс', 'Ученик', 'Балл', 'Попыток', 'Время'].forEach(function (h) {
-      hrow.appendChild(el('th', null, h));
-    });
-    data.perQuestion.forEach(function (q, i) {
-      var th = el('th', 'c', String(i + 1));
-      th.title = q.topic;
-      hrow.appendChild(th);
-    });
-    var thead = document.createElement('thead');
-    thead.appendChild(hrow);
-    table.appendChild(thead);
+  if (!qs.length) { box.appendChild(el('span', 'empty', 'Нет данных.')); }
+  else ordered.forEach(function (q) { box.appendChild(questionCard(q, data.dialog)); });
 
-    var tbody = document.createElement('tbody');
-    students.forEach(function (s) {
-      var tr = document.createElement('tr');
-      [s.klass, s.name, s.score + ' / ' + s.total, String(s.attempts), s.time].forEach(function (v) {
-        tr.appendChild(el('td', null, v));
-      });
-      s.marks.forEach(function (m) {
-        tr.appendChild(el('td', 'c mark ' + (m ? 'y' : 'n'), m ? '✓' : '✗'));
-      });
-      tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
-    box.appendChild(table);
-  }
-
-  /* кто не сдал */
-  var mbox = document.getElementById('missing-box');
-  mbox.textContent = '';
-  if (!data.classes || !data.classes.length) {
-    mbox.appendChild(el('span', 'empty', 'Списки классов не заполнены — лист «Классы» в таблице.'));
-  } else if (!missing.length) {
-    mbox.appendChild(el('span', 'empty', 'Сдали все.'));
-  } else {
-    var byClass = {};
-    missing.forEach(function (m) {
-      (byClass[m.klass] = byClass[m.klass] || []).push(m.name);
-    });
-    Object.keys(byClass).sort().forEach(function (k) {
-      var line = el('div');
-      line.appendChild(el('b', null, k + ': '));
-      line.appendChild(el('span', null, byClass[k].join(', ')));
-      mbox.appendChild(line);
-    });
-  }
+  drawTable(data, students);
+  drawMissing(data, missing);
 
   if (data.spreadsheetUrl) {
     var link = document.getElementById('sheet-link');
@@ -262,7 +277,220 @@ function draw(data) {
   }
 }
 
+/* ---------- карточка задания ---------- */
+
+function questionCard(q, dialog) {
+  var card = el('div', 'q' + (q.answered && q.percent < 50 ? ' hard' : ''));
+
+  var head = el('div', 'q-head');
+  var title = el('div', 'q-title');
+  title.appendChild(el('span', null, 'Задание ' + q.number + ' · '));
+  title.appendChild(el('span', 'topic', q.topic));
+  head.appendChild(title);
+
+  var counts = el('div', 'counts');
+  counts.appendChild(el('span', 'y', 'верно ' + q.right.length));
+  counts.appendChild(el('span', 'n', 'неверно ' + q.wrong.length));
+  counts.appendChild(el('span', 's', 'не ответили ' + q.silent.length));
+  head.appendChild(counts);
+  head.addEventListener('click', function () {
+    OPEN[q.id] = !OPEN[q.id];
+    draw();
+  });
+  card.appendChild(head);
+
+  var bar = el('div', 'bar');
+  var fill = el('i');
+  fill.style.width = (q.answered ? q.percent : 0) + '%';
+  if (q.percent < 50) fill.className = 'low';
+  else if (q.percent < 80) fill.className = 'mid';
+  bar.appendChild(fill);
+  card.appendChild(bar);
+
+  if (!OPEN[q.id]) return card;
+
+  var body = el('div', 'q-body');
+  body.appendChild(el('div', null, q.text));
+  body.appendChild(el('pre', null, q.code));
+
+  /* варианты ответов со счётчиком */
+  var maxCount = 1;
+  q.options.forEach(function (o) { if (o.count > maxCount) maxCount = o.count; });
+  q.options.forEach(function (o) {
+    var line = el('div', 'optline' + (o.correct ? ' right' : ''));
+    line.appendChild(el('div', 'txt', o.text + (o.correct ? '  ✓' : '')));
+    var meter = el('div', 'meter');
+    var m = el('i');
+    m.style.width = Math.round((o.count / maxCount) * 100) + '%';
+    meter.appendChild(m);
+    line.appendChild(meter);
+    line.appendChild(el('div', 'num', String(o.count)));
+    body.appendChild(line);
+  });
+
+  body.appendChild(peopleGroup('Ошиблись', q.wrong, q, true));
+  body.appendChild(peopleGroup('Не ответили', q.silent, q, false));
+
+  if (q.right.length) {
+    var g = el('div', 'group');
+    g.appendChild(el('h3', null, 'Ответили верно'));
+    g.appendChild(el('div', 'right-names', q.right.map(function (p) { return p.name; }).join(', ')));
+    body.appendChild(g);
+  }
+
+  /* переписка по этому заданию */
+  var thread = (dialog || []).filter(function (m) { return m.qid === q.id && inFilter(m); });
+  if (thread.length) {
+    var t = el('div', 'thread');
+    t.appendChild(el('h3', null, 'Переписка по заданию'));
+    thread.forEach(function (m) {
+      var b = el('div', 'bubble ' + (m.author === 'Учитель' ? 'teacher' : 'student'));
+      b.appendChild(el('div', 'from', m.author + ' · ' + m.klass + ', ' + m.name + ' · ' + m.time));
+      b.appendChild(el('div', null, m.text));
+      t.appendChild(b);
+    });
+    body.appendChild(t);
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+function peopleGroup(title, people, q, isWrong) {
+  var g = el('div', 'group');
+  g.appendChild(el('h3', null, title + ' — ' + people.length));
+  if (!people.length) {
+    g.appendChild(el('div', 'empty', '—'));
+    return g;
+  }
+  people.forEach(function (p) {
+    var row = el('div', 'person');
+    row.appendChild(el('span', null, p.name));
+    row.appendChild(el('span', 'kl', p.klass));
+    if (isWrong && p.chosen) row.appendChild(el('span', 'chose', 'выбрал: ' + p.chosen));
+
+    var askId = q.id + '|' + p.klass + '|' + p.name;
+    var ask = el('button', 'ask', 'Спросить');
+    ask.addEventListener('click', function () {
+      ASKING = (ASKING === askId) ? null : askId;
+      DRAFT = '';
+      draw();
+    });
+    row.appendChild(ask);
+    g.appendChild(row);
+
+    if (ASKING === askId) g.appendChild(askBox(q, p, isWrong, askId));
+  });
+  return g;
+}
+
+function askBox(q, p, isWrong, askId) {
+  var box = el('div', 'askbox');
+  var area = document.createElement('textarea');
+  area.value = DRAFT || (isWrong
+    ? 'Задание ' + q.number + ': вы ответили «' + (p.chosen || '') + '», а правильно «' +
+      q.correctText + '». Почему вы так ответили, в чём была ошибка?'
+    : 'Задание ' + q.number + ': вы ещё не ответили. В чём трудность, что непонятно?');
+  area.addEventListener('input', function () { DRAFT = area.value; });
+  box.appendChild(area);
+  setTimeout(function () { area.focus(); }, 0);
+
+  var row = el('div', 'row');
+  var send = el('button', 'send', 'Отправить ученику');
+  send.addEventListener('click', function () {
+    var text = area.value.trim();
+    if (!text) return;
+    send.disabled = true; send.textContent = 'Отправляем…';
+    google.script.run
+      .withSuccessHandler(function () {
+        ASKING = null; DRAFT = '';
+        banner('Вопрос отправлен: ' + p.name + '. Ответ появится здесь же.', 'ok');
+        load();
+      })
+      .withFailureHandler(function (err) {
+        send.disabled = false; send.textContent = 'Отправить ученику';
+        banner('Не отправилось: ' + (err && err.message ? err.message : err));
+      })
+      .askStudent(KEY, {
+        uid: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        klass: p.klass, name: p.name, qid: q.id, text: text
+      });
+  });
+  row.appendChild(send);
+
+  var cancel = el('button', 'act', 'Отмена');
+  cancel.addEventListener('click', function () { ASKING = null; DRAFT = ''; draw(); });
+  row.appendChild(cancel);
+
+  box.appendChild(row);
+  return box;
+}
+
+/* ---------- таблица и список не сдавших ---------- */
+
+function drawTable(data, students) {
+  var box = document.getElementById('table-box');
+  box.textContent = '';
+  if (!students.length) {
+    box.appendChild(el('span', 'empty', 'Пока никто не отвечал.'));
+    return;
+  }
+  var table = document.createElement('table');
+  var hrow = document.createElement('tr');
+  ['Класс', 'Ученик', 'Балл', 'Статус', 'Время'].forEach(function (h) {
+    hrow.appendChild(el('th', null, h));
+  });
+  data.perQuestion.forEach(function (q) {
+    var th = el('th', 'c', String(q.number));
+    th.title = q.topic;
+    hrow.appendChild(th);
+  });
+  var thead = document.createElement('thead');
+  thead.appendChild(hrow);
+  table.appendChild(thead);
+
+  var tbody = document.createElement('tbody');
+  students.forEach(function (s) {
+    var tr = document.createElement('tr');
+    var status = s.finished
+      ? 'сдал' + (s.attempts > 1 ? ' (попыток ' + s.attempts + ')' : '')
+      : 'решает ' + (s.answered || 0) + '/' + s.total;
+    [s.klass, s.name, s.score + ' / ' + s.total, status, s.time || '—'].forEach(function (v) {
+      tr.appendChild(el('td', null, v));
+    });
+    s.marks.forEach(function (m) {
+      tr.appendChild(m === 1 ? el('td', 'c mark y', '✓')
+                   : m === 0 ? el('td', 'c mark n', '✗')
+                             : el('td', 'c mark q', '·'));
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  box.appendChild(table);
+}
+
+function drawMissing(data, missing) {
+  var mbox = document.getElementById('missing-box');
+  mbox.textContent = '';
+  if (!data.classes || !data.classes.length) {
+    mbox.appendChild(el('span', 'empty', 'Списки классов не заполнены — лист «Классы» в таблице.'));
+  } else if (!missing.length) {
+    mbox.appendChild(el('span', 'empty', 'Сдали все.'));
+  } else {
+    var byClass = {};
+    missing.forEach(function (m) { (byClass[m.klass] = byClass[m.klass] || []).push(m.name); });
+    Object.keys(byClass).sort().forEach(function (k) {
+      var line = el('div');
+      line.appendChild(el('b', null, k + ': '));
+      line.appendChild(el('span', null, byClass[k].join(', ')));
+      mbox.appendChild(line);
+    });
+  }
+}
+
 document.getElementById('refresh').addEventListener('click', load);
+document.getElementById('sort-hard').addEventListener('click', function () { SORT = 'hard'; draw(); });
+document.getElementById('sort-order').addEventListener('click', function () { SORT = 'order'; draw(); });
 </script>
 </body>
 </html>

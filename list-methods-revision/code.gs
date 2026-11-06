@@ -1,33 +1,40 @@
 /**
  * Повторение: методы списка (Python).
  *
- * Веб-приложение с двумя страницами:
- *   - страница ученика  — ссылка веб-приложения (.../exec);
- *   - страница учителя  — та же ссылка с ?page=teacher&key=КЛЮЧ.
+ * Страница ученика: задания выдаются по одному. Ответил — сразу видит
+ * зелёный или красный и пояснение, после этого открывается следующее.
+ * Страница учителя: разбор по каждому заданию (кто ответил верно, кто нет
+ * и что именно выбрал) и возможность спросить ученика прямо с экрана;
+ * ученик видит вопрос у себя и отвечает.
  *
- * Ученик выбирает класс, находит себя в списке и проходит тест.
- * Списки классов хранятся на листе «Классы» вашей Google Таблицы,
- * в коде их нет. Ответы пишутся на лист «Результаты».
+ * Листы Google Таблицы:
+ *   «Классы»      — Класс | Фамилия и имя
+ *   «Ответы»      — журнал: по строке на каждое отвеченное задание
+ *   «Результаты»  — сводка: по строке на каждую завершённую попытку
+ *   «Диалог»      — переписка учителя и ученика по заданиям
  *
- * Перед раздачей ссылки один раз выполните функцию setup().
+ * Перед раздачей ссылки один раз выполните setup().
  */
 
-var SHEET_RESULTS = 'Результаты';
 var SHEET_CLASSES = 'Классы';
+var SHEET_ANSWERS = 'Ответы';
+var SHEET_RESULTS = 'Результаты';
+var SHEET_DIALOG = 'Диалог';
 var SPREADSHEET_TITLE = 'Методы списка — повторение';
 
 var PROP_SPREADSHEET = 'SPREADSHEET_ID';
 var PROP_TEACHER = 'TEACHER_EMAIL';
 var PROP_KEY = 'TEACHER_KEY';
 
+var AUTHOR_TEACHER = 'Учитель';
+var AUTHOR_STUDENT = 'Ученик';
+
 /**
  * Банк заданий. correct — индекс правильного варианта в options.
- * topic попадает в заголовок таблицы учителя, note ученик видит после сдачи.
  */
 var QUESTIONS = [
   {
-    id: 'q01',
-    topic: 'pop',
+    id: 'q01', topic: 'pop',
     code: 'a = [1, 2, 3]\nx = a.pop(0)\nprint(x, a)',
     text: 'Что выведет программа?',
     options: ['1 [1, 2, 3]', '3 [1, 2]', '1 [2, 3]', 'Ошибка'],
@@ -35,8 +42,7 @@ var QUESTIONS = [
     note: 'pop(i) удаляет элемент по индексу и возвращает его. Без аргумента pop() удаляет последний элемент.'
   },
   {
-    id: 'q02',
-    topic: 'remove',
+    id: 'q02', topic: 'remove',
     code: 'a = [1, 2, 2, 3]\na.remove(2)\nprint(a)',
     text: 'Что выведет программа?',
     options: ['[1, 3]', '[1, 2, 3]', '[1, 2, 2, 3]', 'Ошибка'],
@@ -44,8 +50,7 @@ var QUESTIONS = [
     note: 'remove(x) удаляет только первое вхождение значения, а не все сразу.'
   },
   {
-    id: 'q03',
-    topic: 'insert',
+    id: 'q03', topic: 'insert',
     code: 'a = [1, 2, 3]\na.insert(1, 9)\nprint(a)',
     text: 'Что выведет программа?',
     options: ['[9, 1, 2, 3]', '[1, 2, 9, 3]', '[1, 9, 3]', '[1, 9, 2, 3]'],
@@ -53,8 +58,7 @@ var QUESTIONS = [
     note: 'insert(i, x) вставляет x так, что он становится элементом с индексом i, остальные сдвигаются вправо.'
   },
   {
-    id: 'q04',
-    topic: 'count',
+    id: 'q04', topic: 'count',
     code: 'a = [5, 7, 5, 5]\nprint(a.count(5))',
     text: 'Что выведет программа?',
     options: ['3', '2', '1', '0'],
@@ -62,8 +66,7 @@ var QUESTIONS = [
     note: 'count(x) возвращает число вхождений значения. Если значения нет, вернётся 0, ошибки не будет.'
   },
   {
-    id: 'q05',
-    topic: 'index',
+    id: 'q05', topic: 'index',
     code: "a = ['x', 'y', 'z']\nprint(a.index('z'))",
     text: 'Что выведет программа?',
     options: ['3', 'z', '2', 'Ошибка'],
@@ -71,8 +74,7 @@ var QUESTIONS = [
     note: 'index(x) возвращает индекс первого вхождения. Индексы начинаются с нуля, поэтому у третьего элемента индекс 2.'
   },
   {
-    id: 'q06',
-    topic: 'append',
+    id: 'q06', topic: 'append',
     code: 'a = [1, 2]\na.append([3, 4])\nprint(len(a))',
     text: 'Что выведет программа?',
     options: ['4', '3', '2', 'Ошибка'],
@@ -80,8 +82,7 @@ var QUESTIONS = [
     note: 'append добавляет аргумент как один элемент. Список [3, 4] стал третьим элементом: [1, 2, [3, 4]].'
   },
   {
-    id: 'q07',
-    topic: 'extend',
+    id: 'q07', topic: 'extend',
     code: 'a = [1, 2]\na.extend([3, 4])\nprint(len(a))',
     text: 'Что выведет программа?',
     options: ['3', '2', '4', 'Ошибка'],
@@ -89,8 +90,7 @@ var QUESTIONS = [
     note: 'extend добавляет элементы по одному: получится [1, 2, 3, 4]. В этом и разница с append.'
   },
   {
-    id: 'q08',
-    topic: 'присваивание',
+    id: 'q08', topic: 'присваивание',
     code: 'a = [1, 2, 3]\nb = a\nb.append(4)\nprint(a)',
     text: 'Что выведет программа?',
     options: ['[1, 2, 3]', '[4]', 'Ошибка', '[1, 2, 3, 4]'],
@@ -98,8 +98,7 @@ var QUESTIONS = [
     note: 'b = a не создаёт новый список: оба имени ссылаются на один и тот же объект, поэтому изменение видно через a.'
   },
   {
-    id: 'q09',
-    topic: 'copy',
+    id: 'q09', topic: 'copy',
     code: 'a = [1, 2, 3]\nb = a.copy()\nb.append(4)\nprint(a, b)',
     text: 'Что выведет программа?',
     options: ['[1, 2, 3, 4] [1, 2, 3, 4]', '[1, 2, 3] [1, 2, 3, 4]', '[1, 2, 3] [1, 2, 3]', 'Ошибка'],
@@ -107,8 +106,7 @@ var QUESTIONS = [
     note: 'copy() создаёт независимую копию списка, поэтому a не меняется. Сравните с предыдущим заданием.'
   },
   {
-    id: 'q10',
-    topic: 'sort',
+    id: 'q10', topic: 'sort',
     code: 'a = [3, 1, 2]\nprint(a.sort())',
     text: 'Что выведет программа?',
     options: ['[1, 2, 3]', '[3, 1, 2]', 'None', 'Ошибка'],
@@ -116,8 +114,7 @@ var QUESTIONS = [
     note: 'sort() сортирует список на месте и ничего не возвращает. Новый отсортированный список даёт функция sorted(a).'
   },
   {
-    id: 'q11',
-    topic: 'reverse',
+    id: 'q11', topic: 'reverse',
     code: 'a = [1, 2, 3]\nr = a.reverse()\nprint(a, r)',
     text: 'Что выведет программа?',
     options: ['[3, 2, 1] [3, 2, 1]', '[1, 2, 3] [3, 2, 1]', 'Ошибка', '[3, 2, 1] None'],
@@ -125,8 +122,7 @@ var QUESTIONS = [
     note: 'reverse() тоже меняет список на месте и возвращает None — как sort().'
   },
   {
-    id: 'q12',
-    topic: 'clear',
+    id: 'q12', topic: 'clear',
     code: 'a = [1, 2, 3]\na.clear()\nprint(a)',
     text: 'Что выведет программа?',
     options: ['[]', 'None', '[1, 2, 3]', 'Переменная a удалится, будет ошибка'],
@@ -134,52 +130,74 @@ var QUESTIONS = [
     note: 'clear() удаляет все элементы, но сам список остаётся — он становится пустым.'
   },
   {
-    id: 'q13',
-    topic: 'ошибки',
+    id: 'q13', topic: 'ошибки',
     code: 'a = [1, 2]',
     text: 'Какой вызов приведёт к ошибке?',
     options: ['a.append(5)', 'a.insert(10, 5)', 'a.remove(5)', 'a.count(5)'],
     correct: 2,
     note: 'remove требует, чтобы значение было в списке. insert с индексом за границей просто добавит в конец, count вернёт 0.'
+  },
+  {
+    id: 'q14', topic: 'pop без аргумента',
+    code: 'a = [1, 2, 3]\nprint(a.pop(), a)',
+    text: 'Что выведет программа?',
+    options: ['1 [2, 3]', '3 [1, 2]', '3 [1, 2, 3]', 'Ошибка: нужен индекс'],
+    correct: 1,
+    note: 'Без аргумента pop() удаляет и возвращает последний элемент. Индекс указывать не обязательно.'
+  },
+  {
+    id: 'q15', topic: 'sorted',
+    code: 'a = [3, 1, 2]\nb = sorted(a)\nprint(a, b)',
+    text: 'Что выведет программа?',
+    options: ['[1, 2, 3] [1, 2, 3]', '[3, 1, 2] [1, 2, 3]', '[1, 2, 3] None', '[3, 1, 2] None'],
+    correct: 1,
+    note: 'sorted(a) — функция: не трогает исходный список, а возвращает новый отсортированный. Метод a.sort() наоборот: меняет a и возвращает None.'
   }
 ];
+
+function questionById_(id) {
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    if (QUESTIONS[i].id === id) return QUESTIONS[i];
+  }
+  return null;
+}
+
+function questionNumber_(id) {
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    if (QUESTIONS[i].id === id) return i + 1;
+  }
+  return 0;
+}
 
 /* ------------------------------------------------------------------ */
 /* Настройка                                                           */
 /* ------------------------------------------------------------------ */
 
-/** Выполните один раз: создаёт таблицу, листы и ключ учителя. */
 function setup() {
   var props = PropertiesService.getScriptProperties();
   var ss = openSpreadsheet_();
-
   if (!ss) {
     ss = SpreadsheetApp.create(SPREADSHEET_TITLE);
     props.setProperty(PROP_SPREADSHEET, ss.getId());
   }
 
-  var results = ss.getSheetByName(SHEET_RESULTS) || ss.insertSheet(SHEET_RESULTS);
-  if (results.getLastRow() === 0) {
-    var header = ['Время', 'Класс', 'Ученик', 'Email', 'Попытка', 'Балл', 'Максимум'];
-    for (var i = 0; i < QUESTIONS.length; i++) {
-      header.push(QUESTIONS[i].id + ' (' + QUESTIONS[i].topic + ')');
-    }
-    header.push('ID отправки');
-    results.appendRow(header);
-    results.setFrozenRows(1);
-    results.setFrozenColumns(3);
-  }
+  ensureSheet_(ss, SHEET_CLASSES, ['Класс', 'Фамилия и имя']);
+  ensureSheet_(ss, SHEET_ANSWERS,
+    ['Время', 'Класс', 'Ученик', 'Попытка', 'Задание', 'Тема', 'Выбранный ответ', 'Верно', 'ID отправки']);
+  ensureSheet_(ss, SHEET_DIALOG,
+    ['Время', 'Класс', 'Ученик', 'Задание', 'Автор', 'Текст', 'ID отправки']);
 
-  var classes = ss.getSheetByName(SHEET_CLASSES) || ss.insertSheet(SHEET_CLASSES);
-  if (classes.getLastRow() === 0) {
-    classes.appendRow(['Класс', 'Фамилия и имя']);
-    classes.setFrozenRows(1);
+  var resultsHeader = ['Время', 'Класс', 'Ученик', 'Email', 'Попытка', 'Балл', 'Максимум'];
+  for (var i = 0; i < QUESTIONS.length; i++) {
+    resultsHeader.push(QUESTIONS[i].id + ' (' + QUESTIONS[i].topic + ')');
   }
+  resultsHeader.push('ID отправки');
+  ensureSheet_(ss, SHEET_RESULTS, resultsHeader);
 
+  var keep = [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG];
   var sheets = ss.getSheets();
   for (var j = 0; j < sheets.length; j++) {
-    var name = sheets[j].getName();
-    if (name !== SHEET_RESULTS && name !== SHEET_CLASSES && sheets[j].getLastRow() === 0) {
+    if (keep.indexOf(sheets[j].getName()) === -1 && sheets[j].getLastRow() === 0) {
       ss.deleteSheet(sheets[j]);
     }
   }
@@ -190,10 +208,18 @@ function setup() {
   }
 
   Logger.log('Таблица: ' + ss.getUrl());
-  Logger.log('Заданий в тесте: ' + QUESTIONS.length);
-  Logger.log('Учеников в списках: ' + countStudents_());
+  Logger.log('Заданий: ' + QUESTIONS.length + ', учеников в списках: ' + countStudents_());
   Logger.log('КЛЮЧ УЧИТЕЛЯ: ' + props.getProperty(PROP_KEY));
-  Logger.log('Страница учителя: <ссылка веб-приложения>?page=teacher&key=' + props.getProperty(PROP_KEY));
+  Logger.log('Страница учителя: <ссылка>?page=teacher&key=' + props.getProperty(PROP_KEY));
+}
+
+function ensureSheet_(ss, name, header) {
+  var sheet = ss.getSheetByName(name) || ss.insertSheet(name);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(header);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
 }
 
 function openSpreadsheet_() {
@@ -210,8 +236,15 @@ function sheet_(name) {
   var ss = openSpreadsheet_();
   if (!ss) throw new Error('Таблица не создана: выполните функцию setup() в редакторе скрипта.');
   var sheet = ss.getSheetByName(name);
-  if (!sheet) throw new Error('Лист «' + name + '» не найден: выполните функцию setup().');
+  if (!sheet) throw new Error('Лист «' + name + '» не найден: выполните setup().');
   return sheet;
+}
+
+function rows_(name, width) {
+  var sheet = sheet_(name);
+  var last = sheet.getLastRow();
+  if (last < 2) return [];
+  return sheet.getRange(2, 1, last - 1, width).getValues();
 }
 
 function countStudents_() {
@@ -226,27 +259,16 @@ function countStudents_() {
 /* Списки классов                                                      */
 /* ------------------------------------------------------------------ */
 
-/** Читает лист «Классы» → [{ klass: '8A', students: ['Иванов Иван', …] }, …] */
 function readClasses_() {
-  var sheet = sheet_(SHEET_CLASSES);
-  var last = sheet.getLastRow();
-  if (last < 2) return [];
-
-  var values = sheet.getRange(2, 1, last - 1, 2).getValues();
-  var order = [];
-  var map = {};
-
+  var values = rows_(SHEET_CLASSES, 2);
+  var order = [], map = {};
   for (var i = 0; i < values.length; i++) {
     var klass = String(values[i][0] || '').trim();
-    var name = String(values[i][1] || '').trim().replace(/\s+/g, ' ');
+    var name = clean_(values[i][1]);
     if (!klass || !name) continue;
-    if (!map[klass]) {
-      map[klass] = [];
-      order.push(klass);
-    }
+    if (!map[klass]) { map[klass] = []; order.push(klass); }
     if (map[klass].indexOf(name) === -1) map[klass].push(name);
   }
-
   order.sort(function (a, b) { return a.localeCompare(b, 'ru'); });
   return order.map(function (klass) {
     map[klass].sort(function (a, b) { return a.localeCompare(b, 'ru'); });
@@ -254,8 +276,16 @@ function readClasses_() {
   });
 }
 
+function clean_(value) {
+  return String(value || '').trim().replace(/\s+/g, ' ');
+}
+
+function key_(klass, name) {
+  return (clean_(klass) + '|' + clean_(name)).toLowerCase();
+}
+
 /* ------------------------------------------------------------------ */
-/* Маршрутизация страниц                                               */
+/* Страницы                                                            */
 /* ------------------------------------------------------------------ */
 
 function doGet(e) {
@@ -266,13 +296,25 @@ function doGet(e) {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
+function safeEmail_() {
+  try {
+    return Session.getActiveUser().getEmail() || '';
+  } catch (err) {
+    return '';
+  }
+}
+
 /* ------------------------------------------------------------------ */
-/* Данные для страницы ученика                                         */
+/* Данные для ученика                                                  */
 /* ------------------------------------------------------------------ */
 
-/** Задания в случайном порядке плюс списки классов. */
+/** Задания без правильных ответов, в случайном порядке, плюс списки классов. */
 function getStudentData() {
-  var order = shuffled_(QUESTIONS);
+  var order = QUESTIONS.slice();
+  for (var i = order.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+  }
   return {
     email: safeEmail_(),
     total: QUESTIONS.length,
@@ -283,49 +325,55 @@ function getStudentData() {
   };
 }
 
-function safeEmail_() {
-  try {
-    return Session.getActiveUser().getEmail() || '';
-  } catch (err) {
-    return '';
-  }
-}
-
-function shuffled_(items) {
-  var copy = items.slice();
-  for (var i = copy.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = copy[i];
-    copy[i] = copy[j];
-    copy[j] = tmp;
-  }
-  return copy;
-}
-
-/* ------------------------------------------------------------------ */
-/* Приём ответов                                                       */
-/* ------------------------------------------------------------------ */
-
 /**
- * submission = { klass: '8A', name: 'Иванов Иван', answers: { q01: 2, … },
- *                uid: 'строка', addToClass: true }
- *
- * uid — номер отправки, который придумывает страница ученика. Если такая
- * отправка уже записана (ответ ушёл повторно после обрыва связи), строка
- * не дублируется, а ученик всё равно получает свой разбор.
+ * Проверяет один ответ и записывает его в журнал.
+ * p = { uid, attempt, klass, name, qid, given }
  */
-function submitAnswers(submission) {
-  var klass = String((submission && submission.klass) || '').trim().substring(0, 20);
-  var name = String((submission && submission.name) || '').trim().replace(/\s+/g, ' ').substring(0, 80);
-  var uid = String((submission && submission.uid) || '').trim().substring(0, 50);
-  var email = safeEmail_();
+function answerQuestion(p) {
+  var q = questionById_(p && p.qid);
+  if (!q) throw new Error('Задание не найдено.');
 
+  var klass = clean_(p.klass).substring(0, 20);
+  var name = clean_(p.name).substring(0, 80);
   if (!name) throw new Error('Не выбрана фамилия.');
 
-  var answers = (submission && submission.answers) || {};
-  var feedback = [];
-  var marks = [];
-  var score = 0;
+  var given = (typeof p.given === 'number') ? p.given : -1;
+  var ok = given === q.correct;
+  var uid = String(p.uid || '').trim().substring(0, 50);
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var sheet = sheet_(SHEET_ANSWERS);
+    if (!uid || !hasUid_(sheet, 9, uid)) {
+      sheet.appendRow([new Date(), klass, name, String(p.attempt || ''), q.id, q.topic,
+                       (given >= 0 ? q.options[given] : '—'), ok ? 1 : 0, uid]);
+    }
+  } finally {
+    lock.releaseLock();
+  }
+
+  return {
+    ok: ok,
+    correct: q.correct,
+    correctText: q.options[q.correct],
+    note: q.note,
+    number: questionNumber_(q.id)
+  };
+}
+
+/**
+ * Записывает итог попытки.
+ * p = { uid, attempt, klass, name, answers: {qid: index}, addToClass }
+ */
+function finishAttempt(p) {
+  var klass = clean_(p.klass).substring(0, 20);
+  var name = clean_(p.name).substring(0, 80);
+  if (!name) throw new Error('Не выбрана фамилия.');
+
+  var uid = String((p && p.uid) || '').trim().substring(0, 50);
+  var answers = (p && p.answers) || {};
+  var marks = [], feedback = [], score = 0;
 
   for (var i = 0; i < QUESTIONS.length; i++) {
     var q = QUESTIONS[i];
@@ -345,15 +393,14 @@ function submitAnswers(submission) {
   lock.waitLock(30000);
   try {
     var sheet = sheet_(SHEET_RESULTS);
-    if (uid && hasSubmission_(sheet, uid)) {
+    var idCol = 7 + QUESTIONS.length + 1;
+    if (uid && hasUid_(sheet, idCol, uid)) {
       duplicate = true;
     } else {
-      var attempt = countAttempts_(sheet, klass, name) + 1;
-      sheet.appendRow(
-        [new Date(), klass, name, email, attempt, score, QUESTIONS.length].concat(marks).concat([uid]));
-      if (submission && submission.addToClass) {
-        addStudentIfMissing_(klass, name);
-      }
+      var attemptNo = countAttempts_(sheet, klass, name) + 1;
+      sheet.appendRow([new Date(), klass, name, safeEmail_(), attemptNo, score, QUESTIONS.length]
+        .concat(marks).concat([uid]));
+      if (p && p.addToClass) addStudentIfMissing_(klass, name);
     }
   } finally {
     lock.releaseLock();
@@ -362,11 +409,9 @@ function submitAnswers(submission) {
   return { score: score, total: QUESTIONS.length, feedback: feedback, duplicate: duplicate };
 }
 
-/** Была ли уже записана отправка с таким номером. */
-function hasSubmission_(sheet, uid) {
+function hasUid_(sheet, col, uid) {
   var last = sheet.getLastRow();
   if (last < 2) return false;
-  var col = 7 + QUESTIONS.length + 1;
   var values = sheet.getRange(2, col, last - 1, 1).getValues();
   for (var i = 0; i < values.length; i++) {
     if (String(values[i][0] || '').trim() === uid) return true;
@@ -374,187 +419,278 @@ function hasSubmission_(sheet, uid) {
   return false;
 }
 
-/** Дописывает ученика в список класса, если его там нет. */
-function addStudentIfMissing_(klass, name) {
-  if (!klass || !name) return;
-  try {
-    var sheet = sheet_(SHEET_CLASSES);
-    var last = sheet.getLastRow();
-    if (last >= 2) {
-      var values = sheet.getRange(2, 1, last - 1, 2).getValues();
-      for (var i = 0; i < values.length; i++) {
-        if (String(values[i][0] || '').trim().toLowerCase() === klass.toLowerCase() &&
-            String(values[i][1] || '').trim().replace(/\s+/g, ' ').toLowerCase() === name.toLowerCase()) {
-          return;
-        }
-      }
-    }
-    sheet.appendRow([klass, name]);
-  } catch (err) {
-    // список классов не настроен — ответ ученика всё равно записан
-  }
-}
-
 function countAttempts_(sheet, klass, name) {
   var last = sheet.getLastRow();
   if (last < 2) return 0;
   var values = sheet.getRange(2, 2, last - 1, 2).getValues();
-  var klassKey = klass.toLowerCase();
-  var nameKey = name.toLowerCase();
-  var count = 0;
+  var k = key_(klass, name), count = 0;
   for (var i = 0; i < values.length; i++) {
-    if (String(values[i][0] || '').trim().toLowerCase() === klassKey &&
-        String(values[i][1] || '').trim().toLowerCase() === nameKey) {
-      count++;
-    }
+    if (key_(values[i][0], values[i][1]) === k) count++;
   }
   return count;
 }
 
+function addStudentIfMissing_(klass, name) {
+  if (!klass || !name) return;
+  try {
+    var sheet = sheet_(SHEET_CLASSES);
+    var values = rows_(SHEET_CLASSES, 2);
+    for (var i = 0; i < values.length; i++) {
+      if (key_(values[i][0], values[i][1]) === key_(klass, name)) return;
+    }
+    sheet.appendRow([klass, name]);
+  } catch (err) {
+    // список классов не настроен — ответы ученика всё равно записаны
+  }
+}
+
 /* ------------------------------------------------------------------ */
-/* Данные для экрана учителя                                           */
+/* Переписка учителя и ученика                                         */
+/* ------------------------------------------------------------------ */
+
+function appendMessage_(klass, name, qid, author, text, uid) {
+  var clipped = String(text || '').trim().substring(0, 1000);
+  if (!clipped) throw new Error('Пустое сообщение.');
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var sheet = sheet_(SHEET_DIALOG);
+    if (uid && hasUid_(sheet, 7, uid)) return { duplicate: true };
+    sheet.appendRow([new Date(), clean_(klass), clean_(name), String(qid || ''), author, clipped, uid || '']);
+  } finally {
+    lock.releaseLock();
+  }
+  return { duplicate: false };
+}
+
+/** Учитель спрашивает ученика по конкретному заданию. */
+function askStudent(key, p) {
+  if (!isTeacher_(key)) throw new Error('Доступ только у учителя.');
+  return appendMessage_(p.klass, p.name, p.qid, AUTHOR_TEACHER, p.text, p.uid);
+}
+
+/** Ответ ученика учителю. */
+function replyToTeacher(p) {
+  if (!clean_(p && p.name)) throw new Error('Не выбрана фамилия.');
+  return appendMessage_(p.klass, p.name, p.qid, AUTHOR_STUDENT, p.text, p.uid);
+}
+
+/** Переписка этого ученика. Ученик видит только свою. */
+function getMyMessages(klass, name) {
+  if (!clean_(name)) return [];
+  var k = key_(klass, name);
+  var values = rows_(SHEET_DIALOG, 7);
+  var out = [];
+  for (var i = 0; i < values.length; i++) {
+    if (key_(values[i][1], values[i][2]) !== k) continue;
+    out.push({
+      time: timeText_(values[i][0]),
+      qid: String(values[i][3] || ''),
+      number: questionNumber_(String(values[i][3] || '')),
+      author: String(values[i][4] || ''),
+      text: String(values[i][5] || '')
+    });
+  }
+  return out;
+}
+
+function timeText_(value) {
+  var date = value instanceof Date ? value : new Date(value);
+  if (isNaN(date.getTime())) return '';
+  return Utilities.formatDate(date, Session.getScriptTimeZone(), 'HH:mm');
+}
+
+/* ------------------------------------------------------------------ */
+/* Экран учителя                                                       */
 /* ------------------------------------------------------------------ */
 
 function isTeacher_(key) {
   var props = PropertiesService.getScriptProperties();
   var expected = props.getProperty(PROP_KEY);
   if (expected && key && String(key) === expected) return true;
-
   var owner = (props.getProperty(PROP_TEACHER) || '').toLowerCase();
   var active = safeEmail_().toLowerCase();
   return !!owner && !!active && owner === active;
 }
 
-/** Сводка по классу: последняя попытка каждого ученика плюс статистика. */
+/**
+ * Всё для экрана учителя: ученики, разбор по каждому заданию
+ * (поимённо, кто ответил верно и кто что выбрал) и переписка.
+ */
 function getResults(key) {
   if (!isTeacher_(key)) {
     throw new Error('Доступ только у учителя. Откройте ссылку с ключом из журнала setup().');
   }
 
-  var sheet = sheet_(SHEET_RESULTS);
-  var last = sheet.getLastRow();
+  var expected = [];
+  try { expected = readClasses_(); } catch (err) { expected = []; }
+
+  /* журнал ответов: оставляем последний ответ ученика на каждое задание */
+  var log = rows_(SHEET_ANSWERS, 9);
+  var latest = {};
+  var seen = {};
+  for (var i = 0; i < log.length; i++) {
+    var klass = clean_(log[i][1]), name = clean_(log[i][2]), qid = String(log[i][4] || '');
+    if (!name || !qid) continue;
+    latest[key_(klass, name) + '|' + qid] = {
+      klass: klass, name: name, chosen: String(log[i][6] || ''),
+      ok: (log[i][7] === 1 || log[i][7] === '1'), time: timeText_(log[i][0])
+    };
+    seen[key_(klass, name)] = { klass: klass, name: name };
+  }
+
+  var perQuestion = QUESTIONS.map(function (q, idx) {
+    var right = [], wrong = [];
+    Object.keys(seen).forEach(function (sk) {
+      var rec = latest[sk + '|' + q.id];
+      if (!rec) return;
+      (rec.ok ? right : wrong).push({ klass: rec.klass, name: rec.name, chosen: rec.chosen });
+    });
+    var byName = function (a, b) { return a.name.localeCompare(b.name, 'ru'); };
+    right.sort(byName); wrong.sort(byName);
+    var answered = right.length + wrong.length;
+
+    // сколько человек выбрало каждый вариант — видно, какая ошибка самая частая
+    var optionStats = q.options.map(function (text, oi) {
+      var count = 0;
+      Object.keys(seen).forEach(function (sk) {
+        var rec = latest[sk + '|' + q.id];
+        if (rec && rec.chosen === text) count++;
+      });
+      return { text: text, count: count, correct: oi === q.correct };
+    });
+
+    // кто до этого задания ещё не дошёл или пропустил его
+    var silent = [];
+    expected.forEach(function (c) {
+      c.students.forEach(function (n) {
+        if (!latest[key_(c.klass, n) + '|' + q.id]) {
+          silent.push({ klass: c.klass, name: n });
+        }
+      });
+    });
+    silent.sort(function (a, b) {
+      return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
+    });
+
+    return {
+      id: q.id, number: idx + 1, topic: q.topic, text: q.text, code: q.code,
+      options: optionStats, correctText: q.options[q.correct],
+      right: right, wrong: wrong, silent: silent, answered: answered,
+      rightCount: right.length, wrongCount: wrong.length, silentCount: silent.length,
+      percent: answered ? Math.round((right.length / answered) * 100) : 0
+    };
+  });
+
+  /* сводка по завершённым попыткам */
   var width = 7 + QUESTIONS.length + 1;
-  var students = [];
-  var index = {};
-
-  if (last >= 2) {
-    var values = sheet.getRange(2, 1, last - 1, width).getValues();
-    for (var i = 0; i < values.length; i++) {
-      var row = values[i];
-      var name = String(row[2] || '').trim();
-      if (!name) continue;
-
-      var klass = String(row[1] || '').trim();
-      var marks = [];
-      for (var m = 0; m < QUESTIONS.length; m++) {
-        marks.push(row[7 + m] === 1 || row[7 + m] === '1' ? 1 : 0);
-      }
-      var time = row[0] instanceof Date ? row[0] : new Date(row[0]);
-      var identity = (klass + '|' + name).toLowerCase();
-
-      var entry = {
-        klass: klass,
-        name: name,
-        time: time ? Utilities.formatDate(time, Session.getScriptTimeZone(), 'HH:mm') : '',
-        score: Number(row[5]) || 0,
-        total: Number(row[6]) || QUESTIONS.length,
-        attempts: 1,
-        marks: marks
-      };
-
-      if (index[identity] !== undefined) {
-        entry.attempts = students[index[identity]].attempts + 1;
-        students[index[identity]] = entry;
-      } else {
-        index[identity] = students.length;
-        students.push(entry);
-      }
+  var done = rows_(SHEET_RESULTS, width);
+  var students = [], index = {};
+  for (var r = 0; r < done.length; r++) {
+    var row = done[r];
+    var sName = clean_(row[2]);
+    if (!sName) continue;
+    var sKlass = clean_(row[1]);
+    var marks = [];
+    for (var m = 0; m < QUESTIONS.length; m++) {
+      marks.push(row[7 + m] === 1 || row[7 + m] === '1' ? 1 : 0);
+    }
+    var entry = {
+      klass: sKlass, name: sName, time: timeText_(row[0]),
+      score: Number(row[5]) || 0, total: Number(row[6]) || QUESTIONS.length,
+      attempts: 1, marks: marks, finished: true
+    };
+    var ik = key_(sKlass, sName);
+    if (index[ik] !== undefined) {
+      entry.attempts = students[index[ik]].attempts + 1;
+      students[index[ik]] = entry;
+    } else {
+      index[ik] = students.length;
+      students.push(entry);
     }
   }
+
+  /* те, кто начал, но ещё не сдал */
+  Object.keys(seen).forEach(function (sk) {
+    if (index[sk] !== undefined) return;
+    var answeredCount = 0, rightCount = 0, marks = [];
+    QUESTIONS.forEach(function (q) {
+      var rec = latest[sk + '|' + q.id];
+      marks.push(rec ? (rec.ok ? 1 : 0) : -1);
+      if (rec) { answeredCount++; if (rec.ok) rightCount++; }
+    });
+    students.push({
+      klass: seen[sk].klass, name: seen[sk].name, time: '',
+      score: rightCount, total: QUESTIONS.length, attempts: 1,
+      marks: marks, finished: false, answered: answeredCount
+    });
+  });
 
   students.sort(function (a, b) {
     return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
   });
 
-  var expected = [];
-  try {
-    expected = readClasses_();
-  } catch (err) {
-    expected = [];
-  }
+  /* переписка */
+  var dialog = rows_(SHEET_DIALOG, 7).map(function (row) {
+    return {
+      time: timeText_(row[0]), klass: clean_(row[1]), name: clean_(row[2]),
+      qid: String(row[3] || ''), number: questionNumber_(String(row[3] || '')),
+      author: String(row[4] || ''), text: String(row[5] || '')
+    };
+  });
+
+  var finished = students.filter(function (s) { return s.finished; });
+  var sum = 0;
+  finished.forEach(function (s) { sum += s.score; });
 
   return {
     students: students,
-    perQuestion: questionStats_(students),
+    perQuestion: perQuestion,
+    dialog: dialog,
     classes: expected.map(function (c) {
       var submitted = {};
       students.forEach(function (s) {
-        if (s.klass === c.klass) submitted[s.name.toLowerCase()] = true;
+        if (s.klass === c.klass && s.finished) submitted[s.name.toLowerCase()] = true;
       });
-      // в счётчик идут только ученики из списка класса,
-      // иначе «сдали 2 из 2» соседствовало бы с фамилией в списке не сдавших
-      var answered = c.students.filter(function (n) {
-        return submitted[n.toLowerCase()];
-      }).length;
-      var extra = students.filter(function (s) { return s.klass === c.klass; }).length - answered;
+      var answered = c.students.filter(function (n) { return submitted[n.toLowerCase()]; }).length;
+      var extra = students.filter(function (s) {
+        return s.klass === c.klass && s.finished;
+      }).length - answered;
       return { klass: c.klass, expected: c.students.length, answered: answered, extra: extra };
     }),
     missing: missingStudents_(expected, students),
     total: QUESTIONS.length,
-    average: average_(students),
+    average: finished.length ? Math.round((sum / finished.length) * 10) / 10 : 0,
     spreadsheetUrl: openSpreadsheet_() ? openSpreadsheet_().getUrl() : ''
   };
 }
 
-function questionStats_(students) {
-  var stats = [];
-  for (var q = 0; q < QUESTIONS.length; q++) {
-    var right = 0;
-    for (var s = 0; s < students.length; s++) {
-      if (students[s].marks[q] === 1) right++;
-    }
-    stats.push({
-      id: QUESTIONS[q].id,
-      topic: QUESTIONS[q].topic,
-      right: right,
-      percent: students.length ? Math.round((right / students.length) * 100) : 0
-    });
-  }
-  return stats;
-}
-
-function average_(students) {
-  if (!students.length) return 0;
-  var sum = 0;
-  for (var i = 0; i < students.length; i++) sum += students[i].score;
-  return Math.round((sum / students.length) * 10) / 10;
-}
-
-/** Кто из списка класса ещё не сдал. */
 function missingStudents_(expected, students) {
-  var answered = {};
-  for (var i = 0; i < students.length; i++) {
-    answered[(students[i].klass + '|' + students[i].name).toLowerCase()] = true;
-  }
+  var done = {};
+  students.forEach(function (s) {
+    if (s.finished) done[key_(s.klass, s.name)] = true;
+  });
   var out = [];
-  for (var c = 0; c < expected.length; c++) {
-    for (var s = 0; s < expected[c].students.length; s++) {
-      var key = (expected[c].klass + '|' + expected[c].students[s]).toLowerCase();
-      if (!answered[key]) {
-        out.push({ klass: expected[c].klass, name: expected[c].students[s] });
-      }
-    }
-  }
+  expected.forEach(function (c) {
+    c.students.forEach(function (n) {
+      if (!done[key_(c.klass, n)]) out.push({ klass: c.klass, name: n });
+    });
+  });
   return out;
 }
 
-/** Очистить ответы перед новым уроком (списки классов остаются). */
+/* ------------------------------------------------------------------ */
+/* Обслуживание                                                        */
+/* ------------------------------------------------------------------ */
+
+/** Очистить ответы и переписку перед новым уроком. Списки классов остаются. */
 function clearResults() {
-  var sheet = sheet_(SHEET_RESULTS);
-  if (sheet.getLastRow() > 1) {
-    sheet.deleteRows(2, sheet.getLastRow() - 1);
-  }
-  Logger.log('Ответы очищены. Списки классов не тронуты.');
+  [SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG].forEach(function (name) {
+    var sheet = sheet_(name);
+    if (sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
+  });
+  Logger.log('Ответы, итоги и переписка очищены. Списки классов не тронуты.');
 }
 
 /** Проверка настройки: выполните, если что-то не работает. */
@@ -563,32 +699,29 @@ function diagnose() {
   Logger.log('ID таблицы: ' + (props.getProperty(PROP_SPREADSHEET) || 'НЕ ЗАДАН — выполните setup()'));
   Logger.log('Ключ учителя: ' + (props.getProperty(PROP_KEY) || 'НЕ ЗАДАН — выполните setup()'));
 
-  var names = ['student', 'teacher'];
-  for (var i = 0; i < names.length; i++) {
+  ['student', 'teacher'].forEach(function (name) {
     try {
-      HtmlService.createHtmlOutputFromFile(names[i]);
-      Logger.log('HTML-файл «' + names[i] + '»: найден');
+      HtmlService.createHtmlOutputFromFile(name);
+      Logger.log('HTML-файл «' + name + '»: найден');
     } catch (err) {
-      Logger.log('HTML-файл «' + names[i] + '»: НЕ НАЙДЕН. Создайте файл с этим именем (+ → HTML).');
+      Logger.log('HTML-файл «' + name + '»: НЕ НАЙДЕН. Создайте файл с этим именем (+ → HTML).');
     }
-  }
+  });
+
+  [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG].forEach(function (name) {
+    try {
+      Logger.log('Лист «' + name + '»: строк с данными ' + Math.max(0, sheet_(name).getLastRow() - 1));
+    } catch (err) {
+      Logger.log('Лист «' + name + '»: ошибка — ' + err.message);
+    }
+  });
 
   try {
     var classes = readClasses_();
-    Logger.log('Классов в списке: ' + classes.length + ', учеников: ' + countStudents_());
-    for (var c = 0; c < classes.length; c++) {
-      Logger.log('  ' + classes[c].klass + ': ' + classes[c].students.length);
-    }
-    if (!classes.length) {
-      Logger.log('  Лист «Классы» пуст — ученик будет вводить фамилию вручную.');
-    }
+    Logger.log('Классов: ' + classes.length + ', учеников: ' + countStudents_());
+    classes.forEach(function (c) { Logger.log('  ' + c.klass + ': ' + c.students.length); });
+    if (!classes.length) Logger.log('  Лист «Классы» пуст — ученик будет вводить фамилию вручную.');
   } catch (err) {
     Logger.log('Списки классов: ошибка — ' + err.message);
-  }
-
-  try {
-    Logger.log('Ответов записано: ' + Math.max(0, sheet_(SHEET_RESULTS).getLastRow() - 1));
-  } catch (err) {
-    Logger.log('Лист результатов: ошибка — ' + err.message);
   }
 }

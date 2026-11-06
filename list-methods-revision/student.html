@@ -7,15 +7,16 @@
 <style>
   :root {
     --bg: #f6f7f9; --card: #ffffff; --text: #15181d; --muted: #5b6471;
-    --line: #dfe3e8; --accent: #1f6feb; --ok: #137333; --ok-bg: #e6f4ea;
-    --bad: #b3261e; --bad-bg: #fce8e6; --warn: #8a5a00; --warn-bg: #fff4d6;
+    --line: #dfe3e8; --accent: #1f6feb; --ok: #137333; --ok-bg: #e6f4ea; --ok-line: #8cd2a4;
+    --bad: #b3261e; --bad-bg: #fce8e6; --bad-line: #f0a9a3;
+    --warn: #8a5a00; --warn-bg: #fff4d6;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--text); padding: 16px;
     font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
   }
-  .wrap { max-width: 720px; margin: 0 auto; }
+  .wrap { max-width: 680px; margin: 0 auto; }
   h1 { font-size: 22px; margin: 8px 0 4px; }
   .sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
@@ -23,17 +24,25 @@
   .who b { color: var(--text); }
   .who button { width: auto; padding: 4px 10px; font-size: 13px; margin-left: 8px; }
   label.name { display: block; font-weight: 600; margin-bottom: 6px; }
-  input[type=text] {
+  input[type=text], textarea {
     width: 100%; padding: 11px 12px; font-size: 16px; font-family: inherit;
     border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text);
   }
-  input[type=text]:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+  textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+  input[type=text]:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
   .pick { display: flex; flex-wrap: wrap; gap: 8px; }
-  .pick button { width: auto; flex: 0 0 auto; }
+  .pick button { width: auto; }
   .names { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
   .names button { width: 100%; text-align: left; font-weight: 500; }
+  .steps { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+  .steps i {
+    width: 22px; height: 6px; border-radius: 3px; background: var(--line); display: block;
+  }
+  .steps i.y { background: var(--ok); }
+  .steps i.n { background: var(--bad); }
+  .steps i.now { background: var(--accent); }
   .qnum { font-size: 13px; color: var(--muted); font-weight: 600; }
-  .qtext { margin: 6px 0 10px; font-weight: 600; }
+  .qtext { margin: 6px 0 10px; font-weight: 600; font-size: 17px; }
   pre {
     background: #11161d; color: #e8edf3; padding: 12px 14px; border-radius: 8px; overflow-x: auto;
     font: 14px/1.5 "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; margin: 0 0 12px;
@@ -41,11 +50,23 @@
   .opt { display: block; margin: 0 0 8px; }
   .opt input { position: absolute; opacity: 0; }
   .opt span {
-    display: block; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+    display: block; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
     font: 15px/1.4 "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   }
   .opt input:checked + span { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: #eef4ff; }
   .opt input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .opt.locked span { cursor: default; }
+  .opt.picked-ok span { border-color: var(--ok-line); background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .opt.picked-bad span { border-color: var(--bad-line); background: var(--bad-bg); color: var(--bad); font-weight: 600; }
+  .opt.show-right span { border-color: var(--ok-line); background: var(--ok-bg); color: var(--ok); }
+  .opt.dim span { opacity: .5; }
+  .verdict { display: flex; align-items: center; gap: 10px; margin: 14px 0 8px; font-weight: 700; font-size: 17px; }
+  .verdict.ok { color: var(--ok); }
+  .verdict.bad { color: var(--bad); }
+  .verdict .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .verdict.ok .dot { background: var(--ok); }
+  .verdict.bad .dot { background: var(--bad); }
+  .note { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
   button {
     background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 13px 20px;
     font: 600 16px/1.2 inherit; font-family: inherit; cursor: pointer; width: 100%;
@@ -57,7 +78,6 @@
   .msg.err { background: var(--bad-bg); color: var(--bad); }
   .msg.warn { background: var(--warn-bg); color: var(--warn); }
   .msg.ok { background: var(--ok-bg); color: var(--ok); }
-  .progress { color: var(--muted); font-size: 14px; text-align: center; margin: 10px 0 18px; }
   .score { font-size: 34px; font-weight: 700; margin: 0; }
   .fb { border-left: 4px solid var(--line); padding-left: 12px; }
   .fb.ok { border-color: var(--ok); }
@@ -66,15 +86,23 @@
   .tag.ok { background: var(--ok-bg); color: var(--ok); }
   .tag.bad { background: var(--bad-bg); color: var(--bad); }
   .fb .ans { font: 14px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 4px 0; }
-  .fb .note { color: var(--muted); font-size: 14px; margin-top: 6px; }
   .loading { color: var(--muted); text-align: center; padding: 40px 0; }
+  /* переписка с учителем */
+  #chat { border-color: var(--accent); }
+  #chat h2 { font-size: 16px; margin: 0 0 10px; }
+  .bubble { border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 15px; }
+  .bubble.teacher { background: #eef4ff; }
+  .bubble.student { background: var(--bg); border: 1px solid var(--line); }
+  .bubble .from { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0f1216; --card: #171c22; --text: #e9edf2; --muted: #9aa5b1; --line: #2b323b;
-      --accent: #4c8dff; --ok: #6fd58f; --ok-bg: #16301f; --bad: #ff8a80; --bad-bg: #351b19;
+      --accent: #4c8dff; --ok: #6fd58f; --ok-bg: #16301f; --ok-line: #2f6b43;
+      --bad: #ff8a80; --bad-bg: #351b19; --bad-line: #7a3a35;
       --warn: #ffc06e; --warn-bg: #332814;
     }
     .opt input:checked + span { background: #1b2740; }
+    .bubble.teacher { background: #1b2740; }
   }
 </style>
 </head>
@@ -82,27 +110,21 @@
 <div class="wrap">
 
   <div id="banner"></div>
-
   <div id="screen-loading" class="loading">Загружаем задания…</div>
 
-  <!-- 1. выбор класса и фамилии -->
+  <!-- выбор класса и фамилии -->
   <div id="screen-who" style="display:none">
     <h1>Методы списка: повторение</h1>
     <div class="sub">Выберите свой класс, затем найдите себя в списке.</div>
-
     <div class="card">
       <label class="name">Класс</label>
       <div class="pick" id="class-list"></div>
     </div>
-
     <div class="card" id="name-card" style="display:none">
       <label class="name">Фамилия и имя</label>
       <div class="names" id="name-list"></div>
-      <div style="margin-top:12px">
-        <button class="quiet" id="not-listed">Меня нет в списке</button>
-      </div>
+      <div style="margin-top:12px"><button class="quiet" id="not-listed">Меня нет в списке</button></div>
     </div>
-
     <div class="card" id="manual-card" style="display:none">
       <label class="name" for="manual-name">Напишите фамилию и имя</label>
       <input type="text" id="manual-name" autocomplete="name" placeholder="Например: Ахметов Алихан">
@@ -111,23 +133,22 @@
     </div>
   </div>
 
-  <!-- 2. тест -->
+  <!-- тест по одному заданию -->
   <div id="screen-test" style="display:none">
-    <h1>Методы списка: повторение</h1>
-    <div class="sub">Python. <span id="count"></span> заданий, по 1 баллу. После сдачи сразу увидите разбор своих ошибок.</div>
     <div class="who" id="who-line"></div>
-    <div id="questions"></div>
-    <div class="progress" id="progress"></div>
-    <button id="submit">Сдать работу</button>
+    <div class="steps" id="steps"></div>
+    <div class="card" id="question-card"></div>
+    <div id="chat-slot"></div>
   </div>
 
-  <!-- 3. результат -->
+  <!-- итог -->
   <div id="screen-result" style="display:none">
     <h1>Результат</h1>
     <div class="card" style="text-align:center">
       <p class="score" id="score"></p>
       <div class="sub" id="score-sub" style="margin:0"></div>
     </div>
+    <div id="chat-slot-result"></div>
     <div id="feedback"></div>
     <button class="secondary" id="again">Пройти ещё раз</button>
   </div>
@@ -136,34 +157,34 @@
 
 <script>
 var DATA = null;
-var answers = {};
 var chosen = { klass: '', name: '', manual: false };
-var QUEUE_KEY = 'listmethods.pending.v1';
+var attemptId = '';
+var step = 0;                 // индекс текущего задания
+var answers = {};             // qid -> выбранный индекс
+var verdicts = {};            // qid -> true/false
+var locked = false;           // ответ на текущее задание уже отправлен
+var QUEUE_KEY = 'listmethods.pending.v2';
 var sending = false;
-
-/* ---------- вспомогательное ---------- */
+var chatTimer = null;
+var lastChatCount = 0;
 
 function el(tag, cls, text) {
-  var node = document.createElement(tag);
-  if (cls) node.className = cls;
-  if (text !== undefined) node.textContent = text;
-  return node;
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  return n;
 }
-
 function show(id) {
   ['screen-loading', 'screen-who', 'screen-test', 'screen-result'].forEach(function (s) {
     document.getElementById(s).style.display = (s === id) ? 'block' : 'none';
   });
   window.scrollTo(0, 0);
 }
-
 function banner(text, kind) {
   var box = document.getElementById('banner');
   box.textContent = '';
-  if (!text) return;
-  box.appendChild(el('div', 'msg ' + (kind || 'err'), text));
+  if (text) box.appendChild(el('div', 'msg ' + (kind || 'err'), text));
 }
-
 function uid() {
   return 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
@@ -171,77 +192,61 @@ function uid() {
 /* ---------- очередь на случай обрыва связи ---------- */
 
 function queueRead() {
-  try {
-    return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
-  } catch (err) {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (e) { return []; }
 }
-
 function queueWrite(list) {
-  try {
-    localStorage.setItem(QUEUE_KEY, JSON.stringify(list));
-    return true;
-  } catch (err) {
-    return false;   // приватный режим или запрет хранилища
-  }
+  try { localStorage.setItem(QUEUE_KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
 }
-
-function queueAdd(submission) {
-  var list = queueRead();
-  list.push(submission);
-  return queueWrite(list);
+function queueAdd(item) {
+  var list = queueRead(); list.push(item); return queueWrite(list);
 }
-
 function queueDrop(id) {
-  queueWrite(queueRead().filter(function (s) { return s.uid !== id; }));
+  queueWrite(queueRead().filter(function (i) { return i.payload.uid !== id; }));
 }
 
-/** Пытается отправить всё, что лежит в очереди. */
-function flushQueue(onDone) {
+/** Отправляет отложенное: ответы на задания, итог попытки, реплики ученика. */
+function flushQueue() {
   var list = queueRead();
-  if (!list.length || sending) {
-    if (onDone) onDone(false);
-    return;
-  }
+  if (!list.length || sending) return;
   sending = true;
   var item = list[0];
+  var runner = google.script.run
+    .withSuccessHandler(function (res) {
+      sending = false;
+      queueDrop(item.payload.uid);
+      if (item.kind === 'finish' && res) { banner('Работа отправлена учителю.', 'ok'); showResult(res); }
+      else banner('');
+      flushQueue();
+    })
+    .withFailureHandler(function () { sending = false; retryLater(); });
 
-  google.script.run
-    .withSuccessHandler(function (result) {
-      sending = false;
-      queueDrop(item.uid);
-      banner('Ответ отправлен учителю.', 'ok');
-      if (document.getElementById('screen-result').style.display !== 'block') {
-        showResult(result);
-      }
-      flushQueue(onDone);
-    })
-    .withFailureHandler(function () {
-      sending = false;
-      if (onDone) onDone(false);
-    })
-    .submitAnswers(item);
+  if (item.kind === 'answer') runner.answerQuestion(item.payload);
+  else if (item.kind === 'finish') runner.finishAttempt(item.payload);
+  else runner.replyToTeacher(item.payload);
 }
 
-function pendingNotice() {
-  var n = queueRead().length;
-  if (n) {
-    banner('Ответ сохранён на этом устройстве и будет отправлен, когда появится интернет. ' +
-           'Не закрывайте страницу надолго и не очищайте данные браузера.', 'warn');
-  }
+var retryTimer = null;
+function retryLater() {
+  if (retryTimer) return;
+  retryTimer = setInterval(function () {
+    if (!queueRead().length) { clearInterval(retryTimer); retryTimer = null; return; }
+    flushQueue();
+  }, 20000);
 }
+window.addEventListener('online', function () {
+  banner('Интернет появился, отправляем…', 'warn');
+  flushQueue();
+});
 
 /* ---------- загрузка ---------- */
 
 function start() {
   google.script.run
     .withSuccessHandler(function (data) {
-      DATA = data;
-      banner('');
-      renderWho();
-      pendingNotice();
-      flushQueue();
+      DATA = data; banner(''); renderWho(); flushQueue();
+      if (queueRead().length) {
+        banner('Есть несохранённые ответы — отправим, когда появится интернет.', 'warn');
+      }
     })
     .withFailureHandler(function (err) {
       document.getElementById('screen-loading').textContent = '';
@@ -251,19 +256,17 @@ function start() {
     .getStudentData();
 }
 
-/* ---------- экран выбора ---------- */
+/* ---------- выбор ученика ---------- */
 
 function renderWho() {
   show('screen-who');
   var box = document.getElementById('class-list');
   box.textContent = '';
-
   if (!DATA.classes || !DATA.classes.length) {
-    document.getElementById('class-list').parentNode.style.display = 'none';
+    box.parentNode.style.display = 'none';
     document.getElementById('manual-card').style.display = 'block';
     return;
   }
-
   DATA.classes.forEach(function (c) {
     var b = el('button', 'secondary', c.klass);
     b.addEventListener('click', function () { chooseClass(c); });
@@ -272,25 +275,18 @@ function renderWho() {
 }
 
 function chooseClass(c) {
-  chosen.klass = c.klass;
-  chosen.name = '';
-  chosen.manual = false;
-
+  chosen.klass = c.klass; chosen.name = ''; chosen.manual = false;
   document.getElementById('name-card').style.display = 'block';
   document.getElementById('manual-card').style.display = 'none';
-
   var list = document.getElementById('name-list');
   list.textContent = '';
   c.students.forEach(function (name) {
     var b = el('button', 'secondary', name);
     b.addEventListener('click', function () {
-      chosen.name = name;
-      chosen.manual = false;
-      renderTest();
+      chosen.name = name; chosen.manual = false; beginTest();
     });
     list.appendChild(b);
   });
-
   document.getElementById('name-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -301,130 +297,155 @@ document.getElementById('not-listed').addEventListener('click', function () {
 
 document.getElementById('manual-ok').addEventListener('click', function () {
   var name = document.getElementById('manual-name').value.trim();
-  if (name.split(/\s+/).length < 2) {
-    banner('Напишите и фамилию, и имя.', 'err');
-    return;
-  }
-  banner('');
-  chosen.name = name;
-  chosen.manual = true;
-  if (!chosen.klass && DATA.classes && DATA.classes.length) {
-    banner('Сначала выберите класс.', 'err');
-    return;
-  }
-  renderTest();
+  if (name.split(/\s+/).length < 2) { banner('Напишите и фамилию, и имя.', 'err'); return; }
+  if (!chosen.klass && DATA.classes && DATA.classes.length) { banner('Сначала выберите класс.', 'err'); return; }
+  banner(''); chosen.name = name; chosen.manual = true; beginTest();
 });
 
-/* ---------- экран теста ---------- */
+/* ---------- тест ---------- */
 
-function renderTest() {
+function beginTest() {
+  attemptId = uid();
+  step = 0; answers = {}; verdicts = {}; locked = false;
   show('screen-test');
-  document.getElementById('count').textContent = DATA.total;
+  renderWho_line();
+  renderStep();
+  startChat();
+}
 
+function renderWho_line() {
   var who = document.getElementById('who-line');
   who.textContent = '';
   who.appendChild(el('span', null, 'Отвечает: '));
   who.appendChild(el('b', null, (chosen.klass ? chosen.klass + ', ' : '') + chosen.name));
-  var change = el('button', 'quiet', 'Это не я');
-  change.addEventListener('click', function () { renderWho(); });
-  who.appendChild(change);
+  var b = el('button', 'quiet', 'Это не я');
+  b.addEventListener('click', function () { stopChat(); renderWho(); });
+  who.appendChild(b);
+}
 
-  var box = document.getElementById('questions');
-  if (box.childNodes.length) return;   // задания уже отрисованы
-
+function renderSteps() {
+  var box = document.getElementById('steps');
+  box.textContent = '';
   DATA.questions.forEach(function (q, i) {
-    var card = el('div', 'card');
-    card.appendChild(el('div', 'qnum', 'Задание ' + (i + 1) + ' · ' + q.topic));
-    card.appendChild(el('div', 'qtext', q.text));
-    card.appendChild(el('pre', null, q.code));
-
-    q.options.forEach(function (opt, idx) {
-      var label = el('label', 'opt');
-      var radio = document.createElement('input');
-      radio.type = 'radio';
-      radio.name = q.id;
-      radio.value = String(idx);
-      radio.addEventListener('change', function () {
-        answers[q.id] = idx;
-        updateProgress();
-      });
-      label.appendChild(radio);
-      label.appendChild(el('span', null, opt));
-      card.appendChild(label);
-    });
-    box.appendChild(card);
+    var cls = '';
+    if (q.id in verdicts) cls = verdicts[q.id] ? 'y' : 'n';
+    else if (i === step) cls = 'now';
+    box.appendChild(el('i', cls));
   });
-  updateProgress();
 }
 
-function updateProgress() {
-  document.getElementById('progress').textContent =
-    'Отвечено ' + Object.keys(answers).length + ' из ' + DATA.total;
+function renderStep() {
+  renderSteps();
+  var q = DATA.questions[step];
+  locked = false;
+
+  var card = document.getElementById('question-card');
+  card.textContent = '';
+  card.appendChild(el('div', 'qnum', 'Задание ' + (step + 1) + ' из ' + DATA.total + ' · ' + q.topic));
+  card.appendChild(el('div', 'qtext', q.text));
+  card.appendChild(el('pre', null, q.code));
+
+  var labels = [];
+  q.options.forEach(function (opt, idx) {
+    var label = el('label', 'opt');
+    var radio = document.createElement('input');
+    radio.type = 'radio'; radio.name = q.id; radio.value = String(idx);
+    radio.addEventListener('change', function () {
+      if (locked) return;
+      answers[q.id] = idx;
+      document.getElementById('check').disabled = false;
+    });
+    label.appendChild(radio);
+    label.appendChild(el('span', null, opt));
+    card.appendChild(label);
+    labels.push(label);
+  });
+
+  var check = el('button', null, 'Ответить');
+  check.id = 'check';
+  check.disabled = true;
+  check.addEventListener('click', function () { sendAnswer(q, labels); });
+  card.appendChild(check);
 }
 
-/* ---------- сдача ---------- */
+function sendAnswer(q, labels) {
+  if (locked) return;
+  locked = true;
+  var btn = document.getElementById('check');
+  btn.disabled = true;
+  btn.textContent = 'Проверяем…';
 
-document.getElementById('submit').addEventListener('click', function () {
-  var missing = DATA.questions.filter(function (q) { return !(q.id in answers); });
-  if (missing.length) {
-    banner('Не отвечено заданий: ' + missing.length + '. Ответьте на все и сдайте работу.', 'err');
-    return;
-  }
-  banner('');
-
-  var button = this;
-  button.disabled = true;
-  button.textContent = 'Отправляем…';
-
-  var submission = {
-    uid: uid(),
-    klass: chosen.klass,
-    name: chosen.name,
-    addToClass: chosen.manual,
-    answers: answers
+  var payload = {
+    uid: uid(), attempt: attemptId, klass: chosen.klass, name: chosen.name,
+    qid: q.id, given: answers[q.id]
   };
 
   google.script.run
-    .withSuccessHandler(function (result) {
-      button.disabled = false;
-      button.textContent = 'Сдать работу';
-      banner('');
-      showResult(result);
+    .withSuccessHandler(function (res) { showVerdict(q, labels, res); })
+    .withFailureHandler(function () {
+      // без сервера проверить нельзя: кладём в очередь и идём дальше
+      queueAdd({ kind: 'answer', payload: payload });
+      verdicts[q.id] = null;
+      btn.textContent = 'Ответить';
+      banner('Нет связи. Ответ сохранён на устройстве и уйдёт, когда появится интернет. ' +
+             'Проверку увидите в конце.', 'warn');
+      retryLater();
+      nextStep();
     })
-    .withFailureHandler(function (err) {
-      button.disabled = false;
-      button.textContent = 'Сдать работу';
-      var saved = queueAdd(submission);
-      if (saved) {
-        banner('Нет связи с сервером. Ответ сохранён на этом устройстве и уйдёт сам, ' +
-               'когда появится интернет — не закрывайте вкладку.', 'warn');
-        retryLater();
-      } else {
-        banner('Нет связи, и сохранить ответ на устройстве не удалось: ' +
-               (err && err.message ? err.message : err) +
-               '. Не закрывайте страницу и нажмите «Сдать работу» ещё раз, когда появится интернет.', 'err');
-      }
-    })
-    .submitAnswers(submission);
-});
-
-var retryTimer = null;
-function retryLater() {
-  if (retryTimer) return;
-  retryTimer = setInterval(function () {
-    if (!queueRead().length) {
-      clearInterval(retryTimer);
-      retryTimer = null;
-      return;
-    }
-    flushQueue();
-  }, 20000);
+    .answerQuestion(payload);
 }
 
-window.addEventListener('online', function () {
-  banner('Интернет появился, отправляем ответ…', 'warn');
-  flushQueue();
-});
+function showVerdict(q, labels, res) {
+  verdicts[q.id] = res.ok;
+  renderSteps();
+
+  labels.forEach(function (label, idx) {
+    label.classList.add('locked');
+    var input = label.querySelector('input');
+    input.disabled = true;
+    if (idx === answers[q.id]) label.classList.add(res.ok ? 'picked-ok' : 'picked-bad');
+    else if (!res.ok && idx === res.correct) label.classList.add('show-right');
+    else label.classList.add('dim');
+  });
+
+  var card = document.getElementById('question-card');
+  var verdict = el('div', 'verdict ' + (res.ok ? 'ok' : 'bad'));
+  verdict.appendChild(el('span', 'dot'));
+  verdict.appendChild(el('span', null, res.ok ? 'Верно' : 'Неверно'));
+  card.appendChild(verdict);
+
+  if (!res.ok) card.appendChild(el('div', 'note', 'Правильный ответ: ' + res.correctText));
+  card.appendChild(el('div', 'note', res.note));
+
+  var btn = document.getElementById('check');
+  btn.textContent = (step + 1 < DATA.total) ? 'Следующее задание' : 'Посмотреть результат';
+  btn.disabled = false;
+  btn.replaceWith(btn.cloneNode(true));
+  var fresh = card.querySelector('#check');
+  fresh.addEventListener('click', nextStep);
+  fresh.focus();
+}
+
+function nextStep() {
+  if (step + 1 < DATA.total) { step++; renderStep(); window.scrollTo(0, 0); }
+  else finish();
+}
+
+function finish() {
+  var payload = {
+    uid: uid(), attempt: attemptId, klass: chosen.klass, name: chosen.name,
+    answers: answers, addToClass: chosen.manual
+  };
+  google.script.run
+    .withSuccessHandler(showResult)
+    .withFailureHandler(function () {
+      queueAdd({ kind: 'finish', payload: payload });
+      banner('Нет связи. Работа сохранена на устройстве и уйдёт, когда появится интернет — ' +
+             'не закрывайте вкладку.', 'warn');
+      retryLater();
+    })
+    .finishAttempt(payload);
+}
 
 /* ---------- результат ---------- */
 
@@ -432,9 +453,12 @@ function showResult(result) {
   show('screen-result');
   document.getElementById('score').textContent = result.score + ' / ' + result.total;
   var wrong = result.total - result.score;
-  document.getElementById('score-sub').textContent = wrong === 0
-    ? 'Все задания верно.'
-    : 'Ошибок: ' + wrong + '. Разбор ниже.';
+  document.getElementById('score-sub').textContent =
+    wrong === 0 ? 'Все задания верно.' : 'Ошибок: ' + wrong + '. Разбор ниже.';
+
+  var slot = document.getElementById('chat-slot-result');
+  var chat = document.getElementById('chat');
+  if (chat) slot.appendChild(chat);
 
   var box = document.getElementById('feedback');
   box.textContent = '';
@@ -457,9 +481,87 @@ function showResult(result) {
   });
 }
 
-document.getElementById('again').addEventListener('click', function () {
-  window.location.reload();
-});
+document.getElementById('again').addEventListener('click', function () { window.location.reload(); });
+
+/* ---------- переписка с учителем ---------- */
+
+function startChat() {
+  pollChat();
+  if (!chatTimer) chatTimer = setInterval(pollChat, 15000);
+}
+function stopChat() {
+  if (chatTimer) { clearInterval(chatTimer); chatTimer = null; }
+}
+
+function pollChat() {
+  if (!chosen.name) return;
+  google.script.run
+    .withSuccessHandler(renderChat)
+    .withFailureHandler(function () { /* связи нет — покажем в следующий раз */ })
+    .getMyMessages(chosen.klass, chosen.name);
+}
+
+function renderChat(messages) {
+  if (!messages || !messages.length) return;
+
+  var chat = document.getElementById('chat');
+  if (!chat) {
+    chat = el('div', 'card');
+    chat.id = 'chat';
+    var slot = document.getElementById('screen-result').style.display === 'block'
+      ? document.getElementById('chat-slot-result')
+      : document.getElementById('chat-slot');
+    slot.appendChild(chat);
+  }
+
+  if (messages.length > lastChatCount && messages[messages.length - 1].author === 'Учитель') {
+    banner('Учитель задал вам вопрос — ответьте в поле ниже.', 'warn');
+    chat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  lastChatCount = messages.length;
+
+  chat.textContent = '';
+  chat.appendChild(el('h2', null, 'Вопрос от учителя'));
+
+  messages.forEach(function (m) {
+    var b = el('div', 'bubble ' + (m.author === 'Учитель' ? 'teacher' : 'student'));
+    var from = m.author + (m.number ? ' · задание ' + m.number : '') + (m.time ? ' · ' + m.time : '');
+    b.appendChild(el('div', 'from', from));
+    b.appendChild(el('div', null, m.text));
+    chat.appendChild(b);
+  });
+
+  var last = messages[messages.length - 1];
+  var area = document.createElement('textarea');
+  area.placeholder = 'Напишите ответ учителю…';
+  chat.appendChild(area);
+
+  var send = el('button', 'secondary', 'Отправить ответ');
+  send.style.marginTop = '10px';
+  send.addEventListener('click', function () {
+    var text = area.value.trim();
+    if (!text) return;
+    send.disabled = true; send.textContent = 'Отправляем…';
+    var payload = {
+      uid: uid(), klass: chosen.klass, name: chosen.name,
+      qid: last.qid, text: text
+    };
+    google.script.run
+      .withSuccessHandler(function () {
+        send.disabled = false; send.textContent = 'Отправить ответ';
+        area.value = ''; banner(''); pollChat();
+      })
+      .withFailureHandler(function () {
+        send.disabled = false; send.textContent = 'Отправить ответ';
+        queueAdd({ kind: 'reply', payload: payload });
+        area.value = '';
+        banner('Нет связи. Ваш ответ учителю сохранён и уйдёт, когда появится интернет.', 'warn');
+        retryLater();
+      })
+      .replyToTeacher(payload);
+  });
+  chat.appendChild(send);
+}
 
 start();
 </script>
