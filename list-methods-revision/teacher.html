@@ -67,6 +67,15 @@
   .person .chose { color: var(--bad); font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
   .person .kl { color: var(--muted); font-size: 13px; }
   .right-names { font-size: 14px; color: var(--muted); }
+  /* вызванный наугад ученик */
+  .picked { margin: 14px 0; padding: 16px; border: 2px solid var(--accent); border-radius: 12px; background: var(--bg); }
+  .picked-label { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; }
+  .picked-name { font-size: 28px; font-weight: 700; line-height: 1.2; margin: 4px 0 6px; }
+  .picked-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px; margin-bottom: 8px; }
+  .picked-meta .chose { color: var(--bad); font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .picked-meta .right { color: var(--ok); font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .picked-count { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .picked .row { display: flex; gap: 8px; flex-wrap: wrap; }
   .askbox { margin: 8px 0 12px; padding: 12px; background: var(--bg); border-radius: 8px; }
   .askbox textarea { width: 100%; min-height: 70px; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
                      font: 15px/1.5 inherit; font-family: inherit; background: var(--card); color: var(--text); resize: vertical; }
@@ -149,6 +158,8 @@ var LAST = null;
 var OPEN = {};          // какие задания развёрнуты
 var ASKING = null;      // кому сейчас пишем: 'qid|класс|имя'
 var DRAFT = '';         // набранный, но не отправленный текст
+var PICKED = {};        // qid -> выбранный наугад ученик
+var USED = {};          // qid -> кого уже вызывали в этом круге
 
 function el(tag, cls, text) {
   var n = document.createElement(tag);
@@ -292,6 +303,20 @@ function questionCard(q, dialog) {
   counts.appendChild(el('span', 'y', 'верно ' + q.right.length));
   counts.appendChild(el('span', 'n', 'неверно ' + q.wrong.length));
   counts.appendChild(el('span', 's', 'не ответили ' + q.silent.length));
+
+  // вызвать наугад кого-то из тех, кто ответил неправильно
+  var roll = el('button', 'ask', PICKED[q.id] ? 'Другой ученик' : 'Спросить');
+  if (!q.wrong.length && !q.silent.length) {
+    roll.disabled = true;
+    roll.title = 'На это задание пока никто не ответил неправильно';
+    roll.style.opacity = '.45';
+  }
+  roll.addEventListener('click', function (ev) {
+    ev.stopPropagation();          // не сворачивать карточку
+    OPEN[q.id] = true;
+    pickStudent(q);
+  });
+  counts.appendChild(roll);
   head.appendChild(counts);
   head.addEventListener('click', function () {
     OPEN[q.id] = !OPEN[q.id];
@@ -328,6 +353,8 @@ function questionCard(q, dialog) {
     body.appendChild(line);
   });
 
+  if (PICKED[q.id]) body.appendChild(pickedPanel(q));
+
   body.appendChild(peopleGroup('Ошиблись', q.wrong, q, true));
   body.appendChild(peopleGroup('Не ответили', q.silent, q, false));
 
@@ -356,6 +383,98 @@ function questionCard(q, dialog) {
   return card;
 }
 
+/**
+ * Выбирает наугад одного из ошибшихся по этому заданию.
+ * Пока не вызваны все, один и тот же человек второй раз не выпадет;
+ * когда круг закончился — начинается новый.
+ */
+function pickStudent(q) {
+  var pool = q.wrong.slice();
+  var fromSilent = false;
+  if (!pool.length) {                 // ошибок нет — спрашиваем не ответивших
+    pool = q.silent.slice();
+    fromSilent = true;
+  }
+  if (!pool.length) return;
+
+  var used = USED[q.id] || [];
+  var left = pool.filter(function (p) {
+    return used.indexOf(p.klass + '|' + p.name) === -1;
+  });
+
+  var restarted = false;
+  if (!left.length) {                 // круг пройден — начинаем заново
+    used = [];
+    left = pool;
+    restarted = true;
+  }
+
+  var choice = left[Math.floor(Math.random() * left.length)];
+  used.push(choice.klass + '|' + choice.name);
+  USED[q.id] = used;
+  PICKED[q.id] = {
+    klass: choice.klass, name: choice.name, chosen: choice.chosen || '',
+    fromSilent: fromSilent, restarted: restarted,
+    position: used.length, outOf: pool.length
+  };
+  ASKING = null;
+  DRAFT = '';
+  draw();
+}
+
+/** Крупная карточка вызванного ученика. */
+function pickedPanel(q) {
+  var p = PICKED[q.id];
+  var box = el('div', 'picked');
+
+  box.appendChild(el('div', 'picked-label',
+    p.fromSilent ? 'Не ответил на это задание' : 'Ответил неправильно'));
+  box.appendChild(el('div', 'picked-name', p.name));
+
+  var meta = el('div', 'picked-meta');
+  meta.appendChild(el('span', null, p.klass));
+  if (!p.fromSilent && p.chosen) {
+    meta.appendChild(el('span', 'chose', 'выбрал: ' + p.chosen));
+    meta.appendChild(el('span', 'right', 'правильно: ' + q.correctText));
+  }
+  box.appendChild(meta);
+
+  box.appendChild(el('div', 'picked-count',
+    p.restarted
+      ? 'Все уже отвечали — пошёл новый круг (' + p.position + ' из ' + p.outOf + ')'
+      : 'Вызван ' + p.position + ' из ' + p.outOf));
+
+  var row = el('div', 'row');
+
+  var next = el('button', 'send', 'Другой ученик');
+  next.addEventListener('click', function () { pickStudent(q); });
+  row.appendChild(next);
+
+  var askId = 'pick:' + q.id + '|' + p.klass + '|' + p.name;
+  var write = el('button', 'act', 'Написать ему вопрос');
+  write.addEventListener('click', function () {
+    ASKING = (ASKING === askId) ? null : askId;
+    DRAFT = '';
+    draw();
+  });
+  row.appendChild(write);
+
+  var close = el('button', 'act', 'Убрать');
+  close.addEventListener('click', function () {
+    delete PICKED[q.id];
+    ASKING = null;
+    draw();
+  });
+  row.appendChild(close);
+
+  box.appendChild(row);
+
+  if (ASKING === askId) {
+    box.appendChild(askBox(q, p, !p.fromSilent, askId));
+  }
+  return box;
+}
+
 function peopleGroup(title, people, q, isWrong) {
   var g = el('div', 'group');
   g.appendChild(el('h3', null, title + ' — ' + people.length));
@@ -369,7 +488,7 @@ function peopleGroup(title, people, q, isWrong) {
     row.appendChild(el('span', 'kl', p.klass));
     if (isWrong && p.chosen) row.appendChild(el('span', 'chose', 'выбрал: ' + p.chosen));
 
-    var askId = q.id + '|' + p.klass + '|' + p.name;
+    var askId = 'list:' + q.id + '|' + p.klass + '|' + p.name;
     var ask = el('button', 'ask', 'Спросить');
     ask.addEventListener('click', function () {
       ASKING = (ASKING === askId) ? null : askId;
