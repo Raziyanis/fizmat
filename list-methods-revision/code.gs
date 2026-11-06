@@ -261,13 +261,16 @@ function countStudents_() {
 
 function readClasses_() {
   var values = rows_(SHEET_CLASSES, 2);
-  var order = [], map = {};
+  var order = [], map = {}, seen = {};
   for (var i = 0; i < values.length; i++) {
     var klass = String(values[i][0] || '').trim();
     var name = clean_(values[i][1]);
     if (!klass || !name) continue;
     if (!map[klass]) { map[klass] = []; order.push(klass); }
-    if (map[klass].indexOf(name) === -1) map[klass].push(name);
+    // сравниваем без учёта регистра и лишних пробелов: одна и та же фамилия,
+    // записанная на листе по-разному, не должна показаться ученику дважды
+    var k = key_(klass, name);
+    if (!seen[k]) { seen[k] = true; map[klass].push(name); }
   }
   order.sort(function (a, b) { return a.localeCompare(b, 'ru'); });
   return order.map(function (klass) {
