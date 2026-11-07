@@ -146,6 +146,13 @@
   .mistake { border-left: 4px solid var(--bad); padding-left: 12px; margin-bottom: 12px; }
   .mistake code { font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 700; color: var(--bad); }
   .practice li { margin-bottom: 8px; }
+  .goalrow { display: flex; gap: 10px; margin-bottom: 14px; }
+  .goalrow .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff;
+                display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+  .goalpart { font-weight: 700; margin-bottom: 3px; }
+  .goalwhere { font-size: 14px; color: var(--muted); }
+  .reached { margin-top: 6px; padding: 11px 13px; border-radius: 8px;
+             background: var(--ok-bg); color: var(--ok); font-size: 15px; }
   input.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
   .matchrow { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
   .matchleft { flex: 0 0 130px; font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -261,7 +268,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v24 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v26 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -758,6 +765,24 @@ function renderTopic() {
     oc.appendChild(row);
   });
   box.appendChild(oc);
+
+if (L.goalMap) {
+    var gm = el('div', 'card');
+    gm.appendChild(el('h3', null, 'Где достигается цель'));
+    gm.appendChild(el('div', 'sub', 'Какая часть цели на каком этапе отрабатывается и чем проверяется.'));
+    L.goalMap.forEach(function (g, i) {
+      var row = el('div', 'goalrow');
+      row.appendChild(el('div', 'n', String(i + 1)));
+      var right = el('div');
+      right.appendChild(el('div', 'goalpart', g.part));
+      right.appendChild(el('div', 'goalwhere', 'Объясняется: ' + g.where));
+      right.appendChild(el('div', 'goalwhere', 'Проверяется: ' + g.check));
+      row.appendChild(right);
+      gm.appendChild(row);
+    });
+    if (L.reached) gm.appendChild(el('div', 'reached', L.reached));
+    box.appendChild(gm);
+  }
 
   var plan = el('div', 'card');
   plan.appendChild(el('h3', null, 'Как пройдёт урок'));

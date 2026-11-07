@@ -57,6 +57,14 @@
   pre { background: #11161d; color: #e8edf3; padding: 11px 13px; border-radius: 8px; overflow-x: auto;
         font: 13px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 8px 0 12px; }
   .qtext { font-weight: 700; font-size: 18px; margin: 4px 0 10px; }
+  .goalrow { display: flex; gap: 10px; margin-bottom: 14px; }
+  .goalrow .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff;
+                display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+  .goalpart { font-weight: 700; margin-bottom: 3px; }
+  .goalwhere { font-size: 14px; color: var(--muted); }
+  .reached { margin-top: 6px; padding: 11px 13px; border-radius: 8px;
+             background: var(--ok-bg); color: var(--ok); font-size: 15px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
   .steps { display: flex; gap: 5px; margin-bottom: 14px; flex-wrap: wrap; }
   .steps i { min-width: 28px; height: 26px; border-radius: 6px; background: var(--line); color: var(--muted);
              display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -80,6 +88,18 @@
   .topt.picked { border-color: var(--bad-line, var(--bad)); background: var(--bad-bg); }
   .topt.picked .topt-text { color: var(--bad); }
   .topt.picked .topt-count { background: #fff; color: var(--bad); }
+  .topt.tap { cursor: pointer; }
+  .topt.tap:hover { border-color: var(--accent); }
+  .topt.chosen-ok { border: 2px solid var(--ok); background: var(--ok-bg); }
+  .topt.chosen-ok .topt-text { color: var(--ok); font-weight: 700; }
+  .topt.chosen-bad { border: 2px solid var(--bad); background: var(--bad-bg); }
+  .topt.chosen-bad .topt-text { color: var(--bad); font-weight: 700; }
+  .topt.dim { opacity: .45; }
+  .verdict { display: flex; align-items: center; gap: 10px; margin: 14px 0 8px; font-weight: 700; font-size: 18px; }
+  .verdict.ok { color: var(--ok); } .verdict.bad { color: var(--bad); }
+  .verdict .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .verdict.ok .dot { background: var(--ok); } .verdict.bad .dot { background: var(--bad); }
+  .note { color: var(--muted); font-size: 15px; margin-bottom: 10px; }
   .group { margin-top: 14px; }
   .klass-head { font-size: 13px; font-weight: 700; color: var(--accent); margin: 10px 0 4px; }
   .klass-head:first-of-type { margin-top: 4px; }
@@ -288,10 +308,11 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v24 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v26 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
+var CHOICE = null;        // вариант, который назвал вызванный ученик
 var LAST = null;
 var OPEN = {};          // какие задания развёрнуты
 var ASKING = null;      // кому сейчас пишем: 'qid|класс|имя'
@@ -433,6 +454,24 @@ function drawTopic() {
   g.appendChild(el('b', null, 'Цель обучения ' + L.code));
   g.appendChild(el('div', null, L.goal));
   box.appendChild(g);
+if (L.goalMap) {
+    var gm = el('div', 'card');
+    gm.appendChild(el('h2', null, 'Где достигается цель'));
+    gm.appendChild(el('div', 'sub', 'Какая часть цели на каком этапе отрабатывается и чем проверяется.'));
+    L.goalMap.forEach(function (g, i) {
+      var row = el('div', 'goalrow');
+      row.appendChild(el('div', 'n', String(i + 1)));
+      var right = el('div');
+      right.appendChild(el('div', 'goalpart', g.part));
+      right.appendChild(el('div', 'goalwhere', 'Объясняется: ' + g.where));
+      right.appendChild(el('div', 'goalwhere', 'Проверяется: ' + g.check));
+      row.appendChild(right);
+      gm.appendChild(row);
+    });
+    if (L.reached) gm.appendChild(el('div', 'reached', L.reached));
+    box.appendChild(gm);
+  }
+
   var oc = el('div', 'card');
   oc.appendChild(el('h2', null, 'Ожидаемые результаты'));
   L.outcomes.forEach(function (o) {
@@ -689,7 +728,7 @@ function draw() {
     var answered = right.length + wrong.length;
     return {
       id: q.id, number: q.number, topic: q.topic, text: q.text, code: q.code,
-      options: q.options, correctText: q.correctText,
+      note: q.note, options: q.options, correctText: q.correctText, correct: q.correct,
       right: right, wrong: wrong, silent: silent, answered: answered,
       percent: answered ? Math.round((right.length / answered) * 100) : 0
     };
@@ -713,7 +752,7 @@ function draw() {
     var chip = el('i', cls, String(q.number));
     chip.title = 'Задание ' + q.number + ' · ' + q.topic +
                  (q.answered ? ' · верно ' + q.percent + '%' : ' · ещё не отвечали');
-    chip.addEventListener('click', function () { QIDX = i; REVEAL = false; draw(); });
+    chip.addEventListener('click', function () { QIDX = i; REVEAL = false; CHOICE = null; draw(); });
     strip.appendChild(chip);
   });
 
@@ -728,12 +767,12 @@ function draw() {
   if (qs.length) {
     var prev = el('button', 'act', '← Предыдущее');
     prev.disabled = QIDX === 0;
-    prev.addEventListener('click', function () { QIDX--; REVEAL = false; draw(); });
+    prev.addEventListener('click', function () { QIDX--; REVEAL = false; CHOICE = null; draw(); });
     nav.appendChild(prev);
 
     var next = el('button', 'act', 'Следующее →');
     next.disabled = QIDX >= qs.length - 1;
-    next.addEventListener('click', function () { QIDX++; REVEAL = false; draw(); });
+    next.addEventListener('click', function () { QIDX++; REVEAL = false; CHOICE = null; draw(); });
     nav.appendChild(next);
 
     var answered = qs.filter(function (q) { return q.answered; });
@@ -743,6 +782,7 @@ function draw() {
       jump.addEventListener('click', function () {
         QIDX = qs.indexOf(worst);
         REVEAL = false;
+        CHOICE = null;
         draw();
       });
       nav.appendChild(jump);
@@ -849,23 +889,49 @@ function questionCard(q, dialog) {
   body.appendChild(el('pre', null, q.code));
 
   /* варианты — в том же виде, что видит ученик, плюс сколько человек выбрало */
-  q.options.forEach(function (o) {
-    var mark = REVEAL ? (o.correct ? ' right' : (o.count ? ' picked' : '')) : '';
-    var row = el('div', 'topt' + mark);
+  var answered = (CHOICE !== null);
+  var chosenRight = answered && q.options[CHOICE] && q.options[CHOICE].correct;
+
+  q.options.forEach(function (o, oi) {
+    var mark = '';
+    if (answered) {
+      if (oi === CHOICE) mark = o.correct ? ' chosen-ok' : ' chosen-bad';
+      else if (o.correct) mark = ' right';
+      else mark = ' dim';
+    } else if (REVEAL) {
+      mark = o.correct ? ' right' : (o.count ? ' picked' : '');
+    }
+    var row = el('div', 'topt tap' + mark);
     row.appendChild(el('span', 'topt-text', o.text));
     var tail = el('span', 'topt-tail');
-    if (REVEAL && o.correct) tail.appendChild(el('span', 'topt-ok', 'верный ответ'));
+    if ((REVEAL || answered) && o.correct) tail.appendChild(el('span', 'topt-ok', 'верный ответ'));
     if (o.count) tail.appendChild(el('span', 'topt-count', String(o.count)));
     row.appendChild(tail);
+    // нажимаем тот вариант, который назвал ученик
+    row.addEventListener('click', function () { CHOICE = (CHOICE === oi) ? null : oi; draw(); });
     body.appendChild(row);
   });
 
-  // ответ скрыт, пока не понадобится: карточку показывают классу
-  var reveal = el('button', REVEAL ? 'act' : 'big-action',
-                  REVEAL ? 'Скрыть верный ответ' : 'Показать верный ответ');
-  reveal.style.marginTop = '6px';
-  reveal.addEventListener('click', function () { REVEAL = !REVEAL; draw(); });
-  body.appendChild(reveal);
+  if (answered) {
+    var v = el('div', 'verdict ' + (chosenRight ? 'ok' : 'bad'));
+    v.appendChild(el('span', 'dot'));
+    v.appendChild(el('span', null, chosenRight ? 'Верно' : 'Неверно'));
+    body.appendChild(v);
+    if (!chosenRight) body.appendChild(el('div', 'note', 'Правильный ответ: ' + q.correctText));
+    if (q.note) body.appendChild(el('div', 'note', q.note));
+
+    var again = el('button', 'act', 'Сбросить ответ');
+    again.addEventListener('click', function () { CHOICE = null; draw(); });
+    body.appendChild(again);
+  } else {
+    body.appendChild(el('div', 'sub-hint',
+      'Нажмите на вариант, который назвал ученик, — покажется, верно это или нет.'));
+    // ответ скрыт, пока не понадобится: карточку показывают классу
+    var reveal = el('button', REVEAL ? 'act' : 'big-action',
+                    REVEAL ? 'Скрыть верный ответ' : 'Показать верный ответ');
+    reveal.addEventListener('click', function () { REVEAL = !REVEAL; draw(); });
+    body.appendChild(reveal);
+  }
 
   if (PICKED[q.id]) body.appendChild(pickedPanel(q));
 

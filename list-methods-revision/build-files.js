@@ -231,7 +231,7 @@ function localSkeleton(){
       return { id:q.id, number:i+1, topic:q.topic, text:q.text, code:q.code,
                options: q.options.map(function(o, oi){
                  return { text:o, count:0, correct: oi === q.correct }; }),
-               correctText: q.options[q.correct],
+               note: q.note, correctText: q.options[q.correct], correct: q.correct,
                right: [], wrong: [], silent: roster.slice(),
                answered: 0, rightCount: 0, wrongCount: 0, silentCount: roster.length, percent: 0 };
     }),

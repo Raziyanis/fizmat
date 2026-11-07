@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v24 · 7 ноября';
+var APP_VERSION = 'v26 · 7 ноября';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
@@ -198,6 +198,19 @@ var LESSON = {
   code: '8.2.1.4',
   title: 'Кортеж (tuple)',
   goal: 'Познакомиться с кортежами: чем они отличаются от списков, какие у них есть методы и где их применяют.',
+  goalMap: [
+    { part: 'чем кортеж отличается от списка',
+      where: 'Этап 3, блоки «Читается точно как список» и «Но изменить нельзя»',
+      check: 'Этап 4: задания 1 и 3 · Этап 5: задание 1' },
+    { part: 'какие у кортежа есть методы',
+      where: 'Этап 3, блок «Поэтому методов всего два»',
+      check: 'Этап 4: задания 2, 5, 7 · Этап 5: задания 2 и 3' },
+    { part: 'где кортежи применяют',
+      where: 'Этап 3, блоки «Распаковка», «Список ↔ кортеж» и «Где применяют»',
+      check: 'Этап 5: задания 4 и 5' }
+  ],
+  reached: 'Цель считается достигнутой, когда ученик набрал не меньше 6 из 10 на этапе 4 ' +
+           'и не меньше 6 из 10 на этапе 5. Полностью — после задания 5 этапа «Практика».',
   outcomes: [
     { level: 'Все', text: 'создают кортеж, берут элемент по индексу и объясняют, чем кортеж отличается от списка' },
     { level: 'Большинство', text: 'применяют count и index, распаковывают кортеж в переменные и объясняют, почему у кортежа нет append и sort' },
@@ -942,8 +955,9 @@ function resultsForTeacher_() {
     });
 
     return {
-      id: q.id, number: idx + 1, topic: q.topic, text: q.text, code: q.code,
+      id: q.id, number: idx + 1, topic: q.topic, text: q.text, code: q.code, note: q.note,
       options: optionStats, correctText: q.options[q.correct],
+      correct: q.correct,
       right: right, wrong: wrong, silent: silent, answered: answered,
       rightCount: right.length, wrongCount: wrong.length, silentCount: silent.length,
       percent: answered ? Math.round((right.length / answered) * 100) : 0
