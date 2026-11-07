@@ -81,7 +81,13 @@
   .cmp-name { font-weight: 600; white-space: nowrap; }
   .cmp-code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
   .askbig { font-size: 21px; font-weight: 600; line-height: 1.4; margin: 10px 0 14px; }
-  .askdone { font-size: 15px; color: var(--muted); font-style: italic; margin-bottom: 12px; }
+  .askdone { background: var(--accent-soft); border-left: 4px solid var(--accent);
+             border-radius: 0 10px 10px 0; padding: 12px 14px; margin: 0 0 14px;
+             font-size: 18px; font-weight: 600; line-height: 1.45; color: var(--text); font-style: normal; }
+  .askdone-label { font: 700 11px/1 inherit; letter-spacing: .12em; text-transform: uppercase;
+                   color: var(--accent); margin-bottom: 6px; }
+  .answer-label { font: 700 11px/1 inherit; letter-spacing: .12em; text-transform: uppercase;
+                  color: var(--ok); margin: 0 0 6px; }
   .goalrow { display: flex; gap: 10px; margin-bottom: 14px; }
   .goalrow .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff;
                 display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
@@ -341,7 +347,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v38 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v39 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -737,7 +743,13 @@ function drawLessonPanel() {
     card.appendChild(open);
   } else {
     card.appendChild(el('div', 'display', b.heading));
-    if (b.ask) card.appendChild(el('div', 'askdone', b.ask));
+    if (b.ask) {
+      var q = el('div', 'askdone');
+      q.appendChild(el('div', 'askdone-label', 'Вопрос'));
+      q.appendChild(el('div', null, b.ask));
+      card.appendChild(q);
+    }
+    card.appendChild(el('div', 'answer-label', 'Ответ'));
     card.appendChild(el('div', null, b.text));
     if (b.code) {
       card.appendChild(el('pre', null, b.code));
