@@ -21,6 +21,7 @@ const WEB_APP_URL = process.argv[2] ||
 const code = read('code.gs');
 const QUESTIONS = eval(code.match(/var QUESTIONS = (\[[\s\S]*?\n\]);/)[1]);
 const VERSION = code.match(/var APP_VERSION = '([^']+)'/)[1];
+const LESSON = eval('(' + code.match(/var LESSON = (\{[\s\S]*?\n\});/)[1] + ')');
 
 function roster() {
   const file = path.join(DIR, 'classes.csv');
@@ -109,6 +110,24 @@ const html = `<!DOCTYPE html>
   .tag.ok{background:var(--ok-bg);color:var(--ok)} .tag.bad{background:var(--bad-bg);color:var(--bad)}
   .fb .ans{font:14px/1.5 "SF Mono",Menlo,Consolas,monospace;margin:4px 0}
   .version{text-align:center;color:var(--muted);font-size:12px;padding:20px 0 8px}
+  .tabs{display:flex;gap:6px;margin-bottom:16px}
+  .tab{width:auto;flex:1 1 0;background:var(--card);color:var(--muted);border:1px solid var(--line);
+    border-radius:10px;padding:11px 14px;font:600 15px/1.2 inherit;font-family:inherit;cursor:pointer}
+  .tab.on{border-color:var(--accent);color:var(--accent);background:#eef4ff}
+  .lesson-code{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.03em}
+  .lesson-title{font-size:24px;font-weight:700;margin:4px 0 10px}
+  .goal{background:#eef4ff;border-radius:10px;padding:12px 14px;margin-bottom:14px}
+  .goal b{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin-bottom:4px}
+  .outcome{display:flex;gap:10px;margin-bottom:8px;font-size:15px}
+  .outcome .lvl{flex:0 0 110px;font-weight:700;color:var(--accent)}
+  .block h3{font-size:17px;margin:0 0 6px}
+  .out{background:var(--ok-bg);color:var(--ok);border-radius:8px;padding:9px 12px;
+    font:14px/1.5 "SF Mono",Menlo,Consolas,monospace;white-space:pre-wrap;margin-bottom:4px}
+  .out.err{background:var(--bad-bg);color:var(--bad)}
+  .out-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .mistake{border-left:4px solid var(--bad);padding-left:12px;margin-bottom:12px}
+  .mistake code{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:700;color:var(--bad)}
+  .practice li{margin-bottom:8px}
   .row{display:flex;gap:8px;flex-wrap:wrap}
   .row button{width:auto;flex:1 1 auto}
   @media (prefers-color-scheme: dark){
@@ -122,7 +141,13 @@ const html = `<!DOCTYPE html>
 <body>
 <div class="wrap">
 
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-tab="test">Повторение</button>
+    <button class="tab" data-tab="lesson">Новая тема</button>
+  </div>
+
   <div id="banner"></div>
+  <div id="screen-lesson" style="display:none"></div>
 
   <div id="screen-who">
     <h1>Повторение: методы списка</h1>
@@ -174,6 +199,7 @@ const html = `<!DOCTYPE html>
 var URL_SEND = ${JSON.stringify(WEB_APP_URL)};
 var VERSION = ${JSON.stringify(VERSION)};
 var CLASSES = ${JSON.stringify(CLASSES)};
+var LESSON = ${JSON.stringify(LESSON)};
 var QUESTIONS = ${JSON.stringify(QUESTIONS)};
 var QUEUE_KEY = 'listmethods.offline.v1';
 
@@ -181,8 +207,54 @@ var chosen = { klass: '', name: '', manual: false };
 var step = 0, answers = {}, verdicts = {}, locked = false, attemptId = '', lastResult = null;
 
 function el(t, c, x){var n=document.createElement(t); if(c)n.className=c; if(x!==undefined)n.textContent=x; return n;}
-function show(id){['screen-who','screen-test','screen-result'].forEach(function(s){
-  document.getElementById(s).style.display = (s===id)?'block':'none';}); window.scrollTo(0,0);}
+var TAB='test', currentScreen='screen-who';
+function show(id){ currentScreen=id; applyView(); }
+function applyView(){
+  var lesson = (TAB==='lesson');
+  ['screen-who','screen-test','screen-result'].forEach(function(s){
+    document.getElementById(s).style.display = (!lesson && s===currentScreen)?'block':'none';});
+  document.getElementById('screen-lesson').style.display = lesson?'block':'none';
+  document.getElementById('banner').style.display = lesson?'none':'block';
+  var tabs=document.querySelectorAll('#tabs .tab');
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].className='tab'+(tabs[i].getAttribute('data-tab')===TAB?' on':'');}
+  window.scrollTo(0,0);
+}
+document.getElementById('tabs').addEventListener('click',function(ev){
+  var t=ev.target.getAttribute('data-tab'); if(!t) return;
+  TAB=t; if(t==='lesson') renderLesson(); applyView();
+});
+function renderLesson(){
+  var box=document.getElementById('screen-lesson');
+  if(box.childNodes.length) return;
+  var L=LESSON;
+  box.appendChild(el('div','lesson-code','Цель обучения '+L.code));
+  box.appendChild(el('div','lesson-title',L.title));
+  var g=el('div','goal'); g.appendChild(el('b',null,'Цель урока'));
+  g.appendChild(el('div',null,L.goal)); box.appendChild(g);
+  var oc=el('div','card'); oc.appendChild(el('h3',null,'Ожидаемые результаты'));
+  L.outcomes.forEach(function(o){var r=el('div','outcome');
+    r.appendChild(el('div','lvl',o.level)); r.appendChild(el('div',null,o.text)); oc.appendChild(r);});
+  box.appendChild(oc);
+  L.blocks.forEach(function(b){
+    var c=el('div','card block');
+    c.appendChild(el('h3',null,b.heading));
+    c.appendChild(el('div',null,b.text));
+    if(b.code){ c.appendChild(el('pre',null,b.code));
+      if(b.out){ c.appendChild(el('div','out-label','Что выведет:'));
+        c.appendChild(el('div','out'+(b.out.indexOf('Error')>-1?' err':''), b.out)); } }
+    box.appendChild(c);
+  });
+  var mc=el('div','card'); mc.appendChild(el('h3',null,'Частые ошибки'));
+  L.mistakes.forEach(function(m){var d=el('div','mistake'); var line=el('div');
+    line.appendChild(el('code',null,m.wrong)); d.appendChild(line);
+    d.appendChild(el('div','note',m.why)); mc.appendChild(d);});
+  box.appendChild(mc);
+  var pc=el('div','card'); pc.appendChild(el('h3',null,'Попробуйте сами'));
+  var ol=document.createElement('ol'); ol.className='practice';
+  L.practice.forEach(function(t){ol.appendChild(el('li',null,t));});
+  pc.appendChild(ol); box.appendChild(pc);
+}
 function banner(text, kind){var b=document.getElementById('banner'); b.textContent='';
   if(text) b.appendChild(el('div','msg '+(kind||'err'), text));}
 function uid(){return 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
