@@ -323,7 +323,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v31 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v32 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -648,6 +648,86 @@ function drawLessonPanel() {
   box.appendChild(nav);
 }
 
+/* ---------- задания этапов 4 и 5 в виде, который видит ученик ---------- */
+var TASK_IDX = { check: 0, work: 0 };
+var TASK_OPEN = { check: false, work: false };
+
+function stageTasks(which, L) {
+  var list = (which === 'check') ? L.check.items : L.work.tasks;
+  var i = TASK_IDX[which];
+  if (i >= list.length) { i = 0; TASK_IDX[which] = 0; }
+  var it = list[i];
+  var open = TASK_OPEN[which];
+
+  var box = el('div', 'card');
+  box.appendChild(el('h2', null, 'Задания этапа'));
+
+  var strip = el('div', 'steps');
+  list.forEach(function (x, k) {
+    var chip = el('i', k === i ? 'now' : '', String(k + 1));
+    chip.addEventListener('click', function () {
+      TASK_IDX[which] = k; TASK_OPEN[which] = false; drawStage();
+    });
+    strip.appendChild(chip);
+  });
+  box.appendChild(strip);
+
+  box.appendChild(el('div', 'qnum', 'Задание ' + (i + 1) + ' из ' + list.length +
+    ' · ' + it.points + (it.points === 1 ? ' балл' : ' балла')));
+  box.appendChild(el('div', 'qtext', it.text));
+
+  if (it.kind === 'tf') {
+    ['Верно', 'Неверно'].forEach(function (lbl, oi) {
+      var right = open && ((oi === 0) === (it.answer === true));
+      var row = el('div', 'topt' + (right ? ' right' : ''));
+      row.appendChild(el('span', 'topt-text', lbl));
+      if (right) row.appendChild(el('span', 'topt-ok', 'верный ответ'));
+      box.appendChild(row);
+    });
+  } else if (it.kind === 'choice') {
+    it.options.forEach(function (o, oi) {
+      var right = open && oi === it.answer;
+      var row = el('div', 'topt' + (right ? ' right' : ''));
+      row.appendChild(el('span', 'topt-text', o));
+      if (right) row.appendChild(el('span', 'topt-ok', 'верный ответ'));
+      box.appendChild(row);
+    });
+  } else if (it.kind === 'match') {
+    it.left.forEach(function (lft, li) {
+      var row = el('div', 'topt' + (open ? ' right' : ''));
+      row.appendChild(el('span', 'topt-text', lft));
+      if (open) row.appendChild(el('span', 'topt-ok', it.right[li]));
+      box.appendChild(row);
+    });
+  } else if (open) {
+    var accept = it.accept || [];
+    var row = el('div', 'topt right');
+    row.appendChild(el('span', 'topt-text', accept.join('  или  ')));
+    row.appendChild(el('span', 'topt-ok', 'принимается'));
+    box.appendChild(row);
+  }
+
+  if (open) {
+    if (it.note) box.appendChild(el('div', 'note', it.note));
+  }
+
+  var nav = el('div', 'qnav');
+  var reveal = el('button', open ? 'act' : 'big-action', open ? 'Скрыть ответ' : 'Показать ответ');
+  reveal.addEventListener('click', function () { TASK_OPEN[which] = !open; drawStage(); });
+  nav.appendChild(reveal);
+  var prev = el('button', 'act', '← Предыдущее');
+  prev.disabled = i === 0;
+  prev.addEventListener('click', function () { TASK_IDX[which] = i - 1; TASK_OPEN[which] = false; drawStage(); });
+  nav.appendChild(prev);
+  var next = el('button', 'act', 'Следующее →');
+  next.disabled = i >= list.length - 1;
+  next.addEventListener('click', function () { TASK_IDX[which] = i + 1; TASK_OPEN[which] = false; drawStage(); });
+  nav.appendChild(next);
+  box.appendChild(nav);
+
+  return box;
+}
+
 /** Баллы класса за этап 4 или 5 плюс сами задания. */
 function drawStageScores(which, title, num) {
   var box = document.getElementById('panel-' + (which === 'check' ? 'check' : 'work'));
@@ -677,6 +757,7 @@ function drawStageScores(which, title, num) {
     tiles.appendChild(d);
   });
   box.appendChild(tiles);
+  box.appendChild(stageTasks(which, L));
 
   var card = el('div', 'card');
   card.appendChild(el('h2', null, 'Баллы'));
@@ -708,21 +789,6 @@ function drawStageScores(which, title, num) {
     var sc = el('div', 'scroll'); sc.appendChild(table); card.appendChild(sc);
   }
   box.appendChild(card);
-
-  var qs = el('div', 'card');
-  qs.appendChild(el('h2', null, 'Задания этапа'));
-  var list = (which === 'check') ? L.check.items : L.work.tasks;
-  list.forEach(function (it, i) {
-    var row = el('div', 'rule');
-    row.appendChild(el('div', 'n', String(i + 1)));
-    var right = el('div');
-    right.appendChild(el('div', null, it.text));
-    right.appendChild(el('div', 'sub-hint', it.note));
-    row.appendChild(right);
-    qs.appendChild(row);
-    qs.appendChild(el('div', null, ' '));
-  });
-  box.appendChild(qs);
 }
 
 function drawReflect() {
