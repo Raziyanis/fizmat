@@ -103,6 +103,7 @@
   .mark.q { color: var(--line); }
   .empty { color: var(--muted); }
   .version { text-align: center; color: var(--muted); font-size: 12px; padding: 8px 0 16px; }
+  .version.mismatch { color: var(--bad); font-weight: 600; font-size: 14px; }
   .sub-hint { font-size: 13px; color: var(--muted); margin: -4px 0 10px; }
   tr.clickable { cursor: pointer; }
   tr.clickable:hover td { background: var(--bg); }
@@ -180,6 +181,7 @@
 </div>
 
 <script>
+var PAGE_VERSION = 'v9 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var SORT = 'hard';
 var LAST = null;
@@ -237,6 +239,24 @@ setInterval(function () { load(true); }, 10000);
  * auto = true — это автообновление по таймеру. Пока учитель набирает
  * вопрос ученику, перерисовку откладываем, иначе набранный текст пропадёт.
  */
+
+/** Сверяет версию страницы с версией Код.gs и предупреждает о расхождении. */
+function showVersion_(serverVersion) {
+  var box = document.getElementById('version');
+  if (!box) return;
+  if (serverVersion === PAGE_VERSION) {
+    box.textContent = PAGE_VERSION;
+    box.className = 'version';
+    return;
+  }
+  box.className = 'version mismatch';
+  box.textContent = serverVersion
+    ? 'Страница ' + PAGE_VERSION + ', а Код.gs ' + serverVersion +
+      ' — вставьте свежий Код.gs и разверните новую версию.'
+    : 'Код.gs старее страниц: вставьте свежий Код.gs, затем Начать развертывание → ' +
+      'Управление развертываниями → Версия «Новая».';
+}
+
 function load(auto) {
   google.script.run
     .withSuccessHandler(function (data) {
@@ -261,7 +281,7 @@ function draw() {
   var data = LAST;
   if (!data) return;
   var now = new Date();
-  document.getElementById('version').textContent = data.version || '';
+  showVersion_(data.version);
   document.getElementById('status').textContent = 'обновлено в ' +
     ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
 

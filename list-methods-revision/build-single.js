@@ -56,6 +56,20 @@ function roster() {
 }
 
 const code = read('code.gs');
+
+/* версии в коде и в страницах должны совпадать, иначе страница будет
+   ругаться на свежий же Код.gs */
+{
+  const v = (code.match(/var APP_VERSION = '([^']+)'/) || [])[1];
+  for (const f of ['student.html', 'teacher.html']) {
+    const pv = (read(f).match(/var PAGE_VERSION = '([^']+)'/) || [])[1];
+    if (v !== pv) {
+      console.error(`! ${f}: PAGE_VERSION «${pv}» не совпадает с APP_VERSION «${v}»`);
+      process.exit(1);
+    }
+  }
+  console.log('версия:', v);
+}
 const student = read('student.html');
 const teacher = read('teacher.html');
 const list = roster();

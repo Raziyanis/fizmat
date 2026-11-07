@@ -88,6 +88,7 @@
   .fb .ans { font: 14px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 4px 0; }
   .loading { color: var(--muted); text-align: center; padding: 40px 0; }
   .version { text-align: center; color: var(--muted); font-size: 12px; padding: 20px 0 8px; }
+  .version.mismatch { color: var(--bad); font-weight: 600; font-size: 14px; }
   /* переписка с учителем */
   #chat { border-color: var(--accent); }
   #chat h2 { font-size: 16px; margin: 0 0 10px; }
@@ -169,6 +170,7 @@
 </div>
 
 <script>
+var PAGE_VERSION = 'v9 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -253,11 +255,29 @@ window.addEventListener('online', function () {
 
 /* ---------- загрузка ---------- */
 
+
+/** Сверяет версию страницы с версией Код.gs и предупреждает о расхождении. */
+function showVersion_(serverVersion) {
+  var box = document.getElementById('version');
+  if (!box) return;
+  if (serverVersion === PAGE_VERSION) {
+    box.textContent = PAGE_VERSION;
+    box.className = 'version';
+    return;
+  }
+  box.className = 'version mismatch';
+  box.textContent = serverVersion
+    ? 'Страница ' + PAGE_VERSION + ', а Код.gs ' + serverVersion +
+      ' — вставьте свежий Код.gs и разверните новую версию.'
+    : 'Код.gs старее страниц: вставьте свежий Код.gs, затем Начать развертывание → ' +
+      'Управление развертываниями → Версия «Новая».';
+}
+
 function start() {
   google.script.run
     .withSuccessHandler(function (data) {
       DATA = data; banner('');
-      document.getElementById('version').textContent = DATA.version || '';
+      showVersion_(DATA.version);
       renderWho(); flushQueue();
       if (queueRead().length) {
         banner('Есть несохранённые ответы — отправим, когда появится интернет.', 'warn');
