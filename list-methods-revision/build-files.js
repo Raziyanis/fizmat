@@ -211,9 +211,37 @@ window.google = { script: { run: {
 /* ------------------------------------------------------------------ */
 
 const TEACHER_SHIM = `
-/* Самостоятельный файл учителя: данные подтягиваются из таблицы. */
+/* Самостоятельный файл учителя: данные подтягиваются из таблицы.
+   Задания, список урока и классы вшиты сюда же, поэтому страница
+   показывает разбор и вызывает учеников даже без связи. */
 var TOKEN = ${JSON.stringify(TEACHER_TOKEN)};
+var Q = ${JSON.stringify(QUESTIONS)};
+var L = ${JSON.stringify(LESSON)};
+var CL = ${JSON.stringify(CLASSES)};
+var VER = ${JSON.stringify(VERSION)};
 ${QUEUE}
+
+/** Каркас без ответов класса: задания есть, цифры пустые. */
+function localSkeleton(){
+  var roster = [];
+  CL.forEach(function(c){ c.students.forEach(function(n){ roster.push({klass:c.klass, name:n}); }); });
+  return {
+    version: VER, lesson: L, roster: roster, stages: {}, students: [],
+    perQuestion: Q.map(function(q, i){
+      return { id:q.id, number:i+1, topic:q.topic, text:q.text, code:q.code,
+               options: q.options.map(function(o, oi){
+                 return { text:o, count:0, correct: oi === q.correct }; }),
+               correctText: q.options[q.correct],
+               right: [], wrong: [], silent: roster.slice(),
+               answered: 0, rightCount: 0, wrongCount: 0, silentCount: roster.length, percent: 0 };
+    }),
+    dialog: [],
+    classes: CL.map(function(c){
+      return { klass:c.klass, expected:c.students.length, answered:0, extra:0 }; }),
+    missing: roster.slice(), total: Q.length, average: 0, spreadsheetUrl: '',
+    offlineOnly: true
+  };
+}
 
 var CACHE_KEY = 'listmethods.teachercache.v1';
 var jsonpN = 0;
@@ -246,11 +274,13 @@ window.google = { script: { run: {
   withFailureHandler: function(f){ var c = Object.create(this); c._fail = f; c._ok = this._ok; return c; },
 
   getResults: function(){
-    var ok = this._ok, fail = this._fail;
-    pullResults(ok, function(err){
+    var ok = this._ok;
+    pullResults(ok, function(){
+      // связи нет: показываем последнее загруженное, а если его нет —
+      // задания и списки классов из самого файла
       var old = cachedResults();
       if (old) { old.stale = true; ok(old); }
-      else if (fail) fail(err);
+      else { ok(localSkeleton()); }
     });
   },
 

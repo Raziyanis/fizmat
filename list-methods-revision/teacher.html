@@ -25,6 +25,7 @@
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
   .msg { padding: 11px 13px; border-radius: 8px; margin-bottom: 14px; font-size: 15px; background: var(--bad-bg); color: var(--bad); }
   .msg.ok { background: var(--ok-bg); color: var(--ok); }
+  .msg.warn { background: var(--warn-bg); color: var(--warn); }
   .tiles { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
   .tile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; flex: 1 1 140px; }
   .tile .v { font-size: 26px; font-weight: 700; }
@@ -271,7 +272,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v20 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v21 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var SORT = 'hard';
 var LAST = null;
@@ -350,7 +351,14 @@ function showVersion_(serverVersion) {
 function load(auto) {
   google.script.run
     .withSuccessHandler(function (data) {
-      banner('');
+      if (data && data.offlineOnly) {
+        banner('Нет связи с таблицей. Задания и списки классов показаны из файла, ' +
+               'ответов класса пока нет. Нажмите «Обновить», когда появится интернет.', 'warn');
+      } else if (data && data.stale) {
+        banner('Нет связи с таблицей. Показано последнее, что удалось загрузить.', 'warn');
+      } else {
+        banner('');
+      }
       LAST = data;
       if (auto && ASKING) {
         document.getElementById('status').textContent = 'есть новые данные — покажем, как отправите вопрос';
