@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v9 · 7 ноября';
+var APP_VERSION = 'v10 · 7 ноября';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
@@ -355,6 +355,58 @@ function openPage_(name) {
     'Управление развертываниями</b> → версия <b>«Новая версия»</b> → Развернуть.</p></div>');
 }
 
+/**
+ * Приём результата из автономного файла offline-test.html.
+ *
+ * Файл работает без интернета и проверяет ответы сам; когда связь
+ * появляется, он присылает сюда готовую работу. Ограничение по числу
+ * попыток к таким отправкам не применяется: офлайн его соблюдать нечем.
+ */
+function doPost(e) {
+  var out = { ok: false };
+  try {
+    var p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    var klass = clean_(p.klass).substring(0, 20);
+    var name = clean_(p.name).substring(0, 80);
+    if (!name) throw new Error('Не указана фамилия.');
+
+    var uid = String(p.uid || '').trim().substring(0, 50);
+    var answers = p.answers || {};
+    var attempt = String(p.attempt || uid);
+
+    var lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+    try {
+      var log = sheet_(SHEET_ANSWERS);
+      for (var i = 0; i < QUESTIONS.length; i++) {
+        var q = QUESTIONS[i];
+        if (!(q.id in answers)) continue;
+        var given = answers[q.id];
+        var rowUid = uid + '-' + q.id;
+        if (hasUid_(log, 9, rowUid)) continue;
+        log.appendRow([new Date(), klass, name, attempt, q.id, q.topic,
+                       (given >= 0 && given < q.options.length ? q.options[given] : '—'),
+                       (given === q.correct) ? 1 : 0, rowUid]);
+      }
+    } finally {
+      lock.releaseLock();
+    }
+
+    var result = finishAttempt({
+      uid: uid, attempt: attempt, klass: klass, name: name,
+      answers: answers, addToClass: !!p.addToClass, skipLimit: true
+    });
+    out.ok = true;
+    out.score = result.score;
+    out.total = result.total;
+    out.duplicate = result.duplicate;
+  } catch (err) {
+    out.error = err.message;
+  }
+  return ContentService.createTextOutput(JSON.stringify(out))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 function safeEmail_() {
   try {
     return Session.getActiveUser().getEmail() || '';
@@ -473,8 +525,10 @@ function finishAttempt(p) {
 
   var uid = String((p && p.uid) || '').trim().substring(0, 50);
 
-  var access = checkAccess(klass, name);
-  if (!access.allowed) throw new Error(access.reason);
+  if (!(p && p.skipLimit)) {
+    var access = checkAccess(klass, name);
+    if (!access.allowed) throw new Error(access.reason);
+  }
 
   var answers = (p && p.answers) || {};
   var marks = [], feedback = [], score = 0;
