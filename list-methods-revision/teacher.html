@@ -56,13 +56,21 @@
   .q-body { margin-top: 14px; }
   pre { background: #11161d; color: #e8edf3; padding: 11px 13px; border-radius: 8px; overflow-x: auto;
         font: 13px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 8px 0 12px; }
-  .optline { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font: 14px "SF Mono", Menlo, Consolas, monospace; }
-  .optline .txt { flex: 0 0 auto; min-width: 180px; }
-  .optline .meter { flex: 1 1 auto; background: var(--line); border-radius: 4px; height: 10px; overflow: hidden; }
-  .optline .meter i { display: block; height: 100%; background: var(--bad); }
-  .optline.right .meter i { background: var(--ok); }
-  .optline .num { width: 34px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .optline.right .txt { color: var(--ok); font-weight: 700; }
+  .qtext { font-weight: 700; font-size: 18px; margin: 4px 0 10px; }
+  .topt { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
+  .topt-text { font: 16px/1.4 "SF Mono", Menlo, Consolas, monospace; }
+  .topt-tail { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+  .topt-ok { font: 600 12px inherit; text-transform: uppercase; letter-spacing: .06em; color: var(--ok); }
+  .topt-count { min-width: 30px; text-align: center; padding: 3px 9px; border-radius: 20px;
+                background: var(--bg); color: var(--muted); font: 700 13px inherit;
+                font-variant-numeric: tabular-nums; }
+  .topt.right { border-color: var(--ok); background: var(--ok-bg); }
+  .topt.right .topt-text { color: var(--ok); font-weight: 700; }
+  .topt.right .topt-count { background: #fff; color: var(--ok); }
+  .topt.picked { border-color: var(--bad-line, var(--bad)); background: var(--bad-bg); }
+  .topt.picked .topt-text { color: var(--bad); }
+  .topt.picked .topt-count { background: #fff; color: var(--bad); }
   .group { margin-top: 14px; }
   .klass-head { font-size: 13px; font-weight: 700; color: var(--accent); margin: 10px 0 4px; }
   .klass-head:first-of-type { margin-top: 4px; }
@@ -272,7 +280,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v21 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v22 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var SORT = 'hard';
 var LAST = null;
@@ -806,22 +814,18 @@ function questionCard(q, dialog) {
   if (!OPEN[q.id]) return card;
 
   var body = el('div', 'q-body');
-  body.appendChild(el('div', null, q.text));
+  body.appendChild(el('div', 'qtext', q.text));
   body.appendChild(el('pre', null, q.code));
 
-  /* варианты ответов со счётчиком */
-  var maxCount = 1;
-  q.options.forEach(function (o) { if (o.count > maxCount) maxCount = o.count; });
+  /* варианты — в том же виде, что видит ученик, плюс сколько человек выбрало */
   q.options.forEach(function (o) {
-    var line = el('div', 'optline' + (o.correct ? ' right' : ''));
-    line.appendChild(el('div', 'txt', o.text + (o.correct ? '  ✓' : '')));
-    var meter = el('div', 'meter');
-    var m = el('i');
-    m.style.width = Math.round((o.count / maxCount) * 100) + '%';
-    meter.appendChild(m);
-    line.appendChild(meter);
-    line.appendChild(el('div', 'num', String(o.count)));
-    body.appendChild(line);
+    var row = el('div', 'topt' + (o.correct ? ' right' : (o.count ? ' picked' : '')));
+    row.appendChild(el('span', 'topt-text', o.text));
+    var tail = el('span', 'topt-tail');
+    if (o.correct) tail.appendChild(el('span', 'topt-ok', 'верный ответ'));
+    if (o.count) tail.appendChild(el('span', 'topt-count', String(o.count)));
+    row.appendChild(tail);
+    body.appendChild(row);
   });
 
   if (PICKED[q.id]) body.appendChild(pickedPanel(q));

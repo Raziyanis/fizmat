@@ -261,7 +261,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v21 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v22 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -270,8 +270,8 @@ var answers = {};             // qid -> выбранный индекс
 var verdicts = {};            // qid -> true/false
 var locked = false;           // ответ на текущее задание уже отправлен
 var autoTimer = null;         // обратный отсчёт до следующего задания
-var AUTO_OK = 3;              // секунд после верного ответа
-var AUTO_BAD = 8;             // секунд после ошибки — успеть прочитать разбор
+var AUTO_OK = 10;             // секунд после верного ответа
+var AUTO_BAD = 10;            // секунд после ошибки — успеть прочитать разбор
 var QUEUE_KEY = 'listmethods.pending.v2';
 var sending = false;
 var chatTimer = null;
