@@ -105,6 +105,11 @@
   .mark.q { color: var(--line); }
   .empty { color: var(--muted); }
   .caller { border: 2px solid var(--accent); }
+  select.pickclass { flex: 0 0 auto; padding: 4px 8px; font: 500 13px inherit; font-family: inherit;
+                     border: 1px solid var(--line); border-radius: 20px; background: var(--card);
+                     color: var(--text); cursor: pointer; }
+  button.ask.roll { background: var(--action); color: var(--action-text); border-color: var(--action);
+                    font-weight: 700; padding: 5px 14px; }
   .caller-head { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; justify-content: space-between; }
   .caller-label { font: 700 12px/1 inherit; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
   .caller-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -208,7 +213,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v18 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v19 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var SORT = 'hard';
 var LAST = null;
@@ -307,6 +312,7 @@ function inFilter(p) { return !FILTER || p.klass === FILTER; }
 /* ---------- кто отвечает ---------- */
 var CALLED = null;        // кого вызвали сейчас
 var CALLED_USED = {};     // кого уже вызывали в этом круге, по классам
+var PICK_CLASS = {};      // из какого класса вызывать у конкретного задания
 
 function callerPool() {
   var all = (LAST && LAST.roster) || [];
@@ -465,11 +471,33 @@ function questionCard(q, dialog) {
   counts.appendChild(el('span', 'n', 'неверно ' + q.wrong.length));
   counts.appendChild(el('span', 's', 'не ответили ' + q.silent.length));
 
-  // вызвать наугад кого-то из тех, кто ответил неправильно
-  var roll = el('button', 'ask', PICKED[q.id] ? 'Другой ученик' : 'Спросить');
-  roll.title = q.wrong.length ? 'Вызвать одного из тех, кто ошибся'
-             : q.silent.length ? 'Вызвать одного из тех, кто ещё не ответил'
-             : 'Вызвать любого ученика класса';
+  // выбор класса прямо у задания
+  var classes = (LAST && LAST.classes) || [];
+  if (classes.length) {
+    var sel = document.createElement('select');
+    sel.className = 'pickclass';
+    var any = el('option', null, FILTER ? 'Класс ' + FILTER : 'Любой класс');
+    any.value = '';
+    sel.appendChild(any);
+    classes.forEach(function (c) {
+      var o = el('option', null, c.klass);
+      o.value = c.klass;
+      if (PICK_CLASS[q.id] === c.klass) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('click', function (ev) { ev.stopPropagation(); });
+    sel.addEventListener('change', function (ev) {
+      ev.stopPropagation();
+      PICK_CLASS[q.id] = sel.value;
+      delete PICKED[q.id];
+      OPEN[q.id] = true;
+      draw();
+    });
+    counts.appendChild(sel);
+  }
+
+  var roll = el('button', 'ask roll', PICKED[q.id] ? 'Другой ученик' : 'Вытянуть ученика');
+  roll.title = 'Вызвать ученика для ответа на это задание';
   roll.addEventListener('click', function (ev) {
     ev.stopPropagation();          // не сворачивать карточку
     OPEN[q.id] = true;
@@ -579,15 +607,19 @@ function questionCard(q, dialog) {
  * когда круг закончился — начинается новый.
  */
 function pickStudent(q) {
+  // класс можно задать прямо у задания; иначе берём общий фильтр
+  var only = PICK_CLASS[q.id] || FILTER || '';
+  var fits = function (p) { return !only || p.klass === only; };
+
   // сначала ошибшиеся, потом не ответившие, потом весь класс —
   // кнопка у задания работает всегда, даже если все ответили верно
-  var pool = q.wrong.slice();
+  var pool = q.wrong.filter(fits);
   var source = 'wrong';
-  if (!pool.length) { pool = q.silent.slice(); source = 'silent'; }
-  if (!pool.length) { pool = callerPool(); source = 'roster'; }
+  if (!pool.length) { pool = q.silent.filter(fits); source = 'silent'; }
+  if (!pool.length) { pool = ((LAST && LAST.roster) || []).filter(fits); source = 'roster'; }
   if (!pool.length) return;
 
-  var used = USED[q.id] || [];
+  var used = USED[q.id + '|' + only] || [];
   var left = pool.filter(function (p) {
     return used.indexOf(p.klass + '|' + p.name) === -1;
   });
@@ -601,7 +633,7 @@ function pickStudent(q) {
 
   var choice = left[Math.floor(Math.random() * left.length)];
   used.push(choice.klass + '|' + choice.name);
-  USED[q.id] = used;
+  USED[q.id + '|' + only] = used;
   PICKED[q.id] = {
     klass: choice.klass, name: choice.name, chosen: choice.chosen || '',
     source: source, fromSilent: (source !== 'wrong'), restarted: restarted,
