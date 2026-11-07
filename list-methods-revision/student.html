@@ -146,6 +146,10 @@
   .mistake { border-left: 4px solid var(--bad); padding-left: 12px; margin-bottom: 12px; }
   .mistake code { font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 700; color: var(--bad); }
   .practice li { margin-bottom: 8px; }
+  .askbig { font-size: 20px; font-weight: 600; line-height: 1.4; margin: 10px 0 14px; }
+  .askdone { font-size: 15px; color: var(--muted); font-style: italic; margin-bottom: 12px; }
+  .qnav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .qnav button { width: auto; }
   .goalrow { display: flex; gap: 10px; margin-bottom: 14px; }
   .goalrow .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff;
                 display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
@@ -268,7 +272,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v26 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v27 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -359,57 +363,79 @@ function renderWhoami() {
     ? (chosen.klass ? chosen.klass + ', ' : '') + chosen.name : '—'));
 }
 
-/** Вкладка «Новая тема»: цель, ожидаемые результаты, объяснение. */
+/* ---------- этап 3: объяснение слайдами ---------- */
+var SLIDE = 0;
+var SLIDE_OPEN = false;      // открыт ли ответ на текущем слайде
+
 function renderLesson() {
   var box = document.getElementById('screen-lesson');
-  if (box.childNodes.length || !DATA || !DATA.lesson) return;
+  if (!DATA || !DATA.lesson) return;
   var L = DATA.lesson;
+  var blocks = L.blocks;
+  if (SLIDE >= blocks.length) SLIDE = 0;
+  var b = blocks[SLIDE];
 
-  box.appendChild(el('div', 'eyebrow', 'Этап 2 · новая тема · цель обучения ' + L.code));
-  box.appendChild(el('div', 'display', L.title));
+  box.textContent = '';
+  box.appendChild(el('div', 'eyebrow',
+    'Этап 3 · новая тема · шаг ' + (SLIDE + 1) + ' из ' + blocks.length));
 
-  var goal = el('div', 'goal');
-  goal.appendChild(el('b', null, 'Цель урока'));
-  goal.appendChild(el('div', null, L.goal));
-  box.appendChild(goal);
-
-  var oc = el('div', 'card');
-  oc.appendChild(el('h3', null, 'Ожидаемые результаты'));
-  L.outcomes.forEach(function (o) {
-    var row = el('div', 'outcome');
-    row.appendChild(el('div', 'lvl', o.level));
-    row.appendChild(el('div', null, o.text));
-    oc.appendChild(row);
+  var strip = el('div', 'steps');
+  blocks.forEach(function (x, i) {
+    var chip = el('i', i === SLIDE ? 'now' : (i < SLIDE ? 'y' : ''), String(i + 1));
+    chip.title = x.heading;
+    chip.addEventListener('click', function () { SLIDE = i; SLIDE_OPEN = false; renderLesson(); });
+    strip.appendChild(chip);
   });
-  box.appendChild(oc);
+  box.appendChild(strip);
 
-  L.blocks.forEach(function (b) {
-    var card = el('div', 'card block');
-    card.appendChild(el('h3', null, b.heading));
+  var card = el('div', 'card');
+  card.appendChild(el('div', 'display', b.heading));
+
+  if (b.ask && !SLIDE_OPEN) {
+    card.appendChild(el('div', 'askbig', b.ask));
+    if (b.guess) card.appendChild(el('div', 'note', b.guess));
+    var open = el('button', 'action', 'Показать ответ');
+    open.addEventListener('click', function () { SLIDE_OPEN = true; renderLesson(); });
+    card.appendChild(open);
+  } else {
+    if (b.ask) card.appendChild(el('div', 'askdone', b.ask));
     card.appendChild(el('div', null, b.text));
     if (b.code) {
       card.appendChild(el('pre', null, b.code));
       if (b.out) {
         card.appendChild(el('div', 'out-label', 'Что выведет:'));
-        var isErr = b.out.indexOf('Error') > -1;
-        card.appendChild(el('div', 'out' + (isErr ? ' err' : ''), b.out));
+        card.appendChild(el('div', 'out' + (b.out.indexOf('Error') > -1 ? ' err' : ''), b.out));
       }
     }
-    box.appendChild(card);
-  });
+  }
+  box.appendChild(card);
 
-  var mc = el('div', 'card');
-  mc.appendChild(el('h3', null, 'Частые ошибки'));
-  L.mistakes.forEach(function (m) {
-    var d = el('div', 'mistake');
-    var line = el('div');
-    line.appendChild(el('code', null, m.wrong));
-    d.appendChild(line);
-    d.appendChild(el('div', 'note', m.why));
-    mc.appendChild(d);
+  var nav = el('div', 'qnav');
+  var prev = el('button', 'quiet', '← Назад');
+  prev.disabled = SLIDE === 0;
+  prev.addEventListener('click', function () { SLIDE--; SLIDE_OPEN = false; renderLesson(); });
+  nav.appendChild(prev);
+  var next = el('button', 'quiet', SLIDE + 1 < blocks.length ? 'Дальше →' : 'К проверке понимания →');
+  next.addEventListener('click', function () {
+    if (SLIDE + 1 < blocks.length) { SLIDE++; SLIDE_OPEN = false; renderLesson(); }
+    else setStage('check');
   });
-  box.appendChild(mc);
+  nav.appendChild(next);
+  box.appendChild(nav);
 
+  if (SLIDE === blocks.length - 1 && SLIDE_OPEN) {
+    var mc = el('div', 'card');
+    mc.appendChild(el('h3', null, 'Частые ошибки'));
+    L.mistakes.forEach(function (m) {
+      var d = el('div', 'mistake');
+      var line = el('div');
+      line.appendChild(el('code', null, m.wrong));
+      d.appendChild(line);
+      d.appendChild(el('div', 'note', m.why));
+      mc.appendChild(d);
+    });
+    box.appendChild(mc);
+  }
 }
 
 /* ---------- очередь на случай обрыва связи ---------- */

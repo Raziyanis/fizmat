@@ -57,6 +57,8 @@
   pre { background: #11161d; color: #e8edf3; padding: 11px 13px; border-radius: 8px; overflow-x: auto;
         font: 13px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 8px 0 12px; }
   .qtext { font-weight: 700; font-size: 18px; margin: 4px 0 10px; }
+  .askbig { font-size: 21px; font-weight: 600; line-height: 1.4; margin: 10px 0 14px; }
+  .askdone { font-size: 15px; color: var(--muted); font-style: italic; margin-bottom: 12px; }
   .goalrow { display: flex; gap: 10px; margin-bottom: 14px; }
   .goalrow .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff;
                 display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
@@ -308,7 +310,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v26 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v27 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -483,23 +485,60 @@ if (L.goalMap) {
   box.appendChild(oc);
 }
 
+var SLIDE = 0;
+var SLIDE_OPEN = false;
+
 function drawLessonPanel() {
   var box = document.getElementById('panel-lesson');
   var L = LAST.lesson;
+  var blocks = L.blocks;
+  if (SLIDE >= blocks.length) SLIDE = 0;
+  var b = blocks[SLIDE];
+
   box.textContent = '';
-  box.appendChild(el('div', 'eyebrow', 'Этап 3 · новая тема'));
-  box.appendChild(el('div', 'display', L.title));
-  box.appendChild(el('div', 'lead', 'То же, что видит ученик.'));
-  L.blocks.forEach(function (b) {
-    var c = el('div', 'card');
-    c.appendChild(el('h2', null, b.heading));
-    c.appendChild(el('div', null, b.text));
-    if (b.code) {
-      c.appendChild(el('pre', null, b.code));
-      if (b.out) c.appendChild(el('div', 'out' + (b.out.indexOf('Error') > -1 ? ' err' : ''), b.out));
-    }
-    box.appendChild(c);
+  box.appendChild(el('div', 'eyebrow',
+    'Этап 3 · новая тема · шаг ' + (SLIDE + 1) + ' из ' + blocks.length));
+
+  var strip = el('div', 'steps');
+  blocks.forEach(function (x, i) {
+    var chip = el('i', i === SLIDE ? 'now' : (i < SLIDE ? 'y' : ''), String(i + 1));
+    chip.title = x.heading;
+    chip.addEventListener('click', function () { SLIDE = i; SLIDE_OPEN = false; drawLessonPanel(); });
+    strip.appendChild(chip);
   });
+  box.appendChild(strip);
+
+  var card = el('div', 'card');
+  card.appendChild(el('div', 'display', b.heading));
+
+  if (b.ask && !SLIDE_OPEN) {
+    card.appendChild(el('div', 'askbig', b.ask));
+    if (b.guess) card.appendChild(el('div', 'note', b.guess));
+    var open = el('button', 'big-action', 'Показать ответ');
+    open.addEventListener('click', function () { SLIDE_OPEN = true; drawLessonPanel(); });
+    card.appendChild(open);
+  } else {
+    if (b.ask) card.appendChild(el('div', 'askdone', b.ask));
+    card.appendChild(el('div', null, b.text));
+    if (b.code) {
+      card.appendChild(el('pre', null, b.code));
+      if (b.out) card.appendChild(el('div', 'out' + (b.out.indexOf('Error') > -1 ? ' err' : ''), b.out));
+    }
+  }
+  box.appendChild(card);
+
+  var nav = el('div', 'qnav');
+  var prev = el('button', 'act', '← Назад');
+  prev.disabled = SLIDE === 0;
+  prev.addEventListener('click', function () { SLIDE--; SLIDE_OPEN = false; drawLessonPanel(); });
+  nav.appendChild(prev);
+  var next = el('button', 'act', SLIDE + 1 < blocks.length ? 'Дальше →' : 'К проверке понимания →');
+  next.addEventListener('click', function () {
+    if (SLIDE + 1 < blocks.length) { SLIDE++; SLIDE_OPEN = false; drawLessonPanel(); }
+    else setStage('check');
+  });
+  nav.appendChild(next);
+  box.appendChild(nav);
 }
 
 /** Баллы класса за этап 4 или 5 плюс сами задания. */
