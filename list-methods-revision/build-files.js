@@ -138,13 +138,16 @@ function gradeCheck(ans){
   return { score: score, total: L.check.total, detail: detail };
 }
 
-function gradeWork(ans){
+function gradeWork(ans, klass, name){
   var score = 0, detail = [];
   L.work.tasks.forEach(function(t, i){
     var given = ans[String(i)];
-    var ok = okAnswer(given, t.accept);
+    var vs = t.variants || [];
+    var accept = vs.length ? vs[foVariant(klass, name, i, vs.length)].accept : t.accept;
+    var ok = okAnswer(given, accept);
     if (ok) score += t.points;
     detail.push({ n: i+1, got: ok ? t.points : 0, max: t.points,
+                  skipped: !String(given == null ? '' : given).trim(),
                   given: String(given || '').substring(0,120), note: t.note });
   });
   return { score: score, total: L.work.total, detail: detail };
@@ -193,7 +196,7 @@ window.google = { script: { run: {
   submitStage: function(p){
     var res;
     if (p.stage === 'check') res = gradeCheck(p.answers || {});
-    else if (p.stage === 'work') res = gradeWork(p.answers || {});
+    else if (p.stage === 'work') res = gradeWork(p.answers || {}, p.klass, p.name);
     else res = { score: '', total: '', detail: [], choice: p.choice, text: p.text };
     qAdd({ type: 'stage', uid: p.uid || uidLocal(), klass: p.klass, name: p.name,
            stage: p.stage, answers: p.answers || {}, choice: p.choice || '', text: p.text || '' });

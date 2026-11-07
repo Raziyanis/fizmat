@@ -175,6 +175,7 @@
   td.c, th.c { text-align: center; }
   .scroll { overflow-x: auto; }
   .mark { font-weight: 700; }
+  th.cnum, td.mark.cell { text-align: center; width: 34px; }
   .mark.y { color: var(--ok); }
   .mark.n { color: var(--bad); }
   .mark.q { color: var(--line); }
@@ -347,7 +348,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v40 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v42 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -784,6 +785,73 @@ function drawLessonPanel() {
 var TASK_IDX = { check: 0, work: 0 };
 var TASK_OPEN = { check: false, work: false };
 
+/* Номер варианта считается из класса и фамилии — тем же способом, что
+   на сервере и на странице ученика, поэтому учитель видит ровно то,
+   что досталось ученику. */
+function foHash(klass, name) {
+  var tidy = function (v) {
+    return String(v || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
+  };
+  var str = tidy(klass) + '|' + tidy(name);
+  var h = 0;
+  for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 1000003;
+  return h;
+}
+
+function foVariant(klass, name, i, count) {
+  if (!count || count < 2) return 0;
+  return (foHash(klass, name) + i) % count;
+}
+
+/** Вариант задачи в одну строку: что подставлено ученику. */
+function foShort(test) {
+  return String(test || '').replace(/Ваш вариант\s*/, '').replace(/выход:\s*\?/, '')
+    .split('\n').map(function (l) { return l.trim(); })
+    .filter(function (l) { return l && l !== 'вход:'; })
+    .join(' / ').replace(/^вход:\s*/, '');
+}
+
+/** Кому какой вариант достался и какой ответ ждём. */
+function foTable(task, i) {
+  var vs = task.variants || [];
+  var card = el('div', 'card');
+  card.appendChild(el('h2', null, 'Варианты учеников'));
+  if (!vs.length) {
+    card.appendChild(el('span', 'empty', 'У этой задачи вариантов нет — она одна для всех.'));
+    return card;
+  }
+  card.appendChild(el('div', 'sub-hint',
+    'Числа у всех разные, поэтому ответы не совпадают. Спрашивая ученика, смотрите его строку.'));
+  var rows = (LAST.roster || []).filter(inFilter).slice().sort(function (a, b) {
+    return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
+  });
+  if (!rows.length) {
+    card.appendChild(el('span', 'empty', 'Списки классов не заполнены.'));
+    return card;
+  }
+  var table = document.createElement('table');
+  var hr = document.createElement('tr');
+  ['Класс', 'Ученик', '№', 'Его данные', 'Верный ответ'].forEach(function (h) {
+    hr.appendChild(el('th', null, h));
+  });
+  var th = document.createElement('thead'); th.appendChild(hr); table.appendChild(th);
+  var tb = document.createElement('tbody');
+  rows.forEach(function (r) {
+    var v = foVariant(r.klass, r.name, i, vs.length);
+    var tr = document.createElement('tr');
+    if (CALLED && CALLED.klass === r.klass && CALLED.name === r.name) tr.className = 'picked';
+    tr.appendChild(el('td', null, r.klass));
+    tr.appendChild(el('td', null, r.name));
+    tr.appendChild(el('td', 'mark cell', String(v + 1)));
+    tr.appendChild(el('td', 'mono', foShort(vs[v].test)));
+    tr.appendChild(el('td', 'mark y', vs[v].accept[0]));
+    tb.appendChild(tr);
+  });
+  table.appendChild(tb);
+  var sc = el('div', 'scroll'); sc.appendChild(table); card.appendChild(sc);
+  return card;
+}
+
 function stageTasks(which, L) {
   var list = (which === 'check') ? L.check.items : L.work.tasks;
   var i = TASK_IDX[which];
@@ -832,7 +900,7 @@ function stageTasks(which, L) {
       if (open) row.appendChild(el('span', 'topt-ok', it.right[li]));
       box.appendChild(row);
     });
-  } else if (open) {
+  } else if (open && !(it.variants && it.variants.length)) {
     var accept = it.accept || [];
     var row = el('div', 'topt right');
     row.appendChild(el('span', 'topt-text', accept.join('  или  ')));
@@ -842,6 +910,11 @@ function stageTasks(which, L) {
 
   if (open) {
     if (it.note) box.appendChild(el('div', 'note', it.note));
+    if (it.solution) {
+      box.appendChild(el('div', 'eyebrow', 'Как решается'));
+      box.appendChild(el('pre', null, it.solution));
+    }
+    if (it.variants && it.variants.length) box.appendChild(foTable(it, i));
   }
 
   var nav = el('div', 'qnav');
@@ -870,11 +943,14 @@ function drawStageScores(which, title, num) {
   box.appendChild(el('div', 'eyebrow', 'Этап ' + num + ' · ' + title.toLowerCase()));
   box.appendChild(el('div', 'display', title));
 
+  var tasks = (which === 'check') ? L.check.items : L.work.tasks;
+
   var rows = [];
   (LAST.roster || []).filter(inFilter).forEach(function (p) {
     var rec = (LAST.stages || {})[(p.klass + '|' + p.name).toLowerCase()];
     var got = rec && rec[which] ? rec[which].score : null;
-    rows.push({ klass: p.klass, name: p.name, score: got });
+    var marks = (rec && rec[which] && rec[which].marks) || [];
+    rows.push({ klass: p.klass, name: p.name, score: got, marks: marks });
   });
 
   var done = rows.filter(function (r) { return r.score !== null && r.score !== ''; });
@@ -893,13 +969,23 @@ function drawStageScores(which, title, num) {
   box.appendChild(stageTasks(which, L));
 
   var card = el('div', 'card');
-  card.appendChild(el('h2', null, 'Баллы'));
+  card.appendChild(el('h2', null, 'Результаты по заданиям'));
+  card.appendChild(el('div', 'sub-hint', '✓ — задание выполнено верно, ✗ — есть ошибка, ' +
+    '«—» — ученик это задание не выполнял.'));
   if (!rows.length) {
     card.appendChild(el('span', 'empty', 'Списки классов не заполнены.'));
   } else {
     var table = document.createElement('table');
     var hr = document.createElement('tr');
-    ['Класс', 'Ученик', 'Балл'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+    ['Класс', 'Ученик'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+    tasks.forEach(function (x, i) {
+      var h = el('th', 'cnum', String(i + 1));
+      h.title = (x.name || x.skill || '') + ' · ' + x.points +
+                (x.points === 1 ? ' балл' : ' балла');
+      hr.appendChild(h);
+    });
+    hr.appendChild(el('th', null, 'Балл'));
+    hr.appendChild(el('th', null, 'Что получилось'));
     var th = document.createElement('thead'); th.appendChild(hr); table.appendChild(th);
     var tb = document.createElement('tbody');
     rows.sort(function (a, b) {
@@ -909,12 +995,32 @@ function drawStageScores(which, title, num) {
       var tr = document.createElement('tr');
       tr.appendChild(el('td', null, r.klass));
       tr.appendChild(el('td', null, r.name));
-      if (r.score === null || r.score === '') {
+      var handed = !(r.score === null || r.score === '');
+      var bad = [];
+      tasks.forEach(function (x, i) {
+        if (!handed) { tr.appendChild(el('td', 'mark q cell', '—')); return; }
+        var got = r.marks[i];
+        if (got === undefined || got === null) {
+          tr.appendChild(el('td', 'mark q cell', '—'));
+          bad.push(i + 1);
+          return;
+        }
+        if (Number(got) >= x.points) {
+          tr.appendChild(el('td', 'mark y cell', '✓'));
+        } else {
+          tr.appendChild(el('td', 'mark n cell', '✗'));
+          bad.push(i + 1);
+        }
+      });
+      if (!handed) {
         tr.appendChild(el('td', 'mark q', 'не сдал'));
+        tr.appendChild(el('td', 'mark q', 'ещё не выполняет'));
       } else {
         var full = Number(r.score) === max;
         tr.appendChild(el('td', 'mark ' + (full ? 'y' : (Number(r.score) >= max / 2 ? '' : 'n')),
                           r.score + ' / ' + max));
+        tr.appendChild(el('td', 'mark ' + (bad.length ? 'n' : 'y'),
+          bad.length ? 'ошибки: ' + bad.join(', ') : 'всё верно'));
       }
       tb.appendChild(tr);
     });

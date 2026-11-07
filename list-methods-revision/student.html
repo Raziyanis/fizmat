@@ -43,6 +43,7 @@
              color: var(--accent); margin-bottom: 10px; }
   .display { font-size: 40px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: 0 0 10px; }
   .lead { font-size: 17px; color: var(--muted); margin-bottom: 22px; max-width: 46em; }
+  .rules.one { grid-template-columns: 1fr; gap: 12px; }
   .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
   .rule { display: flex; gap: 10px; font-size: 15px; }
   .rule .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff;
@@ -303,7 +304,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v40 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v42 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -1144,25 +1145,221 @@ var workAnswers = {};
 var workVerdict = {};      // номер задания -> верно/неверно
 var workIdx = 0;
 var workLocked = false;
+var workBegun = false;    // инструкция прочитана
+var workDone = false;
+var workWarn = 0;         // предупреждений за уход со страницы
+var workUntil = 0;        // до какого времени этап закрыт
+var workTick = null;
+var workWatching = false;
+var workLastWarn = 0;
+var WARN_MAX = 3;
+var LOCK_MINUTES = 40;
+
+/* Номер варианта считается из класса и фамилии — так же, как на сервере,
+   поэтому проверка ответа совпадает и в файле, и в таблице. */
+function foHash(klass, name) {
+  var tidy = function (v) {
+    return String(v || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
+  };
+  var str = tidy(klass) + '|' + tidy(name);
+  var h = 0;
+  for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 1000003;
+  return h;
+}
+
+function foVariant(klass, name, i, count) {
+  if (!count || count < 2) return 0;
+  return (foHash(klass, name) + i) % count;
+}
+
+/** Задача с подставленным вариантом: свои числа и свой правильный ответ. */
+function workTaskNow(i) {
+  var t = DATA.lesson.work.tasks[i];
+  var vs = t.variants || [];
+  if (!vs.length) return t;
+  var v = foVariant(chosen.klass, chosen.name, i, vs.length);
+  var out = {};
+  for (var k in t) if (t.hasOwnProperty(k)) out[k] = t[k];
+  out.accept = vs[v].accept;
+  out.code = t.code + '\n\n' + vs[v].test;
+  out.variant = v + 1;
+  return out;
+}
+
+/** Полный экран: другие вкладки и панели убираются с глаз. */
+function workFull() {
+  try {
+    var e = document.documentElement;
+    var req = e.requestFullscreen || e.webkitRequestFullscreen || e.msRequestFullscreen;
+    if (req) { var r = req.call(e); if (r && r.catch) r.catch(function () {}); }
+  } catch (e) {}
+}
+
+function workExit() {
+  try {
+    var ex = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+    if (ex && (document.fullscreenElement || document.webkitFullscreenElement)) ex.call(document);
+  } catch (e) {}
+}
+
+function workGuard() {
+  return STAGE === 'work' && workBegun && !workDone && Date.now() >= workUntil;
+}
+
+function workState() {
+  try {
+    var w = parseInt(localStorage.getItem('fo-warn') || '0', 10);
+    var u = parseInt(localStorage.getItem('fo-until') || '0', 10);
+    if (!isNaN(w)) workWarn = w;
+    if (!isNaN(u)) workUntil = u;
+  } catch (e) {}
+}
+
+function workSave() {
+  try {
+    localStorage.setItem('fo-warn', String(workWarn));
+    localStorage.setItem('fo-until', String(workUntil));
+  } catch (e) {}
+}
+
+/** Ученик ушёл со страницы: предупреждение, на третий раз — замок на 40 минут. */
+function workLeft() {
+  if (STAGE !== 'work' || !workBegun || workDone) return;
+  if (Date.now() < workUntil) return;
+  if (Date.now() - workLastWarn < 1200) return;   // уход считаем один раз
+  workLastWarn = Date.now();
+  workWarn++;
+  if (workWarn >= WARN_MAX) workUntil = Date.now() + LOCK_MINUTES * 60000;
+  workSave();
+  renderWork();
+}
+
+function workWatch() {
+  if (workWatching) return;
+  workWatching = true;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) workLeft();
+  });
+  window.addEventListener('blur', workLeft);
+  document.addEventListener('fullscreenchange', function () {
+    if (!document.fullscreenElement && workGuard()) { workLeft(); workFull(); }
+  });
+  document.addEventListener('webkitfullscreenchange', function () {
+    if (!document.webkitFullscreenElement && workGuard()) { workLeft(); workFull(); }
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (!workGuard()) return;
+    var k = String(ev.key || '').toLowerCase();
+    if (k === 'f12' || k === 'f11' ||
+        ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && 'ijc'.indexOf(k) > -1) ||
+        ((ev.ctrlKey || ev.metaKey) && 'tnwrpsuoflcvxaj'.indexOf(k) > -1)) {
+      ev.preventDefault(); ev.stopPropagation();
+    }
+  }, true);
+  ['contextmenu', 'copy', 'cut', 'paste', 'dragstart', 'selectstart'].forEach(function (name) {
+    document.addEventListener(name, function (ev) {
+      if (workGuard()) ev.preventDefault();
+    }, true);
+  });
+  window.addEventListener('beforeunload', function (ev) {
+    if (!workGuard()) return;
+    ev.preventDefault();
+    ev.returnValue = '';
+    return '';
+  });
+}
 
 function renderWork() {
   var box = document.getElementById('screen-work');
   if (!DATA || !DATA.lesson) return;
   var W = DATA.lesson.work;
   var tasks = W.tasks;
-  if (workIdx >= tasks.length) workIdx = tasks.length - 1;
-  var t = tasks[workIdx];
+  workWatch();
+  workState();
 
   box.textContent = '';
   box.appendChild(el('div', 'eyebrow', 'Этап 5 · практика · формативное оценивание'));
+
+  /* ---- замок на 40 минут ---- */
+  if (Date.now() < workUntil) {
+    box.appendChild(el('div', 'display', 'Практика закрыта'));
+    var card0 = el('div', 'card');
+    var left = Math.ceil((workUntil - Date.now()) / 60000);
+    card0.appendChild(el('div', 'qtext',
+      'Вы получили три предупреждения и ушли со страницы в третий раз. ' +
+      'Практика закрыта на ' + LOCK_MINUTES + ' минут. Пароля нет: раньше времени открыть её нельзя. ' +
+      'Откроется сама, когда время выйдет.'));
+    card0.appendChild(el('div', 'verdict bad',
+      'Осталось ждать: ' + left + (left === 1 ? ' минуту' : (left < 5 ? ' минуты' : ' минут'))));
+    card0.appendChild(el('div', 'note',
+      'Ответы, которые вы уже сдали, сохранены — они не пропадут.'));
+    box.appendChild(card0);
+    if (!workTick) workTick = setInterval(function () {
+      if (STAGE === 'work') renderWork();
+    }, 15000);
+    return;
+  }
+  if (workTick) { clearInterval(workTick); workTick = null; }
+
+  /* ---- инструкция перед началом ---- */
+  if (!workBegun) {
+    box.appendChild(el('div', 'display', 'Практика · ФО'));
+    box.appendChild(el('div', 'lead', 'Сначала прочитайте инструкцию, потом нажмите кнопку.'));
+    var ins = el('div', 'card');
+    ins.appendChild(el('h2', null, 'Инструкция'));
+    var rules = [
+      'Задач шесть, всего 10 баллов. Они идут от простой к сложной, порядок менять не нужно.',
+      'У каждой задачи есть условие, формат входных и выходных данных и разобранный пример.',
+      'Внизу задачи стоит ваш вариант — числа и имена в нём только ваши. ' +
+        'Решать нужно в уме или на черновике: программу писать не надо.',
+      'В поле ответа пишите только то, что выведет правильная программа в вашем варианте — ' +
+        'без слова «ответ», без лишних знаков.',
+      'Ответ проверяется сразу: зелёный цвет — верно, красный — неверно. Исправить сданный ответ нельзя, ' +
+        'поэтому проверьте его перед отправкой.',
+      'После ответа появится разбор: откуда взялся результат и как задача решается. Прочитайте его — ' +
+        'следующая задача опирается на предыдущую.',
+      'Переходить между задачами можно по номерам сверху. Когда ответите на все, нажмите «Сдать практику».',
+      'Практика откроется на весь экран, и выходить из него нельзя: ни на другие вкладки, ' +
+        'ни в другие приложения, ни в поиск. Копирование и вставка на этом этапе отключены. ' +
+        'За каждый уход — предупреждение. После третьего практика закроется на ' + LOCK_MINUTES +
+        ' минут, и открыть её раньше нельзя: пароля нет.'
+    ];
+    var ol = el('div', 'rules one');
+    rules.forEach(function (r, i) {
+      var row = el('div', 'rule');
+      row.appendChild(el('span', 'n', String(i + 1)));
+      row.appendChild(el('span', null, r));
+      ol.appendChild(row);
+    });
+    ins.appendChild(ol);
+    if (workWarn > 0) ins.appendChild(el('div', 'note',
+      'У вас уже есть предупреждений: ' + workWarn + ' из ' + WARN_MAX + '.'));
+    var go = el('button', 'action', 'Я прочитал инструкцию, начать практику');
+    go.addEventListener('click', function () {
+      workBegun = true; workFull(); renderWork();
+    });
+    ins.appendChild(go);
+    box.appendChild(ins);
+    return;
+  }
+
+  if (workIdx >= tasks.length) workIdx = tasks.length - 1;
+  var t = workTaskNow(workIdx);
+
   box.appendChild(el('div', 'display', 'Практика · ФО'));
   box.appendChild(el('div', 'lead', W.intro));
+
+  if (workWarn > 0) {
+    var warn = el('div', 'verdict bad', 'Предупреждение ' + workWarn + ' из ' + WARN_MAX +
+      ': вы уходили со страницы. После третьего практика закроется на ' + LOCK_MINUTES + ' минут.');
+    box.appendChild(warn);
+  }
 
   var strip = el('div', 'steps');
   tasks.forEach(function (x, i) {
     var cls = (i in workVerdict) ? (workVerdict[i] ? 'y' : 'n') : (i === workIdx ? 'now' : '');
     var chip = el('i', cls, String(i + 1));
-    chip.title = 'Задание ' + (i + 1) + ' · ' + x.skill;
+    chip.title = 'Задача ' + (i + 1) + ' · ' + (x.name || x.skill);
     chip.addEventListener('click', function () {
       workIdx = i; workLocked = (i in workVerdict); renderWork();
     });
@@ -1172,14 +1369,17 @@ function renderWork() {
 
   var card = el('div', 'card');
   card.appendChild(el('div', 'qnum',
-    'Задание ' + (workIdx + 1) + ' из ' + tasks.length + ' · ' + t.skill + ' · 1 балл'));
+    'Задача ' + (workIdx + 1) + ' из ' + tasks.length + ' · ' + t.skill +
+    ' · ' + t.points + (t.points === 1 ? ' балл' : ' балла') +
+    (t.variant ? ' · вариант ' + t.variant : '')));
+  if (t.name) card.appendChild(el('h2', null, t.name));
   card.appendChild(el('div', 'qtext', t.text));
   if (t.code) card.appendChild(el('pre', null, t.code));
 
   var inp = document.createElement('input');
   inp.type = 'text';
   inp.className = 'mono';
-  inp.placeholder = (t.kind === 'predict') ? 'Что выведет программа' : 'Одна строка кода';
+  inp.placeholder = (t.kind === 'write') ? 'Одна строка кода' : 'Что выведет программа на вашем тесте';
   inp.value = workAnswers[workIdx] || '';
   inp.disabled = workLocked;
   inp.addEventListener('input', function () { workAnswers[workIdx] = inp.value; });
@@ -1189,7 +1389,7 @@ function renderWork() {
   card.appendChild(inp);
 
   var check = el('button', 'action', workLocked
-    ? (workIdx + 1 < tasks.length ? 'Следующее задание' : 'Сдать практику')
+    ? (workIdx + 1 < tasks.length ? 'Следующая задача' : 'Сдать практику')
     : 'Ответить');
 
   if (workLocked) {
@@ -1200,6 +1400,10 @@ function renderWork() {
     card.appendChild(v);
     if (!ok) card.appendChild(el('div', 'note', 'Правильный ответ: ' + t.accept[0]));
     card.appendChild(el('div', 'note', t.note));
+    if (t.solution) {
+      card.appendChild(el('div', 'eyebrow', 'Как решается'));
+      card.appendChild(el('pre', null, t.solution));
+    }
   }
 
   check.addEventListener('click', function () {
@@ -1217,20 +1421,18 @@ function renderWork() {
       workLocked = (workIdx in workVerdict);
       renderWork();
     } else {
+      workDone = true;
+      workExit();
       finishWork();
     }
   });
   card.appendChild(check);
   box.appendChild(card);
 
-  var done = Object.keys(workVerdict).length;
-  var right = Object.keys(workVerdict).filter(function (k) { return workVerdict[k]; }).length;
-  box.appendChild(el('div', 'sub-hint',
-    'Решено ' + done + ' из ' + tasks.length + ', верно ' + right + '.'));
-
   var slot = el('div');
   slot.id = 'work-result';
   box.appendChild(slot);
+  box.appendChild(el('div', 'hint', 'Отправится учителю, когда появится сеть.'));
 }
 
 /** Сравнение ответа с принимаемыми вариантами: регистр и пробелы не важны. */
