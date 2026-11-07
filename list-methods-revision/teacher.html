@@ -288,9 +288,10 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v23 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v24 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
+var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
 var LAST = null;
 var OPEN = {};          // какие задания развёрнуты
 var ASKING = null;      // кому сейчас пишем: 'qid|класс|имя'
@@ -712,7 +713,7 @@ function draw() {
     var chip = el('i', cls, String(q.number));
     chip.title = 'Задание ' + q.number + ' · ' + q.topic +
                  (q.answered ? ' · верно ' + q.percent + '%' : ' · ещё не отвечали');
-    chip.addEventListener('click', function () { QIDX = i; draw(); });
+    chip.addEventListener('click', function () { QIDX = i; REVEAL = false; draw(); });
     strip.appendChild(chip);
   });
 
@@ -727,12 +728,12 @@ function draw() {
   if (qs.length) {
     var prev = el('button', 'act', '← Предыдущее');
     prev.disabled = QIDX === 0;
-    prev.addEventListener('click', function () { QIDX--; draw(); });
+    prev.addEventListener('click', function () { QIDX--; REVEAL = false; draw(); });
     nav.appendChild(prev);
 
     var next = el('button', 'act', 'Следующее →');
     next.disabled = QIDX >= qs.length - 1;
-    next.addEventListener('click', function () { QIDX++; draw(); });
+    next.addEventListener('click', function () { QIDX++; REVEAL = false; draw(); });
     nav.appendChild(next);
 
     var answered = qs.filter(function (q) { return q.answered; });
@@ -741,6 +742,7 @@ function draw() {
       var jump = el('button', 'act', 'К самому трудному: ' + worst.number + ' · ' + worst.topic);
       jump.addEventListener('click', function () {
         QIDX = qs.indexOf(worst);
+        REVEAL = false;
         draw();
       });
       nav.appendChild(jump);
@@ -848,14 +850,22 @@ function questionCard(q, dialog) {
 
   /* варианты — в том же виде, что видит ученик, плюс сколько человек выбрало */
   q.options.forEach(function (o) {
-    var row = el('div', 'topt' + (o.correct ? ' right' : (o.count ? ' picked' : '')));
+    var mark = REVEAL ? (o.correct ? ' right' : (o.count ? ' picked' : '')) : '';
+    var row = el('div', 'topt' + mark);
     row.appendChild(el('span', 'topt-text', o.text));
     var tail = el('span', 'topt-tail');
-    if (o.correct) tail.appendChild(el('span', 'topt-ok', 'верный ответ'));
+    if (REVEAL && o.correct) tail.appendChild(el('span', 'topt-ok', 'верный ответ'));
     if (o.count) tail.appendChild(el('span', 'topt-count', String(o.count)));
     row.appendChild(tail);
     body.appendChild(row);
   });
+
+  // ответ скрыт, пока не понадобится: карточку показывают классу
+  var reveal = el('button', REVEAL ? 'act' : 'big-action',
+                  REVEAL ? 'Скрыть верный ответ' : 'Показать верный ответ');
+  reveal.style.marginTop = '6px';
+  reveal.addEventListener('click', function () { REVEAL = !REVEAL; draw(); });
+  body.appendChild(reveal);
 
   if (PICKED[q.id]) body.appendChild(pickedPanel(q));
 
@@ -950,7 +960,7 @@ function pickedPanel(q) {
   meta.appendChild(el('span', null, p.klass));
   if (!p.fromSilent && p.chosen) {
     meta.appendChild(el('span', 'chose', 'выбрал: ' + p.chosen));
-    meta.appendChild(el('span', 'right', 'правильно: ' + q.correctText));
+    if (REVEAL) meta.appendChild(el('span', 'right', 'правильно: ' + q.correctText));
   }
   box.appendChild(meta);
 
