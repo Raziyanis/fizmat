@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v14 · 7 ноября';
+var APP_VERSION = 'v16 · 7 ноября';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
@@ -893,8 +893,15 @@ function getResults() {
   var sum = 0;
   finished.forEach(function (s) { sum += s.score; });
 
+  // полный список класса — для кнопки «кто отвечает» на странице учителя
+  var roster = [];
+  expected.forEach(function (c) {
+    c.students.forEach(function (n) { roster.push({ klass: c.klass, name: n }); });
+  });
+
   return {
     version: APP_VERSION,
+    roster: roster,
     students: students,
     perQuestion: perQuestion,
     dialog: dialog,

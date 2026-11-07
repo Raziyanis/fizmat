@@ -6,8 +6,10 @@
 <title>Методы списка — экран учителя</title>
 <style>
   :root {
-    --bg: #f6f7f9; --card: #fff; --text: #15181d; --muted: #5b6471;
-    --line: #dfe3e8; --accent: #1f6feb; --ok: #137333; --ok-bg: #e6f4ea;
+    --bg: #f4f6fa; --card: #fff; --text: #101a33; --muted: #5b6b8c;
+    --line: #e2e8f2; --accent: #1b4ed8; --accent-soft: #eaf0ff;
+    --action: #f0a023; --action-text: #2a1c00;
+    --ok: #137333; --ok-bg: #e6f4ea;
     --bad: #b3261e; --bad-bg: #fce8e6; --warn: #b06000; --warn-bg: #fff4d6;
   }
   * { box-sizing: border-box; }
@@ -20,7 +22,7 @@
   h1 { font-size: 21px; margin: 0; }
   h2 { font-size: 16px; margin: 0 0 12px; }
   .status { color: var(--muted); font-size: 14px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
   .msg { padding: 11px 13px; border-radius: 8px; margin-bottom: 14px; font-size: 15px; background: var(--bad-bg); color: var(--bad); }
   .msg.ok { background: var(--ok-bg); color: var(--ok); }
   .tiles { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
@@ -102,6 +104,17 @@
   .mark.n { color: var(--bad); }
   .mark.q { color: var(--line); }
   .empty { color: var(--muted); }
+  .caller { border: 2px solid var(--accent); }
+  .caller-head { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; justify-content: space-between; }
+  .caller-label { font: 700 12px/1 inherit; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  .caller-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  button.big-action { background: var(--action); color: var(--action-text); border: 0; border-radius: 10px;
+                      padding: 12px 22px; font: 800 16px/1 inherit; font-family: inherit; cursor: pointer; }
+  button.big-action:disabled { opacity: .5; cursor: default; }
+  .called-name { font-size: 38px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; margin: 14px 0 4px; }
+  .called-meta { font-size: 15px; color: var(--muted); }
+  .called-meta b { color: var(--text); }
+  .called-empty { color: var(--muted); margin-top: 14px; }
   .version { text-align: center; color: var(--muted); font-size: 12px; padding: 8px 0 16px; }
   .version.mismatch { color: var(--bad); font-weight: 600; font-size: 14px; }
   .sub-hint { font-size: 13px; color: var(--muted); margin: -4px 0 10px; }
@@ -148,6 +161,20 @@
   <div id="banner"></div>
   <div class="chips" id="class-filter"></div>
 
+  <div class="card caller">
+    <div class="caller-head">
+      <div>
+        <div class="caller-label">Кто отвечает</div>
+        <div class="sub-hint" style="margin:2px 0 0">Нажмите — выпадет один ученик класса. Пока не вызваны все, имя не повторится.</div>
+      </div>
+      <div class="caller-buttons">
+        <button class="big-action" id="call-next">Вытянуть ученика</button>
+        <button class="act" id="call-reset">Начать круг заново</button>
+      </div>
+    </div>
+    <div id="called"></div>
+  </div>
+
   <div class="tiles">
     <div class="tile"><div class="v" id="t-done">—</div><div class="k">сдали</div></div>
     <div class="tile"><div class="v" id="t-doing">—</div><div class="k">ещё решают</div></div>
@@ -181,7 +208,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v14 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v16 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var SORT = 'hard';
 var LAST = null;
@@ -277,6 +304,65 @@ function load(auto) {
 
 function inFilter(p) { return !FILTER || p.klass === FILTER; }
 
+/* ---------- кто отвечает ---------- */
+var CALLED = null;        // кого вызвали сейчас
+var CALLED_USED = {};     // кого уже вызывали в этом круге, по классам
+
+function callerPool() {
+  var all = (LAST && LAST.roster) || [];
+  return all.filter(inFilter);
+}
+
+function callNext() {
+  var pool = callerPool();
+  if (!pool.length) {
+    CALLED = { empty: true };
+    drawCaller();
+    return;
+  }
+  var bucket = FILTER || '*';
+  var used = CALLED_USED[bucket] || [];
+  var left = pool.filter(function (p) { return used.indexOf(p.klass + '|' + p.name) === -1; });
+
+  var restarted = false;
+  if (!left.length) { used = []; left = pool; restarted = true; }
+
+  var pick = left[Math.floor(Math.random() * left.length)];
+  used.push(pick.klass + '|' + pick.name);
+  CALLED_USED[bucket] = used;
+  CALLED = { klass: pick.klass, name: pick.name, position: used.length,
+             outOf: pool.length, restarted: restarted };
+  drawCaller();
+}
+
+function drawCaller() {
+  var box = document.getElementById('called');
+  if (!box) return;
+  box.textContent = '';
+  var pool = callerPool();
+  document.getElementById('call-next').disabled = !pool.length;
+
+  if (!CALLED) {
+    box.appendChild(el('div', 'called-empty', pool.length
+      ? 'В списке ' + pool.length + ' ученик(ов). Нажмите кнопку.'
+      : 'Списки классов не заполнены — лист «Классы» в таблице.'));
+    return;
+  }
+  if (CALLED.empty) {
+    box.appendChild(el('div', 'called-empty', 'Некого вызывать: список класса пуст.'));
+    return;
+  }
+
+  box.appendChild(el('div', 'called-name', CALLED.name));
+  var meta = el('div', 'called-meta');
+  meta.appendChild(el('b', null, CALLED.klass));
+  meta.appendChild(el('span', null, ' · вызван ' + CALLED.position + ' из ' + CALLED.outOf));
+  box.appendChild(meta);
+  if (CALLED.restarted) {
+    box.appendChild(el('div', 'called-meta', 'Все уже отвечали — пошёл новый круг.'));
+  }
+}
+
 function draw() {
   var data = LAST;
   if (!data) return;
@@ -352,6 +438,7 @@ function draw() {
   if (!qs.length) { box.appendChild(el('span', 'empty', 'Нет данных.')); }
   else ordered.forEach(function (q) { box.appendChild(questionCard(q, data.dialog)); });
 
+  drawCaller();
   drawTable(data, students);
   drawMissing(data, missing);
 
@@ -380,11 +467,9 @@ function questionCard(q, dialog) {
 
   // вызвать наугад кого-то из тех, кто ответил неправильно
   var roll = el('button', 'ask', PICKED[q.id] ? 'Другой ученик' : 'Спросить');
-  if (!q.wrong.length && !q.silent.length) {
-    roll.disabled = true;
-    roll.title = 'На это задание пока никто не ответил неправильно';
-    roll.style.opacity = '.45';
-  }
+  roll.title = q.wrong.length ? 'Вызвать одного из тех, кто ошибся'
+             : q.silent.length ? 'Вызвать одного из тех, кто ещё не ответил'
+             : 'Вызвать любого ученика класса';
   roll.addEventListener('click', function (ev) {
     ev.stopPropagation();          // не сворачивать карточку
     OPEN[q.id] = true;
@@ -494,12 +579,12 @@ function questionCard(q, dialog) {
  * когда круг закончился — начинается новый.
  */
 function pickStudent(q) {
+  // сначала ошибшиеся, потом не ответившие, потом весь класс —
+  // кнопка у задания работает всегда, даже если все ответили верно
   var pool = q.wrong.slice();
-  var fromSilent = false;
-  if (!pool.length) {                 // ошибок нет — спрашиваем не ответивших
-    pool = q.silent.slice();
-    fromSilent = true;
-  }
+  var source = 'wrong';
+  if (!pool.length) { pool = q.silent.slice(); source = 'silent'; }
+  if (!pool.length) { pool = callerPool(); source = 'roster'; }
   if (!pool.length) return;
 
   var used = USED[q.id] || [];
@@ -519,7 +604,7 @@ function pickStudent(q) {
   USED[q.id] = used;
   PICKED[q.id] = {
     klass: choice.klass, name: choice.name, chosen: choice.chosen || '',
-    fromSilent: fromSilent, restarted: restarted,
+    source: source, fromSilent: (source !== 'wrong'), restarted: restarted,
     position: used.length, outOf: pool.length
   };
   ASKING = null;
@@ -533,7 +618,9 @@ function pickedPanel(q) {
   var box = el('div', 'picked');
 
   box.appendChild(el('div', 'picked-label',
-    p.fromSilent ? 'Не ответил на это задание' : 'Ответил неправильно'));
+    p.source === 'wrong' ? 'Ответил неправильно'
+      : p.source === 'silent' ? 'Не ответил на это задание'
+      : 'Отвечает у доски'));
   box.appendChild(el('div', 'picked-name', p.name));
 
   var meta = el('div', 'picked-meta');
@@ -809,6 +896,12 @@ function drawMissing(data, missing) {
 }
 
 if (!offlineFile_()) {
+  document.getElementById('call-next').addEventListener('click', callNext);
+  document.getElementById('call-reset').addEventListener('click', function () {
+    CALLED_USED[FILTER || '*'] = [];
+    CALLED = null;
+    drawCaller();
+  });
   document.getElementById('refresh').addEventListener('click', load);
   document.getElementById('sort-hard').addEventListener('click', function () { SORT = 'hard'; draw(); });
   document.getElementById('sort-order').addEventListener('click', function () { SORT = 'order'; draw(); });

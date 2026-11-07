@@ -48,20 +48,42 @@ const html = `<!DOCTYPE html>
 <title>Повторение: методы списка</title>
 <style>
   :root {
-    --bg:#f6f7f9; --card:#fff; --text:#15181d; --muted:#5b6471; --line:#dfe3e8;
-    --accent:#1f6feb; --ok:#137333; --ok-bg:#e6f4ea; --ok-line:#8cd2a4;
+    --bg:#f4f6fa; --card:#fff; --text:#101a33; --muted:#5b6b8c; --line:#e2e8f2;
+    --accent:#1b4ed8; --accent-soft:#eaf0ff; --action:#f0a023; --action-text:#2a1c00;
+    --ok:#137333; --ok-bg:#e6f4ea; --ok-line:#8cd2a4;
     --bad:#b3261e; --bad-bg:#fce8e6; --bad-line:#f0a9a3; --warn:#8a5a00; --warn-bg:#fff4d6;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);padding:16px;
+  body{margin:0;background:var(--bg);color:var(--text);padding:0 0 40px;
        font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif}
-  .wrap{max-width:680px;margin:0 auto}
-  h1{font-size:22px;margin:8px 0 4px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+  .topbar{background:var(--card);border-bottom:1px solid var(--line);margin-bottom:22px}
+  .topbar-in{max-width:760px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:-.01em;white-space:nowrap}
+  .brand .dot{width:12px;height:12px;border-radius:50%;background:var(--action)}
+  .stages{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto}
+  .stage{width:auto;display:flex;align-items:center;gap:7px;background:transparent;color:var(--muted);
+    border:0;border-radius:999px;padding:7px 13px;font:600 14px/1 inherit;font-family:inherit;cursor:pointer}
+  .stage .num{width:20px;height:20px;border-radius:50%;background:var(--bg);color:var(--muted);
+    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .stage.on{background:var(--accent-soft);color:var(--accent)}
+  .stage.on .num{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .whoami{font-size:14px;color:var(--muted);white-space:nowrap}
+  .whoami b{color:var(--text)}
+  .eyebrow{font:700 12px/1 inherit;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  .display{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:0 0 10px}
+  .lead{font-size:17px;color:var(--muted);margin-bottom:22px;max-width:46em}
+  .rule{display:flex;gap:10px;font-size:15px}
+  .rule .n{flex:0 0 26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  button.action{background:var(--action);color:var(--action-text);font-weight:800}
+  @media (max-width:620px){ .display{font-size:30px} .stage span.lbl{display:none} .stage{padding:7px 9px} }
+  h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px}
   .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
   .who{font-size:14px;color:var(--muted);margin-bottom:14px}
   .who b{color:var(--text)}
-  .who button{width:auto;padding:4px 10px;font-size:13px;margin-left:8px}
+  .who button{width:auto;padding:4px 10px;font-size:13px}
   label.name{display:block;font-weight:600;margin-bottom:6px}
   input[type=text]{width:100%;padding:11px 12px;font-size:16px;font-family:inherit;
     border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text)}
@@ -139,20 +161,30 @@ const html = `<!DOCTYPE html>
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="tabs" id="tabs">
-    <button class="tab on" data-tab="test">Повторение</button>
-    <button class="tab" data-tab="lesson">Новая тема</button>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand"><span class="dot"></span><span>Информатика · 8 класс</span></div>
+    <div class="stages" id="stages">
+      <button class="stage on" data-stage="test"><span class="num">1</span><span class="lbl">Повторение</span></button>
+      <button class="stage" data-stage="lesson"><span class="num">2</span><span class="lbl">Новая тема</span></button>
+      <button class="stage" data-stage="practice"><span class="num">3</span><span class="lbl">Задания</span></button>
+    </div>
+    <div class="whoami" id="whoami">Ученик: <b>—</b></div>
   </div>
+</div>
+
+<div class="wrap">
 
   <div id="banner"></div>
   <div id="screen-lesson" style="display:none"></div>
+  <div id="screen-practice" style="display:none"></div>
 
   <div id="screen-who">
-    <h1>Повторение: методы списка</h1>
-    <div class="sub">Тема, которую мы уже прошли. ${QUESTIONS.length} заданий, по одному за раз.
-      Интернет не нужен: проверка идёт прямо здесь.</div>
+    <div class="eyebrow">Этап 1 · повторение пройденной темы</div>
+    <div class="display">Методы списка</div>
+    <div class="lead">Тему мы уже прошли — проверим, что осталось в памяти.
+      ${QUESTIONS.length} заданий, по одному за раз. Интернет не нужен: проверка идёт прямо здесь.</div>
     <div class="card">
       <label class="name">Класс</label>
       <div class="pick" id="class-list"></div>
@@ -207,29 +239,55 @@ var chosen = { klass: '', name: '', manual: false };
 var step = 0, answers = {}, verdicts = {}, locked = false, attemptId = '', lastResult = null;
 
 function el(t, c, x){var n=document.createElement(t); if(c)n.className=c; if(x!==undefined)n.textContent=x; return n;}
-var TAB='test', currentScreen='screen-who';
+var STAGE='test', currentScreen='screen-who';
 function show(id){ currentScreen=id; applyView(); }
 function applyView(){
-  var lesson = (TAB==='lesson');
   ['screen-who','screen-test','screen-result'].forEach(function(s){
-    document.getElementById(s).style.display = (!lesson && s===currentScreen)?'block':'none';});
-  document.getElementById('screen-lesson').style.display = lesson?'block':'none';
-  document.getElementById('banner').style.display = lesson?'none':'block';
-  var tabs=document.querySelectorAll('#tabs .tab');
-  for(var i=0;i<tabs.length;i++){
-    tabs[i].className='tab'+(tabs[i].getAttribute('data-tab')===TAB?' on':'');}
+    document.getElementById(s).style.display = (STAGE==='test' && s===currentScreen)?'block':'none';});
+  document.getElementById('screen-lesson').style.display = (STAGE==='lesson')?'block':'none';
+  document.getElementById('screen-practice').style.display = (STAGE==='practice')?'block':'none';
+  document.getElementById('banner').style.display = (STAGE==='test')?'block':'none';
+  var btns=document.querySelectorAll('#stages .stage');
+  for(var i=0;i<btns.length;i++){
+    btns[i].className='stage'+(btns[i].getAttribute('data-stage')===STAGE?' on':'');}
   window.scrollTo(0,0);
 }
-document.getElementById('tabs').addEventListener('click',function(ev){
-  var t=ev.target.getAttribute('data-tab'); if(!t) return;
-  TAB=t; if(t==='lesson') renderLesson(); applyView();
+function setStage(name){
+  STAGE=name;
+  if(name==='lesson') renderLesson();
+  if(name==='practice') renderPractice();
+  applyView();
+}
+document.getElementById('stages').addEventListener('click',function(ev){
+  var n=ev.target;
+  while(n && n!==this && !n.getAttribute('data-stage')) n=n.parentNode;
+  var name=n && n.getAttribute && n.getAttribute('data-stage');
+  if(name) setStage(name);
 });
+function renderWhoami(){
+  var b=document.getElementById('whoami');
+  b.textContent='Ученик: ';
+  b.appendChild(el('b',null, chosen.name?((chosen.klass?chosen.klass+', ':'')+chosen.name):'—'));
+}
+function renderPractice(){
+  var box=document.getElementById('screen-practice');
+  if(box.childNodes.length) return;
+  box.appendChild(el('div','eyebrow','Этап 3 · задания'));
+  box.appendChild(el('div','display','Попробуйте сами'));
+  box.appendChild(el('div','lead','Выполняйте в любом редакторе Python. Проверяйте запуском: '+
+    'если программа выводит не то, вернитесь на этап «Новая тема».'));
+  LESSON.practice.forEach(function(t,i){
+    var c=el('div','card'); var r=el('div','rule');
+    r.appendChild(el('div','n',String(i+1))); r.appendChild(el('div',null,t));
+    c.appendChild(r); box.appendChild(c);
+  });
+}
 function renderLesson(){
   var box=document.getElementById('screen-lesson');
   if(box.childNodes.length) return;
   var L=LESSON;
-  box.appendChild(el('div','lesson-code','Цель обучения '+L.code));
-  box.appendChild(el('div','lesson-title',L.title));
+  box.appendChild(el('div','eyebrow','Этап 2 · новая тема · цель обучения '+L.code));
+  box.appendChild(el('div','display',L.title));
   var g=el('div','goal'); g.appendChild(el('b',null,'Цель урока'));
   g.appendChild(el('div',null,L.goal)); box.appendChild(g);
   var oc=el('div','card'); oc.appendChild(el('h3',null,'Ожидаемые результаты'));
@@ -250,10 +308,6 @@ function renderLesson(){
     line.appendChild(el('code',null,m.wrong)); d.appendChild(line);
     d.appendChild(el('div','note',m.why)); mc.appendChild(d);});
   box.appendChild(mc);
-  var pc=el('div','card'); pc.appendChild(el('h3',null,'Попробуйте сами'));
-  var ol=document.createElement('ol'); ol.className='practice';
-  L.practice.forEach(function(t){ol.appendChild(el('li',null,t));});
-  pc.appendChild(ol); box.appendChild(pc);
 }
 function banner(text, kind){var b=document.getElementById('banner'); b.textContent='';
   if(text) b.appendChild(el('div','msg '+(kind||'err'), text));}
@@ -323,6 +377,7 @@ window.addEventListener('online', function(){ flushQueue(sendState); });
 
 /* ---------- выбор ученика ---------- */
 function renderWho(){
+  renderWhoami();
   show('screen-who');
   var box=document.getElementById('class-list'); box.textContent='';
   if(!CLASSES.length){ box.parentNode.style.display='none';
@@ -360,9 +415,8 @@ document.getElementById('manual-ok').addEventListener('click',function(){
 function beginTest(){
   attemptId=uid(); step=0; answers={}; verdicts={}; locked=false;
   show('screen-test');
+  renderWhoami();
   var w=document.getElementById('who-line'); w.textContent='';
-  w.appendChild(el('span',null,'Отвечает: '));
-  w.appendChild(el('b',null,(chosen.klass?chosen.klass+', ':'')+chosen.name));
   var b=el('button','quiet','Это не я');
   b.addEventListener('click',renderWho); w.appendChild(b);
   renderStep();
@@ -393,7 +447,7 @@ function renderStep(){
     lab.appendChild(r); lab.appendChild(el('span',null,opt));
     card.appendChild(lab); labels.push(lab);
   });
-  var btn=el('button',null,'Ответить'); btn.id='check'; btn.disabled=true;
+  var btn=el('button','action','Ответить'); btn.id='check'; btn.disabled=true;
   btn.addEventListener('click',function(){ checkAnswer(q,labels); });
   card.appendChild(btn);
 }
@@ -409,12 +463,14 @@ function checkAnswer(q,labels){
     else lab.classList.add('dim');
   });
   var card=document.getElementById('question-card');
+  var btnNode=document.getElementById('check');
   var v=el('div','verdict '+(ok?'ok':'bad'));
   v.appendChild(el('span','dot')); v.appendChild(el('span',null, ok?'Верно':'Неверно'));
-  card.appendChild(v);
-  if(!ok) card.appendChild(el('div','note','Правильный ответ: '+q.options[q.correct]));
-  card.appendChild(el('div','note',q.note));
+  card.insertBefore(v, btnNode);
+  if(!ok) card.insertBefore(el('div','note','Правильный ответ: '+q.options[q.correct]), btnNode);
+  card.insertBefore(el('div','note',q.note), btnNode);
   var btn=document.getElementById('check');
+  btn.className='action';
   btn.textContent = (step+1<QUESTIONS.length)?'Следующее задание':'Посмотреть результат';
   btn.disabled=false;
   btn.replaceWith(btn.cloneNode(true));
