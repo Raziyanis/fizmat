@@ -78,7 +78,8 @@
   }
   .steps i.y { background: var(--ok); color: #fff; }
   .steps i.n { background: var(--bad); color: #fff; }
-  .steps i.now { background: var(--accent); color: #fff; box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--accent); }
+  .steps i.now { background: var(--action); color: var(--action-text);
+                 box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--action); }
   .qnum { font-size: 13px; color: var(--muted); font-weight: 600; }
   .qtext { margin: 6px 0 10px; font-weight: 600; font-size: 17px; }
   pre {
@@ -260,7 +261,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v19 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v20 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -268,6 +269,9 @@ var step = 0;                 // индекс текущего задания
 var answers = {};             // qid -> выбранный индекс
 var verdicts = {};            // qid -> true/false
 var locked = false;           // ответ на текущее задание уже отправлен
+var autoTimer = null;         // обратный отсчёт до следующего задания
+var AUTO_OK = 3;              // секунд после верного ответа
+var AUTO_BAD = 8;             // секунд после ошибки — успеть прочитать разбор
 var QUEUE_KEY = 'listmethods.pending.v2';
 var sending = false;
 var chatTimer = null;
@@ -314,6 +318,7 @@ function applyView() {
 }
 
 function setStage(name) {
+  if (autoTimer && name !== 'test') { clearInterval(autoTimer); autoTimer = null; }
   STAGE = name;
   if (name === 'topic') renderTopic();
   if (name === 'lesson') renderLesson();
@@ -681,11 +686,25 @@ function showVerdict(q, labels, res) {
 
   var btn = document.getElementById('check');
   btn.className = 'action';
-  btn.textContent = (step + 1 < DATA.total) ? 'Следующее задание' : 'Посмотреть результат';
   btn.disabled = false;
   btn.replaceWith(btn.cloneNode(true));
   var fresh = card.querySelector('#check');
-  fresh.addEventListener('click', nextStep);
+  var label = (step + 1 < DATA.total) ? 'Следующее задание' : 'Посмотреть результат';
+
+  // переходим сами: верный ответ читать нечего, на разбор ошибки даём больше
+  var left = res.ok ? AUTO_OK : AUTO_BAD;
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  var go = function () {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    nextStep();
+  };
+  fresh.addEventListener('click', go);
+  fresh.textContent = label + ' (' + left + ')';
+  autoTimer = setInterval(function () {
+    left--;
+    if (left <= 0) { go(); return; }
+    fresh.textContent = label + ' (' + left + ')';
+  }, 1000);
   fresh.focus();
 }
 

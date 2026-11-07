@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v19 · 7 ноября';
+var APP_VERSION = 'v20 · 7 ноября';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
@@ -1019,6 +1019,7 @@ function resultsForTeacher_() {
 
   return {
     version: APP_VERSION,
+    lesson: LESSON,
     roster: roster,
     stages: stageResults_(),
     students: students,

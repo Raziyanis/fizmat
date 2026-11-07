@@ -103,7 +103,38 @@
   .mark.y { color: var(--ok); }
   .mark.n { color: var(--bad); }
   .mark.q { color: var(--line); }
+  td.mark.now { background: var(--action); color: var(--action-text); font-weight: 800; border-radius: 4px; }
   .empty { color: var(--muted); }
+  .topbar { background: var(--card); border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+  .topbar-in { max-width: 1100px; margin: 0 auto; padding: 12px 16px;
+               display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; white-space: nowrap; }
+  .brand .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--action); }
+  .stages { display: flex; gap: 6px; flex-wrap: wrap; flex: 1 1 auto; }
+  .stage { width: auto; display: flex; align-items: center; gap: 7px; background: transparent;
+           color: var(--muted); border: 0; border-radius: 999px; padding: 7px 13px;
+           font: 600 14px/1 inherit; font-family: inherit; cursor: pointer; }
+  .stage .num { width: 20px; height: 20px; border-radius: 50%; background: var(--bg); color: var(--muted);
+                border: 1px solid var(--line); display: flex; align-items: center;
+                justify-content: center; font-size: 11px; font-weight: 700; }
+  .stage.on { background: var(--accent-soft); color: var(--accent); }
+  .stage.on .num { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .whoami { font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .eyebrow { font: 700 12px/1 inherit; letter-spacing: .12em; text-transform: uppercase;
+             color: var(--accent); margin-bottom: 10px; }
+  .display { font-size: 34px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin: 0 0 10px; }
+  .lead { font-size: 17px; color: var(--muted); margin-bottom: 22px; max-width: 48em; }
+  .goal { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+  .goal b { display: block; font-size: 13px; text-transform: uppercase; letter-spacing: .04em;
+            color: var(--accent); margin-bottom: 4px; }
+  .outcome { display: flex; gap: 10px; margin-bottom: 8px; font-size: 15px; }
+  .outcome .lvl { flex: 0 0 110px; font-weight: 700; color: var(--accent); }
+  .out { background: var(--ok-bg); color: var(--ok); border-radius: 8px; padding: 9px 12px;
+         font: 14px/1.5 "SF Mono", Menlo, Consolas, monospace; white-space: pre-wrap; }
+  .out.err { background: var(--bad-bg); color: var(--bad); }
+  .rule { display: flex; gap: 10px; font-size: 15px; }
+  .rule .n { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff;
+             display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
   .caller { border: 2px solid var(--accent); }
   select.pickclass { flex: 0 0 auto; padding: 4px 8px; font: 500 13px inherit; font-family: inherit;
                      border: 1px solid var(--line); border-radius: 20px; background: var(--card);
@@ -153,6 +184,23 @@
 </style>
 </head>
 <body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand"><span class="dot"></span><span>Информатика · 8 класс</span></div>
+    <div class="stages" id="stages">
+      <button class="stage on" data-stage="test"><span class="num">1</span><span class="lbl">Повторение</span></button>
+      <button class="stage" data-stage="topic"><span class="num">2</span><span class="lbl">Тема</span></button>
+      <button class="stage" data-stage="lesson"><span class="num">3</span><span class="lbl">Новая тема</span></button>
+      <button class="stage" data-stage="check"><span class="num">4</span><span class="lbl">Понимание</span></button>
+      <button class="stage" data-stage="work"><span class="num">5</span><span class="lbl">Практика</span></button>
+      <button class="stage" data-stage="reflect"><span class="num">6</span><span class="lbl">Рефлексия</span></button>
+      <button class="stage" data-stage="home"><span class="num">7</span><span class="lbl">Домашнее</span></button>
+    </div>
+    <div class="whoami">Экран учителя</div>
+  </div>
+</div>
+
 <div class="wrap">
 
   <header>
@@ -165,6 +213,15 @@
 
   <div id="banner"></div>
   <div class="chips" id="class-filter"></div>
+
+  <div id="panel-topic" style="display:none"></div>
+  <div id="panel-lesson" style="display:none"></div>
+  <div id="panel-check" style="display:none"></div>
+  <div id="panel-work" style="display:none"></div>
+  <div id="panel-reflect" style="display:none"></div>
+  <div id="panel-home" style="display:none"></div>
+
+  <div id="panel-test">
 
   <div class="card caller">
     <div class="caller-head">
@@ -208,12 +265,13 @@
     <div class="missing" id="missing-box"><span class="empty">Нет данных.</span></div>
     <div style="margin-top:12px"><a id="sheet-link" href="#" target="_blank" rel="noopener" style="display:none">Открыть таблицу</a></div>
   </div>
+  </div>
 
   <div class="version" id="version"></div>
 </div>
 
 <script>
-var PAGE_VERSION = 'v19 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v20 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var SORT = 'hard';
 var LAST = null;
@@ -308,6 +366,197 @@ function load(auto) {
 }
 
 function inFilter(p) { return !FILTER || p.klass === FILTER; }
+
+/* ---------- этапы на странице учителя ---------- */
+var STAGE = 'test';
+var PANELS = ['topic', 'lesson', 'check', 'work', 'reflect', 'home'];
+
+function applyStage() {
+  document.getElementById('panel-test').style.display = (STAGE === 'test') ? 'block' : 'none';
+  document.getElementById('class-filter').style.display =
+    (STAGE === 'test' || STAGE === 'check' || STAGE === 'work' || STAGE === 'reflect') ? 'flex' : 'none';
+  PANELS.forEach(function (n) {
+    document.getElementById('panel-' + n).style.display = (STAGE === n) ? 'block' : 'none';
+  });
+  var btns = document.querySelectorAll('#stages .stage');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = 'stage' + (btns[i].getAttribute('data-stage') === STAGE ? ' on' : '');
+  }
+  window.scrollTo(0, 0);
+}
+
+function setStage(name) { STAGE = name; drawStage(); applyStage(); }
+
+/** Перерисовывает панель открытого этапа. */
+function drawStage() {
+  if (!LAST || !LAST.lesson) return;
+  if (STAGE === 'topic') drawTopic();
+  if (STAGE === 'lesson') drawLessonPanel();
+  if (STAGE === 'check') drawStageScores('check', 'Проверка понимания', 4);
+  if (STAGE === 'work') drawStageScores('work', 'Практическая работа', 5);
+  if (STAGE === 'reflect') drawReflect();
+  if (STAGE === 'home') drawHome();
+}
+
+function drawTopic() {
+  var box = document.getElementById('panel-topic');
+  var L = LAST.lesson;
+  box.textContent = '';
+  box.appendChild(el('div', 'eyebrow', 'Этап 2 · тема урока'));
+  box.appendChild(el('div', 'display', L.title));
+  var g = el('div', 'goal');
+  g.appendChild(el('b', null, 'Цель обучения ' + L.code));
+  g.appendChild(el('div', null, L.goal));
+  box.appendChild(g);
+  var oc = el('div', 'card');
+  oc.appendChild(el('h2', null, 'Ожидаемые результаты'));
+  L.outcomes.forEach(function (o) {
+    var r = el('div', 'outcome');
+    r.appendChild(el('div', 'lvl', o.level));
+    r.appendChild(el('div', null, o.text));
+    oc.appendChild(r);
+  });
+  box.appendChild(oc);
+}
+
+function drawLessonPanel() {
+  var box = document.getElementById('panel-lesson');
+  var L = LAST.lesson;
+  box.textContent = '';
+  box.appendChild(el('div', 'eyebrow', 'Этап 3 · новая тема'));
+  box.appendChild(el('div', 'display', L.title));
+  box.appendChild(el('div', 'lead', 'То же, что видит ученик.'));
+  L.blocks.forEach(function (b) {
+    var c = el('div', 'card');
+    c.appendChild(el('h2', null, b.heading));
+    c.appendChild(el('div', null, b.text));
+    if (b.code) {
+      c.appendChild(el('pre', null, b.code));
+      if (b.out) c.appendChild(el('div', 'out' + (b.out.indexOf('Error') > -1 ? ' err' : ''), b.out));
+    }
+    box.appendChild(c);
+  });
+}
+
+/** Баллы класса за этап 4 или 5 плюс сами задания. */
+function drawStageScores(which, title, num) {
+  var box = document.getElementById('panel-' + (which === 'check' ? 'check' : 'work'));
+  var L = LAST.lesson;
+  var max = (which === 'check') ? L.check.total : L.work.total;
+  box.textContent = '';
+  box.appendChild(el('div', 'eyebrow', 'Этап ' + num + ' · ' + title.toLowerCase()));
+  box.appendChild(el('div', 'display', title));
+
+  var rows = [];
+  (LAST.roster || []).filter(inFilter).forEach(function (p) {
+    var rec = (LAST.stages || {})[(p.klass + '|' + p.name).toLowerCase()];
+    var got = rec && rec[which] ? rec[which].score : null;
+    rows.push({ klass: p.klass, name: p.name, score: got });
+  });
+
+  var done = rows.filter(function (r) { return r.score !== null && r.score !== ''; });
+  var sum = 0; done.forEach(function (r) { sum += Number(r.score) || 0; });
+
+  var tiles = el('div', 'tiles');
+  [[done.length, 'сдали'], [rows.length - done.length, 'не сдали'],
+   [done.length ? (Math.round(sum / done.length * 10) / 10) + ' / ' + max : '—', 'средний балл']
+  ].forEach(function (t) {
+    var d = el('div', 'tile');
+    d.appendChild(el('div', 'v', String(t[0])));
+    d.appendChild(el('div', 'k', t[1]));
+    tiles.appendChild(d);
+  });
+  box.appendChild(tiles);
+
+  var card = el('div', 'card');
+  card.appendChild(el('h2', null, 'Баллы'));
+  if (!rows.length) {
+    card.appendChild(el('span', 'empty', 'Списки классов не заполнены.'));
+  } else {
+    var table = document.createElement('table');
+    var hr = document.createElement('tr');
+    ['Класс', 'Ученик', 'Балл'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+    var th = document.createElement('thead'); th.appendChild(hr); table.appendChild(th);
+    var tb = document.createElement('tbody');
+    rows.sort(function (a, b) {
+      return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
+    });
+    rows.forEach(function (r) {
+      var tr = document.createElement('tr');
+      tr.appendChild(el('td', null, r.klass));
+      tr.appendChild(el('td', null, r.name));
+      if (r.score === null || r.score === '') {
+        tr.appendChild(el('td', 'mark q', 'не сдал'));
+      } else {
+        var full = Number(r.score) === max;
+        tr.appendChild(el('td', 'mark ' + (full ? 'y' : (Number(r.score) >= max / 2 ? '' : 'n')),
+                          r.score + ' / ' + max));
+      }
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    var sc = el('div', 'scroll'); sc.appendChild(table); card.appendChild(sc);
+  }
+  box.appendChild(card);
+
+  var qs = el('div', 'card');
+  qs.appendChild(el('h2', null, 'Задания этапа'));
+  var list = (which === 'check') ? L.check.items : L.work.tasks;
+  list.forEach(function (it, i) {
+    var row = el('div', 'rule');
+    row.appendChild(el('div', 'n', String(i + 1)));
+    var right = el('div');
+    right.appendChild(el('div', null, it.text));
+    right.appendChild(el('div', 'sub-hint', it.note));
+    row.appendChild(right);
+    qs.appendChild(row);
+    qs.appendChild(el('div', null, ' '));
+  });
+  box.appendChild(qs);
+}
+
+function drawReflect() {
+  var box = document.getElementById('panel-reflect');
+  box.textContent = '';
+  box.appendChild(el('div', 'eyebrow', 'Этап 6 · рефлексия'));
+  box.appendChild(el('div', 'display', 'Что написали ученики'));
+
+  var said = [];
+  Object.keys(LAST.stages || {}).forEach(function (k) {
+    var rec = LAST.stages[k];
+    if (rec.reflection && inFilter(rec)) said.push(rec);
+  });
+  if (!said.length) {
+    box.appendChild(el('div', 'card')).appendChild(el('span', 'empty', 'Пока никто не ответил.'));
+    return;
+  }
+  said.sort(function (a, b) {
+    return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
+  });
+  said.forEach(function (rec) {
+    var c = el('div', 'card');
+    c.appendChild(el('div', 'qnum', rec.klass + ', ' + rec.name));
+    c.appendChild(el('div', null, rec.reflection));
+    box.appendChild(c);
+  });
+}
+
+function drawHome() {
+  var box = document.getElementById('panel-home');
+  var H = LAST.lesson.homework;
+  box.textContent = '';
+  box.appendChild(el('div', 'eyebrow', 'Этап 7 · домашнее задание'));
+  box.appendChild(el('div', 'display', 'Домашнее задание'));
+  box.appendChild(el('div', 'lead', H.intro));
+  H.tasks.forEach(function (t, i) {
+    var c = el('div', 'card');
+    var r = el('div', 'rule');
+    r.appendChild(el('div', 'n', String(i + 1)));
+    r.appendChild(el('div', null, t));
+    c.appendChild(r);
+    box.appendChild(c);
+  });
+}
 
 /* ---------- кто отвечает ---------- */
 var CALLED = null;        // кого вызвали сейчас
@@ -445,6 +694,7 @@ function draw() {
   else ordered.forEach(function (q) { box.appendChild(questionCard(q, data.dialog)); });
 
   drawCaller();
+  drawStage();
   drawTable(data, students);
   drawMissing(data, missing);
 
@@ -822,9 +1072,17 @@ function drawTable(data, students) {
     [s.klass, s.name, s.score + ' / ' + s.total, status, s.time || '—'].forEach(function (v) {
       tr.appendChild(el('td', null, v));
     });
-    s.marks.forEach(function (m) {
+    // первое неотвеченное у того, кто ещё решает, — оранжевое: он сейчас на нём
+    var current = -1;
+    if (!s.finished) {
+      for (var mi = 0; mi < s.marks.length; mi++) {
+        if (s.marks[mi] === -1) { current = mi; break; }
+      }
+    }
+    s.marks.forEach(function (m, mi) {
       tr.appendChild(m === 1 ? el('td', 'c mark y', '✓')
                    : m === 0 ? el('td', 'c mark n', '✗')
+                   : mi === current ? el('td', 'c mark q now', '•')
                              : el('td', 'c mark q', '·'));
     });
     tbody.appendChild(tr);
@@ -928,6 +1186,12 @@ function drawMissing(data, missing) {
 }
 
 if (!offlineFile_()) {
+  document.getElementById('stages').addEventListener('click', function (ev) {
+    var n = ev.target;
+    while (n && n !== this && !n.getAttribute('data-stage')) n = n.parentNode;
+    var name = n && n.getAttribute && n.getAttribute('data-stage');
+    if (name) setStage(name);
+  });
   document.getElementById('call-next').addEventListener('click', callNext);
   document.getElementById('call-reset').addEventListener('click', function () {
     CALLED_USED[FILTER || '*'] = [];
