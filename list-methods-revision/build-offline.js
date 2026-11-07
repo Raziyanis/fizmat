@@ -193,29 +193,55 @@ function queueWrite(l){try{localStorage.setItem(QUEUE_KEY, JSON.stringify(l)); r
 function queueAdd(p){var l=queueRead(); l.push(p); return queueWrite(l);}
 function queueDrop(id){queueWrite(queueRead().filter(function(p){return p.uid!==id;}));}
 
+/**
+ * Отправка работы.
+ *
+ * Файл открыт с диска, поэтому браузер обычно НЕ даёт прочитать ответ
+ * чужого сервера: обычный запрос падает на проверке CORS, хотя сами
+ * данные до сервера доходят. Поэтому сначала пробуем обычный запрос
+ * (он работает, когда страница открыта по ссылке), а если не вышло —
+ * отправляем вслепую, без чтения ответа. Повтор не страшен: у каждой
+ * работы свой номер, и вторую строку сервер не создаст.
+ */
 function sendOne(payload){
-  return fetch(URL_SEND, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },  // простой запрос, без preflight
-    body: JSON.stringify(payload)
-  }).then(function(r){ return r.json(); })
-    .then(function(res){ if(!res || !res.ok) throw new Error(res && res.error || 'сервер отказал'); return res; });
+  var body = JSON.stringify(payload);
+  var opts = { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: body };
+
+  return fetch(URL_SEND, opts)
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if(!res || !res.ok) throw new Error((res && res.error) || 'сервер отказал');
+      return { confirmed: true };
+    })
+    .catch(function(){
+      // ответ прочитать нельзя — отправляем вслепую
+      return fetch(URL_SEND, { method:'POST', mode:'no-cors',
+                               headers:{'Content-Type':'text/plain;charset=utf-8'}, body: body })
+        .then(function(){ return { confirmed: false }; });
+    });
 }
 
+var lastConfirmed = true;
 function flushQueue(onState){
   var list = queueRead();
   if(!list.length){ if(onState) onState('empty'); return; }
   if(onState) onState('sending');
   sendOne(list[0])
-    .then(function(){ queueDrop(list[0].uid); flushQueue(onState); })
+    .then(function(r){ lastConfirmed = r.confirmed; queueDrop(list[0].uid); flushQueue(onState); })
     .catch(function(){ if(onState) onState('failed'); });
 }
 
 function sendState(state){
   var box = document.getElementById('send-state');
   var left = queueRead().length;
-  if(state==='sending'){ box.textContent='Отправляем учителю…'; return; }
-  if(left===0){ box.textContent='Работа отправлена учителю.'; box.style.color='var(--ok)'; return; }
+  if(state==='sending'){ box.style.color='var(--muted)'; box.textContent='Отправляем учителю…'; return; }
+  if(left===0){
+    box.style.color='var(--ok)';
+    box.textContent = lastConfirmed
+      ? 'Работа отправлена учителю.'
+      : 'Работа отправлена учителю. Можно закрывать страницу.';
+    return;
+  }
   box.style.color='var(--warn)';
   box.textContent='Интернета нет. Работа сохранена на этом устройстве и уйдёт сама, '+
     'когда появится связь — просто откройте этот файл снова.';

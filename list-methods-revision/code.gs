@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v12 · 7 ноября';
+var APP_VERSION = 'v13 · 7 ноября';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
@@ -233,7 +233,7 @@ function setup() {
   Logger.log('Версия кода: ' + APP_VERSION);
   Logger.log('Таблица: ' + ss.getUrl());
   Logger.log('Заданий: ' + QUESTIONS.length + ', учеников в списках: ' + countStudents_());
-  Logger.log('Страница учителя: <ссылка веб-приложения>?page=teacher');
+  Logger.log('Страница учителя: та же ссылка /exec — она сама узнает вас по аккаунту.');
   Logger.log('Открывать её можно только из аккаунта ' + props.getProperty(PROP_TEACHER) + '.');
 }
 
@@ -315,8 +315,19 @@ function key_(klass, name) {
 /* Страницы                                                            */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Какую страницу показать.
+ *
+ * Без параметров: учителю — его страница, всем остальным — страница
+ * ученика. Узнаём по аккаунту, которым выполняли setup(), поэтому
+ * учителю достаточно открыть обычную ссылку /exec.
+ *
+ * ?page=student — посмотреть глазами ученика;
+ * ?page=teacher — страница учителя (пустит только вас).
+ */
 function doGet(e) {
-  var page = (e && e.parameter && e.parameter.page) || 'student';
+  var page = (e && e.parameter && e.parameter.page) || '';
+  if (!page) page = isTeacher_() ? 'teacher' : 'student';
   var file = page === 'teacher' ? 'teacher' : 'student';
   return openPage_(file)
     .setTitle(file === 'teacher' ? 'Методы списка — экран учителя' : 'Методы списка — повторение')
