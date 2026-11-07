@@ -57,6 +57,15 @@
   pre { background: #11161d; color: #e8edf3; padding: 11px 13px; border-radius: 8px; overflow-x: auto;
         font: 13px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 8px 0 12px; }
   .qtext { font-weight: 700; font-size: 18px; margin: 4px 0 10px; }
+  .steps { display: flex; gap: 5px; margin-bottom: 14px; flex-wrap: wrap; }
+  .steps i { min-width: 28px; height: 26px; border-radius: 6px; background: var(--line); color: var(--muted);
+             display: flex; align-items: center; justify-content: center; cursor: pointer;
+             font: 700 13px/1 inherit; font-style: normal; padding: 0 5px; }
+  .steps i.y { background: var(--ok); color: #fff; }
+  .steps i.n { background: var(--bad); color: #fff; }
+  .steps i.now { background: var(--action); color: var(--action-text);
+                 box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--action); }
+  .qnav { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
   .topt { display: flex; align-items: center; justify-content: space-between; gap: 12px;
           padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
   .topt-text { font: 16px/1.4 "SF Mono", Menlo, Consolas, monospace; }
@@ -256,11 +265,10 @@
 
   <div class="card">
     <h2>Разбор по заданиям</h2>
-    <div class="chips" style="margin-bottom:12px">
-      <button id="sort-hard" class="on">Сначала трудные</button>
-      <button id="sort-order">По порядку</button>
-    </div>
+    <div class="sub-hint" style="margin:-4px 0 10px">Нажмите на номер — откроется это задание. Цвет: зелёный — класс справился, красный — просел, оранжевый — открыто сейчас.</div>
+    <div class="steps" id="qsteps"></div>
     <div id="questions"><span class="empty">Нет данных.</span></div>
+    <div class="qnav" id="qnav"></div>
   </div>
 
   <div class="card">
@@ -280,9 +288,9 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v22 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v23 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
-var SORT = 'hard';
+var QIDX = 0;             // какое задание открыто
 var LAST = null;
 var OPEN = {};          // какие задания развёрнуты
 var ASKING = null;      // кому сейчас пишем: 'qid|класс|имя'
@@ -690,24 +698,54 @@ function draw() {
   document.getElementById('t-hard').textContent = touched.length
     ? touched.slice().sort(function (a, b) { return a.percent - b.percent; })[0].topic : '—';
 
-  var ordered = qs.slice();
-  if (SORT === 'hard') {
-    ordered.sort(function (a, b) {
-      if (!a.answered && b.answered) return 1;
-      if (a.answered && !b.answered) return -1;
-      return a.percent - b.percent || a.number - b.number;
-    });
-  } else {
-    ordered.sort(function (a, b) { return a.number - b.number; });
-  }
+  qs.sort(function (a, b) { return a.number - b.number; });
+  if (QIDX >= qs.length) QIDX = 0;
 
-  document.getElementById('sort-hard').className = SORT === 'hard' ? 'on' : '';
-  document.getElementById('sort-order').className = SORT === 'order' ? 'on' : '';
+  /* полоска с номерами — как у ученика */
+  var strip = document.getElementById('qsteps');
+  strip.textContent = '';
+  qs.forEach(function (q, i) {
+    var cls = '';
+    if (i === QIDX) cls = 'now';
+    else if (q.answered && q.percent >= 80) cls = 'y';
+    else if (q.answered && q.percent < 50) cls = 'n';
+    var chip = el('i', cls, String(q.number));
+    chip.title = 'Задание ' + q.number + ' · ' + q.topic +
+                 (q.answered ? ' · верно ' + q.percent + '%' : ' · ещё не отвечали');
+    chip.addEventListener('click', function () { QIDX = i; draw(); });
+    strip.appendChild(chip);
+  });
 
   var box = document.getElementById('questions');
   box.textContent = '';
   if (!qs.length) { box.appendChild(el('span', 'empty', 'Нет данных.')); }
-  else ordered.forEach(function (q) { box.appendChild(questionCard(q, data.dialog)); });
+  else box.appendChild(questionCard(qs[QIDX], data.dialog));
+
+  /* переходы между заданиями */
+  var nav = document.getElementById('qnav');
+  nav.textContent = '';
+  if (qs.length) {
+    var prev = el('button', 'act', '← Предыдущее');
+    prev.disabled = QIDX === 0;
+    prev.addEventListener('click', function () { QIDX--; draw(); });
+    nav.appendChild(prev);
+
+    var next = el('button', 'act', 'Следующее →');
+    next.disabled = QIDX >= qs.length - 1;
+    next.addEventListener('click', function () { QIDX++; draw(); });
+    nav.appendChild(next);
+
+    var answered = qs.filter(function (q) { return q.answered; });
+    if (answered.length) {
+      var worst = answered.slice().sort(function (a, b) { return a.percent - b.percent; })[0];
+      var jump = el('button', 'act', 'К самому трудному: ' + worst.number + ' · ' + worst.topic);
+      jump.addEventListener('click', function () {
+        QIDX = qs.indexOf(worst);
+        draw();
+      });
+      nav.appendChild(jump);
+    }
+  }
 
   drawCaller();
   drawStage();
@@ -756,7 +794,6 @@ function questionCard(q, dialog) {
       ev.stopPropagation();
       PICK_CLASS[q.id] = sel.value;
       delete PICKED[q.id];
-      OPEN[q.id] = true;
       draw();
     });
     counts.appendChild(sel);
@@ -765,16 +802,10 @@ function questionCard(q, dialog) {
   var roll = el('button', 'ask roll', PICKED[q.id] ? 'Другой ученик' : 'Вытянуть ученика');
   roll.title = 'Вызвать ученика для ответа на это задание';
   roll.addEventListener('click', function (ev) {
-    ev.stopPropagation();          // не сворачивать карточку
-    OPEN[q.id] = true;
     pickStudent(q);
   });
   counts.appendChild(roll);
   head.appendChild(counts);
-  head.addEventListener('click', function () {
-    OPEN[q.id] = !OPEN[q.id];
-    draw();
-  });
   card.appendChild(head);
 
   var bar = el('div', 'bar');
@@ -810,8 +841,6 @@ function questionCard(q, dialog) {
       card.appendChild(line);
     }
   }
-
-  if (!OPEN[q.id]) return card;
 
   var body = el('div', 'q-body');
   body.appendChild(el('div', 'qtext', q.text));
@@ -1211,8 +1240,6 @@ if (!offlineFile_()) {
     drawCaller();
   });
   document.getElementById('refresh').addEventListener('click', load);
-  document.getElementById('sort-hard').addEventListener('click', function () { SORT = 'hard'; draw(); });
-  document.getElementById('sort-order').addEventListener('click', function () { SORT = 'order'; draw(); });
 }
 </script>
 </body>
