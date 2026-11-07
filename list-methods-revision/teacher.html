@@ -57,6 +57,13 @@
   pre { background: #11161d; color: #e8edf3; padding: 11px 13px; border-radius: 8px; overflow-x: auto;
         font: 13px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 8px 0 12px; }
   .qtext { font-weight: 700; font-size: 18px; margin: 4px 0 10px; }
+  .editor { margin-top: 12px; }
+  .codearea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line);
+              background: #11161d; color: #e8edf3; resize: vertical;
+              font: 14px/1.5 "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  .codearea:focus { outline: 2px solid var(--accent); }
+  .asklabel { font: 700 12px/1 inherit; letter-spacing: .12em; text-transform: uppercase;
+              color: var(--muted); margin-bottom: 10px; }
   .askbig { font-size: 21px; font-weight: 600; line-height: 1.4; margin: 10px 0 14px; }
   .askdone { font-size: 15px; color: var(--muted); font-style: italic; margin-bottom: 12px; }
   .goalrow { display: flex; gap: 10px; margin-bottom: 14px; }
@@ -76,6 +83,12 @@
   .steps i.now { background: var(--action); color: var(--action-text);
                  box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--action); }
   .qnav { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .qnav button.action { background: var(--action); color: var(--action-text); border: 0;
+                        border-radius: 8px; padding: 10px 18px; font: 800 15px inherit;
+                        font-family: inherit; cursor: pointer; }
+  .qnav button.quiet { background: transparent; color: var(--muted); border: 1px solid var(--line);
+                       border-radius: 8px; padding: 10px 16px; font: 600 15px inherit;
+                       font-family: inherit; cursor: pointer; }
   .topt { display: flex; align-items: center; justify-content: space-between; gap: 12px;
           padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
   .topt-text { font: 16px/1.4 "SF Mono", Menlo, Consolas, monospace; }
@@ -310,7 +323,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v27 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v31 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -485,6 +498,92 @@ if (L.goalMap) {
   box.appendChild(oc);
 }
 
+/* ---------- редактор с запуском Python ---------- */
+var PY = null;          // загруженный Pyodide
+var PY_LOADING = null;  // обещание загрузки
+
+/**
+ * Загружает Python в браузер. Нужен интернет: это внешняя библиотека
+ * около 10 МБ, зато выполняется настоящий Python, а не подделка.
+ */
+function loadPython(onProgress) {
+  if (PY) return Promise.resolve(PY);
+  if (PY_LOADING) return PY_LOADING;
+  PY_LOADING = new Promise(function (resolve, reject) {
+    if (onProgress) onProgress('Загружаем Python… первый раз это занимает 10–30 секунд.');
+    var tag = document.createElement('script');
+    tag.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+    tag.onload = function () {
+      loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' })
+        .then(function (py) { PY = py; resolve(py); })
+        .catch(reject);
+    };
+    tag.onerror = function () { reject(new Error('нет интернета')); };
+    document.head.appendChild(tag);
+  });
+  PY_LOADING.catch(function () { PY_LOADING = null; });
+  return PY_LOADING;
+}
+
+/** Превращает блок кода в редактор с кнопкой «Запустить». */
+function attachEditor(card, code) {
+  var wrap = el('div', 'editor');
+  var area = document.createElement('textarea');
+  area.className = 'codearea';
+  area.value = code;
+  area.rows = Math.max(4, code.split('\n').length + 2);
+  wrap.appendChild(area);
+
+  var row = el('div', 'qnav');
+  var run = el('button', 'action', 'Запустить');
+  var reset = el('button', 'quiet', 'Вернуть исходный код');
+  row.appendChild(run);
+  row.appendChild(reset);
+  wrap.appendChild(row);
+
+  var out = el('div', 'out');
+  out.style.display = 'none';
+  wrap.appendChild(out);
+
+  function show(text, isErr) {
+    out.style.display = 'block';
+    out.className = 'out' + (isErr ? ' err' : '');
+    out.textContent = text;
+  }
+
+  run.addEventListener('click', function () {
+    run.disabled = true;
+    show('Готовим…', false);
+    loadPython(function (msg) { show(msg, false); })
+      .then(function (py) {
+        var buf = [];
+        py.setStdout({ batched: function (line) { buf.push(line); } });
+        py.setStderr({ batched: function (line) { buf.push(line); } });
+        try {
+          py.runPython(area.value);
+          show(buf.length ? buf.join('\n') : '(программа ничего не вывела)', false);
+        } catch (err) {
+          var m = String(err.message || err).trim().split('\n');
+          show(m[m.length - 1], true);
+        }
+        run.disabled = false;
+      })
+      .catch(function () {
+        run.disabled = false;
+        show('Запустить не удалось: нужен интернет. Без сети код можно разобрать ' +
+             'по шагам на pythontutor.com или в редакторе на компьютере.', true);
+      });
+  });
+
+  reset.addEventListener('click', function () {
+    area.value = code;
+    area.rows = Math.max(4, code.split('\n').length + 2);
+    out.style.display = 'none';
+  });
+
+  card.appendChild(wrap);
+}
+
 var SLIDE = 0;
 var SLIDE_OPEN = false;
 
@@ -509,20 +608,28 @@ function drawLessonPanel() {
   box.appendChild(strip);
 
   var card = el('div', 'card');
-  card.appendChild(el('div', 'display', b.heading));
 
   if (b.ask && !SLIDE_OPEN) {
+    // заголовок скрыт: в нём обычно и лежит ответ на вопрос
+    card.appendChild(el('div', 'asklabel', 'Вопрос классу'));
     card.appendChild(el('div', 'askbig', b.ask));
-    if (b.guess) card.appendChild(el('div', 'note', b.guess));
     var open = el('button', 'big-action', 'Показать ответ');
     open.addEventListener('click', function () { SLIDE_OPEN = true; drawLessonPanel(); });
     card.appendChild(open);
   } else {
+    card.appendChild(el('div', 'display', b.heading));
     if (b.ask) card.appendChild(el('div', 'askdone', b.ask));
     card.appendChild(el('div', null, b.text));
     if (b.code) {
       card.appendChild(el('pre', null, b.code));
       if (b.out) card.appendChild(el('div', 'out' + (b.out.indexOf('Error') > -1 ? ' err' : ''), b.out));
+      var edit = el('button', 'act', 'Открыть в редакторе');
+      edit.style.marginTop = '10px';
+      edit.addEventListener('click', function () {
+        edit.style.display = 'none';
+        attachEditor(card, b.code);
+      });
+      card.appendChild(edit);
     }
   }
   box.appendChild(card);

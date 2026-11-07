@@ -146,6 +146,13 @@
   .mistake { border-left: 4px solid var(--bad); padding-left: 12px; margin-bottom: 12px; }
   .mistake code { font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 700; color: var(--bad); }
   .practice li { margin-bottom: 8px; }
+  .editor { margin-top: 12px; }
+  .codearea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line);
+              background: #11161d; color: #e8edf3; resize: vertical;
+              font: 14px/1.5 "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  .codearea:focus { outline: 2px solid var(--accent); }
+  .asklabel { font: 700 12px/1 inherit; letter-spacing: .12em; text-transform: uppercase;
+              color: var(--muted); margin-bottom: 10px; }
   .askbig { font-size: 20px; font-weight: 600; line-height: 1.4; margin: 10px 0 14px; }
   .askdone { font-size: 15px; color: var(--muted); font-style: italic; margin-bottom: 12px; }
   .qnav { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -272,7 +279,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v27 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v31 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -363,6 +370,92 @@ function renderWhoami() {
     ? (chosen.klass ? chosen.klass + ', ' : '') + chosen.name : '—'));
 }
 
+/* ---------- редактор с запуском Python ---------- */
+var PY = null;          // загруженный Pyodide
+var PY_LOADING = null;  // обещание загрузки
+
+/**
+ * Загружает Python в браузер. Нужен интернет: это внешняя библиотека
+ * около 10 МБ, зато выполняется настоящий Python, а не подделка.
+ */
+function loadPython(onProgress) {
+  if (PY) return Promise.resolve(PY);
+  if (PY_LOADING) return PY_LOADING;
+  PY_LOADING = new Promise(function (resolve, reject) {
+    if (onProgress) onProgress('Загружаем Python… первый раз это занимает 10–30 секунд.');
+    var tag = document.createElement('script');
+    tag.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+    tag.onload = function () {
+      loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' })
+        .then(function (py) { PY = py; resolve(py); })
+        .catch(reject);
+    };
+    tag.onerror = function () { reject(new Error('нет интернета')); };
+    document.head.appendChild(tag);
+  });
+  PY_LOADING.catch(function () { PY_LOADING = null; });
+  return PY_LOADING;
+}
+
+/** Превращает блок кода в редактор с кнопкой «Запустить». */
+function attachEditor(card, code) {
+  var wrap = el('div', 'editor');
+  var area = document.createElement('textarea');
+  area.className = 'codearea';
+  area.value = code;
+  area.rows = Math.max(4, code.split('\n').length + 2);
+  wrap.appendChild(area);
+
+  var row = el('div', 'qnav');
+  var run = el('button', 'action', 'Запустить');
+  var reset = el('button', 'quiet', 'Вернуть исходный код');
+  row.appendChild(run);
+  row.appendChild(reset);
+  wrap.appendChild(row);
+
+  var out = el('div', 'out');
+  out.style.display = 'none';
+  wrap.appendChild(out);
+
+  function show(text, isErr) {
+    out.style.display = 'block';
+    out.className = 'out' + (isErr ? ' err' : '');
+    out.textContent = text;
+  }
+
+  run.addEventListener('click', function () {
+    run.disabled = true;
+    show('Готовим…', false);
+    loadPython(function (msg) { show(msg, false); })
+      .then(function (py) {
+        var buf = [];
+        py.setStdout({ batched: function (line) { buf.push(line); } });
+        py.setStderr({ batched: function (line) { buf.push(line); } });
+        try {
+          py.runPython(area.value);
+          show(buf.length ? buf.join('\n') : '(программа ничего не вывела)', false);
+        } catch (err) {
+          var m = String(err.message || err).trim().split('\n');
+          show(m[m.length - 1], true);
+        }
+        run.disabled = false;
+      })
+      .catch(function () {
+        run.disabled = false;
+        show('Запустить не удалось: нужен интернет. Без сети код можно разобрать ' +
+             'по шагам на pythontutor.com или в редакторе на компьютере.', true);
+      });
+  });
+
+  reset.addEventListener('click', function () {
+    area.value = code;
+    area.rows = Math.max(4, code.split('\n').length + 2);
+    out.style.display = 'none';
+  });
+
+  card.appendChild(wrap);
+}
+
 /* ---------- этап 3: объяснение слайдами ---------- */
 var SLIDE = 0;
 var SLIDE_OPEN = false;      // открыт ли ответ на текущем слайде
@@ -389,15 +482,16 @@ function renderLesson() {
   box.appendChild(strip);
 
   var card = el('div', 'card');
-  card.appendChild(el('div', 'display', b.heading));
 
   if (b.ask && !SLIDE_OPEN) {
+    // заголовок скрыт: в нём обычно и лежит ответ на вопрос
+    card.appendChild(el('div', 'asklabel', 'Вопрос классу'));
     card.appendChild(el('div', 'askbig', b.ask));
-    if (b.guess) card.appendChild(el('div', 'note', b.guess));
     var open = el('button', 'action', 'Показать ответ');
     open.addEventListener('click', function () { SLIDE_OPEN = true; renderLesson(); });
     card.appendChild(open);
   } else {
+    card.appendChild(el('div', 'display', b.heading));
     if (b.ask) card.appendChild(el('div', 'askdone', b.ask));
     card.appendChild(el('div', null, b.text));
     if (b.code) {
@@ -406,6 +500,13 @@ function renderLesson() {
         card.appendChild(el('div', 'out-label', 'Что выведет:'));
         card.appendChild(el('div', 'out' + (b.out.indexOf('Error') > -1 ? ' err' : ''), b.out));
       }
+      // можно открыть редактор и переписать код прямо на уроке
+      var edit = el('button', 'quiet', 'Открыть в редакторе');
+      edit.addEventListener('click', function () {
+        edit.style.display = 'none';
+        attachEditor(card, b.code);
+      });
+      card.appendChild(edit);
     }
   }
   box.appendChild(card);
