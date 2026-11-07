@@ -145,6 +145,12 @@
   .mistake { border-left: 4px solid var(--bad); padding-left: 12px; margin-bottom: 12px; }
   .mistake code { font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 700; color: var(--bad); }
   .practice li { margin-bottom: 8px; }
+  input.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .matchrow { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .matchleft { flex: 0 0 130px; font-family: "SF Mono", Menlo, Consolas, monospace;
+               font-weight: 700; color: var(--accent); }
+  select { flex: 1 1 200px; padding: 10px 12px; font: 15px inherit; font-family: inherit;
+           border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); }
   .version { text-align: center; color: var(--muted); font-size: 12px; padding: 20px 0 8px; }
   .version.mismatch { color: var(--bad); font-weight: 600; font-size: 14px; }
   /* переписка с учителем */
@@ -173,8 +179,12 @@
     <div class="brand"><span class="dot"></span><span>Информатика · 8 класс</span></div>
     <div class="stages" id="stages">
       <button class="stage on" data-stage="test"><span class="num">1</span><span class="lbl">Повторение</span></button>
-      <button class="stage" data-stage="lesson"><span class="num">2</span><span class="lbl">Новая тема</span></button>
-      <button class="stage" data-stage="practice"><span class="num">3</span><span class="lbl">Задания</span></button>
+      <button class="stage" data-stage="topic"><span class="num">2</span><span class="lbl">Тема</span></button>
+      <button class="stage" data-stage="lesson"><span class="num">3</span><span class="lbl">Новая тема</span></button>
+      <button class="stage" data-stage="check"><span class="num">4</span><span class="lbl">Понимание</span></button>
+      <button class="stage" data-stage="work"><span class="num">5</span><span class="lbl">Практика</span></button>
+      <button class="stage" data-stage="reflect"><span class="num">6</span><span class="lbl">Рефлексия</span></button>
+      <button class="stage" data-stage="home"><span class="num">7</span><span class="lbl">Домашнее</span></button>
     </div>
     <div class="whoami" id="whoami">Ученик: <b>—</b></div>
   </div>
@@ -185,8 +195,12 @@
   <div id="banner"></div>
   <div id="screen-loading" class="loading">Загружаем задания…</div>
 
+  <div id="screen-topic" style="display:none"></div>
   <div id="screen-lesson" style="display:none"></div>
-  <div id="screen-practice" style="display:none"></div>
+  <div id="screen-check" style="display:none"></div>
+  <div id="screen-work" style="display:none"></div>
+  <div id="screen-reflect" style="display:none"></div>
+  <div id="screen-home" style="display:none"></div>
 
   <!-- выбор класса и фамилии -->
   <div id="screen-who" style="display:none">
@@ -246,7 +260,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v16 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v18 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -265,19 +279,31 @@ function el(tag, cls, text) {
   if (text !== undefined) n.textContent = text;
   return n;
 }
+function banner(text, kind) {
+  var box = document.getElementById('banner');
+  box.textContent = '';
+  if (text) box.appendChild(el('div', 'msg ' + (kind || 'err'), text));
+}
+function uid() {
+  return 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
 var STAGE = 'test';
 var currentScreen = 'screen-loading';
 var TEST_SCREENS = ['screen-loading', 'screen-who', 'screen-locked', 'screen-test', 'screen-result'];
 
 function show(id) { currentScreen = id; applyView(); }
 
+var PANELS = ['topic', 'lesson', 'check', 'work', 'reflect', 'home'];
+
 function applyView() {
   TEST_SCREENS.forEach(function (s) {
     document.getElementById(s).style.display =
       (STAGE === 'test' && s === currentScreen) ? 'block' : 'none';
   });
-  document.getElementById('screen-lesson').style.display = (STAGE === 'lesson') ? 'block' : 'none';
-  document.getElementById('screen-practice').style.display = (STAGE === 'practice') ? 'block' : 'none';
+  PANELS.forEach(function (name) {
+    document.getElementById('screen-' + name).style.display = (STAGE === name) ? 'block' : 'none';
+  });
   document.getElementById('banner').style.display = (STAGE === 'test') ? 'block' : 'none';
 
   var btns = document.querySelectorAll('#stages .stage');
@@ -289,9 +315,21 @@ function applyView() {
 
 function setStage(name) {
   STAGE = name;
+  if (name === 'topic') renderTopic();
   if (name === 'lesson') renderLesson();
-  if (name === 'practice') renderPractice();
+  if (name === 'check') renderCheck();
+  if (name === 'work') renderWork();
+  if (name === 'reflect') renderReflect();
+  if (name === 'home') renderHome();
   applyView();
+}
+
+/** Требуем выбрать себя — иначе непонятно, чью работу записывать. */
+function needName() {
+  if (chosen.name) return true;
+  setStage('test');
+  banner('Сначала выберите класс и свою фамилию на этапе «Повторение».', 'warn');
+  return false;
 }
 
 document.getElementById('stages').addEventListener('click', function (ev) {
@@ -360,36 +398,6 @@ function renderLesson() {
   });
   box.appendChild(mc);
 
-}
-
-/** Этап 3: задания для самостоятельной работы. */
-function renderPractice() {
-  var box = document.getElementById('screen-practice');
-  if (box.childNodes.length || !DATA || !DATA.lesson) return;
-  var L = DATA.lesson;
-
-  box.appendChild(el('div', 'eyebrow', 'Этап 3 · задания'));
-  box.appendChild(el('div', 'display', 'Попробуйте сами'));
-  box.appendChild(el('div', 'lead',
-    'Выполняйте в любом редакторе Python. Проверяйте запуском: ' +
-    'если программа выводит не то, вернитесь на вкладку «Новая тема».'));
-
-  L.practice.forEach(function (t, i) {
-    var card = el('div', 'card');
-    var row = el('div', 'rule');
-    row.appendChild(el('div', 'n', String(i + 1)));
-    row.appendChild(el('div', null, t));
-    card.appendChild(row);
-    box.appendChild(card);
-  });
-}
-function banner(text, kind) {
-  var box = document.getElementById('banner');
-  box.textContent = '';
-  if (text) box.appendChild(el('div', 'msg ' + (kind || 'err'), text));
-}
-function uid() {
-  return 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
 /* ---------- очередь на случай обрыва связи ---------- */
@@ -705,6 +713,266 @@ function finish() {
       retryLater();
     })
     .finishAttempt(payload);
+}
+
+/* ---------- этап 2: тема, цель, ожидаемые результаты ---------- */
+function renderTopic() {
+  var box = document.getElementById('screen-topic');
+  if (box.childNodes.length || !DATA || !DATA.lesson) return;
+  var L = DATA.lesson;
+
+  box.appendChild(el('div', 'eyebrow', 'Этап 2 · тема урока'));
+  box.appendChild(el('div', 'display', L.title));
+
+  var g = el('div', 'goal');
+  g.appendChild(el('b', null, 'Цель обучения ' + L.code));
+  g.appendChild(el('div', null, L.goal));
+  box.appendChild(g);
+
+  var oc = el('div', 'card');
+  oc.appendChild(el('h3', null, 'Ожидаемые результаты'));
+  oc.appendChild(el('div', 'sub', 'К концу урока:'));
+  L.outcomes.forEach(function (o) {
+    var row = el('div', 'outcome');
+    row.appendChild(el('div', 'lvl', o.level));
+    row.appendChild(el('div', null, o.text));
+    oc.appendChild(row);
+  });
+  box.appendChild(oc);
+
+  var plan = el('div', 'card');
+  plan.appendChild(el('h3', null, 'Как пройдёт урок'));
+  [['3', 'Новая тема — объяснение с примерами'],
+   ['4', 'Понимание — короткая проверка на 10 баллов'],
+   ['5', 'Практика — практическая работа на 10 баллов'],
+   ['6', 'Рефлексия'],
+   ['7', 'Домашнее задание']].forEach(function (pair) {
+    var r = el('div', 'rule');
+    r.appendChild(el('div', 'n', pair[0]));
+    r.appendChild(el('div', null, pair[1]));
+    plan.appendChild(r);
+  });
+  box.appendChild(plan);
+}
+
+/* ---------- этап 4: проверка понимания ---------- */
+var checkAnswers = {};
+function renderCheck() {
+  var box = document.getElementById('screen-check');
+  if (box.childNodes.length || !DATA || !DATA.lesson) return;
+  var C = DATA.lesson.check;
+
+  box.appendChild(el('div', 'eyebrow', 'Этап 4 · проверка понимания'));
+  box.appendChild(el('div', 'display', 'Поняли ли вы тему'));
+  box.appendChild(el('div', 'lead', C.intro));
+
+  C.items.forEach(function (it, i) {
+    var card = el('div', 'card');
+    card.appendChild(el('div', 'qnum', 'Задание ' + (i + 1) + ' · ' + it.points +
+      (it.points === 1 ? ' балл' : ' балла')));
+    card.appendChild(el('div', 'qtext', it.text));
+
+    if (it.kind === 'tf') {
+      [['Верно', true], ['Неверно', false]].forEach(function (pair) {
+        var lab = el('label', 'opt');
+        var r = document.createElement('input');
+        r.type = 'radio'; r.name = 'c' + i;
+        r.addEventListener('change', function () { checkAnswers[i] = pair[1]; });
+        lab.appendChild(r); lab.appendChild(el('span', null, pair[0]));
+        card.appendChild(lab);
+      });
+    } else if (it.kind === 'choice') {
+      it.options.forEach(function (opt, oi) {
+        var lab = el('label', 'opt');
+        var r = document.createElement('input');
+        r.type = 'radio'; r.name = 'c' + i;
+        r.addEventListener('change', function () { checkAnswers[i] = oi; });
+        lab.appendChild(r); lab.appendChild(el('span', null, opt));
+        card.appendChild(lab);
+      });
+    } else if (it.kind === 'gap') {
+      var inp = document.createElement('input');
+      inp.type = 'text'; inp.placeholder = 'Ваш ответ'; inp.className = 'mono';
+      inp.addEventListener('input', function () { checkAnswers[i] = inp.value; });
+      card.appendChild(inp);
+    } else if (it.kind === 'match') {
+      checkAnswers[i] = checkAnswers[i] || {};
+      it.left.forEach(function (lft, li) {
+        var row = el('div', 'matchrow');
+        row.appendChild(el('code', 'matchleft', lft));
+        var sel = document.createElement('select');
+        sel.appendChild(el('option', null, '— выберите —'));
+        it.right.forEach(function (rt, ri) {
+          var o = el('option', null, rt);
+          o.value = String(ri);
+          sel.appendChild(o);
+        });
+        sel.addEventListener('change', function () {
+          checkAnswers[i][li] = sel.value === '' ? -1 : Number(sel.value);
+        });
+        row.appendChild(sel);
+        card.appendChild(row);
+      });
+    }
+    box.appendChild(card);
+  });
+
+  var send = el('button', 'action', 'Сдать проверку');
+  send.id = 'check-send';
+  send.addEventListener('click', function () {
+    if (!needName()) return;
+    send.disabled = true; send.textContent = 'Отправляем…';
+    google.script.run
+      .withSuccessHandler(function (res) {
+        showStageResult('check-result', res, 'Проверка понимания');
+        send.style.display = 'none';
+      })
+      .withFailureHandler(function (err) {
+        send.disabled = false; send.textContent = 'Сдать проверку';
+        banner('Не отправилось: ' + ((err && err.message) || err), 'err');
+      })
+      .submitStage({ uid: uid(), klass: chosen.klass, name: chosen.name,
+                     stage: 'check', answers: checkAnswers });
+  });
+  box.appendChild(send);
+  var slot = el('div');
+  slot.id = 'check-result';
+  box.appendChild(slot);
+}
+
+/* ---------- этап 5: практическая работа ---------- */
+var workAnswers = {};
+function renderWork() {
+  var box = document.getElementById('screen-work');
+  if (box.childNodes.length || !DATA || !DATA.lesson) return;
+  var W = DATA.lesson.work;
+
+  box.appendChild(el('div', 'eyebrow', 'Этап 5 · практическая работа'));
+  box.appendChild(el('div', 'display', 'Практическая работа'));
+  box.appendChild(el('div', 'lead', W.intro));
+
+  W.tasks.forEach(function (t, i) {
+    var card = el('div', 'card');
+    card.appendChild(el('div', 'qnum', 'Задание ' + (i + 1) + ' · ' + t.points + ' балла'));
+    card.appendChild(el('div', 'qtext', t.text));
+    var inp = document.createElement('input');
+    inp.type = 'text'; inp.placeholder = 'Напишите ответ'; inp.className = 'mono';
+    inp.addEventListener('input', function () { workAnswers[i] = inp.value; });
+    card.appendChild(inp);
+    box.appendChild(card);
+  });
+
+  var send = el('button', 'action', 'Сдать работу');
+  send.id = 'work-send';
+  send.addEventListener('click', function () {
+    if (!needName()) return;
+    send.disabled = true; send.textContent = 'Отправляем…';
+    google.script.run
+      .withSuccessHandler(function (res) {
+        showStageResult('work-result', res, 'Практическая работа');
+        send.style.display = 'none';
+      })
+      .withFailureHandler(function (err) {
+        send.disabled = false; send.textContent = 'Сдать работу';
+        banner('Не отправилось: ' + ((err && err.message) || err), 'err');
+      })
+      .submitStage({ uid: uid(), klass: chosen.klass, name: chosen.name,
+                     stage: 'work', answers: workAnswers });
+  });
+  box.appendChild(send);
+  var slot = el('div');
+  slot.id = 'work-result';
+  box.appendChild(slot);
+}
+
+/** Итог этапа с разбором. */
+function showStageResult(slotId, res, title) {
+  var slot = document.getElementById(slotId);
+  slot.textContent = '';
+  var card = el('div', 'card');
+  card.appendChild(el('div', 'eyebrow', title));
+  card.appendChild(el('div', 'display', res.score + ' / ' + res.total));
+  (res.detail || []).forEach(function (d) {
+    var row = el('div', 'fb ' + (d.got === d.max ? 'ok' : 'bad'));
+    row.appendChild(el('div', 'qnum', 'Задание ' + d.n + ' — ' + d.got + ' из ' + d.max));
+    if (d.given !== undefined && d.given !== '') {
+      row.appendChild(el('div', 'ans', 'Вы написали: ' + d.given));
+    }
+    row.appendChild(el('div', 'note', d.note));
+    card.appendChild(row);
+  });
+  slot.appendChild(card);
+  slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ---------- этап 6: рефлексия ---------- */
+function renderReflect() {
+  var box = document.getElementById('screen-reflect');
+  if (box.childNodes.length || !DATA || !DATA.lesson) return;
+  var R = DATA.lesson.reflection;
+  var picked = '';
+
+  box.appendChild(el('div', 'eyebrow', 'Этап 6 · рефлексия'));
+  box.appendChild(el('div', 'display', 'Как прошёл урок'));
+  box.appendChild(el('div', 'lead',
+    'Это не оценивается. Отвечайте честно — так учитель поймёт, что разобрать ещё раз.'));
+
+  var card = el('div', 'card');
+  card.appendChild(el('div', 'qtext', R.question));
+  R.options.forEach(function (opt) {
+    var lab = el('label', 'opt');
+    var r = document.createElement('input');
+    r.type = 'radio'; r.name = 'refl';
+    r.addEventListener('change', function () { picked = opt; });
+    lab.appendChild(r); lab.appendChild(el('span', null, opt));
+    card.appendChild(lab);
+  });
+  box.appendChild(card);
+
+  var open = el('div', 'card');
+  open.appendChild(el('div', 'qtext', R.open));
+  var area = document.createElement('textarea');
+  open.appendChild(area);
+  box.appendChild(open);
+
+  var send = el('button', 'action', 'Отправить');
+  send.addEventListener('click', function () {
+    if (!needName()) return;
+    if (!picked) { banner('Выберите один из вариантов.', 'err'); return; }
+    send.disabled = true; send.textContent = 'Отправляем…';
+    google.script.run
+      .withSuccessHandler(function () {
+        send.style.display = 'none';
+        box.appendChild(el('div', 'msg ok', 'Спасибо, ответ записан.'));
+      })
+      .withFailureHandler(function (err) {
+        send.disabled = false; send.textContent = 'Отправить';
+        banner('Не отправилось: ' + ((err && err.message) || err), 'err');
+      })
+      .submitStage({ uid: uid(), klass: chosen.klass, name: chosen.name,
+                     stage: 'reflection', choice: picked, text: area.value });
+  });
+  box.appendChild(send);
+}
+
+/* ---------- этап 7: домашнее задание ---------- */
+function renderHome() {
+  var box = document.getElementById('screen-home');
+  if (box.childNodes.length || !DATA || !DATA.lesson) return;
+  var H = DATA.lesson.homework;
+
+  box.appendChild(el('div', 'eyebrow', 'Этап 7 · домашнее задание'));
+  box.appendChild(el('div', 'display', 'Домашнее задание'));
+  box.appendChild(el('div', 'lead', H.intro));
+
+  H.tasks.forEach(function (t, i) {
+    var card = el('div', 'card');
+    var row = el('div', 'rule');
+    row.appendChild(el('div', 'n', String(i + 1)));
+    row.appendChild(el('div', null, t));
+    card.appendChild(row);
+    box.appendChild(card);
+  });
 }
 
 /* ---------- результат ---------- */

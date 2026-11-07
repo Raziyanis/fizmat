@@ -18,13 +18,16 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v16 · 7 ноября';
+var APP_VERSION = 'v18 · 7 ноября';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
 var SHEET_RESULTS = 'Результаты';
 var SHEET_DIALOG = 'Диалог';
 var SHEET_NOTIFY = 'Уведомления';
+var SHEET_STAGES = 'Этапы';
+var PROP_DIGEST = 'LAST_DIGEST_AT';
+var PROP_TOKEN = 'TEACHER_TOKEN';
 
 /** Сколько попыток подряд разрешено одному ученику. */
 var MAX_ATTEMPTS = 3;
@@ -249,13 +252,65 @@ var LESSON = {
     { wrong: 't.append(4)', why: "AttributeError: 'tuple' object has no attribute 'append'. У кортежа нет методов, которые его меняют" },
     { wrong: 'Кортеж нельзя изменить = переменную нельзя переприсвоить', why: 't = (3, 4) после t = (1, 2) работает: это новый кортеж, а не изменение старого' }
   ],
-  practice: [
-    'Создайте кортеж из трёх любимых чисел и выведите второй элемент.',
-    'Проверьте в Python, что выведут len((7,)) и len((7)). Объясните разницу.',
-    'Дан t = (4, 8, 4, 1). Не превращая в список, выведите, сколько раз встречается 4 и на каком месте стоит 8.',
-    'Дан список s = [5, 2, 9]. Отсортируйте его и получите из него кортеж.',
-    'Запишите координаты трёх точек тремя кортежами и выведите сумму всех x.'
-  ]
+  check: {
+    total: 10,
+    intro: 'Короткая проверка: поняли ли вы новую тему. Задания разного вида, всего 10 баллов.',
+    items: [
+      { kind: 'tf', points: 1, text: 'Кортеж можно изменить после создания.', answer: false,
+        note: 'Нельзя. Попытка записать новое значение даёт TypeError.' },
+      { kind: 'tf', points: 1, text: 'У кортежа есть методы count и index.', answer: true,
+        note: 'Именно эти два и остались: они ничего не меняют.' },
+      { kind: 'tf', points: 1, text: '(5) — это кортеж из одного элемента.', answer: false,
+        note: '(5) — это число. Кортеж из одного элемента пишут с запятой: (5,).' },
+      { kind: 'gap', points: 1, text: 'Допишите, чтобы получился кортеж из одного элемента: t = (7 ___ )',
+        accept: [','], note: 'Кортеж делает запятая: (7,).' },
+      { kind: 'gap', points: 1, text: 'Сколько методов у кортежа? Напишите числом.',
+        accept: ['2', 'два'], note: 'Два: count и index.' },
+      { kind: 'choice', points: 1, text: 'Что выведет print(len((1, 2, 3)))?',
+        options: ['2', '3', '4', 'Ошибка'], answer: 1, note: 'В кортеже три элемента.' },
+      { kind: 'choice', points: 1, text: 'Какой метод у кортежа ЕСТЬ?',
+        options: ['append', 'sort', 'index', 'clear'], answer: 2,
+        note: 'Остальные три меняли бы кортеж, а он не меняется.' },
+      { kind: 'match', points: 3, text: 'Сопоставьте запись и то, что она делает.',
+        left: ['t.count(x)', 't.index(x)', 'tuple(s)'],
+        right: ['сколько раз x встречается в t', 'на каком месте стоит x', 'превращает список s в кортеж'],
+        note: 'count считает, index показывает место, tuple превращает список в кортеж.' }
+    ]
+  },
+
+  work: {
+    total: 10,
+    intro: 'Практическая работа. В каждом задании напишите только выражение или одну строку кода — без print, если не просят. По 2 балла за задание.',
+    tasks: [
+      { points: 2, text: 'Напишите выражение, которое создаёт кортеж из одного числа 7.',
+        accept: ['(7,)', '7,'], note: 'Запятая обязательна: (7,).' },
+      { points: 2, text: 'Дано t = (4, 8, 4, 1). Напишите выражение, которое даёт количество четвёрок.',
+        accept: ['t.count(4)'], note: 't.count(4) вернёт 2.' },
+      { points: 2, text: 'Для того же t напишите выражение, которое даёт место числа 8.',
+        accept: ['t.index(8)'], note: 't.index(8) вернёт 1: отсчёт с нуля.' },
+      { points: 2, text: 'Дан список s = [5, 2, 9]. Напишите выражение, которое превращает его в кортеж.',
+        accept: ['tuple(s)'], note: 'tuple(s) даст (5, 2, 9).' },
+      { points: 2, text: 'Поменяйте местами значения a и b одной строкой, без третьей переменной.',
+        accept: ['a,b=b,a', 'a, b = b, a'], note: 'a, b = b, a — справа собирается кортеж, слева распаковывается.' }
+    ]
+  },
+
+  reflection: {
+    question: 'Как вы поняли новую тему?',
+    options: ['Понял всё, могу объяснить другому', 'Понял, но нужно ещё примеров', 'Почти ничего не понял'],
+    open: 'Что осталось непонятным? Напишите своими словами.'
+  },
+
+  homework: {
+    intro: 'Домашнее задание не отправляется и не оценивается автоматически — приносите в тетради или в файле.',
+    tasks: [
+      'Создайте кортеж из пяти чисел. Выведите первый и последний элементы.',
+      'Дан кортеж оценок t = (5, 4, 5, 3, 5). Найдите, сколько пятёрок и на каком месте стоит тройка.',
+      'Запишите координаты трёх точек тремя кортежами и выведите сумму всех x.',
+      'Дан список s = [7, 1, 4]. Отсортируйте его и получите из него кортеж, не меняя исходный список.',
+      'Объясните письменно в двух предложениях, почему у кортежа нет метода append.'
+    ]
+  }
 };
 
 /* ------------------------------------------------------------------ */
@@ -277,6 +332,8 @@ function setup() {
     ['Время', 'Класс', 'Ученик', 'Задание', 'Автор', 'Текст', 'ID отправки']);
   ensureSheet_(ss, SHEET_NOTIFY,
     ['Время письма', 'Класс', 'Ученик', 'Попытка', 'Отвечено', 'Последний ответ']);
+  ensureSheet_(ss, SHEET_STAGES,
+    ['Время', 'Класс', 'Ученик', 'Этап', 'Балл', 'Максимум', 'Подробности', 'ID отправки']);
 
   var resultsHeader = ['Время', 'Класс', 'Ученик', 'Email', 'Попытка', 'Балл', 'Максимум'];
   for (var i = 0; i < QUESTIONS.length; i++) {
@@ -285,7 +342,7 @@ function setup() {
   resultsHeader.push('ID отправки');
   ensureSheet_(ss, SHEET_RESULTS, resultsHeader);
 
-  var keep = [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY];
+  var keep = [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY, SHEET_STAGES];
   var sheets = ss.getSheets();
   for (var j = 0; j < sheets.length; j++) {
     if (keep.indexOf(sheets[j].getName()) === -1 && sheets[j].getLastRow() === 0) {
@@ -294,6 +351,9 @@ function setup() {
   }
 
   props.setProperty(PROP_TEACHER, Session.getEffectiveUser().getEmail() || '');
+  if (!props.getProperty(PROP_TOKEN)) {
+    props.setProperty(PROP_TOKEN, Utilities.getUuid().replace(/-/g, '').substring(0, 16));
+  }
   // списки классов, если они зашиты в этот же файл
   if (typeof importClasses === 'function') {
     try {
@@ -309,6 +369,8 @@ function setup() {
   Logger.log('Таблица: ' + ss.getUrl());
   Logger.log('Заданий: ' + QUESTIONS.length + ', учеников в списках: ' + countStudents_());
   Logger.log('Страница учителя: та же ссылка /exec — она сама узнает вас по аккаунту.');
+  Logger.log('ТОКЕН ДЛЯ ФАЙЛА УЧИТЕЛЯ: ' + props.getProperty(PROP_TOKEN));
+  Logger.log('Он уже вписан в ваш файл teacher-file.html. Ученикам его не давать.');
   Logger.log('Открывать её можно только из аккаунта ' + props.getProperty(PROP_TEACHER) + '.');
 }
 
@@ -400,8 +462,41 @@ function key_(klass, name) {
  * ?page=student — посмотреть глазами ученика;
  * ?page=teacher — страница учителя (пустит только вас).
  */
+/** Совпадает ли токен из файла учителя с сохранённым. */
+function tokenOk_(token) {
+  var expected = PropertiesService.getScriptProperties().getProperty(PROP_TOKEN);
+  return !!expected && String(token || '') === expected;
+}
+
+/**
+ * Данные для файла учителя, открытого с диска.
+ *
+ * Браузер не даёт локальной странице прочитать обычный ответ чужого
+ * сервера, поэтому отдаём ответ как JavaScript: файл подключает его
+ * тегом <script> и получает данные через функцию обратного вызова.
+ */
+function serveData_(params) {
+  var cb = String(params.callback || 'callback').replace(/[^A-Za-z0-9_$]/g, '');
+  var payload;
+  if (!tokenOk_(params.key)) {
+    payload = { error: 'Неверный токен. Пересоберите файл учителя.' };
+  } else {
+    try {
+      payload = resultsForTeacher_();
+    } catch (err) {
+      payload = { error: err.message };
+    }
+  }
+  return ContentService
+    .createTextOutput(cb + '(' + JSON.stringify(payload) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
 function doGet(e) {
-  var page = (e && e.parameter && e.parameter.page) || '';
+  var params = (e && e.parameter) || {};
+  if (params.data === 'results') return serveData_(params);
+
+  var page = params.page || '';
   if (!page) page = isTeacher_() ? 'teacher' : 'student';
   var file = page === 'teacher' ? 'teacher' : 'student';
   return openPage_(file)
@@ -452,6 +547,24 @@ function doPost(e) {
   var out = { ok: false };
   try {
     var p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+
+    // запись из файла учителя: вопрос ученику
+    if (p.type === 'ask') {
+      if (!tokenOk_(p.token)) throw new Error('Неверный токен.');
+      appendMessage_(p.klass, p.name, p.qid, AUTHOR_TEACHER, p.text, p.uid);
+      out.ok = true;
+      return ContentService.createTextOutput(JSON.stringify(out))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // работа ученика, этапы 3–5
+    if (p.type === 'stage') {
+      var r = submitStage(p);
+      out.ok = true; out.score = r.score; out.total = r.total;
+      return ContentService.createTextOutput(JSON.stringify(out))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     var klass = clean_(p.klass).substring(0, 20);
     var name = clean_(p.name).substring(0, 80);
     if (!name) throw new Error('Не указана фамилия.');
@@ -771,6 +884,11 @@ function getResults() {
     throw new Error('Эта страница только для учителя. Войдите в тот аккаунт Google, ' +
                     'под которым вы настраивали тест.');
   }
+  return resultsForTeacher_();
+}
+
+/** Вся сводка для учителя. Доступ проверяется выше по вызову. */
+function resultsForTeacher_() {
 
   var expected = [];
   try { expected = readClasses_(); } catch (err) { expected = []; }
@@ -902,6 +1020,7 @@ function getResults() {
   return {
     version: APP_VERSION,
     roster: roster,
+    stages: stageResults_(),
     students: students,
     perQuestion: perQuestion,
     dialog: dialog,
@@ -937,6 +1056,182 @@ function missingStudents_(expected, students) {
   return out;
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Этапы 3–5: понимание, практическая работа, рефлексия                */
+/* ------------------------------------------------------------------ */
+
+var STAGE_NAMES = { check: 'Проверка понимания', work: 'Практическая работа', reflection: 'Рефлексия' };
+
+/** Приводит ответ к виду, в котором его можно сравнивать. */
+function norm_(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, '').trim();
+}
+
+function accepted_(given, list) {
+  var g = norm_(given);
+  if (!g) return false;
+  for (var i = 0; i < list.length; i++) {
+    if (norm_(list[i]) === g) return true;
+  }
+  return false;
+}
+
+/** Проверяет этап 3. answers: { '0': ..., '1': ... } по номеру задания. */
+function gradeCheck_(answers) {
+  var items = LESSON.check.items, score = 0, detail = [];
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i], given = answers[String(i)], got = 0;
+
+    if (it.kind === 'tf') {
+      if (typeof given === 'boolean' && given === it.answer) got = it.points;
+    } else if (it.kind === 'choice') {
+      if (given === it.answer) got = it.points;
+    } else if (it.kind === 'gap') {
+      if (accepted_(given, it.accept)) got = it.points;
+    } else if (it.kind === 'match') {
+      var pairs = given || {};
+      for (var k = 0; k < it.left.length; k++) {
+        if (Number(pairs[String(k)]) === k) got++;      // верная пара стоит на своём месте
+      }
+    }
+    score += got;
+    detail.push({ n: i + 1, got: got, max: it.points, note: it.note });
+  }
+  return { score: score, total: LESSON.check.total, detail: detail };
+}
+
+/** Проверяет этап 4. */
+function gradeWork_(answers) {
+  var tasks = LESSON.work.tasks, score = 0, detail = [];
+  for (var i = 0; i < tasks.length; i++) {
+    var t = tasks[i], given = answers[String(i)];
+    var ok = accepted_(given, t.accept);
+    if (ok) score += t.points;
+    detail.push({ n: i + 1, got: ok ? t.points : 0, max: t.points,
+                  given: String(given || '').substring(0, 120), note: t.note });
+  }
+  return { score: score, total: LESSON.work.total, detail: detail };
+}
+
+/**
+ * Приём этапа от ученика.
+ * p = { uid, klass, name, stage: 'check'|'work'|'reflection', answers, choice, text }
+ */
+function submitStage(p) {
+  var klass = clean_(p && p.klass).substring(0, 20);
+  var name = clean_(p && p.name).substring(0, 80);
+  if (!name) throw new Error('Не выбрана фамилия.');
+
+  var stage = String((p && p.stage) || '');
+  if (!STAGE_NAMES[stage]) throw new Error('Неизвестный этап.');
+
+  var uid = String((p && p.uid) || '').trim().substring(0, 50);
+  var answers = (p && p.answers) || {};
+  var result, details;
+
+  if (stage === 'check') {
+    result = gradeCheck_(answers);
+    details = result.detail.map(function (d) { return d.n + ':' + d.got; }).join(' ');
+  } else if (stage === 'work') {
+    result = gradeWork_(answers);
+    details = result.detail.map(function (d) { return d.n + ':' + d.got; }).join(' ');
+  } else {
+    var choice = String((p && p.choice) || '');
+    var text = String((p && p.text) || '').substring(0, 1000);
+    result = { score: '', total: '', detail: [], choice: choice, text: text };
+    details = choice + (text ? ' — ' + text : '');
+  }
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var sheet = sheet_(SHEET_STAGES);
+    if (!uid || !hasUid_(sheet, 8, uid)) {
+      sheet.appendRow([new Date(), klass, name, STAGE_NAMES[stage],
+                       result.score, result.total, details, uid]);
+    }
+  } finally {
+    lock.releaseLock();
+  }
+  return result;
+}
+
+/** Что сдал каждый ученик по этапам 3–5. */
+function stageResults_() {
+  var out = {};
+  rows_(SHEET_STAGES, 8).forEach(function (row) {
+    var name = clean_(row[2]);
+    if (!name) return;
+    var k = key_(row[1], name);
+    out[k] = out[k] || { klass: clean_(row[1]), name: name };
+    var stage = String(row[3] || '');
+    if (stage === STAGE_NAMES.check) out[k].check = { score: row[4], total: row[5] };
+    else if (stage === STAGE_NAMES.work) out[k].work = { score: row[4], total: row[5] };
+    else if (stage === STAGE_NAMES.reflection) out[k].reflection = String(row[6] || '');
+  });
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
+/* Письмо-сводка                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Одно письмо на всё, что пришло с прошлой проверки: сданные работы
+ * по повторению и этапы 3–5. Домашнее задание не собирается и в письмо
+ * не попадает. Письма идут сводкой, а не по одному на ученика:
+ * у обычного аккаунта Gmail дневной лимит около 100 писем.
+ */
+function sendDigest() {
+  var props = PropertiesService.getScriptProperties();
+  var to = props.getProperty(PROP_TEACHER);
+  if (!to) return 0;
+
+  var since = Number(props.getProperty(PROP_DIGEST) || 0);
+  var now = new Date().getTime();
+  var lines = [], count = 0;
+
+  var width = 7 + QUESTIONS.length + 1;
+  rows_(SHEET_RESULTS, width).forEach(function (row) {
+    var t = dateOf_(row[0]);
+    if (!t || t.getTime() <= since) return;
+    lines.push('• ' + clean_(row[1]) + ', ' + clean_(row[2]) +
+               ' — повторение: ' + row[5] + ' из ' + row[6]);
+    count++;
+  });
+
+  rows_(SHEET_STAGES, 8).forEach(function (row) {
+    var t = dateOf_(row[0]);
+    if (!t || t.getTime() <= since) return;
+    var stage = String(row[3] || '');
+    var score = (row[4] === '' || row[4] === null)
+      ? String(row[6] || '')
+      : row[4] + ' из ' + row[5];
+    lines.push('• ' + clean_(row[1]) + ', ' + clean_(row[2]) + ' — ' + stage + ': ' + score);
+    count++;
+  });
+
+  props.setProperty(PROP_DIGEST, String(now));
+  if (!count) return 0;
+
+  lines.sort();
+  MailApp.sendEmail(to,
+    'Урок «' + LESSON.title + '»: новых работ — ' + count,
+    'С прошлой проверки пришло:\n\n' + lines.join('\n') +
+    '\n\nДомашнее задание не собирается.\n\nТаблица: ' +
+    (openSpreadsheet_() ? openSpreadsheet_().getUrl() : '') + '\n');
+  Logger.log('Сводка отправлена на ' + to + ', строк: ' + count);
+  return count;
+}
+
+/** Обе проверки за один запуск по расписанию. */
+function checkAndNotify() {
+  try { checkAbandoned(); } catch (err) { Logger.log('checkAbandoned: ' + err.message); }
+  try { sendDigest(); } catch (err) { Logger.log('sendDigest: ' + err.message); }
+}
+
 /* ------------------------------------------------------------------ */
 /* Письмо учителю, если ученик бросил тест                             */
 /* ------------------------------------------------------------------ */
@@ -946,11 +1241,12 @@ function installAbandonCheck_() {
   try {
     var triggers = ScriptApp.getProjectTriggers();
     for (var i = 0; i < triggers.length; i++) {
-      if (triggers[i].getHandlerFunction() === 'checkAbandoned') {
+      if (triggers[i].getHandlerFunction() === 'checkAbandoned' ||
+          triggers[i].getHandlerFunction() === 'checkAndNotify') {
         ScriptApp.deleteTrigger(triggers[i]);
       }
     }
-    ScriptApp.newTrigger('checkAbandoned')
+    ScriptApp.newTrigger('checkAndNotify')
       .timeBased()
       .everyMinutes(CHECK_EVERY_MINUTES)
       .create();
@@ -966,7 +1262,8 @@ function stopAbandonCheck() {
   var triggers = ScriptApp.getProjectTriggers();
   var n = 0;
   for (var i = 0; i < triggers.length; i++) {
-    if (triggers[i].getHandlerFunction() === 'checkAbandoned') {
+    if (triggers[i].getHandlerFunction() === 'checkAbandoned' ||
+        triggers[i].getHandlerFunction() === 'checkAndNotify') {
       ScriptApp.deleteTrigger(triggers[i]);
       n++;
     }
@@ -1086,7 +1383,7 @@ function dateOf_(value) {
 
 /** Очистить ответы и переписку перед новым уроком. Списки классов остаются. */
 function clearResults() {
-  [SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY].forEach(function (name) {
+  [SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY, SHEET_STAGES].forEach(function (name) {
     var sheet = sheet_(name);
     if (sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
   });
@@ -1121,7 +1418,7 @@ function diagnose() {
     }
   });
 
-  [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY].forEach(function (name) {
+  [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY, SHEET_STAGES].forEach(function (name) {
     try {
       Logger.log('Лист «' + name + '»: строк с данными ' + Math.max(0, sheet_(name).getLastRow() - 1));
     } catch (err) {
@@ -1134,7 +1431,7 @@ function diagnose() {
   try {
     var armed = 0;
     ScriptApp.getProjectTriggers().forEach(function (t) {
-      if (t.getHandlerFunction() === 'checkAbandoned') armed++;
+      if (t.getHandlerFunction() === 'checkAndNotify') armed++;
     });
     Logger.log(armed
       ? 'Проверка брошенных работ: включена (каждые ' + CHECK_EVERY_MINUTES +
