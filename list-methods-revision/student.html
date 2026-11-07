@@ -153,6 +153,22 @@
   .codearea:focus { outline: 2px solid var(--accent); }
   .asklabel { font: 700 12px/1 inherit; letter-spacing: .12em; text-transform: uppercase;
               color: var(--muted); margin-bottom: 10px; }
+  .refcard { border-left: 4px solid var(--accent); }
+  .refname { font-size: 22px; font-weight: 800; margin: 4px 0 8px; }
+  .refsimple { font-size: 16px; color: var(--text); background: var(--accent-soft);
+               border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+  .reflabel { font: 700 12px/1 inherit; letter-spacing: .1em; text-transform: uppercase;
+              color: var(--muted); margin: 14px 0 6px; }
+  .refsyntax { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 15px; color: var(--accent); }
+  .reflist { margin: 0; padding-left: 20px; }
+  .reflist li { margin-bottom: 5px; }
+  .refremember { margin-top: 14px; padding: 10px 12px; border-radius: 8px;
+                 background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  table.cmp { border-collapse: collapse; width: 100%; font-size: 14px; }
+  table.cmp th, table.cmp td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+  table.cmp th { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+  .cmp-name { font-weight: 600; white-space: nowrap; }
+  .cmp-code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
   .askbig { font-size: 20px; font-weight: 600; line-height: 1.4; margin: 10px 0 14px; }
   .askdone { font-size: 15px; color: var(--muted); font-style: italic; margin-bottom: 12px; }
   .qnav { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -281,7 +297,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v33 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v37 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -459,6 +475,93 @@ function attachEditor(card, code) {
   card.appendChild(wrap);
 }
 
+/** Кнопки «Назад» и «Дальше» под слайдом. */
+function addSlideNav(box, blocks) {
+  var nav = el('div', 'qnav');
+  var prev = el('button', 'quiet', '← Назад');
+  prev.disabled = SLIDE === 0;
+  prev.addEventListener('click', function () { SLIDE--; SLIDE_OPEN = false; renderLesson(); });
+  nav.appendChild(prev);
+  var next = el('button', 'quiet', SLIDE + 1 < blocks.length ? 'Дальше →' : 'К проверке понимания →');
+  next.addEventListener('click', function () {
+    if (SLIDE + 1 < blocks.length) { SLIDE++; SLIDE_OPEN = false; renderLesson(); }
+    else setStage('check');
+  });
+  nav.appendChild(next);
+  box.appendChild(nav);
+}
+
+/** Девятый шаг: справочник по всей теме с примерами. */
+function renderReference(box, L) {
+  var R = L.reference;
+  if (!R) return;
+
+  R.cards.forEach(function (c, i) {
+    var card = el('div', 'card refcard');
+    card.appendChild(el('div', 'qnum', 'Карточка ' + (i + 1) + ' из ' + R.cards.length));
+    card.appendChild(el('div', 'refname', c.name));
+    card.appendChild(el('div', 'refsimple', c.simple));
+
+    card.appendChild(el('div', 'reflabel', 'Определение'));
+    card.appendChild(el('div', null, c.define));
+
+    card.appendChild(el('div', 'reflabel', 'Как записать'));
+    card.appendChild(el('div', 'refsyntax', c.syntax));
+
+    if (c.uses && c.uses.length) {
+      card.appendChild(el('div', 'reflabel', 'Где применяется'));
+      var ul = document.createElement('ul');
+      ul.className = 'reflist';
+      c.uses.forEach(function (u) { ul.appendChild(el('li', null, u)); });
+      card.appendChild(ul);
+    }
+
+    card.appendChild(el('div', 'reflabel', 'Пример'));
+    card.appendChild(el('pre', null, c.code));
+    card.appendChild(el('div', 'out', c.out));
+    var edit = el('button', 'quiet', 'Открыть в редакторе');
+    edit.addEventListener('click', function () {
+      edit.style.display = 'none';
+      if (typeof EDITOR_OPEN !== 'undefined') EDITOR_OPEN = true;
+      attachEditor(card, c.code);
+    });
+    card.appendChild(edit);
+
+    if (c.important && c.important.length) {
+      card.appendChild(el('div', 'reflabel', 'Важно знать'));
+      var ul2 = document.createElement('ul');
+      ul2.className = 'reflist';
+      c.important.forEach(function (u) { ul2.appendChild(el('li', null, u)); });
+      card.appendChild(ul2);
+    }
+
+    card.appendChild(el('div', 'refremember', 'Запомни: ' + c.remember));
+    box.appendChild(card);
+  });
+
+  if (R.compare) {
+    var cmp = el('div', 'card');
+    cmp.appendChild(el('div', 'refname', 'Список или кортеж: сравнение'));
+    var table = document.createElement('table');
+    table.className = 'cmp';
+    var hr = document.createElement('tr');
+    R.compare.head.forEach(function (h) { hr.appendChild(el('th', null, h)); });
+    var th = document.createElement('thead'); th.appendChild(hr); table.appendChild(th);
+    var tb = document.createElement('tbody');
+    R.compare.rows.forEach(function (row) {
+      var tr = document.createElement('tr');
+      row.forEach(function (cell, ci) {
+        tr.appendChild(el('td', ci === 0 ? 'cmp-name' : 'cmp-code', cell));
+      });
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    var sc = el('div', 'scroll'); sc.appendChild(table);
+    cmp.appendChild(sc);
+    box.appendChild(cmp);
+  }
+}
+
 /* ---------- этап 3: объяснение слайдами ---------- */
 var SLIDE = 0;
 var SLIDE_OPEN = false;      // открыт ли ответ на текущем слайде
@@ -483,6 +586,16 @@ function renderLesson() {
     strip.appendChild(chip);
   });
   box.appendChild(strip);
+
+  if (b.ref) {
+    var head = el('div', 'card');
+    head.appendChild(el('div', 'display', b.heading));
+    head.appendChild(el('div', null, b.text));
+    box.appendChild(head);
+    renderReference(box, L);
+    addSlideNav(box, blocks);
+    return;
+  }
 
   var card = el('div', 'card');
 
