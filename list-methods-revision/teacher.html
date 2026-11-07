@@ -347,7 +347,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v39 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v40 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -807,6 +807,7 @@ function stageTasks(which, L) {
   box.appendChild(el('div', 'qnum', 'Задание ' + (i + 1) + ' из ' + list.length +
     ' · ' + it.points + (it.points === 1 ? ' балл' : ' балла')));
   box.appendChild(el('div', 'qtext', it.text));
+  if (it.code) box.appendChild(el('pre', null, it.code));
 
   if (it.kind === 'tf') {
     ['Верно', 'Неверно'].forEach(function (lbl, oi) {
