@@ -61,6 +61,13 @@
   .optline .num { width: 34px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
   .optline.right .txt { color: var(--ok); font-weight: 700; }
   .group { margin-top: 14px; }
+  .klass-head { font-size: 13px; font-weight: 700; color: var(--accent); margin: 10px 0 4px; }
+  .klass-head:first-of-type { margin-top: 4px; }
+  .byclass { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+  .byclass-item b { color: var(--text); font-weight: 600; }
+  .byclass .y { color: var(--ok); font-weight: 700; }
+  .byclass .n { color: var(--bad); font-weight: 700; }
+  .right-names b { color: var(--text); }
   .group h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); margin: 0 0 8px; }
   .person { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .person:last-child { border-bottom: 0; }
@@ -376,6 +383,32 @@ function questionCard(q, dialog) {
   bar.appendChild(fill);
   card.appendChild(bar);
 
+  // одной строкой: как ответил каждый класс
+  if (!FILTER && (q.right.length || q.wrong.length)) {
+    var perClass = {};
+    q.right.forEach(function (p) {
+      perClass[p.klass] = perClass[p.klass] || { y: 0, n: 0 };
+      perClass[p.klass].y++;
+    });
+    q.wrong.forEach(function (p) {
+      perClass[p.klass] = perClass[p.klass] || { y: 0, n: 0 };
+      perClass[p.klass].n++;
+    });
+    var keys = Object.keys(perClass).sort(function (a, b) { return a.localeCompare(b, 'ru'); });
+    if (keys.length) {
+      var line = el('div', 'byclass');
+      keys.forEach(function (k) {
+        var chunk = el('span', 'byclass-item');
+        chunk.appendChild(el('b', null, k + ': '));
+        chunk.appendChild(el('span', 'y', String(perClass[k].y)));
+        chunk.appendChild(el('span', null, ' / '));
+        chunk.appendChild(el('span', 'n', String(perClass[k].n)));
+        line.appendChild(chunk);
+      });
+      card.appendChild(line);
+    }
+  }
+
   if (!OPEN[q.id]) return card;
 
   var body = el('div', 'q-body');
@@ -404,8 +437,13 @@ function questionCard(q, dialog) {
 
   if (q.right.length) {
     var g = el('div', 'group');
-    g.appendChild(el('h3', null, 'Ответили верно'));
-    g.appendChild(el('div', 'right-names', q.right.map(function (p) { return p.name; }).join(', ')));
+    g.appendChild(el('h3', null, 'Ответили верно — ' + q.right.length));
+    byClass_(q.right).forEach(function (grp) {
+      var line = el('div', 'right-names');
+      line.appendChild(el('b', null, grp.klass + ' — ' + grp.people.length + ': '));
+      line.appendChild(el('span', null, grp.people.map(function (p) { return p.name; }).join(', ')));
+      g.appendChild(line);
+    });
     body.appendChild(g);
   }
 
@@ -519,6 +557,17 @@ function pickedPanel(q) {
   return box;
 }
 
+/** Разбивает список учеников по классам, сохраняя алфавитный порядок классов. */
+function byClass_(people) {
+  var map = {}, order = [];
+  people.forEach(function (p) {
+    if (!map[p.klass]) { map[p.klass] = []; order.push(p.klass); }
+    map[p.klass].push(p);
+  });
+  order.sort(function (a, b) { return String(a).localeCompare(String(b), 'ru'); });
+  return order.map(function (k) { return { klass: k, people: map[k] }; });
+}
+
 function peopleGroup(title, people, q, isWrong) {
   var g = el('div', 'group');
   g.appendChild(el('h3', null, title + ' — ' + people.length));
@@ -526,23 +575,26 @@ function peopleGroup(title, people, q, isWrong) {
     g.appendChild(el('div', 'empty', '—'));
     return g;
   }
-  people.forEach(function (p) {
-    var row = el('div', 'person');
-    row.appendChild(el('span', null, p.name));
-    row.appendChild(el('span', 'kl', p.klass));
-    if (isWrong && p.chosen) row.appendChild(el('span', 'chose', 'выбрал: ' + p.chosen));
 
-    var askId = 'list:' + q.id + '|' + p.klass + '|' + p.name;
-    var ask = el('button', 'ask', 'Спросить');
-    ask.addEventListener('click', function () {
-      ASKING = (ASKING === askId) ? null : askId;
-      DRAFT = '';
-      draw();
+  byClass_(people).forEach(function (grp) {
+    g.appendChild(el('div', 'klass-head', grp.klass + ' — ' + grp.people.length));
+    grp.people.forEach(function (p) {
+      var row = el('div', 'person');
+      row.appendChild(el('span', null, p.name));
+      if (isWrong && p.chosen) row.appendChild(el('span', 'chose', 'выбрал: ' + p.chosen));
+
+      var askId = 'list:' + q.id + '|' + p.klass + '|' + p.name;
+      var ask = el('button', 'ask', 'Спросить');
+      ask.addEventListener('click', function () {
+        ASKING = (ASKING === askId) ? null : askId;
+        DRAFT = '';
+        draw();
+      });
+      row.appendChild(ask);
+      g.appendChild(row);
+
+      if (ASKING === askId) g.appendChild(askBox(q, p, isWrong, askId));
     });
-    row.appendChild(ask);
-    g.appendChild(row);
-
-    if (ASKING === askId) g.appendChild(askBox(q, p, isWrong, askId));
   });
   return g;
 }
