@@ -102,6 +102,7 @@
   .mark.n { color: var(--bad); }
   .mark.q { color: var(--line); }
   .empty { color: var(--muted); }
+  .version { text-align: center; color: var(--muted); font-size: 12px; padding: 8px 0 16px; }
   .sub-hint { font-size: 13px; color: var(--muted); margin: -4px 0 10px; }
   tr.clickable { cursor: pointer; }
   tr.clickable:hover td { background: var(--bg); }
@@ -175,6 +176,7 @@
     <div style="margin-top:12px"><a id="sheet-link" href="#" target="_blank" rel="noopener" style="display:none">Открыть таблицу</a></div>
   </div>
 
+  <div class="version" id="version"></div>
 </div>
 
 <script>
@@ -259,6 +261,7 @@ function draw() {
   var data = LAST;
   if (!data) return;
   var now = new Date();
+  document.getElementById('version').textContent = data.version || '';
   document.getElementById('status').textContent = 'обновлено в ' +
     ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
 

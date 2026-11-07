@@ -87,6 +87,7 @@
   .tag.bad { background: var(--bad-bg); color: var(--bad); }
   .fb .ans { font: 14px/1.5 "SF Mono", Menlo, Consolas, monospace; margin: 4px 0; }
   .loading { color: var(--muted); text-align: center; padding: 40px 0; }
+  .version { text-align: center; color: var(--muted); font-size: 12px; padding: 20px 0 8px; }
   /* переписка с учителем */
   #chat { border-color: var(--accent); }
   #chat h2 { font-size: 16px; margin: 0 0 10px; }
@@ -164,6 +165,7 @@
     <button class="secondary" id="again">Пройти ещё раз</button>
   </div>
 
+  <div class="version" id="version"></div>
 </div>
 
 <script>
@@ -254,7 +256,9 @@ window.addEventListener('online', function () {
 function start() {
   google.script.run
     .withSuccessHandler(function (data) {
-      DATA = data; banner(''); renderWho(); flushQueue();
+      DATA = data; banner('');
+      document.getElementById('version').textContent = DATA.version || '';
+      renderWho(); flushQueue();
       if (queueRead().length) {
         banner('Есть несохранённые ответы — отправим, когда появится интернет.', 'warn');
       }

@@ -16,6 +16,10 @@
  * Перед раздачей ссылки один раз выполните setup().
  */
 
+/** Версия кода. Видна внизу обеих страниц — так сразу понятно,
+ *  развёрнута ли свежая версия или ссылка отдаёт старую. */
+var APP_VERSION = 'v8 · 7 ноября';
+
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
 var SHEET_RESULTS = 'Результаты';
@@ -226,6 +230,7 @@ function setup() {
 
   installAbandonCheck_();
 
+  Logger.log('Версия кода: ' + APP_VERSION);
   Logger.log('Таблица: ' + ss.getUrl());
   Logger.log('Заданий: ' + QUESTIONS.length + ', учеников в списках: ' + countStudents_());
   Logger.log('Страница учителя: <ссылка веб-приложения>?page=teacher');
@@ -372,6 +377,7 @@ function safeEmail_() {
 function getStudentData() {
   var order = QUESTIONS.slice();
   return {
+    version: APP_VERSION,
     email: safeEmail_(),
     total: QUESTIONS.length,
     classes: readClasses_(),
@@ -747,6 +753,7 @@ function getResults() {
   finished.forEach(function (s) { sum += s.score; });
 
   return {
+    version: APP_VERSION,
     students: students,
     perQuestion: perQuestion,
     dialog: dialog,
@@ -942,6 +949,9 @@ function clearResults() {
 /** Проверка настройки: выполните, если что-то не работает. */
 function diagnose() {
   var props = PropertiesService.getScriptProperties();
+  Logger.log('Версия кода в редакторе: ' + APP_VERSION +
+             ' (на странице внизу должна быть такая же; если другая — ' +
+             'разверните новую версию)');
   Logger.log('ID таблицы: ' + (props.getProperty(PROP_SPREADSHEET) || 'НЕ ЗАДАН — выполните setup()'));
 
   ['student', 'teacher'].forEach(function (name) {
