@@ -69,9 +69,11 @@ const html = `<!DOCTYPE html>
   .pick button{width:auto}
   .names{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
   .names button{width:100%;text-align:left;font-weight:500}
-  .steps{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
-  .steps i{width:22px;height:6px;border-radius:3px;background:var(--line);display:block}
-  .steps i.y{background:var(--ok)} .steps i.n{background:var(--bad)} .steps i.now{background:var(--accent)}
+  .steps{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap}
+  .steps i{min-width:24px;height:22px;border-radius:5px;background:var(--line);color:var(--muted);
+    display:flex;align-items:center;justify-content:center;font:700 12px/1 inherit;font-style:normal;padding:0 4px}
+  .steps i.y{background:var(--ok);color:#fff} .steps i.n{background:var(--bad);color:#fff}
+  .steps i.now{background:var(--accent);color:#fff;box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--accent)}
   .qnum{font-size:13px;color:var(--muted);font-weight:600}
   .qtext{margin:6px 0 10px;font-weight:600;font-size:17px}
   pre{background:#11161d;color:#e8edf3;padding:12px 14px;border-radius:8px;overflow-x:auto;
@@ -271,7 +273,9 @@ function renderSteps(){
   var box=document.getElementById('steps'); box.textContent='';
   QUESTIONS.forEach(function(q,i){
     var c=''; if(q.id in verdicts) c=verdicts[q.id]?'y':'n'; else if(i===step) c='now';
-    box.appendChild(el('i',c));
+    var chip=el('i',c,String(i+1));
+    chip.title='Задание '+(i+1)+' · '+q.topic;
+    box.appendChild(chip);
   });
 }
 function renderStep(){
