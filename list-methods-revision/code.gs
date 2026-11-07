@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v32 · 7 ноября';
+var APP_VERSION = 'v33 · 7 ноября';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
@@ -309,18 +309,93 @@ var LESSON = {
 
   work: {
     total: 10,
-    intro: 'Практическая работа. В каждом задании напишите только выражение или одну строку кода — без print, если не просят. По 2 балла за задание.',
+    fo: true,
+    intro: 'Формативное оценивание (ФО). 10 заданий от простого к сложному, по 1 баллу. ' +
+           'Ответил — сразу видно, верно или нет. Пишите только то, что просят: ' +
+           'ответ программы или одну строку кода.',
     tasks: [
-      { points: 2, text: 'Напишите выражение, которое создаёт кортеж из одного числа 7.',
-        accept: ['(7,)', '7,'], note: 'Запятая обязательна: (7,).' },
-      { points: 2, text: 'Дано t = (4, 8, 4, 1). Напишите выражение, которое даёт количество четвёрок.',
-        accept: ['t.count(4)'], note: 't.count(4) вернёт 2.' },
-      { points: 2, text: 'Для того же t напишите выражение, которое даёт место числа 8.',
-        accept: ['t.index(8)'], note: 't.index(8) вернёт 1: отсчёт с нуля.' },
-      { points: 2, text: 'Дан список s = [5, 2, 9]. Напишите выражение, которое превращает его в кортеж.',
-        accept: ['tuple(s)'], note: 'tuple(s) даст (5, 2, 9).' },
-      { points: 2, text: 'Поменяйте местами значения a и b одной строкой, без третьей переменной.',
-        accept: ['a,b=b,a', 'a, b = b, a'], note: 'a, b = b, a — справа собирается кортеж, слева распаковывается.' }
+      { points: 1, kind: 'predict', skill: 'индексы',
+        text: 'Что выведет программа? Два значения через пробел.',
+        code: 't = (7, 3, 9, 5)\nprint(t[1], t[-1])',
+        accept: ['3 5'],
+        note: 'Счёт с нуля: 7 — 0, 3 — 1, 9 — 2, 5 — 3. t[-1] — последний.' },
+
+      { points: 1, kind: 'predict', skill: 'срез',
+        text: 'Что выведет программа?',
+        code: 'days = ("Пн", "Вт", "Ср", "Чт", "Пт")\nprint(days[1:3])',
+        accept: ["('Вт', 'Ср')", '("Вт", "Ср")'],
+        note: 'Индексы 1 и 2, конец среза не входит. Срез кортежа — тоже кортеж, в круглых скобках.' },
+
+      { points: 1, kind: 'predict', skill: 'count, index',
+        text: 'Что выведет программа? Два значения через пробел.',
+        code: 't = (5, 3, 5, 1, 5)\nprint(t.count(5), t.index(1))',
+        accept: ['3 3'],
+        note: 'count(5) — сколько пятёрок, их три. index(1) — место единицы, счёт с нуля: 3.' },
+
+      { points: 1, kind: 'write', skill: 'in',
+        text: 'Кортеж days = ("Пн", "Вт", "Ср", "Чт", "Пт"). Напишите выражение, которое даёт True, если «Сб» есть в days.',
+        code: '',
+        accept: ['"Сб" in days', "'Сб' in days"],
+        note: 'Оператор in проверяет наличие элемента и даёт True или False. Здесь получится False.' },
+
+      { points: 1, kind: 'predict', skill: '+ и *',
+        text: 'Что выведет программа?',
+        code: 'a = (1, 2)\nb = a + (3,)\nprint(b * 2)',
+        accept: ['(1, 2, 3, 1, 2, 3)'],
+        note: 'a + (3,) даёт (1, 2, 3), умножение на 2 повторяет кортеж целиком.' },
+
+      { points: 1, kind: 'write', skill: 'распаковка',
+        text: 'В кортеже date = (12, 5, 2011) лежат день, месяц и год. Напишите строку, которая разложит их по переменным d, m, y.',
+        code: '',
+        accept: ['d, m, y = date', 'd,m,y=date', '(d, m, y) = date'],
+        note: 'Сколько элементов — столько и переменных. Иначе будет ValueError.' },
+
+      { points: 1, kind: 'write', skill: 'list() и tuple()',
+        text: 'Товары лежат в кортеже products, из него уже сделали список y и заменили y[1]. Напишите строку, которая соберёт кортеж обратно в products.',
+        code: 'y = list(products)\ny[1] = "кефир"\n# ваша строка',
+        accept: ['products = tuple(y)', 'products=tuple(y)'],
+        note: 'Кортеж не меняют — создают новый: tuple(y) собирает кортеж из списка.' },
+
+      { points: 1, kind: 'write', skill: '*rest',
+        text: 'В кортеже scores — результаты участников. Напишите строку, которая положит первый результат в first, а все остальные — в rest.',
+        code: '',
+        accept: ['first, *rest = scores', 'first,*rest=scores'],
+        note: 'Звёздочка собирает оставшиеся элементы в список. Звёздочка может быть только у одной переменной.' },
+
+      { points: 1, kind: 'write', skill: 'добавление',
+        text: 'У кортежа нет метода append. Напишите строку, которая добавит число 16 в конец кортежа t.',
+        code: '',
+        accept: ['t = t + (16,)', 't=t+(16,)', 't += (16,)', 't+=(16,)'],
+        note: 'Старый кортеж не меняется: создаётся новый и записывается в ту же переменную. Запятая в (16,) обязательна.' },
+
+      { points: 1, kind: 'write', skill: 'распаковка точек',
+        text: 'Координаты двух точек уже распакованы: x1, y1 = p1 и x2, y2 = p2. Напишите выражение для расстояния «по клеткам»: |x1 − x2| + |y1 − y2|.',
+        code: '',
+        accept: ['abs(x1 - x2) + abs(y1 - y2)', 'abs(x1-x2)+abs(y1-y2)',
+                 'abs(x1 - x2)+abs(y1 - y2)', 'abs(y1 - y2) + abs(x1 - x2)', 'abs(y1-y2)+abs(x1-x2)'],
+        note: 'abs() берёт модуль разности. Такое расстояние называют манхэттенским — «по клеткам».' }
+    ]
+  },
+
+  decide: {
+    intro: 'Данные меняются — список. Данные постоянны — кортеж. Прочитайте ситуацию и выберите.',
+    items: [
+      { text: 'Дни недели: их состав никогда не меняется.', answer: 'кортеж',
+        note: 'Состав недели не меняется — кортеж защищает его от случайной правки.' },
+      { text: 'Список покупок: в магазине вычёркиваем купленное.', answer: 'список',
+        note: 'Элементы удаляются и добавляются — нужен список.' },
+      { text: 'Координаты точки на плоскости.', answer: 'кортеж',
+        note: 'Пара (x, y) не должна разъезжаться: это одно целое.' },
+      { text: 'Очередь в столовой: люди приходят и уходят.', answer: 'список',
+        note: 'Состав постоянно меняется — список.' },
+      { text: 'Дата рождения: день, месяц, год.', answer: 'кортеж',
+        note: 'Дата рождения не меняется никогда.' },
+      { text: 'Оценки за четверть, к которым добавляются новые.', answer: 'список',
+        note: 'Добавление новых элементов — работа для списка.' },
+      { text: 'Цвет в формате RGB: красный, зелёный и синий.', answer: 'кортеж',
+        note: 'Три числа образуют один цвет и меняются только вместе.' },
+      { text: 'Названия месяцев года.', answer: 'кортеж',
+        note: 'Двенадцать названий, которые не меняются.' }
     ]
   },
 
@@ -1092,7 +1167,8 @@ function missingStudents_(expected, students) {
 /* Этапы 3–5: понимание, практическая работа, рефлексия                */
 /* ------------------------------------------------------------------ */
 
-var STAGE_NAMES = { check: 'Проверка понимания', work: 'Практическая работа', reflection: 'Рефлексия' };
+var STAGE_NAMES = { check: 'Проверка понимания', work: 'Практика (ФО)',
+                    decide: 'Список или кортеж', reflection: 'Рефлексия' };
 
 /** Приводит ответ к виду, в котором его можно сравнивать. */
 function norm_(value) {
@@ -1146,6 +1222,17 @@ function gradeWork_(answers) {
   return { score: score, total: LESSON.work.total, detail: detail };
 }
 
+/** Проверяет этап «Список или кортеж?». */
+function gradeDecide_(answers) {
+  var items = LESSON.decide.items, score = 0, detail = [];
+  for (var i = 0; i < items.length; i++) {
+    var ok = String(answers[String(i)] || '').toLowerCase() === items[i].answer;
+    if (ok) score++;
+    detail.push({ n: i + 1, got: ok ? 1 : 0, max: 1, note: items[i].note });
+  }
+  return { score: score, total: items.length, detail: detail };
+}
+
 /**
  * Приём этапа от ученика.
  * p = { uid, klass, name, stage: 'check'|'work'|'reflection', answers, choice, text }
@@ -1167,6 +1254,9 @@ function submitStage(p) {
     details = result.detail.map(function (d) { return d.n + ':' + d.got; }).join(' ');
   } else if (stage === 'work') {
     result = gradeWork_(answers);
+    details = result.detail.map(function (d) { return d.n + ':' + d.got; }).join(' ');
+  } else if (stage === 'decide') {
+    result = gradeDecide_(answers);
     details = result.detail.map(function (d) { return d.n + ':' + d.got; }).join(' ');
   } else {
     var choice = String((p && p.choice) || '');
@@ -1200,6 +1290,7 @@ function stageResults_() {
     var stage = String(row[3] || '');
     if (stage === STAGE_NAMES.check) out[k].check = { score: row[4], total: row[5] };
     else if (stage === STAGE_NAMES.work) out[k].work = { score: row[4], total: row[5] };
+    else if (stage === STAGE_NAMES.decide) out[k].decide = { score: row[4], total: row[5] };
     else if (stage === STAGE_NAMES.reflection) out[k].reflection = String(row[6] || '');
   });
   return out;

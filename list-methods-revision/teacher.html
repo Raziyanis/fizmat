@@ -247,8 +247,9 @@
       <button class="stage" data-stage="lesson"><span class="num">3</span><span class="lbl">Новая тема</span></button>
       <button class="stage" data-stage="check"><span class="num">4</span><span class="lbl">Понимание</span></button>
       <button class="stage" data-stage="work"><span class="num">5</span><span class="lbl">Практика</span></button>
-      <button class="stage" data-stage="reflect"><span class="num">6</span><span class="lbl">Рефлексия</span></button>
-      <button class="stage" data-stage="home"><span class="num">7</span><span class="lbl">Домашнее</span></button>
+      <button class="stage" data-stage="decide"><span class="num">6</span><span class="lbl">Список/кортеж</span></button>
+      <button class="stage" data-stage="reflect"><span class="num">7</span><span class="lbl">Рефлексия</span></button>
+      <button class="stage" data-stage="home"><span class="num">8</span><span class="lbl">Домашнее</span></button>
     </div>
     <div class="whoami">Экран учителя</div>
   </div>
@@ -271,6 +272,7 @@
   <div id="panel-lesson" style="display:none"></div>
   <div id="panel-check" style="display:none"></div>
   <div id="panel-work" style="display:none"></div>
+  <div id="panel-decide" style="display:none"></div>
   <div id="panel-reflect" style="display:none"></div>
   <div id="panel-home" style="display:none"></div>
 
@@ -323,7 +325,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v32 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v33 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -430,12 +432,13 @@ function inFilter(p) { return !FILTER || p.klass === FILTER; }
 
 /* ---------- этапы на странице учителя ---------- */
 var STAGE = 'test';
-var PANELS = ['topic', 'lesson', 'check', 'work', 'reflect', 'home'];
+var PANELS = ['topic', 'lesson', 'check', 'work', 'decide', 'reflect', 'home'];
 
 function applyStage() {
   document.getElementById('panel-test').style.display = (STAGE === 'test') ? 'block' : 'none';
   document.getElementById('class-filter').style.display =
-    (STAGE === 'test' || STAGE === 'check' || STAGE === 'work' || STAGE === 'reflect') ? 'flex' : 'none';
+    (STAGE === 'test' || STAGE === 'check' || STAGE === 'work' ||
+     STAGE === 'decide' || STAGE === 'reflect') ? 'flex' : 'none';
   PANELS.forEach(function (n) {
     document.getElementById('panel-' + n).style.display = (STAGE === n) ? 'block' : 'none';
   });
@@ -454,7 +457,8 @@ function drawStage() {
   if (STAGE === 'topic') drawTopic();
   if (STAGE === 'lesson') drawLessonPanel();
   if (STAGE === 'check') drawStageScores('check', 'Проверка понимания', 4);
-  if (STAGE === 'work') drawStageScores('work', 'Практическая работа', 5);
+  if (STAGE === 'work') drawStageScores('work', 'Практика · ФО', 5);
+  if (STAGE === 'decide') drawDecidePanel();
   if (STAGE === 'reflect') drawReflect();
   if (STAGE === 'home') drawHome();
 }
@@ -791,10 +795,86 @@ function drawStageScores(which, title, num) {
   box.appendChild(card);
 }
 
+var DECIDE_OPEN = false;
+/** Этап 6: кто как решил «Список или кортеж?» плюс сами ситуации. */
+function drawDecidePanel() {
+  var box = document.getElementById('panel-decide');
+  var L = LAST.lesson;
+  if (!L || !L.decide) return;
+  var max = L.decide.items.length;
+
+  box.textContent = '';
+  box.appendChild(el('div', 'eyebrow', 'Этап 6 · список или кортеж'));
+  box.appendChild(el('div', 'display', 'Список или кортеж?'));
+
+  var rows = [];
+  (LAST.roster || []).filter(inFilter).forEach(function (p) {
+    var rec = (LAST.stages || {})[(p.klass + '|' + p.name).toLowerCase()];
+    rows.push({ klass: p.klass, name: p.name,
+                score: (rec && rec.decide) ? rec.decide.score : null });
+  });
+  var done = rows.filter(function (r) { return r.score !== null && r.score !== ''; });
+  var sum = 0; done.forEach(function (r) { sum += Number(r.score) || 0; });
+
+  var tiles = el('div', 'tiles');
+  [[done.length, 'сдали'], [rows.length - done.length, 'не сдали'],
+   [done.length ? (Math.round(sum / done.length * 10) / 10) + ' / ' + max : '—', 'средний балл']
+  ].forEach(function (t) {
+    var d = el('div', 'tile');
+    d.appendChild(el('div', 'v', String(t[0])));
+    d.appendChild(el('div', 'k', t[1]));
+    tiles.appendChild(d);
+  });
+  box.appendChild(tiles);
+
+  var qs = el('div', 'card');
+  qs.appendChild(el('h2', null, 'Ситуации'));
+  L.decide.items.forEach(function (it, i) {
+    var row = el('div', 'topt' + (DECIDE_OPEN ? ' right' : ''));
+    row.appendChild(el('span', 'topt-text', (i + 1) + '. ' + it.text));
+    if (DECIDE_OPEN) row.appendChild(el('span', 'topt-ok', it.answer));
+    qs.appendChild(row);
+  });
+  var rev = el('button', DECIDE_OPEN ? 'act' : 'big-action',
+               DECIDE_OPEN ? 'Скрыть ответы' : 'Показать ответы');
+  rev.style.marginTop = '8px';
+  rev.addEventListener('click', function () { DECIDE_OPEN = !DECIDE_OPEN; drawStage(); });
+  qs.appendChild(rev);
+  box.appendChild(qs);
+
+  var card = el('div', 'card');
+  card.appendChild(el('h2', null, 'Баллы'));
+  if (!rows.length) {
+    card.appendChild(el('span', 'empty', 'Списки классов не заполнены.'));
+  } else {
+    var table = document.createElement('table');
+    var hr = document.createElement('tr');
+    ['Класс', 'Ученик', 'Балл'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+    var th = document.createElement('thead'); th.appendChild(hr); table.appendChild(th);
+    var tb = document.createElement('tbody');
+    rows.sort(function (a, b) {
+      return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
+    });
+    rows.forEach(function (r) {
+      var tr = document.createElement('tr');
+      tr.appendChild(el('td', null, r.klass));
+      tr.appendChild(el('td', null, r.name));
+      tr.appendChild(r.score === null || r.score === ''
+        ? el('td', 'mark q', 'не сдал')
+        : el('td', 'mark ' + (Number(r.score) === max ? 'y' : (Number(r.score) >= max / 2 ? '' : 'n')),
+             r.score + ' / ' + max));
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb);
+    var sc = el('div', 'scroll'); sc.appendChild(table); card.appendChild(sc);
+  }
+  box.appendChild(card);
+}
+
 function drawReflect() {
   var box = document.getElementById('panel-reflect');
   box.textContent = '';
-  box.appendChild(el('div', 'eyebrow', 'Этап 6 · рефлексия'));
+  box.appendChild(el('div', 'eyebrow', 'Этап 7 · рефлексия'));
   box.appendChild(el('div', 'display', 'Что написали ученики'));
 
   var said = [];
@@ -821,7 +901,7 @@ function drawHome() {
   var box = document.getElementById('panel-home');
   var H = LAST.lesson.homework;
   box.textContent = '';
-  box.appendChild(el('div', 'eyebrow', 'Этап 7 · домашнее задание'));
+  box.appendChild(el('div', 'eyebrow', 'Этап 8 · домашнее задание'));
   box.appendChild(el('div', 'display', 'Домашнее задание'));
   box.appendChild(el('div', 'lead', H.intro));
   H.tasks.forEach(function (t, i) {
