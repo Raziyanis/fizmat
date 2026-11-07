@@ -133,6 +133,16 @@
     </div>
   </div>
 
+  <!-- попытки закончились -->
+  <div id="screen-locked" style="display:none">
+    <h1>Попытки закончились</h1>
+    <div class="card">
+      <p id="locked-text" style="margin:0 0 10px"></p>
+      <div class="sub" id="locked-sub" style="margin:0"></div>
+    </div>
+    <button class="secondary" id="locked-back">Вернуться к списку</button>
+  </div>
+
   <!-- тест по одному заданию -->
   <div id="screen-test" style="display:none">
     <div class="who" id="who-line"></div>
@@ -175,7 +185,7 @@ function el(tag, cls, text) {
   return n;
 }
 function show(id) {
-  ['screen-loading', 'screen-who', 'screen-test', 'screen-result'].forEach(function (s) {
+  ['screen-loading', 'screen-who', 'screen-locked', 'screen-test', 'screen-result'].forEach(function (s) {
     document.getElementById(s).style.display = (s === id) ? 'block' : 'none';
   });
   window.scrollTo(0, 0);
@@ -305,10 +315,37 @@ document.getElementById('manual-ok').addEventListener('click', function () {
 /* ---------- тест ---------- */
 
 function beginTest() {
+  show('screen-loading');
+  document.getElementById('screen-loading').textContent = 'Проверяем…';
+  google.script.run
+    .withSuccessHandler(function (access) {
+      if (access && access.allowed) { startTest(access); }
+      else { showLocked(access); }
+    })
+    .withFailureHandler(function () {
+      // связи нет — не держим ученика, работу примем позже из очереди
+      startTest(null);
+    })
+    .checkAccess(chosen.klass, chosen.name);
+}
+
+function showLocked(access) {
+  show('screen-locked');
+  document.getElementById('locked-text').textContent =
+    (access && access.reason) || 'Доступ к тесту закрыт.';
+  document.getElementById('locked-sub').textContent = access && access.max
+    ? 'Разрешено попыток подряд: ' + access.max + '. Счётчик обнуляется сам.'
+    : '';
+}
+
+function startTest(access) {
   attemptId = uid();
   step = 0; answers = {}; verdicts = {}; locked = false;
   show('screen-test');
   renderWho_line();
+  if (access && access.used) {
+    banner('Это ваша попытка номер ' + (access.used + 1) + ' из ' + access.max + '.', 'warn');
+  }
   renderStep();
   startChat();
 }
@@ -438,7 +475,12 @@ function finish() {
   };
   google.script.run
     .withSuccessHandler(showResult)
-    .withFailureHandler(function () {
+    .withFailureHandler(function (err) {
+      var msg = (err && err.message) || '';
+      if (msg.indexOf('попытка') > -1 || msg.indexOf('попытки') > -1) {
+        showLocked({ reason: msg });     // попытки кончились, в очередь не кладём
+        return;
+      }
       queueAdd({ kind: 'finish', payload: payload });
       banner('Нет связи. Работа сохранена на устройстве и уйдёт, когда появится интернет — ' +
              'не закрывайте вкладку.', 'warn');
@@ -482,6 +524,7 @@ function showResult(result) {
 }
 
 document.getElementById('again').addEventListener('click', function () { window.location.reload(); });
+document.getElementById('locked-back').addEventListener('click', function () { stopChat(); renderWho(); });
 
 /* ---------- переписка с учителем ---------- */
 
@@ -582,8 +625,7 @@ function fileWarning_() {
     '(имя ровно <code>student</code> или <code>teacher</code>, без «.html»).</li>' +
     '<li>Нажмите <b>Начать развертывание → Управление развертываниями</b> и выберите версию ' +
     '<b>«Новая»</b>.</li>' +
-    '<li>Откройте ссылку, которая заканчивается на <code>/exec</code>. ' +
-    'Для своей страницы добавьте в конец <code>?page=teacher&amp;key=КЛЮЧ</code>.</li></ol>' +
+    '<li>Откройте ссылку, которая заканчивается на <code>/exec</code>.</li></ol>' +
     '<p style="color:#5b6471">Ключ выводится в журнале выполнения функции ' +
     '<code>setup()</code> или <code>diagnose()</code>.</p></div>';
   document.body.innerHTML = html;

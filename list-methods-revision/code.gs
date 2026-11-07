@@ -20,11 +20,21 @@ var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
 var SHEET_RESULTS = 'Результаты';
 var SHEET_DIALOG = 'Диалог';
+var SHEET_NOTIFY = 'Уведомления';
+
+/** Сколько попыток подряд разрешено одному ученику. */
+var MAX_ATTEMPTS = 3;
+/** Через сколько минут счётчик попыток обнуляется. */
+var COOLDOWN_MINUTES = 20;
+
+/** Через сколько минут молчания считаем, что ученик бросил тест. */
+var ABANDON_MINUTES = 15;
+/** Как часто проверять. Допустимые значения: 1, 5, 10, 15, 30. */
+var CHECK_EVERY_MINUTES = 5;
 var SPREADSHEET_TITLE = 'Методы списка — повторение';
 
 var PROP_SPREADSHEET = 'SPREADSHEET_ID';
 var PROP_TEACHER = 'TEACHER_EMAIL';
-var PROP_KEY = 'TEACHER_KEY';
 
 var AUTHOR_TEACHER = 'Учитель';
 var AUTHOR_STUDENT = 'Ученик';
@@ -186,6 +196,8 @@ function setup() {
     ['Время', 'Класс', 'Ученик', 'Попытка', 'Задание', 'Тема', 'Выбранный ответ', 'Верно', 'ID отправки']);
   ensureSheet_(ss, SHEET_DIALOG,
     ['Время', 'Класс', 'Ученик', 'Задание', 'Автор', 'Текст', 'ID отправки']);
+  ensureSheet_(ss, SHEET_NOTIFY,
+    ['Время письма', 'Класс', 'Ученик', 'Попытка', 'Отвечено', 'Последний ответ']);
 
   var resultsHeader = ['Время', 'Класс', 'Ученик', 'Email', 'Попытка', 'Балл', 'Максимум'];
   for (var i = 0; i < QUESTIONS.length; i++) {
@@ -194,7 +206,7 @@ function setup() {
   resultsHeader.push('ID отправки');
   ensureSheet_(ss, SHEET_RESULTS, resultsHeader);
 
-  var keep = [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG];
+  var keep = [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY];
   var sheets = ss.getSheets();
   for (var j = 0; j < sheets.length; j++) {
     if (keep.indexOf(sheets[j].getName()) === -1 && sheets[j].getLastRow() === 0) {
@@ -203,14 +215,21 @@ function setup() {
   }
 
   props.setProperty(PROP_TEACHER, Session.getEffectiveUser().getEmail() || '');
-  if (!props.getProperty(PROP_KEY)) {
-    props.setProperty(PROP_KEY, Utilities.getUuid().replace(/-/g, '').substring(0, 10));
+  // списки классов, если они зашиты в этот же файл
+  if (typeof importClasses === 'function') {
+    try {
+      importClasses();
+    } catch (err) {
+      Logger.log('Списки классов загрузить не удалось: ' + err.message);
+    }
   }
+
+  installAbandonCheck_();
 
   Logger.log('Таблица: ' + ss.getUrl());
   Logger.log('Заданий: ' + QUESTIONS.length + ', учеников в списках: ' + countStudents_());
-  Logger.log('КЛЮЧ УЧИТЕЛЯ: ' + props.getProperty(PROP_KEY));
-  Logger.log('Страница учителя: <ссылка>?page=teacher&key=' + props.getProperty(PROP_KEY));
+  Logger.log('Страница учителя: <ссылка веб-приложения>?page=teacher');
+  Logger.log('Открывать её можно только из аккаунта ' + props.getProperty(PROP_TEACHER) + '.');
 }
 
 function ensureSheet_(ss, name, header) {
@@ -305,6 +324,10 @@ function doGet(e) {
  * оба написания, а если файла нет совсем — объясняем, что делать.
  */
 function openPage_(name) {
+  // в варианте «один файл» страницы вшиты прямо в скрипт
+  if (typeof EMBEDDED_PAGES !== 'undefined' && EMBEDDED_PAGES[name]) {
+    return HtmlService.createHtmlOutput(EMBEDDED_PAGES[name]);
+  }
   var tries = [name, name + '.html'];
   for (var i = 0; i < tries.length; i++) {
     try {
@@ -394,6 +417,44 @@ function answerQuestion(p) {
 }
 
 /**
+ * Сколько завершённых попыток у ученика за последние COOLDOWN_MINUTES минут
+ * и когда самая ранняя из них.
+ */
+function attemptsInWindow_(klass, name) {
+  var since = new Date().getTime() - COOLDOWN_MINUTES * 60 * 1000;
+  var k = key_(klass, name);
+  var times = [];
+  rows_(SHEET_RESULTS, 7 + QUESTIONS.length + 1).forEach(function (row) {
+    if (key_(row[1], row[2]) !== k) return;
+    var t = dateOf_(row[0]);
+    if (t && t.getTime() >= since) times.push(t.getTime());
+  });
+  times.sort(function (a, b) { return a - b; });
+  return { count: times.length, oldest: times.length ? times[0] : 0 };
+}
+
+/**
+ * Можно ли ученику начинать работу. После MAX_ATTEMPTS попыток доступ
+ * закрывается, а через COOLDOWN_MINUTES минут открывается снова.
+ */
+function checkAccess(klass, name) {
+  if (!clean_(name)) return { allowed: false, reason: 'Не выбрана фамилия.' };
+
+  var w = attemptsInWindow_(klass, name);
+  if (w.count < MAX_ATTEMPTS) {
+    return { allowed: true, used: w.count, max: MAX_ATTEMPTS };
+  }
+
+  var freeAt = w.oldest + COOLDOWN_MINUTES * 60 * 1000;
+  var wait = Math.max(1, Math.ceil((freeAt - new Date().getTime()) / 60000));
+  return {
+    allowed: false, used: w.count, max: MAX_ATTEMPTS, wait: wait,
+    reason: 'Вы уже прошли тест ' + w.count + ' раза. Следующая попытка будет доступна через ' +
+            wait + ' мин.'
+  };
+}
+
+/**
  * Записывает итог попытки.
  * p = { uid, attempt, klass, name, answers: {qid: index}, addToClass }
  */
@@ -403,6 +464,10 @@ function finishAttempt(p) {
   if (!name) throw new Error('Не выбрана фамилия.');
 
   var uid = String((p && p.uid) || '').trim().substring(0, 50);
+
+  var access = checkAccess(klass, name);
+  if (!access.allowed) throw new Error(access.reason);
+
   var answers = (p && p.answers) || {};
   var marks = [], feedback = [], score = 0;
 
@@ -496,8 +561,8 @@ function appendMessage_(klass, name, qid, author, text, uid) {
 }
 
 /** Учитель спрашивает ученика по конкретному заданию. */
-function askStudent(key, p) {
-  if (!isTeacher_(key)) throw new Error('Доступ только у учителя.');
+function askStudent(p) {
+  if (!isTeacher_()) throw new Error('Писать ученикам может только учитель.');
   return appendMessage_(p.klass, p.name, p.qid, AUTHOR_TEACHER, p.text, p.uid);
 }
 
@@ -536,10 +601,13 @@ function timeText_(value) {
 /* Экран учителя                                                       */
 /* ------------------------------------------------------------------ */
 
-function isTeacher_(key) {
+/**
+ * Страницу учителя открывает только тот аккаунт, под которым выполнили
+ * setup(). Пароля и ключа в ссылке нет: ученик, открыв адрес страницы
+ * учителя, увидит отказ, потому что его аккаунт — не ваш.
+ */
+function isTeacher_() {
   var props = PropertiesService.getScriptProperties();
-  var expected = props.getProperty(PROP_KEY);
-  if (expected && key && String(key) === expected) return true;
   var owner = (props.getProperty(PROP_TEACHER) || '').toLowerCase();
   var active = safeEmail_().toLowerCase();
   return !!owner && !!active && owner === active;
@@ -549,9 +617,10 @@ function isTeacher_(key) {
  * Всё для экрана учителя: ученики, разбор по каждому заданию
  * (поимённо, кто ответил верно и кто что выбрал) и переписка.
  */
-function getResults(key) {
-  if (!isTeacher_(key)) {
-    throw new Error('Доступ только у учителя. Откройте ссылку с ключом из журнала setup().');
+function getResults() {
+  if (!isTeacher_()) {
+    throw new Error('Эта страница только для учителя. Войдите в тот аккаунт Google, ' +
+                    'под которым вы настраивали тест.');
   }
 
   var expected = [];
@@ -712,23 +781,166 @@ function missingStudents_(expected, students) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Письмо учителю, если ученик бросил тест                             */
+/* ------------------------------------------------------------------ */
+
+/** Ставит проверку по расписанию. Старые такие же проверки удаляет. */
+function installAbandonCheck_() {
+  try {
+    var triggers = ScriptApp.getProjectTriggers();
+    for (var i = 0; i < triggers.length; i++) {
+      if (triggers[i].getHandlerFunction() === 'checkAbandoned') {
+        ScriptApp.deleteTrigger(triggers[i]);
+      }
+    }
+    ScriptApp.newTrigger('checkAbandoned')
+      .timeBased()
+      .everyMinutes(CHECK_EVERY_MINUTES)
+      .create();
+    Logger.log('Проверка брошенных работ включена: каждые ' + CHECK_EVERY_MINUTES +
+               ' мин, порог ' + ABANDON_MINUTES + ' мин.');
+  } catch (err) {
+    Logger.log('Не удалось включить проверку брошенных работ: ' + err.message);
+  }
+}
+
+/** Выключить письма. */
+function stopAbandonCheck() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var n = 0;
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'checkAbandoned') {
+      ScriptApp.deleteTrigger(triggers[i]);
+      n++;
+    }
+  }
+  Logger.log('Проверок удалено: ' + n + '. Письма больше приходить не будут.');
+}
+
+/**
+ * Кто начал тест, но за последние ABANDON_MINUTES минут не ответил
+ * ни на одно задание и не сдал работу. По каждой такой попытке
+ * письмо отправляется один раз.
+ *
+ * Вызывается по расписанию; вручную запускать тоже можно.
+ */
+function checkAbandoned() {
+  var abandoned = findAbandoned_();
+  if (!abandoned.length) return 0;
+
+  var to = PropertiesService.getScriptProperties().getProperty(PROP_TEACHER);
+  if (!to) {
+    Logger.log('Почта учителя неизвестна — выполните setup().');
+    return 0;
+  }
+
+  var lines = abandoned.map(function (a) {
+    return '• ' + a.klass + ', ' + a.name +
+           ' — ответил на ' + a.answered + ' из ' + QUESTIONS.length +
+           ', последний ответ в ' + timeText_(a.last);
+  });
+
+  var body = 'Эти ученики начали тест «Методы списка», но больше ' + ABANDON_MINUTES +
+    ' минут не отвечают и работу не сдали:\n\n' + lines.join('\n') +
+    '\n\nВозможно, они закрыли страницу.\n\nТаблица с ответами: ' +
+    (openSpreadsheet_() ? openSpreadsheet_().getUrl() : '') + '\n';
+
+  MailApp.sendEmail(to,
+    'Методы списка: бросили тест — ' + abandoned.length + ' чел.',
+    body);
+
+  var sheet = sheet_(SHEET_NOTIFY);
+  abandoned.forEach(function (a) {
+    sheet.appendRow([new Date(), a.klass, a.name, a.attempt, a.answered, a.last]);
+  });
+
+  Logger.log('Письмо отправлено на ' + to + '. В списке: ' + abandoned.length + '.');
+  return abandoned.length;
+}
+
+/** Собирает брошенные попытки, по которым письма ещё не было. */
+function findAbandoned_() {
+  var now = new Date().getTime();
+  var limit = ABANDON_MINUTES * 60 * 1000;
+
+  /* когда каждый ученик в последний раз сдавал работу */
+  var finished = {};
+  var width = 7 + QUESTIONS.length + 1;
+  rows_(SHEET_RESULTS, width).forEach(function (row) {
+    var k = key_(row[1], row[2]);
+    var t = dateOf_(row[0]);
+    if (t && (!finished[k] || t > finished[k])) finished[k] = t;
+  });
+
+  /* о чём уже писали: класс|ученик|попытка */
+  var notified = {};
+  rows_(SHEET_NOTIFY, 6).forEach(function (row) {
+    notified[key_(row[1], row[2]) + '|' + String(row[3] || '')] = true;
+  });
+
+  /* попытки из журнала ответов */
+  var attempts = {};
+  rows_(SHEET_ANSWERS, 9).forEach(function (row) {
+    var klass = clean_(row[1]), name = clean_(row[2]);
+    var attempt = String(row[3] || '');
+    var qid = String(row[4] || '');
+    var t = dateOf_(row[0]);
+    if (!name || !qid || !t) return;
+
+    var id = key_(klass, name) + '|' + attempt;
+    if (!attempts[id]) {
+      attempts[id] = { klass: klass, name: name, attempt: attempt, last: t, questions: {} };
+    }
+    attempts[id].questions[qid] = true;
+    if (t > attempts[id].last) attempts[id].last = t;
+  });
+
+  var out = [];
+  Object.keys(attempts).forEach(function (id) {
+    var a = attempts[id];
+    if (notified[id]) return;
+
+    var answered = Object.keys(a.questions).length;
+    if (answered >= QUESTIONS.length) return;        // ответил на всё — не бросил
+
+    var finishedAt = finished[key_(a.klass, a.name)];
+    if (finishedAt && finishedAt >= a.last) return;  // работа сдана
+
+    if (now - a.last.getTime() < limit) return;      // ещё отвечает
+
+    out.push({ klass: a.klass, name: a.name, attempt: a.attempt,
+               answered: answered, last: a.last });
+  });
+
+  out.sort(function (x, y) {
+    return x.klass.localeCompare(y.klass, 'ru') || x.name.localeCompare(y.name, 'ru');
+  });
+  return out;
+}
+
+function dateOf_(value) {
+  var d = value instanceof Date ? value : new Date(value);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/* ------------------------------------------------------------------ */
 /* Обслуживание                                                        */
 /* ------------------------------------------------------------------ */
 
 /** Очистить ответы и переписку перед новым уроком. Списки классов остаются. */
 function clearResults() {
-  [SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG].forEach(function (name) {
+  [SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY].forEach(function (name) {
     var sheet = sheet_(name);
     if (sheet.getLastRow() > 1) sheet.deleteRows(2, sheet.getLastRow() - 1);
   });
-  Logger.log('Ответы, итоги и переписка очищены. Списки классов не тронуты.');
+  Logger.log('Ответы, итоги, переписка и отправленные уведомления очищены. ' +
+             'Списки классов не тронуты.');
 }
 
 /** Проверка настройки: выполните, если что-то не работает. */
 function diagnose() {
   var props = PropertiesService.getScriptProperties();
   Logger.log('ID таблицы: ' + (props.getProperty(PROP_SPREADSHEET) || 'НЕ ЗАДАН — выполните setup()'));
-  Logger.log('Ключ учителя: ' + (props.getProperty(PROP_KEY) || 'НЕ ЗАДАН — выполните setup()'));
 
   ['student', 'teacher'].forEach(function (name) {
     var found = '';
@@ -749,13 +961,31 @@ function diagnose() {
     }
   });
 
-  [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG].forEach(function (name) {
+  [SHEET_CLASSES, SHEET_ANSWERS, SHEET_RESULTS, SHEET_DIALOG, SHEET_NOTIFY].forEach(function (name) {
     try {
       Logger.log('Лист «' + name + '»: строк с данными ' + Math.max(0, sheet_(name).getLastRow() - 1));
     } catch (err) {
       Logger.log('Лист «' + name + '»: ошибка — ' + err.message);
     }
   });
+
+  var mail = props.getProperty(PROP_TEACHER);
+  Logger.log('Почта для писем: ' + (mail || 'НЕ ЗАДАНА — выполните setup()'));
+  try {
+    var armed = 0;
+    ScriptApp.getProjectTriggers().forEach(function (t) {
+      if (t.getHandlerFunction() === 'checkAbandoned') armed++;
+    });
+    Logger.log(armed
+      ? 'Проверка брошенных работ: включена (каждые ' + CHECK_EVERY_MINUTES +
+        ' мин, порог ' + ABANDON_MINUTES + ' мин)'
+      : 'Проверка брошенных работ: ВЫКЛЮЧЕНА — выполните setup()');
+  } catch (err) {
+    Logger.log('Проверка брошенных работ: не удалось узнать — ' + err.message);
+  }
+
+  Logger.log('Страницы: ' +
+    ((typeof EMBEDDED_PAGES !== 'undefined') ? 'вшиты в этот файл' : 'отдельные HTML-файлы'));
 
   try {
     var classes = readClasses_();

@@ -95,6 +95,25 @@
   .mark.n { color: var(--bad); }
   .mark.q { color: var(--line); }
   .empty { color: var(--muted); }
+  .sub-hint { font-size: 13px; color: var(--muted); margin: -4px 0 10px; }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover td { background: var(--bg); }
+  tr.clickable.open td { background: var(--bg); font-weight: 600; }
+  .detail { margin-top: 16px; padding: 16px; border: 2px solid var(--accent); border-radius: 12px; }
+  .detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .detail-name { font-size: 22px; font-weight: 700; }
+  .detail-sub { font-size: 14px; color: var(--muted); }
+  .detail-q { border-left: 4px solid var(--line); padding: 2px 0 2px 12px; margin-bottom: 16px; }
+  .detail-q.ok { border-color: var(--ok); }
+  .detail-q.bad { border-color: var(--bad); }
+  .detail-q.none { border-color: var(--warn); }
+  .detail-text { font-weight: 600; margin: 4px 0; }
+  .detail-ans { display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; margin-bottom: 4px; }
+  .detail-ans .lbl { color: var(--muted); }
+  .detail-ans .val { font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 600; }
+  .detail-ans.ok .val { color: var(--ok); }
+  .detail-ans.bad .val { color: var(--bad); }
+  .detail-ans.none .val { color: var(--muted); font-weight: 500; }
   .missing { font-size: 14px; color: var(--muted); line-height: 1.8; }
   .missing b { color: var(--text); }
   a { color: var(--accent); }
@@ -139,6 +158,7 @@
 
   <div class="card">
     <h2>Ученики</h2>
+    <div class="sub-hint">Нажмите на строку — откроются все ответы этого ученика с текстом заданий.</div>
     <div class="scroll" id="table-box"><span class="empty">Пока никто не отвечал.</span></div>
   </div>
 
@@ -151,13 +171,13 @@
 </div>
 
 <script>
-var KEY = '';
 var FILTER = '';
 var SORT = 'hard';
 var LAST = null;
 var OPEN = {};          // какие задания развёрнуты
 var ASKING = null;      // кому сейчас пишем: 'qid|класс|имя'
 var DRAFT = '';         // набранный, но не отправленный текст
+var DETAIL = '';        // чьи ответы раскрыты полностью: 'класс|имя'
 var PICKED = {};        // qid -> выбранный наугад ученик
 var USED = {};          // qid -> кого уже вызывали в этом круге
 
@@ -193,19 +213,16 @@ function fileWarning_() {
     '<li>Нажмите <b>Начать развертывание → Управление развертываниями</b> и выберите версию ' +
     '<b>«Новая»</b>.</li>' +
     '<li>Откройте ссылку, которая заканчивается на <code>/exec</code>. ' +
-    'Для своей страницы добавьте в конец <code>?page=teacher&amp;key=КЛЮЧ</code>.</li></ol>' +
+    'Для своей страницы добавьте в конец <code>?page=teacher</code>.</li></ol>' +
     '<p style="color:#5b6471">Ключ выводится в журнале выполнения функции ' +
     '<code>setup()</code> или <code>diagnose()</code>.</p></div>';
   document.body.innerHTML = html;
 }
 
 if (offlineFile_()) fileWarning_(); else
-google.script.url.getLocation(function (loc) {
-  KEY = (loc && loc.parameter && loc.parameter.key) || '';
-  load();
-  // список обновляется сам, страницу перезагружать не нужно
-  setInterval(function () { load(true); }, 10000);
-});
+load();
+// список обновляется сам, страницу перезагружать не нужно
+setInterval(function () { load(true); }, 10000);
 
 /**
  * auto = true — это автообновление по таймеру. Пока учитель набирает
@@ -226,7 +243,7 @@ function load(auto) {
       document.getElementById('status').textContent = 'ошибка';
       banner(err && err.message ? err.message : String(err));
     })
-    .getResults(KEY);
+    .getResults();
 }
 
 function inFilter(p) { return !FILTER || p.klass === FILTER; }
@@ -557,7 +574,7 @@ function askBox(q, p, isWrong, askId) {
         send.disabled = false; send.textContent = 'Отправить ученику';
         banner('Не отправилось: ' + (err && err.message ? err.message : err));
       })
-      .askStudent(KEY, {
+      .askStudent({
         uid: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         klass: p.klass, name: p.name, qid: q.id, text: text
       });
@@ -598,6 +615,13 @@ function drawTable(data, students) {
   var tbody = document.createElement('tbody');
   students.forEach(function (s) {
     var tr = document.createElement('tr');
+    var id = s.klass + '|' + s.name;
+    tr.className = 'clickable' + (DETAIL === id ? ' open' : '');
+    tr.title = 'Показать все ответы этого ученика';
+    tr.addEventListener('click', function () {
+      DETAIL = (DETAIL === id) ? '' : id;
+      draw();
+    });
     var status = s.finished
       ? 'сдал' + (s.attempts > 1 ? ' (попыток ' + s.attempts + ')' : '')
       : 'решает ' + (s.answered || 0) + '/' + s.total;
@@ -613,6 +637,81 @@ function drawTable(data, students) {
   });
   table.appendChild(tbody);
   box.appendChild(table);
+
+  if (DETAIL) {
+    var who = students.filter(function (s) { return s.klass + '|' + s.name === DETAIL; })[0];
+    if (who) box.appendChild(studentDetail(data, who));
+  }
+}
+
+/** Все ответы одного ученика: вопрос, его ответ, правильный ответ. */
+function studentDetail(data, s) {
+  var wrap = el('div', 'detail');
+
+  var head = el('div', 'detail-head');
+  var title = el('div');
+  title.appendChild(el('div', 'detail-name', s.name));
+  title.appendChild(el('div', 'detail-sub',
+    s.klass + ' · ' + (s.finished ? 'сдал' : 'ещё решает') +
+    ' · ' + s.score + ' из ' + s.total + ' верно'));
+  head.appendChild(title);
+  var close = el('button', 'act', 'Закрыть');
+  close.addEventListener('click', function () { DETAIL = ''; draw(); });
+  head.appendChild(close);
+  wrap.appendChild(head);
+
+  data.perQuestion.forEach(function (q) {
+    var mine = null;
+    q.right.forEach(function (p) {
+      if (p.klass === s.klass && p.name === s.name) mine = { chosen: p.chosen, ok: true };
+    });
+    q.wrong.forEach(function (p) {
+      if (p.klass === s.klass && p.name === s.name) mine = { chosen: p.chosen, ok: false };
+    });
+
+    var item = el('div', 'detail-q ' + (mine ? (mine.ok ? 'ok' : 'bad') : 'none'));
+    item.appendChild(el('div', 'qnum',
+      'Задание ' + q.number + ' · ' + q.topic + ' · ' +
+      (mine ? (mine.ok ? 'верно' : 'ошибка') : 'не ответил')));
+    item.appendChild(el('div', 'detail-text', q.text));
+    item.appendChild(el('pre', null, q.code));
+
+    if (mine) {
+      var a = el('div', 'detail-ans ' + (mine.ok ? 'ok' : 'bad'));
+      a.appendChild(el('span', 'lbl', 'Ответ ученика:'));
+      a.appendChild(el('span', 'val', mine.chosen || '—'));
+      item.appendChild(a);
+      if (!mine.ok) {
+        var c = el('div', 'detail-ans ok');
+        c.appendChild(el('span', 'lbl', 'Правильно:'));
+        c.appendChild(el('span', 'val', q.correctText));
+        item.appendChild(c);
+      }
+    } else {
+      var n = el('div', 'detail-ans none');
+      n.appendChild(el('span', 'lbl', 'Ответа нет.'));
+      n.appendChild(el('span', 'val', 'Правильно: ' + q.correctText));
+      item.appendChild(n);
+    }
+    wrap.appendChild(item);
+  });
+
+  var thread = (data.dialog || []).filter(function (m) {
+    return m.klass === s.klass && m.name === s.name;
+  });
+  if (thread.length) {
+    var t = el('div', 'thread');
+    t.appendChild(el('h3', null, 'Переписка с этим учеником'));
+    thread.forEach(function (m) {
+      var bb = el('div', 'bubble ' + (m.author === 'Учитель' ? 'teacher' : 'student'));
+      bb.appendChild(el('div', 'from', m.author +
+        (m.number ? ' · задание ' + m.number : '') + ' · ' + m.time));
+      bb.appendChild(el('div', null, m.text));
+      t.appendChild(bb);
+    });
+    wrap.appendChild(t);
+  }
+  return wrap;
 }
 
 function drawMissing(data, missing) {
