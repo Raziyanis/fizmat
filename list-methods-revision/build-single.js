@@ -139,3 +139,31 @@ const out = head + code + pages + classes;
 fs.writeFileSync(path.join(DIR, 'all-in-one.gs'), out);
 console.log('all-in-one.gs собран:', Math.round(out.length / 1024) + ' КБ,',
             out.split('\n').length, 'строк');
+
+/* Второй вариант: три файла в проекте. Тот же код плюс списки классов,
+   но без вшитых страниц — страницы лежат отдельными HTML-файлами. */
+const headThree = `/**
+ * Повторение: методы списка (Python) — файл «Код.gs».
+ *
+ * Этот вариант рассчитан на ТРИ файла в проекте:
+ *   Код.gs        — этот файл
+ *   student.html  — страница ученика  (+ → HTML, имя ровно student)
+ *   teacher.html  — страница учителя  (+ → HTML, имя ровно teacher)
+ *
+ * Установка:
+ *   1. Вставить этот файл в Код.gs, Cmd+S.
+ *   2. Создать два HTML-файла и вставить в них student.html и teacher.html.
+ *   3. Функция setup → Выполнить → разрешить доступ (Google спросит дважды).
+ *   4. Начать развертывание → Новое развертывание → Веб-приложение:
+ *      запуск от имени «Я», доступ «Все, у кого есть аккаунт Google».
+ *
+ * Ссылка /exec — ученикам, та же ссылка с ?page=teacher — ваша.
+ *
+ * Собран автоматически из code.gs и classes.csv: node build-single.js
+ */
+
+`;
+const three = headThree + code + classes;
+fs.writeFileSync(path.join(DIR, 'code-with-classes.gs'), three);
+console.log('code-with-classes.gs собран:', Math.round(three.length / 1024) + ' КБ,',
+            three.split('\n').length, 'строк');
