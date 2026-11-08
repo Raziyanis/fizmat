@@ -333,12 +333,23 @@ function pullResults(onOk, onFail){
     if (tag.parentNode) tag.parentNode.removeChild(tag);
     if (data && data.error) { onFail(new Error(data.error)); return; }
     try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch(e) {}
-    onOk(data);
+    onOk(patchLang(data));
   };
   tag.src = SEND_URL + '?data=results&key=' + encodeURIComponent(TOKEN) + '&callback=' + name;
   tag.onerror = function(){ if (!done) onFail(new Error('нет связи с таблицей')); };
   document.head.appendChild(tag);
   setTimeout(function(){ if (!done) onFail(new Error('таблица не ответила')); }, 20000);
+}
+
+/** Казахский перевод и текст урока лежат в самом файле. Если таблица
+ *  отвечает старым Код.gs, в её ответе их ещё нет — подставляем свои,
+ *  иначе страница молча остаётся русской. */
+function patchLang(data){
+  if (!data || typeof data !== 'object') return data;
+  if (!data.uiKk || !Object.keys(data.uiKk).length) data.uiKk = UKK;
+  if (!data.questionsKk || !data.questionsKk.length) data.questionsKk = QKK;
+  if (data.version !== VER || !data.lessonKk) { data.lesson = L; data.lessonKk = LKK; }
+  return data;
 }
 
 function cachedResults(){
@@ -362,7 +373,7 @@ window.google = { script: { run: {
         : 'Таблица не ответила: ' + ((err && err.message) || 'нет связи') +
           '. Показаны задания и списки из файла, ответов класса нет.';
       var old = cachedResults();
-      if (old) { old.stale = true; old.reason = why; ok(old); }
+      if (old) { old.stale = true; old.reason = why; ok(patchLang(old)); }
       else { var sk = localSkeleton(); sk.reason = why; ok(sk); }
     });
   },
