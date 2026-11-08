@@ -97,7 +97,8 @@
              background: var(--ok-bg); color: var(--ok); font-size: 15px; }
   .sub { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
   .steps { display: flex; gap: 5px; margin-bottom: 14px; flex-wrap: wrap; }
-  .steps i { min-width: 28px; height: 26px; border-radius: 6px; background: var(--line); color: var(--muted);
+  .steps i { min-width: 28px; height: 26px; border-radius: 6px; background: var(--card); color: var(--muted);
+             border: 1px solid var(--line);
              display: flex; align-items: center; justify-content: center; cursor: pointer;
              font: 700 13px/1 inherit; font-style: normal; padding: 0 5px; }
   .steps i.y { background: var(--ok); color: #fff; }
@@ -116,6 +117,12 @@
   .topt-text { font: 16px/1.4 "SF Mono", Menlo, Consolas, monospace; }
   .topt-tail { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
   .topt-ok { font: 600 12px inherit; text-transform: uppercase; letter-spacing: .06em; color: var(--ok); }
+  .topt-ok.y { color: var(--ok); }
+  .topt-ok.n { color: var(--bad); }
+  .topt-ok.q { color: var(--muted); }
+  button.namebtn { background: transparent; border: 0; padding: 0; cursor: pointer; text-align: left;
+                   font: 600 15px inherit; color: var(--text); flex: 1; }
+  button.namebtn:hover { text-decoration: underline; }
   .topt-count { min-width: 30px; text-align: center; padding: 3px 9px; border-radius: 20px;
                 background: var(--bg); color: var(--muted); font: 700 13px inherit;
                 font-variant-numeric: tabular-nums; }
@@ -348,7 +355,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v42 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v43 · 7 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -785,43 +792,10 @@ function drawLessonPanel() {
 var TASK_IDX = { check: 0, work: 0 };
 var TASK_OPEN = { check: false, work: false };
 
-/* Номер варианта считается из класса и фамилии — тем же способом, что
-   на сервере и на странице ученика, поэтому учитель видит ровно то,
-   что досталось ученику. */
-function foHash(klass, name) {
-  var tidy = function (v) {
-    return String(v || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
-  };
-  var str = tidy(klass) + '|' + tidy(name);
-  var h = 0;
-  for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 1000003;
-  return h;
-}
-
-function foVariant(klass, name, i, count) {
-  if (!count || count < 2) return 0;
-  return (foHash(klass, name) + i) % count;
-}
-
-/** Вариант задачи в одну строку: что подставлено ученику. */
-function foShort(test) {
-  return String(test || '').replace(/Ваш вариант\s*/, '').replace(/выход:\s*\?/, '')
-    .split('\n').map(function (l) { return l.trim(); })
-    .filter(function (l) { return l && l !== 'вход:'; })
-    .join(' / ').replace(/^вход:\s*/, '');
-}
-
-/** Кому какой вариант достался и какой ответ ждём. */
-function foTable(task, i) {
-  var vs = task.variants || [];
-  var card = el('div', 'card');
-  card.appendChild(el('h2', null, 'Варианты учеников'));
-  if (!vs.length) {
-    card.appendChild(el('span', 'empty', 'У этой задачи вариантов нет — она одна для всех.'));
-    return card;
-  }
-  card.appendChild(el('div', 'sub-hint',
-    'Числа у всех разные, поэтому ответы не совпадают. Спрашивая ученика, смотрите его строку.'));
+/** Что написал каждый ученик по этой задаче. */
+function codeTable(i) {
+  var card = el('div', 'card codes');
+  card.appendChild(el('h2', null, 'Программы учеников'));
   var rows = (LAST.roster || []).filter(inFilter).slice().sort(function (a, b) {
     return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
   });
@@ -829,28 +803,40 @@ function foTable(task, i) {
     card.appendChild(el('span', 'empty', 'Списки классов не заполнены.'));
     return card;
   }
-  var table = document.createElement('table');
-  var hr = document.createElement('tr');
-  ['Класс', 'Ученик', '№', 'Его данные', 'Верный ответ'].forEach(function (h) {
-    hr.appendChild(el('th', null, h));
-  });
-  var th = document.createElement('thead'); th.appendChild(hr); table.appendChild(th);
-  var tb = document.createElement('tbody');
+  card.appendChild(el('div', 'sub-hint',
+    'Нажмите на фамилию — откроется программа, которую отправил ученик. ' +
+    'Так видно и ход решения, и одинаковые программы.'));
+
+  var any = false;
   rows.forEach(function (r) {
-    var v = foVariant(r.klass, r.name, i, vs.length);
-    var tr = document.createElement('tr');
-    if (CALLED && CALLED.klass === r.klass && CALLED.name === r.name) tr.className = 'picked';
-    tr.appendChild(el('td', null, r.klass));
-    tr.appendChild(el('td', null, r.name));
-    tr.appendChild(el('td', 'mark cell', String(v + 1)));
-    tr.appendChild(el('td', 'mono', foShort(vs[v].test)));
-    tr.appendChild(el('td', 'mark y', vs[v].accept[0]));
-    tb.appendChild(tr);
+    var rec = (LAST.stages || {})[(r.klass + '|' + r.name).toLowerCase()];
+    var work = rec && rec.work;
+    var item = (work && work.codes && work.codes[i]) || null;
+    var line = el('div', 'topt');
+    var head = el('button', 'namebtn', r.klass + ' · ' + r.name);
+    line.appendChild(head);
+    var state;
+    if (!work) state = el('span', 'topt-ok q', 'не сдавал');
+    else if (!item || !String(item.code || '').trim()) state = el('span', 'topt-ok q', 'не писал');
+    else if (item.got) { state = el('span', 'topt-ok y', 'решено'); any = true; }
+    else { state = el('span', 'topt-ok n', 'с ошибкой'); any = true; }
+    line.appendChild(state);
+    card.appendChild(line);
+    if (item && String(item.code || '').trim() && CODE_OPEN[r.klass + '|' + r.name + '|' + i]) {
+      if (item.verdict) card.appendChild(el('div', 'note', item.verdict));
+      card.appendChild(el('pre', null, item.code));
+    }
+    head.addEventListener('click', function () {
+      var k = r.klass + '|' + r.name + '|' + i;
+      CODE_OPEN[k] = !CODE_OPEN[k];
+      drawStage();
+    });
   });
-  table.appendChild(tb);
-  var sc = el('div', 'scroll'); sc.appendChild(table); card.appendChild(sc);
+  if (!any) card.appendChild(el('div', 'sub-hint', 'Пока никто не присылал программу по этой задаче.'));
   return card;
 }
+
+var CODE_OPEN = {};
 
 function stageTasks(which, L) {
   var list = (which === 'check') ? L.check.items : L.work.tasks;
@@ -872,10 +858,26 @@ function stageTasks(which, L) {
   });
   box.appendChild(strip);
 
-  box.appendChild(el('div', 'qnum', 'Задание ' + (i + 1) + ' из ' + list.length +
-    ' · ' + it.points + (it.points === 1 ? ' балл' : ' балла')));
+  box.appendChild(el('div', 'qnum', (which === 'work' ? 'Задача ' : 'Задание ') + (i + 1) +
+    ' из ' + list.length + ' · ' + it.points + (it.points === 1 ? ' балл' : ' балла') +
+    (it.skill ? ' · ' + it.skill : '')));
+  if (it.name && which === 'work') box.appendChild(el('h3', null, it.name));
   box.appendChild(el('div', 'qtext', it.text));
   if (it.code) box.appendChild(el('pre', null, it.code));
+  if (it.inp) {
+    box.appendChild(el('div', 'eyebrow', 'Входные данные'));
+    box.appendChild(el('div', 'note', it.inp));
+  }
+  if (it.out) {
+    box.appendChild(el('div', 'eyebrow', 'Выходные данные'));
+    box.appendChild(el('div', 'note', it.out));
+  }
+  if (it.samples && it.samples.length) {
+    box.appendChild(el('div', 'eyebrow', 'Примеры'));
+    it.samples.forEach(function (ex) {
+      box.appendChild(el('pre', null, 'Данные:\n' + ex[0] + '\n\nПравильный вывод:\n' + ex[1]));
+    });
+  }
 
   if (it.kind === 'tf') {
     ['Верно', 'Неверно'].forEach(function (lbl, oi) {
@@ -900,8 +902,8 @@ function stageTasks(which, L) {
       if (open) row.appendChild(el('span', 'topt-ok', it.right[li]));
       box.appendChild(row);
     });
-  } else if (open && !(it.variants && it.variants.length)) {
-    var accept = it.accept || [];
+  } else if (open && it.accept && it.accept.length) {
+    var accept = it.accept;
     var row = el('div', 'topt right');
     row.appendChild(el('span', 'topt-text', accept.join('  или  ')));
     row.appendChild(el('span', 'topt-ok', 'принимается'));
@@ -910,11 +912,21 @@ function stageTasks(which, L) {
 
   if (open) {
     if (it.note) box.appendChild(el('div', 'note', it.note));
-    if (it.solution) {
-      box.appendChild(el('div', 'eyebrow', 'Как решается'));
-      box.appendChild(el('pre', null, it.solution));
+    if (it.hint) {
+      box.appendChild(el('div', 'eyebrow', 'Подсказка, которую видит ученик'));
+      box.appendChild(el('div', 'note', it.hint));
     }
-    if (it.variants && it.variants.length) box.appendChild(foTable(it, i));
+    var sol = it.ref || it.solution;
+    if (sol) {
+      box.appendChild(el('div', 'eyebrow', 'Эталонное решение'));
+      box.appendChild(el('pre', null, sol));
+    }
+    if (it.tests && it.tests.length) {
+      box.appendChild(el('div', 'sub-hint',
+        'Программу ученика проверяют на ' + it.tests.length +
+        ' наборах данных. Балл ставится, только если пройдены все.'));
+    }
+    if (which === 'work') box.appendChild(codeTable(i));
   }
 
   var nav = el('div', 'qnav');

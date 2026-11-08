@@ -73,7 +73,8 @@
   .names button { width: 100%; text-align: left; font-weight: 500; }
   .steps { display: flex; gap: 5px; margin-bottom: 14px; flex-wrap: wrap; }
   .steps i {
-    min-width: 24px; height: 22px; border-radius: 5px; background: var(--line); color: var(--muted);
+    min-width: 24px; height: 22px; border-radius: 5px; background: var(--card); color: var(--muted);
+    border: 1px solid var(--line);
     display: flex; align-items: center; justify-content: center;
     font: 700 12px/1 inherit; font-style: normal; padding: 0 4px;
   }
@@ -304,7 +305,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v42 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v43 · 7 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -404,23 +405,235 @@ var PY_LOADING = null;  // обещание загрузки
  * Загружает Python в браузер. Нужен интернет: это внешняя библиотека
  * около 10 МБ, зато выполняется настоящий Python, а не подделка.
  */
+/* Встроенный Python. Если в страницу вшиты файлы Pyodide (их укладывает
+   сборка автономного файла), запросы к ним перехватываются и отдаются
+   из самой страницы — интернет не нужен. Если копии нет, берём с CDN. */
+var PY_CDN = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
+var PY_INLINE = 'https://pyodide.inline/';
+var PY_TYPES = { 'pyodide.asm.wasm': 'application/wasm',
+                 'python_stdlib.zip': 'application/zip',
+                 'pyodide-lock.json': 'application/json' };
+
+function pyInlineReady() {
+  return !!document.getElementById('pyb-pyodide-asm-wasm') &&
+         typeof window.DecompressionStream === 'function';
+}
+
+function pyInlineFile(name) {
+  var node = document.getElementById('pyb-' + name.replace(/\W/g, '-'));
+  if (!node) return Promise.reject(new Error(name + ' нет в файле'));
+  var raw = atob(node.textContent.trim());
+  var bytes = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+  var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Response(stream).arrayBuffer();
+}
+
+function pyInlineFetch() {
+  if (window.__pyPatched) return;
+  var orig = window.fetch.bind(window);
+  window.fetch = function (u, o) {
+    var str = (typeof u === 'string') ? u : (u && u.href) || (u && u.url) || '';
+    if (str.indexOf(PY_INLINE) === 0) {
+      var name = str.slice(PY_INLINE.length).split('?')[0];
+      return pyInlineFile(name).then(function (buf) {
+        return new Response(buf, { headers: {
+          'Content-Type': PY_TYPES[name] || 'application/octet-stream' } });
+      });
+    }
+    return orig(u, o);
+  };
+  window.__pyPatched = true;
+}
+
+/* Программа ученика выполняется с подменой input() и ограничением числа шагов,
+   чтобы бесконечный цикл не завесил страницу. */
+var PY_HELPER = [
+  'import sys, json, traceback',
+  '',
+  'class _Stop(Exception):',
+  '    pass',
+  '',
+  'def _run(code, inputs, limit=300000):',
+  '    data = list(inputs)',
+  '    out = []',
+  '    class _W:',
+  '        def write(self, s):',
+  '            out.append(str(s))',
+  '            return len(str(s))',
+  '        def flush(self):',
+  '            pass',
+  '    def _input(prompt=""):',
+  '        if not data:',
+  '            raise EOFError("кончились входные данные")',
+  '        return str(data.pop(0))',
+  '    steps = [0]',
+  '    def _tr(frame, event, arg):',
+  '        if event == "line":',
+  '            steps[0] += 1',
+  '            if steps[0] > limit:',
+  '                raise _Stop()',
+  '        return _tr',
+  '    g = {"__name__": "__main__", "input": _input}',
+  '    err = None',
+  '    old = sys.stdout',
+  '    sys.stdout = _W()',
+  '    try:',
+  '        obj = compile(code, "<program>", "exec")',
+  '        sys.settrace(_tr)',
+  '        try:',
+  '            exec(obj, g)',
+  '        finally:',
+  '            sys.settrace(None)',
+  '    except _Stop:',
+  '        err = {"type": "Timeout", "line": None, "msg": ""}',
+  '    except SystemExit:',
+  '        pass',
+  '    except SyntaxError as e:',
+  '        err = {"type": type(e).__name__, "line": e.lineno, "msg": str(e.msg)}',
+  '    except BaseException as e:',
+  '        line = None',
+  '        for fr in traceback.extract_tb(e.__traceback__):',
+  '            if fr.filename == "<program>":',
+  '                line = fr.lineno',
+  '        err = {"type": type(e).__name__, "line": line, "msg": str(e)}',
+  '    finally:',
+  '        sys.stdout = old',
+  '    return json.dumps({"out": "".join(out), "err": err})',
+  ''
+].join('\n');
+
 function loadPython(onProgress) {
   if (PY) return Promise.resolve(PY);
   if (PY_LOADING) return PY_LOADING;
+  var inline = pyInlineReady();
+  if (onProgress) onProgress(inline
+    ? 'Готовим Python из файла… это занимает 10–30 секунд, интернет не нужен.'
+    : 'Загружаем Python… первый раз это занимает 10–30 секунд, нужен интернет.');
+
   PY_LOADING = new Promise(function (resolve, reject) {
-    if (onProgress) onProgress('Загружаем Python… первый раз это занимает 10–30 секунд.');
-    var tag = document.createElement('script');
-    tag.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
-    tag.onload = function () {
-      loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' })
-        .then(function (py) { PY = py; resolve(py); })
-        .catch(reject);
+    var start = function () {
+      var opts = inline ? { indexURL: PY_INLINE } : { indexURL: PY_CDN };
+      if (inline) pyInlineFetch();
+      window.loadPyodide(opts).then(function (py) {
+        py.runPython(PY_HELPER);
+        PY = py;
+        resolve(py);
+      }).catch(reject);
     };
+    if (typeof window.loadPyodide === 'function') return start();
+    if (inline) return reject(new Error('загрузчик Pyodide не вшит в файл'));
+    var tag = document.createElement('script');
+    tag.src = PY_CDN + 'pyodide.js';
+    tag.onload = start;
     tag.onerror = function () { reject(new Error('нет интернета')); };
     document.head.appendChild(tag);
   });
   PY_LOADING.catch(function () { PY_LOADING = null; });
   return PY_LOADING;
+}
+
+/** Запускает программу ученика с готовыми строками ввода. */
+function pyRunCode(code, inputs) {
+  return loadPython().then(function (py) {
+    var fn = py.globals.get('_run');
+    var arg = py.toPy((inputs || []).map(String));
+    try {
+      return JSON.parse(fn(code, arg));
+    } finally {
+      if (arg && arg.destroy) arg.destroy();
+      fn.destroy();
+    }
+  });
+}
+
+/* Подстановка данных в задачу, где кортеж задан прямо в программе:
+   строка «point = (3, 5)» заменяется на другие координаты. */
+function pyLit(v, round) {
+  var parts = v.map(function (x) {
+    return (typeof x === 'string') ? '"' + x + '"' : String(x);
+  });
+  if (!round) return '[' + parts.join(', ') + ']';
+  return '(' + parts.join(', ') + (parts.length === 1 ? ',)' : ')');
+}
+
+function withData(code, data) {
+  var c = code;
+  for (var k in (data || {})) {
+    if (!data.hasOwnProperty(k)) continue;
+    var re = new RegExp('^' + k + '\\s*=\\s*([\\[(]).*[\\])]\\s*$', 'm');
+    var m = re.exec(c);
+    if (!m) return null;
+    c = c.replace(re, k + ' = ' + pyLit(data[k], m[1] === '('));
+  }
+  return c;
+}
+
+var TOK = function (s) {
+  return String(s).split(/\s+/).filter(function (x) { return x; }).join(' ');
+};
+
+/** Проверка задачи: программу запускают на всех наборах данных. */
+function judgeTask(t, code) {
+  if (!code.trim()) {
+    return Promise.resolve({ ok: false, verdict: 'Редактор пустой: программа не написана.' });
+  }
+  var tests = t.tests || [];
+  var step = function (i) {
+    if (i >= tests.length) {
+      return { ok: true, passed: tests.length, total: tests.length,
+               verdict: 'Верно: пройдены все проверки — ' + tests.length };
+    }
+    var test = tests[i];
+    var prepared = withData(code, test.data);
+    if (prepared === null) {
+      var names = [];
+      for (var k in test.data) if (test.data.hasOwnProperty(k)) names.push(k);
+      return { ok: false, passed: i, total: tests.length,
+               verdict: 'Верните на место ' + (names.length > 1 ? 'строки ' : 'строку ') +
+                        names.map(function (n) { return '«' + n + ' = (…)»'; }).join(' и ') +
+                        ': по ним программу проверяют на других данных.' };
+    }
+    return pyRunCode(prepared, test.inputs || []).then(function (r) {
+      var e = r.err;
+      if (e && (e.type === 'SyntaxError' || e.type === 'IndentationError' || e.type === 'TabError')) {
+        return { ok: false, passed: i, total: tests.length,
+                 verdict: 'Программа не запустилась: ошибка в записи' +
+                          (e.line ? ' (строка ' + e.line + ')' : '') + '. ' + e.msg };
+      }
+      if (e && e.type === 'Timeout') {
+        return { ok: false, passed: i, total: tests.length, test: i + 1,
+                 verdict: 'Проверка ' + (i + 1) + ': программа работает слишком долго.',
+                 detail: 'Скорее всего, цикл не заканчивается.' };
+      }
+      if (e) {
+        return { ok: false, passed: i, total: tests.length, test: i + 1,
+                 verdict: 'Проверка ' + (i + 1) + ': ошибка при выполнении — ' + e.type +
+                          (e.line ? ', строка ' + e.line : ''),
+                 detail: e.msg };
+      }
+      if (TOK(r.out) !== TOK(test.want)) {
+        return { ok: false, passed: i, total: tests.length, test: i + 1,
+                 verdict: 'Проверка ' + (i + 1) + ' из ' + tests.length + ': вывод не тот.',
+                 detail: 'Данные:\n' + testShow(test) +
+                         '\nНужно вывести:\n' + test.want +
+                         '\nПрограмма вывела:\n' + (r.out.replace(/\s+$/, '') || '(ничего)') };
+      }
+      return step(i + 1);
+    });
+  };
+  return Promise.resolve().then(function () { return step(0); });
+}
+
+function testShow(test) {
+  var parts = [];
+  if (test.data) {
+    for (var k in test.data) if (test.data.hasOwnProperty(k)) {
+      parts.push(k + ' = ' + pyLit(test.data[k], true));
+    }
+  }
+  if (test.inputs && test.inputs.length) parts.push(test.inputs.join('\n'));
+  return parts.join('\n') || '(данных нет)';
 }
 
 /** Превращает блок кода в редактор с кнопкой «Запустить». */
@@ -1152,39 +1365,12 @@ var workUntil = 0;        // до какого времени этап закр�
 var workTick = null;
 var workWatching = false;
 var workLastWarn = 0;
+var workCode = {};        // программа ученика по каждой задаче
+var workTries = {};
+var workLastRes = {};
+var workHint = {};
 var WARN_MAX = 3;
 var LOCK_MINUTES = 40;
-
-/* Номер варианта считается из класса и фамилии — так же, как на сервере,
-   поэтому проверка ответа совпадает и в файле, и в таблице. */
-function foHash(klass, name) {
-  var tidy = function (v) {
-    return String(v || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
-  };
-  var str = tidy(klass) + '|' + tidy(name);
-  var h = 0;
-  for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 1000003;
-  return h;
-}
-
-function foVariant(klass, name, i, count) {
-  if (!count || count < 2) return 0;
-  return (foHash(klass, name) + i) % count;
-}
-
-/** Задача с подставленным вариантом: свои числа и свой правильный ответ. */
-function workTaskNow(i) {
-  var t = DATA.lesson.work.tasks[i];
-  var vs = t.variants || [];
-  if (!vs.length) return t;
-  var v = foVariant(chosen.klass, chosen.name, i, vs.length);
-  var out = {};
-  for (var k in t) if (t.hasOwnProperty(k)) out[k] = t[k];
-  out.accept = vs[v].accept;
-  out.code = t.code + '\n\n' + vs[v].test;
-  out.variant = v + 1;
-  return out;
-}
 
 /** Полный экран: другие вкладки и панели убираются с глаз. */
 function workFull() {
@@ -1308,17 +1494,20 @@ function renderWork() {
     var ins = el('div', 'card');
     ins.appendChild(el('h2', null, 'Инструкция'));
     var rules = [
-      'Задач шесть, всего 10 баллов. Они идут от простой к сложной, порядок менять не нужно.',
-      'У каждой задачи есть условие, формат входных и выходных данных и разобранный пример.',
-      'Внизу задачи стоит ваш вариант — числа и имена в нём только ваши. ' +
-        'Решать нужно в уме или на черновике: программу писать не надо.',
-      'В поле ответа пишите только то, что выведет правильная программа в вашем варианте — ' +
-        'без слова «ответ», без лишних знаков.',
-      'Ответ проверяется сразу: зелёный цвет — верно, красный — неверно. Исправить сданный ответ нельзя, ' +
-        'поэтому проверьте его перед отправкой.',
-      'После ответа появится разбор: откуда взялся результат и как задача решается. Прочитайте его — ' +
-        'следующая задача опирается на предыдущую.',
-      'Переходить между задачами можно по номерам сверху. Когда ответите на все, нажмите «Сдать практику».',
+      'Задач десять, по одному баллу за каждую. Они идут от простой к сложной, ' +
+        'порядок менять не нужно.',
+      'У каждой задачи есть условие, формат входных и выходных данных и разобранные примеры.',
+      'Программу вы пишете прямо в окне редактора под условием. Кнопка «Запустить на первом ' +
+        'примере» показывает, что выводит ваша программа, и не оценивается.',
+      'Кнопка «Отправить на проверку» запускает программу на нескольких наборах данных. ' +
+        'Балл ставится, только если пройдены все проверки.',
+      'Отправлять можно сколько угодно раз: неверно — красный цвет и объяснение, что пошло не так, ' +
+        'верно — зелёный. Номер задачи наверху: белый — не открывали, оранжевый — решаете, ' +
+        'зелёный — решено, красный — пока с ошибкой.',
+      'Когда задача решена, под ней появляется разбор: почему решение именно такое. ' +
+        'Прочитайте его — следующая задача опирается на предыдущую.',
+      'Переходить между задачами можно по номерам сверху или кнопками «Предыдущая» и «Следующая». ' +
+        'Когда закончите, нажмите «Сдать практику» — уйдут и баллы, и ваши программы.',
       'Практика откроется на весь экран, и выходить из него нельзя: ни на другие вкладки, ' +
         'ни в другие приложения, ни в поиск. Копирование и вставка на этом этапе отключены. ' +
         'За каждый уход — предупреждение. После третьего практика закроется на ' + LOCK_MINUTES +
@@ -1336,7 +1525,10 @@ function renderWork() {
       'У вас уже есть предупреждений: ' + workWarn + ' из ' + WARN_MAX + '.'));
     var go = el('button', 'action', 'Я прочитал инструкцию, начать практику');
     go.addEventListener('click', function () {
-      workBegun = true; workFull(); renderWork();
+      workBegun = true;
+      workFull();
+      loadPython(function () {}).catch(function () {});   // греем Python заранее
+      renderWork();
     });
     ins.appendChild(go);
     box.appendChild(ins);
@@ -1344,89 +1536,181 @@ function renderWork() {
   }
 
   if (workIdx >= tasks.length) workIdx = tasks.length - 1;
-  var t = workTaskNow(workIdx);
+  var t = tasks[workIdx];
 
   box.appendChild(el('div', 'display', 'Практика · ФО'));
   box.appendChild(el('div', 'lead', W.intro));
 
   if (workWarn > 0) {
-    var warn = el('div', 'verdict bad', 'Предупреждение ' + workWarn + ' из ' + WARN_MAX +
-      ': вы уходили со страницы. После третьего практика закроется на ' + LOCK_MINUTES + ' минут.');
-    box.appendChild(warn);
+    box.appendChild(el('div', 'verdict bad', 'Предупреждение ' + workWarn + ' из ' + WARN_MAX +
+      ': вы уходили со страницы. После третьего практика закроется на ' + LOCK_MINUTES + ' минут.'));
   }
 
   var strip = el('div', 'steps');
   tasks.forEach(function (x, i) {
     var cls = (i in workVerdict) ? (workVerdict[i] ? 'y' : 'n') : (i === workIdx ? 'now' : '');
     var chip = el('i', cls, String(i + 1));
-    chip.title = 'Задача ' + (i + 1) + ' · ' + (x.name || x.skill);
-    chip.addEventListener('click', function () {
-      workIdx = i; workLocked = (i in workVerdict); renderWork();
-    });
+    chip.title = 'Задача ' + (i + 1) + ' · ' + x.name;
+    chip.addEventListener('click', function () { workIdx = i; renderWork(); });
     strip.appendChild(chip);
   });
   box.appendChild(strip);
 
   var card = el('div', 'card');
-  card.appendChild(el('div', 'qnum',
-    'Задача ' + (workIdx + 1) + ' из ' + tasks.length + ' · ' + t.skill +
-    ' · ' + t.points + (t.points === 1 ? ' балл' : ' балла') +
-    (t.variant ? ' · вариант ' + t.variant : '')));
-  if (t.name) card.appendChild(el('h2', null, t.name));
+  card.appendChild(el('div', 'qnum', 'Задача ' + (workIdx + 1) + ' из ' + tasks.length +
+    ' · ' + t.skill + ' · ' + t.points + ' балл'));
+  card.appendChild(el('h2', null, t.name));
   card.appendChild(el('div', 'qtext', t.text));
-  if (t.code) card.appendChild(el('pre', null, t.code));
 
-  var inp = document.createElement('input');
-  inp.type = 'text';
-  inp.className = 'mono';
-  inp.placeholder = (t.kind === 'write') ? 'Одна строка кода' : 'Что выведет программа на вашем тесте';
-  inp.value = workAnswers[workIdx] || '';
-  inp.disabled = workLocked;
-  inp.addEventListener('input', function () { workAnswers[workIdx] = inp.value; });
-  inp.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter' && !workLocked) check.click();
-  });
-  card.appendChild(inp);
-
-  var check = el('button', 'action', workLocked
-    ? (workIdx + 1 < tasks.length ? 'Следующая задача' : 'Сдать практику')
-    : 'Ответить');
-
-  if (workLocked) {
-    var ok = workVerdict[workIdx];
-    var v = el('div', 'verdict ' + (ok ? 'ok' : 'bad'));
-    v.appendChild(el('span', 'dot'));
-    v.appendChild(el('span', null, ok ? 'Верно' : 'Неверно'));
-    card.appendChild(v);
-    if (!ok) card.appendChild(el('div', 'note', 'Правильный ответ: ' + t.accept[0]));
-    card.appendChild(el('div', 'note', t.note));
-    if (t.solution) {
-      card.appendChild(el('div', 'eyebrow', 'Как решается'));
-      card.appendChild(el('pre', null, t.solution));
-    }
+  if (t.inp) {
+    card.appendChild(el('div', 'eyebrow', 'Входные данные'));
+    card.appendChild(el('div', 'note', t.inp));
+  }
+  if (t.out) {
+    card.appendChild(el('div', 'eyebrow', 'Выходные данные'));
+    card.appendChild(el('div', 'note', t.out));
+  }
+  if (t.samples && t.samples.length) {
+    card.appendChild(el('div', 'eyebrow', 'Примеры'));
+    t.samples.forEach(function (ex) {
+      card.appendChild(el('pre', null, 'Данные:\n' + ex[0] + '\n\nПравильный вывод:\n' + ex[1]));
+    });
   }
 
-  check.addEventListener('click', function () {
-    if (!workLocked) {
-      var given = (workAnswers[workIdx] || '').trim();
-      if (!given) { banner('Напишите ответ.', 'err'); return; }
-      banner('');
-      workVerdict[workIdx] = acceptedLocal(given, t.accept);
-      workLocked = true;
-      renderWork();
-      return;
-    }
-    if (workIdx + 1 < tasks.length) {
-      workIdx++;
-      workLocked = (workIdx in workVerdict);
-      renderWork();
-    } else {
-      workDone = true;
-      workExit();
-      finishWork();
+  /* редактор */
+  var ed = el('div', 'editor');
+  var area = document.createElement('textarea');
+  area.className = 'codearea';
+  if (workCode[workIdx] === undefined) workCode[workIdx] = t.start || '';
+  area.value = workCode[workIdx];
+  area.rows = Math.max(7, area.value.split('\n').length + 4);
+  area.spellcheck = false;
+  area.addEventListener('input', function () { workCode[workIdx] = area.value; });
+  area.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Tab') {
+      ev.preventDefault();
+      var a = area.selectionStart, b = area.selectionEnd;
+      area.value = area.value.slice(0, a) + '    ' + area.value.slice(b);
+      area.selectionStart = area.selectionEnd = a + 4;
+      workCode[workIdx] = area.value;
     }
   });
-  card.appendChild(check);
+  ed.appendChild(area);
+
+  var outBox = el('div', 'out');
+  outBox.style.display = 'none';
+
+  var row = el('div', 'qnav');
+  var send = el('button', 'action', 'Отправить на проверку');
+  var run = el('button', 'quiet', 'Запустить на первом примере');
+  var reset = el('button', 'quiet', 'Начать заново');
+  row.appendChild(send);
+  row.appendChild(run);
+  row.appendChild(reset);
+  ed.appendChild(row);
+  ed.appendChild(outBox);
+  card.appendChild(ed);
+
+  function say(text, kind) {
+    outBox.style.display = 'block';
+    outBox.className = 'out' + (kind === 'err' ? ' err' : '');
+    outBox.textContent = text;
+  }
+
+  run.addEventListener('click', function () {
+    var test = (t.tests || [])[0];
+    if (!test) return;
+    run.disabled = true;
+    say('Запускаем…');
+    var prepared = withData(area.value, test.data);
+    if (prepared === null) {
+      run.disabled = false;
+      say('Строка с данными стёрта — верните её, по ней программу проверяют.', 'err');
+      return;
+    }
+    pyRunCode(prepared, test.inputs || []).then(function (r) {
+      run.disabled = false;
+      if (r.err) {
+        say(r.err.type + (r.err.line ? ', строка ' + r.err.line : '') + '\n' + r.err.msg, 'err');
+      } else {
+        say((r.out.replace(/\s+$/, '') || '(программа ничего не вывела)') +
+            '\n\nДля этого примера правильный вывод:\n' + test.want);
+      }
+    }, function (e) {
+      run.disabled = false;
+      say('Python не запустился: ' + ((e && e.message) || e), 'err');
+    });
+  });
+
+  reset.addEventListener('click', function () {
+    workCode[workIdx] = t.start || '';
+    renderWork();
+  });
+
+  send.addEventListener('click', function () {
+    send.disabled = true;
+    say('Проверяем на ' + (t.tests || []).length + ' наборах данных…');
+    judgeTask(t, area.value).then(function (res) {
+      send.disabled = false;
+      workVerdict[workIdx] = res.ok;
+      workAnswers[workIdx] = { ok: res.ok, code: area.value.substring(0, 1500),
+                               verdict: res.verdict };
+      workTries[workIdx] = (workTries[workIdx] || 0) + 1;
+      workLastRes[workIdx] = res;
+      renderWork();
+    }, function (e) {
+      send.disabled = false;
+      say('Проверить не удалось: ' + ((e && e.message) || e), 'err');
+    });
+  });
+
+  var res = workLastRes[workIdx];
+  if (res) {
+    var v = el('div', 'verdict ' + (res.ok ? 'ok' : 'bad'));
+    v.appendChild(el('span', 'dot'));
+    v.appendChild(el('span', null, res.verdict));
+    card.appendChild(v);
+    if (res.detail) card.appendChild(el('pre', null, res.detail));
+    if (workTries[workIdx]) {
+      card.appendChild(el('div', 'hint', 'Попыток: ' + workTries[workIdx] +
+        (res.ok ? '' : '. Исправьте программу и отправьте снова.')));
+    }
+    if (res.ok) card.appendChild(el('div', 'note', t.note));
+  }
+
+  if (!res || !res.ok) {
+    var hintBtn = el('button', 'quiet', workHint[workIdx] ? 'Скрыть подсказку' : 'Подсказка');
+    hintBtn.addEventListener('click', function () {
+      workHint[workIdx] = !workHint[workIdx]; renderWork();
+    });
+    card.appendChild(hintBtn);
+    if (workHint[workIdx]) card.appendChild(el('div', 'note', t.hint));
+  }
+
+  var nav = el('div', 'qnav');
+  var prev = el('button', 'quiet', '← Предыдущая');
+  prev.disabled = workIdx === 0;
+  prev.addEventListener('click', function () { workIdx--; renderWork(); });
+  nav.appendChild(prev);
+  var next = el('button', 'quiet', 'Следующая →');
+  next.disabled = workIdx >= tasks.length - 1;
+  next.addEventListener('click', function () { workIdx++; renderWork(); });
+  nav.appendChild(next);
+  var done = el('button', 'action', 'Сдать практику');
+  done.addEventListener('click', function () {
+    var solved = 0;
+    tasks.forEach(function (x, i) { if (workVerdict[i]) solved++; });
+    workDone = true;
+    workExit();
+    finishWork();
+  });
+  nav.appendChild(done);
+  card.appendChild(nav);
+
+  var state = el('div', 'hint', PY ? 'Python готов.' :
+    'Python готовится к работе: первая проверка может занять до полминуты.');
+  card.appendChild(state);
+
   box.appendChild(card);
 
   var slot = el('div');

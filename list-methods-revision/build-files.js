@@ -52,6 +52,54 @@ function withShim(html, shim, title) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Встроенный Python                                                   */
+/* ------------------------------------------------------------------ */
+
+/* Пять файлов Pyodide 0.26.4 кладём прямо в страницу: два скрипта как есть,
+   три больших файла — сжатыми и в base64, их запросы страница перехватывает
+   сама. После этого программа ученика выполняется без интернета.
+   Файлы лежат в pyodide-inline/ и в репозиторий не кладутся: это копия
+   Pyodide (Mozilla, лицензия Apache-2.0), её берут из дистрибутива
+   https://cdn.jsdelivr.net/pyodide/v0.26.4/full/ */
+const PY_DIR = path.join(DIR, 'pyodide-inline');
+const PY_PARTS = [
+  { file: 'pyodide.js', kind: 'script' },
+  { file: 'pyodide.asm.js', kind: 'script' },
+  { file: 'pyodide.asm.wasm.gz.b64', kind: 'data', id: 'pyb-pyodide-asm-wasm' },
+  { file: 'python_stdlib.zip.gz.b64', kind: 'data', id: 'pyb-python_stdlib-zip' },
+  { file: 'pyodide-lock.json.gz.b64', kind: 'data', id: 'pyb-pyodide-lock-json' }
+];
+
+function pythonPayload() {
+  const missing = PY_PARTS.filter(p => !fs.existsSync(path.join(PY_DIR, p.file)));
+  if (missing.length) {
+    console.log('! встроенного Python нет (' + missing.map(m => m.file).join(', ') +
+                '): страницы будут брать Python с CDN, то есть нужен интернет');
+    return { html: '', bytes: 0 };
+  }
+  const chunks = PY_PARTS.map(p => {
+    const body = fs.readFileSync(path.join(PY_DIR, p.file), 'utf8');
+    if (body.indexOf('</script') !== -1) {
+      throw new Error(p.file + ': внутри встретился </script');
+    }
+    return p.kind === 'script'
+      ? '<script>\n' + body + '\n</script>'
+      : '<script type="application/octet-stream" id="' + p.id + '">' +
+        body.trim() + '</script>';
+  });
+  const html = '\n<!-- Pyodide 0.26.4, встроен целиком: Python работает без интернета -->\n' +
+               chunks.join('\n') + '\n';
+  return { html: html, bytes: html.length };
+}
+
+function withPython(html, payload, title) {
+  if (!payload.html) return html;
+  const i = html.indexOf('<script>');
+  if (i === -1) throw new Error('в ' + title + ' не найден <script>');
+  return html.slice(0, i) + payload.html + html.slice(i);
+}
+
+/* ------------------------------------------------------------------ */
 /* Общая часть: очередь отправки                                       */
 /* ------------------------------------------------------------------ */
 
@@ -138,17 +186,17 @@ function gradeCheck(ans){
   return { score: score, total: L.check.total, detail: detail };
 }
 
-function gradeWork(ans, klass, name){
+function gradeWork(ans){
   var score = 0, detail = [];
   L.work.tasks.forEach(function(t, i){
-    var given = ans[String(i)];
-    var vs = t.variants || [];
-    var accept = vs.length ? vs[foVariant(klass, name, i, vs.length)].accept : t.accept;
-    var ok = okAnswer(given, accept);
+    var a = ans[String(i)], o = (a && typeof a === 'object') ? a : {};
+    var code = String(o.code == null ? '' : o.code);
+    var ok = o.ok === true;
     if (ok) score += t.points;
     detail.push({ n: i+1, got: ok ? t.points : 0, max: t.points,
-                  skipped: !String(given == null ? '' : given).trim(),
-                  given: String(given || '').substring(0,120), note: t.note });
+                  skipped: !code.trim(),
+                  given: code.substring(0,1500),
+                  verdict: String(o.verdict || '').substring(0,200), note: t.note });
   });
   return { score: score, total: L.work.total, detail: detail };
 }
@@ -196,7 +244,7 @@ window.google = { script: { run: {
   submitStage: function(p){
     var res;
     if (p.stage === 'check') res = gradeCheck(p.answers || {});
-    else if (p.stage === 'work') res = gradeWork(p.answers || {}, p.klass, p.name);
+    else if (p.stage === 'work') res = gradeWork(p.answers || {});
     else res = { score: '', total: '', detail: [], choice: p.choice, text: p.text };
     qAdd({ type: 'stage', uid: p.uid || uidLocal(), klass: p.klass, name: p.name,
            stage: p.stage, answers: p.answers || {}, choice: p.choice || '', text: p.text || '' });
@@ -296,8 +344,11 @@ window.google = { script: { run: {
 } } };
 `;
 
-const student = withShim(read('student.html'), STUDENT_SHIM, 'student.html');
-const teacher = withShim(read('teacher.html'), TEACHER_SHIM, 'teacher.html');
+const payload = pythonPayload();
+const student = withPython(withShim(read('student.html'), STUDENT_SHIM, 'student.html'),
+                           payload, 'student.html');
+const teacher = withPython(withShim(read('teacher.html'), TEACHER_SHIM, 'teacher.html'),
+                           payload, 'teacher.html');
 
 fs.writeFileSync(path.join(DIR, 'fayl-uchenika.html'), student);
 fs.writeFileSync(path.join(DIR, 'fayl-uchitelya.html'), teacher);
@@ -307,6 +358,9 @@ console.log('fayl-uchenika.html :', Math.round(student.length / 1024) + ' КБ,'
             QUESTIONS.length, 'заданий,',
             CLASSES.reduce((n, c) => n + c.students.length, 0), 'учеников');
 console.log('fayl-uchitelya.html:', Math.round(teacher.length / 1024) + ' КБ');
+console.log('встроенный Python:', payload.bytes
+  ? Math.round(payload.bytes / 1024 / 1024 * 10) / 10 + ' МБ в каждом файле, интернет не нужен'
+  : 'нет, страницы берут Python с CDN');
 console.log('отправка и чтение:', WEB_APP_URL);
 if (TEACHER_TOKEN === 'ТОКЕН-НЕ-ЗАДАН') {
   console.log('! токен учителя не передан: выполните setup() и пересоберите с токеном');
