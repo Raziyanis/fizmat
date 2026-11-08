@@ -361,7 +361,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v47 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v48 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -442,7 +442,9 @@ function showVersion_(serverVersion) {
 function load(auto) {
   google.script.run
     .withSuccessHandler(function (data) {
-      if (data && data.offlineOnly) {
+      if (data && data.reason) {
+        banner(data.reason, 'warn');
+      } else if (data && data.offlineOnly) {
         banner('Нет связи с таблицей. Задания и списки классов показаны из файла, ' +
                'ответов класса пока нет. Нажмите «Обновить», когда появится интернет.', 'warn');
       } else if (data && data.stale) {

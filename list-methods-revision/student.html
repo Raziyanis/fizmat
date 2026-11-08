@@ -326,7 +326,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v47 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v48 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -633,9 +633,14 @@ function judgeTask(t, code) {
                           (e.line ? ', строка ' + e.line : ''),
                  detail: e.msg };
       }
-      if (TOK(r.out) !== TOK(test.want)) {
+      var got = TOK(r.out), want = TOK(test.want);
+      if (got !== want) {
+        var why = 'вывод не тот.';
+        if (!got) why = 'программа ничего не вывела.';
+        else if (got.indexOf(want) === 0) why = 'программа вывела лишнее — только то, что просят.';
+        else if (want.indexOf(got) === 0) why = 'программа вывела не всё.';
         return { ok: false, passed: i, total: tests.length, test: i + 1,
-                 verdict: 'Проверка ' + (i + 1) + ' из ' + tests.length + ': вывод не тот.',
+                 verdict: 'Проверка ' + (i + 1) + ' из ' + tests.length + ': ' + why,
                  detail: 'Данные:\n' + testShow(test) +
                          '\n\nПрограмма вывела:\n' + (r.out.replace(/\s+$/, '') || '(ничего)') +
                          '\n\nА нужно:\n' + test.want };

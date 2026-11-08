@@ -326,12 +326,19 @@ window.google = { script: { run: {
 
   getResults: function(){
     var ok = this._ok;
-    pullResults(ok, function(){
-      // связи нет: показываем последнее загруженное, а если его нет —
-      // задания и списки классов из самого файла
+    pullResults(ok, function(err){
+      // таблицу прочитать не вышло: объясняем, почему именно,
+      // иначе пустая таблица выглядит так, будто класс ничего не делал
+      var why = (!TOKEN || TOKEN === 'ТОКЕН-НЕ-ЗАДАН')
+        ? 'Файл учителя собран без токена, поэтому таблицу он не читает: ' +
+          'все ученики показаны как «не сдал», хотя работы могли прийти. ' +
+          'Выполните setup() в Apps Script, возьмите токен из журнала выполнения ' +
+          'и пересоберите файл учителя с ним.'
+        : 'Таблица не ответила: ' + ((err && err.message) || 'нет связи') +
+          '. Показаны задания и списки из файла, ответов класса нет.';
       var old = cachedResults();
-      if (old) { old.stale = true; ok(old); }
-      else { ok(localSkeleton()); }
+      if (old) { old.stale = true; old.reason = why; ok(old); }
+      else { var sk = localSkeleton(); sk.reason = why; ok(sk); }
     });
   },
 
