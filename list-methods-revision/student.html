@@ -326,7 +326,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v48 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v49 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -594,6 +594,31 @@ var TOK = function (s) {
   return String(s).split(/\s+/).filter(function (x) { return x; }).join(' ');
 };
 
+/** Короткое объяснение частых ошибок по-русски. */
+function errHelp(e) {
+  var t = String((e && e.type) || ''), m = String((e && e.msg) || '');
+  if (t === 'NameError') {
+    var who = (/'([^']+)'/.exec(m) || [])[1] || '';
+    return 'Python не знает имя' + (who ? ' «' + who + '»' : '') +
+           '. Чаще всего это опечатка в названии переменной — сверьте, как оно написано выше.';
+  }
+  if (t === 'EOFError') {
+    return 'Программа просит ввод, а данных больше нет: лишний input() или их прочитано больше, чем прислали.';
+  }
+  if (t === 'IndexError') {
+    return 'Обращение к элементу, которого нет. Счёт начинается с нуля: у кортежа из трёх элементов ' +
+           'это 0, 1 и 2.';
+  }
+  if (t === 'ValueError' && m.indexOf('unpack') > -1) {
+    return 'При распаковке переменных слева должно быть столько же, сколько элементов справа.';
+  }
+  if (t === 'TypeError' && m.indexOf('item assignment') > -1) {
+    return 'Кортеж изменить нельзя. Нужно создать новый: через list() и tuple() или через +.';
+  }
+  if (t === 'ZeroDivisionError') return 'Деление на ноль.';
+  return '';
+}
+
 /** Проверка задачи: программу запускают на всех наборах данных. */
 function judgeTask(t, code) {
   if (!code.trim()) {
@@ -628,10 +653,11 @@ function judgeTask(t, code) {
                  detail: 'Скорее всего, цикл не заканчивается.' };
       }
       if (e) {
+        var help = errHelp(e);
         return { ok: false, passed: i, total: tests.length, test: i + 1,
                  verdict: 'Проверка ' + (i + 1) + ': ошибка при выполнении — ' + e.type +
                           (e.line ? ', строка ' + e.line : ''),
-                 detail: e.msg };
+                 detail: e.msg + (help ? '\n\n' + help : '') };
       }
       var got = TOK(r.out), want = TOK(test.want);
       if (got !== want) {
@@ -1814,17 +1840,29 @@ function renderWork() {
 
   if (workHint[workIdx]) card.appendChild(el('div', 'note', t.hint));
 
+  var resBox = el('div');
+  card.appendChild(resBox);
   var res = workLastRes[workIdx];
   if (res) {
     var v = el('div', 'verdict ' + (res.ok ? 'ok' : 'bad'));
     v.appendChild(el('span', 'dot'));
     v.appendChild(el('span', null, res.verdict));
-    card.appendChild(v);
-    if (res.detail) card.appendChild(el('pre', null, res.detail));
-    card.appendChild(el('div', 'hint', 'Попыток: ' + (workTries[workIdx] || 1) +
+    resBox.appendChild(v);
+    if (res.detail) resBox.appendChild(el('pre', null, res.detail));
+    resBox.appendChild(el('div', 'hint', 'Попыток: ' + (workTries[workIdx] || 1) +
       (res.ok ? '' : '. Исправьте программу и нажмите «Проверить» снова.')));
-    if (res.ok) card.appendChild(el('div', 'note', t.note));
+    if (res.ok) resBox.appendChild(el('div', 'note', t.note));
   }
+
+  /* Как только ученик правит программу, старый разбор убираем: иначе
+     прошлая ошибка висит на экране и выглядит так, будто она осталась. */
+  area.addEventListener('input', function () {
+    if (!workLastRes[workIdx] || resBox.__cleared) return;
+    resBox.__cleared = true;
+    resBox.textContent = '';
+    resBox.appendChild(el('div', 'hint',
+      'Программа изменилась. Нажмите «Проверить», чтобы проверить заново.'));
+  });
 
   var nav = el('div', 'qnav');
   var prev = el('button', 'quiet', '← Предыдущая');
