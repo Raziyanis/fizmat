@@ -28,6 +28,7 @@ const QUESTIONS = eval(code.match(/var QUESTIONS = (\[[\s\S]*?\n\]);/)[1]);
 const LESSON = eval('(' + code.match(/var LESSON = (\{[\s\S]*?\n\});/)[1] + ')');
 const LESSON_KK = eval('(' + code.match(/var LESSON_KK = (\{[\s\S]*?\n\});/)[1] + ')');
 const UI_KK_DATA = eval('(' + code.match(/var UI_KK = (\{[\s\S]*?\n\});/)[1] + ')');
+const QUESTIONS_KK = eval(code.match(/var QUESTIONS_KK = (\[[\s\S]*?\n\]);/)[1]);
 const VERSION = code.match(/var APP_VERSION = '([^']+)'/)[1];
 
 function roster() {
@@ -173,6 +174,7 @@ var Q = ${JSON.stringify(QUESTIONS)};
 var L = ${JSON.stringify(LESSON)};
 var LKK = ${JSON.stringify(LESSON_KK)};
 var UKK = ${JSON.stringify(UI_KK_DATA)};
+var QKK = ${JSON.stringify(QUESTIONS_KK)};
 var CL = ${JSON.stringify(CLASSES)};
 var VER = ${JSON.stringify(VERSION)};
 ${QUEUE}
@@ -226,7 +228,7 @@ window.google = { script: { run: {
 
   getStudentData: function(){
     this._ok({
-      version: VER, lesson: L, lessonKk: LKK, uiKk: UKK,
+      version: VER, lesson: L, lessonKk: LKK, uiKk: UKK, questionsKk: QKK,
       email: '', total: Q.length, classes: CL,
       questions: Q.map(function(q){
         return { id:q.id, topic:q.topic, code:q.code, text:q.text, options:q.options };
@@ -289,6 +291,7 @@ var Q = ${JSON.stringify(QUESTIONS)};
 var L = ${JSON.stringify(LESSON)};
 var LKK = ${JSON.stringify(LESSON_KK)};
 var UKK = ${JSON.stringify(UI_KK_DATA)};
+var QKK = ${JSON.stringify(QUESTIONS_KK)};
 var CL = ${JSON.stringify(CLASSES)};
 var VER = ${JSON.stringify(VERSION)};
 ${QUEUE}
@@ -298,7 +301,7 @@ function localSkeleton(){
   var roster = [];
   CL.forEach(function(c){ c.students.forEach(function(n){ roster.push({klass:c.klass, name:n}); }); });
   return {
-    version: VER, lesson: L, lessonKk: LKK, uiKk: UKK,
+    version: VER, lesson: L, lessonKk: LKK, uiKk: UKK, questionsKk: QKK,
     roster: roster, stages: {}, students: [],
     perQuestion: Q.map(function(q, i){
       return { id:q.id, number:i+1, topic:q.topic, text:q.text, code:q.code,

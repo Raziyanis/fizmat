@@ -283,9 +283,7 @@
   <div id="screen-who" style="display:none">
     <div class="eyebrow">Этап 1 · повторение пройденной темы</div>
     <div class="display">Методы списка</div>
-    <div class="lead">Тему мы уже прошли — проверим, что осталось в памяти.
-      15 заданий, по одному за раз: ответил — сразу видно, верно или нет.
-      Выберите свой класс, затем найдите себя в списке.</div>
+    <div class="lead">Тему мы уже прошли — проверим, что осталось в памяти. 15 заданий, по одному за раз: ответил — сразу видно, верно или нет. Выберите свой класс, затем найдите себя в списке.</div>
     <div class="card">
       <label class="name">Класс</label>
       <div class="pick" id="class-list"></div>
@@ -337,7 +335,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v58 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v59 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -463,6 +461,7 @@ function renderWhoami() {
 var LANG = 'ru';
 try { LANG = localStorage.getItem('lesson-lang') || 'ru'; } catch (e) {}
 var RAW_LESSON = null;      // русский урок как пришёл с сервера
+var RAW_QUESTIONS = null;
 var UI_KK = {};             // перевод подписей
 
 /** Накладывает перевод поверх русского: чего нет — остаётся по-русски. */
@@ -513,6 +512,11 @@ function txDom(root) {
 function applyLang() {
   if (!DATA || !RAW_LESSON) return;
   DATA.lesson = (LANG === 'kk') ? mergeLang(RAW_LESSON, DATA.lessonKk || {}) : RAW_LESSON;
+  if (RAW_QUESTIONS) {
+    DATA.questions = (LANG === 'kk')
+      ? mergeLang(RAW_QUESTIONS, DATA.questionsKk || [])
+      : RAW_QUESTIONS;
+  }
 }
 
 /* ---------- редактор с запуском Python ---------- */
@@ -725,7 +729,7 @@ function judgeTask(t, code) {
   var step = function (i) {
     if (i >= tests.length) {
       return { ok: true, passed: tests.length, total: tests.length,
-               verdict: 'Верно: пройдены все проверки — ' + tests.length };
+               verdict: tx('Верно: пройдены все проверки —') + ' ' + tests.length };
     }
     var test = tests[i];
     var prepared = withData(code, test.data);
@@ -742,32 +746,35 @@ function judgeTask(t, code) {
       var e = r.err;
       if (e && (e.type === 'SyntaxError' || e.type === 'IndentationError' || e.type === 'TabError')) {
         return { ok: false, passed: i, total: tests.length,
-                 verdict: 'Программа не запустилась: ошибка в записи' +
-                          (e.line ? ' (строка ' + e.line + ')' : '') + '. ' + e.msg };
+                 verdict: tx('Программа не запустилась: ошибка в записи') +
+                          (e.line ? ' (' + tx('строка') + ' ' + e.line + ')' : '') + '. ' + e.msg };
       }
       if (e && e.type === 'Timeout') {
         return { ok: false, passed: i, total: tests.length, test: i + 1,
-                 verdict: 'Проверка ' + (i + 1) + ': программа работает слишком долго.',
-                 detail: 'Скорее всего, цикл не заканчивается.' };
+                 verdict: tx('Проверка') + ' ' + (i + 1) + ': ' +
+                          tx('программа работает слишком долго.'),
+                 detail: tx('Скорее всего, цикл не заканчивается.') };
       }
       if (e) {
         var help = errHelp(e);
         return { ok: false, passed: i, total: tests.length, test: i + 1,
-                 verdict: 'Проверка ' + (i + 1) + ': ошибка при выполнении — ' + e.type +
-                          (e.line ? ', строка ' + e.line : ''),
+                 verdict: tx('Проверка') + ' ' + (i + 1) + ': ' +
+                          tx('ошибка при выполнении —') + ' ' + e.type +
+                          (e.line ? ', ' + tx('строка') + ' ' + e.line : ''),
                  detail: e.msg + (help ? '\n\n' + help : '') };
       }
       var got = TOK(r.out), want = TOK(test.want);
       if (got !== want) {
-        var why = 'вывод не тот.';
-        if (!got) why = 'программа ничего не вывела.';
-        else if (got.indexOf(want) === 0) why = 'программа вывела лишнее — только то, что просят.';
-        else if (want.indexOf(got) === 0) why = 'программа вывела не всё.';
+        var why = tx('вывод не тот.');
+        if (!got) why = tx('программа ничего не вывела.');
+        else if (got.indexOf(want) === 0) why = tx('программа вывела лишнее — только то, что просят.');
+        else if (want.indexOf(got) === 0) why = tx('программа вывела не всё.');
         return { ok: false, passed: i, total: tests.length, test: i + 1,
-                 verdict: 'Проверка ' + (i + 1) + ' из ' + tests.length + ': ' + why,
-                 detail: 'Данные:\n' + testShow(test) +
-                         '\n\nПрограмма вывела:\n' + (r.out.replace(/\s+$/, '') || '(ничего)') +
-                         '\n\nА нужно:\n' + test.want };
+                 verdict: tx('Проверка') + ' ' + (i + 1) + ' / ' + tests.length + ': ' + why,
+                 detail: tx('Данные:') + '\n' + testShow(test) +
+                         '\n\n' + tx('Программа вывела:') + '\n' +
+                         (r.out.replace(/\s+$/, '') || tx('(ничего)')) +
+                         '\n\n' + tx('А нужно:') + '\n' + test.want };
       }
       return step(i + 1);
     });
@@ -902,7 +909,8 @@ function renderReference(box, L) {
 
   R.cards.forEach(function (c, i) {
     var card = el('div', 'card refcard');
-    card.appendChild(el('div', 'qnum', 'Карточка ' + (i + 1) + ' из ' + R.cards.length));
+    card.appendChild(el('div', 'qnum',
+      tx('Карточка') + ' ' + (i + 1) + ' / ' + R.cards.length));
     card.appendChild(el('div', 'refname', c.name));
     card.appendChild(el('div', 'refsimple', c.simple));
 
@@ -939,7 +947,7 @@ function renderReference(box, L) {
       card.appendChild(ul2);
     }
 
-    card.appendChild(el('div', 'refremember', 'Запомни: ' + c.remember));
+    card.appendChild(el('div', 'refremember', tx('Запомни:') + ' ' + c.remember));
     box.appendChild(card);
   });
 
@@ -980,7 +988,7 @@ function renderLesson() {
 
   box.textContent = '';
   box.appendChild(el('div', 'eyebrow',
-    'Этап 3 · новая тема · шаг ' + (SLIDE + 1) + ' из ' + blocks.length));
+    tx('Этап 3 · новая тема · шаг') + ' ' + (SLIDE + 1) + ' / ' + blocks.length));
 
   var strip = el('div', 'steps');
   blocks.forEach(function (x, i) {
@@ -1141,6 +1149,7 @@ function start() {
     .withSuccessHandler(function (data) {
       DATA = data; banner('');
       RAW_LESSON = DATA.lesson;
+      RAW_QUESTIONS = DATA.questions;
       UI_KK = DATA.uiKk || {};
       applyLang();
       drawLangSwitch();
@@ -1285,7 +1294,8 @@ function renderStep() {
 
   var card = document.getElementById('question-card');
   card.textContent = '';
-  card.appendChild(el('div', 'qnum', 'Задание ' + (step + 1) + ' из ' + DATA.total + ' · ' + q.topic));
+  card.appendChild(el('div', 'qnum',
+    tx('Задание') + ' ' + (step + 1) + ' / ' + DATA.total + ' · ' + q.topic));
   card.appendChild(el('div', 'qtext', q.text));
   card.appendChild(el('pre', null, q.code));
 
@@ -1359,7 +1369,7 @@ function showVerdict(q, labels, res) {
   verdict.appendChild(el('span', null, res.ok ? 'Верно' : 'Неверно'));
   card.appendChild(verdict);
 
-  if (!res.ok) card.appendChild(el('div', 'note', 'Правильный ответ: ' + res.correctText));
+  if (!res.ok) card.appendChild(el('div', 'note', tx('Правильный ответ:') + ' ' + res.correctText));
   card.appendChild(el('div', 'note', res.note));
 
   var btn = document.getElementById('check');
@@ -1483,8 +1493,8 @@ function renderCheck() {
 
   C.items.forEach(function (it, i) {
     var card = el('div', 'card');
-    card.appendChild(el('div', 'qnum', 'Задание ' + (i + 1) + ' · ' + it.points +
-      (it.points === 1 ? ' балл' : ' балла')));
+    card.appendChild(el('div', 'qnum', tx('Задание') + ' ' + (i + 1) + ' · ' +
+      it.points + ' ' + tx('балл')));
     card.appendChild(el('div', 'qtext', it.text));
 
     if (it.kind === 'tf') {
@@ -1771,7 +1781,7 @@ function renderWork() {
       'Практика закрыта на ' + LOCK_MINUTES + ' минут. Пароля нет: раньше времени открыть её нельзя. ' +
       'Откроется сама, когда время выйдет.'));
     card0.appendChild(el('div', 'verdict bad',
-      'Осталось ждать: ' + left + (left === 1 ? ' минуту' : (left < 5 ? ' минуты' : ' минут'))));
+      tx('Осталось ждать:') + ' ' + left + ' ' + tx('мин')));
     card0.appendChild(el('div', 'note',
       'Ответы, которые вы уже сдали, сохранены — они не пропадут. Замок стоит только на вас: ' +
       (chosen.name || 'этого ученика') + '. Другие ученики за этим же компьютером не затронуты.'));
@@ -1864,12 +1874,12 @@ function renderWork() {
     var solved = 0;
     tasks.forEach(function (x, i) { if (workVerdict[i]) solved++; });
     box.appendChild(el('div', 'msg ok',
-      'Ваша работа восстановлена: решено задач ' + solved + ', программы на месте. ' +
-      'Можно продолжать с того места, где остановились.'));
+      tx('Ваша работа восстановлена. Решено задач:') + ' ' + solved + '. ' +
+      tx('Можно продолжать с того места, где остановились.')));
   }
   if (workWarn > 0) {
-    box.appendChild(el('div', 'verdict bad', 'Предупреждение ' + workWarn + ' из ' + WARN_MAX +
-      ': вы уходили со страницы. После третьего практика закроется на ' + LOCK_MINUTES + ' минут.'));
+    box.appendChild(el('div', 'verdict bad', tx('Предупреждение') + ' ' + workWarn + ' / ' +
+      WARN_MAX + ': ' + tx('вы уходили со страницы. После третьего практика закроется на 40 минут.')));
   }
 
   var strip = el('div', 'steps');
@@ -1884,10 +1894,12 @@ function renderWork() {
 
   var card = el('div', 'card');
   card.appendChild(el('div', 'qnum',
-    (t.extra ? 'Дополнительная задача ' + (workIdx + 1) : 'Задача ' + (workIdx + 1) + ' из ' + MAIN_N) +
-    ' · ' + t.skill + (t.extra ? ' · на оценку не влияет' : ' · ' + t.points + ' балл') +
-    (t.stars ? ' · сложность ' + '★★★'.slice(0, t.stars) : '') +
-    ' · проверок: ' + (t.tests || []).length));
+    (t.extra ? tx('Дополнительная задача') + ' ' + (workIdx + 1)
+             : tx('Задача') + ' ' + (workIdx + 1) + ' / ' + MAIN_N) +
+    ' · ' + t.skill +
+    (t.extra ? ' · ' + tx('на оценку не влияет') : ' · ' + t.points + ' ' + tx('балл')) +
+    (t.stars ? ' · ' + tx('сложность') + ' ' + '★★★'.slice(0, t.stars) : '') +
+    ' · ' + tx('проверок:') + ' ' + (t.tests || []).length));
   card.appendChild(el('h2', null, t.name));
   card.appendChild(el('div', 'qtext', t.text));
   if (t.steps && t.steps.length) {
@@ -2078,8 +2090,8 @@ function renderWork() {
     v.appendChild(el('span', null, res.verdict));
     resBox.appendChild(v);
     if (res.detail) resBox.appendChild(el('pre', null, res.detail));
-    resBox.appendChild(el('div', 'hint', 'Попыток: ' + (workTries[workIdx] || 1) +
-      (res.ok ? '' : '. Исправьте программу и нажмите «Проверить» снова.')));
+    resBox.appendChild(el('div', 'hint', tx('Попыток:') + ' ' + (workTries[workIdx] || 1) +
+      (res.ok ? '' : '. ' + tx('Исправьте программу и нажмите «Проверить» снова.'))));
     if (res.ok) resBox.appendChild(el('div', 'note', t.note));
   }
 
@@ -2153,12 +2165,12 @@ function sendStatus() {
   if (typeof window.__outbox !== 'function') return '';
   var box = window.__outbox();
   if (box.left > 0) {
-    return 'Не отправлено: в очереди ' + box.left +
-           '. Уйдёт учителю, как только появится сеть.';
+    return tx('Не отправлено, в очереди:') + ' ' + box.left + '. ' +
+           tx('Уйдёт учителю, как только появится сеть.');
   }
   if (box.sentAt) {
     var d = new Date(box.sentAt);
-    return 'Отправлено учителю в ' +
+    return tx('Отправлено учителю в') + ' ' +
            ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + '.';
   }
   return 'Пока учителю ничего не отправлено.';
@@ -2217,7 +2229,8 @@ function renderDecide() {
   box.appendChild(strip);
 
   var card = el('div', 'card');
-  card.appendChild(el('div', 'qnum', 'Ситуация ' + (decideIdx + 1) + ' из ' + items.length));
+  card.appendChild(el('div', 'qnum',
+    tx('Ситуация') + ' ' + (decideIdx + 1) + ' / ' + items.length));
   card.appendChild(el('div', 'qtext', it.text));
 
   ['кортеж', 'список'].forEach(function (choice) {
@@ -2288,9 +2301,9 @@ function showStageResult(slotId, res, title) {
   card.appendChild(el('div', 'display', res.score + ' / ' + res.total));
   (res.detail || []).forEach(function (d) {
     var row = el('div', 'fb ' + (d.got === d.max ? 'ok' : 'bad'));
-    row.appendChild(el('div', 'qnum', 'Задание ' + d.n + ' — ' + d.got + ' из ' + d.max));
+    row.appendChild(el('div', 'qnum', tx('Задание') + ' ' + d.n + ' — ' + d.got + ' / ' + d.max));
     if (d.given !== undefined && d.given !== '') {
-      row.appendChild(el('div', 'ans', 'Вы написали: ' + d.given));
+      row.appendChild(el('div', 'ans', tx('Вы написали:') + ' ' + d.given));
     }
     row.appendChild(el('div', 'note', d.note));
     card.appendChild(row);
