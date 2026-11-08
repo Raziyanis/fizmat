@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v54 · 8 ноября';
+var APP_VERSION = 'v55 · 8 ноября';
 
 /** Метка в теме всех писем — по ней почта раскладывает их по папке. */
 var MAIL_TAG = '8 класс';
@@ -872,7 +872,7 @@ function setup() {
     }
   }
 
-  installAbandonCheck_();
+  var triggersOk = installAbandonCheck_();
 
   Logger.log('Версия кода: ' + APP_VERSION);
   Logger.log('Таблица: ' + ss.getUrl());
@@ -881,6 +881,9 @@ function setup() {
   Logger.log('ТОКЕН ДЛЯ ФАЙЛА УЧИТЕЛЯ: ' + props.getProperty(PROP_TOKEN));
   Logger.log('Он уже вписан в ваш файл teacher-file.html. Ученикам его не давать.');
   Logger.log('Открывать её можно только из аккаунта ' + props.getProperty(PROP_TEACHER) + '.');
+  Logger.log(triggersOk
+    ? 'Письма по расписанию: включены.'
+    : 'Письма по расписанию: НЕ включены — выполните функцию installTriggers.');
 }
 
 function ensureSheet_(ss, name, header) {
@@ -1957,9 +1960,34 @@ function installAbandonCheck_() {
       .create();
     Logger.log('Проверка брошенных работ включена: каждые ' + CHECK_EVERY_MINUTES +
                ' мин, порог ' + ABANDON_MINUTES + ' мин.');
+    return true;
   } catch (err) {
-    Logger.log('Не удалось включить проверку брошенных работ: ' + err.message);
+    Logger.log('');
+    Logger.log('ПИСЬМА ПО РАСПИСАНИЮ НЕ ВКЛЮЧЕНЫ.');
+    Logger.log('Google не дал скрипту права заводить расписание: ' + err.message);
+    Logger.log('Что делать: выберите вверху функцию installTriggers, нажмите «Выполнить»');
+    Logger.log('и в окне Google разрешите доступ. Один раз — и письма заработают.');
+    Logger.log('На живой отчёт и практику это не влияет: они работают и без расписания.');
+    Logger.log('');
+    return false;
   }
+}
+
+/**
+ * Включить письма по расписанию отдельно. Нужна, если при setup() Google
+ * не спросил разрешение на расписание: запуск этой функции вызовет окно
+ * доступа, потому что ей для работы нужно именно оно.
+ */
+function installTriggers() {
+  var ok = installAbandonCheck_();
+  if (ok) {
+    Logger.log('Готово. Сводка приходит раз в ' + CHECK_EVERY_MINUTES +
+               ' мин, о брошенных работах — после ' + ABANDON_MINUTES + ' мин молчания.');
+    Logger.log('Письма идут на ' +
+               (PropertiesService.getScriptProperties().getProperty(PROP_TEACHER) || '—') +
+               ', в теме стоит «' + MAIL_TAG + '».');
+  }
+  return ok;
 }
 
 /** Выключить письма. */
@@ -2141,7 +2169,8 @@ function diagnose() {
     Logger.log(armed
       ? 'Проверка брошенных работ: включена (каждые ' + CHECK_EVERY_MINUTES +
         ' мин, порог ' + ABANDON_MINUTES + ' мин)'
-      : 'Проверка брошенных работ: ВЫКЛЮЧЕНА — выполните setup()');
+      : 'Проверка брошенных работ: ВЫКЛЮЧЕНА — выполните функцию installTriggers ' +
+        'и разрешите доступ');
   } catch (err) {
     Logger.log('Проверка брошенных работ: не удалось узнать — ' + err.message);
   }
