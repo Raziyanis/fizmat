@@ -375,7 +375,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v62 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v63 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -452,14 +452,15 @@ function showVersion_(serverVersion) {
   if (serverVersion === PAGE_VERSION) {
     box.textContent = PAGE_VERSION;
     box.className = 'version';
+    box.style.display = 'none';
     return;
   }
-  box.className = 'version mismatch';
-  box.textContent = serverVersion
-    ? 'Страница ' + PAGE_VERSION + ', а Код.gs ' + serverVersion +
-      ' — вставьте свежий Код.gs и разверните новую версию.'
-    : 'Код.gs старее страниц: вставьте свежий Код.gs, затем Начать развертывание → ' +
-      'Управление развертываниями → Версия «Новая».';
+  /* Страницы работают и со старым Код.gs, поэтому на экране версию
+     не показываем вовсе. Текст остаётся в скрытом элементе: его читают
+     проверки, и он виден через «Посмотреть код страницы». */
+  box.className = 'version';
+  box.textContent = PAGE_VERSION + (serverVersion ? ' · Код.gs ' + serverVersion : '');
+  box.style.display = 'none';
 }
 
 function load(auto) {

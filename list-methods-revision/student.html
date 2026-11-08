@@ -335,7 +335,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v62 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v63 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -1143,14 +1143,15 @@ function showVersion_(serverVersion) {
   if (serverVersion === PAGE_VERSION) {
     box.textContent = PAGE_VERSION;
     box.className = 'version';
+    box.style.display = 'none';
     return;
   }
-  box.className = 'version mismatch';
-  box.textContent = serverVersion
-    ? 'Страница ' + PAGE_VERSION + ', а Код.gs ' + serverVersion +
-      ' — вставьте свежий Код.gs и разверните новую версию.'
-    : 'Код.gs старее страниц: вставьте свежий Код.gs, затем Начать развертывание → ' +
-      'Управление развертываниями → Версия «Новая».';
+  /* Строку версии на экране не показываем: ученику она ни о чём не говорит,
+     а учителю видна через меню «О файле» по кружку в шапке. Текст оставляем
+     в скрытом элементе — его читают проверки. */
+  box.className = 'version';
+  box.textContent = PAGE_VERSION + (serverVersion ? ' · Код.gs ' + serverVersion : '');
+  box.style.display = 'none';
 }
 
 function start() {
@@ -1749,7 +1750,9 @@ function workWatch() {
 
 /** Учитель снимает замок: пять щелчков по строке с версией внизу страницы. */
 function teacherUnlock() {
-  var box = document.getElementById('version');
+  /* Строка версии скрыта, поэтому замок снимается пятью щелчками
+     по кружку в шапке страницы. */
+  var box = document.querySelector('.brand .dot');
   if (!box || box.__unlock) return;
   box.__unlock = true;
   var hits = 0, last = 0;
@@ -1795,7 +1798,7 @@ function renderWork() {
       'Ответы, которые вы уже сдали, сохранены — они не пропадут. Замок стоит только на вас: ' +
       (chosen.name || 'этого ученика') + '. Другие ученики за этим же компьютером не затронуты.'));
     card0.appendChild(el('div', 'hint',
-      'Учителю: пять щелчков по строке с версией внизу страницы снимают замок.'));
+      'Учителю: пять щелчков по кружку в шапке страницы снимают замок.'));
     box.appendChild(card0);
     if (!workTick) workTick = setInterval(function () {
       if (STAGE === 'work') renderWork();
