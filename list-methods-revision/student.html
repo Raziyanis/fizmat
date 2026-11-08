@@ -326,7 +326,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v46 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v47 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -976,6 +976,7 @@ function start() {
     .withSuccessHandler(function (data) {
       DATA = data; banner('');
       showVersion_(DATA.version);
+      teacherUnlock();
       renderWho(); flushQueue();
       if (queueRead().length) {
         banner('Есть несохранённые ответы — отправим, когда появится интернет.', 'warn');
@@ -1017,7 +1018,7 @@ function chooseClass(c) {
   c.students.forEach(function (name) {
     var b = el('button', 'secondary', name);
     b.addEventListener('click', function () {
-      chosen.name = name; chosen.manual = false; beginTest();
+      chosen.name = name; chosen.manual = false; workForget(); beginTest();
     });
     list.appendChild(b);
   });
@@ -1033,7 +1034,7 @@ document.getElementById('manual-ok').addEventListener('click', function () {
   var name = document.getElementById('manual-name').value.trim();
   if (name.split(/\s+/).length < 2) { banner('Напишите и фамилию, и имя.', 'err'); return; }
   if (!chosen.klass && DATA.classes && DATA.classes.length) { banner('Сначала выберите класс.', 'err'); return; }
-  banner(''); chosen.name = name; chosen.manual = true; beginTest();
+  banner(''); chosen.name = name; chosen.manual = true; workForget(); beginTest();
 });
 
 /* ---------- тест ---------- */
@@ -1392,6 +1393,8 @@ var workLastRes = {};
 var workHint = {};
 var workInput = {};   // свои входные данные для пробного запуска
 var WARN_MAX = 3;
+var AWAY_SEC = 10;        // столько секунд вне страницы — это уход
+var workAway = 0;
 var LOCK_MINUTES = 40;
 
 /** Полный экран: другие вкладки и панели убираются с глаз. */
@@ -1414,28 +1417,55 @@ function workGuard() {
   return STAGE === 'work' && workBegun && !workDone && Date.now() >= workUntil;
 }
 
+/** Новый ученик за тем же компьютером: практика начинается с чистого листа. */
+function workForget() {
+  workBegun = false; workDone = false;
+  workIdx = 0; workAway = 0;
+  workAnswers = {}; workVerdict = {}; workCode = {};
+  workTries = {}; workLastRes = {}; workHint = {};
+  workState();
+}
+
+/* Счётчик предупреждений хранится отдельно для каждого ученика: замок
+   одного не должен падать на следующего, кто сядет за тот же компьютер. */
+function workKey() {
+  var who = (String(chosen.klass || '') + '|' + String(chosen.name || ''))
+    .toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
+  return 'fo:' + (who === '|' ? 'noname' : who);
+}
+
 function workState() {
+  workWarn = 0;
+  workUntil = 0;
   try {
-    var w = parseInt(localStorage.getItem('fo-warn') || '0', 10);
-    var u = parseInt(localStorage.getItem('fo-until') || '0', 10);
-    if (!isNaN(w)) workWarn = w;
-    if (!isNaN(u)) workUntil = u;
+    var raw = localStorage.getItem(workKey());
+    if (!raw) return;
+    var v = JSON.parse(raw);
+    if (v && typeof v.warn === 'number') workWarn = v.warn;
+    if (v && typeof v.until === 'number') workUntil = v.until;
   } catch (e) {}
 }
 
 function workSave() {
   try {
-    localStorage.setItem('fo-warn', String(workWarn));
-    localStorage.setItem('fo-until', String(workUntil));
+    localStorage.setItem(workKey(), JSON.stringify({ warn: workWarn, until: workUntil }));
   } catch (e) {}
 }
 
-/** Ученик ушёл со страницы: предупреждение, на третий раз — замок на 40 минут. */
+function workReset() {
+  workWarn = 0; workUntil = 0; workAway = 0;
+  workSave();
+  renderWork();
+}
+
+/**
+ * Ученик ушёл со страницы. Засчитываем только настоящий уход: вкладка
+ * или окно неактивны дольше AWAY_SEC секунд подряд. Короткий щелчок мимо
+ * окна, всплывшее уведомление и выход из полного экрана предупреждением
+ * не считаются — иначе замок падал бы на тех, кто ничего не нарушал.
+ */
 function workLeft() {
-  if (STAGE !== 'work' || !workBegun || workDone) return;
-  if (Date.now() < workUntil) return;
-  if (Date.now() - workLastWarn < 1200) return;   // уход считаем один раз
-  workLastWarn = Date.now();
+  if (!workGuard()) return;
   workWarn++;
   if (workWarn >= WARN_MAX) workUntil = Date.now() + LOCK_MINUTES * 60000;
   workSave();
@@ -1445,26 +1475,27 @@ function workLeft() {
 function workWatch() {
   if (workWatching) return;
   workWatching = true;
-  document.addEventListener('visibilitychange', function () {
-    if (document.hidden) workLeft();
-  });
-  window.addEventListener('blur', workLeft);
-  document.addEventListener('fullscreenchange', function () {
-    if (!document.fullscreenElement && workGuard()) { workLeft(); workFull(); }
-  });
-  document.addEventListener('webkitfullscreenchange', function () {
-    if (!document.webkitFullscreenElement && workGuard()) { workLeft(); workFull(); }
-  });
+
+  // раз в секунду смотрим, здесь ли ученик
+  setInterval(function () {
+    if (!workGuard()) { workAway = 0; return; }
+    var away = document.hidden ||
+      (typeof document.hasFocus === 'function' && !document.hasFocus());
+    if (!away) { workAway = 0; return; }
+    workAway++;
+    if (workAway >= AWAY_SEC) { workAway = 0; workLeft(); }
+  }, 1000);
+
   document.addEventListener('keydown', function (ev) {
     if (!workGuard()) return;
     var k = String(ev.key || '').toLowerCase();
-    if (k === 'f12' || k === 'f11' ||
+    if (k === 'f12' ||
         ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && 'ijc'.indexOf(k) > -1) ||
-        ((ev.ctrlKey || ev.metaKey) && 'tnwrpsuoflcvxaj'.indexOf(k) > -1)) {
+        ((ev.ctrlKey || ev.metaKey) && 'tnwrpsuof'.indexOf(k) > -1)) {
       ev.preventDefault(); ev.stopPropagation();
     }
   }, true);
-  ['contextmenu', 'copy', 'cut', 'paste', 'dragstart', 'selectstart'].forEach(function (name) {
+  ['contextmenu', 'copy', 'cut', 'paste', 'dragstart'].forEach(function (name) {
     document.addEventListener(name, function (ev) {
       if (workGuard()) ev.preventDefault();
     }, true);
@@ -1474,6 +1505,26 @@ function workWatch() {
     ev.preventDefault();
     ev.returnValue = '';
     return '';
+  });
+}
+
+/** Учитель снимает замок: пять щелчков по строке с версией внизу страницы. */
+function teacherUnlock() {
+  var box = document.getElementById('version');
+  if (!box || box.__unlock) return;
+  box.__unlock = true;
+  var hits = 0, last = 0;
+  box.style.cursor = 'pointer';
+  box.title = 'Учителю: пять щелчков подряд снимают замок практики';
+  box.addEventListener('click', function () {
+    var now = Date.now();
+    hits = (now - last < 1500) ? hits + 1 : 1;
+    last = now;
+    if (hits >= 5) {
+      hits = 0;
+      workReset();
+      banner('Замок снят. Предупреждения обнулены.', 'ok');
+    }
   });
 }
 
@@ -1500,7 +1551,10 @@ function renderWork() {
     card0.appendChild(el('div', 'verdict bad',
       'Осталось ждать: ' + left + (left === 1 ? ' минуту' : (left < 5 ? ' минуты' : ' минут'))));
     card0.appendChild(el('div', 'note',
-      'Ответы, которые вы уже сдали, сохранены — они не пропадут.'));
+      'Ответы, которые вы уже сдали, сохранены — они не пропадут. Замок стоит только на вас: ' +
+      (chosen.name || 'этого ученика') + '. Другие ученики за этим же компьютером не затронуты.'));
+    card0.appendChild(el('div', 'hint',
+      'Учителю: пять щелчков по строке с версией внизу страницы снимают замок.'));
     box.appendChild(card0);
     if (!workTick) workTick = setInterval(function () {
       if (STAGE === 'work') renderWork();
@@ -1508,6 +1562,16 @@ function renderWork() {
     return;
   }
   if (workTick) { clearInterval(workTick); workTick = null; }
+
+  /* ---- ушли из полного экрана: просто предлагаем вернуться ---- */
+  if (workBegun && !workDone && !document.fullscreenElement && !document.webkitFullscreenElement) {
+    var fsRow = el('div', 'verdict bad');
+    fsRow.appendChild(el('span', null, 'Практика идёт на весь экран.'));
+    var back = el('button', 'quiet', 'Вернуться в полный экран');
+    back.addEventListener('click', workFull);
+    fsRow.appendChild(back);
+    box.appendChild(fsRow);
+  }
 
   /* ---- инструкция перед началом ---- */
   if (!workBegun) {
@@ -1533,10 +1597,10 @@ function renderWork() {
       'Переходить между задачами можно по номерам сверху или кнопками «Предыдущая» и «Следующая». ' +
         'Когда закончите, нажмите «Сдать практику» — уйдут и баллы, и ваши программы. ' +
         'Кнопка «Подсказка» есть у каждой задачи.',
-      'Практика откроется на весь экран, и выходить из него нельзя: ни на другие вкладки, ' +
-        'ни в другие приложения, ни в поиск. Копирование и вставка на этом этапе отключены. ' +
-        'За каждый уход — предупреждение. После третьего практика закроется на ' + LOCK_MINUTES +
-        ' минут, и открыть её раньше нельзя: пароля нет.'
+      'Практика открывается на весь экран. Если уйти с неё — на другую вкладку, в другое ' +
+        'приложение, в поиск — и не вернуться дольше ' + AWAY_SEC + ' секунд, это засчитается ' +
+        'как уход: появится предупреждение. После третьего практика закроется на ' + LOCK_MINUTES +
+        ' минут. Копирование и вставка на этом этапе отключены.'
     ];
     var ol = el('div', 'rules one');
     rules.forEach(function (r, i) {
