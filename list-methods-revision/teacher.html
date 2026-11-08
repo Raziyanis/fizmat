@@ -361,7 +361,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v45 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v46 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -544,22 +544,127 @@ if (L.goalMap) {
 var PY = null;          // загруженный Pyodide
 var PY_LOADING = null;  // обещание загрузки
 
-/**
- * Загружает Python в браузер. Нужен интернет: это внешняя библиотека
- * около 10 МБ, зато выполняется настоящий Python, а не подделка.
- */
+/* Встроенный Python. Если в страницу вшиты файлы Pyodide (их укладывает
+   сборка автономного файла), запросы к ним перехватываются и отдаются
+   из самой страницы — интернет не нужен. Если копии нет, берём с CDN. */
+var PY_CDN = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
+var PY_INLINE = 'https://pyodide.inline/';
+var PY_TYPES = { 'pyodide.asm.wasm': 'application/wasm',
+                 'python_stdlib.zip': 'application/zip',
+                 'pyodide-lock.json': 'application/json' };
+
+function pyInlineReady() {
+  return !!document.getElementById('pyb-pyodide-asm-wasm') &&
+         typeof window.DecompressionStream === 'function';
+}
+
+function pyInlineFile(name) {
+  var node = document.getElementById('pyb-' + name.replace(/\W/g, '-'));
+  if (!node) return Promise.reject(new Error(name + ' нет в файле'));
+  var raw = atob(node.textContent.trim());
+  var bytes = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+  var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Response(stream).arrayBuffer();
+}
+
+function pyInlineFetch() {
+  if (window.__pyPatched) return;
+  var orig = window.fetch.bind(window);
+  window.fetch = function (u, o) {
+    var str = (typeof u === 'string') ? u : (u && u.href) || (u && u.url) || '';
+    if (str.indexOf(PY_INLINE) === 0) {
+      var name = str.slice(PY_INLINE.length).split('?')[0];
+      return pyInlineFile(name).then(function (buf) {
+        return new Response(buf, { headers: {
+          'Content-Type': PY_TYPES[name] || 'application/octet-stream' } });
+      });
+    }
+    return orig(u, o);
+  };
+  window.__pyPatched = true;
+}
+
+/* Программа ученика выполняется с подменой input() и ограничением числа шагов,
+   чтобы бесконечный цикл не завесил страницу. */
+var PY_HELPER = [
+  'import sys, json, traceback',
+  '',
+  'class _Stop(Exception):',
+  '    pass',
+  '',
+  'def _run(code, inputs, limit=300000):',
+  '    data = list(inputs)',
+  '    out = []',
+  '    class _W:',
+  '        def write(self, s):',
+  '            out.append(str(s))',
+  '            return len(str(s))',
+  '        def flush(self):',
+  '            pass',
+  '    def _input(prompt=""):',
+  '        if not data:',
+  '            raise EOFError("кончились входные данные")',
+  '        return str(data.pop(0))',
+  '    steps = [0]',
+  '    def _tr(frame, event, arg):',
+  '        if event == "line":',
+  '            steps[0] += 1',
+  '            if steps[0] > limit:',
+  '                raise _Stop()',
+  '        return _tr',
+  '    g = {"__name__": "__main__", "input": _input}',
+  '    err = None',
+  '    old = sys.stdout',
+  '    sys.stdout = _W()',
+  '    try:',
+  '        obj = compile(code, "<program>", "exec")',
+  '        sys.settrace(_tr)',
+  '        try:',
+  '            exec(obj, g)',
+  '        finally:',
+  '            sys.settrace(None)',
+  '    except _Stop:',
+  '        err = {"type": "Timeout", "line": None, "msg": ""}',
+  '    except SystemExit:',
+  '        pass',
+  '    except SyntaxError as e:',
+  '        err = {"type": type(e).__name__, "line": e.lineno, "msg": str(e.msg)}',
+  '    except BaseException as e:',
+  '        line = None',
+  '        for fr in traceback.extract_tb(e.__traceback__):',
+  '            if fr.filename == "<program>":',
+  '                line = fr.lineno',
+  '        err = {"type": type(e).__name__, "line": line, "msg": str(e)}',
+  '    finally:',
+  '        sys.stdout = old',
+  '    return json.dumps({"out": "".join(out), "err": err})',
+  ''
+].join('\n');
+
 function loadPython(onProgress) {
   if (PY) return Promise.resolve(PY);
   if (PY_LOADING) return PY_LOADING;
+  var inline = pyInlineReady();
+  if (onProgress) onProgress(inline
+    ? 'Готовим Python из файла… это занимает 10–30 секунд, интернет не нужен.'
+    : 'Загружаем Python… первый раз это занимает 10–30 секунд, нужен интернет.');
+
   PY_LOADING = new Promise(function (resolve, reject) {
-    if (onProgress) onProgress('Загружаем Python… первый раз это занимает 10–30 секунд.');
-    var tag = document.createElement('script');
-    tag.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
-    tag.onload = function () {
-      loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' })
-        .then(function (py) { PY = py; resolve(py); })
-        .catch(reject);
+    var start = function () {
+      var opts = inline ? { indexURL: PY_INLINE } : { indexURL: PY_CDN };
+      if (inline) pyInlineFetch();
+      window.loadPyodide(opts).then(function (py) {
+        py.runPython(PY_HELPER);
+        PY = py;
+        resolve(py);
+      }).catch(reject);
     };
+    if (typeof window.loadPyodide === 'function') return start();
+    if (inline) return reject(new Error('загрузчик Pyodide не вшит в файл'));
+    var tag = document.createElement('script');
+    tag.src = PY_CDN + 'pyodide.js';
+    tag.onload = start;
     tag.onerror = function () { reject(new Error('нет интернета')); };
     document.head.appendChild(tag);
   });
