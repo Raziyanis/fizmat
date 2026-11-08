@@ -149,6 +149,27 @@
   .mistake code { font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 700; color: var(--bad); }
   .practice li { margin-bottom: 8px; }
   .editor { margin-top: 12px; }
+  .edhead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+            flex-wrap: wrap; margin-bottom: 6px; }
+  .edname { font: 700 13px inherit; color: var(--accent); text-transform: uppercase;
+            letter-spacing: .04em; }
+  .edtip { font-size: 12px; color: var(--muted); }
+  .fieldlabel { font-size: 13px; color: var(--muted); margin: 12px 0 5px; }
+  .inputarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line);
+               font: 15px ui-monospace, Menlo, Consolas, monospace; background: var(--card);
+               color: var(--text); resize: vertical; }
+  .inputarea:focus { outline: 2px solid var(--accent); }
+  .fmt { margin: 10px 0 4px; display: grid; gap: 6px; }
+  .fmt-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .fmt-k { font: 700 12px inherit; color: var(--muted); text-transform: uppercase;
+           letter-spacing: .04em; flex: 0 0 150px; }
+  .fmt-v { font-size: 15px; flex: 1 1 240px; }
+  .expair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .exbox { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .exbox pre { margin: 0; background: transparent; color: inherit; padding: 0; font-size: 14px; }
+  .exlab { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+  @media (max-width: 620px) { .expair { grid-template-columns: 1fr; } }
+
   .codearea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line);
               background: #11161d; color: #e8edf3; resize: vertical;
               font: 14px/1.5 "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
@@ -305,7 +326,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v44 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v45 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -616,8 +637,8 @@ function judgeTask(t, code) {
         return { ok: false, passed: i, total: tests.length, test: i + 1,
                  verdict: 'Проверка ' + (i + 1) + ' из ' + tests.length + ': вывод не тот.',
                  detail: 'Данные:\n' + testShow(test) +
-                         '\nНужно вывести:\n' + test.want +
-                         '\nПрограмма вывела:\n' + (r.out.replace(/\s+$/, '') || '(ничего)') };
+                         '\n\nПрограмма вывела:\n' + (r.out.replace(/\s+$/, '') || '(ничего)') +
+                         '\n\nА нужно:\n' + test.want };
       }
       return step(i + 1);
     });
@@ -1369,6 +1390,7 @@ var workCode = {};        // программа ученика по каждой
 var workTries = {};
 var workLastRes = {};
 var workHint = {};
+var workInput = {};   // свои входные данные для пробного запуска
 var WARN_MAX = 3;
 var LOCK_MINUTES = 40;
 
@@ -1497,17 +1519,20 @@ function renderWork() {
       'Задач десять, по одному баллу за каждую. Они идут от простой к сложной, ' +
         'порядок менять не нужно.',
       'У каждой задачи есть условие, формат входных и выходных данных и разобранные примеры.',
-      'Программу вы пишете прямо в окне редактора под условием. Кнопка «Запустить на первом ' +
-        'примере» показывает, что выводит ваша программа, и не оценивается.',
-      'Кнопка «Отправить на проверку» запускает программу на нескольких наборах данных. ' +
-        'Балл ставится, только если пройдены все проверки.',
+      'Программу вы пишете прямо в тёмном окне под условием — оно подписано «Здесь пишете ' +
+        'программу». Кнопка «Запустить» просто показывает, что выводит ваша программа; ' +
+        'входные данные для пробного запуска можно поменять в поле под редактором. ' +
+        'Этот запуск не оценивается.',
+      'Кнопка «Проверить» запускает программу на нескольких наборах данных, в том числе ' +
+        'на скрытых. Балл ставится, только если пройдены все.',
       'Отправлять можно сколько угодно раз: неверно — красный цвет и объяснение, что пошло не так, ' +
         'верно — зелёный. Номер задачи наверху: белый — не открывали, оранжевый — решаете, ' +
         'зелёный — решено, красный — пока с ошибкой.',
       'Когда задача решена, под ней появляется разбор: почему решение именно такое. ' +
         'Прочитайте его — следующая задача опирается на предыдущую.',
       'Переходить между задачами можно по номерам сверху или кнопками «Предыдущая» и «Следующая». ' +
-        'Когда закончите, нажмите «Сдать практику» — уйдут и баллы, и ваши программы.',
+        'Когда закончите, нажмите «Сдать практику» — уйдут и баллы, и ваши программы. ' +
+        'Кнопка «Подсказка» есть у каждой задачи.',
       'Практика откроется на весь экран, и выходить из него нельзя: ни на другие вкладки, ' +
         'ни в другие приложения, ни в поиск. Копирование и вставка на этом этапе отключены. ' +
         'За каждый уход — предупреждение. После третьего практика закроется на ' + LOCK_MINUTES +
@@ -1562,52 +1587,60 @@ function renderWork() {
   card.appendChild(el('h2', null, t.name));
   card.appendChild(el('div', 'qtext', t.text));
 
+  var fmt = el('div', 'fmt');
   if (t.inp) {
-    card.appendChild(el('div', 'eyebrow', 'Входные данные'));
-    card.appendChild(el('div', 'note', t.inp));
+    var f1 = el('div', 'fmt-row');
+    f1.appendChild(el('span', 'fmt-k', 'Входные данные'));
+    f1.appendChild(el('span', 'fmt-v', t.inp));
+    fmt.appendChild(f1);
   }
   if (t.out) {
-    card.appendChild(el('div', 'eyebrow', 'Выходные данные'));
-    card.appendChild(el('div', 'note', t.out));
+    var f2 = el('div', 'fmt-row');
+    f2.appendChild(el('span', 'fmt-k', 'Выходные данные'));
+    f2.appendChild(el('span', 'fmt-v', t.out));
+    fmt.appendChild(f2);
   }
-  if (t.samples && t.samples.length) {
-    card.appendChild(el('div', 'eyebrow', 'Примеры'));
-    t.samples.forEach(function (ex) {
-      card.appendChild(el('pre', null, 'Данные:\n' + ex[0] + '\n\nПравильный вывод:\n' + ex[1]));
-    });
-  }
+  if (fmt.childNodes.length) card.appendChild(fmt);
 
-  /* редактор */
+  /* ---- редактор: здесь ученик пишет программу ---- */
+  var first = (t.tests || [])[0] || {};
+  var needsInput = !!(first.inputs && first.inputs.length);
+
   var ed = el('div', 'editor');
+  var head = el('div', 'edhead');
+  head.appendChild(el('span', 'edname', 'Здесь пишете программу · Python'));
+  head.appendChild(el('span', 'edtip', 'Tab — отступ · Ctrl+Enter — запустить'));
+  ed.appendChild(head);
+
   var area = document.createElement('textarea');
   area.className = 'codearea';
   if (workCode[workIdx] === undefined) workCode[workIdx] = t.start || '';
   area.value = workCode[workIdx];
-  area.rows = Math.max(7, area.value.split('\n').length + 4);
+  area.rows = Math.max(8, area.value.split('\n').length + 5);
   area.spellcheck = false;
   area.addEventListener('input', function () { workCode[workIdx] = area.value; });
-  area.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Tab') {
-      ev.preventDefault();
-      var a = area.selectionStart, b = area.selectionEnd;
-      area.value = area.value.slice(0, a) + '    ' + area.value.slice(b);
-      area.selectionStart = area.selectionEnd = a + 4;
-      workCode[workIdx] = area.value;
-    }
-  });
   ed.appendChild(area);
+
+  var inputArea = null;
+  if (needsInput) {
+    ed.appendChild(el('div', 'fieldlabel', 'Входные данные: каждое значение с новой строки'));
+    inputArea = document.createElement('textarea');
+    inputArea.className = 'inputarea';
+    if (workInput[workIdx] === undefined) workInput[workIdx] = first.inputs.join('\n');
+    inputArea.value = workInput[workIdx];
+    inputArea.rows = Math.min(6, Math.max(2, first.inputs.length));
+    inputArea.spellcheck = false;
+    inputArea.addEventListener('input', function () { workInput[workIdx] = inputArea.value; });
+    ed.appendChild(inputArea);
+  }
 
   var outBox = el('div', 'out');
   outBox.style.display = 'none';
 
-  var row = el('div', 'qnav');
-  var send = el('button', 'action', 'Отправить на проверку');
-  var run = el('button', 'quiet', 'Запустить на первом примере');
-  var reset = el('button', 'quiet', 'Начать заново');
-  row.appendChild(send);
-  row.appendChild(run);
-  row.appendChild(reset);
-  ed.appendChild(row);
+  var runRow = el('div', 'qnav');
+  var run = el('button', 'quiet', '▶ Запустить');
+  runRow.appendChild(run);
+  ed.appendChild(runRow);
   ed.appendChild(outBox);
   card.appendChild(ed);
 
@@ -1617,36 +1650,82 @@ function renderWork() {
     outBox.textContent = text;
   }
 
-  run.addEventListener('click', function () {
-    var test = (t.tests || [])[0];
-    if (!test) return;
+  function doRun() {
     run.disabled = true;
     say('Запускаем…');
-    var prepared = withData(area.value, test.data);
+    var prepared = withData(area.value, first.data);
     if (prepared === null) {
       run.disabled = false;
       say('Строка с данными стёрта — верните её, по ней программу проверяют.', 'err');
       return;
     }
-    pyRunCode(prepared, test.inputs || []).then(function (r) {
+    var lines = inputArea
+      ? inputArea.value.replace(/\r/g, '').split('\n').filter(function (x, i, all) {
+          return x !== '' || i < all.length - 1;
+        })
+      : (first.inputs || []);
+    pyRunCode(prepared, lines).then(function (r) {
       run.disabled = false;
       if (r.err) {
         say(r.err.type + (r.err.line ? ', строка ' + r.err.line : '') + '\n' + r.err.msg, 'err');
       } else {
-        say((r.out.replace(/\s+$/, '') || '(программа ничего не вывела)') +
-            '\n\nДля этого примера правильный вывод:\n' + test.want);
+        say(r.out.replace(/\s+$/, '') || '(программа ничего не вывела)');
       }
     }, function (e) {
       run.disabled = false;
       say('Python не запустился: ' + ((e && e.message) || e), 'err');
     });
+  }
+  run.addEventListener('click', doRun);
+
+  area.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); doRun(); return; }
+    if (ev.key === 'Tab') {
+      ev.preventDefault();
+      var p1 = area.selectionStart, p2 = area.selectionEnd;
+      area.value = area.value.slice(0, p1) + '    ' + area.value.slice(p2);
+      area.selectionStart = area.selectionEnd = p1 + 4;
+      workCode[workIdx] = area.value;
+    }
   });
 
-  reset.addEventListener('click', function () {
-    workCode[workIdx] = t.start || '';
+  /* ---- примеры: что должно получиться ---- */
+  if (t.samples && t.samples.length) {
+    card.appendChild(el('div', 'fieldlabel',
+      'Пример: при таких данных программа должна вывести'));
+    t.samples.forEach(function (ex) {
+      var pair = el('div', 'expair');
+      var left = el('div', 'exbox');
+      left.appendChild(el('div', 'exlab', needsInput ? 'Ввод' : 'Данные'));
+      left.appendChild(el('pre', null, ex[0]));
+      var right = el('div', 'exbox');
+      right.appendChild(el('div', 'exlab', 'Вывод'));
+      right.appendChild(el('pre', null, ex[1]));
+      pair.appendChild(left);
+      pair.appendChild(right);
+      card.appendChild(pair);
+    });
+  }
+
+  /* ---- проверка ---- */
+  var row = el('div', 'qnav');
+  var send = el('button', 'action', 'Проверить');
+  var hintBtn = el('button', 'quiet', workHint[workIdx] ? 'Скрыть подсказку' : 'Подсказка');
+  var reset = el('button', 'quiet', 'Начать заново');
+  row.appendChild(send);
+  row.appendChild(hintBtn);
+  row.appendChild(reset);
+  card.appendChild(row);
+
+  hintBtn.addEventListener('click', function () {
+    workHint[workIdx] = !workHint[workIdx];
     renderWork();
   });
-
+  reset.addEventListener('click', function () {
+    workCode[workIdx] = t.start || '';
+    workInput[workIdx] = undefined;
+    renderWork();
+  });
   send.addEventListener('click', function () {
     send.disabled = true;
     say('Проверяем на ' + (t.tests || []).length + ' наборах данных…');
@@ -1664,6 +1743,8 @@ function renderWork() {
     });
   });
 
+  if (workHint[workIdx]) card.appendChild(el('div', 'note', t.hint));
+
   var res = workLastRes[workIdx];
   if (res) {
     var v = el('div', 'verdict ' + (res.ok ? 'ok' : 'bad'));
@@ -1671,20 +1752,9 @@ function renderWork() {
     v.appendChild(el('span', null, res.verdict));
     card.appendChild(v);
     if (res.detail) card.appendChild(el('pre', null, res.detail));
-    if (workTries[workIdx]) {
-      card.appendChild(el('div', 'hint', 'Попыток: ' + workTries[workIdx] +
-        (res.ok ? '' : '. Исправьте программу и отправьте снова.')));
-    }
+    card.appendChild(el('div', 'hint', 'Попыток: ' + (workTries[workIdx] || 1) +
+      (res.ok ? '' : '. Исправьте программу и нажмите «Проверить» снова.')));
     if (res.ok) card.appendChild(el('div', 'note', t.note));
-  }
-
-  if (!res || !res.ok) {
-    var hintBtn = el('button', 'quiet', workHint[workIdx] ? 'Скрыть подсказку' : 'Подсказка');
-    hintBtn.addEventListener('click', function () {
-      workHint[workIdx] = !workHint[workIdx]; renderWork();
-    });
-    card.appendChild(hintBtn);
-    if (workHint[workIdx]) card.appendChild(el('div', 'note', t.hint));
   }
 
   var nav = el('div', 'qnav');
@@ -1698,8 +1768,6 @@ function renderWork() {
   nav.appendChild(next);
   var done = el('button', 'action', 'Сдать практику');
   done.addEventListener('click', function () {
-    var solved = 0;
-    tasks.forEach(function (x, i) { if (workVerdict[i]) solved++; });
     workDone = true;
     workExit();
     finishWork();
@@ -1707,9 +1775,8 @@ function renderWork() {
   nav.appendChild(done);
   card.appendChild(nav);
 
-  var state = el('div', 'hint', PY ? 'Python готов.' :
-    'Python готовится к работе: первая проверка может занять до полминуты.');
-  card.appendChild(state);
+  card.appendChild(el('div', 'hint', PY ? 'Python готов.' :
+    'Python готовится к работе: первая проверка может занять до полминуты.'));
 
   box.appendChild(card);
 
