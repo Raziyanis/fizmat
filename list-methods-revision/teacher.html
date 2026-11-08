@@ -181,6 +181,12 @@
   th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
   td.c, th.c { text-align: center; }
   .scroll { overflow-x: auto; }
+  .picker { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; flex-wrap: wrap; }
+  .picker-label { font-size: 13px; color: var(--muted); font-weight: 600;
+                  text-transform: uppercase; letter-spacing: .03em; }
+  .picker select { font: 600 15px inherit; font-family: inherit; padding: 7px 10px;
+                   border-radius: 8px; border: 1px solid var(--line);
+                   background: var(--card); color: var(--text); cursor: pointer; }
   .mark { font-weight: 700; }
   th.cnum, td.mark.cell { text-align: center; width: 34px; }
   .mark.y { color: var(--ok); }
@@ -355,7 +361,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v43 · 7 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v44 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -796,6 +802,7 @@ var TASK_OPEN = { check: false, work: false };
 function codeTable(i) {
   var card = el('div', 'card codes');
   card.appendChild(el('h2', null, 'Программы учеников'));
+  card.appendChild(classPicker(null));
   var rows = (LAST.roster || []).filter(inFilter).slice().sort(function (a, b) {
     return a.klass.localeCompare(b.klass, 'ru') || a.name.localeCompare(b.name, 'ru');
   });
@@ -947,6 +954,36 @@ function stageTasks(which, L) {
 }
 
 /** Баллы класса за этап 4 или 5 плюс сами задания. */
+/** Выбор класса прямо над таблицей: список берём из списков учеников. */
+function classPicker(onPick) {
+  var seen = {}, list = [];
+  (LAST.roster || []).forEach(function (p) {
+    if (!seen[p.klass]) { seen[p.klass] = true; list.push(p.klass); }
+  });
+  list.sort(function (a, b) { return a.localeCompare(b, 'ru'); });
+
+  var row = el('div', 'picker');
+  row.appendChild(el('span', 'picker-label', 'Класс:'));
+  var sel = document.createElement('select');
+  var any = el('option', null, 'Все классы');
+  any.value = '';
+  sel.appendChild(any);
+  list.forEach(function (k) {
+    var o = el('option', null, k);
+    o.value = k;
+    sel.appendChild(o);
+  });
+  sel.value = FILTER || '';
+  sel.addEventListener('change', function () {
+    FILTER = sel.value;
+    if (onPick) onPick();
+    draw();
+  });
+  row.appendChild(sel);
+  if (!list.length) row.appendChild(el('span', 'sub-hint', 'списки классов не заполнены'));
+  return row;
+}
+
 function drawStageScores(which, title, num) {
   var box = document.getElementById('panel-' + (which === 'check' ? 'check' : 'work'));
   var L = LAST.lesson;
@@ -982,6 +1019,7 @@ function drawStageScores(which, title, num) {
 
   var card = el('div', 'card');
   card.appendChild(el('h2', null, 'Результаты по заданиям'));
+  card.appendChild(classPicker(null));
   card.appendChild(el('div', 'sub-hint', '✓ — задание выполнено верно, ✗ — есть ошибка, ' +
     '«—» — ученик это задание не выполнял.'));
   if (!rows.length) {
