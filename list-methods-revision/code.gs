@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v55 · 8 ноября';
+var APP_VERSION = 'v56 · 8 ноября';
 
 /** Метка в теме всех писем — по ней почта раскладывает их по папке. */
 var MAIL_TAG = '8 класс';
@@ -1870,6 +1870,24 @@ function sendReport(klass) {
   return { ok: true, to: to };
 }
 
+/**
+ * Прислать отчёт прямо сейчас, из редактора. Расписание для этого не нужно:
+ * письмо уходит сразу. Удобно проверить, доходит ли почта вообще.
+ */
+function otchetNaPochtu() {
+  var res = sendReport('');
+  var stages = stageResults_();
+  var n = 0, w = 0;
+  Object.keys(stages).forEach(function (k) { n++; if (stages[k].work) w++; });
+  Logger.log('В таблице сейчас: работ по этапам ' + n + ', из них по практике ' + w + '.');
+  if (!n) {
+    Logger.log('Ноль — значит со страниц учеников в таблицу ничего не пришло. ' +
+               'Проверьте, что развёрнута новая версия: Начать развертывание → ' +
+               'Управление развертываниями → Версия «Новая».');
+  }
+  return res;
+}
+
 /** Кнопка «Отчёт на почту» на странице учителя. */
 function sendReportNow(klass) {
   if (!isTeacher_()) throw new Error('Отчёт может запросить только учитель.');
@@ -2130,7 +2148,10 @@ function diagnose() {
   Logger.log('Версия кода в редакторе: ' + APP_VERSION +
              ' (на странице внизу должна быть такая же; если другая — ' +
              'разверните новую версию)');
-  Logger.log('ID таблицы: ' + (props.getProperty(PROP_SPREADSHEET) || 'НЕ ЗАДАН — выполните setup()'));
+  var ssd = openSpreadsheet_();
+  Logger.log('ТАБЛИЦА С ОТВЕТАМИ: ' + (ssd ? ssd.getUrl() : 'НЕ СОЗДАНА — выполните setup()'));
+  Logger.log('Смотреть ответы нужно именно в ней, на листе «Этапы». ' +
+             'Если открыта таблица с одним «Лист1» — это другая таблица.');
 
   ['student', 'teacher'].forEach(function (name) {
     var found = '';
@@ -2161,6 +2182,7 @@ function diagnose() {
 
   var mail = props.getProperty(PROP_TEACHER);
   Logger.log('Почта для писем: ' + (mail || 'НЕ ЗАДАНА — выполните setup()'));
+  Logger.log('Тема писем начинается с «' + MAIL_TAG + '» — по ней их ловит фильтр почты.');
   try {
     var armed = 0;
     ScriptApp.getProjectTriggers().forEach(function (t) {
