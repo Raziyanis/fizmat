@@ -194,7 +194,10 @@
   .mark.q { color: var(--line); }
   td.mark.now { background: var(--action); color: var(--action-text); font-weight: 800; border-radius: 4px; }
   .empty { color: var(--muted); }
-  .topbar { background: var(--card); border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+  /* шапка с этапами и фамилией держится наверху при прокрутке */
+  .topbar { background: var(--card); border-bottom: 1px solid var(--line);
+            margin: -16px -16px 22px; position: sticky; top: 0; z-index: 20;
+            box-shadow: 0 1px 0 rgba(16, 26, 51, .04); }
   .topbar-in { max-width: 1100px; margin: 0 auto; padding: 12px 16px;
                display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; white-space: nowrap; }
@@ -361,7 +364,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v49 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v50 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)

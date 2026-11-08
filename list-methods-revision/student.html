@@ -21,7 +21,10 @@
   .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
 
   /* шапка с этапами */
-  .topbar { background: var(--card); border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+  /* шапка с этапами и фамилией держится наверху при прокрутке */
+  .topbar { background: var(--card); border-bottom: 1px solid var(--line); margin-bottom: 22px;
+            position: sticky; top: 0; z-index: 20;
+            box-shadow: 0 1px 0 rgba(16, 26, 51, .04); }
   .topbar-in { max-width: 760px; margin: 0 auto; padding: 12px 16px;
                display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px;
@@ -326,7 +329,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v49 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v50 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -382,9 +385,35 @@ function applyView() {
   window.scrollTo(0, 0);
 }
 
+/* Этапы, где работа записывается на конкретного ученика. Без выбранной
+   фамилии их не открыть: иначе ученик решает, а ответы уходить некуда. */
+var GUARDED = ['check', 'work', 'decide', 'reflect'];
+var PENDING = '';   // куда вернуть ученика, как только он выберет себя
+
+function renderNeedWho(name) {
+  var titles = { check: 'Проверка понимания', work: 'Практика · ФО',
+                 decide: 'Список или кортеж', reflect: 'Рефлексия' };
+  var box = document.getElementById('screen-' + name);
+  box.textContent = '';
+  box.appendChild(el('div', 'eyebrow', 'Сначала выберите себя'));
+  box.appendChild(el('div', 'display', titles[name] || ''));
+  var card = el('div', 'card');
+  card.appendChild(el('div', 'qtext', 'Этот этап оценивается, поэтому сначала нужно ' +
+    'найти себя в списке класса. Иначе работа никуда не запишется и учитель её не увидит.'));
+  var go = el('button', 'action', 'Выбрать класс и фамилию');
+  go.addEventListener('click', function () {
+    PENDING = name;              // после выбора вернёмся сюда же
+    setStage('test');
+    renderWho();
+  });
+  card.appendChild(go);
+  box.appendChild(card);
+}
+
 function setStage(name) {
   if (autoTimer && name !== 'test') { clearInterval(autoTimer); autoTimer = null; }
   STAGE = name;
+  if (GUARDED.indexOf(name) > -1 && !chosen.name) { renderNeedWho(name); applyView(); return; }
   if (name === 'topic') renderTopic();
   if (name === 'lesson') renderLesson();
   if (name === 'check') renderCheck();
@@ -1086,12 +1115,21 @@ function beginTest() {
 }
 
 function showLocked(access) {
+  if (backFromPicking_()) return;   // ученик шёл не на повторение, а на другой этап
   show('screen-locked');
   document.getElementById('locked-text').textContent =
     (access && access.reason) || 'Доступ к тесту закрыт.';
   document.getElementById('locked-sub').textContent = access && access.max
     ? 'Разрешено попыток подряд: ' + access.max + '. Счётчик обнуляется сам.'
     : '';
+}
+
+function backFromPicking_() {
+  if (!PENDING) return false;
+  var go = PENDING;
+  PENDING = '';
+  setStage(go);
+  return true;
 }
 
 function startTest(access) {
@@ -1105,6 +1143,7 @@ function startTest(access) {
   }
   renderStep();
   startChat();
+  backFromPicking_();
 }
 
 function renderWho_line() {
@@ -1455,6 +1494,13 @@ function workForget() {
   workAnswers = {}; workVerdict = {}; workCode = {};
   workTries = {}; workLastRes = {}; workHint = {};
   workState();
+  // панели этих этапов собираются один раз — очищаем, чтобы собрались заново
+  ['check', 'decide', 'reflect'].forEach(function (n) {
+    var b = document.getElementById('screen-' + n);
+    if (b) b.textContent = '';
+  });
+  checkAnswers = {};
+  decideAnswers = {}; decideVerdict = {}; decideIdx = 0; decideLocked = false;
 }
 
 /* Счётчик предупреждений хранится отдельно для каждого ученика: замок
