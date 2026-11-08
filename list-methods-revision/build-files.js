@@ -26,6 +26,8 @@ const TEACHER_TOKEN = process.argv[3] || 'ТОКЕН-НЕ-ЗАДАН';
 const code = read('code.gs');
 const QUESTIONS = eval(code.match(/var QUESTIONS = (\[[\s\S]*?\n\]);/)[1]);
 const LESSON = eval('(' + code.match(/var LESSON = (\{[\s\S]*?\n\});/)[1] + ')');
+const LESSON_KK = eval('(' + code.match(/var LESSON_KK = (\{[\s\S]*?\n\});/)[1] + ')');
+const UI_KK_DATA = eval('(' + code.match(/var UI_KK = (\{[\s\S]*?\n\});/)[1] + ')');
 const VERSION = code.match(/var APP_VERSION = '([^']+)'/)[1];
 
 function roster() {
@@ -169,6 +171,8 @@ const STUDENT_SHIM = `
 var OFFLINE = true;
 var Q = ${JSON.stringify(QUESTIONS)};
 var L = ${JSON.stringify(LESSON)};
+var LKK = ${JSON.stringify(LESSON_KK)};
+var UKK = ${JSON.stringify(UI_KK_DATA)};
 var CL = ${JSON.stringify(CLASSES)};
 var VER = ${JSON.stringify(VERSION)};
 ${QUEUE}
@@ -222,7 +226,8 @@ window.google = { script: { run: {
 
   getStudentData: function(){
     this._ok({
-      version: VER, lesson: L, email: '', total: Q.length, classes: CL,
+      version: VER, lesson: L, lessonKk: LKK, uiKk: UKK,
+      email: '', total: Q.length, classes: CL,
       questions: Q.map(function(q){
         return { id:q.id, topic:q.topic, code:q.code, text:q.text, options:q.options };
       })
@@ -282,6 +287,8 @@ const TEACHER_SHIM = `
 var TOKEN = ${JSON.stringify(TEACHER_TOKEN)};
 var Q = ${JSON.stringify(QUESTIONS)};
 var L = ${JSON.stringify(LESSON)};
+var LKK = ${JSON.stringify(LESSON_KK)};
+var UKK = ${JSON.stringify(UI_KK_DATA)};
 var CL = ${JSON.stringify(CLASSES)};
 var VER = ${JSON.stringify(VERSION)};
 ${QUEUE}
@@ -291,7 +298,8 @@ function localSkeleton(){
   var roster = [];
   CL.forEach(function(c){ c.students.forEach(function(n){ roster.push({klass:c.klass, name:n}); }); });
   return {
-    version: VER, lesson: L, roster: roster, stages: {}, students: [],
+    version: VER, lesson: L, lessonKk: LKK, uiKk: UKK,
+    roster: roster, stages: {}, students: [],
     perQuestion: Q.map(function(q, i){
       return { id:q.id, number:i+1, topic:q.topic, text:q.text, code:q.code,
                options: q.options.map(function(o, oi){
@@ -368,6 +376,20 @@ window.google = { script: { run: {
     sendOne({ type: 'report', token: TOKEN, klass: klass || '',
               uid: 'r' + Date.now().toString(36) })
       .then(function(){ ok({ ok: true }); })
+      .catch(function(e){ fail(e); });
+  },
+
+  buildSummaryNow: function(){
+    var ok = this._ok, fail = this._fail;
+    sendOne({ type: 'summary', token: TOKEN, uid: 's' + Date.now().toString(36) })
+      .then(function(res){ ok(res || { ok: true }); })
+      .catch(function(e){ fail(e); });
+  },
+
+  clearResultsNow: function(){
+    var ok = this._ok, fail = this._fail;
+    sendOne({ type: 'clear', token: TOKEN, uid: 'c' + Date.now().toString(36) })
+      .then(function(res){ ok(res && res.wiped !== undefined ? res.wiped : 0); })
       .catch(function(e){ fail(e); });
   }
 } } };

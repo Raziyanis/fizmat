@@ -39,6 +39,12 @@
                 display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
   .stage.on { background: var(--accent-soft); color: var(--accent); }
   .stage.on .num { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .langsw { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 999px;
+            overflow: hidden; flex: 0 0 auto; }
+  .langsw button { width: auto; background: transparent; color: var(--muted); border: 0;
+                   padding: 6px 12px; font: 700 13px inherit; font-family: inherit;
+                   cursor: pointer; }
+  .langsw button.on { background: var(--accent); color: #fff; }
   .whoami { font-size: 14px; color: var(--muted); white-space: nowrap; }
   .whoami b { color: var(--text); }
 
@@ -256,6 +262,7 @@
       <button class="stage" data-stage="home"><span class="num">8</span><span class="lbl">Домашнее</span></button>
     </div>
     <div class="whoami" id="whoami">Ученик: <b>—</b></div>
+      <div class="langsw" id="langsw"><button type="button" data-lang="ru">РУС</button><button type="button" data-lang="kk">ҚАЗ</button></div>
   </div>
 </div>
 
@@ -330,7 +337,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v56 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v58 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -378,6 +385,10 @@ function applyView() {
     document.getElementById('screen-' + name).style.display = (STAGE === name) ? 'block' : 'none';
   });
   document.getElementById('banner').style.display = (STAGE === 'test') ? 'block' : 'none';
+  if (LANG === 'kk') {
+    txDom(document.querySelector('.wrap'));
+    txDom(document.getElementById('stages'));
+  }
 
   var btns = document.querySelectorAll('#stages .stage');
   for (var i = 0; i < btns.length; i++) {
@@ -446,6 +457,62 @@ function renderWhoami() {
   box.textContent = 'Ученик: ';
   box.appendChild(el('b', null, chosen.name
     ? (chosen.klass ? chosen.klass + ', ' : '') + chosen.name : '—'));
+}
+
+/* ---------- переключение языка ---------- */
+var LANG = 'ru';
+try { LANG = localStorage.getItem('lesson-lang') || 'ru'; } catch (e) {}
+var RAW_LESSON = null;      // русский урок как пришёл с сервера
+var UI_KK = {};             // перевод подписей
+
+/** Накладывает перевод поверх русского: чего нет — остаётся по-русски. */
+function mergeLang(base, over) {
+  if (over === undefined || over === null) return base;
+  if (Array.isArray(base)) {
+    if (!Array.isArray(over)) return base;
+    return base.map(function (x, i) { return mergeLang(x, over[i]); });
+  }
+  if (base && typeof base === 'object') {
+    var out = {};
+    for (var k in base) if (base.hasOwnProperty(k)) {
+      out[k] = mergeLang(base[k], over[k]);
+    }
+    return out;
+  }
+  return (typeof over === 'string') ? over : base;
+}
+
+/** Перевод одной подписи. Нет перевода — возвращаем русскую строку. */
+function tx(s) {
+  if (LANG !== 'kk') return s;
+  var v = UI_KK[String(s).trim()];
+  return v === undefined ? s : v;
+}
+
+/** Проходит по готовому экрану и заменяет подписи, которые есть в словаре. */
+function txDom(root) {
+  if (LANG !== 'kk' || !root) return;
+  var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+  var nodes = [], n;
+  while ((n = walker.nextNode())) nodes.push(n);
+  nodes.forEach(function (node) {
+    if (node.parentNode && node.parentNode.tagName === 'PRE') return;   // код не трогаем
+    var raw = node.nodeValue, key = raw.trim();
+    if (!key) return;
+    var v = UI_KK[key];
+    if (v !== undefined) node.nodeValue = raw.replace(key, v);
+  });
+  var titled = root.querySelectorAll('[title]');
+  for (var i = 0; i < titled.length; i++) {
+    var t = UI_KK[titled[i].getAttribute('title').trim()];
+    if (t !== undefined) titled[i].setAttribute('title', t);
+  }
+}
+
+/** Применяет выбранный язык к данным урока. */
+function applyLang() {
+  if (!DATA || !RAW_LESSON) return;
+  DATA.lesson = (LANG === 'kk') ? mergeLang(RAW_LESSON, DATA.lessonKk || {}) : RAW_LESSON;
 }
 
 /* ---------- редактор с запуском Python ---------- */
@@ -778,6 +845,40 @@ function attachEditor(card, code) {
   card.appendChild(wrap);
 }
 
+/** Кнопки РУС / ҚАЗ в шапке. */
+function drawLangSwitch() {
+  var box = document.getElementById('langsw');
+  if (!box) return;
+  var btns = box.querySelectorAll('button');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = (btns[i].getAttribute('data-lang') === LANG) ? 'on' : '';
+  }
+  if (box.__wired) return;
+  box.__wired = true;
+  box.addEventListener('click', function (ev) {
+    var lang = ev.target && ev.target.getAttribute && ev.target.getAttribute('data-lang');
+    if (!lang || lang === LANG) return;
+    try { localStorage.setItem('lesson-lang', lang); } catch (e) {}
+    location.reload();
+    return;
+    /* eslint-disable no-unreachable */
+    LANG = lang;
+    applyLang();
+    drawLangSwitch();
+    rebuildAll();
+  });
+}
+
+/** После смены языка собираем экраны заново. */
+function rebuildAll() {
+  ['topic', 'lesson', 'check', 'work', 'decide', 'reflect', 'home'].forEach(function (n) {
+    var b = document.getElementById('screen-' + n);
+    if (b) b.textContent = '';
+  });
+  setStage(STAGE);
+  if (STAGE === 'test' && DATA && DATA.questions && currentScreen === 'screen-test') renderStep();
+}
+
 /** Кнопки «Назад» и «Дальше» под слайдом. */
 function addSlideNav(box, blocks) {
   var nav = el('div', 'qnav');
@@ -949,6 +1050,8 @@ function renderLesson() {
   nav.appendChild(next);
   box.appendChild(nav);
 
+  txDom(box);
+
   if (SLIDE === blocks.length - 1 && SLIDE_OPEN) {
     var mc = el('div', 'card');
     mc.appendChild(el('h3', null, 'Частые ошибки'));
@@ -1037,6 +1140,10 @@ function start() {
   google.script.run
     .withSuccessHandler(function (data) {
       DATA = data; banner('');
+      RAW_LESSON = DATA.lesson;
+      UI_KK = DATA.uiKk || {};
+      applyLang();
+      drawLangSwitch();
       showVersion_(DATA.version);
       teacherUnlock();
       renderWho(); flushQueue();
@@ -1203,6 +1310,7 @@ function renderStep() {
   check.disabled = true;
   check.addEventListener('click', function () { sendAnswer(q, labels); });
   card.appendChild(check);
+  txDom(card);
 }
 
 function sendAnswer(q, labels) {
@@ -1424,6 +1532,7 @@ function renderCheck() {
     box.appendChild(card);
   });
 
+  txDom(box);
   var send = el('button', 'action', 'Сдать проверку');
   send.id = 'check-send';
   send.addEventListener('click', function () {
@@ -1459,6 +1568,8 @@ var workUntil = 0;        // до какого времени этап закр�
 var workTick = null;
 var workWatching = false;
 var workLastWarn = 0;
+var workRestored = false;   // работу вернули с прошлого раза
+var saveTimer = null;
 var workCode = {};        // программа ученика по каждой задаче
 var workTries = {};
 var workLastRes = {};
@@ -1514,21 +1625,50 @@ function workKey() {
   return 'fo:' + (who === '|' ? 'noname' : who);
 }
 
+/**
+ * Состояние практики хранится на этом компьютере отдельно для каждого ученика:
+ * написанные программы, какие задачи зачтены, сколько было попыток и на какой
+ * задаче остановились. Если вкладку случайно закрыли или браузер перезапустили,
+ * работа возвращается на то же место.
+ */
 function workState() {
   workWarn = 0;
   workUntil = 0;
+  workRestored = false;
   try {
     var raw = localStorage.getItem(workKey());
     if (!raw) return;
     var v = JSON.parse(raw);
-    if (v && typeof v.warn === 'number') workWarn = v.warn;
-    if (v && typeof v.until === 'number') workUntil = v.until;
+    if (!v) return;
+    if (typeof v.warn === 'number') workWarn = v.warn;
+    if (typeof v.until === 'number') workUntil = v.until;
+    // замок отсидели — счётчик предупреждений обнуляется
+    if (workUntil && Date.now() >= workUntil) {
+      workWarn = 0;
+      workUntil = 0;
+      try { v.warn = 0; v.until = 0; localStorage.setItem(workKey(), JSON.stringify(v)); } catch (e) {}
+    }
+    if (v.work) {
+      workCode = v.work.code || {};
+      workVerdict = v.work.verdict || {};
+      workAnswers = v.work.answers || {};
+      workTries = v.work.tries || {};
+      workIdx = typeof v.work.idx === 'number' ? v.work.idx : 0;
+      workBegun = !!v.work.begun;
+      workDone = !!v.work.done;
+      workRestored = Object.keys(workCode).length > 0 ||
+                     Object.keys(workVerdict).length > 0;
+    }
   } catch (e) {}
 }
 
 function workSave() {
   try {
-    localStorage.setItem(workKey(), JSON.stringify({ warn: workWarn, until: workUntil }));
+    localStorage.setItem(workKey(), JSON.stringify({
+      warn: workWarn, until: workUntil,
+      work: { code: workCode, verdict: workVerdict, answers: workAnswers,
+              tries: workTries, idx: workIdx, begun: workBegun, done: workDone }
+    }));
   } catch (e) {}
 }
 
@@ -1668,6 +1808,9 @@ function renderWork() {
       'После них ' + EXTRA_N + ' дополнительные задачи: их номера помечены звёздочкой — ' +
         '11★, 12★, 13★, 14★. На оценку они не влияют, решайте, если останется время.',
       'У каждой задачи есть условие, формат входных и выходных данных и разобранные примеры.',
+      'Работа сохраняется на этом компьютере сама. Если вкладка случайно закроется ' +
+        'или браузер перезапустится, откройте файл, выберите себя — и всё вернётся: ' +
+        'и написанные программы, и зачтённые задачи.',
       'Программу вы пишете прямо в тёмном окне под условием — оно подписано «Здесь пишете ' +
         'программу». Кнопка «Запустить» просто показывает, что выводит ваша программа; ' +
         'входные данные для пробного запуска можно поменять в поле под редактором. ' +
@@ -1701,6 +1844,7 @@ function renderWork() {
     var go = el('button', 'action', 'Я прочитал инструкцию, начать практику');
     go.addEventListener('click', function () {
       workBegun = true;
+      workSave();
       workFull();
       loadPython(function () {}).catch(function () {});   // греем Python заранее
       renderWork();
@@ -1716,6 +1860,13 @@ function renderWork() {
   box.appendChild(el('div', 'display', 'Практика · ФО'));
   box.appendChild(el('div', 'lead', W.intro));
 
+  if (workRestored) {
+    var solved = 0;
+    tasks.forEach(function (x, i) { if (workVerdict[i]) solved++; });
+    box.appendChild(el('div', 'msg ok',
+      'Ваша работа восстановлена: решено задач ' + solved + ', программы на месте. ' +
+      'Можно продолжать с того места, где остановились.'));
+  }
   if (workWarn > 0) {
     box.appendChild(el('div', 'verdict bad', 'Предупреждение ' + workWarn + ' из ' + WARN_MAX +
       ': вы уходили со страницы. После третьего практика закроется на ' + LOCK_MINUTES + ' минут.'));
@@ -1726,7 +1877,7 @@ function renderWork() {
     var cls = (i in workVerdict) ? (workVerdict[i] ? 'y' : 'n') : (i === workIdx ? 'now' : '');
     var chip = el('i', cls + (x.extra ? ' extra' : ''), String(i + 1) + (x.extra ? '★' : ''));
     chip.title = (x.extra ? 'Дополнительная задача ' : 'Задача ') + (i + 1) + ' · ' + x.name;
-    chip.addEventListener('click', function () { workIdx = i; renderWork(); });
+    chip.addEventListener('click', function () { workIdx = i; workSave(); renderWork(); });
     strip.appendChild(chip);
   });
   box.appendChild(strip);
@@ -1781,7 +1932,11 @@ function renderWork() {
   area.value = workCode[workIdx];
   area.rows = Math.max(8, area.value.split('\n').length + 5);
   area.spellcheck = false;
-  area.addEventListener('input', function () { workCode[workIdx] = area.value; });
+  area.addEventListener('input', function () {
+    workCode[workIdx] = area.value;
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(workSave, 600);     // пишем на диск, но не на каждую букву
+  });
   ed.appendChild(area);
 
   var inputArea = null;
@@ -1890,6 +2045,7 @@ function renderWork() {
   reset.addEventListener('click', function () {
     workCode[workIdx] = t.start || '';
     workInput[workIdx] = undefined;
+    workSave();
     renderWork();
   });
   send.addEventListener('click', function () {
@@ -1902,6 +2058,7 @@ function renderWork() {
                                verdict: res.verdict };
       workTries[workIdx] = (workTries[workIdx] || 0) + 1;
       workLastRes[workIdx] = res;
+      workSave();                 // работу можно продолжить, даже если вкладку закроют
       pushWork();                 // учитель видит задачу сразу, не дожидаясь сдачи
       renderWork();
     }, function (e) {
@@ -1939,15 +2096,16 @@ function renderWork() {
   var nav = el('div', 'qnav');
   var prev = el('button', 'quiet', '← Предыдущая');
   prev.disabled = workIdx === 0;
-  prev.addEventListener('click', function () { workIdx--; renderWork(); });
+  prev.addEventListener('click', function () { workIdx--; workSave(); renderWork(); });
   nav.appendChild(prev);
   var next = el('button', 'quiet', 'Следующая →');
   next.disabled = workIdx >= tasks.length - 1;
-  next.addEventListener('click', function () { workIdx++; renderWork(); });
+  next.addEventListener('click', function () { workIdx++; workSave(); renderWork(); });
   nav.appendChild(next);
   var done = el('button', 'action', 'Сдать практику');
   done.addEventListener('click', function () {
     workDone = true;
+    workSave();
     workExit();
     finishWork();
   });
@@ -1965,6 +2123,7 @@ function renderWork() {
   }
 
   box.appendChild(card);
+  txDom(box);
 
   var slot = el('div');
   slot.id = 'work-result';
@@ -2117,6 +2276,7 @@ function renderDecide() {
   var slot = el('div');
   slot.id = 'decide-result';
   box.appendChild(slot);
+  txDom(box);
 }
 
 /** Итог этапа с разбором. */
@@ -2136,6 +2296,7 @@ function showStageResult(slotId, res, title) {
     card.appendChild(row);
   });
   slot.appendChild(card);
+  txDom(slot);
   slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 

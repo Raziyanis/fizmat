@@ -189,6 +189,8 @@
                    background: var(--card); color: var(--text); cursor: pointer; }
   .alltask { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
   .alltask-name { font-size: 19px; font-weight: 800; margin: 2px 0 6px; }
+  button.act.danger { color: var(--bad); border-color: var(--bad); }
+  button.act.danger.armed { background: var(--bad); color: #fff; }
   .mark { font-weight: 700; }
   th.cnum, td.mark.cell { text-align: center; width: 34px; }
   .mark.y { color: var(--ok); }
@@ -213,6 +215,12 @@
                 justify-content: center; font-size: 11px; font-weight: 700; }
   .stage.on { background: var(--accent-soft); color: var(--accent); }
   .stage.on .num { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .langsw { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 999px;
+            overflow: hidden; flex: 0 0 auto; }
+  .langsw button { width: auto; background: transparent; color: var(--muted); border: 0;
+                   padding: 6px 12px; font: 700 13px inherit; font-family: inherit;
+                   cursor: pointer; }
+  .langsw button.on { background: var(--accent); color: #fff; }
   .whoami { font-size: 14px; color: var(--muted); white-space: nowrap; }
   .eyebrow { font: 700 12px/1 inherit; letter-spacing: .12em; text-transform: uppercase;
              color: var(--accent); margin-bottom: 10px; }
@@ -293,6 +301,7 @@
       <button class="stage" data-stage="home"><span class="num">8</span><span class="lbl">Домашнее</span></button>
     </div>
     <div class="whoami">Экран учителя</div>
+      <div class="langsw" id="langsw"><button type="button" data-lang="ru">РУС</button><button type="button" data-lang="kk">ҚАЗ</button></div>
   </div>
 </div>
 
@@ -366,7 +375,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v56 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v58 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -467,6 +476,10 @@ function load(auto) {
         banner('');
       }
       LAST = data;
+      RAW_LESSON = data.lesson;
+      UI_KK = data.uiKk || {};
+      applyLang();
+      drawLangSwitch();
       if (auto && (ASKING || EDITOR_OPEN)) {
         document.getElementById('status').textContent = ASKING
           ? 'есть новые данные — покажем, как отправите вопрос'
@@ -480,6 +493,29 @@ function load(auto) {
       banner(err && err.message ? err.message : String(err));
     })
     .getResults();
+}
+
+function drawLangSwitch() {
+  var box = document.getElementById('langsw');
+  if (!box) return;
+  var btns = box.querySelectorAll('button');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = (btns[i].getAttribute('data-lang') === LANG) ? 'on' : '';
+  }
+  if (box.__wired) return;
+  box.__wired = true;
+  box.addEventListener('click', function (ev) {
+    var lang = ev.target && ev.target.getAttribute && ev.target.getAttribute('data-lang');
+    if (!lang || lang === LANG) return;
+    try { localStorage.setItem('lesson-lang', lang); } catch (e) {}
+    location.reload();
+    return;
+    /* eslint-disable no-unreachable */
+    LANG = lang;
+    applyLang();
+    drawLangSwitch();
+    draw();
+  });
 }
 
 function inFilter(p) { return !FILTER || p.klass === FILTER; }
@@ -499,6 +535,10 @@ function applyStage() {
   var btns = document.querySelectorAll('#stages .stage');
   for (var i = 0; i < btns.length; i++) {
     btns[i].className = 'stage' + (btns[i].getAttribute('data-stage') === STAGE ? ' on' : '');
+  }
+  if (LANG === 'kk') {
+    txDom(document.querySelector('.wrap'));
+    txDom(document.getElementById('stages'));
   }
   window.scrollTo(0, 0);
 }
@@ -560,6 +600,62 @@ if (L.goalMap) {
     oc.appendChild(r);
   });
   box.appendChild(oc);
+}
+
+/* ---------- переключение языка ---------- */
+var LANG = 'ru';
+try { LANG = localStorage.getItem('lesson-lang') || 'ru'; } catch (e) {}
+var RAW_LESSON = null;      // русский урок как пришёл с сервера
+var UI_KK = {};             // перевод подписей
+
+/** Накладывает перевод поверх русского: чего нет — остаётся по-русски. */
+function mergeLang(base, over) {
+  if (over === undefined || over === null) return base;
+  if (Array.isArray(base)) {
+    if (!Array.isArray(over)) return base;
+    return base.map(function (x, i) { return mergeLang(x, over[i]); });
+  }
+  if (base && typeof base === 'object') {
+    var out = {};
+    for (var k in base) if (base.hasOwnProperty(k)) {
+      out[k] = mergeLang(base[k], over[k]);
+    }
+    return out;
+  }
+  return (typeof over === 'string') ? over : base;
+}
+
+/** Перевод одной подписи. Нет перевода — возвращаем русскую строку. */
+function tx(s) {
+  if (LANG !== 'kk') return s;
+  var v = UI_KK[String(s).trim()];
+  return v === undefined ? s : v;
+}
+
+/** Проходит по готовому экрану и заменяет подписи, которые есть в словаре. */
+function txDom(root) {
+  if (LANG !== 'kk' || !root) return;
+  var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+  var nodes = [], n;
+  while ((n = walker.nextNode())) nodes.push(n);
+  nodes.forEach(function (node) {
+    if (node.parentNode && node.parentNode.tagName === 'PRE') return;   // код не трогаем
+    var raw = node.nodeValue, key = raw.trim();
+    if (!key) return;
+    var v = UI_KK[key];
+    if (v !== undefined) node.nodeValue = raw.replace(key, v);
+  });
+  var titled = root.querySelectorAll('[title]');
+  for (var i = 0; i < titled.length; i++) {
+    var t = UI_KK[titled[i].getAttribute('title').trim()];
+    if (t !== undefined) titled[i].setAttribute('title', t);
+  }
+}
+
+/** Применяет выбранный язык к данным урока. */
+function applyLang() {
+  if (!LAST || !RAW_LESSON) return;
+  LAST.lesson = (LANG === 'kk') ? mergeLang(RAW_LESSON, LAST.lessonKk || {}) : RAW_LESSON;
 }
 
 /* ---------- редактор с запуском Python ---------- */
@@ -971,6 +1067,7 @@ function codeTable(i) {
 }
 
 var CODE_OPEN = {};
+var WIPE_ARMED = false;
 
 /** Все задачи этапа с условиями и эталонными решениями — учителю на одном экране. */
 var ALL_OPEN = false;
@@ -1239,6 +1336,72 @@ function drawStageScores(which, title, num) {
       .sendReportNow(FILTER || '');
   });
   mailRow.appendChild(mailBtn);
+
+  var sumBtn = el('button', 'act', 'Собрать сводку в таблице');
+  sumBtn.title = 'Лист «Сводка»: строка на ученика, в ней все этапы урока';
+  sumBtn.addEventListener('click', function () {
+    sumBtn.disabled = true;
+    sumBtn.textContent = 'Собираем…';
+    google.script.run
+      .withSuccessHandler(function (res) {
+        sumBtn.disabled = false;
+        sumBtn.textContent = 'Собрать сводку в таблице';
+        banner('Сводка собрана: строк ' + ((res && res.rows) || 0) +
+               '. Лист «Сводка» в вашей таблице.', 'ok');
+        if (res && res.url) {
+          var a = document.createElement('a');
+          a.href = res.url; a.target = '_blank'; a.rel = 'noopener';
+          a.textContent = 'Открыть сводку';
+          document.getElementById('banner').appendChild(document.createTextNode(' '));
+          document.getElementById('banner').appendChild(a);
+        }
+      })
+      .withFailureHandler(function (err) {
+        sumBtn.disabled = false;
+        sumBtn.textContent = 'Собрать сводку в таблице';
+        banner('Сводка не собралась: ' + ((err && err.message) || err));
+      })
+      .buildSummaryNow();
+  });
+  mailRow.appendChild(sumBtn);
+
+  // очистка: в два нажатия, чтобы не стереть урок случайно
+  var wipeBtn = el('button', 'act danger', WIPE_ARMED ? 'Точно очистить? Нажмите ещё раз' : 'Очистить ответы');
+  wipeBtn.title = 'Удаляет ответы, итоги и этапы. Списки классов остаются';
+  wipeBtn.addEventListener('click', function () {
+    if (!WIPE_ARMED) {
+      WIPE_ARMED = true;
+      wipeBtn.className = 'act danger armed';
+      wipeBtn.textContent = 'Точно очистить? Нажмите ещё раз';
+      setTimeout(function () {
+        if (!WIPE_ARMED) return;
+        WIPE_ARMED = false;
+        wipeBtn.className = 'act danger';
+        wipeBtn.textContent = 'Очистить ответы';
+      }, 6000);
+      return;
+    }
+    WIPE_ARMED = false;
+    wipeBtn.disabled = true;
+    wipeBtn.textContent = 'Очищаем…';
+    google.script.run
+      .withSuccessHandler(function (res) {
+        wipeBtn.disabled = false;
+        wipeBtn.className = 'act danger';
+        wipeBtn.textContent = 'Очистить ответы';
+        banner('Очищено. Удалено строк: ' + (typeof res === 'number' ? res : '—') +
+               '. Списки классов остались.', 'ok');
+        load();
+      })
+      .withFailureHandler(function (err) {
+        wipeBtn.disabled = false;
+        wipeBtn.className = 'act danger';
+        wipeBtn.textContent = 'Очистить ответы';
+        banner('Не очистилось: ' + ((err && err.message) || err));
+      })
+      .clearResultsNow();
+  });
+  mailRow.appendChild(wipeBtn);
   card.appendChild(mailRow);
   card.appendChild(el('div', 'sub-hint', '✓ — задание выполнено верно, ✗ — есть ошибка, ' +
     '«—» — ученик это задание не выполнял. Номер со звёздочкой — дополнительная задача, ' +
