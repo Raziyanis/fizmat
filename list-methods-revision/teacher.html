@@ -375,7 +375,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v60 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v61 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -569,7 +569,7 @@ function drawTopic() {
   box.appendChild(el('div', 'eyebrow', 'Этап 2 · тема урока'));
   box.appendChild(el('div', 'display', L.title));
   var g = el('div', 'goal');
-  g.appendChild(el('b', null, 'Цель обучения ' + L.code));
+  g.appendChild(el('b', null, tx('Цель обучения') + ' ' + L.code));
   g.appendChild(el('div', null, L.goal));
   box.appendChild(g);
 if (L.goalMap) {
@@ -581,8 +581,8 @@ if (L.goalMap) {
       row.appendChild(el('div', 'n', String(i + 1)));
       var right = el('div');
       right.appendChild(el('div', 'goalpart', g.part));
-      right.appendChild(el('div', 'goalwhere', 'Объясняется: ' + g.where));
-      right.appendChild(el('div', 'goalwhere', 'Проверяется: ' + g.check));
+      right.appendChild(el('div', 'goalwhere', tx('Объясняется:') + ' ' + g.where));
+      right.appendChild(el('div', 'goalwhere', tx('Проверяется:') + ' ' + g.check));
       row.appendChild(right);
       gm.appendChild(row);
     });
@@ -914,7 +914,7 @@ function renderReference(box, L) {
       card.appendChild(ul2);
     }
 
-    card.appendChild(el('div', 'refremember', 'Запомни: ' + c.remember));
+    card.appendChild(el('div', 'refremember', tx('Запомни:') + ' ' + c.remember));
     box.appendChild(card);
   });
 
@@ -1080,8 +1080,8 @@ function allTasksCard(list, which) {
   var card = el('div', 'card');
   card.appendChild(el('h2', null, 'Все задачи с ответами'));
   card.appendChild(el('div', 'sub-hint',
-    'Условия, эталонные решения и наборы данных по всем ' + list.length +
-    ' задачам сразу. Экран ученика это не показывает.'));
+    tx('Условия, эталонные решения и наборы данных по всем') + ' ' + list.length + ' ' +
+    tx('задачам сразу. Экран ученика это не показывает.')));
   var sw = el('button', ALL_OPEN ? 'act' : 'big-action',
               ALL_OPEN ? tx('Свернуть') : tx('Показать все задачи с ответами'));
   sw.addEventListener('click', function () { ALL_OPEN = !ALL_OPEN; drawStage(); });
@@ -1180,7 +1180,7 @@ function stageTasks(which, L) {
   if (it.samples && it.samples.length) {
     box.appendChild(el('div', 'eyebrow', 'Примеры'));
     it.samples.forEach(function (ex) {
-      box.appendChild(el('pre', null, 'Данные:\n' + ex[0] + '\n\nПравильный вывод:\n' + ex[1]));
+      box.appendChild(el('pre', null, tx('Данные:') + '\n' + ex[0] + '\n\n' + tx('Правильный вывод:') + '\n' + ex[1]));
     });
   }
 
@@ -1329,7 +1329,7 @@ function drawStageScores(which, title, num) {
   }
   card.appendChild(classPicker(null));
   var mailRow = el('div', 'qnav');
-  var mailBtn = el('button', 'act', FILTER ? 'Отчёт на почту · ' + FILTER : 'Отчёт на почту');
+  var mailBtn = el('button', 'act', FILTER ? tx('Отчёт на почту') + ' · ' + FILTER : tx('Отчёт на почту'));
   mailBtn.addEventListener('click', function () {
     mailBtn.disabled = true;
     mailBtn.textContent = 'Отправляем…';
@@ -1472,9 +1472,9 @@ function drawStageScores(which, title, num) {
                           (done ? '' : ' …')));
         var solved = max - bad.length;
         tr.appendChild(el('td', 'mark ' + (bad.length ? (done ? 'n' : '') : 'y'),
-          (done ? (bad.length ? 'ошибки: ' + bad.join(', ') : 'всё верно')
-                : 'решает: сделано ' + solved + ' из ' + max) +
-          (extraOk ? ', дополнительных ' + extraOk : '')));
+          (done ? (bad.length ? tx('ошибки:') + ' ' + bad.join(', ') : tx('всё верно'))
+                : tx('решает: сделано') + ' ' + solved + ' / ' + max) +
+          (extraOk ? ', ' + tx('дополнительных') + ' ' + extraOk : '')));
       }
       tb.appendChild(tr);
     });
@@ -1771,7 +1771,7 @@ function draw() {
     var answered = qs.filter(function (q) { return q.answered; });
     if (answered.length) {
       var worst = answered.slice().sort(function (a, b) { return a.percent - b.percent; })[0];
-      var jump = el('button', 'act', 'К самому трудному: ' + worst.number + ' · ' + worst.topic);
+      var jump = el('button', 'act', tx('К самому трудному:') + ' ' + worst.number + ' · ' + worst.topic);
       jump.addEventListener('click', function () {
         QIDX = qs.indexOf(worst);
         REVEAL = false;
@@ -1837,7 +1837,7 @@ function questionCard(q, dialog) {
   if (classes.length) {
     var sel = document.createElement('select');
     sel.className = 'pickclass';
-    var any = el('option', null, FILTER ? 'Класс ' + FILTER : 'Любой класс');
+    var any = el('option', null, FILTER ? tx('Класс') + ' ' + FILTER : tx('Любой класс'));
     any.value = '';
     sel.appendChild(any);
     classes.forEach(function (c) {
@@ -1932,7 +1932,7 @@ function questionCard(q, dialog) {
     v.appendChild(el('span', 'dot'));
     v.appendChild(el('span', null, chosenRight ? 'Верно' : 'Неверно'));
     body.appendChild(v);
-    if (!chosenRight) body.appendChild(el('div', 'note', 'Правильный ответ: ' + q.correctText));
+    if (!chosenRight) body.appendChild(el('div', 'note', tx('Правильный ответ:') + ' ' + q.correctText));
     if (q.note) body.appendChild(el('div', 'note', q.note));
 
     var again = el('button', 'act', 'Сбросить ответ');
@@ -1955,7 +1955,7 @@ function questionCard(q, dialog) {
 
   if (q.right.length) {
     var g = el('div', 'group');
-    g.appendChild(el('h3', null, 'Ответили верно — ' + q.right.length));
+    g.appendChild(el('h3', null, tx('Ответили верно') + ' — ' + q.right.length));
     byClass_(q.right).forEach(function (grp) {
       var line = el('div', 'right-names');
       line.appendChild(el('b', null, grp.klass + ' — ' + grp.people.length + ': '));
@@ -2040,15 +2040,15 @@ function pickedPanel(q) {
   var meta = el('div', 'picked-meta');
   meta.appendChild(el('span', null, p.klass));
   if (!p.fromSilent && p.chosen) {
-    meta.appendChild(el('span', 'chose', 'выбрал: ' + p.chosen));
-    if (REVEAL) meta.appendChild(el('span', 'right', 'правильно: ' + q.correctText));
+    meta.appendChild(el('span', 'chose', tx('выбрал:') + ' ' + p.chosen));
+    if (REVEAL) meta.appendChild(el('span', 'right', tx('правильно:') + ' ' + q.correctText));
   }
   box.appendChild(meta);
 
   box.appendChild(el('div', 'picked-count',
     p.restarted
-      ? 'Все уже отвечали — пошёл новый круг (' + p.position + ' из ' + p.outOf + ')'
-      : 'Вызван ' + p.position + ' из ' + p.outOf));
+      ? tx('Все уже отвечали — пошёл новый круг') + ' (' + p.position + ' / ' + p.outOf + ')'
+      : tx('Вызван') + ' ' + p.position + ' / ' + p.outOf));
 
   var row = el('div', 'row');
 
@@ -2105,7 +2105,7 @@ function peopleGroup(title, people, q, isWrong) {
     grp.people.forEach(function (p) {
       var row = el('div', 'person');
       row.appendChild(el('span', null, p.name));
-      if (isWrong && p.chosen) row.appendChild(el('span', 'chose', 'выбрал: ' + p.chosen));
+      if (isWrong && p.chosen) row.appendChild(el('span', 'chose', tx('выбрал:') + ' ' + p.chosen));
 
       var askId = 'list:' + q.id + '|' + p.klass + '|' + p.name;
       var ask = el('button', 'ask', 'Спросить');
@@ -2143,7 +2143,7 @@ function askBox(q, p, isWrong, askId) {
     google.script.run
       .withSuccessHandler(function () {
         ASKING = null; DRAFT = '';
-        banner('Вопрос отправлен: ' + p.name + '. Ответ появится здесь же.', 'ok');
+        banner(tx('Вопрос отправлен:') + ' ' + p.name + '. ' + tx('Ответ появится здесь же.'), 'ok');
         load();
       })
       .withFailureHandler(function (err) {
@@ -2274,7 +2274,7 @@ function studentDetail(data, s) {
     } else {
       var n = el('div', 'detail-ans none');
       n.appendChild(el('span', 'lbl', 'Ответа нет.'));
-      n.appendChild(el('span', 'val', 'Правильно: ' + q.correctText));
+      n.appendChild(el('span', 'val', tx('Правильно:') + ' ' + q.correctText));
       item.appendChild(n);
     }
     wrap.appendChild(item);
