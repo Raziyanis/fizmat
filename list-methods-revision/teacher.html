@@ -187,6 +187,8 @@
   .picker select { font: 600 15px inherit; font-family: inherit; padding: 7px 10px;
                    border-radius: 8px; border: 1px solid var(--line);
                    background: var(--card); color: var(--text); cursor: pointer; }
+  .alltask { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
+  .alltask-name { font-size: 19px; font-weight: 800; margin: 2px 0 6px; }
   .mark { font-weight: 700; }
   th.cnum, td.mark.cell { text-align: center; width: 34px; }
   .mark.y { color: var(--ok); }
@@ -364,7 +366,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v51 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v52 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -955,6 +957,56 @@ function codeTable(i) {
 
 var CODE_OPEN = {};
 
+/** Все задачи этапа с условиями и эталонными решениями — учителю на одном экране. */
+var ALL_OPEN = false;
+function allTasksCard(list, which) {
+  var card = el('div', 'card');
+  card.appendChild(el('h2', null, 'Все задачи с ответами'));
+  card.appendChild(el('div', 'sub-hint',
+    'Условия, эталонные решения и наборы данных по всем ' + list.length +
+    ' задачам сразу. Экран ученика это не показывает.'));
+  var sw = el('button', ALL_OPEN ? 'act' : 'big-action',
+              ALL_OPEN ? 'Свернуть' : 'Показать все задачи с ответами');
+  sw.addEventListener('click', function () { ALL_OPEN = !ALL_OPEN; drawStage(); });
+  card.appendChild(sw);
+  if (!ALL_OPEN) return card;
+
+  list.forEach(function (it, k) {
+    var one = el('div', 'alltask');
+    one.appendChild(el('div', 'qnum', (which === 'work' ? 'Задача ' : 'Задание ') + (k + 1) +
+      ' · ' + (it.skill || '') + ' · ' + it.points + (it.points === 1 ? ' балл' : ' балла') +
+      (it.stars ? ' · сложность ' + '★★★'.slice(0, it.stars) : '') +
+      (it.tests ? ' · проверок: ' + it.tests.length : '')));
+    if (it.name) one.appendChild(el('div', 'alltask-name', it.name));
+    one.appendChild(el('div', null, it.text));
+    if (it.steps && it.steps.length) {
+      it.steps.forEach(function (x, si) {
+        var row = el('div', 'rule');
+        row.appendChild(el('div', 'n', String(si + 1)));
+        row.appendChild(el('div', null, x));
+        one.appendChild(row);
+      });
+    }
+    var sol = it.ref || it.solution;
+    if (sol) {
+      one.appendChild(el('div', 'eyebrow', 'Эталонное решение'));
+      one.appendChild(el('pre', null, sol));
+    }
+    if (it.accept && it.accept.length) {
+      one.appendChild(el('div', 'eyebrow', 'Принимается'));
+      one.appendChild(el('div', 'note', it.accept.join('  или  ')));
+    }
+    if (it.answer !== undefined && it.options) {
+      one.appendChild(el('div', 'eyebrow', 'Верный ответ'));
+      one.appendChild(el('div', 'note', it.options[it.answer]));
+    }
+    if (it.hint) one.appendChild(el('div', 'note', 'Подсказка ученику: ' + it.hint));
+    if (it.note) one.appendChild(el('div', 'note', it.note));
+    card.appendChild(one);
+  });
+  return card;
+}
+
 function stageTasks(which, L) {
   var list = (which === 'check') ? L.check.items : L.work.tasks;
   var i = TASK_IDX[which];
@@ -977,9 +1029,18 @@ function stageTasks(which, L) {
 
   box.appendChild(el('div', 'qnum', (which === 'work' ? 'Задача ' : 'Задание ') + (i + 1) +
     ' из ' + list.length + ' · ' + it.points + (it.points === 1 ? ' балл' : ' балла') +
-    (it.skill ? ' · ' + it.skill : '')));
+    (it.skill ? ' · ' + it.skill : '') +
+    (it.stars ? ' · сложность ' + '★★★'.slice(0, it.stars) : '')));
   if (it.name && which === 'work') box.appendChild(el('h3', null, it.name));
   box.appendChild(el('div', 'qtext', it.text));
+  if (it.steps && it.steps.length) {
+    it.steps.forEach(function (x, k) {
+      var row = el('div', 'rule');
+      row.appendChild(el('div', 'n', String(k + 1)));
+      row.appendChild(el('div', null, x));
+      box.appendChild(row);
+    });
+  }
   if (it.code) box.appendChild(el('pre', null, it.code));
   if (it.inp) {
     box.appendChild(el('div', 'eyebrow', 'Входные данные'));
@@ -1129,6 +1190,7 @@ function drawStageScores(which, title, num) {
   });
   box.appendChild(tiles);
   box.appendChild(stageTasks(which, L));
+  box.appendChild(allTasksCard(tasks, which));
 
   var card = el('div', 'card');
   card.appendChild(el('h2', null, 'Результаты по заданиям'));

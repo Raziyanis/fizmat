@@ -329,7 +329,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v51 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v52 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -1467,6 +1467,7 @@ var WARN_MAX = 3;
 var AWAY_SEC = 10;        // столько секунд вне страницы — это уход
 var workAway = 0;
 var LOCK_MINUTES = 40;
+var HINT_UPTO = 2;        // подсказка есть только у первых двух задач
 
 /** Полный экран: другие вкладки и панели убираются с глаз. */
 function workFull() {
@@ -1658,8 +1659,9 @@ function renderWork() {
     var ins = el('div', 'card');
     ins.appendChild(el('h2', null, 'Инструкция'));
     var rules = [
-      'Задач десять, по одному баллу за каждую. Они идут от простой к сложной, ' +
-        'порядок менять не нужно.',
+      'Задач ' + tasks.length + ', по одному баллу за каждую. Они идут строго от простой ' +
+        'к сложной, у каждой рядом с номером стоят звёздочки сложности: ★ — простая, ' +
+        '★★★ — самая трудная. Порядок менять не нужно.',
       'У каждой задачи есть условие, формат входных и выходных данных и разобранные примеры.',
       'Программу вы пишете прямо в тёмном окне под условием — оно подписано «Здесь пишете ' +
         'программу». Кнопка «Запустить» просто показывает, что выводит ваша программа; ' +
@@ -1674,7 +1676,8 @@ function renderWork() {
         'Прочитайте его — следующая задача опирается на предыдущую.',
       'Переходить между задачами можно по номерам сверху или кнопками «Предыдущая» и «Следующая». ' +
         'Когда закончите, нажмите «Сдать практику» — уйдут и баллы, и ваши программы. ' +
-        'Кнопка «Подсказка» есть у каждой задачи.',
+        'Кнопка «Подсказка» есть только у первых двух задач: дальше пробуйте сами, ' +
+        'а разбор появится, когда задача решена.',
       'Практика открывается на весь экран. Если уйти с неё — на другую вкладку, в другое ' +
         'приложение, в поиск — и не вернуться дольше ' + AWAY_SEC + ' секунд, это засчитается ' +
         'как уход: появится предупреждение. После третьего практика закроется на ' + LOCK_MINUTES +
@@ -1725,9 +1728,21 @@ function renderWork() {
 
   var card = el('div', 'card');
   card.appendChild(el('div', 'qnum', 'Задача ' + (workIdx + 1) + ' из ' + tasks.length +
-    ' · ' + t.skill + ' · ' + t.points + ' балл'));
+    ' · ' + t.skill + ' · ' + t.points + ' балл' +
+    (t.stars ? ' · сложность ' + '★★★'.slice(0, t.stars) : '') +
+    ' · проверок: ' + (t.tests || []).length));
   card.appendChild(el('h2', null, t.name));
   card.appendChild(el('div', 'qtext', t.text));
+  if (t.steps && t.steps.length) {
+    var ol = el('div', 'rules one');
+    t.steps.forEach(function (x, i) {
+      var row = el('div', 'rule');
+      row.appendChild(el('span', 'n', String(i + 1)));
+      row.appendChild(el('span', null, x));
+      ol.appendChild(row);
+    });
+    card.appendChild(ol);
+  }
 
   var fmt = el('div', 'fmt');
   if (t.inp) {
@@ -1852,17 +1867,20 @@ function renderWork() {
   /* ---- проверка ---- */
   var row = el('div', 'qnav');
   var send = el('button', 'action', 'Проверить');
-  var hintBtn = el('button', 'quiet', workHint[workIdx] ? 'Скрыть подсказку' : 'Подсказка');
   var reset = el('button', 'quiet', 'Начать заново');
   row.appendChild(send);
-  row.appendChild(hintBtn);
+  // подсказка только у двух первых задач: дальше ученик пробует сам
+  var hintBtn = null;
+  if (workIdx < HINT_UPTO) {
+    hintBtn = el('button', 'quiet', workHint[workIdx] ? 'Скрыть подсказку' : 'Подсказка');
+    hintBtn.addEventListener('click', function () {
+      workHint[workIdx] = !workHint[workIdx];
+      renderWork();
+    });
+    row.appendChild(hintBtn);
+  }
   row.appendChild(reset);
   card.appendChild(row);
-
-  hintBtn.addEventListener('click', function () {
-    workHint[workIdx] = !workHint[workIdx];
-    renderWork();
-  });
   reset.addEventListener('click', function () {
     workCode[workIdx] = t.start || '';
     workInput[workIdx] = undefined;
@@ -1886,7 +1904,7 @@ function renderWork() {
     });
   });
 
-  if (workHint[workIdx]) card.appendChild(el('div', 'note', t.hint));
+  if (hintBtn && workHint[workIdx]) card.appendChild(el('div', 'note', t.hint));
 
   var resBox = el('div');
   card.appendChild(resBox);
