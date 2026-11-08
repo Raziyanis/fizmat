@@ -375,7 +375,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v59 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v60 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -480,6 +480,7 @@ function load(auto) {
       UI_KK = data.uiKk || {};
       applyLang();
       drawLangSwitch();
+      paintLang();
       if (auto && (ASKING || EDITOR_OPEN)) {
         document.getElementById('status').textContent = ASKING
           ? 'есть новые данные — покажем, как отправите вопрос'
@@ -536,10 +537,7 @@ function applyStage() {
   for (var i = 0; i < btns.length; i++) {
     btns[i].className = 'stage' + (btns[i].getAttribute('data-stage') === STAGE ? ' on' : '');
   }
-  if (LANG === 'kk') {
-    txDom(document.querySelector('.wrap'));
-    txDom(document.getElementById('stages'));
-  }
+  paintLang();
   window.scrollTo(0, 0);
 }
 
@@ -561,6 +559,7 @@ function drawStage() {
   if (STAGE === 'decide') drawDecidePanel();
   if (STAGE === 'reflect') drawReflect();
   if (STAGE === 'home') drawHome();
+  paintLang();
 }
 
 function drawTopic() {
@@ -633,6 +632,12 @@ function tx(s) {
 }
 
 /** Проходит по готовому экрану и заменяет подписи, которые есть в словаре. */
+/** «1 балл / 3 балла» по-русски и «ұпай» по-казахски. */
+function pts(n) {
+  if (LANG === 'kk') return n + ' ' + tx('балл');
+  return n + (n === 1 ? ' балл' : ' балла');
+}
+
 function txDom(root) {
   if (LANG !== 'kk' || !root) return;
   var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
@@ -948,7 +953,7 @@ function drawLessonPanel() {
 
   box.textContent = '';
   box.appendChild(el('div', 'eyebrow',
-    'Этап 3 · новая тема · шаг ' + (SLIDE + 1) + ' из ' + blocks.length));
+    tx('Этап 3 · новая тема · шаг') + ' ' + (SLIDE + 1) + ' / ' + blocks.length));
 
   var strip = el('div', 'steps');
   blocks.forEach(function (x, i) {
@@ -1078,7 +1083,7 @@ function allTasksCard(list, which) {
     'Условия, эталонные решения и наборы данных по всем ' + list.length +
     ' задачам сразу. Экран ученика это не показывает.'));
   var sw = el('button', ALL_OPEN ? 'act' : 'big-action',
-              ALL_OPEN ? 'Свернуть' : 'Показать все задачи с ответами');
+              ALL_OPEN ? tx('Свернуть') : tx('Показать все задачи с ответами'));
   sw.addEventListener('click', function () { ALL_OPEN = !ALL_OPEN; drawStage(); });
   card.appendChild(sw);
   if (!ALL_OPEN) return card;
@@ -1086,11 +1091,12 @@ function allTasksCard(list, which) {
   list.forEach(function (it, k) {
     var one = el('div', 'alltask');
     one.appendChild(el('div', 'qnum',
-      (it.extra ? 'Дополнительная задача ' : (which === 'work' ? 'Задача ' : 'Задание ')) + (k + 1) +
+      (it.extra ? tx('Дополнительная задача')
+                : (which === 'work' ? tx('Задача') : tx('Задание'))) + ' ' + (k + 1) +
       ' · ' + (it.skill || '') +
-      (it.extra ? ' · на оценку не влияет' : ' · ' + it.points + (it.points === 1 ? ' балл' : ' балла')) +
-      (it.stars ? ' · сложность ' + '★★★'.slice(0, it.stars) : '') +
-      (it.tests ? ' · проверок: ' + it.tests.length : '')));
+      (it.extra ? ' · ' + tx('на оценку не влияет') : ' · ' + pts(it.points)) +
+      (it.stars ? ' · ' + tx('сложность') + ' ' + '★★★'.slice(0, it.stars) : '') +
+      (it.tests ? ' · ' + tx('проверок:') + ' ' + it.tests.length : '')));
     if (it.name) one.appendChild(el('div', 'alltask-name', it.name));
     one.appendChild(el('div', null, it.text));
     if (it.steps && it.steps.length) {
@@ -1114,7 +1120,11 @@ function allTasksCard(list, which) {
       one.appendChild(el('div', 'eyebrow', 'Верный ответ'));
       one.appendChild(el('div', 'note', it.options[it.answer]));
     }
-    if (it.hint) one.appendChild(el('div', 'note', 'Подсказка ученику: ' + it.hint));
+    if (it.hint) {
+      var hintBox = el('div', 'note', tx('Подсказка ученику:') + ' ');
+      hintBox.appendChild(el('span', null, it.hint));
+      one.appendChild(hintBox);
+    }
     if (it.note) one.appendChild(el('div', 'note', it.note));
     card.appendChild(one);
   });
@@ -1142,11 +1152,12 @@ function stageTasks(which, L) {
   box.appendChild(strip);
 
   box.appendChild(el('div', 'qnum',
-    (it.extra ? 'Дополнительная задача ' : (which === 'work' ? 'Задача ' : 'Задание ')) + (i + 1) +
-    ' из ' + list.length +
-    (it.extra ? ' · на оценку не влияет' : ' · ' + it.points + (it.points === 1 ? ' балл' : ' балла')) +
+    (it.extra ? tx('Дополнительная задача')
+              : (which === 'work' ? tx('Задача') : tx('Задание'))) + ' ' + (i + 1) +
+    ' / ' + list.length +
+    (it.extra ? ' · ' + tx('на оценку не влияет') : ' · ' + pts(it.points)) +
     (it.skill ? ' · ' + it.skill : '') +
-    (it.stars ? ' · сложность ' + '★★★'.slice(0, it.stars) : '')));
+    (it.stars ? ' · ' + tx('сложность') + ' ' + '★★★'.slice(0, it.stars) : '')));
   if (it.name && which === 'work') box.appendChild(el('h3', null, it.name));
   box.appendChild(el('div', 'qtext', it.text));
   if (it.steps && it.steps.length) {
@@ -1217,8 +1228,8 @@ function stageTasks(which, L) {
     }
     if (it.tests && it.tests.length) {
       box.appendChild(el('div', 'sub-hint',
-        'Программу ученика проверяют на ' + it.tests.length +
-        ' наборах данных. Балл ставится, только если пройдены все.'));
+        tx('Программу ученика проверяют на') + ' ' + it.tests.length + ' ' +
+        tx('наборах данных. Балл ставится, только если пройдены все.')));
     }
     if (which === 'work') box.appendChild(codeTable(i));
   }
@@ -1276,7 +1287,8 @@ function drawStageScores(which, title, num) {
   var L = LAST.lesson;
   var max = (which === 'check') ? L.check.total : L.work.total;
   box.textContent = '';
-  box.appendChild(el('div', 'eyebrow', 'Этап ' + num + ' · ' + title.toLowerCase()));
+  box.appendChild(el('div', 'eyebrow',
+    tx('Этап') + ' ' + num + ' · ' + tx(title).toLowerCase()));
   box.appendChild(el('div', 'display', title));
 
   var tasks = (which === 'check') ? L.check.items : L.work.tasks;
@@ -1414,9 +1426,8 @@ function drawStageScores(which, title, num) {
     ['Класс', 'Ученик'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
     tasks.forEach(function (x, i) {
       var h = el('th', 'cnum', String(i + 1) + (x.extra ? '★' : ''));
-      h.title = (x.extra ? 'Дополнительная: ' : '') + (x.name || x.skill || '') +
-                (x.extra ? ' · на оценку не влияет' : ' · ' + x.points +
-                 (x.points === 1 ? ' балл' : ' балла'));
+      h.title = (x.extra ? tx('Дополнительная:') + ' ' : '') + (x.name || x.skill || '') +
+                (x.extra ? ' · ' + tx('на оценку не влияет') : ' · ' + pts(x.points));
       hr.appendChild(h);
     });
     hr.appendChild(el('th', null, 'Балл'));
@@ -1634,7 +1645,7 @@ function drawCaller() {
 
   if (!CALLED) {
     box.appendChild(el('div', 'called-empty', pool.length
-      ? 'В списке ' + pool.length + ' ученик(ов). Нажмите кнопку.'
+      ? tx('В списке') + ' ' + pool.length + ' ' + tx('ученик(ов). Нажмите кнопку.')
       : 'Списки классов не заполнены — лист «Классы» в таблице.'));
     return;
   }
@@ -1646,11 +1657,13 @@ function drawCaller() {
   box.appendChild(el('div', 'called-name', CALLED.name));
   var meta = el('div', 'called-meta');
   meta.appendChild(el('b', null, CALLED.klass));
-  meta.appendChild(el('span', null, ' · вызван ' + CALLED.position + ' из ' + CALLED.outOf));
+  meta.appendChild(el('span', null,
+    ' · ' + tx('вызван') + ' ' + CALLED.position + ' / ' + CALLED.outOf));
   box.appendChild(meta);
   if (CALLED.restarted) {
     box.appendChild(el('div', 'called-meta', 'Все уже отвечали — пошёл новый круг.'));
   }
+  paintLang();
 }
 
 function draw() {
@@ -1663,10 +1676,11 @@ function draw() {
     nStages++;
     if (data.stages[k].work) nWork++;
   });
-  document.getElementById('status').textContent = 'обновлено в ' +
+  document.getElementById('status').textContent = tx('обновлено в') + ' ' +
     ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2) +
-    ' · из таблицы: работ по этапам ' + nStages + ', по практике ' + nWork +
-    (data.stale || data.reason ? ' (данные старые)' : '');
+    ' · ' + tx('из таблицы: работ по этапам') + ' ' + nStages + ', ' +
+    tx('по практике') + ' ' + nWork +
+    (data.stale || data.reason ? ' ' + tx('(данные старые)') : '');
 
   /* классы */
   var chips = document.getElementById('class-filter');
@@ -1728,8 +1742,9 @@ function draw() {
     else if (q.answered && q.percent >= 80) cls = 'y';
     else if (q.answered && q.percent < 50) cls = 'n';
     var chip = el('i', cls, String(q.number));
-    chip.title = 'Задание ' + q.number + ' · ' + q.topic +
-                 (q.answered ? ' · верно ' + q.percent + '%' : ' · ещё не отвечали');
+    chip.title = tx('Задание') + ' ' + q.number + ' · ' + q.topic +
+                 (q.answered ? ' · ' + tx('верно') + ' ' + q.percent + '%'
+                             : ' · ' + tx('ещё не отвечали'));
     chip.addEventListener('click', function () { QIDX = i; REVEAL = false; CHOICE = null; draw(); });
     strip.appendChild(chip);
   });
@@ -1777,6 +1792,28 @@ function draw() {
     link.href = data.spreadsheetUrl;
     link.style.display = 'inline';
   }
+  paintLang();
+}
+
+/** Переводит всё, что сейчас на экране: страница собирается кусками,
+ *  поэтому проход делаем после каждой перерисовки. Кроме явных вызовов
+ *  за страницей следит наблюдатель — он ловит куски, которые рисуют
+ *  обработчики кнопок. Повторный проход ничего не меняет, поэтому
+ *  наблюдатель сам себя не зацикливает. */
+var LANG_WATCH = null, LANG_TIMER = null;
+
+function paintLang() {
+  if (LANG !== 'kk') return;
+  txDom(document.body);
+  if (LANG_WATCH || !window.MutationObserver) return;
+  LANG_WATCH = new MutationObserver(function () {
+    if (LANG_TIMER) return;
+    LANG_TIMER = setTimeout(function () {
+      LANG_TIMER = null;
+      txDom(document.body);
+    }, 60);
+  });
+  LANG_WATCH.observe(document.body, { childList: true, subtree: true, characterData: true });
 }
 
 /* ---------- карточка задания ---------- */
@@ -1786,14 +1823,14 @@ function questionCard(q, dialog) {
 
   var head = el('div', 'q-head');
   var title = el('div', 'q-title');
-  title.appendChild(el('span', null, 'Задание ' + q.number + ' · '));
+  title.appendChild(el('span', null, tx('Задание') + ' ' + q.number + ' · '));
   title.appendChild(el('span', 'topic', q.topic));
   head.appendChild(title);
 
   var counts = el('div', 'counts');
-  counts.appendChild(el('span', 'y', 'верно ' + q.right.length));
-  counts.appendChild(el('span', 'n', 'неверно ' + q.wrong.length));
-  counts.appendChild(el('span', 's', 'не ответили ' + q.silent.length));
+  counts.appendChild(el('span', 'y', tx('верно') + ' ' + q.right.length));
+  counts.appendChild(el('span', 'n', tx('неверно') + ' ' + q.wrong.length));
+  counts.appendChild(el('span', 's', tx('не ответили') + ' ' + q.silent.length));
 
   // выбор класса прямо у задания
   var classes = (LAST && LAST.classes) || [];
@@ -2057,7 +2094,7 @@ function byClass_(people) {
 
 function peopleGroup(title, people, q, isWrong) {
   var g = el('div', 'group');
-  g.appendChild(el('h3', null, title + ' — ' + people.length));
+  g.appendChild(el('h3', null, tx(title) + ' — ' + people.length));
   if (!people.length) {
     g.appendChild(el('div', 'empty', '—'));
     return g;
@@ -2218,8 +2255,8 @@ function studentDetail(data, s) {
 
     var item = el('div', 'detail-q ' + (mine ? (mine.ok ? 'ok' : 'bad') : 'none'));
     item.appendChild(el('div', 'qnum',
-      'Задание ' + q.number + ' · ' + q.topic + ' · ' +
-      (mine ? (mine.ok ? 'верно' : 'ошибка') : 'не ответил')));
+      tx('Задание') + ' ' + q.number + ' · ' + q.topic + ' · ' +
+      (mine ? (mine.ok ? tx('верно') : tx('ошибка')) : tx('не ответил'))));
     item.appendChild(el('div', 'detail-text', q.text));
     item.appendChild(el('pre', null, q.code));
 
