@@ -18,7 +18,7 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v50 · 8 ноября';
+var APP_VERSION = 'v51 · 8 ноября';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
@@ -467,27 +467,29 @@ var LESSON = {
               'переменным. print с двумя аргументами сам ставит между ними пробел, добавлять его не ' +
               'нужно.' },
 
-      { points: 1, id: 'OLA', name: 'Координатная четверть', skill: 'условия и знаки',
-        text: 'Дана точка (x, y) на координатной плоскости. В какой координатной четверти она лежит?',
-        inp: 'В единственной строке — два целых числа x и y через пробел (−100 ≤ x, y ≤ 100).',
-        out: 'Номер четверти: 1, 2, 3 или 4. Если точка лежит на оси — 0.',
-        samples: [['3 5', '1'], ['-2 0', '0']],
-        start: 'x, y = map(int, input().split())\n',
-        ref: 'x, y = map(int, input().split())\nif x == 0 or y == 0:\n    print(0)\nelif x > 0 and y > 0:\n    print(1)\nelif x < 0 and y > 0:\n    print(2)\nelif x < 0 and y < 0:\n    print(3)\nelse:\n    print(4)',
+      { points: 1, id: 'M1', name: 'Оценки за четверть', skill: 'count и index',
+        text: 'В кортеже marks лежат оценки за четверть. Выведите, сколько раз встречается ' +
+              'пятёрка, а на следующей строке — на каком месте стоит первая четвёрка. Места ' +
+              'считаются с нуля. Строку marks = (...) не удаляйте и не меняйте: при проверке ' +
+              'в неё подставят другие оценки.',
+        inp: 'Ввода нет: кортеж marks уже задан в программе.',
+        out: 'Первая строка — сколько пятёрок, вторая — место первой четвёрки.',
+        samples: [['marks = (5, 4, 5, 3, 5)', '3\n1'], ['marks = (4, 4, 4)', '0\n0']],
+        start: 'marks = (5, 4, 5, 3, 5)\n',
+        ref: 'marks = (5, 4, 5, 3, 5)\nprint(marks.count(5))\nprint(marks.index(4))',
         tests: [
-          { inputs: ['3 5'], want: '1' },
-          { inputs: ['-2 0'], want: '0' },
-          { inputs: ['-4 7'], want: '2' },
-          { inputs: ['-1 -1'], want: '3' },
-          { inputs: ['6 -3'], want: '4' },
-          { inputs: ['0 0'], want: '0' }
+          { data: { 'marks': [5, 4, 5, 3, 5] }, want: '3\n1' },
+          { data: { 'marks': [4, 4, 4] }, want: '0\n0' },
+          { data: { 'marks': [5, 5, 4, 5] }, want: '3\n2' },
+          { data: { 'marks': [3, 5, 4, 5, 4, 5] }, want: '3\n2' }
         ],
-        hint: 'Сначала проверьте, лежит ли точка на оси: x == 0 or y == 0. Потом сравните знаки.',
-        note: 'Главное здесь — порядок проверок. Сначала выясняем, не лежит ли точка на оси: если x == ' +
-              '0 или y == 0, четверти нет и выводим 0. Только после этого сравниваем знаки: оба плюса — ' +
-              'первая четверть, минус и плюс — вторая, оба минуса — третья, плюс и минус — четвёртая. ' +
-              'Если начать со знаков, точка (−2, 0) попадёт в четверть, которой у неё нет. Четверти ' +
-              'нумеруют против часовой стрелки.' },
+        hint: 'marks.count(5) — сколько пятёрок, marks.index(4) — место первой четвёрки.',
+        note: 'Это два единственных метода кортежа, и оба ничего не меняют — потому они у него и ' +
+              'остались. count(x) считает, сколько раз значение встречается, и для отсутствующего ' +
+              'значения даёт 0, а не ошибку. index(x) возвращает место первого вхождения, и счёт ' +
+              'идёт с нуля: если четвёрка стоит второй, ответ 1. Если искомого значения нет вовсе, ' +
+              'index останавливает программу с ValueError — поэтому перед ним обычно проверяют ' +
+              'наличие через in.' },
 
       { points: 1, id: 'A3', name: 'Дата рождения', skill: 'сборка кортежа',
         text: 'Введите день, месяц и год рождения — каждое число с новой строки. Сложите их в кортеж ' +
@@ -726,7 +728,7 @@ function setup() {
     ['Время письма', 'Класс', 'Ученик', 'Попытка', 'Отвечено', 'Последний ответ']);
   ensureSheet_(ss, SHEET_STAGES,
     ['Время', 'Класс', 'Ученик', 'Этап', 'Балл', 'Максимум', 'Подробности', 'ID отправки',
-     'Программы']);
+     'Программы', 'Сдано']);
 
   var resultsHeader = ['Время', 'Класс', 'Ученик', 'Email', 'Попытка', 'Балл', 'Максимум'];
   for (var i = 0; i < QUESTIONS.length; i++) {
@@ -1572,6 +1574,8 @@ function submitStage(p) {
   }
 
   var codes = (stage === 'work') ? workCodes_(result.detail) : '';
+  // промежуточная отправка: ученик решил очередную задачу, но этап не сдал
+  var isFinal = !(p && p.final === false);
 
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
@@ -1579,7 +1583,7 @@ function submitStage(p) {
     var sheet = sheet_(SHEET_STAGES);
     if (!uid || !hasUid_(sheet, 8, uid)) {
       sheet.appendRow([new Date(), klass, name, STAGE_NAMES[stage],
-                       result.score, result.total, details, uid, codes]);
+                       result.score, result.total, details, uid, codes, isFinal ? 1 : 0]);
     }
   } finally {
     lock.releaseLock();
@@ -1618,7 +1622,7 @@ function marksOf_(cell) {
 /** Что сдал каждый ученик по этапам 3–5. */
 function stageResults_() {
   var out = {};
-  rows_(SHEET_STAGES, 9).forEach(function (row) {
+  rows_(SHEET_STAGES, 10).forEach(function (row) {
     var name = clean_(row[2]);
     if (!name) return;
     var k = key_(row[1], name);
@@ -1627,7 +1631,8 @@ function stageResults_() {
     var marks = marksOf_(row[6]);
     if (stage === STAGE_NAMES.check) out[k].check = { score: row[4], total: row[5], marks: marks };
     else if (stage === STAGE_NAMES.work) out[k].work = { score: row[4], total: row[5],
-                                                        marks: marks, codes: codesOf_(row[8]) };
+                                                        marks: marks, codes: codesOf_(row[8]),
+                                                        done: row[9] !== 0 && row[9] !== '0' };
     else if (stage === STAGE_NAMES.decide) out[k].decide = { score: row[4], total: row[5], marks: marks };
     else if (stage === STAGE_NAMES.reflection) out[k].reflection = String(row[6] || '');
   });
@@ -1662,16 +1667,22 @@ function sendDigest() {
     count++;
   });
 
-  rows_(SHEET_STAGES, 9).forEach(function (row) {
+  // по этапам берём только последнее состояние каждого ученика:
+  // промежуточные отправки не должны плодить строки в письме
+  var latestStage = {};
+  rows_(SHEET_STAGES, 10).forEach(function (row) {
     var t = dateOf_(row[0]);
     if (!t || t.getTime() <= since) return;
     var stage = String(row[3] || '');
     var score = (row[4] === '' || row[4] === null)
       ? String(row[6] || '')
       : row[4] + ' из ' + row[5];
-    lines.push('• ' + clean_(row[1]) + ', ' + clean_(row[2]) + ' — ' + stage + ': ' + score);
-    count++;
+    var done = row[9] !== 0 && row[9] !== '0';
+    latestStage[key_(row[1], row[2]) + '|' + stage] =
+      '• ' + clean_(row[1]) + ', ' + clean_(row[2]) + ' — ' + stage + ': ' + score +
+      (done ? '' : ' (ещё решает)');
   });
+  Object.keys(latestStage).forEach(function (k) { lines.push(latestStage[k]); count++; });
 
   props.setProperty(PROP_DIGEST, String(now));
   if (!count) return 0;

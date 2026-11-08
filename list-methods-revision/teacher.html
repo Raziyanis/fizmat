@@ -364,7 +364,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v50 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v51 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -1109,15 +1109,18 @@ function drawStageScores(which, title, num) {
     var rec = (LAST.stages || {})[(p.klass + '|' + p.name).toLowerCase()];
     var got = rec && rec[which] ? rec[which].score : null;
     var marks = (rec && rec[which] && rec[which].marks) || [];
-    rows.push({ klass: p.klass, name: p.name, score: got, marks: marks });
+    rows.push({ klass: p.klass, name: p.name, score: got, marks: marks,
+                done: (rec && rec[which]) ? rec[which].done : undefined });
   });
 
-  var done = rows.filter(function (r) { return r.score !== null && r.score !== ''; });
-  var sum = 0; done.forEach(function (r) { sum += Number(r.score) || 0; });
+  var started = rows.filter(function (r) { return r.score !== null && r.score !== ''; });
+  var done = started.filter(function (r) { return r.done !== false; });
+  var doing = started.length - done.length;
+  var sum = 0; started.forEach(function (r) { sum += Number(r.score) || 0; });
 
   var tiles = el('div', 'tiles');
-  [[done.length, 'сдали'], [rows.length - done.length, 'не сдали'],
-   [done.length ? (Math.round(sum / done.length * 10) / 10) + ' / ' + max : '—', 'средний балл']
+  [[done.length, 'сдали'], [doing, 'ещё решают'], [rows.length - started.length, 'не начали'],
+   [started.length ? (Math.round(sum / started.length * 10) / 10) + ' / ' + max : '—', 'средний балл']
   ].forEach(function (t) {
     var d = el('div', 'tile');
     d.appendChild(el('div', 'v', String(t[0])));
@@ -1156,6 +1159,7 @@ function drawStageScores(which, title, num) {
       tr.appendChild(el('td', null, r.klass));
       tr.appendChild(el('td', null, r.name));
       var handed = !(r.score === null || r.score === '');
+      var done = r.done !== false;
       var bad = [];
       tasks.forEach(function (x, i) {
         if (!handed) { tr.appendChild(el('td', 'mark q cell', '—')); return; }
@@ -1178,9 +1182,11 @@ function drawStageScores(which, title, num) {
       } else {
         var full = Number(r.score) === max;
         tr.appendChild(el('td', 'mark ' + (full ? 'y' : (Number(r.score) >= max / 2 ? '' : 'n')),
-                          r.score + ' / ' + max));
-        tr.appendChild(el('td', 'mark ' + (bad.length ? 'n' : 'y'),
-          bad.length ? 'ошибки: ' + bad.join(', ') : 'всё верно'));
+                          r.score + ' / ' + max + (done ? '' : ' …')));
+        var solved = max - bad.length;
+        tr.appendChild(el('td', 'mark ' + (bad.length ? (done ? 'n' : '') : 'y'),
+          done ? (bad.length ? 'ошибки: ' + bad.join(', ') : 'всё верно')
+               : 'решает: сделано ' + solved + ' из ' + max));
       }
       tb.appendChild(tr);
     });

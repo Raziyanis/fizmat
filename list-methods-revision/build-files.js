@@ -247,7 +247,8 @@ window.google = { script: { run: {
     else if (p.stage === 'work') res = gradeWork(p.answers || {});
     else res = { score: '', total: '', detail: [], choice: p.choice, text: p.text };
     qAdd({ type: 'stage', uid: p.uid || uidLocal(), klass: p.klass, name: p.name,
-           stage: p.stage, answers: p.answers || {}, choice: p.choice || '', text: p.text || '' });
+           stage: p.stage, answers: p.answers || {}, choice: p.choice || '', text: p.text || '',
+           final: p.final !== false });
     qFlush();
     this._ok(res);
   },

@@ -329,7 +329,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v50 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v51 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -667,7 +667,8 @@ function judgeTask(t, code) {
       return { ok: false, passed: i, total: tests.length,
                verdict: 'Верните на место ' + (names.length > 1 ? 'строки ' : 'строку ') +
                         names.map(function (n) { return '«' + n + ' = (…)»'; }).join(' и ') +
-                        ': по ним программу проверяют на других данных.' };
+                        ': по ' + (names.length > 1 ? 'ним' : 'ней') +
+                        ' программу проверяют на других данных.' };
     }
     return pyRunCode(prepared, test.inputs || []).then(function (r) {
       var e = r.err;
@@ -1877,6 +1878,7 @@ function renderWork() {
                                verdict: res.verdict };
       workTries[workIdx] = (workTries[workIdx] || 0) + 1;
       workLastRes[workIdx] = res;
+      pushWork();                 // учитель видит задачу сразу, не дожидаясь сдачи
       renderWork();
     }, function (e) {
       send.disabled = false;
@@ -1948,6 +1950,20 @@ function acceptedLocal(given, list) {
   var g = norm(given);
   for (var i = 0; i < list.length; i++) if (norm(list[i]) === g) return true;
   return false;
+}
+
+/**
+ * Промежуточная отправка практики: уходит после каждой проверенной задачи,
+ * чтобы учитель видел работу класса по ходу урока, а не только в конце.
+ * На сервере сохраняется последнее состояние, поэтому лишних строк в отчёте нет.
+ */
+function pushWork() {
+  if (!chosen.name) return;
+  google.script.run
+    .withSuccessHandler(function () {})
+    .withFailureHandler(function () {})   // нет сети — уйдёт при сдаче этапа
+    .submitStage({ uid: uid(), klass: chosen.klass, name: chosen.name,
+                   stage: 'work', answers: workAnswers, final: false });
 }
 
 function finishWork() {
