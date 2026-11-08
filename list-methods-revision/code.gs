@@ -18,7 +18,10 @@
 
 /** Версия кода. Видна внизу обеих страниц — так сразу понятно,
  *  развёрнута ли свежая версия или ссылка отдаёт старую. */
-var APP_VERSION = 'v53 · 8 ноября';
+var APP_VERSION = 'v54 · 8 ноября';
+
+/** Метка в теме всех писем — по ней почта раскладывает их по папке. */
+var MAIL_TAG = '8 класс';
 
 var SHEET_CLASSES = 'Классы';
 var SHEET_ANSWERS = 'Ответы';
@@ -1054,6 +1057,15 @@ function doPost(e) {
   try {
     var p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
 
+    // запрос отчёта из файла учителя
+    if (p.type === 'report') {
+      if (!tokenOk_(p.token)) throw new Error('Неверный токен.');
+      sendReport(p.klass || '');
+      out.ok = true;
+      return ContentService.createTextOutput(JSON.stringify(out))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     // запись из файла учителя: вопрос ученику
     if (p.type === 'ask') {
       if (!tokenOk_(p.token)) throw new Error('Неверный токен.');
@@ -1757,6 +1769,111 @@ function stageResults_() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Отчёт по практике на почту                                          */
+/* ------------------------------------------------------------------ */
+
+function esc_(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/**
+ * Таблица по практике: кто какую задачу выполнил. Дополнительные задачи
+ * помечены звёздочкой и в балл не входят.
+ */
+function reportHtml_(klass) {
+  var tasks = LESSON.work.tasks;
+  var stages = stageResults_();
+  var classes = readClasses_();
+  var html = [];
+  var total = LESSON.work.total;
+
+  html.push('<div style="font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#101a33">');
+  html.push('<h2 style="margin:0 0 4px">' + esc_(MAIL_TAG) + ' · Практика (ФО)</h2>');
+  html.push('<div style="color:#5b6b8c;margin-bottom:14px">' + esc_(LESSON.title) +
+            ' · цель обучения ' + esc_(LESSON.code) +
+            ' · отчёт собран ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(),
+                                                      'dd.MM.yyyy HH:mm') + '</div>');
+
+  classes.forEach(function (c) {
+    if (klass && c.klass !== klass) return;
+    html.push('<h3 style="margin:18px 0 6px">' + esc_(c.klass) + '</h3>');
+    html.push('<table cellspacing="0" cellpadding="6" border="1" ' +
+              'style="border-collapse:collapse;border-color:#e2e8f2;font-size:13px">');
+    var head = ['<th align="left">Ученик</th>'];
+    tasks.forEach(function (t, i) {
+      head.push('<th>' + (i + 1) + (t.extra ? '★' : '') + '</th>');
+    });
+    head.push('<th>Балл</th><th align="left">Что получилось</th>');
+    html.push('<tr style="background:#f4f6fa">' + head.join('') + '</tr>');
+
+    c.students.forEach(function (name) {
+      var rec = stages[key_(c.klass, name)];
+      var work = rec && rec.work;
+      var cells = ['<td>' + esc_(name) + '</td>'];
+      var bad = [], extraOk = 0;
+      tasks.forEach(function (t, i) {
+        if (!work) { cells.push('<td align="center" style="color:#9aa5b1">—</td>'); return; }
+        var got = (work.marks || [])[i];
+        if (got === undefined || got === null) {
+          cells.push('<td align="center" style="color:#9aa5b1">—</td>');
+          if (!t.extra) bad.push(i + 1);
+        } else if (Number(got) >= t.points) {
+          cells.push('<td align="center" style="color:#137333">✓</td>');
+          if (t.extra) extraOk++;
+        } else {
+          cells.push('<td align="center" style="color:#b3261e">✗</td>');
+          if (!t.extra) bad.push(i + 1);
+        }
+      });
+      if (!work) {
+        cells.push('<td align="center" style="color:#9aa5b1">не сдал</td>');
+        cells.push('<td style="color:#9aa5b1">ещё не выполняет</td>');
+      } else {
+        var done = work.done !== false;
+        cells.push('<td align="center"><b>' + esc_(work.score) + ' / ' + total + '</b>' +
+                   (extraOk ? ' +' + extraOk + '★' : '') + (done ? '' : ' …') + '</td>');
+        cells.push('<td>' +
+          (done ? (bad.length ? 'ошибки: ' + bad.join(', ') : 'всё верно')
+                : 'ещё решает, сделано ' + (total - bad.length) + ' из ' + total) +
+          (extraOk ? ', дополнительных ' + extraOk : '') + '</td>');
+      }
+      html.push('<tr>' + cells.join('') + '</tr>');
+    });
+    html.push('</table>');
+  });
+
+  html.push('<p style="color:#5b6b8c;margin-top:16px">✓ — задача решена, ✗ — есть ошибка, ' +
+            '«—» — не выполнял. Номер со звёздочкой — дополнительная задача, в балл не входит.</p>');
+  var ss = openSpreadsheet_();
+  if (ss) html.push('<p><a href="' + ss.getUrl() + '">Открыть таблицу</a></p>');
+  html.push('</div>');
+  return html.join('\n');
+}
+
+/**
+ * Присылает отчёт по практике на почту учителя. klass — один класс
+ * или пусто, если нужны все. Вызывается кнопкой со страницы учителя
+ * и вручную из редактора.
+ */
+function sendReport(klass) {
+  var to = PropertiesService.getScriptProperties().getProperty(PROP_TEACHER);
+  if (!to) throw new Error('Почта учителя неизвестна: выполните setup().');
+  var subject = MAIL_TAG + ' · Практика (ФО): отчёт' + (klass ? ' · ' + klass : '');
+  var html = reportHtml_(clean_(klass));
+  MailApp.sendEmail({ to: to, subject: subject, htmlBody: html,
+                      body: 'Отчёт по практике. Откройте письмо в режиме HTML.' });
+  Logger.log('Отчёт отправлен на ' + to + (klass ? ' (класс ' + klass + ')' : ''));
+  return { ok: true, to: to };
+}
+
+/** Кнопка «Отчёт на почту» на странице учителя. */
+function sendReportNow(klass) {
+  if (!isTeacher_()) throw new Error('Отчёт может запросить только учитель.');
+  return sendReport(klass);
+}
+
+/* ------------------------------------------------------------------ */
 /* Письмо-сводка                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -1806,7 +1923,7 @@ function sendDigest() {
 
   lines.sort();
   MailApp.sendEmail(to,
-    'Урок «' + LESSON.title + '»: новых работ — ' + count,
+    MAIL_TAG + ' · ' + LESSON.title + ': новых работ — ' + count,
     'С прошлой проверки пришло:\n\n' + lines.join('\n') +
     '\n\nДомашнее задание не собирается.\n\nТаблица: ' +
     (openSpreadsheet_() ? openSpreadsheet_().getUrl() : '') + '\n');
@@ -1888,7 +2005,7 @@ function checkAbandoned() {
     (openSpreadsheet_() ? openSpreadsheet_().getUrl() : '') + '\n';
 
   MailApp.sendEmail(to,
-    'Методы списка: бросили тест — ' + abandoned.length + ' чел.',
+    MAIL_TAG + ' · бросили тест — ' + abandoned.length + ' чел.',
     body);
 
   var sheet = sheet_(SHEET_NOTIFY);

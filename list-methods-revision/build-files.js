@@ -145,6 +145,19 @@ function qFlush(onState){
 }
 window.addEventListener('online', function(){ qFlush(); });
 setInterval(function(){ if (qRead().length) qFlush(); }, 30000);
+
+/* Сколько записей ещё не ушло и когда ушла последняя — чтобы на странице
+   было видно, дошла работа до учителя или лежит в очереди. */
+window.__outbox = function(){
+  var sentAt = 0;
+  try { sentAt = Number(localStorage.getItem('listmethods.sentAt') || 0); } catch(e) {}
+  return { left: qRead().length, sentAt: sentAt };
+};
+var qDropPlain = qDrop;
+qDrop = function(uid){
+  qDropPlain(uid);
+  try { localStorage.setItem('listmethods.sentAt', String(Date.now())); } catch(e) {}
+};
 `;
 
 /* ------------------------------------------------------------------ */
@@ -348,6 +361,14 @@ window.google = { script: { run: {
            name: p.name, qid: p.qid, text: p.text });
     qFlush();
     this._ok({ ok: true });
+  },
+
+  sendReportNow: function(klass){
+    var ok = this._ok, fail = this._fail;
+    sendOne({ type: 'report', token: TOKEN, klass: klass || '',
+              uid: 'r' + Date.now().toString(36) })
+      .then(function(){ ok({ ok: true }); })
+      .catch(function(e){ fail(e); });
   }
 } } };
 `;

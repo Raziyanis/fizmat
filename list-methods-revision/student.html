@@ -330,7 +330,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v53 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v54 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -1956,6 +1956,13 @@ function renderWork() {
 
   card.appendChild(el('div', 'hint', PY ? 'Python готов.' :
     'Python готовится к работе: первая проверка может занять до полминуты.'));
+  var st = sendStatus();
+  if (st) {
+    var line = el('div', 'hint', st);
+    card.appendChild(line);
+    // очередь уходит не мгновенно — обновим строку через пару секунд
+    setTimeout(function () { line.textContent = sendStatus(); }, 2500);
+  }
 
   box.appendChild(card);
 
@@ -1981,6 +1988,23 @@ function acceptedLocal(given, list) {
  * чтобы учитель видел работу класса по ходу урока, а не только в конце.
  * На сервере сохраняется последнее состояние, поэтому лишних строк в отчёте нет.
  */
+/** Видно ли ученику, что работа ушла учителю. Пишем честно: ушла, лежит в очереди
+    или отправляется прямо сейчас. */
+function sendStatus() {
+  if (typeof window.__outbox !== 'function') return '';
+  var box = window.__outbox();
+  if (box.left > 0) {
+    return 'Не отправлено: в очереди ' + box.left +
+           '. Уйдёт учителю, как только появится сеть.';
+  }
+  if (box.sentAt) {
+    var d = new Date(box.sentAt);
+    return 'Отправлено учителю в ' +
+           ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + '.';
+  }
+  return 'Пока учителю ничего не отправлено.';
+}
+
 function pushWork() {
   if (!chosen.name) return;
   google.script.run

@@ -366,7 +366,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v53 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v54 · 8 ноября';   // сверяется с версией Код.gs
 var FILTER = '';
 var QIDX = 0;             // какое задание открыто
 var REVEAL = false;       // показан ли верный ответ (по умолчанию скрыт: экран на проекторе)
@@ -419,8 +419,17 @@ function fileWarning_() {
 
 if (offlineFile_()) fileWarning_(); else
 load();
-// список обновляется сам, страницу перезагружать не нужно
-setInterval(function () { load(true); }, 10000);
+
+/* Страница обновляется сама. На «Практике» нужен живой отчёт — раз в пять
+   секунд; на остальных этапах данные меняются редко, поэтому раз в полминуты,
+   чтобы не дёргать таблицу зря. */
+var TICK = 5000;
+var SLOW_EVERY = 6;          // 6 × 5 с = 30 с
+var tick = 0;
+setInterval(function () {
+  tick++;
+  if (STAGE === 'work' || tick % SLOW_EVERY === 0) load(true);
+}, TICK);
 
 /**
  * auto = true — это автообновление по таймеру. Пока учитель набирает
@@ -494,7 +503,13 @@ function applyStage() {
   window.scrollTo(0, 0);
 }
 
-function setStage(name) { STAGE = name; EDITOR_OPEN = false; drawStage(); applyStage(); }
+function setStage(name) {
+  STAGE = name;
+  EDITOR_OPEN = false;
+  drawStage();
+  applyStage();
+  if (name === 'work') load(true);   // на практике показываем самое свежее сразу
+}
 
 /** Перерисовывает панель открытого этапа. */
 function drawStage() {
@@ -1198,7 +1213,33 @@ function drawStageScores(which, title, num) {
 
   var card = el('div', 'card');
   card.appendChild(el('h2', null, 'Результаты по заданиям'));
+  if (which === 'work') {
+    card.appendChild(el('div', 'sub-hint',
+      'Отчёт живой: обновляется сам каждые 5 секунд, пока открыт этап «Практика». ' +
+      'Галочка появляется сразу, как ученик решил задачу, — ждать «Сдать практику» не нужно.'));
+  }
   card.appendChild(classPicker(null));
+  var mailRow = el('div', 'qnav');
+  var mailBtn = el('button', 'act', FILTER ? 'Отчёт на почту · ' + FILTER : 'Отчёт на почту');
+  mailBtn.addEventListener('click', function () {
+    mailBtn.disabled = true;
+    mailBtn.textContent = 'Отправляем…';
+    google.script.run
+      .withSuccessHandler(function (res) {
+        mailBtn.disabled = false;
+        mailBtn.textContent = 'Отчёт на почту';
+        banner('Отчёт отправлен' + (res && res.to ? ' на ' + res.to : '') +
+               '. В теме письма — «8 класс».', 'ok');
+      })
+      .withFailureHandler(function (err) {
+        mailBtn.disabled = false;
+        mailBtn.textContent = 'Отчёт на почту';
+        banner('Отчёт не ушёл: ' + ((err && err.message) || err));
+      })
+      .sendReportNow(FILTER || '');
+  });
+  mailRow.appendChild(mailBtn);
+  card.appendChild(mailRow);
   card.appendChild(el('div', 'sub-hint', '✓ — задание выполнено верно, ✗ — есть ошибка, ' +
     '«—» — ученик это задание не выполнял. Номер со звёздочкой — дополнительная задача, ' +
     'в балл она не входит.'));
@@ -1454,8 +1495,15 @@ function draw() {
   if (!data) return;
   var now = new Date();
   showVersion_(data.version);
+  var nStages = 0, nWork = 0;
+  Object.keys(data.stages || {}).forEach(function (k) {
+    nStages++;
+    if (data.stages[k].work) nWork++;
+  });
   document.getElementById('status').textContent = 'обновлено в ' +
-    ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2) +
+    ' · из таблицы: работ по этапам ' + nStages + ', по практике ' + nWork +
+    (data.stale || data.reason ? ' (данные старые)' : '');
 
   /* классы */
   var chips = document.getElementById('class-filter');
