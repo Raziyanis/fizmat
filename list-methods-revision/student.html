@@ -335,8 +335,14 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v63 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v64 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
+/* Страница ученика работает сама по себе: ученик не выбирает класс
+   и фамилию, и ничего не уходит учителю. Задания, проверка кода,
+   баллы и разборы считаются прямо здесь, работа хранится на этом
+   компьютере. Чтобы вернуть отправку, поставьте SOLO = false. */
+var SOLO = true;
+
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
 var step = 0;                 // индекс текущего задания
@@ -397,7 +403,7 @@ function applyView() {
 
 /* Этапы, где работа записывается на конкретного ученика. Без выбранной
    фамилии их не открыть: иначе ученик решает, а ответы уходить некуда. */
-var GUARDED = ['check', 'work', 'decide', 'reflect'];
+var GUARDED = SOLO ? [] : ['check', 'work', 'decide', 'reflect'];
 var PENDING = '';   // куда вернуть ученика, как только он выберет себя
 
 function renderNeedWho(name) {
@@ -436,7 +442,7 @@ function setStage(name) {
 
 /** Требуем выбрать себя — иначе непонятно, чью работу записывать. */
 function needName() {
-  if (chosen.name) return true;
+  if (SOLO || chosen.name) return true;
   setStage('test');
   banner('Сначала выберите класс и свою фамилию на этапе «Повторение».', 'warn');
   return false;
@@ -452,6 +458,7 @@ document.getElementById('stages').addEventListener('click', function (ev) {
 /** Имя ученика в шапке. */
 function renderWhoami() {
   var box = document.getElementById('whoami');
+  if (SOLO) { box.style.display = 'none'; return; }
   box.textContent = 'Ученик: ';
   box.appendChild(el('b', null, chosen.name
     ? (chosen.klass ? chosen.klass + ', ' : '') + chosen.name : '—'));
@@ -1109,7 +1116,10 @@ function flushQueue() {
     .withSuccessHandler(function (res) {
       sending = false;
       queueDrop(item.payload.uid);
-      if (item.kind === 'finish' && res) { banner('Работа отправлена учителю.', 'ok'); showResult(res); }
+      if (item.kind === 'finish' && res) {
+        if (!SOLO) banner('Работа отправлена учителю.', 'ok');
+        showResult(res);
+      }
       else banner('');
       flushQueue();
     })
@@ -1165,6 +1175,7 @@ function start() {
       drawLangSwitch();
       showVersion_(DATA.version);
       teacherUnlock();
+      if (SOLO) { startTest(null); return; }
       renderWho(); flushQueue();
       if (queueRead().length) {
         banner('Есть несохранённые ответы — отправим, когда появится интернет.', 'warn');
@@ -1277,6 +1288,7 @@ function startTest(access) {
 function renderWho_line() {
   var who = document.getElementById('who-line');
   who.textContent = '';
+  if (SOLO) { who.style.display = 'none'; return; }
   who.appendChild(el('span', null, 'Отвечает: '));
   who.appendChild(el('b', null, (chosen.klass ? chosen.klass + ', ' : '') + chosen.name));
   var b = el('button', 'quiet', 'Это не я');
@@ -1846,10 +1858,15 @@ function renderWork() {
          'оранжевый — решаете, зелёный — решено, красный — пока с ошибкой.'),
       tx('Когда задача решена, под ней появляется разбор: почему решение именно такое. ' +
          'Прочитайте его — следующая задача опирается на предыдущую.'),
-      tx('Переходить между задачами можно по номерам сверху или кнопками «Предыдущая» ' +
-         'и «Следующая». Когда закончите, нажмите «Сдать практику» — уйдут и баллы, ' +
-         'и ваши программы. Кнопка «Подсказка» есть только у первых двух задач: ' +
-         'дальше пробуйте сами, а разбор появится, когда задача решена.'),
+      tx(SOLO
+         ? 'Переходить между задачами можно по номерам сверху или кнопками «Предыдущая» ' +
+           'и «Следующая». Когда закончите, нажмите «Показать результат практики» — ' +
+           'увидите свой балл и разбор. Кнопка «Подсказка» есть только у первых двух задач: ' +
+           'дальше пробуйте сами, а разбор появится, когда задача решена.'
+         : 'Переходить между задачами можно по номерам сверху или кнопками «Предыдущая» ' +
+           'и «Следующая». Когда закончите, нажмите «Сдать практику» — уйдут и баллы, ' +
+           'и ваши программы. Кнопка «Подсказка» есть только у первых двух задач: ' +
+           'дальше пробуйте сами, а разбор появится, когда задача решена.'),
       fill('Практика открывается на весь экран. Если уйти с неё — на другую вкладку, ' +
            'в другое приложение, в поиск — и не вернуться дольше {1} секунд, это засчитается ' +
            'как уход: появится предупреждение. После третьего практика закроется ' +
@@ -2129,7 +2146,8 @@ function renderWork() {
   next.disabled = workIdx >= tasks.length - 1;
   next.addEventListener('click', function () { workIdx++; workSave(); renderWork(); });
   nav.appendChild(next);
-  var done = el('button', 'action', 'Сдать практику');
+  var done = el('button', 'action', SOLO ? tx('Показать результат практики')
+                                         : tx('Сдать практику'));
   done.addEventListener('click', function () {
     workDone = true;
     workSave();
@@ -2155,7 +2173,9 @@ function renderWork() {
   var slot = el('div');
   slot.id = 'work-result';
   box.appendChild(slot);
-  box.appendChild(el('div', 'hint', tx('Отправится учителю, когда появится сеть.')));
+  if (!SOLO) {
+    box.appendChild(el('div', 'hint', tx('Отправится учителю, когда появится сеть.')));
+  }
 }
 
 /** Сравнение ответа с принимаемыми вариантами: регистр и пробелы не важны. */
@@ -2177,6 +2197,7 @@ function acceptedLocal(given, list) {
 /** Видно ли ученику, что работа ушла учителю. Пишем честно: ушла, лежит в очереди
     или отправляется прямо сейчас. */
 function sendStatus() {
+  if (SOLO) return '';
   if (typeof window.__outbox !== 'function') return '';
   var box = window.__outbox();
   if (box.left > 0) {
@@ -2188,11 +2209,11 @@ function sendStatus() {
     return tx('Отправлено учителю в') + ' ' +
            ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + '.';
   }
-  return tx('Пока учителю ничего не отправлено.');
+  return SOLO ? '' : tx('Пока учителю ничего не отправлено.');
 }
 
 function pushWork() {
-  if (!chosen.name) return;
+  if (SOLO || !chosen.name) return;
   google.script.run
     .withSuccessHandler(function () {})
     .withFailureHandler(function () {})   // нет сети — уйдёт при сдаче этапа
@@ -2438,6 +2459,7 @@ document.getElementById('locked-back').addEventListener('click', function () { s
 /* ---------- переписка с учителем ---------- */
 
 function startChat() {
+  if (SOLO) return;
   pollChat();
   if (!chatTimer) chatTimer = setInterval(pollChat, 15000);
 }
@@ -2446,7 +2468,7 @@ function stopChat() {
 }
 
 function pollChat() {
-  if (!chosen.name) return;
+  if (SOLO || !chosen.name) return;
   google.script.run
     .withSuccessHandler(renderChat)
     .withFailureHandler(function () { /* связи нет — покажем в следующий раз */ })

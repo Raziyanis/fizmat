@@ -255,9 +255,11 @@ window.google = { script: { run: {
                       given: (typeof given === 'number') ? given : -1,
                       correct:q.correct, ok:ok, note:q.note });
     });
-    qAdd({ uid: p.uid, attempt: p.attempt, klass: p.klass, name: p.name,
-           answers: p.answers, addToClass: p.addToClass });
-    qFlush();
+    if (!window.SOLO) {
+      qAdd({ uid: p.uid, attempt: p.attempt, klass: p.klass, name: p.name,
+             answers: p.answers, addToClass: p.addToClass });
+      qFlush();
+    }
     this._ok({ score: score, total: Q.length, feedback: feedback, duplicate: false });
   },
 
@@ -266,10 +268,14 @@ window.google = { script: { run: {
     if (p.stage === 'check') res = gradeCheck(p.answers || {});
     else if (p.stage === 'work') res = gradeWork(p.answers || {});
     else res = { score: '', total: '', detail: [], choice: p.choice, text: p.text };
-    qAdd({ type: 'stage', uid: p.uid || uidLocal(), klass: p.klass, name: p.name,
-           stage: p.stage, answers: p.answers || {}, choice: p.choice || '', text: p.text || '',
-           final: p.final !== false });
-    qFlush();
+    /* SOLO: страница ученика ничего не отправляет учителю.
+       Балл считается здесь же и показывается ученику. */
+    if (!window.SOLO) {
+      qAdd({ type: 'stage', uid: p.uid || uidLocal(), klass: p.klass, name: p.name,
+             stage: p.stage, answers: p.answers || {}, choice: p.choice || '', text: p.text || '',
+             final: p.final !== false });
+      qFlush();
+    }
     this._ok(res);
   },
 
