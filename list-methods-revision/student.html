@@ -83,6 +83,7 @@
   }
   .steps i.y { background: var(--ok); color: #fff; }
   .steps i.n { background: var(--bad); color: #fff; }
+  .steps i.extra { border-style: dashed; }
   .steps i.now { background: var(--action); color: var(--action-text);
                  box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--action); }
   .qnum { font-size: 13px; color: var(--muted); font-weight: 600; }
@@ -329,7 +330,7 @@
 </div>
 
 <script>
-var PAGE_VERSION = 'v52 · 8 ноября';   // сверяется с версией Код.gs
+var PAGE_VERSION = 'v53 · 8 ноября';   // сверяется с версией Код.gs
 var DATA = null;
 var chosen = { klass: '', name: '', manual: false };
 var attemptId = '';
@@ -1612,6 +1613,8 @@ function renderWork() {
   if (!DATA || !DATA.lesson) return;
   var W = DATA.lesson.work;
   var tasks = W.tasks;
+  var MAIN_N = tasks.filter(function (x) { return !x.extra; }).length;
+  var EXTRA_N = tasks.length - MAIN_N;
   workWatch();
   workState();
 
@@ -1659,9 +1662,11 @@ function renderWork() {
     var ins = el('div', 'card');
     ins.appendChild(el('h2', null, 'Инструкция'));
     var rules = [
-      'Задач ' + tasks.length + ', по одному баллу за каждую. Они идут строго от простой ' +
-        'к сложной, у каждой рядом с номером стоят звёздочки сложности: ★ — простая, ' +
-        '★★★ — самая трудная. Порядок менять не нужно.',
+      'Основных задач ' + MAIN_N + ', по одному баллу за каждую — это и есть ' + W.total +
+        ' баллов за этап. Они идут строго от простой к сложной, сложность подписана ' +
+        'звёздочками: ★ — простая, ★★★ — самая трудная.',
+      'После них ' + EXTRA_N + ' дополнительные задачи: их номера помечены звёздочкой — ' +
+        '11★, 12★, 13★, 14★. На оценку они не влияют, решайте, если останется время.',
       'У каждой задачи есть условие, формат входных и выходных данных и разобранные примеры.',
       'Программу вы пишете прямо в тёмном окне под условием — оно подписано «Здесь пишете ' +
         'программу». Кнопка «Запустить» просто показывает, что выводит ваша программа; ' +
@@ -1719,16 +1724,17 @@ function renderWork() {
   var strip = el('div', 'steps');
   tasks.forEach(function (x, i) {
     var cls = (i in workVerdict) ? (workVerdict[i] ? 'y' : 'n') : (i === workIdx ? 'now' : '');
-    var chip = el('i', cls, String(i + 1));
-    chip.title = 'Задача ' + (i + 1) + ' · ' + x.name;
+    var chip = el('i', cls + (x.extra ? ' extra' : ''), String(i + 1) + (x.extra ? '★' : ''));
+    chip.title = (x.extra ? 'Дополнительная задача ' : 'Задача ') + (i + 1) + ' · ' + x.name;
     chip.addEventListener('click', function () { workIdx = i; renderWork(); });
     strip.appendChild(chip);
   });
   box.appendChild(strip);
 
   var card = el('div', 'card');
-  card.appendChild(el('div', 'qnum', 'Задача ' + (workIdx + 1) + ' из ' + tasks.length +
-    ' · ' + t.skill + ' · ' + t.points + ' балл' +
+  card.appendChild(el('div', 'qnum',
+    (t.extra ? 'Дополнительная задача ' + (workIdx + 1) : 'Задача ' + (workIdx + 1) + ' из ' + MAIN_N) +
+    ' · ' + t.skill + (t.extra ? ' · на оценку не влияет' : ' · ' + t.points + ' балл') +
     (t.stars ? ' · сложность ' + '★★★'.slice(0, t.stars) : '') +
     ' · проверок: ' + (t.tests || []).length));
   card.appendChild(el('h2', null, t.name));
