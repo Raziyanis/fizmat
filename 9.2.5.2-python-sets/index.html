@@ -185,9 +185,23 @@ body.teacher .teacher-only{display:flex}
 .bug-line.missed{background:rgba(169,148,240,.18);border-left-color:#A994F0}
 .bug-list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
 
+/* Ожидаемые результаты */
+.outcomes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.outcome{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:.92rem}
+.outcome .who{font-family:var(--display);font-weight:500;font-size:.95rem}
+.outcome:nth-child(1) .who{color:var(--a)} .outcome:nth-child(2) .who{color:var(--ab)} .outcome:nth-child(3) .who{color:var(--b)}
+.outcome ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:4px}
+.oz{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;font-size:.9rem}
+.oz div{display:flex;flex-direction:column;gap:2px}
+.part{font-family:var(--display);font-size:.95rem;font-weight:500;display:flex;gap:10px;align-items:baseline}
+.part .dur{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.level-pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:600}
+.level-pill.hi{background:var(--ok-soft);color:var(--ok)} .level-pill.mid{background:var(--warn-soft);color:var(--warn)} .level-pill.lo{background:var(--err-soft);color:var(--err)}
+.fixlist{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+.fixlist li::before{content:"○ ";color:var(--muted)}
+.fixlist li.y::before{content:"● ";color:var(--ok)}
+
 /* Самооценка и рефлексия */
-.selfscore{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;border-top:1px dashed var(--line);padding-top:14px}
-.selfscore .lbl{font-size:.88rem;font-weight:600}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .seg button{border:0;background:var(--surface);color:var(--ink);padding:6px 12px;font-size:.84rem;border-right:1px solid var(--line)}
 .seg button:last-child{border-right:0}
@@ -195,6 +209,7 @@ body.teacher .teacher-only{display:flex}
 .reflect{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .reflect .field textarea{min-height:110px;font-family:var(--body);font-size:.95rem;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--ink);resize:vertical;width:100%}
 .sheet td:last-child,.sheet th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.sheet td .seg{margin-top:6px}
 .saved{font-size:.82rem;color:var(--muted)}
 
 footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
@@ -204,6 +219,7 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
   .route{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);flex-direction:row;align-items:center;gap:10px}
   body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
   .route-head,.score-box .note{display:none}
+  .score-box #scoreLevel{display:none}
   .route nav{flex:1;min-width:0;overflow-x:auto}
   .route ol{flex-direction:row;gap:4px}
   .route a{display:flex;gap:6px;white-space:nowrap;padding:6px 10px}
@@ -217,7 +233,7 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
   .hero svg{max-width:420px}
 }
 @media (max-width:720px){
-  .two,.venn-ui,.goals,.terms,.reflect,.memo-body{grid-template-columns:minmax(0,1fr)}
+  .two,.venn-ui,.goals,.terms,.reflect,.memo-body,.outcomes,.oz{grid-template-columns:minmax(0,1fr)}
   .task{padding:16px}
 }
 @media (prefers-reduced-motion:no-preference){
@@ -236,16 +252,16 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
     <nav>
       <ol id="routeList">
         <li><a href="#stage-1" data-stage="1"><span class="num">I</span><span>Настрой и повторение</span><span class="min">3′</span></a></li>
-        <li><a href="#stage-2" data-stage="2"><span class="num">II</span><span>Проблема</span><span class="min">7′</span></a></li>
+        <li><a href="#stage-2" data-stage="2"><span class="num">II</span><span>Проблема</span><span class="min">6′</span></a></li>
         <li><a href="#stage-3" data-stage="3"><span class="num">III</span><span>Исследуем set</span><span class="min">10′</span></a></li>
-        <li><a href="#stage-4" data-stage="4"><span class="num">IV</span><span>Практика A · B · C</span><span class="min">15′</span></a></li>
+        <li><a href="#stage-4" data-stage="4"><span class="num">IV</span><span>Практика и IT-Инспектор</span><span class="min">16′</span></a></li>
         <li><a href="#stage-5" data-stage="5"><span class="num">V</span><span>Рефлексия</span><span class="min">5′</span></a></li>
       </ol>
     </nav>
     <div class="score-box" aria-live="polite">
       <span class="eyebrow">Лист самооценивания</span>
-      <span class="score-total"><span id="scoreNow">0</span> / <span id="scoreMax">14</span></span>
-      <span class="note">Баллы ставишь сам в конце каждого этапа.</span>
+      <span class="score-total"><span id="scoreNow">0</span> / 10</span>
+      <span id="scoreLevel" class="note">Уровень появится, когда поставишь баллы.</span>
     </div>
     <div class="timer">
       <span class="timer-val" id="timerVal" title="Таймер текущего этапа">03:00</span>
@@ -284,8 +300,31 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
 
     <section class="goals" aria-label="Цели урока">
       <div class="goal"><span class="eyebrow">Образовательная</span><span>Понять, что такое <code>set</code>: уникальность и неупорядоченность элементов. Освоить <code>add</code>, <code>remove</code>, <code>union</code>, <code>intersection</code>, <code>difference</code> и применять их к дубликатам и пересечениям данных.</span></div>
-      <div class="goal"><span class="eyebrow">Развивающая</span><span>Алгоритмическое мышление и функциональная грамотность: перевести жизненную задачу на язык Python и критически сравнить два решения.</span></div>
-      <div class="goal"><span class="eyebrow">Воспитательная</span><span>Академическая честность («Адал еңбек»), командная работа, бережное отношение к данным и ресурсам («Адал азамат»).</span></div>
+      <div class="goal"><span class="eyebrow">Развивающая</span><span>Алгоритмическое мышление, функциональная грамотность и навык поиска и исправления ошибок в коде (дебаггинг).</span></div>
+      <div class="goal"><span class="eyebrow">Воспитательная</span><span>Академическая честность («Адал еңбек»), культура командного взаимодействия и уважение к личным границам («Адал азамат»).</span></div>
+    </section>
+
+    <section class="block" aria-label="Ожидаемые результаты">
+      <h2>Ожидаемые результаты</h2>
+      <div class="outcomes">
+        <div class="outcome"><span class="who">Все смогут</span><ul>
+          <li>объяснять свойства set: уникальность элементов, отсутствие индексов и порядка;</li>
+          <li>правильно объявлять множества и применять <code>.add()</code>, <code>.remove()</code>;</li>
+          <li>искать и исправлять ошибки в простых программах с множествами («IT-Инспектор»);</li>
+          <li>писать код самостоятельно и честно оценивать себя («Адал еңбек»).</li></ul></div>
+        <div class="outcome"><span class="who">Большинство смогут</span><ul>
+          <li>применять <code>.union()</code>, <code>.intersection()</code>, <code>.difference()</code> и операторы <code>|</code>, <code>&amp;</code>, <code>-</code> в практических задачах;</li>
+          <li>самостоятельно найти и исправить все 5 ошибок в скрипте учителя;</li>
+          <li>соотносить круги Эйлера с методами Python.</li></ul></div>
+        <div class="outcome"><span class="who">Некоторые смогут</span><ul>
+          <li>решать комбинированные задачи функциональной грамотности (уровень C: словарный запас текстов, очистка данных от дубликатов);</li>
+          <li>объяснять, почему set быстрее list при поиске уникальных элементов и пересечений.</li></ul></div>
+      </div>
+      <div class="oz">
+        <div><span class="eyebrow">Предметные</span><span>Удалять дубликаты, находить объединение, пересечение и разность методами <code>.union()</code>, <code>.intersection()</code>, <code>.difference()</code>.</span></div>
+        <div><span class="eyebrow">Метапредметные</span><span>Анализировать готовый код, выявлять синтаксические и логические ошибки, интерпретировать результат программы.</span></div>
+        <div><span class="eyebrow">Личностные</span><span>Ценить честный труд, соблюдать правила цифровой среды, объективно оценивать себя по Листу самооценивания.</span></div>
+      </div>
     </section>
 
     <!-- I -->
@@ -295,19 +334,20 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
         <div class="panel">
           <h3>Честный код</h3>
           <p>Программа работает с данными так же, как человек с документами. Если в списке волонтёров кто-то записан дважды, отчёт приписывает ему лишнюю работу. Если данные «подправили», выводы теряют смысл. Принцип <b>«Адал еңбек»</b> в программировании означает чистые данные, честный код и собственное решение.</p>
-          <p class="note">На этом уроке ты будешь сам оценивать каждый этап. Счёт виден в маршруте урока.</p>
+          <p class="note">Лист самооценивания заполняется в течение урока: баллы за практику, за «IT-Инспектора» и за соблюдение «Адал еңбек». Счёт виден в маршруте урока.</p>
+          <p class="callout"><b>Вопрос классу:</b> какая главная проблема списков (list), если нужно хранить строго уникальные элементы без повторов?</p>
+          <details><summary class="note">Ответ</summary><p class="note">Список допускает повторы. Чтобы их не было, каждый новый элемент приходится проверять вручную через <code>if x not in список</code>, а это долго и громоздко.</p></details>
         </div>
         <div class="panel">
           <h3>Разминка: list, tuple, dict</h3>
           <div class="quiz" id="quiz"></div>
         </div>
       </div>
-      <div class="selfscore" data-score="s1"><span class="lbl">Самооценка этапа I:</span></div>
     </section>
 
     <!-- II -->
     <section class="stage" id="stage-2" data-stage="2">
-      <div class="stage-head"><span class="roman">II</span><h2>Вызов и постановка проблемы</h2><span class="dur">7 мин</span></div>
+      <div class="stage-head"><span class="roman">II</span><h2>Вызов и постановка проблемы</h2><span class="dur">6 мин</span></div>
       <p class="callout problem">В школьной волонтёрской базе дважды зафиксировали списки учеников, сдавших пластиковые крышки для эко-проекта. В списках есть повторяющиеся фамилии. Нужно срочно узнать, кто участвовал и в сборе пластика, и в сборе макулатуры, а кто сдал только пластик. Как сделать это быстро с помощью Python?</p>
       <div class="block">
         <h3>Шаг 1. Решаем тем, что уже знаем: списками</h3>
@@ -328,7 +368,6 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
         <div class="runner" data-id="p-set" data-title="решение через set"></div>
         <p class="note">Сформулируйте тему урока сами. Подсказка: она прячется в названии типа данных во втором решении.</p>
       </div>
-      <div class="selfscore" data-score="s2"><span class="lbl">Самооценка этапа II:</span></div>
     </section>
 
     <!-- III -->
@@ -459,15 +498,16 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
           <div><code>A[0]</code><span>ошибка: индексов нет</span></div>
         </div>
       </details>
-      <div class="selfscore" data-score="s3"><span class="lbl">Самооценка этапа III:</span></div>
     </section>
 
     <!-- IV -->
     <section class="stage" id="stage-4" data-stage="4">
-      <div class="stage-head"><span class="roman">IV</span><h2>Практическая работа: проблемно-поисковые задания</h2><span class="dur">15 мин</span></div>
+      <div class="stage-head"><span class="roman">IV</span><h2>Практическая работа и задание «IT-Инспектор»</h2><span class="dur">16 мин</span></div>
       <div class="panel">
         <p><b>Правило работы.</b> Пиши решение сам, без готового кода из интернета. Подсказки открываются по одной: сначала попробуй без них. Готовое задание сдай на компьютер учителя.</p>
       </div>
+
+      <div class="part">Часть 1. Разноуровневые задания <span class="dur">10 мин</span></div>
 
       <article class="task" id="task-a">
         <div class="task-head"><span class="level la">A</span><h3>Базовый уровень: уникальные слова</h3></div>
@@ -513,7 +553,22 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
           <li>Что выведет <code>len(set("информатика"))</code> и почему?</li>
         </ul>
       </div>
-      <div class="selfscore" data-score="s4"><span class="lbl">Самооценка этапа IV:</span></div>
+
+      <div class="part" id="inspector">Часть 2. «IT-Инспектор: найди 5 ошибок в коде» <span class="dur">6 мин</span></div>
+      <article class="task">
+        <p>Ты тестировщик (code reviewer). В программе учителя ровно 5 ошибок, связанных с темой урока и синтаксисом Python.</p>
+        <ol class="list">
+          <li><b>Найди.</b> Нажми на строки с ошибками и проверь себя.</li>
+          <li><b>Исправь.</b> Исправь программу в редакторе ниже и запусти её.</li>
+        </ol>
+        <div class="bugs" id="bugs" role="group" aria-label="Программа учителя с ошибками"></div>
+        <div class="btn-row"><button class="btn primary" id="bugCheck" type="button">Проверить находки</button><button class="btn" id="bugReset" type="button">Сначала</button><span class="note" id="bugCount">Отмечено: 0 из 5</span></div>
+        <div id="bugReport" aria-live="polite"></div>
+        <div class="runner" data-id="insp" data-title="исправь программу учителя"></div>
+        <div class="btn-row"><button class="btn primary" id="inspCheck" type="button">Проверить исправления</button><button class="btn" data-reset="insp" type="button">Вернуть программу с ошибками</button></div>
+        <ul class="fixlist" id="fixList"></ul>
+        <div id="verdict-insp" aria-live="polite"></div>
+      </article>
     </section>
 
     <!-- V -->
@@ -521,17 +576,22 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
       <div class="stage-head"><span class="roman">V</span><h2>Рефлексия и оценивание</h2><span class="dur">5 мин</span></div>
 
       <div class="block">
-        <h3>Взаимопроверка: найди 5 ошибок</h3>
-        <p>На уроке вы вносите в своё решение ровно 5 ошибок и меняетесь местами. Потренируйся на примере: нажми на строки, где, по-твоему, есть ошибка, и проверь себя. Ищи и ошибки синтаксиса, и ошибки логики.</p>
-        <div class="bugs" id="bugs" role="group" aria-label="Код с ошибками"></div>
-        <div class="btn-row"><button class="btn primary" id="bugCheck" type="button">Проверить</button><button class="btn" id="bugReset" type="button">Сначала</button><span class="note" id="bugCount">Отмечено: 0 из 5</span></div>
-        <div id="bugReport" aria-live="polite"></div>
+        <div class="part">1. Самопроверка по эталону <span class="dur">1,5 мин</span></div>
+        <p>Учитель открывает исправленный вариант программы. Сверь свои находки и поставь баллы в Лист самооценивания ниже.</p>
+        <div class="runner teacher-only" data-id="sol-insp" data-title="эталон для учителя: исправленная программа"></div>
+        <ol class="list teacher-only" style="flex-direction:column">
+          <li><code>cyber_club</code> объявлен как list <code>[...]</code>, а не set <code>{...}</code>.</li>
+          <li><code>eco_club[0] = "Берик"</code>: в set нет индексов, нужно <code>eco_club.add("Берик")</code>.</li>
+          <li><code>eco_club.union()</code>: для поиска общих нужен <code>.intersection()</code>.</li>
+          <li><code>eco_club.delete()</code>: такого метода нет, используется <code>.remove()</code>.</li>
+          <li><code>print("..." + both)</code>: нельзя складывать str и set без преобразования типов.</li>
+        </ol>
       </div>
 
       <div class="block">
-        <h3>Три точки опоры</h3>
+        <div class="part">2. Рефлексия «Три точки опоры» <span class="dur">2 мин</span></div>
         <div class="reflect">
-          <div class="field"><label for="r1">1. Главное открытие урока</label><textarea id="r1" placeholder="Например: set сам убирает повторы"></textarea></div>
+          <div class="field"><label for="r1">1. Главное открытие урока</label><textarea id="r1" placeholder="Какая ошибка в задаче учителя была самой коварной?"></textarea></div>
           <div class="field"><label for="r2">2. Трудность, которую я преодолел(а)</label><textarea id="r2"></textarea></div>
           <div class="field"><label for="r3">3. Вопрос, который остался</label><textarea id="r3"></textarea></div>
         </div>
@@ -539,16 +599,45 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
       </div>
 
       <div class="block">
-        <h3>Лист самооценивания</h3>
+        <div class="part">3. Лист самооценивания и обратная связь <span class="dur">1,5 мин</span></div>
         <div class="table-wrap">
           <table class="sheet">
-            <thead><tr><th>Этап</th><th>Критерий</th><th>Баллы</th></tr></thead>
+            <thead><tr><th>Этап урока и критерий</th><th>Мой балл</th></tr></thead>
             <tbody id="sheetBody"></tbody>
           </table>
         </div>
-        <p class="note">2 балла: справился сам и могу объяснить другому. 1 балл: получилось с подсказкой. 0 баллов: пока не получилось. Итог обсуди с учителем: он даст обратную связь и выставит оценку.</p>
+        <p class="note">Баллы ставишь сам, честно и по эталону. Учитель даёт обратную связь и подтверждает оценку.</p>
       </div>
-      <div class="selfscore" data-score="s5"><span class="lbl">Самооценка этапа V:</span></div>
+
+      <div class="block">
+        <h3>Критерии оценивания (формативное оценивание)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Критерий</th><th>Дескрипторы: что делает обучающийся</th><th>Баллы</th></tr></thead>
+            <tbody>
+              <tr><td>1. Знание свойств и синтаксиса set</td><td>Знает правила объявления множеств (<code>set()</code> и <code>{...}</code>). Понимает свойства уникальности и неупорядоченности элементов.</td><td>2</td></tr>
+              <tr><td>2. Применение методов множеств</td><td>Корректно использует <code>.union()</code>, <code>.intersection()</code>, <code>.difference()</code>. Выполняет добавление (<code>.add()</code>) и удаление (<code>.remove()</code>).</td><td>3</td></tr>
+              <tr><td>3. Навык отладки кода («IT-Инспектор: 5 ошибок»)</td><td>Находит и объясняет синтаксические и логические ошибки в коде учителя. Исправляет программу до полностью рабочего состояния.</td><td>3</td></tr>
+              <tr><td>4. Академическая честность и «Адал еңбек»</td><td>Самостоятельно выполняет код без списывания. Проводит честную самопроверку и самооценку по эталону.</td><td>2</td></tr>
+              <tr><td colspan="2"><b>Итого</b></td><td><b>10</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Шкала перевода баллов в уровни</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Баллы</th><th>Уровень</th><th>Комментарий учителя</th></tr></thead>
+            <tbody>
+              <tr><td>9–10</td><td><span class="level-pill hi">Высокий</span></td><td>Отлично усвоил свойства и методы set. Быстро и без ошибок выполнил дебаггинг кода. Показал глубокий уровень функциональной грамотности и академической честности.</td></tr>
+              <tr><td>6–8</td><td><span class="level-pill mid">Средний</span></td><td>Понимает структуру set и применяет основные методы. Нашёл 3–4 ошибки из 5. Нужна небольшая практика в синтаксисе методов.</td></tr>
+              <tr><td>1–5</td><td><span class="level-pill lo">Низкий</span></td><td>Затрудняется при вызове методов множеств и поиске ошибок. Нужна консультация учителя и работа с опорной карточкой-памяткой.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <footer>
@@ -697,6 +786,38 @@ only_eco = eco_squad.difference(cyber_club)        # или eco_squad - cyber_cl
 print("Все участники:", sorted(all_members))
 print("В обоих направлениях:", sorted(both))
 print("Только эко-отряд:", sorted(only_eco))`,
+"insp":
+`# Задача: найти общих участников двух клубов и добавить нового ученика
+eco_club = {"Асан", "Дамир", "Ернар", "Алия"}
+cyber_club = ["Дамир", "Алия", "София", "Игорь"]
+
+# 1. Добавляем нового участника в эко-клуб по индексу
+eco_club[0] = "Берик"
+
+# 2. Находим участников, которые состоят в ОБОИХ клубах
+both = eco_club.union(cyber_club)
+
+# 3. Удаляем ученика "Дамир" из эко-клуба
+eco_club.delete("Дамир")
+
+# 4. Выводим результат
+print("Общие участники: " + both)`,
+"sol-insp":
+`# Задача: найти общих участников двух клубов и добавить нового ученика
+eco_club = {"Асан", "Дамир", "Ернар", "Алия"}
+cyber_club = {"Дамир", "Алия", "София", "Игорь"}       # 1. set, а не list
+
+# 1. Добавляем нового участника в эко-клуб
+eco_club.add("Берик")                                   # 2. add вместо индекса
+
+# 2. Находим участников, которые состоят в ОБОИХ клубах
+both = eco_club.intersection(cyber_club)                # 3. intersection вместо union
+
+# 3. Удаляем ученика "Дамир" из эко-клуба
+eco_club.remove("Дамир")                                # 4. remove вместо delete
+
+# 4. Выводим результат
+print("Общие участники: " + ", ".join(sorted(both)))   # 5. set → строка`,
 "task-c":
 `text1 = "Мы собираем пластик и бумагу, чтобы город стал чище."
 text2 = "Мы собираем бумагу и батарейки, чтобы сохранить природу."
@@ -944,25 +1065,19 @@ $$("[data-check]").forEach(b => b.addEventListener("click", async () => {
 }));
 
 /* ---------- найди 5 ошибок ---------- */
-const BUG_CODE = [
-  ["eco_squad = {101, 102, 105, 108, 110, 112}", null],
-  ["cyber_club = {102, 104, 108, 115, 120}", null],
-  ["all_members = eco_squad.intersection(cyber_club)", "Логика: для общего списка нужно объединение union(), а не пересечение."],
-  ["print(\"Все участники:\", all_members)", null],
-  ["both = eco_squad & cyber_club", null],
-  ["print(\"В обоих направлениях:\" both)", "Синтаксис: пропущена запятая между аргументами print."],
-  ["only_eco = cyber_club - eco_squad", "Логика: порядок перепутан. «Только эко-отряд» — это eco_squad - cyber_club."],
-  ["print(\"Только эко-отряд:\", only_eco)", null],
-  ["eco_squad.add[130]", "Синтаксис: метод вызывается круглыми скобками: add(130)."],
-  ["print(\"Первый участник:\", eco_squad[0])", "У множества нет индексов: возникнет TypeError."],
-  ["eco_squad.discard(999)", null],
-  ["print(\"Размер эко-отряда:\", len(eco_squad))", null]
-];
+const BUG_CODE = CODE["insp"].split("\n").map(line => [line, ({
+  'cyber_club = ["Дамир", "Алия", "София", "Игорь"]': "Не тот тип данных: cyber_club объявлен как список [...], а нужен set {...}.",
+  'eco_club[0] = "Берик"': "В set нет индексов. Новый элемент добавляют так: eco_club.add(\"Берик\").",
+  'both = eco_club.union(cyber_club)': "Логика: union — объединение. Для общих участников нужен .intersection().",
+  'eco_club.delete("Дамир")': "Метода .delete() у множества нет. Используется .remove() или .discard().",
+  'print("Общие участники: " + both)': "Нельзя складывать str и set: TypeError. Преобразуй множество в строку, например \", \".join(sorted(both))."
+})[line] || null]);
 let bugFlags = new Set(store.get("bugs", []));
 const bugsEl = $("#bugs");
 function renderBugs(checked){
   bugsEl.innerHTML = "";
   BUG_CODE.forEach(([line, why], i) => {
+    if(!line.trim()){ const sp = document.createElement("div"); sp.style.height = ".8em"; bugsEl.appendChild(sp); return; }
     const b = document.createElement("button"); b.type = "button"; b.className = "bug-line";
     b.setAttribute("aria-pressed", String(bugFlags.has(i)));
     if(checked){ if(bugFlags.has(i)) b.classList.add(why ? "hit" : "miss"); else if(why) b.classList.add("missed"); }
@@ -978,43 +1093,56 @@ $("#bugCheck").addEventListener("click", () => {
   renderBugs(true);
   const hits = BUG_CODE.filter((x,i)=>x[1] && bugFlags.has(i)).length;
   const falses = [...bugFlags].filter(i=>!BUG_CODE[i][1]).length;
-  $("#bugReport").innerHTML = `<div class="verdict ${hits===5&&!falses?"ok":"no"}">Найдено ${hits} из 5${falses?`, лишних отметок: ${falses}`:""}.</div>`+
+  $("#bugReport").innerHTML = `<div class="verdict ${hits===5&&!falses?"ok":"no"}">Найдено ${hits} из 5${falses?`, лишних отметок: ${falses}`:""}. Теперь исправь программу в редакторе.</div>`+
     `<ol class="bug-list">${BUG_CODE.map((x,i)=>x[1]?`<li value="${i+1}"><b>Строка ${i+1}.</b> ${esc(x[1])}</li>`:"").join("")}</ol>`+
     `<p class="note">Зелёным отмечены найденные ошибки, красным — лишние отметки, фиолетовым — пропущенные.</p>`;
 });
 $("#bugReset").addEventListener("click", () => { bugFlags = new Set(); store.set("bugs", []); $("#bugReport").innerHTML = ""; renderBugs(false); });
 
+/* ---------- IT-Инспектор: проверка исправлений ---------- */
+const FIXES = [
+  ["cyber_club объявлен как множество", c => /cyber_club\s*=\s*(\{|set\s*\()/.test(c)],
+  ["нет обращения по индексу, новый ученик добавлен через add", c => !/eco_club\s*\[/.test(c) && /eco_club\.add\(\s*["']Берик["']\s*\)/.test(c)],
+  ["общие участники ищутся пересечением", c => /both\s*=\s*.*(\.intersection\(|&)/.test(c) && !/both\s*=.*\.union\(/.test(c)],
+  ["удаление через remove или discard", c => !/\.delete\(/.test(c) && /eco_club\.(remove|discard)\(\s*["']Дамир["']\s*\)/.test(c)],
+  ["множество выводится без сложения str и set", (c, r) => !r.err && /Алия/.test(r.out) && /Дамир/.test(r.out) && !/София|Игорь|Асан|Ернар|Берик/.test(r.out)]
+];
+function renderFixes(flags){ $("#fixList").innerHTML = FIXES.map((f,i)=>`<li class="${flags && flags[i] ? "y" : ""}">${f[0]}</li>`).join(""); }
+renderFixes(null);
+$("#inspCheck").addEventListener("click", async () => {
+  const el = $('.runner[data-id="insp"]'); const r = await el._run(); const code = el._ta.value;
+  const flags = FIXES.map(f => f[1](code, r)); renderFixes(flags);
+  const n = flags.filter(Boolean).length;
+  scores.insp = n; store.set("scores", scores); updateScores();
+  $("#verdict-insp").innerHTML = `<div class="verdict ${n===5?"ok":"no"}">${n===5 ? "Все 5 ошибок исправлены, программа работает." : `Исправлено ${n} из 5.` + (r.err ? " Программа пока завершается с ошибкой: читай подсказку под выводом." : "")} В Лист самооценивания перенесено: ${n} × 0,6 = ${(n*0.6).toFixed(1).replace(".",",")} балла.</div>`;
+});
+
 /* ---------- рефлексия ---------- */
 ["r1","r2","r3"].forEach(id => { const t = $("#"+id); t.value = store.get("refl:"+id, ""); t.addEventListener("input", () => store.set("refl:"+id, t.value)); });
 
 /* ---------- самооценка ---------- */
-const SHEET = [
-  ["s1","I","Вспомнил(а) list, tuple, dict"],
-  ["s2","II","Понял(а) проблему и сформулировал(а) тему"],
-  ["s3","III","Могу объяснить методы set на кругах Эйлера"],
-  ["s4","IV","Решил(а) задания уровня A · B · C"],
-  ["s5","V","Нашёл(ла) ошибки и провёл(а) рефлексию"]
-];
 const scores = store.get("scores", {});
-const MAX = {s1:2,s2:2,s3:2,s4:6,s5:2};
-const LABELS = {2:["0","1","2"], 6:["0","1","2","3","4","5","6"]};
-$("#scoreMax").textContent = Object.values(MAX).reduce((a,b)=>a+b,0);
+const SHEET = [
+  ["prac", "1. Уровень A / B / C (практическая работа за ПК)", "Корректность вызова методов; логика удаления повторов и поиска пересечений. Максимум 5 баллов.", [0,1,2,3,4,5], v => v],
+  ["insp", "2. «IT-Инспектор: найди 5 ошибок в коде»", "За каждую найденную и исправленную ошибку 0,6 балла. Максимум 3 балла. Отметь число исправленных ошибок.", [0,1,2,3,4,5], v => v * 0.6],
+  ["adal", "3. Соблюдение принципа «Адал еңбек»", "Самостоятельность выполнения и аккуратность кода. Максимум 2 балла.", [0,1,2], v => v]
+];
+const fmtPts = x => (Math.round(x*10)/10).toString().replace(".", ",");
+function levelOf(t){ return t >= 9 ? ["hi","Высокий"] : t >= 6 ? ["mid","Средний"] : t >= 1 ? ["lo","Низкий"] : null; }
 function updateScores(){
-  const total = Object.keys(MAX).reduce((s,k)=>s+(scores[k]||0),0);
-  $("#scoreNow").textContent = total;
-  $("#sheetBody").innerHTML = SHEET.map(([k,r,c]) => `<tr><td>${r}</td><td>${c}</td><td>${scores[k]===undefined?"—":scores[k]} / ${MAX[k]}</td></tr>`).join("") +
-    `<tr><td></td><td><b>Итого</b></td><td><b>${total} / ${$("#scoreMax").textContent}</b></td></tr>`;
-  $$(".selfscore").forEach(box => $$(".seg button", box).forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.v === scores[box.dataset.score]))));
+  let total = 0, any = false;
+  SHEET.forEach(([k,,, , f]) => { if(scores[k] !== undefined){ total += f(scores[k]); any = true; } });
+  total = Math.round(total*10)/10;
+  $("#scoreNow").textContent = fmtPts(total);
+  const lv = any ? levelOf(total) : null;
+  $("#scoreLevel").innerHTML = lv ? `Уровень: <span class="level-pill ${lv[0]}">${lv[1]}</span>` : "Уровень появится, когда поставишь баллы.";
+  $$("#sheetBody .seg").forEach(seg => $$("button", seg).forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.v === scores[seg.dataset.k]))));
+  $$("#sheetBody [data-pts]").forEach(c => { const row = SHEET.find(x => x[0] === c.dataset.pts); c.textContent = scores[row[0]] === undefined ? "—" : fmtPts(row[4](scores[row[0]])); });
+  $("#sheetTotal").innerHTML = `<b>${fmtPts(total)} / 10</b>` + (lv ? ` <span class="level-pill ${lv[0]}">${lv[1]}</span>` : "");
 }
-$$(".selfscore").forEach(box => {
-  const k = box.dataset.score, seg = document.createElement("div"); seg.className = "seg"; seg.setAttribute("role","group"); seg.setAttribute("aria-label","Баллы");
-  (LABELS[MAX[k]]).forEach(v => { const b = document.createElement("button"); b.type="button"; b.dataset.v = v; b.textContent = v; seg.appendChild(b); });
-  seg.addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return; scores[k] = +b.dataset.v; store.set("scores", scores); updateScores(); });
-  box.appendChild(seg);
-  const n = document.createElement("span"); n.className = "note";
-  n.textContent = MAX[k] === 2 ? "2 — сам · 1 — с подсказкой · 0 — пока нет" : "по 2 балла за уровни A, B и C";
-  box.appendChild(n);
-});
+$("#sheetBody").innerHTML = SHEET.map(([k, t, d, vals]) => `<tr><td><b>${t}</b><br><span class="note">${d}</span><br><div class="seg" role="group" aria-label="${t}" data-k="${k}">${vals.map(v=>`<button type="button" data-v="${v}">${v}</button>`).join("")}</div></td><td data-pts="${k}">—</td></tr>`).join("") +
+  `<tr><td><b>Итого</b></td><td id="sheetTotal"></td></tr>`;
+$$("#sheetBody .seg").forEach(seg => seg.addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return; scores[seg.dataset.k] = +b.dataset.v; store.set("scores", scores); updateScores(); }));
 updateScores();
 
 /* ---------- режим учителя ---------- */
@@ -1023,7 +1151,7 @@ tm.checked = store.get("teacher", false); document.body.classList.toggle("teache
 tm.addEventListener("change", () => { document.body.classList.toggle("teacher", tm.checked); store.set("teacher", tm.checked); });
 
 /* ---------- маршрут и таймер ---------- */
-const STAGE_MIN = {1:3,2:7,3:10,4:15,5:5};
+const STAGE_MIN = {1:3,2:6,3:10,4:16,5:5};
 let curStage = 1, remain = STAGE_MIN[1]*60, tick = null;
 const fmt = s => { const a = Math.abs(s); return (s<0?"−":"") + String(Math.floor(a/60)).padStart(2,"0") + ":" + String(a%60).padStart(2,"0"); };
 function showTimer(){ const v = $("#timerVal"); v.textContent = fmt(remain); v.classList.toggle("over", remain < 0); }
