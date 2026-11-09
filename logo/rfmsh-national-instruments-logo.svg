@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <title>Национальные музыкальные инструменты — РФМШ Астана</title>
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="42%" r="60%">
+      <stop offset="0" stop-color="#3CC8DC"/>
+      <stop offset="1" stop-color="#0090B0"/>
+    </radialGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E9A04A"/>
+      <stop offset="0.55" stop-color="#B8652A"/>
+      <stop offset="1" stop-color="#7A3E16"/>
+    </linearGradient>
+    <linearGradient id="neck" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6B3412"/>
+      <stop offset="0.5" stop-color="#9C5222"/>
+      <stop offset="1" stop-color="#6B3412"/>
+    </linearGradient>
+    <path id="arcTop" d="M 112,500 A 388,388 0 0 1 888,500"/>
+    <path id="arcBottom" d="M 82,500 A 418,418 0 0 0 918,500"/>
+    <!-- одна пара «қошқар мүйіз» (бараний рог) -->
+    <g id="horn">
+      <path d="M0,50 C0,5 18,-28 52,-30 C84,-32 98,-2 84,16 C72,31 49,24 52,8 C54,-2 66,-3 69,4"
+            fill="none" stroke="#FEC50C" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M0,50 C0,5 -18,-28 -52,-30 C-84,-32 -98,-2 -84,16 C-72,31 -49,24 -52,8 C-54,-2 -66,-3 -69,4"
+            fill="none" stroke="#FEC50C" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M0,50 L-12,74 L0,92 L12,74 Z" fill="#FEC50C"/>
+    </g>
+    <g id="star">
+      <path d="M0,-16 L4.5,-4.5 L16,0 L4.5,4.5 L0,16 L-4.5,4.5 L-16,0 L-4.5,-4.5 Z" fill="#FEC50C"/>
+    </g>
+  </defs>
+
+  <!-- внешний круг -->
+  <circle cx="500" cy="500" r="490" fill="#0B3954"/>
+  <circle cx="500" cy="500" r="472" fill="none" stroke="#FEC50C" stroke-width="6"/>
+  <circle cx="500" cy="500" r="458" fill="none" stroke="#FEC50C" stroke-width="2" stroke-dasharray="2 10" stroke-linecap="round"/>
+
+  <!-- надписи по кругу -->
+  <text font-family="Montserrat, 'DejaVu Sans', Arial, sans-serif" font-weight="700" font-size="37" letter-spacing="1.5" fill="#FFFFFF">
+    <textPath href="#arcTop" startOffset="50%" text-anchor="middle">НАЦИОНАЛЬНЫЕ МУЗЫКАЛЬНЫЕ ИНСТРУМЕНТЫ</textPath>
+  </text>
+  <text font-family="Montserrat, 'DejaVu Sans', Arial, sans-serif" font-weight="700" font-size="44" letter-spacing="8" fill="#FEC50C">
+    <textPath href="#arcBottom" startOffset="50%" text-anchor="middle">РФМШ · АСТАНА</textPath>
+  </text>
+  <use href="#star" transform="translate(92,500)"/>
+  <use href="#star" transform="translate(908,500)"/>
+
+  <!-- внутренний круг -->
+  <circle cx="500" cy="500" r="345" fill="url(#sky)" stroke="#FEC50C" stroke-width="8"/>
+  <circle cx="500" cy="500" r="328" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="2"/>
+
+  <!-- лучи-шанырак за домброй -->
+  <g stroke="#FFFFFF" stroke-opacity="0.13" stroke-width="10" stroke-linecap="round">
+    <line x1="500" y1="440" x2="500" y2="190"/>
+    <line x1="500" y1="440" x2="676" y2="264"/>
+    <line x1="500" y1="440" x2="324" y2="264"/>
+    <line x1="500" y1="440" x2="750" y2="440"/>
+    <line x1="500" y1="440" x2="250" y2="440"/>
+    <line x1="500" y1="440" x2="731" y2="344"/>
+    <line x1="500" y1="440" x2="269" y2="344"/>
+  </g>
+
+  <!-- орнамент қошқар мүйіз по бокам -->
+  <use href="#horn" transform="translate(300,560) scale(1.15)"/>
+  <use href="#horn" transform="translate(700,560) scale(1.15)"/>
+
+  <!-- звуковые волны -->
+  <g fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-opacity="0.85">
+    <path d="M 380,330 A 140,140 0 0 0 380,470" stroke-opacity="0.55"/>
+    <path d="M 408,350 A 100,100 0 0 0 408,450"/>
+    <path d="M 620,330 A 140,140 0 0 1 620,470" stroke-opacity="0.55"/>
+    <path d="M 592,350 A 100,100 0 0 1 592,450"/>
+  </g>
+
+  <!-- домбра -->
+  <g id="dombra">
+    <!-- колковая головка -->
+    <path d="M484,186 Q500,176 516,186 L521,242 L479,242 Z" fill="url(#neck)" stroke="#3E1C07" stroke-width="3"/>
+    <line x1="479" y1="204" x2="458" y2="200" stroke="#3E1C07" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="452" cy="199" rx="12" ry="8" fill="#FEC50C" stroke="#3E1C07" stroke-width="3"/>
+    <line x1="521" y1="224" x2="542" y2="220" stroke="#3E1C07" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="548" cy="219" rx="12" ry="8" fill="#FEC50C" stroke="#3E1C07" stroke-width="3"/>
+    <!-- гриф -->
+    <rect x="485" y="240" width="30" height="285" fill="url(#neck)" stroke="#3E1C07" stroke-width="3"/>
+    <g stroke="#FEC50C" stroke-width="2.5">
+      <line x1="486" y1="272" x2="514" y2="272"/><line x1="486" y1="301" x2="514" y2="301"/>
+      <line x1="486" y1="328" x2="514" y2="328"/><line x1="486" y1="353" x2="514" y2="353"/>
+      <line x1="486" y1="376" x2="514" y2="376"/><line x1="486" y1="398" x2="514" y2="398"/>
+      <line x1="486" y1="418" x2="514" y2="418"/><line x1="486" y1="437" x2="514" y2="437"/>
+      <line x1="486" y1="455" x2="514" y2="455"/><line x1="486" y1="472" x2="514" y2="472"/>
+      <line x1="486" y1="488" x2="514" y2="488"/>
+    </g>
+    <!-- корпус -->
+    <path d="M500,500 C542,500 562,540 586,590 C612,642 620,690 612,730 C600,780 556,798 500,798 C444,798 400,780 388,730 C380,690 388,642 414,590 C438,540 458,500 500,500 Z"
+          fill="url(#wood)" stroke="#3E1C07" stroke-width="5"/>
+    <path transform="translate(500,668) scale(0.91) translate(-500,-668)" d="M500,500 C542,500 562,540 586,590 C612,642 620,690 612,730 C600,780 556,798 500,798 C444,798 400,780 388,730 C380,690 388,642 414,590 C438,540 458,500 500,500 Z"
+          fill="none" stroke="#FEC50C" stroke-width="2.5" stroke-opacity="0.8"/>
+    <!-- голосники-орнамент -->
+    <g fill="#3E1C07">
+      <circle cx="500" cy="588" r="6"/>
+      <circle cx="484" cy="604" r="4.5"/><circle cx="516" cy="604" r="4.5"/>
+      <circle cx="500" cy="620" r="4.5"/>
+    </g>
+    <!-- подставка и струнодержатель -->
+    <rect x="474" y="712" width="52" height="10" rx="3" fill="#3E1C07"/>
+    <rect x="488" y="780" width="24" height="12" rx="3" fill="#3E1C07"/>
+    <!-- струны -->
+    <g stroke="#FFF4D6" stroke-width="2">
+      <line x1="494" y1="196" x2="496" y2="782"/>
+      <line x1="506" y1="214" x2="504" y2="782"/>
+    </g>
+  </g>
+</svg>
