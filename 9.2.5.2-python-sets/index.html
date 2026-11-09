@@ -403,7 +403,7 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
 
       <div class="block">
         <h3>5. Круги Эйлера: операции над множествами</h3>
-        <p>Это данные из задачи урока. Измени элементы через запятую и выбери операцию: подсветится нужная область и появится код на Python.</p>
+        <p>Это данные из задачи урока. Измени элементы (через запятую или пробел) и выбери операцию. Элементы, которые попадают в результат, выделяются, остальные бледнеют. Ниже появляется код на Python.</p>
         <div class="panel venn-ui">
           <div class="block">
             <div class="field a"><label for="setA">Множество A (эко-отряд «Жасыл ел»)</label><input id="setA" value="101, 102, 105, 108, 110, 112"></div>
@@ -418,12 +418,12 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
             <div class="venn-result" id="vennResult" aria-live="polite"></div>
             <p class="note">Python может вывести элементы в другом порядке: у множества порядок не гарантирован. Здесь они отсортированы для удобства.</p>
           </div>
-          <svg id="venn" viewBox="0 0 520 310" role="img" aria-label="Диаграмма Эйлера для множеств A и B">
+          <svg id="venn" viewBox="0 0 520 340" role="img" aria-label="Диаграмма Эйлера для множеств A и B">
             <defs>
               <clipPath id="clipA"><circle cx="200" cy="160" r="128"/></clipPath>
               <clipPath id="clipB"><circle cx="320" cy="160" r="128"/></clipPath>
-              <mask id="notB"><rect width="520" height="310" fill="#fff"/><circle cx="320" cy="160" r="128" fill="#000"/></mask>
-              <mask id="notA"><rect width="520" height="310" fill="#fff"/><circle cx="200" cy="160" r="128" fill="#000"/></mask>
+              <mask id="notB"><rect width="520" height="340" fill="#fff"/><circle cx="320" cy="160" r="128" fill="#000"/></mask>
+              <mask id="notA"><rect width="520" height="340" fill="#fff"/><circle cx="200" cy="160" r="128" fill="#000"/></mask>
             </defs>
             <circle class="venn-region" id="rA" cx="200" cy="160" r="128" fill="var(--a)" fill-opacity=".08" mask="url(#notB)"/>
             <circle class="venn-region" id="rB" cx="320" cy="160" r="128" fill="var(--b)" fill-opacity=".08" mask="url(#notA)"/>
@@ -433,6 +433,7 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
             <text x="96" y="30" fill="var(--a)" font-family="var(--display)" font-size="20" font-weight="700">A</text>
             <text x="410" y="30" fill="var(--b)" font-family="var(--display)" font-size="20" font-weight="700">B</text>
             <g id="vennText" font-family="var(--mono)" font-size="14" fill="var(--ink)" text-anchor="middle"></g>
+            <text id="vennCaption" x="260" y="328" text-anchor="middle" fill="var(--ink)" font-family="var(--mono)" font-size="14" font-weight="600"></text>
           </svg>
         </div>
       </div>
@@ -963,7 +964,7 @@ $("#benchBtn").addEventListener("click", () => {
 
 /* ---------- круги Эйлера ---------- */
 let op = "inter";
-const parseSet = str => { const r = []; str.split(",").map(s=>s.trim()).filter(Boolean).forEach(v=>{ if(!r.includes(v)) r.push(v); }); return r; };
+const parseSet = str => { const r = []; str.split(/[\s,;]+/).map(s=>s.trim()).filter(Boolean).forEach(v=>{ if(!r.includes(v)) r.push(v); }); return r; };
 const pyVal = v => /^-?\d+(\.\d+)?$/.test(v) ? v : JSON.stringify(v);
 const sortVals = arr => arr.slice().sort((x,y) => { const nx=+x, ny=+y; return (!isNaN(nx)&&!isNaN(ny)) ? nx-ny : x.localeCompare(y,"ru"); });
 const pySet = arr => arr.length ? "{" + sortVals(arr).map(pyVal).join(", ") + "}" : "set()";
@@ -978,6 +979,7 @@ function drawVenn(){
   const A = parseSet($("#setA").value), B = parseSet($("#setB").value);
   const onlyA = A.filter(x=>!B.includes(x)), both = A.filter(x=>B.includes(x)), onlyB = B.filter(x=>!A.includes(x));
   const g = $("#vennText"); g.innerHTML = "";
+  const o = OPS[op], res = o.f(A,B);
   const col = (items, x, color) => {
     const max = 9, shown = sortVals(items).slice(0, max), extra = items.length - shown.length;
     const all = extra > 0 ? [...shown.slice(0, max-1), "+" + (items.length - max + 1)] : shown;
@@ -985,14 +987,18 @@ function drawVenn(){
     all.forEach((v,i) => {
       const t = document.createElementNS("http://www.w3.org/2000/svg","text");
       t.setAttribute("x", x); t.setAttribute("y", y0 + i*lh); t.setAttribute("fill", color);
+      const inRes = v.startsWith("+") ? true : res.includes(v);
+      t.setAttribute("fill-opacity", inRes ? "1" : ".28");
+      t.setAttribute("font-weight", inRes ? "700" : "400");
+      if(!inRes) t.setAttribute("text-decoration", "line-through");
       t.textContent = v.length > 9 ? v.slice(0,8) + "…" : v; g.appendChild(t);
     });
   };
   col(onlyA, 128, "var(--ink)"); col(both, 260, "var(--ab)"); col(onlyB, 392, "var(--ink)");
-  const o = OPS[op];
   ["rA","rB","rAB"].forEach(id => $("#"+id).setAttribute("fill-opacity", o.hl.includes(id) ? ".55" : ".07"));
-  const res = o.f(A,B);
   const [l, r] = o.rev ? ["B","A"] : ["A","B"];
+  const cap = `${o.rev ? "B" : "A"} ${o.sym} ${o.rev ? "A" : "B"} = ${pySet(res)}`;
+  $("#vennCaption").textContent = cap.length > 60 ? cap.slice(0, 58) + "…}" : cap;
   $("#vennResult").textContent =
     `A = ${pySet(A)}\nB = ${pySet(B)}\n\n${l} ${o.sym} ${r}\n${l}.${o.m}(${r})\n# результат: ${pySet(res)}, элементов: ${res.length}`;
 }
