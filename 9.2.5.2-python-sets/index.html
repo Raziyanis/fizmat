@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Множество set в Python</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: две колонки — слева маршрут урока (этапы I–V с минутами и баллами), справа лента этапов; на телефоне маршрут становится полосой сверху. Цвета множеств A и B проходят через всю страницу. */
+:root{
+  --bg:#F3F5FA; --surface:#FFFFFF; --ink:#16203A; --muted:#566282; --line:#D6DCE8;
+  --a:#0B8178; --a-soft:#D5F0EC; --b:#B83A63; --b-soft:#F7DDE6; --ab:#5B45A0; --ab-soft:#E4DEF5;
+  --ok:#1D7A3E; --ok-soft:#DDF2E3; --warn:#9A5B00; --warn-soft:#FBECD2; --err:#B3261E; --err-soft:#F9DEDC;
+  --code-bg:#111A2E; --code-fg:#E3E8F4; --code-muted:#8592B0; --code-kw:#7FD4CB; --code-str:#F2A7BF; --code-num:#C8B6FF; --code-com:#7E8AA6;
+  --display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1220; --surface:#141C2F; --ink:#E5E9F3; --muted:#9AA5C0; --line:#26314A;
+  --a:#45C6BA; --a-soft:#123533; --b:#F07CA2; --b-soft:#3A1A27; --ab:#A994F0; --ab-soft:#2A2346;
+  --ok:#6FD394; --ok-soft:#14301F; --warn:#F2B862; --warn-soft:#352610; --err:#F2A19B; --err-soft:#3A1715;
+  --code-bg:#0A1020; --code-fg:#E3E8F4; --code-muted:#7D89A6; --code-kw:#7FD4CB; --code-str:#F2A7BF; --code-num:#C8B6FF; --code-com:#717D99;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1220; --surface:#141C2F; --ink:#E5E9F3; --muted:#9AA5C0; --line:#26314A;
+  --a:#45C6BA; --a-soft:#123533; --b:#F07CA2; --b-soft:#3A1A27; --ab:#A994F0; --ab-soft:#2A2346;
+  --ok:#6FD394; --ok-soft:#14301F; --warn:#F2B862; --warn-soft:#352610; --err:#F2A19B; --err-soft:#3A1715;
+  --code-bg:#0A1020; --code-fg:#E3E8F4; --code-muted:#7D89A6; --code-kw:#7FD4CB; --code-str:#F2A7BF; --code-num:#C8B6FF; --code-com:#717D99;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+a{color:var(--a)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(1.7rem,4.5vw,2.6rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:clamp(1.25rem,3vw,1.6rem);font-weight:700}
+h3{font-size:1.05rem;font-weight:500}
+p{margin:0;max-width:68ch}
+code{font-family:var(--mono);font-size:.88em;background:var(--ab-soft);padding:.08em .35em;border-radius:5px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ab);outline-offset:2px}
+.eyebrow{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:40px;max-width:1240px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+
+/* Маршрут урока */
+.route{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;display:flex;flex-direction:column;gap:14px}
+.route-head{display:flex;flex-direction:column;gap:4px}
+.route ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.route a{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:baseline;padding:8px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:.93rem;line-height:1.3}
+.route a:hover{background:var(--surface)}
+.route a.active{background:var(--surface);box-shadow:inset 3px 0 0 var(--ab)}
+.route .num{font-family:var(--display);font-size:.8rem;color:var(--muted)}
+.route .min{font-family:var(--mono);font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.score-box{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:var(--surface)}
+.score-total{font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.timer{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;background:var(--surface)}
+.timer-val{font-family:var(--mono);font-size:1.15rem;font-variant-numeric:tabular-nums;flex:1}
+.timer-val.over{color:var(--err)}
+.mini-btn{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:7px;padding:4px 10px;font-size:.85rem}
+.mini-btn:hover{border-color:var(--ab)}
+
+main{display:flex;flex-direction:column;gap:56px;min-width:0}
+
+/* Шапка урока */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;align-items:center}
+.hero-text{display:flex;flex-direction:column;gap:14px;min-width:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:.84rem;background:var(--surface)}
+.chip b{font-weight:600}
+.hero svg{width:100%;height:auto;max-width:100%}
+.goals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.goal{border-top:2px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px;font-size:.93rem}
+.goal:nth-child(1){border-color:var(--a)} .goal:nth-child(2){border-color:var(--ab)} .goal:nth-child(3){border-color:var(--b)}
+
+/* Этапы */
+.stage{display:flex;flex-direction:column;gap:22px;scroll-margin-top:24px}
+.stage-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.stage-head .roman{font-family:var(--display);font-size:1rem;color:var(--ab);min-width:2ch}
+.stage-head .dur{margin-left:auto;font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.block{display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+.note{font-size:.9rem;color:var(--muted)}
+.callout{border-left:3px solid var(--ab);padding:4px 0 4px 16px;font-size:1.02rem;max-width:70ch}
+.callout.problem{border-color:var(--b);font-size:1.08rem}
+
+/* Квиз */
+.quiz{display:flex;flex-direction:column;gap:16px}
+.q{display:flex;flex-direction:column;gap:8px}
+.q-title{font-weight:500}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;font-family:var(--mono);font-size:.88rem}
+.opt:hover{border-color:var(--ab)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.opt.wrong{background:var(--err-soft);border-color:var(--err);color:var(--err)}
+.q-why{font-size:.9rem;color:var(--muted)}
+
+/* Код */
+.runner{display:flex;flex-direction:column;border-radius:var(--r);overflow:hidden;background:var(--code-bg);color:var(--code-fg);min-width:0}
+.runner-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.runner-title{font-family:var(--mono);font-size:.78rem;color:var(--code-muted);flex:1;min-width:0}
+.run{border:0;background:var(--code-kw);color:#0A1020;border-radius:6px;padding:5px 14px;font-weight:600;font-size:.86rem}
+.run:hover{filter:brightness(1.08)}
+.ghost{border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--code-fg);border-radius:6px;padding:4px 12px;font-size:.84rem}
+.ghost:hover{border-color:var(--code-kw)}
+.editor-wrap{position:relative;overflow-x:auto}
+.runner textarea{display:block;width:100%;min-height:80px;border:0;resize:vertical;background:transparent;color:var(--code-fg);font-family:var(--mono);font-size:.88rem;line-height:1.55;padding:12px 14px;tab-size:4;white-space:pre;overflow-x:auto}
+.runner textarea:focus{outline:none;background:rgba(255,255,255,.03)}
+.stdin{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 14px;border-top:1px solid rgba(255,255,255,.08);font-size:.82rem;color:var(--code-muted)}
+.stdin input{flex:1;min-width:180px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:6px;color:var(--code-fg);font-family:var(--mono);font-size:.85rem;padding:5px 8px}
+.out{margin:0;padding:10px 14px 12px;border-top:1px solid rgba(255,255,255,.08);font-family:var(--mono);font-size:.85rem;white-space:pre-wrap;word-break:break-word;color:var(--code-fg);min-height:2.4em}
+.out:empty::before{content:"Вывод появится здесь после запуска";color:var(--code-muted)}
+.out .e{color:var(--code-str)}
+.out .hint{color:var(--code-kw)}
+
+/* Диаграмма Эйлера */
+.venn-ui{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+.venn-ui svg{width:100%;height:auto;max-width:100%;display:block}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.85rem;font-weight:600}
+.field input{font-family:var(--mono);font-size:.9rem;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);color:var(--ink);width:100%}
+.field.a label{color:var(--a)} .field.b label{color:var(--b)}
+.ops{display:flex;flex-wrap:wrap;gap:8px}
+.op{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 10px;font-size:.88rem;display:flex;flex-direction:column;align-items:flex-start;line-height:1.25}
+.op small{font-family:var(--mono);color:var(--muted);font-size:.78rem}
+.op[aria-pressed="true"]{border-color:var(--ab);background:var(--ab-soft)}
+.venn-result{font-family:var(--mono);font-size:.9rem;background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:10px 12px;white-space:pre-wrap;word-break:break-word}
+
+/* Таблицы */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+td code{white-space:nowrap}
+th.set,td.set{background:var(--ab-soft)}
+
+/* Термины */
+.terms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.term{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:var(--surface);display:flex;flex-direction:column;gap:4px;font-size:.9rem}
+.term b{font-family:var(--display);font-weight:500;font-size:.92rem}
+.term span{color:var(--muted)}
+
+/* Карточка-памятка */
+details.memo{border:1.5px dashed var(--ab);border-radius:var(--r);background:var(--surface)}
+details.memo summary{cursor:pointer;padding:12px 16px;font-weight:600}
+.memo-body{padding:0 16px 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 20px;font-size:.9rem}
+.memo-body div{display:flex;gap:10px;align-items:baseline;border-bottom:1px dotted var(--line);padding:4px 0}
+.memo-body code{flex:0 0 auto}
+
+/* Задания */
+.task{display:flex;flex-direction:column;gap:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:20px}
+.task-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.level{font-family:var(--display);font-weight:700;font-size:.95rem;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;color:var(--surface)}
+.level.la{background:var(--a)} .level.lb{background:var(--ab)} .level.lc{background:var(--b)}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint-item{font-size:.92rem;border-left:3px solid var(--warn);background:var(--warn-soft);padding:6px 12px;border-radius:0 8px 8px 0}
+.verdict{font-size:.93rem;border-radius:8px;padding:8px 12px}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)}
+.verdict.no{background:var(--err-soft);color:var(--err)}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:7px 14px;font-size:.9rem}
+.btn:hover{border-color:var(--ab)}
+.btn.primary{background:var(--ab);border-color:var(--ab);color:var(--surface);font-weight:600}
+.teacher-only{display:none}
+body.teacher .teacher-only{display:flex}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer}
+
+/* Взаимопроверка */
+.bugs{font-family:var(--mono);font-size:.88rem;background:var(--code-bg);color:var(--code-fg);border-radius:var(--r);padding:8px 0;overflow-x:auto}
+.bug-line{display:grid;grid-template-columns:3ch minmax(0,1fr);gap:14px;padding:2px 14px;cursor:pointer;white-space:pre;border-left:3px solid transparent;width:100%;text-align:left;background:none;border-top:0;border-right:0;border-bottom:0;color:inherit;font:inherit}
+.bug-line:hover{background:rgba(255,255,255,.05)}
+.bug-line .ln{color:var(--code-muted);text-align:right}
+.bug-line.flag{background:rgba(242,184,98,.14);border-left-color:#F2B862}
+.bug-line.hit{background:rgba(111,211,148,.16);border-left-color:#6FD394}
+.bug-line.miss{background:rgba(242,161,155,.16);border-left-color:#F2A19B}
+.bug-line.missed{background:rgba(169,148,240,.18);border-left-color:#A994F0}
+.bug-list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+
+/* Самооценка и рефлексия */
+.selfscore{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;border-top:1px dashed var(--line);padding-top:14px}
+.selfscore .lbl{font-size:.88rem;font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--ink);padding:6px 12px;font-size:.84rem;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ab);color:var(--surface)}
+.reflect{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.reflect .field textarea{min-height:110px;font-family:var(--body);font-size:.95rem;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--ink);resize:vertical;width:100%}
+.sheet td:last-child,.sheet th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.saved{font-size:.82rem;color:var(--muted)}
+
+footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
+
+@media (max-width:980px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:24px;padding-block:0 48px}
+  .route{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);flex-direction:row;align-items:center;gap:10px}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+  .route-head,.score-box .note{display:none}
+  .route nav{flex:1;min-width:0;overflow-x:auto}
+  .route ol{flex-direction:row;gap:4px}
+  .route a{display:flex;gap:6px;white-space:nowrap;padding:6px 10px}
+  .route a .min{display:none}
+  .score-box{flex-direction:row;align-items:baseline;padding:6px 10px;gap:6px}
+  .score-box .eyebrow{display:none}
+  .score-total{font-size:1.05rem}
+  .timer{display:none}
+  .route .toggle{display:none}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero svg{max-width:420px}
+}
+@media (max-width:720px){
+  .two,.venn-ui,.goals,.terms,.reflect,.memo-body{grid-template-columns:minmax(0,1fr)}
+  .task{padding:16px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .venn-region{transition:fill-opacity .25s ease}
+  .route a{transition:background .15s}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="route" aria-label="Маршрут урока">
+    <div class="route-head">
+      <span class="eyebrow">Маршрут урока · 40 мин</span>
+    </div>
+    <nav>
+      <ol id="routeList">
+        <li><a href="#stage-1" data-stage="1"><span class="num">I</span><span>Настрой и повторение</span><span class="min">3′</span></a></li>
+        <li><a href="#stage-2" data-stage="2"><span class="num">II</span><span>Проблема</span><span class="min">7′</span></a></li>
+        <li><a href="#stage-3" data-stage="3"><span class="num">III</span><span>Исследуем set</span><span class="min">10′</span></a></li>
+        <li><a href="#stage-4" data-stage="4"><span class="num">IV</span><span>Практика A · B · C</span><span class="min">15′</span></a></li>
+        <li><a href="#stage-5" data-stage="5"><span class="num">V</span><span>Рефлексия</span><span class="min">5′</span></a></li>
+      </ol>
+    </nav>
+    <div class="score-box" aria-live="polite">
+      <span class="eyebrow">Лист самооценивания</span>
+      <span class="score-total"><span id="scoreNow">0</span> / <span id="scoreMax">14</span></span>
+      <span class="note">Баллы ставишь сам в конце каждого этапа.</span>
+    </div>
+    <div class="timer">
+      <span class="timer-val" id="timerVal" title="Таймер текущего этапа">03:00</span>
+      <button class="mini-btn" id="timerBtn" type="button">Старт</button>
+      <button class="mini-btn" id="timerReset" type="button" aria-label="Сбросить таймер">↺</button>
+    </div>
+    <label class="toggle"><input type="checkbox" id="teacherMode"> Режим учителя</label>
+  </aside>
+
+  <main>
+    <!-- Шапка -->
+    <header class="hero">
+      <div class="hero-text">
+        <span class="eyebrow">Информатика · 9 класс · цель 9.2.5.2</span>
+        <h1>Множество <span style="font-family:var(--mono);color:var(--ab)">set</span>: методы, которые убирают повторы и находят общее</h1>
+        <p>Урок усвоения новых знаний с проблемным обучением. Код на странице запускается прямо в браузере: меняй его и нажимай «Запустить».</p>
+        <div class="meta">
+          <span class="chip"><b>Цель:</b> использовать методы, применяемые к множествам</span>
+          <span class="chip"><b>40</b> минут</span>
+          <span class="chip">Адал еңбек · Адал азамат</span>
+        </div>
+      </div>
+      <svg viewBox="0 0 360 230" role="img" aria-label="Два пересекающихся множества: эко-отряд и кибер-кружок, в пересечении ученики 102 и 108">
+        <circle cx="135" cy="115" r="92" fill="var(--a)" fill-opacity=".14" stroke="var(--a)" stroke-width="2"/>
+        <circle cx="225" cy="115" r="92" fill="var(--b)" fill-opacity=".14" stroke="var(--b)" stroke-width="2"/>
+        <text x="80" y="22" fill="var(--a)" font-family="var(--mono)" font-size="13" font-weight="600">eco_squad</text>
+        <text x="215" y="22" fill="var(--b)" font-family="var(--mono)" font-size="13" font-weight="600">cyber_club</text>
+        <g font-family="var(--mono)" font-size="14" fill="var(--ink)" text-anchor="middle">
+          <text x="92" y="88">101</text><text x="92" y="112">105</text><text x="92" y="136">110</text><text x="92" y="160">112</text>
+          <text x="180" y="106" font-weight="600" fill="var(--ab)">102</text><text x="180" y="130" font-weight="600" fill="var(--ab)">108</text>
+          <text x="268" y="94">104</text><text x="268" y="118">115</text><text x="268" y="142">120</text>
+        </g>
+        <text x="180" y="222" text-anchor="middle" fill="var(--muted)" font-family="var(--body)" font-size="12">eco_squad &amp; cyber_club == {102, 108}</text>
+      </svg>
+    </header>
+
+    <section class="goals" aria-label="Цели урока">
+      <div class="goal"><span class="eyebrow">Образовательная</span><span>Понять, что такое <code>set</code>: уникальность и неупорядоченность элементов. Освоить <code>add</code>, <code>remove</code>, <code>union</code>, <code>intersection</code>, <code>difference</code> и применять их к дубликатам и пересечениям данных.</span></div>
+      <div class="goal"><span class="eyebrow">Развивающая</span><span>Алгоритмическое мышление и функциональная грамотность: перевести жизненную задачу на язык Python и критически сравнить два решения.</span></div>
+      <div class="goal"><span class="eyebrow">Воспитательная</span><span>Академическая честность («Адал еңбек»), командная работа, бережное отношение к данным и ресурсам («Адал азамат»).</span></div>
+    </section>
+
+    <!-- I -->
+    <section class="stage" id="stage-1" data-stage="1">
+      <div class="stage-head"><span class="roman">I</span><h2>Организационный этап и мотивация</h2><span class="dur">3 мин</span></div>
+      <div class="two">
+        <div class="panel">
+          <h3>Честный код</h3>
+          <p>Программа работает с данными так же, как человек с документами. Если в списке волонтёров кто-то записан дважды, отчёт приписывает ему лишнюю работу. Если данные «подправили», выводы теряют смысл. Принцип <b>«Адал еңбек»</b> в программировании означает чистые данные, честный код и собственное решение.</p>
+          <p class="note">На этом уроке ты будешь сам оценивать каждый этап. Счёт виден в маршруте урока.</p>
+        </div>
+        <div class="panel">
+          <h3>Разминка: list, tuple, dict</h3>
+          <div class="quiz" id="quiz"></div>
+        </div>
+      </div>
+      <div class="selfscore" data-score="s1"><span class="lbl">Самооценка этапа I:</span></div>
+    </section>
+
+    <!-- II -->
+    <section class="stage" id="stage-2" data-stage="2">
+      <div class="stage-head"><span class="roman">II</span><h2>Вызов и постановка проблемы</h2><span class="dur">7 мин</span></div>
+      <p class="callout problem">В школьной волонтёрской базе дважды зафиксировали списки учеников, сдавших пластиковые крышки для эко-проекта. В списках есть повторяющиеся фамилии. Нужно срочно узнать, кто участвовал и в сборе пластика, и в сборе макулатуры, а кто сдал только пластик. Как сделать это быстро с помощью Python?</p>
+      <div class="block">
+        <h3>Шаг 1. Решаем тем, что уже знаем: списками</h3>
+        <p>Запусти код. Посчитай, сколько в нём циклов и проверок <code>if … not in …</code>.</p>
+        <div class="runner" data-id="p-list" data-title="решение через list"></div>
+      </div>
+      <div class="block">
+        <h3>Шаг 2. Противоречие</h3>
+        <div class="panel">
+          <p>Код длинный, а каждая проверка <code>x in список</code> просматривает список с начала. Чем больше учеников, тем дольше. Замер ниже выполняется прямо в твоём браузере: та же идея, поиск в массиве против поиска в множестве.</p>
+          <div class="btn-row"><button class="btn primary" id="benchBtn" type="button">Сравнить на 20 000 записей</button></div>
+          <div id="benchOut" class="note" aria-live="polite"></div>
+          <p><b>Вопрос классу:</b> существует ли в Python инструмент, который сам удаляет дубликаты и сразу находит общие элементы?</p>
+        </div>
+      </div>
+      <div class="block">
+        <h3>Шаг 3. Тот же результат в три строки</h3>
+        <div class="runner" data-id="p-set" data-title="решение через set"></div>
+        <p class="note">Сформулируйте тему урока сами. Подсказка: она прячется в названии типа данных во втором решении.</p>
+      </div>
+      <div class="selfscore" data-score="s2"><span class="lbl">Самооценка этапа II:</span></div>
+    </section>
+
+    <!-- III -->
+    <section class="stage" id="stage-3" data-stage="3">
+      <div class="stage-head"><span class="roman">III</span><h2>Изучение нового материала через исследование</h2><span class="dur">10 мин</span></div>
+
+      <div class="terms">
+        <div class="term"><b>Множество (set)</b><span>Изменяемая коллекция уникальных неизменяемых элементов.</span></div>
+        <div class="term"><b>Уникальность</b><span>Каждый элемент хранится один раз. Повторы отбрасываются автоматически.</span></div>
+        <div class="term"><b>Неупорядоченность</b><span>У элементов нет позиций, поэтому нет индексов и срезов.</span></div>
+        <div class="term"><b>Объединение (union)</b><span>Все элементы из обоих множеств: <code>A | B</code>.</span></div>
+        <div class="term"><b>Пересечение (intersection)</b><span>Только общие элементы: <code>A &amp; B</code>.</span></div>
+        <div class="term"><b>Разность (difference)</b><span>Элементы A, которых нет в B: <code>A - B</code>.</span></div>
+      </div>
+
+      <div class="block">
+        <h3>1. Создание, проверка, перебор</h3>
+        <div class="runner" data-id="t-create" data-title="создание множеств"></div>
+      </div>
+      <div class="block">
+        <h3>2. Добавление и удаление</h3>
+        <div class="runner" data-id="t-addrem" data-title="add · remove · discard"></div>
+      </div>
+      <div class="block">
+        <h3>3. Почему нельзя обратиться по индексу</h3>
+        <p>Запусти код и прочитай ошибку. Затем замени вторую строку так, чтобы программа вывела наименьший элемент.</p>
+        <div class="runner" data-id="t-index" data-title="индекс у множества"></div>
+      </div>
+      <div class="block">
+        <h3>4. Замороженное множество: frozenset</h3>
+        <div class="runner" data-id="t-frozen" data-title="frozenset"></div>
+      </div>
+
+      <div class="block">
+        <h3>5. Круги Эйлера: операции над множествами</h3>
+        <p>Это данные из задачи урока. Измени элементы через запятую и выбери операцию: подсветится нужная область и появится код на Python.</p>
+        <div class="panel venn-ui">
+          <div class="block">
+            <div class="field a"><label for="setA">Множество A (эко-отряд «Жасыл ел»)</label><input id="setA" value="101, 102, 105, 108, 110, 112"></div>
+            <div class="field b"><label for="setB">Множество B (кибер-кружок)</label><input id="setB" value="102, 104, 108, 115, 120"></div>
+            <div class="ops" id="ops" role="group" aria-label="Операция">
+              <button class="op" data-op="union" type="button">Объединение<small>A | B</small></button>
+              <button class="op" data-op="inter" type="button" aria-pressed="true">Пересечение<small>A &amp; B</small></button>
+              <button class="op" data-op="diff" type="button">Разность<small>A - B</small></button>
+              <button class="op" data-op="rdiff" type="button">Разность<small>B - A</small></button>
+              <button class="op" data-op="sym" type="button">Симм. разность<small>A ^ B</small></button>
+            </div>
+            <div class="venn-result" id="vennResult" aria-live="polite"></div>
+            <p class="note">Python может вывести элементы в другом порядке: у множества порядок не гарантирован. Здесь они отсортированы для удобства.</p>
+          </div>
+          <svg id="venn" viewBox="0 0 520 310" role="img" aria-label="Диаграмма Эйлера для множеств A и B">
+            <defs>
+              <clipPath id="clipA"><circle cx="200" cy="160" r="128"/></clipPath>
+              <clipPath id="clipB"><circle cx="320" cy="160" r="128"/></clipPath>
+              <mask id="notB"><rect width="520" height="310" fill="#fff"/><circle cx="320" cy="160" r="128" fill="#000"/></mask>
+              <mask id="notA"><rect width="520" height="310" fill="#fff"/><circle cx="200" cy="160" r="128" fill="#000"/></mask>
+            </defs>
+            <circle class="venn-region" id="rA" cx="200" cy="160" r="128" fill="var(--a)" fill-opacity=".08" mask="url(#notB)"/>
+            <circle class="venn-region" id="rB" cx="320" cy="160" r="128" fill="var(--b)" fill-opacity=".08" mask="url(#notA)"/>
+            <circle class="venn-region" id="rAB" cx="320" cy="160" r="128" fill="var(--ab)" fill-opacity=".08" clip-path="url(#clipA)"/>
+            <circle cx="200" cy="160" r="128" fill="none" stroke="var(--a)" stroke-width="2"/>
+            <circle cx="320" cy="160" r="128" fill="none" stroke="var(--b)" stroke-width="2"/>
+            <text x="96" y="30" fill="var(--a)" font-family="var(--display)" font-size="20" font-weight="700">A</text>
+            <text x="410" y="30" fill="var(--b)" font-family="var(--display)" font-size="20" font-weight="700">B</text>
+            <g id="vennText" font-family="var(--mono)" font-size="14" fill="var(--ink)" text-anchor="middle"></g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>6. Методы множества</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Метод</th><th>Оператор</th><th>Что делает</th><th>Пример с A = {1, 2, 3}, B = {3, 4}</th></tr></thead>
+            <tbody>
+              <tr><td><code>A.add(x)</code></td><td>—</td><td>Добавляет элемент. Если он уже есть, ничего не меняется.</td><td><code>A.add(5)</code> → <code>{1, 2, 3, 5}</code></td></tr>
+              <tr><td><code>A.remove(x)</code></td><td>—</td><td>Удаляет элемент. Если его нет, возникает <code>KeyError</code>.</td><td><code>A.remove(9)</code> → <code>KeyError</code></td></tr>
+              <tr><td><code>A.discard(x)</code></td><td>—</td><td>Удаляет элемент, если он есть. Ошибки не будет.</td><td><code>A.discard(9)</code> → <code>{1, 2, 3}</code></td></tr>
+              <tr><td><code>A.pop()</code></td><td>—</td><td>Удаляет и возвращает произвольный элемент.</td><td>какой именно, заранее не известно</td></tr>
+              <tr><td><code>A.clear()</code></td><td>—</td><td>Очищает множество.</td><td><code>set()</code></td></tr>
+              <tr><td><code>A.union(B)</code></td><td><code>A | B</code></td><td>Объединение: новое множество.</td><td><code>{1, 2, 3, 4}</code></td></tr>
+              <tr><td><code>A.intersection(B)</code></td><td><code>A &amp; B</code></td><td>Пересечение: общие элементы.</td><td><code>{3}</code></td></tr>
+              <tr><td><code>A.difference(B)</code></td><td><code>A - B</code></td><td>Разность: есть в A, нет в B.</td><td><code>{1, 2}</code></td></tr>
+              <tr><td><code>A.symmetric_difference(B)</code></td><td><code>A ^ B</code></td><td>Элементы, которые есть ровно в одном из множеств.</td><td><code>{1, 2, 4}</code></td></tr>
+              <tr><td><code>A.update(B)</code></td><td><code>A |= B</code></td><td>Добавляет в A все элементы B (меняет A).</td><td>A станет <code>{1, 2, 3, 4}</code></td></tr>
+              <tr><td><code>A.issubset(B)</code></td><td><code>A &lt;= B</code></td><td>Все ли элементы A лежат в B?</td><td><code>{3}.issubset(B)</code> → <code>True</code></td></tr>
+              <tr><td><code>A.issuperset(B)</code></td><td><code>A &gt;= B</code></td><td>Содержит ли A все элементы B?</td><td><code>False</code></td></tr>
+              <tr><td><code>A.isdisjoint(B)</code></td><td>—</td><td>Нет ли общих элементов?</td><td><code>False</code>, общий элемент 3</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="runner" data-id="t-methods" data-title="попробуй методы сам"></div>
+      </div>
+
+      <div class="block">
+        <h3>7. Сравнение с другими коллекциями</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Свойство</th><th>list</th><th>tuple</th><th>dict</th><th class="set">set</th></tr></thead>
+            <tbody>
+              <tr><td>Запись</td><td><code>[1, 2]</code></td><td><code>(1, 2)</code></td><td><code>{"a": 1}</code></td><td class="set"><code>{1, 2}</code></td></tr>
+              <tr><td>Пустая коллекция</td><td><code>[]</code></td><td><code>()</code></td><td><code>{}</code></td><td class="set"><code>set()</code></td></tr>
+              <tr><td>Изменяемая</td><td>да</td><td>нет</td><td>да</td><td class="set">да (<code>frozenset</code> нет)</td></tr>
+              <tr><td>Порядок элементов</td><td>сохраняется</td><td>сохраняется</td><td>порядок добавления (Python 3.7+)</td><td class="set">не гарантирован</td></tr>
+              <tr><td>Повторы</td><td>допускаются</td><td>допускаются</td><td>ключи уникальны</td><td class="set">невозможны</td></tr>
+              <tr><td>Доступ</td><td>по индексу</td><td>по индексу</td><td>по ключу</td><td class="set">только перебор и <code>in</code></td></tr>
+              <tr><td>Что можно хранить</td><td>что угодно</td><td>что угодно</td><td>ключи неизменяемые</td><td class="set">только неизменяемые элементы</td></tr>
+              <tr><td>Проверка <code>x in …</code></td><td>просмотр всех элементов</td><td>просмотр всех элементов</td><td>быстро, по ключу</td><td class="set">быстро, по хешу</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <details class="memo">
+        <summary>Опорная карточка-памятка по set</summary>
+        <div class="memo-body">
+          <div><code>set()</code><span>пустое множество (не <code>{}</code>)</span></div>
+          <div><code>set(список)</code><span>убрать повторы</span></div>
+          <div><code>x in A</code><span>есть ли элемент</span></div>
+          <div><code>len(A)</code><span>сколько элементов</span></div>
+          <div><code>A.add(x)</code><span>добавить</span></div>
+          <div><code>A.discard(x)</code><span>удалить без ошибки</span></div>
+          <div><code>A | B</code><span>все из обоих</span></div>
+          <div><code>A &amp; B</code><span>общие</span></div>
+          <div><code>A - B</code><span>есть в A, нет в B</span></div>
+          <div><code>A ^ B</code><span>есть только в одном</span></div>
+          <div><code>sorted(A)</code><span>отсортированный список</span></div>
+          <div><code>A[0]</code><span>ошибка: индексов нет</span></div>
+        </div>
+      </details>
+      <div class="selfscore" data-score="s3"><span class="lbl">Самооценка этапа III:</span></div>
+    </section>
+
+    <!-- IV -->
+    <section class="stage" id="stage-4" data-stage="4">
+      <div class="stage-head"><span class="roman">IV</span><h2>Практическая работа: проблемно-поисковые задания</h2><span class="dur">15 мин</span></div>
+      <div class="panel">
+        <p><b>Правило работы.</b> Пиши решение сам, без готового кода из интернета. Подсказки открываются по одной: сначала попробуй без них. Готовое задание сдай на компьютер учителя.</p>
+      </div>
+
+      <article class="task" id="task-a">
+        <div class="task-head"><span class="level la">A</span><h3>Базовый уровень: уникальные слова</h3></div>
+        <p>Программа принимает строку слов через пробел, превращает её в множество, чтобы убрать повторы, и выводит уникальные слова в алфавитном порядке.</p>
+        <div class="runner" data-id="task-a" data-title="уровень A" data-stdin="яблоко груша яблоко слива груша вишня"></div>
+        <div class="btn-row"><button class="btn primary" data-check="a" type="button">Проверить</button><button class="btn" data-hint="a" type="button">Подсказка</button><button class="btn" data-reset="task-a" type="button">Вернуть заготовку</button></div>
+        <div class="hints" id="hints-a"></div>
+        <div id="verdict-a" aria-live="polite"></div>
+        <div class="runner teacher-only" data-id="sol-a" data-title="решение для учителя" data-stdin="яблоко груша яблоко слива груша вишня"></div>
+      </article>
+
+      <article class="task" id="task-b">
+        <div class="task-head"><span class="level lb">B</span><h3>Прикладной уровень: волонтёры «Жасыл ел» и кибер-кружка</h3></div>
+        <p>Даны ID учеников двух направлений. Найди с помощью операций над множествами:</p>
+        <ol class="list">
+          <li>общий список всех уникальных участников (объединение);</li>
+          <li>учеников, которые состоят в <b>обоих</b> направлениях (пересечение);</li>
+          <li>учеников, которые помогают только в эко-отряде (разность).</li>
+        </ol>
+        <div class="runner" data-id="task-b" data-title="уровень B"></div>
+        <div class="btn-row"><button class="btn primary" data-check="b" type="button">Проверить</button><button class="btn" data-hint="b" type="button">Подсказка</button><button class="btn" data-reset="task-b" type="button">Вернуть заготовку</button></div>
+        <div class="hints" id="hints-b"></div>
+        <div id="verdict-b" aria-live="polite"></div>
+        <div class="runner teacher-only" data-id="sol-b" data-title="решение для учителя"></div>
+      </article>
+
+      <article class="task" id="task-c">
+        <div class="task-head"><span class="level lc">C</span><h3>Творческий уровень: анализ словарного запаса текста</h3></div>
+        <p>Сравни два текста: найди слова, которые есть в обоих, и слова, которые встречаются только в одном из них. Подставь свои тексты: отрывки двух авторов, две статьи или тексты на казахском языке. Дополнительно посчитай, какая доля слов у текстов общая.</p>
+        <div class="runner" data-id="task-c" data-title="уровень C"></div>
+        <div class="btn-row"><button class="btn primary" data-check="c" type="button">Проверить</button><button class="btn" data-hint="c" type="button">Подсказка</button><button class="btn" data-reset="task-c" type="button">Вернуть заготовку</button></div>
+        <div class="hints" id="hints-c"></div>
+        <div id="verdict-c" aria-live="polite"></div>
+        <div class="runner teacher-only" data-id="sol-c" data-title="решение для учителя"></div>
+      </article>
+
+      <div class="panel">
+        <h3>Вопросы учителя во время работы</h3>
+        <ul class="list">
+          <li>Какой метод лучше применить, если нужно найти общую часть?</li>
+          <li>Почему возникает ошибка при попытке обратиться к элементу по индексу?</li>
+          <li>Чем отличаются <code>A - B</code> и <code>B - A</code>? Проверь на своих данных.</li>
+          <li>Что выведет <code>len(set("информатика"))</code> и почему?</li>
+        </ul>
+      </div>
+      <div class="selfscore" data-score="s4"><span class="lbl">Самооценка этапа IV:</span></div>
+    </section>
+
+    <!-- V -->
+    <section class="stage" id="stage-5" data-stage="5">
+      <div class="stage-head"><span class="roman">V</span><h2>Рефлексия и оценивание</h2><span class="dur">5 мин</span></div>
+
+      <div class="block">
+        <h3>Взаимопроверка: найди 5 ошибок</h3>
+        <p>На уроке вы вносите в своё решение ровно 5 ошибок и меняетесь местами. Потренируйся на примере: нажми на строки, где, по-твоему, есть ошибка, и проверь себя. Ищи и ошибки синтаксиса, и ошибки логики.</p>
+        <div class="bugs" id="bugs" role="group" aria-label="Код с ошибками"></div>
+        <div class="btn-row"><button class="btn primary" id="bugCheck" type="button">Проверить</button><button class="btn" id="bugReset" type="button">Сначала</button><span class="note" id="bugCount">Отмечено: 0 из 5</span></div>
+        <div id="bugReport" aria-live="polite"></div>
+      </div>
+
+      <div class="block">
+        <h3>Три точки опоры</h3>
+        <div class="reflect">
+          <div class="field"><label for="r1">1. Главное открытие урока</label><textarea id="r1" placeholder="Например: set сам убирает повторы"></textarea></div>
+          <div class="field"><label for="r2">2. Трудность, которую я преодолел(а)</label><textarea id="r2"></textarea></div>
+          <div class="field"><label for="r3">3. Вопрос, который остался</label><textarea id="r3"></textarea></div>
+        </div>
+        <span class="saved" id="savedNote">Ответы сохраняются только в этом браузере.</span>
+      </div>
+
+      <div class="block">
+        <h3>Лист самооценивания</h3>
+        <div class="table-wrap">
+          <table class="sheet">
+            <thead><tr><th>Этап</th><th>Критерий</th><th>Баллы</th></tr></thead>
+            <tbody id="sheetBody"></tbody>
+          </table>
+        </div>
+        <p class="note">2 балла: справился сам и могу объяснить другому. 1 балл: получилось с подсказкой. 0 баллов: пока не получилось. Итог обсуди с учителем: он даст обратную связь и выставит оценку.</p>
+      </div>
+      <div class="selfscore" data-score="s5"><span class="lbl">Самооценка этапа V:</span></div>
+    </section>
+
+    <footer>
+      <span>Информатика, 9 класс. Тема «Множество: set (использование методов, применяемых к множествам)».</span>
+      <button class="mini-btn" id="resetAll" type="button">Очистить мои ответы</button>
+    </footer>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+<script>
+(function(){
+"use strict";
+/* ---------- хранилище ---------- */
+const NS = "set-lesson:";
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(NS+k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(NS+k, JSON.stringify(v)); }catch(e){} },
+  clear(){ try{ Object.keys(localStorage).filter(k=>k.startsWith(NS)).forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+};
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ---------- код примеров ---------- */
+const CODE = {
+"p-list":
+`plastic = ["Ахметов", "Иванова", "Ким", "Ахметов", "Сейткали", "Иванова"]
+paper = ["Ким", "Нурланова", "Ахметов", "Петров"]
+
+unique = []
+for name in plastic:
+    if name not in unique:
+        unique.append(name)
+
+both = []
+for name in unique:
+    if name in paper and name not in both:
+        both.append(name)
+
+only_plastic = []
+for name in unique:
+    if name not in paper:
+        only_plastic.append(name)
+
+print("Без повторов:", unique)
+print("Пластик и макулатура:", both)
+print("Только пластик:", only_plastic)`,
+"p-set":
+`plastic = {"Ахметов", "Иванова", "Ким", "Ахметов", "Сейткали", "Иванова"}
+paper = {"Ким", "Нурланова", "Ахметов", "Петров"}
+
+print("Без повторов:", sorted(plastic))
+print("Пластик и макулатура:", sorted(plastic & paper))
+print("Только пластик:", sorted(plastic - paper))`,
+"t-create":
+`a = {3, 1, 2, 3, 1}          # повторы исчезнут
+b = set("банан")             # из строки: уникальные буквы
+c = set([5, 5, 6])           # из списка
+empty = set()                # пустое множество
+not_a_set = {}               # а это пустой словарь!
+
+print(a, len(a))
+print(sorted(b))
+print(c)
+print(type(empty), type(not_a_set))
+
+print(2 in a, 10 in a)       # проверка принадлежности
+for x in sorted(a):          # перебор
+    print("элемент:", x)`,
+"t-addrem":
+`squad = {"Айгерим", "Данияр"}
+squad.add("Мадина")
+squad.add("Данияр")          # уже есть: ничего не изменится
+print(sorted(squad))
+
+squad.discard("Тимур")       # нет такого: ошибки не будет
+squad.remove("Айгерим")
+print(sorted(squad))
+
+squad.remove("Тимур")        # нет такого: KeyError`,
+"t-index":
+`ids = {108, 101, 115}
+print(ids[0])`,
+"t-frozen":
+`base = frozenset({"математика", "физика"})
+print(base, len(base))
+print("физика" in base)
+
+# frozenset неизменяемый, поэтому его можно сделать ключом словаря
+schedule = {base: "понедельник"}
+print(schedule[base])
+
+base.add("химия")            # а изменить нельзя: AttributeError`,
+"t-methods":
+`A = {1, 2, 3}
+B = {3, 4}
+
+print("A | B =", A | B)
+print("A & B =", A & B)
+print("A - B =", A - B)
+print("A ^ B =", A ^ B)
+print({3} <= B, A.isdisjoint(B))`,
+"task-a":
+`# Запрос ввода от пользователя
+text = input("Введите слова через пробел: ")
+
+# Преобразуем строку в список слов, затем в множество для удаления повторов
+
+
+# Сортируем слова в алфавитном порядке
+
+
+# Объединяем слова в одну строку и выводим результирующую строку на экран
+print("\\nУникальные слова в алфавитном порядке:")
+`,
+"sol-a":
+`text = input("Введите слова через пробел: ")
+words = set(text.split())
+sorted_words = sorted(words)
+result = " ".join(sorted_words)
+print("\\nУникальные слова в алфавитном порядке:")
+print(result)`,
+"task-b":
+`# Исходные множества ID учеников
+eco_squad = {101, 102, 105, 108, 110, 112}   # Эко-отряд «Жасыл ел»
+cyber_club = {102, 104, 108, 115, 120}       # Кибер-кружок
+
+# 1. Все уникальные участники двух направлений
+
+
+# 2. Ученики, которые состоят в обоих направлениях
+
+
+# 3. Ученики только эко-отряда
+`,
+"sol-b":
+`eco_squad = {101, 102, 105, 108, 110, 112}
+cyber_club = {102, 104, 108, 115, 120}
+
+all_members = eco_squad.union(cyber_club)          # или eco_squad | cyber_club
+both = eco_squad.intersection(cyber_club)          # или eco_squad & cyber_club
+only_eco = eco_squad.difference(cyber_club)        # или eco_squad - cyber_club
+
+print("Все участники:", sorted(all_members))
+print("В обоих направлениях:", sorted(both))
+print("Только эко-отряд:", sorted(only_eco))`,
+"task-c":
+`text1 = "Мы собираем пластик и бумагу, чтобы город стал чище."
+text2 = "Мы собираем бумагу и батарейки, чтобы сохранить природу."
+
+def words_of(text):
+    # 1) переведи текст в нижний регистр
+    # 2) убери знаки препинания
+    # 3) верни множество слов
+    pass
+
+w1 = words_of(text1)
+w2 = words_of(text2)
+
+# Общие слова, слова только первого и только второго текста
+`,
+"sol-c":
+`text1 = "Мы собираем пластик и бумагу, чтобы город стал чище."
+text2 = "Мы собираем бумагу и батарейки, чтобы сохранить природу."
+
+def words_of(text):
+    text = text.lower()
+    for ch in ".,:;!?()«»\\"—":
+        text = text.replace(ch, " ")
+    return set(text.split())
+
+w1 = words_of(text1)
+w2 = words_of(text2)
+
+common = w1 & w2
+print("Общие слова:", sorted(common))
+print("Только в первом:", sorted(w1 - w2))
+print("Только во втором:", sorted(w2 - w1))
+
+share = len(common) / len(w1 | w2)
+print("Доля общих слов:", round(share * 100, 1), "%")`
+};
+
+/* ---------- Python в браузере (Skulpt) ---------- */
+const ERR_HINTS = [
+  [/not subscriptable|does not support indexing|object is not subscriptable/i, "У множества нет индексов. Используй перебор, «in» или sorted(…)[0]."],
+  [/KeyError/, "Такого элемента нет в множестве. Метод discard() удаляет без ошибки."],
+  [/unhashable/i, "В множество можно положить только неизменяемые значения: числа, строки, кортежи."],
+  [/SyntaxError/, "Проверь запятые, кавычки, скобки и двоеточия."],
+  [/NameError/, "Переменная не найдена: проверь, что она создана выше и имя написано так же."],
+  [/AttributeError.*frozenset/i, "frozenset нельзя изменять: у него нет add и remove."],
+  [/AttributeError/, "У этого объекта нет такого метода. Сверься с таблицей методов."],
+  [/TimeLimitError/, "Программа работает слишком долго. Нет ли бесконечного цикла?"]
+];
+function runPy(code, stdin){
+  return new Promise(resolve => {
+    if(!window.Sk){ resolve({out:"", err:"Python не загрузился. Проверь подключение к интернету и обнови страницу."}); return; }
+    let out = "";
+    const lines = (stdin || "").split("\n"); let li = 0;
+    Sk.configure({
+      output: t => { out += t; },
+      read: f => { if(!Sk.builtinFiles || Sk.builtinFiles.files[f] === undefined) throw "File not found: '" + f + "'"; return Sk.builtinFiles.files[f]; },
+      inputfun: p => { const v = li < lines.length ? lines[li++] : ""; out += (p||"") + v + "\n"; return v; },
+      inputfunTakesPrompt: true,
+      __future__: Sk.python3,
+      execLimit: 6000
+    });
+    Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, code, true))
+      .then(() => resolve({out, err:null}), e => resolve({out, err: String(e && e.toString ? e.toString() : e)}));
+  });
+}
+function hintFor(err){ for(const [re, h] of ERR_HINTS) if(re.test(err)) return h; return ""; }
+
+function mountRunner(el){
+  const id = el.dataset.id, title = el.dataset.title || "Python";
+  const saved = store.get("code:"+id, null);
+  const lines = (saved ?? CODE[id] ?? "").split("\n").length;
+  el.innerHTML =
+    `<div class="runner-bar"><span class="runner-title">${esc(title)}</span>`+
+    `<button class="ghost" type="button" data-act="clear">Очистить вывод</button>`+
+    `<button class="run" type="button" data-act="run">▶ Запустить</button></div>`+
+    `<div class="editor-wrap"><textarea id="ed-${id}" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Код: ${esc(title)}" rows="${Math.max(3, lines+1)}"></textarea></div>`+
+    (el.dataset.stdin !== undefined ? `<div class="stdin"><label for="in-${id}">Ввод (input):</label><input id="in-${id}" value="${esc(store.get("stdin:"+id, el.dataset.stdin))}"></div>` : "")+
+    `<pre class="out" aria-live="polite"></pre>`;
+  const ta = $("textarea", el), out = $(".out", el), inp = $(".stdin input", el);
+  ta.value = saved ?? CODE[id] ?? "";
+  if(id.startsWith("sol-")) ta.readOnly = true;
+  ta.addEventListener("keydown", e => {
+    if(e.key === "Tab" && !e.shiftKey){ e.preventDefault(); const s = ta.selectionStart; ta.setRangeText("    ", s, ta.selectionEnd, "end"); }
+    if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); run(); }
+  });
+  ta.addEventListener("input", () => { if(!id.startsWith("sol-")) store.set("code:"+id, ta.value); ta.rows = Math.max(3, ta.value.split("\n").length + 1); });
+  if(inp) inp.addEventListener("input", () => store.set("stdin:"+id, inp.value));
+  async function run(){
+    out.textContent = "Выполняется…";
+    const r = await runPy(ta.value, inp ? inp.value : "");
+    out.innerHTML = esc(r.out);
+    if(r.err){ const h = hintFor(r.err); out.innerHTML += `<span class="e">${esc(r.err)}</span>` + (h ? `\n<span class="hint">Подсказка: ${esc(h)}</span>` : ""); }
+    return r;
+  }
+  el._run = run; el._ta = ta;
+  $('[data-act="run"]', el).addEventListener("click", run);
+  $('[data-act="clear"]', el).addEventListener("click", () => { out.textContent = ""; });
+}
+$$(".runner").forEach(mountRunner);
+$$("[data-reset]").forEach(b => b.addEventListener("click", () => {
+  const id = b.dataset.reset, el = $(`.runner[data-id="${id}"]`);
+  el._ta.value = CODE[id]; el._ta.rows = CODE[id].split("\n").length + 1; store.set("code:"+id, null);
+}));
+
+/* ---------- разминка ---------- */
+const QUIZ = [
+  {q:"Какая коллекция неизменяемая?", o:["list","tuple","dict"], a:1, why:"Кортеж (tuple) после создания изменить нельзя."},
+  {q:"Что выведет len({\"a\": 1, \"b\": 2, \"a\": 3})?", o:["3","2","ошибку"], a:1, why:"Ключи словаря уникальны: второй \"a\" перезаписал первый."},
+  {q:"Что вернёт [1, 2, 2, 3].count(2)?", o:["1","2","3"], a:1, why:"Список хранит повторы, а count считает вхождения."},
+  {q:"Можно ли сделать список ключом словаря?", o:["да","нет"], a:1, why:"Ключ должен быть неизменяемым. Это же правило действует для элементов множества."}
+];
+const quizState = store.get("quiz", {});
+const quizEl = $("#quiz");
+QUIZ.forEach((item, i) => {
+  const box = document.createElement("div"); box.className = "q";
+  box.innerHTML = `<div class="q-title">${i+1}. ${esc(item.q)}</div><div class="opts">${item.o.map((o,j)=>`<button class="opt" type="button" data-j="${j}">${esc(o)}</button>`).join("")}</div><div class="q-why"></div>`;
+  const mark = j => {
+    $$(".opt", box).forEach(b => b.classList.remove("right","wrong"));
+    const btn = $(`.opt[data-j="${j}"]`, box);
+    btn.classList.add(j === item.a ? "right" : "wrong");
+    $(".q-why", box).textContent = j === item.a ? "Верно. " + item.why : "Подумай ещё: попробуй другой вариант.";
+  };
+  box.addEventListener("click", e => { const b = e.target.closest(".opt"); if(!b) return; const j = +b.dataset.j; quizState[i] = j; store.set("quiz", quizState); mark(j); });
+  if(quizState[i] !== undefined) mark(quizState[i]);
+  quizEl.appendChild(box);
+});
+
+/* ---------- замер list vs set ---------- */
+$("#benchBtn").addEventListener("click", () => {
+  const N = 20000, data = [];
+  for(let i=0;i<N;i++) data.push("ученик_" + Math.floor(Math.random()*N/2));
+  let t0 = performance.now();
+  const uniq = []; for(const x of data) if(!uniq.includes(x)) uniq.push(x);
+  const tList = performance.now() - t0;
+  t0 = performance.now();
+  const s = new Set(data);
+  const tSet = performance.now() - t0;
+  const ratio = tSet > 0 ? Math.round(tList / tSet) : null;
+  $("#benchOut").innerHTML = `Уникальных записей: <b>${s.size}</b> (в обоих способах ${uniq.length === s.size ? "одинаково" : "по-разному"}).<br>`+
+    `Через массив с проверкой «not in»: <b>${tList.toFixed(1)} мс</b>. Через множество: <b>${tSet.toFixed(1)} мс</b>` +
+    (ratio ? `, примерно в ${ratio} раз быстрее.` : ".") + ` Точные цифры зависят от компьютера.`;
+});
+
+/* ---------- круги Эйлера ---------- */
+let op = "inter";
+const parseSet = str => { const r = []; str.split(",").map(s=>s.trim()).filter(Boolean).forEach(v=>{ if(!r.includes(v)) r.push(v); }); return r; };
+const pyVal = v => /^-?\d+(\.\d+)?$/.test(v) ? v : JSON.stringify(v);
+const sortVals = arr => arr.slice().sort((x,y) => { const nx=+x, ny=+y; return (!isNaN(nx)&&!isNaN(ny)) ? nx-ny : x.localeCompare(y,"ru"); });
+const pySet = arr => arr.length ? "{" + sortVals(arr).map(pyVal).join(", ") + "}" : "set()";
+const OPS = {
+  union:{sym:"|", m:"union", hl:["rA","rAB","rB"], f:(A,B)=>[...A, ...B.filter(x=>!A.includes(x))]},
+  inter:{sym:"&", m:"intersection", hl:["rAB"], f:(A,B)=>A.filter(x=>B.includes(x))},
+  diff:{sym:"-", m:"difference", hl:["rA"], f:(A,B)=>A.filter(x=>!B.includes(x))},
+  rdiff:{sym:"-", m:"difference", hl:["rB"], rev:true, f:(A,B)=>B.filter(x=>!A.includes(x))},
+  sym:{sym:"^", m:"symmetric_difference", hl:["rA","rB"], f:(A,B)=>[...A.filter(x=>!B.includes(x)), ...B.filter(x=>!A.includes(x))]}
+};
+function drawVenn(){
+  const A = parseSet($("#setA").value), B = parseSet($("#setB").value);
+  const onlyA = A.filter(x=>!B.includes(x)), both = A.filter(x=>B.includes(x)), onlyB = B.filter(x=>!A.includes(x));
+  const g = $("#vennText"); g.innerHTML = "";
+  const col = (items, x, color) => {
+    const max = 9, shown = sortVals(items).slice(0, max), extra = items.length - shown.length;
+    const all = extra > 0 ? [...shown.slice(0, max-1), "+" + (items.length - max + 1)] : shown;
+    const lh = 22, y0 = 165 - (all.length - 1) * lh / 2;
+    all.forEach((v,i) => {
+      const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+      t.setAttribute("x", x); t.setAttribute("y", y0 + i*lh); t.setAttribute("fill", color);
+      t.textContent = v.length > 9 ? v.slice(0,8) + "…" : v; g.appendChild(t);
+    });
+  };
+  col(onlyA, 128, "var(--ink)"); col(both, 260, "var(--ab)"); col(onlyB, 392, "var(--ink)");
+  const o = OPS[op];
+  ["rA","rB","rAB"].forEach(id => $("#"+id).setAttribute("fill-opacity", o.hl.includes(id) ? ".55" : ".07"));
+  const res = o.f(A,B);
+  const [l, r] = o.rev ? ["B","A"] : ["A","B"];
+  $("#vennResult").textContent =
+    `A = ${pySet(A)}\nB = ${pySet(B)}\n\n${l} ${o.sym} ${r}\n${l}.${o.m}(${r})\n# результат: ${pySet(res)}, элементов: ${res.length}`;
+}
+$("#ops").addEventListener("click", e => { const b = e.target.closest(".op"); if(!b) return; op = b.dataset.op; $$(".op").forEach(x=>x.setAttribute("aria-pressed", String(x===b))); drawVenn(); });
+$$(".op").forEach(x => { if(!x.hasAttribute("aria-pressed")) x.setAttribute("aria-pressed","false"); });
+["#setA","#setB"].forEach(s => $(s).addEventListener("input", drawVenn));
+drawVenn();
+
+/* ---------- подсказки и проверка ---------- */
+const HINTS = {
+  a:["Метод строки split() без аргументов разрезает её по пробелам и возвращает список.",
+     "set(список) уберёт повторы. Функция sorted(множество) вернёт отсортированный список.",
+     "Соединить список строк через пробел: \" \".join(список)."],
+  b:["Объединение: eco_squad.union(cyber_club) или eco_squad | cyber_club.",
+     "Пересечение: intersection() или оператор &. Разность: difference() или оператор -.",
+     "Порядок в разности важен: eco_squad - cyber_club и cyber_club - eco_squad дают разное. Для красивого вывода оберни результат в sorted()."],
+  c:["text.lower() переводит текст в нижний регистр, text.replace(\",\", \" \") заменяет запятую пробелом. Пройди циклом по строке знаков препинания.",
+     "Не забудь вернуть результат: return set(text.split()). Без return функция вернёт None.",
+     "Общие слова: w1 & w2. Доля общих: len(w1 & w2) / len(w1 | w2)."]
+};
+const hintStep = {a:0,b:0,c:0};
+$$("[data-hint]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.hint, box = $("#hints-"+k);
+  if(hintStep[k] >= HINTS[k].length){ b.textContent = "Подсказок больше нет"; return; }
+  const d = document.createElement("div"); d.className = "hint-item"; d.textContent = `Подсказка ${hintStep[k]+1}: ${HINTS[k][hintStep[k]]}`;
+  box.appendChild(d); hintStep[k]++;
+  if(hintStep[k] >= HINTS[k].length) b.textContent = "Подсказок больше нет";
+}));
+function verdict(k, ok, msg){ $("#verdict-"+k).innerHTML = `<div class="verdict ${ok?"ok":"no"}">${msg}</div>`; }
+const sameArr = (x,y) => x.length === y.length && x.every((v,i)=>v===y[i]);
+const numSet = line => Array.from(new Set((line.match(/\d+/g)||[]).map(Number))).sort((x,y)=>x-y);
+
+const CHECKS = {
+  async a(code){
+    const tests = [["яблоко груша яблоко слива груша вишня", ["вишня","груша","слива","яблоко"]], ["кот пёс кот кот", ["кот","пёс"]]];
+    for(const [inp, exp] of tests){
+      const r = await runPy(code, inp);
+      if(r.err) return [false, "Программа завершилась с ошибкой: " + esc(r.err)];
+      const tail = r.out.split(/алфавитном порядке:?/i).pop();
+      const got = (tail.match(/[а-яёa-z]+/gi) || []);
+      if(!sameArr(got, exp)) return [false, `На вводе «${esc(inp)}» ожидалось: <b>${exp.join(" ")}</b>. Получено: <b>${esc(got.join(" ") || "ничего")}</b>.`];
+    }
+    return [true, "Всё верно: повторы удалены, слова идут по алфавиту. Проверено на двух вводах."];
+  },
+  async b(code){
+    const r = await runPy(code, "");
+    if(r.err) return [false, "Программа завершилась с ошибкой: " + esc(r.err)];
+    const lines = r.out.split("\n").map(numSet);
+    const exp = [["объединение", [101,102,104,105,108,110,112,115,120]], ["пересечение", [102,108]], ["разность", [101,105,110,112]]];
+    const found = exp.map(([n, e]) => [n, lines.some(l => sameArr(l, e))]);
+    const missing = found.filter(f => !f[1]).map(f => f[0]);
+    if(/for\s+\w+\s+in/.test(code) && /if/.test(code)) return [false, "Результат можно получить без циклов и if: задача на методы множеств."];
+    return missing.length ? [false, "Не найден верный вывод для: " + missing.join(", ") + ". Каждый результат выводи отдельной строкой через print."] : [true, "Все три множества найдены верно."];
+  },
+  async c(code){
+    const r = await runPy(code, "");
+    if(r.err) return [false, "Программа завершилась с ошибкой: " + esc(r.err)];
+    const uses = ["&", "-"].filter(s => code.includes(s)).length + (/intersection|difference/.test(code) ? 1 : 0);
+    if(/None/.test(r.out) || !r.out.trim()) return [false, "Функция words_of пока ничего не возвращает или программа ничего не выводит."];
+    if(uses === 0) return [false, "Используй операции над множествами: пересечение и разность."];
+    return [true, "Программа работает. Проверь глазами: не считаются ли «бумага» и «бумагу» разными словами? Это хороший вопрос для обсуждения: множество сравнивает строки буквально."];
+  }
+};
+$$("[data-check]").forEach(b => b.addEventListener("click", async () => {
+  const k = b.dataset.check, el = $(`.runner[data-id="task-${k}"]`);
+  el._run();
+  verdict(k, true, "Проверяю…");
+  const [ok, msg] = await CHECKS[k](el._ta.value);
+  verdict(k, ok, msg);
+}));
+
+/* ---------- найди 5 ошибок ---------- */
+const BUG_CODE = [
+  ["eco_squad = {101, 102, 105, 108, 110, 112}", null],
+  ["cyber_club = {102, 104, 108, 115, 120}", null],
+  ["all_members = eco_squad.intersection(cyber_club)", "Логика: для общего списка нужно объединение union(), а не пересечение."],
+  ["print(\"Все участники:\", all_members)", null],
+  ["both = eco_squad & cyber_club", null],
+  ["print(\"В обоих направлениях:\" both)", "Синтаксис: пропущена запятая между аргументами print."],
+  ["only_eco = cyber_club - eco_squad", "Логика: порядок перепутан. «Только эко-отряд» — это eco_squad - cyber_club."],
+  ["print(\"Только эко-отряд:\", only_eco)", null],
+  ["eco_squad.add[130]", "Синтаксис: метод вызывается круглыми скобками: add(130)."],
+  ["print(\"Первый участник:\", eco_squad[0])", "У множества нет индексов: возникнет TypeError."],
+  ["eco_squad.discard(999)", null],
+  ["print(\"Размер эко-отряда:\", len(eco_squad))", null]
+];
+let bugFlags = new Set(store.get("bugs", []));
+const bugsEl = $("#bugs");
+function renderBugs(checked){
+  bugsEl.innerHTML = "";
+  BUG_CODE.forEach(([line, why], i) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "bug-line";
+    b.setAttribute("aria-pressed", String(bugFlags.has(i)));
+    if(checked){ if(bugFlags.has(i)) b.classList.add(why ? "hit" : "miss"); else if(why) b.classList.add("missed"); }
+    else if(bugFlags.has(i)) b.classList.add("flag");
+    b.innerHTML = `<span class="ln">${i+1}</span><span>${esc(line)}</span>`;
+    b.addEventListener("click", () => { bugFlags.has(i) ? bugFlags.delete(i) : bugFlags.add(i); store.set("bugs", [...bugFlags]); $("#bugReport").innerHTML = ""; renderBugs(false); });
+    bugsEl.appendChild(b);
+  });
+  $("#bugCount").textContent = `Отмечено: ${bugFlags.size} из 5`;
+}
+renderBugs(false);
+$("#bugCheck").addEventListener("click", () => {
+  renderBugs(true);
+  const hits = BUG_CODE.filter((x,i)=>x[1] && bugFlags.has(i)).length;
+  const falses = [...bugFlags].filter(i=>!BUG_CODE[i][1]).length;
+  $("#bugReport").innerHTML = `<div class="verdict ${hits===5&&!falses?"ok":"no"}">Найдено ${hits} из 5${falses?`, лишних отметок: ${falses}`:""}.</div>`+
+    `<ol class="bug-list">${BUG_CODE.map((x,i)=>x[1]?`<li value="${i+1}"><b>Строка ${i+1}.</b> ${esc(x[1])}</li>`:"").join("")}</ol>`+
+    `<p class="note">Зелёным отмечены найденные ошибки, красным — лишние отметки, фиолетовым — пропущенные.</p>`;
+});
+$("#bugReset").addEventListener("click", () => { bugFlags = new Set(); store.set("bugs", []); $("#bugReport").innerHTML = ""; renderBugs(false); });
+
+/* ---------- рефлексия ---------- */
+["r1","r2","r3"].forEach(id => { const t = $("#"+id); t.value = store.get("refl:"+id, ""); t.addEventListener("input", () => store.set("refl:"+id, t.value)); });
+
+/* ---------- самооценка ---------- */
+const SHEET = [
+  ["s1","I","Вспомнил(а) list, tuple, dict"],
+  ["s2","II","Понял(а) проблему и сформулировал(а) тему"],
+  ["s3","III","Могу объяснить методы set на кругах Эйлера"],
+  ["s4","IV","Решил(а) задания уровня A · B · C"],
+  ["s5","V","Нашёл(ла) ошибки и провёл(а) рефлексию"]
+];
+const scores = store.get("scores", {});
+const MAX = {s1:2,s2:2,s3:2,s4:6,s5:2};
+const LABELS = {2:["0","1","2"], 6:["0","1","2","3","4","5","6"]};
+$("#scoreMax").textContent = Object.values(MAX).reduce((a,b)=>a+b,0);
+function updateScores(){
+  const total = Object.keys(MAX).reduce((s,k)=>s+(scores[k]||0),0);
+  $("#scoreNow").textContent = total;
+  $("#sheetBody").innerHTML = SHEET.map(([k,r,c]) => `<tr><td>${r}</td><td>${c}</td><td>${scores[k]===undefined?"—":scores[k]} / ${MAX[k]}</td></tr>`).join("") +
+    `<tr><td></td><td><b>Итого</b></td><td><b>${total} / ${$("#scoreMax").textContent}</b></td></tr>`;
+  $$(".selfscore").forEach(box => $$(".seg button", box).forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.v === scores[box.dataset.score]))));
+}
+$$(".selfscore").forEach(box => {
+  const k = box.dataset.score, seg = document.createElement("div"); seg.className = "seg"; seg.setAttribute("role","group"); seg.setAttribute("aria-label","Баллы");
+  (LABELS[MAX[k]]).forEach(v => { const b = document.createElement("button"); b.type="button"; b.dataset.v = v; b.textContent = v; seg.appendChild(b); });
+  seg.addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return; scores[k] = +b.dataset.v; store.set("scores", scores); updateScores(); });
+  box.appendChild(seg);
+  const n = document.createElement("span"); n.className = "note";
+  n.textContent = MAX[k] === 2 ? "2 — сам · 1 — с подсказкой · 0 — пока нет" : "по 2 балла за уровни A, B и C";
+  box.appendChild(n);
+});
+updateScores();
+
+/* ---------- режим учителя ---------- */
+const tm = $("#teacherMode");
+tm.checked = store.get("teacher", false); document.body.classList.toggle("teacher", tm.checked);
+tm.addEventListener("change", () => { document.body.classList.toggle("teacher", tm.checked); store.set("teacher", tm.checked); });
+
+/* ---------- маршрут и таймер ---------- */
+const STAGE_MIN = {1:3,2:7,3:10,4:15,5:5};
+let curStage = 1, remain = STAGE_MIN[1]*60, tick = null;
+const fmt = s => { const a = Math.abs(s); return (s<0?"−":"") + String(Math.floor(a/60)).padStart(2,"0") + ":" + String(a%60).padStart(2,"0"); };
+function showTimer(){ const v = $("#timerVal"); v.textContent = fmt(remain); v.classList.toggle("over", remain < 0); }
+function setStage(n){
+  if(n === curStage) return; curStage = n;
+  $$("#routeList a").forEach(a => a.classList.toggle("active", +a.dataset.stage === n));
+  if(!tick){ remain = STAGE_MIN[n]*60; showTimer(); }
+}
+$$("#routeList a").forEach(a => a.classList.toggle("active", a.dataset.stage === "1"));
+$("#timerBtn").addEventListener("click", () => {
+  if(tick){ clearInterval(tick); tick = null; $("#timerBtn").textContent = "Старт"; return; }
+  tick = setInterval(() => { remain--; showTimer(); }, 1000); $("#timerBtn").textContent = "Пауза";
+});
+$("#timerReset").addEventListener("click", () => { if(tick){ clearInterval(tick); tick = null; $("#timerBtn").textContent = "Старт"; } remain = STAGE_MIN[curStage]*60; showTimer(); });
+$$("#routeList a").forEach(a => a.addEventListener("click", () => { const n = +a.dataset.stage; if(tick){ clearInterval(tick); tick=null; $("#timerBtn").textContent="Старт"; } curStage = 0; setStage(n); }));
+if("IntersectionObserver" in window){
+  const io = new IntersectionObserver(es => { es.forEach(e => { if(e.isIntersecting) setStage(+e.target.dataset.stage); }); }, {rootMargin:"-30% 0px -60% 0px"});
+  $$(".stage").forEach(s => io.observe(s));
+}
+showTimer();
+
+/* ---------- сброс ---------- */
+let armed = false;
+$("#resetAll").addEventListener("click", () => {
+  const b = $("#resetAll");
+  if(!armed){ armed = true; b.textContent = "Нажми ещё раз для очистки"; setTimeout(()=>{ armed=false; b.textContent="Очистить мои ответы"; }, 4000); return; }
+  store.clear(); location.reload();
+});
+})();
+</script>
+</body>
+</html>
