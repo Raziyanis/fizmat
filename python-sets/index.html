@@ -385,8 +385,9 @@
   body[data-tab="fo"] .fo-only { display: flex; }
   .fo-meta { display: grid; gap: 6px; padding: 14px 18px; border-radius: 16px; background: rgba(255,255,255,.1); border-left: 5px solid var(--glow); }
   .fo-desc td:nth-child(3), .fo-desc td:nth-child(4), .fo-desc td:nth-child(5) { text-align: center; white-space: nowrap; }
-  .fo-desc .fo-res-col { display: none; }
-  .fo-desc.done .fo-res-col { display: table-cell; }
+  .fo-desc .got { font-weight: 900; color: var(--glow); }
+  .fo-desc tr.total td { font-weight: 900; font-size: 1.1rem; border-top: 2px solid rgba(255,255,255,.35); }
+  .fo-desc tr.total .got { font-size: 1.3rem; }
   .fo-name { margin: 0 auto 18px; max-width: 420px; }
   .fo-name input { width: 100%; font: inherit; font-weight: 700; padding: 12px 16px; border-radius: 14px; border: 2px solid rgba(255,255,255,.35); background: rgba(255,255,255,.95); color: var(--ink); }
   .fo-name input:focus { outline: 3px solid var(--glow); }
@@ -398,6 +399,8 @@
   .fo-chip.ok { background: var(--ok); border-color: var(--ok); }
   .fo-chip.bad { background: var(--bad); border-color: var(--bad); }
   .fo-chip.cur { box-shadow: 0 0 0 3px var(--glow); }
+  .fo-got { margin-left: auto; align-self: center; font-weight: 800; padding: 8px 14px; border-radius: 12px; background: rgba(255,255,255,.14); }
+  .fo-got b { color: var(--glow); font-size: 1.15rem; }
   .fo-sep { align-self: center; opacity: .6; font-weight: 800; padding: 0 4px; }
   .fo-task { padding: 18px 20px; border-radius: 18px; background: var(--card); color: var(--ink); box-shadow: 0 8px 22px rgba(0,0,0,.22); animation: enter .5s cubic-bezier(.2,1.4,.4,1) both; }
   .fo-th { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 8px; }
@@ -789,7 +792,7 @@
       <h3 class="sub-h">Дескрипторы</h3>
       <div class="table-wrap">
         <table class="cmp fo-desc">
-          <thead><tr><th>№</th><th>Обучающийся</th><th>Задачи</th><th>Балл</th><th class="fo-res-col">Результат</th></tr></thead>
+          <thead><tr><th>№</th><th>Обучающийся</th><th>Задачи</th><th>Балл</th><th>Набрано</th></tr></thead>
           <tbody id="foDesc"></tbody>
         </table>
       </div>
@@ -2022,22 +2025,23 @@ function foJudge(t, code) {
 
   function drawDesc() {
     var fin = st.done;
+    function mark(got, max) { return fin ? (got === max ? '✅ ' : got ? '🟡 ' : '❌ ') : ''; }
     $('foDesc').innerHTML = FO_DESC.map(function (d, k) {
       var got = d[1].filter(function (n) { return solved(n - 1); }).length, max = d[1].length;
       return '<tr><td>' + (k + 1) + '</td><td>' + esc(d[0]) + '</td><td>' + (max > 1 ? d[1][0] + '-' + d[1][max - 1] : d[1][0]) + '</td><td>' + max + '</td>' +
-        '<td class="fo-res-col">' + (fin ? (got === max ? '✅ ' : got ? '🟡 ' : '❌ ') + got + ' / ' + max : '') + '</td></tr>';
+        '<td class="got">' + mark(got, max) + got + '</td></tr>';
     }).join('') +
-    '<tr><th></th><th>Итого</th><th>1-' + MAIN + '</th><th>' + MAIN + '</th><td class="fo-res-col">' + (fin ? '<b>' + score() + ' / ' + MAIN + '</b>' : '') + '</td></tr>' +
+    '<tr class="total"><td></td><td>Итого</td><td>1-' + MAIN + '</td><td>' + MAIN + '</td><td class="got">' + score() + ' / ' + MAIN + '</td></tr>' +
     '<tr><td>★</td><td>Дополнительно: issubset, isdisjoint, несколько операций в одной задаче, множество «уже видели»</td><td>11-14</td><td>-</td>' +
-    '<td class="fo-res-col">' + (fin ? extraScore() + ' / ' + (FO_TASKS.length - MAIN) : '') + '</td></tr>';
-    document.querySelector('.fo-desc').classList.toggle('done', fin);
+    '<td class="got">' + extraScore() + ' / ' + (FO_TASKS.length - MAIN) + '</td></tr>';
   }
   function drawChips() {
     $('foChips').innerHTML = FO_TASKS.map(function (t, i) {
       var r = st.res[i], cls = 'fo-chip' + (t.extra ? ' extra' : '') + (r ? (r.ok ? ' ok' : ' bad') : '') + (i === cur ? ' cur' : '');
       return (i === MAIN ? '<span class="fo-sep">★</span>' : '') +
         '<button class="' + cls + '" data-i="' + i + '" title="' + esc((t.extra ? 'Дополнительная задача ' : 'Задача ') + (i + 1) + ' · ' + t.name) + '">' + (i + 1) + (t.extra ? '★' : '') + '</button>';
-    }).join('');
+    }).join('') +
+    '<span class="fo-got">Набрано: <b>' + score() + ' / ' + MAIN + '</b>' + (extraScore() ? ' · ★ ' + extraScore() : '') + '</span>';
     $('foChips').querySelectorAll('.fo-chip').forEach(function (b) { b.onclick = function () { go(+b.dataset.i); }; });
     $('fo-bar').style.width = (score() / MAIN * 100) + '%';
     $('fo-cnt').textContent = score() + '/' + MAIN;
