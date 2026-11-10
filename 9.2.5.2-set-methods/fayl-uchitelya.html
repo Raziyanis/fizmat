@@ -736,13 +736,41 @@ function load(auto) {
           : 'есть новые данные — покажем, как закроете редактор';
         return;
       }
+      var back = '';
+      if (!window.__viewDone) { window.__viewDone = true; back = restoreView_(); }
       draw();
+      if (back && back !== 'test') setStage(back);
     })
     .withFailureHandler(function (err) {
       document.getElementById('status').textContent = 'ошибка';
       banner(err && err.message ? err.message : String(err));
     })
     .getResults();
+}
+
+/* ---------- смена языка: запоминаем, где были ---------- */
+var VIEW_KEY = 'setmethods.view.t';
+function saveView_() {
+  try {
+    sessionStorage.setItem(VIEW_KEY, JSON.stringify({
+      stage: STAGE, slide: SLIDE, open: SLIDE_OPEN, qidx: QIDX, reveal: REVEAL,
+      filter: FILTER, task: TASK_IDX, taskOpen: TASK_OPEN, decide: DECIDE_OPEN, all: ALL_OPEN
+    }));
+  } catch (e) {}
+}
+function restoreView_() {
+  var v = null;
+  try {
+    v = JSON.parse(sessionStorage.getItem(VIEW_KEY) || 'null');
+    sessionStorage.removeItem(VIEW_KEY);
+  } catch (e) {}
+  if (!v) return '';
+  SLIDE = v.slide || 0; SLIDE_OPEN = !!v.open;
+  QIDX = v.qidx || 0; REVEAL = !!v.reveal; FILTER = v.filter || '';
+  if (v.task) TASK_IDX = v.task;
+  if (v.taskOpen) TASK_OPEN = v.taskOpen;
+  DECIDE_OPEN = !!v.decide; ALL_OPEN = !!v.all;
+  return v.stage || '';
 }
 
 function drawLangSwitch() {
@@ -758,6 +786,8 @@ function drawLangSwitch() {
     var lang = ev.target && ev.target.getAttribute && ev.target.getAttribute('data-lang');
     if (!lang || lang === LANG) return;
     try { localStorage.setItem('lesson-lang', lang); } catch (e) {}
+    saveView_();
+    window.__langSwitch = true;
     location.reload();
     return;
     /* eslint-disable no-unreachable */

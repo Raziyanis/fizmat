@@ -681,7 +681,7 @@ document.getElementById('stages').addEventListener('click', function (ev) {
 /** Имя ученика в шапке. */
 function renderWhoami() {
   var box = document.getElementById('whoami');
-  box.textContent = 'Ученик: ';
+  box.textContent = tx('Ученик:') + ' ';
   box.appendChild(el('b', null, chosen.name
     ? (chosen.klass ? chosen.klass + ', ' : '') + chosen.name : '—'));
 }
@@ -1134,6 +1134,59 @@ function attachEditor(card, code) {
 }
 
 /** Кнопки РУС / ҚАЗ в шапке. */
+/* ---------- смена языка: запоминаем, где были ---------- */
+var VIEW_KEY = 'setmethods.view';
+function saveView_() {
+  try {
+    sessionStorage.setItem(VIEW_KEY, JSON.stringify({
+      stage: STAGE, screen: currentScreen, slide: SLIDE, open: SLIDE_OPEN,
+      chosen: chosen, attempt: attemptId, step: step, answers: answers, verdicts: verdicts,
+      result: window.__lastResult || null, check: checkAnswers,
+      stageRes: window.__stageRes || {},
+      decide: { a: decideAnswers, v: decideVerdict, i: decideIdx },
+      pending: PENDING
+    }));
+  } catch (e) {}
+}
+function restoreView_() {
+  var v = null;
+  try {
+    v = JSON.parse(sessionStorage.getItem(VIEW_KEY) || 'null');
+    sessionStorage.removeItem(VIEW_KEY);
+  } catch (e) {}
+  if (!v) return;
+  SLIDE = v.slide || 0;
+  SLIDE_OPEN = !!v.open;
+  if (v.chosen && v.chosen.name) {
+    chosen = v.chosen;
+    workForget();                       // практика сама поднимется из памяти компьютера
+    renderWhoami();
+    checkAnswers = v.check || {};
+    if (v.decide) {
+      decideAnswers = v.decide.a || {}; decideVerdict = v.decide.v || {};
+      decideIdx = v.decide.i || 0; decideLocked = (decideIdx in decideVerdict);
+    }
+    window.__stageRes = v.stageRes || {};
+    if (v.screen === 'screen-result' && v.result) {
+      showResult(v.result);
+      startChat();
+    } else if (v.screen === 'screen-test') {
+      attemptId = v.attempt || uid();
+      answers = v.answers || {}; verdicts = v.verdicts || {}; step = v.step || 0;
+      show('screen-test'); renderWho_line(); startChat();
+      var q = DATA.questions[step];
+      if (q && (q.id in verdicts)) {
+        if (step + 1 < DATA.total) { step++; renderStep(); }
+        else finish();
+      } else {
+        renderStep();
+      }
+    }
+  }
+  PENDING = v.pending || '';
+  if (v.stage && v.stage !== 'test') setStage(v.stage);
+}
+
 function drawLangSwitch() {
   var box = document.getElementById('langsw');
   if (!box) return;
@@ -1147,6 +1200,8 @@ function drawLangSwitch() {
     var lang = ev.target && ev.target.getAttribute && ev.target.getAttribute('data-lang');
     if (!lang || lang === LANG) return;
     try { localStorage.setItem('lesson-lang', lang); } catch (e) {}
+    saveView_();
+    window.__langSwitch = true;
     location.reload();
     return;
     /* eslint-disable no-unreachable */
@@ -1566,7 +1621,7 @@ function start() {
       drawLangSwitch();
       showVersion_(DATA.version);
       teacherUnlock();
-      renderWho(); flushQueue();
+      renderWho(); restoreView_(); flushQueue();
       if (queueRead().length) {
         banner('Есть несохранённые ответы — отправим, когда появится интернет.', 'warn');
       }
@@ -1914,6 +1969,7 @@ function renderCheck() {
         var r = document.createElement('input');
         r.type = 'radio'; r.name = 'c' + i;
         r.addEventListener('change', function () { checkAnswers[i] = pair[1]; });
+        if (checkAnswers[i] === pair[1]) r.checked = true;
         lab.appendChild(r); lab.appendChild(el('span', null, pair[0]));
         card.appendChild(lab);
       });
@@ -1923,12 +1979,14 @@ function renderCheck() {
         var r = document.createElement('input');
         r.type = 'radio'; r.name = 'c' + i;
         r.addEventListener('change', function () { checkAnswers[i] = oi; });
+        if (checkAnswers[i] === oi) r.checked = true;
         lab.appendChild(r); lab.appendChild(el('span', null, opt));
         card.appendChild(lab);
       });
     } else if (it.kind === 'gap') {
       var inp = document.createElement('input');
       inp.type = 'text'; inp.placeholder = 'Ваш ответ'; inp.className = 'mono';
+      if (typeof checkAnswers[i] === 'string') inp.value = checkAnswers[i];
       inp.addEventListener('input', function () { checkAnswers[i] = inp.value; });
       card.appendChild(inp);
     } else if (it.kind === 'match') {
@@ -1943,6 +2001,7 @@ function renderCheck() {
           o.value = String(ri);
           sel.appendChild(o);
         });
+        if (checkAnswers[i][li] >= 0) sel.value = String(checkAnswers[i][li]);
         sel.addEventListener('change', function () {
           checkAnswers[i][li] = sel.value === '' ? -1 : Number(sel.value);
         });
@@ -1975,6 +2034,8 @@ function renderCheck() {
   var slot = el('div');
   slot.id = 'check-result';
   box.appendChild(slot);
+  var was = (window.__stageRes || {})['check-result'];
+  if (was) { send.style.display = 'none'; showStageResult('check-result', was.res, was.title, true); }
 }
 
 /* ---------- этап 5: практика (ФО), по одному заданию ---------- */
@@ -2142,7 +2203,7 @@ function workWatch() {
     }, true);
   });
   window.addEventListener('beforeunload', function (ev) {
-    if (!workGuard()) return;
+    if (!workGuard() || window.__langSwitch) return;
     ev.preventDefault();
     ev.returnValue = '';
     return '';
@@ -2705,11 +2766,15 @@ function renderDecide() {
   var slot = el('div');
   slot.id = 'decide-result';
   box.appendChild(slot);
+  var was = (window.__stageRes || {})['decide-result'];
+  if (was) showStageResult('decide-result', was.res, was.title, true);
   txDom(box);
 }
 
 /** Итог этапа с разбором. */
-function showStageResult(slotId, res, title) {
+function showStageResult(slotId, res, title, quiet) {
+  window.__stageRes = window.__stageRes || {};
+  window.__stageRes[slotId] = { res: res, title: title };
   var slot = document.getElementById(slotId);
   slot.textContent = '';
   var card = el('div', 'card');
@@ -2726,7 +2791,7 @@ function showStageResult(slotId, res, title) {
   });
   slot.appendChild(card);
   txDom(slot);
-  slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!quiet) slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* ---------- этап 6: рефлексия ---------- */
@@ -2802,6 +2867,7 @@ function renderHome() {
 /* ---------- результат ---------- */
 
 function showResult(result) {
+  window.__lastResult = result;
   show('screen-result');
   document.getElementById('score').textContent = result.score + ' / ' + result.total;
   var wrong = result.total - result.score;
