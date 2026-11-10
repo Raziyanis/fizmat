@@ -17,6 +17,7 @@ import langkeep  # noqa: E402
 import kkui  # noqa: E402
 import worklock  # noqa: E402
 import server  # noqa: E402
+import decideui  # noqa: E402
 
 VER = 'set v1 · 10 ноября'
 
@@ -344,6 +345,7 @@ def patch_student(src, data):
     src = kkui.patch_both(src, sub1)
     src = kkui.patch_student(src, sub1)
     src = worklock.patch_student(src, sub1)
+    src = decideui.patch_student(src, sub1)
     src = server.patch_student(src, sub1, URL, TOKEN)
     src = sub1(src, '<title>Методы списка — повторение</title>', '<title>Методы множества — урок</title>')
     src = sub1(src, '<div class="display">Методы списка</div>', '<div class="display">Список и кортеж</div>')
