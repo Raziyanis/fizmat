@@ -1,0 +1,466 @@
+<title>Пять функций Excel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Mono&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=PT+Sans+Narrow:wght@700&display=swap">
+<style>
+/* Layout: a spreadsheet sheet – column-letter ruler on top, explanation as five "cells", quiz as numbered rows. */
+:root {
+  --bg: #f6f8f6;
+  --sheet: #ffffff;
+  --ink: #18231d;
+  --muted: #5b6b62;
+  --grid: #d5ded8;
+  --head: #e9efeb;
+  --accent: #1c7a4a;
+  --accent-ink: #ffffff;
+  --cell-sel: #e3f3e9;
+  --ok: #1e7b45;
+  --ok-bg: #dcf2e4;
+  --bad: #b3261e;
+  --bad-bg: #fbe3e1;
+  --formula: #24527a;
+  --f-body: "PT Sans", "Segoe UI", Arial, sans-serif;
+  --f-head: "PT Sans Narrow", "PT Sans", "Arial Narrow", sans-serif;
+  --f-mono: "PT Mono", "Consolas", "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111814; --sheet: #172019; --ink: #e3ebe6; --muted: #9db0a5; --grid: #2c3a32;
+    --head: #1d2921; --accent: #4cc283; --accent-ink: #0d1a12; --cell-sel: #1f3528;
+    --ok: #6fd69b; --ok-bg: #173523; --bad: #ff8a80; --bad-bg: #3a1c1a; --formula: #8cc4f2;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111814; --sheet: #172019; --ink: #e3ebe6; --muted: #9db0a5; --grid: #2c3a32;
+  --head: #1d2921; --accent: #4cc283; --accent-ink: #0d1a12; --cell-sel: #1f3528;
+  --ok: #6fd69b; --ok-bg: #173523; --bad: #ff8a80; --bad-bg: #3a1c1a; --formula: #8cc4f2;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+.wrap { max-width: 980px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-head); text-wrap: balance; margin: 0; letter-spacing: .01em; }
+code, .mono { font-family: var(--f-mono); }
+
+/* top bar */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding-block: 12px; border-bottom: 1px solid var(--grid);
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.fx { display: flex; align-items: center; gap: 8px; min-width: 0; font-family: var(--f-mono); font-size: 15px; color: var(--muted); }
+.fx b { font-style: italic; font-family: Georgia, serif; color: var(--accent); font-size: 18px; }
+.fx span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lang { display: inline-flex; border: 1px solid var(--grid); border-radius: 6px; overflow: hidden; }
+.lang button {
+  font: 700 15px var(--f-body); padding: 6px 14px; border: 0; background: var(--sheet); color: var(--ink); cursor: pointer;
+}
+.lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+button:focus-visible, select:focus-visible, label:focus-within { outline: 3px solid var(--formula); outline-offset: 2px; }
+
+header.hero { padding-block: 28px 8px; display: grid; gap: 10px; }
+.eyebrow { font: 700 13px var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.hero h1 { font-size: clamp(30px, 6vw, 46px); line-height: 1.05; }
+.hero p { margin: 0; color: var(--muted); max-width: 62ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.chip { font: 15px var(--f-mono); padding: 3px 10px; border: 1px solid var(--grid); background: var(--sheet); border-radius: 4px; }
+
+section { margin-top: 36px; }
+.sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.sec-head h2 { font-size: 30px; }
+.sec-head p { margin: 0; color: var(--muted); }
+
+/* explanation cards = cells */
+.funcs { display: grid; gap: 14px; }
+.func {
+  background: var(--sheet); border: 1px solid var(--grid); border-radius: 8px;
+  display: grid; grid-template-columns: 56px 1fr; overflow: hidden;
+}
+.func .col { background: var(--head); border-right: 1px solid var(--grid); display: grid; place-items: start center; padding-top: 18px; font: 700 18px var(--f-mono); color: var(--muted); }
+.func .body { padding: 16px 18px 18px; display: grid; gap: 10px; min-width: 0; }
+.func h3 { font-size: 26px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.func h3 small { font: 15px var(--f-mono); color: var(--muted); }
+.func p { margin: 0; max-width: 68ch; }
+.syntax { font: 16px var(--f-mono); color: var(--formula); background: var(--bg); border: 1px dashed var(--grid); padding: 8px 10px; border-radius: 4px; overflow-x: auto; white-space: nowrap; }
+.mini { overflow-x: auto; }
+.mini table { border-collapse: collapse; font: 15px var(--f-mono); font-variant-numeric: tabular-nums; }
+.mini th, .mini td { border: 1px solid var(--grid); padding: 4px 10px; text-align: right; white-space: nowrap; }
+.mini th { background: var(--head); color: var(--muted); font-weight: 400; text-align: center; }
+.mini td.res { background: var(--cell-sel); outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 700; }
+.mini td.f { color: var(--formula); text-align: left; }
+.tip { font-size: 15px; color: var(--muted); border-left: 3px solid var(--accent); padding-left: 10px; }
+
+/* quiz */
+.parts { display: grid; gap: 28px; }
+.part h3 { font-size: 22px; margin-bottom: 10px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.part h3 span { font: 15px var(--f-body); color: var(--muted); }
+.q { background: var(--sheet); border: 1px solid var(--grid); border-radius: 8px; display: grid; grid-template-columns: 48px 1fr; margin-bottom: 12px; overflow: hidden; }
+.q .num { background: var(--head); border-right: 1px solid var(--grid); font: 700 16px var(--f-mono); color: var(--muted); display: grid; place-items: start center; padding-top: 16px; }
+.q.correct .num { background: var(--ok-bg); color: var(--ok); }
+.q.wrong .num { background: var(--bad-bg); color: var(--bad); }
+.q .qb { padding: 14px 16px 16px; display: grid; gap: 12px; min-width: 0; }
+.q .text { font-weight: 700; }
+.q .text code { font-weight: 400; color: var(--formula); }
+.pairs { display: grid; gap: 8px; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 26px; gap: 10px; align-items: center; }
+.pair .left { font-family: var(--f-mono); color: var(--formula); overflow-wrap: anywhere; }
+.pair .left.plain { font-family: var(--f-body); color: var(--ink); }
+select {
+  width: 100%; font: 16px var(--f-body); padding: 7px 8px; border: 1px solid var(--grid); border-radius: 4px;
+  background: var(--bg); color: var(--ink); min-width: 0;
+}
+.mark { font-weight: 700; text-align: center; }
+.mark.ok { color: var(--ok); } .mark.bad { color: var(--bad); }
+.opts { display: grid; gap: 8px; }
+.opts.tf { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 420px; }
+.opt { display: flex; gap: 10px; align-items: center; border: 1px solid var(--grid); border-radius: 6px; padding: 8px 12px; cursor: pointer; background: var(--bg); }
+.opt input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; flex: none; }
+.opt span { min-width: 0; overflow-wrap: anywhere; }
+.opt.ok { border-color: var(--ok); background: var(--ok-bg); }
+.opt.bad { border-color: var(--bad); background: var(--bad-bg); }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.btn {
+  font: 700 16px var(--f-body); padding: 8px 16px; border-radius: 6px; border: 1px solid var(--accent);
+  background: var(--accent); color: var(--accent-ink); cursor: pointer;
+}
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.fb { font-size: 15px; }
+.fb.ok { color: var(--ok); } .fb.bad { color: var(--bad); }
+.fb .why { color: var(--muted); display: block; }
+
+.score {
+  position: sticky; bottom: 0; margin-top: 24px; background: var(--sheet); border: 1px solid var(--grid); border-radius: 8px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: space-between;
+}
+.score .big { font: 700 30px var(--f-head); font-variant-numeric: tabular-nums; }
+.score .lbl { color: var(--muted); font-size: 15px; }
+.cells { display: flex; gap: 3px; flex-wrap: wrap; }
+.cells i { width: 16px; height: 16px; border: 1px solid var(--grid); background: var(--bg); border-radius: 2px; }
+.cells i.ok { background: var(--ok); border-color: var(--ok); }
+.cells i.bad { background: var(--bad); border-color: var(--bad); }
+
+@media (max-width: 560px) {
+  .func, .q { grid-template-columns: 1fr; }
+  .func .col, .q .num { place-items: center start; padding: 6px 16px; border-right: 0; border-bottom: 1px solid var(--grid); }
+  .pair { grid-template-columns: minmax(0, 1fr) 22px; }
+  .pair .left { grid-column: 1 / -1; }
+  .opts.tf { grid-template-columns: 1fr 1fr; }
+  .score { position: static; }
+}
+@media (prefers-reduced-motion: no-preference) { .q { transition: border-color .2s; } }
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="fx"><b>fx</b><span id="fxline">=СУММ() · ABS() · КОРЕНЬ() · СТЕПЕНЬ() · СУММЕСЛИ()</span></div>
+    <div class="lang" role="group" aria-label="Язык / Тіл">
+      <button type="button" id="lang-ru" data-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" id="lang-kz" data-lang="kz" aria-pressed="false">KZ</button>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow" id="t-eyebrow"></div>
+    <h1 id="t-title"></h1>
+    <p id="t-lead"></p>
+    <div class="chips"><span class="chip">СУММ</span><span class="chip">ABS</span><span class="chip">КОРЕНЬ</span><span class="chip">СТЕПЕНЬ</span><span class="chip">СУММЕСЛИ</span></div>
+  </header>
+
+  <section aria-labelledby="t-s1">
+    <div class="sec-head"><h2 id="t-s1"></h2><p id="t-s1p"></p></div>
+    <div class="funcs" id="funcs"></div>
+  </section>
+
+  <section aria-labelledby="t-s2">
+    <div class="sec-head"><h2 id="t-s2"></h2><p id="t-s2p"></p></div>
+    <div class="parts" id="quiz"></div>
+    <div class="score" aria-live="polite">
+      <div>
+        <div class="lbl" id="t-score"></div>
+        <div class="big" id="scoreval">0 / 15</div>
+      </div>
+      <div class="cells" id="cells" aria-hidden="true"></div>
+      <button type="button" class="btn ghost" id="reset"></button>
+    </div>
+  </section>
+</div>
+
+<script>
+const UI = {
+  ru: {
+    eyebrow: "8 класс · ЦО 8.2.2.1 · повторение",
+    title: "Пять математических функций Excel",
+    lead: "Сначала прочитайте объяснение каждой функции с примером, затем ответьте на 15 вопросов: сопоставление, «верно/неверно» и выбор ответа. Каждый ответ проверяется сразу.",
+    s1: "Объяснение", s1p: "Каждая функция — с записью, примером и типичной ошибкой.",
+    s2: "Вопросы", s2p: "15 вопросов, по 1 баллу. Сопоставление засчитывается, если верны все пары.",
+    syntax: "Запись", example: "Пример", mistake: "Частая ошибка",
+    partA: "Сопоставление", partAn: "вопросы 1–5 · выберите пару для каждой строки",
+    partB: "Верно или неверно", partBn: "вопросы 6–10",
+    partC: "Выбор ответа", partCn: "вопросы 11–15 · один верный ответ",
+    choose: "— выберите —", check: "Проверить", again: "Ещё раз",
+    yes: "Верно", no: "Неверно", okmsg: "Правильно!", badmsg: "Неправильно.",
+    score: "Ваш результат", reset: "Начать заново", answer: "Ответ",
+    fx: "=СУММ() · ABS() · КОРЕНЬ() · СТЕПЕНЬ() · СУММЕСЛИ()"
+  },
+  kz: {
+    eyebrow: "8-сынып · ОМ 8.2.2.1 · қайталау",
+    title: "Excel-дің бес математикалық функциясы",
+    lead: "Алдымен әр функцияның мысалмен берілген түсіндірмесін оқыңыз, содан кейін 15 сұраққа жауап беріңіз: сәйкестендіру, «дұрыс/бұрыс» және жауапты таңдау. Әр жауап бірден тексеріледі.",
+    s1: "Түсіндірме", s1p: "Әр функция – жазылуымен, мысалымен және жиі кездесетін қатесімен.",
+    s2: "Сұрақтар", s2p: "15 сұрақ, әрқайсысы 1 балл. Сәйкестендіру барлық жұп дұрыс болғанда ғана есептеледі.",
+    syntax: "Жазылуы", example: "Мысал", mistake: "Жиі кездесетін қате",
+    partA: "Сәйкестендіру", partAn: "1–5 сұрақтар · әр жолға жұбын таңдаңыз",
+    partB: "Дұрыс па, бұрыс па", partBn: "6–10 сұрақтар",
+    partC: "Жауапты таңдау", partCn: "11–15 сұрақтар · бір дұрыс жауап",
+    choose: "— таңдаңыз —", check: "Тексеру", again: "Қайтадан",
+    yes: "Дұрыс", no: "Бұрыс", okmsg: "Дұрыс!", badmsg: "Дұрыс емес.",
+    score: "Сіздің нәтижеңіз", reset: "Қайта бастау", answer: "Жауап",
+    fx: "=СУММ() · ABS() · КОРЕНЬ() · СТЕПЕНЬ() · СУММЕСЛИ()"
+  }
+};
+
+/* ---------- explanation ---------- */
+const FUNCS = [
+  { col: "A", name: "СУММ", en: "SUM",
+    syntax: { ru: "=СУММ(диапазон)  или  =СУММ(число1; число2; …)", kz: "=СУММ(ауқым)  немесе  =СУММ(сан1; сан2; …)" },
+    what: { ru: "Складывает все числа диапазона или перечисленные через точку с запятой. Пустые ячейки и текст пропускает.",
+            kz: "Ауқымдағы немесе нүктелі үтір арқылы берілген барлық сандарды қосады. Бос ұяшықтар мен мәтінді өткізіп жібереді." },
+    table: [["", "A"], ["1", "120"], ["2", "-20"], ["3", "50"], ["4", { f: "=СУММ(A1:A3)", r: "150" }]],
+    tip: { ru: "Пишут =A1+A2+A3+…+A50 вручную. Для длинных столбцов используйте диапазон A1:A50.",
+           kz: "=A1+A2+A3+…+A50 деп қолмен жазады. Ұзын бағандар үшін A1:A50 ауқымын қолданыңыз." } },
+  { col: "B", name: "ABS", en: "ABS",
+    syntax: { ru: "=ABS(число)", kz: "=ABS(сан)" },
+    what: { ru: "Возвращает модуль числа — число без знака: |−7| = 7, |7| = 7. Нужна, когда важен размер разницы, а не её направление.",
+            kz: "Санның модулін – таңбасыз санды қайтарады: |−7| = 7, |7| = 7. Айырманың бағыты емес, шамасы маңызды болғанда қажет." },
+    table: [["", "A", "B"], ["1", "План", "500"], ["2", "Факт", "620"], ["3", "|разница|", { f: "=ABS(B1-B2)", r: "120" }]],
+    tableKz: [["", "A", "B"], ["1", "Жоспар", "500"], ["2", "Факт", "620"], ["3", "|айырма|", { f: "=ABS(B1-B2)", r: "120" }]],
+    tip: { ru: "Ставят ABS только к одному числу: =ABS(B1)-B2. Модуль берётся от всей разности: =ABS(B1-B2).",
+           kz: "ABS-ті тек бір санға қояды: =ABS(B1)-B2. Модуль бүкіл айырмадан алынады: =ABS(B1-B2)." } },
+  { col: "C", name: "КОРЕНЬ", en: "SQRT",
+    syntax: { ru: "=КОРЕНЬ(число)", kz: "=КОРЕНЬ(сан)" },
+    what: { ru: "Вычисляет квадратный корень: √49 = 7. Пример задачи: сторона квадрата по его площади, a = √S.",
+            kz: "Квадрат түбірді есептейді: √49 = 7. Мысал: шаршының қабырғасын ауданы бойынша табу, a = √S." },
+    table: [["", "A", "B"], ["1", "S, м²", "49"], ["2", "a, м", { f: "=КОРЕНЬ(B1)", r: "7" }]],
+    tip: { ru: "Корень из отрицательного числа даёт ошибку #ЧИСЛО!. Если число может быть отрицательным, сначала возьмите ABS.",
+           kz: "Теріс саннан түбір #ЧИСЛО! (#NUM!) қатесін береді. Сан теріс болуы мүмкін болса, алдымен ABS алыңыз." } },
+  { col: "D", name: "СТЕПЕНЬ", en: "POWER",
+    syntax: { ru: "=СТЕПЕНЬ(число; показатель)   то же, что  =число^показатель", kz: "=СТЕПЕНЬ(сан; дәреже)   =сан^дәреже жазуымен бірдей" },
+    what: { ru: "Возводит число в степень: 2⁵ = 32. Площадь квадрата S = a², объём куба V = a³. Дробный показатель даёт корень: ∛V = V^(1/3).",
+            kz: "Санды дәрежеге шығарады: 2⁵ = 32. Шаршы ауданы S = a², текше көлемі V = a³. Бөлшек дәреже түбір береді: ∛V = V^(1/3)." },
+    table: [["", "A", "B"], ["1", "a, м", "1,2"], ["2", "V, м³", { f: "=СТЕПЕНЬ(B1;3)", r: "1,728" }], ["3", "∛27", { f: "=СТЕПЕНЬ(27;1/3)", r: "3" }]],
+    tip: { ru: "Пишут =СТЕПЕНЬ(27;1/3) как =СТЕПЕНЬ(27;1:3) или забывают второй аргумент. Аргументы разделяются точкой с запятой.",
+           kz: "=СТЕПЕНЬ(27;1/3) орнына =СТЕПЕНЬ(27;1:3) деп жазады немесе екінші аргументті ұмытады. Аргументтер нүктелі үтірмен бөлінеді." } },
+  { col: "E", name: "СУММЕСЛИ", en: "SUMIF",
+    syntax: { ru: "=СУММЕСЛИ(где_проверять; условие; что_суммировать)", kz: "=СУММЕСЛИ(қайда_тексеру; шарт; нені_қосу)" },
+    what: { ru: "Складывает только те значения, для которых выполняется условие. Условие — текст (\"Спорт\"), ссылка на ячейку или сравнение (\">100000\").",
+            kz: "Шарт орындалатын мәндерді ғана қосады. Шарт – мәтін (\"Спорт\"), ұяшыққа сілтеме немесе салыстыру (\">100000\")." },
+    table: [["", "A", "B"], ["1", "Спорт", "300"], ["2", "Озеленение", "120"], ["3", "Спорт", "80"], ["4", "", { f: "=СУММЕСЛИ(A1:A3;\"Спорт\";B1:B3)", r: "380" }]],
+    tableKz: [["", "A", "B"], ["1", "Спорт", "300"], ["2", "Көгалдандыру", "120"], ["3", "Спорт", "80"], ["4", "", { f: "=СУММЕСЛИ(A1:A3;\"Спорт\";B1:B3)", r: "380" }]],
+    tip: { ru: "Путают порядок: сначала диапазон условия, потом условие, потом диапазон суммы. При копировании закрепляйте диапазоны знаком $: $A$1:$A$3.",
+           kz: "Ретін шатастырады: алдымен шарт ауқымы, содан кейін шарт, содан кейін қосынды ауқымы. Көшіргенде ауқымдарды $ белгісімен бекітіңіз: $A$1:$A$3." } }
+];
+
+/* ---------- quiz ---------- */
+const Q = [
+  // A. matching: each pair [left, right]; right options listed in display order "opts"
+  { type: "match",
+    text: { ru: "Сопоставьте функцию и что она делает.", kz: "Функцияны оның атқаратын қызметімен сәйкестендіріңіз." },
+    left: ["СУММ", "ABS", "КОРЕНЬ", "СТЕПЕНЬ", "СУММЕСЛИ"],
+    right: { ru: ["складывает числа", "модуль числа", "квадратный корень", "возводит в степень", "сумма по условию"],
+             kz: ["сандарды қосады", "санның модулі", "квадрат түбір", "дәрежеге шығарады", "шарт бойынша қосынды"] },
+    order: [3, 0, 4, 1, 2], mono: true },
+  { type: "match",
+    text: { ru: "Сопоставьте формулу и её результат.", kz: "Формуланы оның нәтижесімен сәйкестендіріңіз." },
+    left: ["=ABS(-9)", "=КОРЕНЬ(64)", "=СТЕПЕНЬ(2;4)", "=СУММ(1;2;3)"],
+    right: { ru: ["9", "8", "16", "6"], kz: ["9", "8", "16", "6"] },
+    order: [2, 3, 1, 0], mono: true },
+  { type: "match",
+    text: { ru: "Какая функция нужна для задачи?", kz: "Есепке қай функция керек?" },
+    left: { ru: ["Сторона квадрата по его площади", "Общая стоимость всех покупок", "Расходы только категории «Спорт»", "Объём куба по ребру", "На сколько факт отличается от плана (без знака)"],
+            kz: ["Шаршының қабырғасы ауданы бойынша", "Барлық сатып алулардың жалпы құны", "Тек «Спорт» санатының шығындары", "Текшенің көлемі қыры бойынша", "Факт жоспардан қаншаға ерекшеленеді (таңбасыз)"] },
+    right: { ru: ["КОРЕНЬ", "СУММ", "СУММЕСЛИ", "СТЕПЕНЬ", "ABS"], kz: ["КОРЕНЬ", "СУММ", "СУММЕСЛИ", "СТЕПЕНЬ", "ABS"] },
+    order: [1, 4, 0, 2, 3] },
+  { type: "match",
+    text: { ru: "Формула =СУММЕСЛИ(C2:C9;\"Спорт\";G2:G9). Что означает каждый аргумент?", kz: "=СУММЕСЛИ(C2:C9;\"Спорт\";G2:G9) формуласы. Әр аргумент нені білдіреді?" },
+    left: ["C2:C9", "\"Спорт\"", "G2:G9"],
+    right: { ru: ["где проверяется условие", "условие", "какие числа складываются"], kz: ["шарт қай жерде тексеріледі", "шарт", "қай сандар қосылады"] },
+    order: [2, 0, 1], mono: true },
+  { type: "match",
+    text: { ru: "Сопоставьте математическую запись и формулу Excel (x находится в ячейке A1).", kz: "Математикалық жазуды Excel формуласымен сәйкестендіріңіз (x мәні A1 ұяшығында)." },
+    left: ["|x|", "√x", "x³", "∛x"],
+    right: { ru: ["=ABS(A1)", "=КОРЕНЬ(A1)", "=СТЕПЕНЬ(A1;3)", "=СТЕПЕНЬ(A1;1/3)"], kz: ["=ABS(A1)", "=КОРЕНЬ(A1)", "=СТЕПЕНЬ(A1;3)", "=СТЕПЕНЬ(A1;1/3)"] },
+    order: [3, 1, 0, 2], mono: true },
+
+  // B. true / false
+  { type: "tf", ans: false,
+    text: { ru: "Формула =ABS(-5) возвращает −5.", kz: "=ABS(-5) формуласы −5 мәнін қайтарады." },
+    why: { ru: "ABS убирает знак: результат 5.", kz: "ABS таңбаны алып тастайды: нәтиже 5." } },
+  { type: "tf", ans: true,
+    text: { ru: "Формула =КОРЕНЬ(-16) выдаёт ошибку #ЧИСЛО!.", kz: "=КОРЕНЬ(-16) формуласы #ЧИСЛО! (#NUM!) қатесін береді." },
+    why: { ru: "Квадратного корня из отрицательного числа среди действительных чисел нет.", kz: "Теріс санның нақты сандар арасында квадрат түбірі жоқ." } },
+  { type: "tf", ans: true,
+    text: { ru: "Формулы =СТЕПЕНЬ(3;2) и =3^2 дают одинаковый результат.", kz: "=СТЕПЕНЬ(3;2) және =3^2 формулалары бірдей нәтиже береді." },
+    why: { ru: "Обе дают 9: ^ — знак возведения в степень.", kz: "Екеуі де 9 береді: ^ – дәрежеге шығару таңбасы." } },
+  { type: "tf", ans: false,
+    text: { ru: "В СУММЕСЛИ условие «больше 100» записывают без кавычек: >100.", kz: "СУММЕСЛИ-де «100-ден артық» шарты тырнақшасыз жазылады: >100." },
+    why: { ru: "Условие со знаком сравнения пишут в кавычках: \">100\".", kz: "Салыстыру таңбасы бар шарт тырнақшада жазылады: \">100\"." } },
+  { type: "tf", ans: false,
+    text: { ru: "Формула =СУММ(A1:A5) складывает только ячейки A1 и A5.", kz: "=СУММ(A1:A5) формуласы тек A1 және A5 ұяшықтарын қосады." },
+    why: { ru: "Двоеточие задаёт диапазон: складываются A1, A2, A3, A4, A5.", kz: "Қос нүкте ауқымды білдіреді: A1, A2, A3, A4, A5 қосылады." } },
+
+  // C. multiple choice
+  { type: "mc", ans: 1,
+    text: { ru: "B2 = 10, B3 = −4, B4 = 6. Что вернёт =СУММ(B2:B4)?", kz: "B2 = 10, B3 = −4, B4 = 6. =СУММ(B2:B4) нені қайтарады?" },
+    opts: { ru: ["20", "12", "16", "0"], kz: ["20", "12", "16", "0"] },
+    why: { ru: "10 + (−4) + 6 = 12. СУММ учитывает знак.", kz: "10 + (−4) + 6 = 12. СУММ таңбаны ескереді." } },
+  { type: "mc", ans: 2,
+    text: { ru: "В A1 записан объём куба 27 м³. Какая формула найдёт ребро куба?", kz: "A1 ұяшығында текше көлемі 27 м³. Текше қырын қай формула табады?" },
+    opts: { ru: ["=КОРЕНЬ(A1)", "=СТЕПЕНЬ(A1;3)", "=СТЕПЕНЬ(A1;1/3)", "=A1/3"], kz: ["=КОРЕНЬ(A1)", "=СТЕПЕНЬ(A1;3)", "=СТЕПЕНЬ(A1;1/3)", "=A1/3"] },
+    why: { ru: "Ребро a = ∛V = V^(1/3) = 3 м.", kz: "Қыр a = ∛V = V^(1/3) = 3 м." }, mono: true },
+  { type: "mc", ans: 0,
+    text: { ru: "B1 = 500 (бюджет), B2 = 620 (расход). Как найти перерасход положительным числом?", kz: "B1 = 500 (бюджет), B2 = 620 (шығын). Артық шығынды оң сан ретінде қалай табады?" },
+    opts: { ru: ["=ABS(B1-B2)", "=B1-B2", "=СУММ(B1;B2)", "=КОРЕНЬ(B2-B1)"], kz: ["=ABS(B1-B2)", "=B1-B2", "=СУММ(B1;B2)", "=КОРЕНЬ(B2-B1)"] },
+    why: { ru: "B1 − B2 = −120, модуль даёт 120.", kz: "B1 − B2 = −120, модуль 120 береді." }, mono: true },
+  { type: "mc", ans: 3,
+    text: { ru: "Нужно сложить суммы из G2:G9 в строках, где в C2:C9 написано «Спорт». Какая запись верная?", kz: "C2:C9 ауқымында «Спорт» деп жазылған жолдардағы G2:G9 сомаларын қосу керек. Қай жазу дұрыс?" },
+    opts: { ru: ["=СУММЕСЛИ(G2:G9;\"Спорт\";C2:C9)", "=СУММ(C2:C9;\"Спорт\")", "=СУММЕСЛИ(\"Спорт\";C2:C9;G2:G9)", "=СУММЕСЛИ(C2:C9;\"Спорт\";G2:G9)"],
+            kz: ["=СУММЕСЛИ(G2:G9;\"Спорт\";C2:C9)", "=СУММ(C2:C9;\"Спорт\")", "=СУММЕСЛИ(\"Спорт\";C2:C9;G2:G9)", "=СУММЕСЛИ(C2:C9;\"Спорт\";G2:G9)"] },
+    why: { ru: "Порядок: диапазон условия; условие; диапазон суммирования.", kz: "Реті: шарт ауқымы; шарт; қосынды ауқымы." }, mono: true },
+  { type: "mc", ans: 0,
+    text: { ru: "Чему равно =КОРЕНЬ(СТЕПЕНЬ(6;2)+СТЕПЕНЬ(8;2))?", kz: "=КОРЕНЬ(СТЕПЕНЬ(6;2)+СТЕПЕНЬ(8;2)) неге тең?" },
+    opts: { ru: ["10", "14", "100", "48"], kz: ["10", "14", "100", "48"] },
+    why: { ru: "√(36 + 64) = √100 = 10 — теорема Пифагора.", kz: "√(36 + 64) = √100 = 10 – Пифагор теоремасы." } }
+];
+
+const state = Q.map(q => ({ sel: q.type === "match" ? Array(q.left.length || q.left.ru.length).fill(-1) : null, done: null }));
+let lang = "ru";
+try { const s = localStorage.getItem("fx5-lang"); if (s === "kz" || s === "ru") lang = s; } catch (e) {}
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const L = v => (v && typeof v === "object" && !Array.isArray(v)) ? v[lang] : v;
+
+function renderFuncs() {
+  const t = UI[lang];
+  $("funcs").innerHTML = FUNCS.map(f => {
+    const tb = (lang === "kz" && f.tableKz) ? f.tableKz : f.table;
+    const rows = tb.map((r, i) => "<tr>" + r.map((c, j) => {
+      if (i === 0 || j === 0) return `<th>${esc(c)}</th>`;
+      if (typeof c === "object") return `<td class="res" title="${esc(c.f)}">${esc(c.r)}</td><td class="f">${esc(c.f)}</td>`;
+      return `<td>${esc(c)}</td>`;
+    }).join("") + "</tr>").join("");
+    return `<article class="func"><div class="col">${f.col}</div><div class="body">
+      <h3>${f.name}<small>${f.en === f.name ? "" : f.en}</small></h3>
+      <p>${esc(L(f.what))}</p>
+      <div class="syntax" aria-label="${t.syntax}">${esc(L(f.syntax))}</div>
+      <div class="mini"><table aria-label="${t.example}">${rows}</table></div>
+      <div class="tip"><b>${t.mistake}:</b> ${esc(L(f.tip))}</div>
+    </div></article>`;
+  }).join("");
+}
+
+function qHTML(q, i) {
+  const t = UI[lang], st = state[i];
+  const cls = st.done === true ? "correct" : st.done === false ? "wrong" : "";
+  let inner = "";
+  if (q.type === "match") {
+    const left = L(q.left), right = L(q.right);
+    inner = `<div class="pairs">` + left.map((l, k) => {
+      const opts = q.order.map(o => `<option value="${o}" ${st.sel[k] === o ? "selected" : ""}>${esc(right[o])}</option>`).join("");
+      let mark = "";
+      if (st.done !== null) mark = st.sel[k] === k ? `<span class="mark ok">✔</span>` : `<span class="mark bad">✘</span>`;
+      return `<div class="pair"><div class="left ${q.mono ? "" : "plain"}">${esc(l)}</div>
+        <select id="q${i}-${k}" data-q="${i}" data-k="${k}" ${st.done !== null ? "disabled" : ""} aria-label="${esc(l)}">
+        <option value="-1">${t.choose}</option>${opts}</select>${mark || "<span></span>"}</div>`;
+    }).join("") + `</div>`;
+    if (st.done === false) inner += `<div class="fb bad">${t.answer}: ${left.map((l, k) => esc(l) + " → " + esc(right[k])).join("; ")}</div>`;
+  } else {
+    const opts = q.type === "tf" ? [t.yes, t.no] : L(q.opts);
+    const ansIdx = q.type === "tf" ? (q.ans ? 0 : 1) : q.ans;
+    inner = `<div class="opts ${q.type === "tf" ? "tf" : ""}">` + opts.map((o, k) => {
+      let c = "";
+      if (st.done !== null) { if (k === ansIdx) c = "ok"; else if (k === st.sel) c = "bad"; }
+      return `<label class="opt ${c}"><input type="radio" id="q${i}-${k}" name="q${i}" value="${k}" ${st.sel === k ? "checked" : ""} ${st.done !== null ? "disabled" : ""} data-q="${i}">
+        <span class="${q.mono ? "mono" : ""}">${esc(o)}</span></label>`;
+    }).join("") + `</div>`;
+    if (st.done !== null) inner += `<div class="fb ${st.done ? "ok" : "bad"}">${st.done ? t.okmsg : t.badmsg}<span class="why">${esc(L(q.why))}</span></div>`;
+  }
+  const ready = q.type === "match" ? st.sel.every(v => v >= 0) : st.sel !== null;
+  const btn = st.done === null
+    ? `<button type="button" class="btn" data-check="${i}" ${ready ? "" : "disabled"}>${t.check}</button>`
+    : (st.done ? "" : `<button type="button" class="btn ghost" data-again="${i}">${t.again}</button>`);
+  const text = esc(L(q.text)).replace(/(=[^\s?]+[)\]]|=[A-ZА-Я]+\([^?]*\))/g, m => `<code>${m}</code>`);
+  return `<div class="q ${cls}" id="q${i}"><div class="num">${i + 1}</div><div class="qb">
+    <div class="text">${text}</div>${inner}<div class="row">${btn}</div></div></div>`;
+}
+
+function renderQuiz() {
+  const t = UI[lang];
+  const parts = [[t.partA, t.partAn, 0, 5], [t.partB, t.partBn, 5, 10], [t.partC, t.partCn, 10, 15]];
+  $("quiz").innerHTML = parts.map(([h, n, a, b]) =>
+    `<div class="part"><h3>${h}<span>${n}</span></h3>${Q.slice(a, b).map((q, j) => qHTML(q, a + j)).join("")}</div>`).join("");
+  renderScore();
+}
+
+function renderScore() {
+  const ok = state.filter(s => s.done === true).length;
+  $("scoreval").textContent = `${ok} / ${Q.length}`;
+  $("cells").innerHTML = state.map(s => `<i class="${s.done === true ? "ok" : s.done === false ? "bad" : ""}"></i>`).join("");
+}
+
+function renderStatic() {
+  const t = UI[lang];
+  document.documentElement.lang = lang === "kz" ? "kk" : "ru";
+  for (const k of ["eyebrow", "title", "lead", "s1", "s1p", "s2", "s2p", "score"]) $("t-" + k).textContent = t[k];
+  $("reset").textContent = t.reset;
+  $("fxline").textContent = t.fx;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+}
+
+function renderAll() { renderStatic(); renderFuncs(); renderQuiz(); }
+
+document.addEventListener("change", e => {
+  const el = e.target, i = +el.dataset.q;
+  if (Number.isNaN(i)) return;
+  if (el.tagName === "SELECT") state[i].sel[+el.dataset.k] = +el.value;
+  else state[i].sel = +el.value;
+  const q = Q[i], ready = q.type === "match" ? state[i].sel.every(v => v >= 0) : true;
+  const b = document.querySelector(`[data-check="${i}"]`);
+  if (b) b.disabled = !ready;
+});
+
+document.addEventListener("click", e => {
+  const lb = e.target.closest(".lang button");
+  if (lb) { lang = lb.dataset.lang; try { localStorage.setItem("fx5-lang", lang); } catch (err) {} renderAll(); return; }
+  const c = e.target.closest("[data-check]");
+  if (c) {
+    const i = +c.dataset.check, q = Q[i], st = state[i];
+    if (q.type === "match") st.done = st.sel.every((v, k) => v === k);
+    else if (q.type === "tf") st.done = (st.sel === 0) === q.ans;
+    else st.done = st.sel === q.ans;
+    const y = window.scrollY; renderQuiz(); window.scrollTo(0, y);
+    return;
+  }
+  const a = e.target.closest("[data-again]");
+  if (a) {
+    const i = +a.dataset.again, q = Q[i];
+    state[i] = { sel: q.type === "match" ? state[i].sel.map(() => -1) : null, done: null };
+    const y = window.scrollY; renderQuiz(); window.scrollTo(0, y);
+    return;
+  }
+  if (e.target.id === "reset") {
+    Q.forEach((q, i) => state[i] = { sel: q.type === "match" ? state[i].sel.map(() => -1) : null, done: null });
+    renderQuiz();
+  }
+});
+
+renderAll();
+</script>

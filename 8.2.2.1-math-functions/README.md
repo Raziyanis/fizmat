@@ -8,7 +8,9 @@
 |---|---|
 | `practical_work_student.xlsx` | раздать учащимся |
 | `practical_work_teacher_key.xlsx` | ключ учителя: все формулы введены, проверка показывает 42/42 |
-| `build.py` | генератор обоих файлов (`python3 build.py`), если нужно поменять числа |
+| `practical_work_student_kz.xlsx`, `practical_work_teacher_key_kz.xlsx` | то же на казахском языке |
+| `review.html` | двуязычный (RU/KZ) веб-ресурс: объяснение пяти функций и 15 вопросов для повторения |
+| `build.py`, `kz_strings.py` | генератор всех xlsx (`python3 build.py`) и казахский перевод интерфейса |
 
 ## Сюжет
 
