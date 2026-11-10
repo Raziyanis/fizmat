@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Методы множества Python</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --muted: #5d6576;
+    --border: #d5d9e1; --accent: #2f6fdb; --accent-bg: #e7efff;
+    --ok: #1f8a4c; --ok-bg: #e3f5ea; --bad: #c0392b; --bad-bg: #fbe7e5;
+    --code: #6b2fb3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15181e; --card: #1f232b; --text: #e6e9ef; --muted: #9aa3b2;
+      --border: #363c48; --accent: #6d9cff; --accent-bg: #23314d;
+      --ok: #4cc27f; --ok-bg: #1d3528; --bad: #ff7b6b; --bad-bg: #3d2220;
+      --code: #c9a4ff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15181e; --card: #1f232b; --text: #e6e9ef; --muted: #9aa3b2;
+    --border: #363c48; --accent: #6d9cff; --accent-bg: #23314d;
+    --ok: #4cc27f; --ok-bg: #1d3528; --bad: #ff7b6b; --bad-bg: #3d2220;
+    --code: #c9a4ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+  .name { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .name input {
+    flex: 1 1 220px; padding: 8px 10px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--card); color: var(--text); font: inherit;
+  }
+  .board { display: grid; grid-template-columns: 1fr 1.6fr; gap: 12px; }
+  .col { display: flex; flex-direction: column; gap: 8px; }
+  .col h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 2px; }
+  .item {
+    position: relative; text-align: left; cursor: pointer; font: inherit; color: var(--text);
+    background: var(--card); border: 2px solid var(--border); border-radius: 10px;
+    padding: 10px 12px 10px 44px; min-height: 52px; display: flex; align-items: center;
+  }
+  .item:hover { border-color: var(--accent); }
+  .item:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .item.selected { border-color: var(--accent); background: var(--accent-bg); }
+  .item.ok { border-color: var(--ok); background: var(--ok-bg); }
+  .item.bad { border-color: var(--bad); background: var(--bad-bg); }
+  .item code { font-family: ui-monospace, Consolas, monospace; color: var(--code); font-size: 1rem; }
+  .tag {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    font-size: .8rem; font-weight: 700; border: 2px dashed var(--border); color: var(--muted);
+  }
+  .tag.on { border: none; color: #fff; }
+  .actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+  .btn {
+    font: inherit; padding: 10px 18px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .result { margin-top: 16px; padding: 14px 16px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); display: none; }
+  .result.show { display: block; }
+  .result strong { font-size: 1.2rem; }
+  .result ul { margin: 8px 0 0; padding-left: 20px; }
+  .hint { color: var(--muted); font-size: .9rem; margin-top: 12px; }
+  @media (max-width: 600px) {
+    .board { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Методы множества (set) в Python</h1>
+  <p class="lead">Соедините каждый метод с его описанием. Нажмите на метод, затем на подходящее описание. Чтобы разорвать пару, нажмите на элемент ещё раз.</p>
+
+  <div class="name">
+    <label for="student">Фамилия и имя:</label>
+    <input id="student" autocomplete="name">
+  </div>
+
+  <div class="board">
+    <div class="col" id="left"><h2>Метод</h2></div>
+    <div class="col" id="right"><h2>Описание</h2></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" id="check" disabled>Проверить</button>
+    <button class="btn" id="reset">Начать заново</button>
+  </div>
+  <div class="result" id="result" role="status"></div>
+  <p class="hint">Во всех примерах <code>s</code> — множество, <code>x</code> — элемент, <code>t</code> — другая коллекция (множество, список, строка).</p>
+</main>
+
+<script>
+var PAIRS = [
+  { m: 's.add(x)',     d: 'Добавляет один элемент x. Если такой элемент уже есть, множество не меняется.' },
+  { m: 's.remove(x)',  d: 'Удаляет элемент x. Если такого элемента нет, возникает ошибка KeyError.' },
+  { m: 's.discard(x)', d: 'Удаляет элемент x, если он есть. Если его нет, ошибки не будет.' },
+  { m: 's.pop()',      d: 'Удаляет из множества произвольный элемент и возвращает его. Для пустого множества — ошибка KeyError.' },
+  { m: 's.clear()',    d: 'Удаляет все элементы: множество становится пустым.' },
+  { m: 's.update(t)',  d: 'Добавляет в множество сразу все элементы из t.' },
+  { m: 's.copy()',     d: 'Возвращает новое множество с теми же элементами.' },
+  { m: 'len(s)',       d: 'Возвращает количество элементов множества.' }
+];
+var COLORS = ['#2f6fdb', '#d9822b', '#8e44ad', '#16a085', '#c0392b', '#7f8c22', '#d63384', '#34495e'];
+
+var links = {};      // индекс метода -> индекс описания
+var selected = null; // выбранный метод
+var checked = false;
+var leftEl = document.getElementById('left');
+var rightEl = document.getElementById('right');
+
+function shuffle(a) {
+  a = a.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function build() {
+  links = {}; selected = null; checked = false;
+  leftEl.querySelectorAll('.item').forEach(function (e) { e.remove(); });
+  rightEl.querySelectorAll('.item').forEach(function (e) { e.remove(); });
+  document.getElementById('result').className = 'result';
+
+  shuffle(PAIRS.map(function (_, i) { return i; })).forEach(function (i) {
+    var b = document.createElement('button');
+    b.className = 'item'; b.dataset.i = i;
+    b.innerHTML = '<span class="tag"></span><code></code>';
+    b.querySelector('code').textContent = PAIRS[i].m;
+    b.onclick = function () { pickLeft(i); };
+    leftEl.appendChild(b);
+  });
+  shuffle(PAIRS.map(function (_, i) { return i; })).forEach(function (i) {
+    var b = document.createElement('button');
+    b.className = 'item'; b.dataset.i = i;
+    b.innerHTML = '<span class="tag"></span><span></span>';
+    b.lastChild.textContent = PAIRS[i].d;
+    b.onclick = function () { pickRight(i); };
+    rightEl.appendChild(b);
+  });
+  render();
+}
+
+function leftOf(r) {
+  for (var k in links) if (links[k] === r) return +k;
+  return null;
+}
+
+function pickLeft(i) {
+  if (checked) return;
+  if (links[i] !== undefined) { delete links[i]; selected = null; }
+  else selected = (selected === i) ? null : i;
+  render();
+}
+
+function pickRight(r) {
+  if (checked) return;
+  var owner = leftOf(r);
+  if (selected === null) {
+    if (owner !== null) delete links[owner];
+  } else {
+    if (owner !== null) delete links[owner];
+    links[selected] = r;
+    selected = null;
+  }
+  render();
+}
+
+function render() {
+  // номер пары = порядковый номер метода в левой колонке
+  var order = Array.prototype.map.call(leftEl.querySelectorAll('.item'), function (e) { return +e.dataset.i; });
+  function paint(el, num) {
+    var tag = el.querySelector('.tag');
+    if (num === null) { tag.className = 'tag'; tag.textContent = ''; tag.style.background = ''; }
+    else { tag.className = 'tag on'; tag.textContent = num + 1; tag.style.background = COLORS[num % COLORS.length]; }
+  }
+  leftEl.querySelectorAll('.item').forEach(function (el) {
+    var i = +el.dataset.i;
+    el.classList.toggle('selected', selected === i);
+    paint(el, links[i] !== undefined ? order.indexOf(i) : null);
+    el.setAttribute('aria-pressed', selected === i);
+  });
+  rightEl.querySelectorAll('.item').forEach(function (el) {
+    var owner = leftOf(+el.dataset.i);
+    paint(el, owner !== null ? order.indexOf(owner) : null);
+  });
+  document.getElementById('check').disabled = checked || Object.keys(links).length < PAIRS.length;
+}
+
+function check() {
+  checked = true;
+  var score = 0, wrong = [];
+  leftEl.querySelectorAll('.item').forEach(function (el) {
+    var i = +el.dataset.i, ok = links[i] === i;
+    el.classList.add(ok ? 'ok' : 'bad');
+    if (ok) score++; else wrong.push(i);
+  });
+  rightEl.querySelectorAll('.item').forEach(function (el) {
+    var r = +el.dataset.i;
+    el.classList.add(leftOf(r) === r ? 'ok' : 'bad');
+  });
+  var name = document.getElementById('student').value.trim();
+  var box = document.getElementById('result');
+  var html = (name ? escapeHtml(name) + ': ' : '') + '<strong>' + score + ' из ' + PAIRS.length + '</strong>';
+  if (wrong.length) {
+    html += '<ul>' + wrong.map(function (i) {
+      return '<li><code>' + escapeHtml(PAIRS[i].m) + '</code> — ' + escapeHtml(PAIRS[i].d) + '</li>';
+    }).join('') + '</ul>';
+  } else {
+    html += ' — все пары верные!';
+  }
+  box.innerHTML = html;
+  box.className = 'result show';
+  render();
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
+}
+
+document.getElementById('check').onclick = check;
+document.getElementById('reset').onclick = build;
+build();
+</script>
+</body>
+</html>
