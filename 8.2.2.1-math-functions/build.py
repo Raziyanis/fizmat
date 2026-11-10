@@ -28,6 +28,10 @@ CENTER = Alignment(horizontal="center", vertical="center", wrap_text=True)
 MONEY = '#,##0" тг"'
 
 CHECK_CELLS = []  # (sheet, cell) – для подсчёта баллов
+HINT_CELLS = []   # (sheet, cell) – для подсчёта открытых подсказок
+BLUE = PatternFill("solid", fgColor="DDEBF7")
+HINT_FILL = PatternFill("solid", fgColor="F2F2F2")
+LOCKED_MSG = "🔒 Ответьте на вопрос слева"
 
 
 def check_formula(cell, expected, tol="0.01"):
@@ -38,6 +42,33 @@ def check_formula(cell, expected, tol="0.01"):
 
 def text_check(cell, answer):
     return f'=IF({cell}="","",IF(LOWER(TRIM({cell}))="{answer}","✔","✘"))'
+
+
+def xl_str(text):
+    """Строка для вставки в формулу Excel (кавычки удваиваются)."""
+    return '"' + text.replace('"', '""') + '"'
+
+
+def hint(ws, row, question, answers, formula_text, teacher, col="I"):
+    """Вопрос-ключ (col), ответ ученика (col+1), подсказка-формула (col+2).
+    Подсказка открывается только после верного ответа на вопрос."""
+    from openpyxl.utils import column_index_from_string, get_column_letter
+    ci = column_index_from_string(col)
+    q, a, h = (f"{get_column_letter(ci + k)}{row}" for k in range(3))
+    put(ws, q, question, BLUE)
+    c = put(ws, a, answers[0] if teacher else None, BLUE, bold=True, align=CENTER)
+    c.protection = Protection(locked=False)
+    ok = ",".join(f'LOWER(TRIM({a}&""))={xl_str(x.lower())}' for x in answers)
+    c = put(ws, h, f'=IF({a}="",{xl_str(LOCKED_MSG)},IF(OR({ok}),{xl_str(formula_text)},'
+                   f'"✘ Неверно – подумайте ещё"))', HINT_FILL)
+    c.font = Font(bold=True, color="1F4E78")
+    c.protection = Protection(locked=True, hidden=not teacher)
+    HINT_CELLS.append((ws.title, h))
+
+
+def hint_header(ws, row, col="I"):
+    from openpyxl.utils import column_index_from_string
+    header(ws, row, ["Вопрос-ключ к подсказке", "Ответ", "Подсказка: математическая формула"], column_index_from_string(col))
 
 
 def header(ws, row, titles, col0=1):
@@ -147,35 +178,43 @@ def sheet_intro(wb, teacher):
         (RED, "✘ – ошибка, проверьте формулу"),
         (ORANGE, "⚠ нужна формула – вы ввели число вручную, а нужна формула"),
         (STAR, "★ – задание повышенной сложности"),
+        (BLUE, "Голубая ячейка – вопрос-ключ: ответьте верно, и справа откроется математическая формула (запись на Excel составьте сами) (учитель видит, сколько подсказок открыто)"),
     ]
     for i, (f, t) in enumerate(legend, start=23):
         put(ws, f"B{i}", "", f)
         put(ws, f"C{i}", t)
-    put(ws, "B29", "Совет: в формулах используйте ссылки на ячейки, а не числа. "
+    put(ws, "B30", "Совет: в формулах используйте ссылки на ячейки, а не числа. "
                    "Для копирования формулы тяните маркер заполнения вниз.")
-    ws.merge_cells("B29:C29")
-    ws.row_dimensions[29].height = 32
+    ws.merge_cells("B30:C30")
+    ws.row_dimensions[30].height = 32
     protect(ws, teacher)
 
 
 # ---------------------------------------------------------------- Лист 1
 def sheet1(wb, teacher):
     ws = wb.create_sheet("1_Площадки")
-    widths(ws, {"A": 5, "B": 30, "C": 11, "D": 20, "E": 11, "F": 16, "G": 14, "H": 16, "I": 22})
+    widths(ws, {"A": 5, "B": 30, "C": 11, "D": 20, "E": 11, "F": 16, "G": 14, "H": 16, "I": 34, "J": 9, "K": 42})
     ws["A1"] = "Этап 1. Геометрия двора: КОРЕНЬ и СТЕПЕНЬ"
     ws["A1"].font = TITLE
-    ws["A2"] = "Введите формулу в столбец G. Подсказка в столбце I подсказывает нужную функцию."
+    ws["A2"] = "Введите формулу в столбец G. Застряли? Ответьте на вопрос-ключ в голубой ячейке – откроется математическая формула-подсказка."
     ws["A2"].font = SUB
-    header(ws, 4, ["№", "Объект", "Форма", "Что известно", "Значение", "Что найти", "Ответ", "Проверка", "Подсказка"])
+    header(ws, 4, ["№", "Объект", "Форма", "Что известно", "Значение", "Что найти", "Ответ", "Проверка"])
+    hint_header(ws, 4)
     rows = [
-        ("Клумба «Солнце»", "квадрат", "площадь, м²", 49, "сторона, м", "SQRT(E{r})", "КОРЕНЬ"),
-        ("Клумба «Радуга»", "квадрат", "площадь, м²", 30.25, "сторона, м", "SQRT(E{r})", "КОРЕНЬ"),
-        ("Площадка для настольного тенниса", "квадрат", "сторона, м", 12, "площадь, м²", "POWER(E{r},2)", "СТЕПЕНЬ"),
-        ("Воркаут-площадка", "квадрат", "сторона, м", 9.5, "площадь, м²", "POWER(E{r},2)", "СТЕПЕНЬ"),
-        ("Ящик для рассады", "куб", "ребро, м", 1.2, "объём, м³", "POWER(E{r},3)", "СТЕПЕНЬ"),
-        ("★ Компостер", "куб", "объём, м³", 0.512, "ребро, м", "POWER(E{r},1/3)", "СТЕПЕНЬ с дробным показателем"),
+        ("Клумба «Солнце»", "квадрат", "площадь, м²", 49, "сторона, м", "SQRT(E{r})",
+         ("Чему равен √64?", ["8"], "Сторона квадрата:  a = √S")),
+        ("Клумба «Радуга»", "квадрат", "площадь, м²", 30.25, "сторона, м", "SQRT(E{r})",
+         ("Какое положительное число в квадрате даёт 25?", ["5"], "Сторона квадрата:  a = √S")),
+        ("Площадка для настольного тенниса", "квадрат", "сторона, м", 12, "площадь, м²", "POWER(E{r},2)",
+         ("Чему равно 3²?", ["9"], "Площадь квадрата:  S = a²")),
+        ("Воркаут-площадка", "квадрат", "сторона, м", 9.5, "площадь, м²", "POWER(E{r},2)",
+         ("Площадь квадрата со стороной 4 м?", ["16"], "Площадь квадрата:  S = a²")),
+        ("Ящик для рассады", "куб", "ребро, м", 1.2, "объём, м³", "POWER(E{r},3)",
+         ("Чему равно 2³?", ["8"], "Объём куба:  V = a³")),
+        ("★ Компостер", "куб", "объём, м³", 0.512, "ребро, м", "POWER(E{r},1/3)",
+         ("Какое число в кубе даёт 27?", ["3"], "Ребро куба:  a = ∛V = V^(1/3)")),
     ]
-    for i, (obj, form, known, val, find, f, hint) in enumerate(rows, start=5):
+    for i, (obj, form, known, val, find, f, (q, ans, htext)) in enumerate(rows, start=5):
         fill = STAR if obj.startswith("★") else DATA
         put(ws, f"A{i}", i - 4, fill, align=CENTER)
         put(ws, f"B{i}", obj, fill)
@@ -186,9 +225,9 @@ def sheet1(wb, teacher):
         expr = f.format(r=i)
         answer(ws, f"G{i}", "=" + expr, teacher, "0.###")
         check(ws, f"H{i}", check_formula(f"G{i}", expr), teacher)
-        put(ws, f"I{i}", hint, fill)
+        hint(ws, i, q, ans, htext.format(r=i), teacher)
 
-    ws["A12"] = "Диагональная дорожка через прямоугольный двор (теорема Пифагора: d = √(a² + b²))"
+    ws["A12"] = "Диагональная дорожка через прямоугольный двор (по диагонали из угла в угол)"
     ws["A12"].font = Font(bold=True, color="1F4E78")
     put(ws, "B13", "Длина двора, м", DATA)
     put(ws, "E13", 48, DATA, align=CENTER)
@@ -197,7 +236,7 @@ def sheet1(wb, teacher):
     put(ws, "B15", "Длина дорожки, м", DATA, bold=True)
     answer(ws, "G15", "=SQRT(POWER(E13,2)+POWER(E14,2))", teacher, "0.##")
     check(ws, "H15", check_formula("G15", "SQRT(E13^2+E14^2)"), teacher)
-    put(ws, "I15", "КОРЕНЬ + СТЕПЕНЬ в одной формуле", DATA)
+    hint(ws, 15, "Катеты 3 и 4. Чему равна гипотенуза?", ["5"], "Теорема Пифагора:  d = √(a² + b²)", teacher)
     colour_checks(ws, "H5:H15")
     protect(ws, teacher)
 
@@ -223,12 +262,15 @@ FIRST, LAST = 5, 5 + len(ITEMS) - 1  # 5..16
 
 def sheet2(wb, teacher):
     ws = wb.create_sheet("2_Смета")
-    widths(ws, {"A": 5, "B": 34, "C": 16, "D": 13, "E": 10, "F": 13, "G": 17, "H": 16})
+    widths(ws, {"A": 5, "B": 34, "C": 16, "D": 13, "E": 10, "F": 13, "G": 17, "H": 16, "I": 34, "J": 9, "K": 46})
     ws["A1"] = "Этап 2. Смета проекта: СУММ и СУММЕСЛИ"
     ws["A1"].font = TITLE
     ws["A2"] = "Количество материалов взято из расчётов этапа 1. Цены – от поставщика."
     ws["A2"].font = SUB
     header(ws, 4, ["№", "Наименование", "Категория", "Ед. изм.", "Кол-во", "Цена, тг", "Стоимость, тг", "Проверка"])
+    hint_header(ws, 4)
+    hint(ws, FIRST, "Сколько стоят 3 тетради по 200 тг?", ["600"],
+         "Стоимость = Количество × Цена", teacher)
     rng_c, rng_e, rng_f = f"$C${FIRST}:$C${LAST}", f"$E${FIRST}:$E${LAST}", f"$F${FIRST}:$F${LAST}"
     for i, (name, cat, unit, qty, price) in enumerate(ITEMS, start=FIRST):
         put(ws, f"A{i}", i - FIRST + 1, DATA, align=CENTER)
@@ -243,11 +285,16 @@ def sheet2(wb, teacher):
     put(ws, f"B{t}", "ИТОГО по смете (СУММ)", bold=True)
     answer(ws, f"G{t}", f"=SUM(G{FIRST}:G{LAST})", teacher, MONEY)
     check(ws, f"H{t}", check_formula(f"G{t}", f"SUMPRODUCT({rng_e},{rng_f})"), teacher)
+    hint(ws, t, "Какая функция складывает числа диапазона? (одно слово)", ["сумм", "sum"],
+         "Итог = S₁ + S₂ + … + S₁₂  (сумма всех стоимостей)", teacher)
 
     s = t + 3  # 20
     ws[f"A{s-1}"] = "Расходы по категориям – используйте СУММЕСЛИ (условие – ссылка на ячейку в столбце B)"
     ws[f"A{s-1}"].font = Font(bold=True, color="1F4E78")
     header(ws, s, ["Категория", "Сумма, тг", "Проверка"], col0=2)
+    hint_header(ws, s)
+    hint(ws, s + 1, "Сколько аргументов у функции СУММЕСЛИ?", ["3"],
+         "Сумма категории = Σ стоимостей тех строк, где Категория = нужной", teacher)
     for k, cat in enumerate(CATS, start=s + 1):  # 21..24
         put(ws, f"B{k}", cat, DATA, bold=True)
         answer(ws, f"C{k}", f"=SUMIF(${'C'}${FIRST}:$C${LAST},B{k},$G${FIRST}:$G${LAST})", teacher, MONEY)
@@ -256,6 +303,8 @@ def sheet2(wb, teacher):
     put(ws, f"B{star}", "★ Сумма всех покупок дороже 100 000 тг", STAR, bold=True)
     answer(ws, f"C{star}", f'=SUMIF(G{FIRST}:G{LAST},">100000")', teacher, MONEY)
     check(ws, f"D{star}", check_formula(f"C{star}", f"SUMPRODUCT(({rng_e}*{rng_f}>100000)*{rng_e}*{rng_f})"), teacher)
+    hint(ws, star, 'Чему равно СУММЕСЛИ({50;150;200};">100")?', ["350"],
+         "Σ стоимостей только тех покупок, где Стоимость > 100 000", teacher)
     colour_checks(ws, f"H{FIRST}:H{t}")
     colour_checks(ws, f"D{s+1}:D{star}")
     protect(ws, teacher)
@@ -268,7 +317,7 @@ LIMITS = [300000, 2700000, 600000, 400000]
 
 def sheet3(wb, teacher, total_row, cat_row):
     ws = wb.create_sheet("3_Бюджет")
-    widths(ws, {"A": 3, "B": 40, "C": 18, "D": 18, "E": 20, "F": 14, "G": 20, "H": 14})
+    widths(ws, {"A": 3, "B": 40, "C": 18, "D": 18, "E": 20, "F": 14, "G": 20, "H": 14, "I": 34, "J": 9, "K": 40})
     ws["B1"] = "Этап 3. Укладываемся в бюджет? Функция ABS"
     ws["B1"].font = TITLE
     ws["B2"] = "Отклонение может быть отрицательным (экономия) или положительным (перерасход). ABS показывает его размер."
@@ -283,6 +332,9 @@ def sheet3(wb, teacher, total_row, cat_row):
     put(ws, "B7", "Отклонение от бюджета по модулю (ABS)")
     answer(ws, "C7", "=ABS(C6)", teacher, MONEY)
     check(ws, "D7", check_formula("C7", "ABS(C4-C5)"), teacher)
+    hint_header(ws, 5)
+    hint(ws, 6, "Бюджет 100, потратили 130. Бюджет − траты = ?", ["-30"], "Разница = Бюджет − Смета", teacher)
+    hint(ws, 7, "Чему равно ABS(-7)?", ["7"], "Отклонение = |Разница|   (модуль: |−a| = a)", teacher)
 
     ws["B9"] = "Лимиты по категориям, утверждённые школьным парламентом"
     ws["B9"].font = Font(bold=True, color="1F4E78")
@@ -297,9 +349,13 @@ def sheet3(wb, teacher, total_row, cat_row):
         check(ws, f"F{r}", check_formula(f"E{r}", f"D{r}-C{r}"), teacher)
         answer(ws, f"G{r}", f"=ABS(E{r})", teacher, MONEY)
         check(ws, f"H{r}", check_formula(f"G{r}", f"ABS(D{r}-C{r})"), teacher)
+    hint_header(ws, 10)
+    hint(ws, 11, "Лимит 100, факт 130. Факт − Лимит = ?", ["30"], "Отклонение = Факт − Лимит", teacher)
+    hint(ws, 12, "Лимит 100, факт 80. Модуль отклонения?", ["20"], "Модуль отклонения = |Факт − Лимит|", teacher)
     put(ws, "B15", "Сумма модулей отклонений (СУММ)", bold=True)
     answer(ws, "G15", "=SUM(G11:G14)", teacher, MONEY)
     check(ws, "H15", check_formula("G15", "SUMPRODUCT(ABS(D11:D14-C11:C14))"), teacher)
+    hint(ws, 15, "Чему равно |−5| + |3|?", ["8"], "Σ = |x₁| + |x₂| + |x₃| + |x₄|", teacher)
 
     ws["B17"] = "Вопросы (ответ – одним словом)"
     ws["B17"].font = Font(bold=True, color="1F4E78")
@@ -310,7 +366,7 @@ def sheet3(wb, teacher, total_row, cat_row):
     answer(ws, "C19", "Спорт", teacher)
     check(ws, "D19", text_check("C19", "спорт"), teacher)
     put(ws, "B21", "★ Предложите, что можно сократить, чтобы уложиться в грант (свободный ответ):", STAR)
-    ws.merge_cells("C21:H21")
+    ws.merge_cells("C21:K21")
     answer(ws, "C21", "Например: уменьшить площадь резинового покрытия на ~17 м² (148 250 / 9 000)" if teacher else None, teacher)
     ws.row_dimensions[21].height = 36
     for rng in ("D6:D7", "F11:F14", "H11:H15", "D18:D19"):
@@ -340,6 +396,9 @@ def sheet_result(wb, teacher):
     put(ws, "B8", "Уровень", DATA, bold=True)
     put(ws, "C8", '=IF(C6>=0.85,"Высокий 🏆",IF(C6>=0.6,"Достаточный 👍",IF(C6>=0.3,"Средний – доработайте ✘",'
                   '"Начальный – обратитесь к учителю")))', align=CENTER).font = Font(bold=True, size=12)
+    put(ws, "B9", "Открыто подсказок", DATA, bold=True)
+    opened = "+".join(f"IF(OR(LEFT('{s}'!{c},1)=\"🔒\",LEFT('{s}'!{c},1)=\"✘\"),0,1)" for s, c in HINT_CELLS)
+    put(ws, "C9", f'=({opened})&" из {len(HINT_CELLS)}"', align=CENTER)
     ws["B10"] = "Ошибки (✘) по листам:"
     ws["B10"].font = Font(bold=True)
     for k, sheet in enumerate(["1_Площадки", "2_Смета", "3_Бюджет"], start=11):
@@ -352,6 +411,7 @@ def sheet_result(wb, teacher):
 
 def build(teacher):
     CHECK_CELLS.clear()
+    HINT_CELLS.clear()
     wb = Workbook()
     sheet_intro(wb, teacher)
     sheet1(wb, teacher)
