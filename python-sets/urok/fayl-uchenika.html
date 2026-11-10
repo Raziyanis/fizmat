@@ -3158,7 +3158,7 @@ function fileWarning_() {
   document.body.innerHTML = html;
 }
 
-var MX_CSS = "  /* ===== дополнение: загадка, две части новой темы, задания на сопоставление ===== */\n  .mx-card { background: var(--card, #fff); border: 1px solid var(--line, #dde3ee); border-radius: 12px; padding: 18px; margin-bottom: 16px; }\n  .mx-card h3 { margin: 0 0 6px; font-size: 20px; }\n  .mx-sub { color: var(--muted, #5b6b8c); font-size: 15px; margin-bottom: 14px; }\n  .mx-btn { width: auto !important; display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 8px; cursor: pointer;\n    font: 600 15px/1.2 inherit; font-family: inherit; border: 1px solid var(--accent, #2f5bd3); background: var(--card, #fff); color: var(--accent, #2f5bd3); }\n  .mx-btn.main { background: var(--action, #f0a023); border-color: var(--action, #f0a023); color: var(--action-text, #2a1c00); font-weight: 800; }\n  .mx-btn:disabled { opacity: .45; cursor: default; }\n  .mx-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }\n  .mx-row.c { justify-content: center; }\n  /* карточки методов списка */\n  .mx-flips { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }\n  .mx-flip { width: 100% !important; height: 128px; padding: 0 !important; border: 0 !important; background: transparent !important; cursor: pointer; perspective: 800px; color: inherit; }\n  .mx-flip-in { position: relative; width: 100%; height: 100%; transition: transform .5s; transform-style: preserve-3d; }\n  .mx-flip.open .mx-flip-in { transform: rotateY(180deg); }\n  .mx-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 6px;\n    border: 1px solid var(--line, #dde3ee); border-top: 5px solid var(--c, #2f5bd3); background: var(--card, #fff); text-align: left; font-weight: 500; font-size: 14px; }\n  .mx-face code { font: 700 16px/1.3 \"SF Mono\", Menlo, Consolas, monospace; color: var(--c, #2f5bd3); }\n  .mx-face small { color: var(--muted, #5b6b8c); }\n  .mx-face.back { transform: rotateY(180deg); background: #f7f9fd; }\n  .mx-face.back code { font-size: 12.5px; color: #24324f; white-space: pre; }\n  /* загадка */\n  .mx-riddle { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; margin: 6px 0 4px; }\n  .mx-coll { position: relative; min-width: 230px; min-height: 104px; padding: 26px 14px 14px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }\n  .mx-coll .lbl { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); white-space: nowrap; font: 700 13px/1 \"SF Mono\", Menlo, Consolas, monospace;\n    padding: 3px 10px; border-radius: 99px; }\n  .mx-list { border: 2px solid #f0a023; background: #fff8ec; }\n  .mx-list .lbl { background: #f0a023; color: #2a1c00; }\n  .mx-set { border: 2px dashed #8b5cf6; border-radius: 50% / 45%; background: #f6f2ff; transition: all .4s; }\n  .mx-set .lbl { background: #8b5cf6; color: #fff; }\n  .mx-set.known { border-style: solid; border-color: var(--accent, #2f5bd3); background: #eef4ff; }\n  .mx-set.known .lbl { background: var(--accent, #2f5bd3); }\n  .mx-cells { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }\n  .mx-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; transition: opacity .4s, transform .4s; }\n  .mx-cell .box { width: 42px; height: 42px; border-radius: 8px; display: grid; place-items: center; font: 700 18px/1 \"SF Mono\", Menlo, Consolas, monospace; background: #fff; border: 2px solid #f0a023; }\n  .mx-cell .idx { font: 12px/1 \"SF Mono\", Menlo, Consolas, monospace; color: var(--muted, #5b6b8c); }\n  .mx-cell.dup .box { border-color: var(--bad, #b3261e); background: var(--bad-bg, #fce8e6); }\n  .mx-cell.go { opacity: .35; transform: translateY(-6px); }\n  .mx-el { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font: 700 18px/1 \"SF Mono\", Menlo, Consolas, monospace;\n    background: radial-gradient(circle at 35% 30%, #fff, #ffd56a 75%); box-shadow: 0 3px 8px rgba(0,0,0,.18); animation: mxIn .45s ease both; transition: transform .3s, box-shadow .3s; }\n  .mx-el.hl { transform: scale(1.18); box-shadow: 0 0 0 4px #8b5cf6; }\n  @keyframes mxIn { from { opacity: 0; transform: translateY(-30px) scale(.3); } }\n  .mx-qm { font: 800 34px/1 inherit; color: #8b5cf6; }\n  .mx-arrow { font-size: 28px; color: var(--muted, #5b6b8c); }\n  .mx-console { margin: 14px 0 0; background: #11161d; color: #e8edf3; padding: 12px 14px; border-radius: 8px; min-height: 64px; white-space: pre-wrap;\n    font: 14px/1.5 \"SF Mono\", Menlo, Consolas, \"Liberation Mono\", monospace; }\n  .mx-console .p { color: #7ee2a8; } .mx-console .e { color: #ff8a8a; } .mx-console .q { color: #ffd56a; font-weight: 700; }\n  .mx-cap { margin-top: 10px; font-weight: 700; font-size: 17px; min-height: 1.4em; }\n  .mx-shake { animation: mxShake .5s ease; }\n  @keyframes mxShake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }\n  .mx-reveal { margin-top: 16px; padding: 16px; border-radius: 12px; background: var(--accent-soft, #eef4ff); border: 1px solid var(--accent, #2f5bd3); }\n  .mx-reveal .t { font: 800 13px/1 inherit; letter-spacing: .1em; text-transform: uppercase; color: var(--accent, #2f5bd3); }\n  .mx-reveal .n { font-size: 28px; font-weight: 800; margin: 6px 0 10px; }\n  .mx-map { display: grid; gap: 6px; }\n  .mx-map-row { display: grid; grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr); gap: 6px; align-items: center; }\n  .mx-map .m { padding: 7px 10px; border-radius: 8px; background: var(--card, #fff); border: 1px solid var(--line, #dde3ee); font: 600 14px/1.3 \"SF Mono\", Menlo, Consolas, monospace; overflow-wrap: anywhere; }\n  .mx-map .m small { display: block; font: 500 12.5px/1.3 inherit; font-family: inherit; color: var(--muted, #5b6b8c); }\n  .mx-map .m.none { opacity: .45; }\n  .mx-map .m.new { border-color: var(--ok, #137333); background: var(--ok-bg, #e6f4ea); }\n  .mx-map .ar { text-align: center; color: var(--muted, #5b6b8c); }\n  .mx-hidden { display: none; }\n  /* задание на сопоставление */\n  .mx-steps { margin: 0 0 12px; padding-left: 1.3em; display: grid; gap: 6px; font-size: 16px; }\n  .mx-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }\n  .mx-chip { padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line, #dde3ee); background: var(--card, #fff); font: 700 15px/1 \"SF Mono\", Menlo, Consolas, monospace; }\n  .mx-chip.hurry { background: var(--bad-bg, #fce8e6); border-color: var(--bad, #b3261e); color: var(--bad, #b3261e); }\n  .mx-bar { width: 90px; height: 8px; border-radius: 99px; background: var(--line, #dde3ee); overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 6px; }\n  .mx-bar i { display: block; height: 100%; width: 0; background: var(--accent, #2f5bd3); transition: width .3s; }\n  .mx-board { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1.5fr); }\n  .mx-col { display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 2; }\n  .mx-col.l { grid-column: 1; } .mx-col.r { grid-column: 3; }\n  .mx-col h4 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted, #5b6b8c); }\n  .mx-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }\n  .mx-lines path { fill: none; stroke-width: 3.5; stroke-linecap: round; }\n  .mx-lines path.bad { stroke-dasharray: 9 7; }\n  .mx-lines path.temp { stroke-dasharray: 7 7; stroke-width: 2.5; }\n  .mx-item { --c: #2f5bd3; position: relative; width: 100% !important; text-align: left; cursor: pointer; color: var(--text, #101a33) !important; background: var(--card, #fff) !important;\n    border: 2px solid var(--line, #dde3ee) !important; border-radius: 10px !important; padding: 10px 12px 10px 44px !important; min-height: 50px; font: 500 15px/1.35 inherit !important; font-family: inherit !important;\n    display: flex; align-items: center; transition: border-color .15s, box-shadow .15s, transform .15s; }\n  .mx-col.l .mx-item { border-left: 7px solid var(--c) !important; }\n  .mx-item code { font: 700 15px/1.3 \"SF Mono\", Menlo, Consolas, monospace; overflow-wrap: anywhere; }\n  .mx-item code .fn { color: #a0157a; }\n  .mx-item:hover { transform: translateY(-1px); }\n  .mx-item.sel { border-color: var(--c) !important; box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 25%, transparent); }\n  .mx-item.linked { border-color: var(--c) !important; }\n  .mx-item.ok { border-color: var(--ok, #137333) !important; background: var(--ok-bg, #e6f4ea) !important; }\n  .mx-item.bad { border-color: var(--bad, #b3261e) !important; background: var(--bad-bg, #fce8e6) !important; }\n  .mx-tag { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;\n    font: 800 12px/1 inherit; border: 2px dashed var(--line, #c9d1e3); color: var(--muted, #5b6b8c); }\n  .mx-tag.on { border: 0; background: var(--c); color: #fff; }\n  .mx-mark { margin-left: auto; padding-left: 8px; }\n  .mx-res { margin-top: 16px; padding: 16px; border-radius: 12px; background: #f7f9fd; border: 1px solid var(--line, #dde3ee); }\n  .mx-score { font-size: 40px; font-weight: 800; line-height: 1; }\n  .mx-score small { font-size: 18px; color: var(--muted, #5b6b8c); }\n  .mx-verdict { font-size: 20px; font-weight: 800; margin: 6px 0 4px; }\n  .mx-fix { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }\n  .mx-fix li { padding: 10px 12px; border-radius: 8px; background: var(--card, #fff); border-left: 4px solid var(--bad, #b3261e); }\n  .mx-fix code { font: 700 14px/1.3 \"SF Mono\", Menlo, Consolas, monospace; }\n  .mx-fix .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }\n  .mx-fix .why { display: none; margin-top: 8px; font-size: 15px; }\n  .mx-fix li.open .why { display: block; }\n  .mx-fix .why p { margin: 0 0 6px; }\n  .mx-fix .tip { color: var(--accent, #2f5bd3); font-weight: 600; }\n  .mx-mini { width: auto !important; padding: 6px 12px !important; font: 700 14px/1 inherit !important; font-family: inherit !important; border-radius: 8px !important; cursor: pointer;\n    border: 1px solid var(--accent, #2f5bd3) !important; background: var(--card, #fff) !important; color: var(--accent, #2f5bd3) !important; }\n  .mx-hint { color: var(--muted, #5b6b8c); font-size: 14px; margin-top: 12px; }\n  .mx-hint code { font-family: \"SF Mono\", Menlo, Consolas, monospace; }\n  .steps i.mx-task { width: auto; padding: 0 8px; cursor: pointer; }\n  @media (max-width: 620px) {\n    .mx-board { grid-template-columns: minmax(0, 1fr); gap: 14px; }\n    .mx-col.l, .mx-col.r { grid-column: 1; }\n    .mx-lines { display: none; }\n    .mx-map-row { grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); }\n  }\n  @media (prefers-reduced-motion: reduce) { .mx-flip-in, .mx-el, .mx-cell { transition: none; animation: none; } }\n";
+var MX_CSS = "  /* ===== дополнение: загадка, две части новой темы, задания на сопоставление ===== */\n  .mx-card { background: var(--card, #fff); border: 1px solid var(--line, #dde3ee); border-radius: 12px; padding: 18px; margin-bottom: 16px; }\n  .mx-card h3 { margin: 0 0 6px; font-size: 20px; }\n  .mx-sub { color: var(--muted, #5b6b8c); font-size: 15px; margin-bottom: 14px; }\n  .mx-btn { width: auto !important; display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 8px; cursor: pointer;\n    font: 600 15px/1.2 inherit; font-family: inherit; border: 1px solid var(--accent, #2f5bd3); background: var(--card, #fff); color: var(--accent, #2f5bd3); }\n  .mx-btn.mx-main { background: var(--action, #f0a023); border-color: var(--action, #f0a023); color: var(--action-text, #2a1c00); font-weight: 800; }\n  .mx-btn:disabled { opacity: .45; cursor: default; }\n  .mx-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }\n  .mx-row.mx-c { justify-content: center; }\n  /* карточки методов списка */\n  .mx-flips { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }\n  .mx-flip { width: 100% !important; height: 128px; padding: 0 !important; border: 0 !important; background: transparent !important; cursor: pointer; perspective: 800px; color: inherit; }\n  .mx-flip-in { position: relative; width: 100%; height: 100%; transition: transform .5s; transform-style: preserve-3d; }\n  .mx-flip.mx-open .mx-flip-in { transform: rotateY(180deg); }\n  .mx-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 6px;\n    border: 1px solid var(--line, #dde3ee); border-top: 5px solid var(--c, #2f5bd3); background: var(--card, #fff); text-align: left; font-weight: 500; font-size: 14px; }\n  .mx-face code { font: 700 16px/1.3 \"SF Mono\", Menlo, Consolas, monospace; color: var(--c, #2f5bd3); }\n  .mx-face small { color: var(--muted, #5b6b8c); }\n  .mx-face.mx-back { transform: rotateY(180deg); background: #f7f9fd; }\n  .mx-face.mx-back code { font-size: 12.5px; color: #24324f; white-space: pre; }\n  /* загадка */\n  .mx-riddle { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; margin: 6px 0 4px; }\n  .mx-coll { position: relative; min-width: 230px; min-height: 104px; padding: 26px 14px 14px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }\n  .mx-coll .mx-lbl { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); white-space: nowrap; font: 700 13px/1 \"SF Mono\", Menlo, Consolas, monospace;\n    padding: 3px 10px; border-radius: 99px; }\n  .mx-list { border: 2px solid #f0a023; background: #fff8ec; }\n  .mx-list .mx-lbl { background: #f0a023; color: #2a1c00; }\n  .mx-set { border: 2px dashed #8b5cf6; border-radius: 50% / 45%; background: #f6f2ff; transition: all .4s; }\n  .mx-set .mx-lbl { background: #8b5cf6; color: #fff; }\n  .mx-set.mx-known { border-style: solid; border-color: var(--accent, #2f5bd3); background: #eef4ff; }\n  .mx-set.mx-known .mx-lbl { background: var(--accent, #2f5bd3); }\n  .mx-cells { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }\n  .mx-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; transition: opacity .4s, transform .4s; }\n  .mx-cell .mx-box { width: 42px; height: 42px; border-radius: 8px; display: grid; place-items: center; font: 700 18px/1 \"SF Mono\", Menlo, Consolas, monospace; background: #fff; border: 2px solid #f0a023; }\n  .mx-cell .mx-idx { font: 12px/1 \"SF Mono\", Menlo, Consolas, monospace; color: var(--muted, #5b6b8c); }\n  .mx-cell.mx-dup .mx-box { border-color: var(--bad, #b3261e); background: var(--bad-bg, #fce8e6); }\n  .mx-cell.mx-go { opacity: .35; transform: translateY(-6px); }\n  .mx-el { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font: 700 18px/1 \"SF Mono\", Menlo, Consolas, monospace;\n    background: radial-gradient(circle at 35% 30%, #fff, #ffd56a 75%); box-shadow: 0 3px 8px rgba(0,0,0,.18); animation: mxIn .45s ease both; transition: transform .3s, box-shadow .3s; }\n  .mx-el.mx-hl { transform: scale(1.18); box-shadow: 0 0 0 4px #8b5cf6; }\n  @keyframes mxIn { from { opacity: 0; transform: translateY(-30px) scale(.3); } }\n  .mx-qm { font: 800 34px/1 inherit; color: #8b5cf6; }\n  .mx-arrow { font-size: 28px; color: var(--muted, #5b6b8c); }\n  .mx-console { margin: 14px 0 0; background: #11161d; color: #e8edf3; padding: 12px 14px; border-radius: 8px; min-height: 64px; white-space: pre-wrap;\n    font: 14px/1.5 \"SF Mono\", Menlo, Consolas, \"Liberation Mono\", monospace; }\n  .mx-console .mx-p { color: #7ee2a8; } .mx-console .mx-e { color: #ff8a8a; } .mx-console .mx-q { color: #ffd56a; font-weight: 700; }\n  .mx-cap { margin-top: 10px; font-weight: 700; font-size: 17px; min-height: 1.4em; }\n  .mx-shake { animation: mxShake .5s ease; }\n  @keyframes mxShake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }\n  .mx-reveal { margin-top: 16px; padding: 16px; border-radius: 12px; background: var(--accent-soft, #eef4ff); border: 1px solid var(--accent, #2f5bd3); }\n  .mx-reveal .mx-rt { font: 800 13px/1 inherit; letter-spacing: .1em; text-transform: uppercase; color: var(--accent, #2f5bd3); }\n  .mx-reveal .mx-rn { font-size: 28px; font-weight: 800; margin: 6px 0 10px; }\n  .mx-map { display: grid; gap: 6px; }\n  .mx-map-row { display: grid; grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr); gap: 6px; align-items: center; }\n  .mx-map .mx-m { padding: 7px 10px; border-radius: 8px; background: var(--card, #fff); border: 1px solid var(--line, #dde3ee); font: 600 14px/1.3 \"SF Mono\", Menlo, Consolas, monospace; overflow-wrap: anywhere; }\n  .mx-map .mx-m small { display: block; font: 500 12.5px/1.3 inherit; font-family: inherit; color: var(--muted, #5b6b8c); }\n  .mx-map .mx-m.mx-none { opacity: .45; }\n  .mx-map .mx-m.mx-new { border-color: var(--ok, #137333); background: var(--ok-bg, #e6f4ea); }\n  .mx-map .mx-ar { text-align: center; color: var(--muted, #5b6b8c); }\n  .mx-hidden { display: none; }\n  /* задание на сопоставление */\n  .mx-steps { margin: 0 0 12px; padding-left: 1.3em; display: grid; gap: 6px; font-size: 16px; }\n  .mx-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }\n  .mx-chip { padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line, #dde3ee); background: var(--card, #fff); font: 700 15px/1 \"SF Mono\", Menlo, Consolas, monospace; }\n  .mx-chip.mx-hurry { background: var(--bad-bg, #fce8e6); border-color: var(--bad, #b3261e); color: var(--bad, #b3261e); }\n  .mx-bar { width: 90px; height: 8px; border-radius: 99px; background: var(--line, #dde3ee); overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 6px; }\n  .mx-bar i { display: block; height: 100%; width: 0; background: var(--accent, #2f5bd3); transition: width .3s; }\n  .mx-board { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1.5fr); }\n  .mx-col { display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 2; }\n  .mx-col.mx-l { grid-column: 1; } .mx-col.mx-r { grid-column: 3; }\n  .mx-col h4 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted, #5b6b8c); }\n  .mx-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }\n  .mx-lines path { fill: none; stroke-width: 3.5; stroke-linecap: round; }\n  .mx-lines path.mx-pbad { stroke-dasharray: 9 7; }\n  .mx-lines path.mx-ptemp { stroke-dasharray: 7 7; stroke-width: 2.5; }\n  .mx-item { --c: #2f5bd3; position: relative; width: 100% !important; text-align: left; cursor: pointer; color: var(--text, #101a33) !important; background: var(--card, #fff) !important;\n    border: 2px solid var(--line, #dde3ee) !important; border-radius: 10px !important; padding: 10px 12px 10px 44px !important; min-height: 50px; font: 500 15px/1.35 inherit !important; font-family: inherit !important;\n    display: flex; align-items: center; transition: border-color .15s, box-shadow .15s, transform .15s; }\n  .mx-col.mx-l .mx-item { border-left: 7px solid var(--c) !important; }\n  .mx-item code { font: 700 15px/1.3 \"SF Mono\", Menlo, Consolas, monospace; overflow-wrap: anywhere; }\n  .mx-item code .mx-fn { color: #a0157a; }\n  .mx-item:hover { transform: translateY(-1px); }\n  .mx-item.mx-sel { border-color: var(--c) !important; box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 25%, transparent); }\n  .mx-item.mx-linked { border-color: var(--c) !important; }\n  .mx-item.mx-ok { border-color: var(--ok, #137333) !important; background: var(--ok-bg, #e6f4ea) !important; }\n  .mx-item.mx-bad { border-color: var(--bad, #b3261e) !important; background: var(--bad-bg, #fce8e6) !important; }\n  .mx-tag { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;\n    font: 800 12px/1 inherit; border: 2px dashed var(--line, #c9d1e3); color: var(--muted, #5b6b8c); }\n  .mx-tag.mx-on { border: 0; background: var(--c); color: #fff; }\n  .mx-mark { margin-left: auto; padding-left: 8px; }\n  .mx-res { margin-top: 16px; padding: 16px; border-radius: 12px; background: #f7f9fd; border: 1px solid var(--line, #dde3ee); }\n  .mx-score { font-size: 40px; font-weight: 800; line-height: 1; }\n  .mx-score small { font-size: 18px; color: var(--muted, #5b6b8c); }\n  .mx-verdict { font-size: 20px; font-weight: 800; margin: 6px 0 4px; }\n  .mx-fix { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }\n  .mx-fix li { padding: 10px 12px; border-radius: 8px; background: var(--card, #fff); border-left: 4px solid var(--bad, #b3261e); }\n  .mx-fix code { font: 700 14px/1.3 \"SF Mono\", Menlo, Consolas, monospace; }\n  .mx-fix .mx-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }\n  .mx-fix .mx-why { display: none; margin-top: 8px; font-size: 15px; }\n  .mx-fix li.mx-open .mx-why { display: block; }\n  .mx-fix .mx-why p { margin: 0 0 6px; }\n  .mx-fix .mx-tip { color: var(--accent, #2f5bd3); font-weight: 600; }\n  .mx-mini { width: auto !important; padding: 6px 12px !important; font: 700 14px/1 inherit !important; font-family: inherit !important; border-radius: 8px !important; cursor: pointer;\n    border: 1px solid var(--accent, #2f5bd3) !important; background: var(--card, #fff) !important; color: var(--accent, #2f5bd3) !important; }\n  .mx-hint { color: var(--muted, #5b6b8c); font-size: 14px; margin-top: 12px; }\n  .mx-hint code { font-family: \"SF Mono\", Menlo, Consolas, monospace; }\n  .steps i.mx-task { width: auto; padding: 0 8px; cursor: pointer; }\n  @media (max-width: 620px) {\n    .mx-board { grid-template-columns: minmax(0, 1fr); gap: 14px; }\n    .mx-col.mx-l, .mx-col.mx-r { grid-column: 1; }\n    .mx-lines { display: none; }\n    .mx-map-row { grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); }\n  }\n  @media (prefers-reduced-motion: reduce) { .mx-flip-in, .mx-el, .mx-cell { transition: none; animation: none; } }\n";
 
 /* =====================================================================
    ДОПОЛНЕНИЕ К УРОКУ (общий код для файла ученика и экрана учителя)
@@ -3331,7 +3331,7 @@ function mxGame(part) {
   ].forEach(function (s) { ol.appendChild(mxEl('li', null, s)); });
   intro.appendChild(ol);
   var startRow = mxEl('div', 'mx-row');
-  var startBtn = mxEl('button', 'mx-btn main', '▶ ' + mxT('Начать', 'Бастау') + ' · ' + mxTime(LIMIT0));
+  var startBtn = mxEl('button', 'mx-btn mx-main', '▶ ' + mxT('Начать', 'Бастау') + ' · ' + mxTime(LIMIT0));
   startRow.appendChild(startBtn); intro.appendChild(startRow);
   root.appendChild(intro);
 
@@ -3345,12 +3345,12 @@ function mxGame(part) {
   game.appendChild(chips);
   var board = mxEl('div', 'mx-board');
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'mx-lines');
-  var left = mxEl('div', 'mx-col l'), right = mxEl('div', 'mx-col r');
+  var left = mxEl('div', 'mx-col mx-l'), right = mxEl('div', 'mx-col mx-r');
   left.appendChild(mxEl('h4', null, mxT('Метод', 'Әдіс'))); right.appendChild(mxEl('h4', null, mxT('Описание', 'Сипаттама')));
   board.appendChild(svg); board.appendChild(left); board.appendChild(right);
   game.appendChild(board);
   var act = mxEl('div', 'mx-row');
-  var checkBtn = mxEl('button', 'mx-btn main', '✨ ' + mxT('Проверить', 'Тексеру'));
+  var checkBtn = mxEl('button', 'mx-btn mx-main', '✨ ' + mxT('Проверить', 'Тексеру'));
   var resetBtn = mxEl('button', 'mx-btn', '↻ ' + mxT('Начать заново', 'Қайта бастау'));
   act.appendChild(checkBtn); act.appendChild(resetBtn); game.appendChild(act);
   root.appendChild(game);
@@ -3359,7 +3359,7 @@ function mxGame(part) {
     ? mxT('Обозначения: s — множество, x — элемент, t — другая коллекция (множество, список, строка).', 'Белгілеулер: s — жиын, x — элемент, t — басқа жинақ (жиын, тізім, жол).')
     : mxT('Обозначения: a, b — множества. Методы с _update изменяют само множество a.', 'Белгілеулер: a, b — жиындар. _update деп аяқталатын әдістер a жиынының өзін өзгертеді.')));
 
-  function codeHtml(m) { return mxEsc(m).replace(/([a-z_]+)\(/, '<span class="fn">$1</span>('); }
+  function codeHtml(m) { return mxEsc(m).replace(/([a-z_]+)\(/, '<span class="mx-fn">$1</span>('); }
   function leftOf(r) { for (var k in links) if (links[k] === r) return +k; return null; }
   function elapsed() { return t0 ? Math.min(limit, Math.floor((Date.now() - t0) / 1000)) : 0; }
   function build() {
@@ -3395,13 +3395,13 @@ function mxGame(part) {
     var order = Array.prototype.map.call(left.querySelectorAll('.mx-item'), function (e) { return +e.dataset.i; });
     left.querySelectorAll('.mx-item').forEach(function (el) {
       var i = +el.dataset.i, on = links[i] !== undefined, tag = el.querySelector('.mx-tag');
-      el.classList.toggle('sel', selected === i); el.classList.toggle('linked', on);
-      tag.className = on || selected === i ? 'mx-tag on' : 'mx-tag'; tag.textContent = on || selected === i ? order.indexOf(i) + 1 : '';
+      el.classList.toggle('mx-sel', selected === i); el.classList.toggle('mx-linked', on);
+      tag.className = on || selected === i ? 'mx-tag mx-on' : 'mx-tag'; tag.textContent = on || selected === i ? order.indexOf(i) + 1 : '';
     });
     right.querySelectorAll('.mx-item').forEach(function (el) {
       var owner = leftOf(+el.dataset.i), tag = el.querySelector('.mx-tag');
-      el.classList.toggle('linked', owner !== null);
-      if (owner !== null) { el.style.setProperty('--c', MX_COLORS[owner]); tag.className = 'mx-tag on'; tag.textContent = order.indexOf(owner) + 1; }
+      el.classList.toggle('mx-linked', owner !== null);
+      if (owner !== null) { el.style.setProperty('--c', MX_COLORS[owner]); tag.className = 'mx-tag mx-on'; tag.textContent = order.indexOf(owner) + 1; }
       else { el.style.removeProperty('--c'); tag.className = 'mx-tag'; tag.textContent = ''; }
     });
     var n = Object.keys(links).length;
@@ -3421,11 +3421,11 @@ function mxGame(part) {
       var i = +k, r = links[k], a = left.querySelector('.mx-item[data-i="' + i + '"]'), z = right.querySelector('.mx-item[data-i="' + r + '"]');
       if (!a || !z) continue;
       var color = checked ? (r === i ? '#137333' : '#b3261e') : MX_COLORS[i];
-      html += '<path class="' + (checked && r !== i ? 'bad' : '') + '" d="' + curve(anchor(a, 'r'), anchor(z, 'l')) + '" stroke="' + color + '"/>';
+      html += '<path class="' + (checked && r !== i ? 'mx-pbad' : '') + '" d="' + curve(anchor(a, 'r'), anchor(z, 'l')) + '" stroke="' + color + '"/>';
     }
     if (selected !== null && pointer && !checked) {
       var s = left.querySelector('.mx-item[data-i="' + selected + '"]');
-      html += '<path class="temp" d="' + curve(anchor(s, 'r'), pointer) + '" stroke="' + MX_COLORS[selected] + '"/>';
+      html += '<path class="mx-ptemp" d="' + curve(anchor(s, 'r'), pointer) + '" stroke="' + MX_COLORS[selected] + '"/>';
     }
     svg.innerHTML = html;
   }
@@ -3443,10 +3443,10 @@ function mxGame(part) {
     var score = 0, wrong = [];
     left.querySelectorAll('.mx-item').forEach(function (el) {
       var i = +el.dataset.i, ok = links[i] === i;
-      el.classList.add(ok ? 'ok' : 'bad'); el.appendChild(mxEl('span', 'mx-mark', ok ? '✅' : '❌'));
+      el.classList.add(ok ? 'mx-ok' : 'mx-bad'); el.appendChild(mxEl('span', 'mx-mark', ok ? '✅' : '❌'));
       if (ok) score++; else wrong.push(i);
     });
-    right.querySelectorAll('.mx-item').forEach(function (el) { var r = +el.dataset.i; el.classList.add(leftOf(r) === r ? 'ok' : 'bad'); });
+    right.querySelectorAll('.mx-item').forEach(function (el) { var r = +el.dataset.i; el.classList.add(leftOf(r) === r ? 'mx-ok' : 'mx-bad'); });
     render();
     var verdict = score === N ? mxT('🏆 Блестяще! Все пары верные!', '🏆 Керемет! Барлық жұп дұрыс!')
       : score >= N - 2 ? mxT('🔥 Отлично, почти всё!', '🔥 Өте жақсы, барлығы дерлік дұрыс!')
@@ -3460,21 +3460,21 @@ function mxGame(part) {
       ul.appendChild(mxEl('div', null, mxT('Разбор ошибок — нажмите «Почему?»', 'Қателерді талдау — «Неге?» түймесін басыңыз')));
       wrong.forEach(function (i) {
         var r = links[i], none = r === undefined, li = mxEl('li'), L = mxKk() ? 1 : 0;
-        var top = mxEl('div', 'top'), what = mxEl('span');
+        var top = mxEl('div', 'mx-top'), what = mxEl('span');
         what.innerHTML = '❌ <code>' + mxEsc(P[i].m) + '</code> ' + (none ? mxEsc(mxT('— не успели соединить', '— қосып үлгермедіңіз'))
           : mxEsc(mxT('вы соединили с описанием метода', 'сіз мұны мына әдістің сипаттамасымен қостыңыз:')) + ' <code>' + mxEsc(P[r].m) + '</code>');
         var btns = mxEl('span', 'mx-row'); btns.style.marginTop = '0';
         var why = mxEl('button', 'mx-mini', '💡 ' + mxT('Почему?', 'Неге?'));
         var show = mxEl('button', 'mx-mini', '▶ ' + mxT('Показать', 'Көрсету'));
-        why.onclick = function () { li.classList.toggle('open'); };
+        why.onclick = function () { li.classList.toggle('mx-open'); };
         show.onclick = function () { mxGoSlide(part, P[i].slide); };
         btns.appendChild(why); btns.appendChild(show); top.appendChild(what); top.appendChild(btns); li.appendChild(top);
-        var box = mxEl('div', 'why');
+        var box = mxEl('div', 'mx-why');
         if (!none) box.innerHTML += '<p><b>' + mxEsc(mxT('Ваш ответ:', 'Сіздің жауабыңыз:')) + '</b> «' + mxEsc(P[r].d[L]) + '» — ' +
           mxEsc(mxT('так работает', 'бұл')) + ' <code>' + mxEsc(P[r].m) + '</code>' + mxEsc(mxT('.', ' әдісінің жұмысы.')) + '</p>';
         box.innerHTML += '<p><b>' + mxEsc(mxT('Правильно:', 'Дұрысы:')) + '</b> <code>' + mxEsc(P[i].m) + '</code> — ' + mxEsc(P[i].d[L]) + '</p>' +
           '<p><b>' + mxEsc(mxT('Почему:', 'Себебі:')) + '</b> ' + mxEsc(P[i].w[L]) + '</p>' +
-          (none ? '' : '<p class="tip">🔑 ' + mxEsc(mxTip(part, i, r)) + '</p>');
+          (none ? '' : '<p class="mx-tip">🔑 ' + mxEsc(mxTip(part, i, r)) + '</p>');
         li.appendChild(box); ul.appendChild(li);
       });
       res.appendChild(ul);
@@ -3485,7 +3485,7 @@ function mxGame(part) {
     intro.className = 'mx-hidden'; game.className = ''; t0 = Date.now(); plus.disabled = false;
     timer = setInterval(function () {
       var l = limit - elapsed();
-      timeChip.textContent = '⏱ ' + mxTime(l); timeChip.className = 'mx-chip' + (l <= 30 ? ' hurry' : '');
+      timeChip.textContent = '⏱ ' + mxTime(l); timeChip.className = 'mx-chip' + (l <= 30 ? ' mx-hurry' : '');
       if (l <= 0) { timeUp = true; check(); }
     }, 250);
     setTimeout(drawLines, 30);
@@ -3651,12 +3651,12 @@ function mxTopic(box) {
   var grid = mxEl('div', 'mx-flips');
   MX_LIST.forEach(function (x, k) {
     var b = mxEl('button', 'mx-flip'); b.style.setProperty('--c', MX_COLORS[k]);
-    b.innerHTML = '<div class="mx-flip-in"><div class="mx-face"><code></code><small></small></div><div class="mx-face back"><span></span><code></code></div></div>';
-    b.querySelector('.mx-face code').textContent = x.m;
-    b.querySelector('.mx-face small').textContent = mxT('нажмите, чтобы вспомнить', 'еске түсіру үшін басыңыз');
-    b.querySelector('.back span').textContent = x.d[K];
-    b.querySelector('.back code').textContent = x.ex;
-    b.onclick = function () { b.classList.toggle('open'); };
+    b.innerHTML = '<div class="mx-flip-in"><div class="mx-face"><code></code><small></small></div><div class="mx-face mx-back"><span></span><code></code></div></div>';
+    b.querySelector('.mx-face:not(.mx-back) code').textContent = x.m;
+    b.querySelector('.mx-face:not(.mx-back) small').textContent = mxT('нажмите, чтобы вспомнить', 'еске түсіру үшін басыңыз');
+    b.querySelector('.mx-back span').textContent = x.d[K];
+    b.querySelector('.mx-back code').textContent = x.ex;
+    b.onclick = function () { b.classList.toggle('mx-open'); };
     grid.appendChild(b);
   });
   cards.appendChild(grid);
@@ -3667,16 +3667,16 @@ function mxTopic(box) {
   rc.appendChild(mxEl('div', 'mx-sub', mxT('Переложим элементы списка lst в загадочную коллекцию x. Что изменится? Нажимайте «Дальше».',
     'lst тізімінің элементтерін жұмбақ x жинағына салайық. Не өзгереді? «Әрі қарай» түймесін басыңыз.')));
   var riddle = mxEl('div', 'mx-riddle');
-  var lc = mxEl('div', 'mx-coll mx-list'); lc.appendChild(mxEl('span', 'lbl', mxT('lst — список', 'lst — тізім')));
+  var lc = mxEl('div', 'mx-coll mx-list'); lc.appendChild(mxEl('span', 'mx-lbl', mxT('lst — список', 'lst — тізім')));
   var lcells = mxEl('div', 'mx-cells'); lc.appendChild(lcells);
-  var sc = mxEl('div', 'mx-coll mx-set'); var slbl = mxEl('span', 'lbl', 'x — ???'); sc.appendChild(slbl);
+  var sc = mxEl('div', 'mx-coll mx-set'); var slbl = mxEl('span', 'mx-lbl', 'x — ???'); sc.appendChild(slbl);
   var scells = mxEl('div', 'mx-cells'); sc.appendChild(scells);
   riddle.appendChild(lc); riddle.appendChild(mxEl('div', 'mx-arrow', '➜')); riddle.appendChild(sc);
   rc.appendChild(riddle);
   var cons = mxEl('div', 'mx-console'); rc.appendChild(cons);
   var cap = mxEl('div', 'mx-cap'); rc.appendChild(cap);
   var row = mxEl('div', 'mx-row');
-  var nextB = mxEl('button', 'mx-btn main', '▶ ' + mxT('Дальше', 'Әрі қарай'));
+  var nextB = mxEl('button', 'mx-btn mx-main', '▶ ' + mxT('Дальше', 'Әрі қарай'));
   var resetB = mxEl('button', 'mx-btn', '↻ ' + mxT('Сначала', 'Басынан'));
   var skipB = mxEl('button', 'mx-btn', mxT('Пропустить загадку и показать тему', 'Жұмбақты өткізіп, тақырыпты көрсету'));
   row.appendChild(nextB); row.appendChild(resetB); row.appendChild(skipB);
@@ -3688,16 +3688,16 @@ function mxTopic(box) {
 
   var LST = [3, 1, 3, 2, 1], lines = [], stepN = 0, busy = false, named = false, HID = '\u0000';
   function draw() {
-    var nm = named ? '<span class="q">set</span>' : '<span class="q">▒▒▒</span>';
+    var nm = named ? '<span class="mx-q">set</span>' : '<span class="mx-q">▒▒▒</span>';
     cons.innerHTML = lines.map(function (l) { return l.split(HID).join(nm); }).join('\n');
   }
-  function inp(code) { lines.push('<span class="p">&gt;&gt;&gt;</span> ' + code); draw(); }
+  function inp(code) { lines.push('<span class="mx-p">&gt;&gt;&gt;</span> ' + code); draw(); }
   function out(text, cls) { lines.push(cls ? '<span class="' + cls + '">' + text + '</span>' : text); draw(); }
   function ball(v) { var e = mxEl('div', 'mx-el', String(v)); e.dataset.v = v; return e; }
   function shake() { riddle.classList.remove('mx-shake'); void riddle.offsetWidth; riddle.classList.add('mx-shake'); }
   function reset() {
     stepN = 0; lines = []; named = false; busy = false;
-    lcells.innerHTML = LST.map(function (v, i) { return '<div class="mx-cell"><div class="box">' + v + '</div><span class="idx">[' + i + ']</span></div>'; }).join('');
+    lcells.innerHTML = LST.map(function (v, i) { return '<div class="mx-cell"><div class="mx-box">' + v + '</div><span class="mx-idx">[' + i + ']</span></div>'; }).join('');
     scells.innerHTML = '<span class="mx-qm">?</span>'; sc.className = 'mx-coll mx-set'; slbl.textContent = 'x — ???';
     reveal.className = 'mx-reveal mx-hidden'; nextB.textContent = '▶ ' + mxT('Дальше', 'Әрі қарай'); nextB.disabled = false;
     inp('lst = [3, 1, 3, 2, 1]'); cap.textContent = mxT('Нажмите «Дальше» ▶', '«Әрі қарай» түймесін басыңыз ▶');
@@ -3710,16 +3710,16 @@ function mxTopic(box) {
   }
   function buildReveal() {
     reveal.textContent = '';
-    reveal.appendChild(mxEl('div', 't', mxT('Тема урока', 'Сабақ тақырыбы')));
+    reveal.appendChild(mxEl('div', 'mx-rt', mxT('Тема урока', 'Сабақ тақырыбы')));
     var Ls = mxLesson();
-    reveal.appendChild(mxEl('div', 'n', Ls ? Ls.title : 'set'));
+    reveal.appendChild(mxEl('div', 'mx-rn', Ls ? Ls.title : 'set'));
     reveal.appendChild(mxEl('div', 'mx-sub', mxT('Методы списка, которые вы знаете → методы множества', 'Сіз білетін тізім әдістері → жиын әдістері')));
     var map = mxEl('div', 'mx-map');
     MX_MAP.forEach(function (r) {
       var rowE = mxEl('div', 'mx-map-row');
-      var l = mxEl('div', 'm' + (r[0] === '-' ? ' none' : ''), r[0]); if (r[1][K]) l.appendChild(mxEl('small', null, r[1][K]));
-      var rr = mxEl('div', 'm' + (r[0] === '-' ? ' new' : ''), r[2]); if (r[3][K]) rr.appendChild(mxEl('small', null, r[3][K]));
-      rowE.appendChild(l); rowE.appendChild(mxEl('div', 'ar', '➜')); rowE.appendChild(rr); map.appendChild(rowE);
+      var l = mxEl('div', 'mx-m' + (r[0] === '-' ? ' mx-none' : ''), r[0]); if (r[1][K]) l.appendChild(mxEl('small', null, r[1][K]));
+      var rr = mxEl('div', 'mx-m' + (r[0] === '-' ? ' mx-new' : ''), r[2]); if (r[3][K]) rr.appendChild(mxEl('small', null, r[3][K]));
+      rowE.appendChild(l); rowE.appendChild(mxEl('div', 'mx-ar', '➜')); rowE.appendChild(rr); map.appendChild(rowE);
     });
     reveal.appendChild(map);
   }
@@ -3727,29 +3727,29 @@ function mxTopic(box) {
     async function () {
       inp('x = ' + HID + '(lst)');
       var cells = lcells.querySelectorAll('.mx-cell');
-      await mxSleep(500); cells[2].classList.add('dup'); cells[4].classList.add('dup');
+      await mxSleep(500); cells[2].classList.add('mx-dup'); cells[4].classList.add('mx-dup');
       cap.textContent = mxT('Повторяющиеся элементы подсвечены красным…', 'Қайталанатын элементтер қызылмен белгіленді…');
       await mxSleep(1000); scells.textContent = '';
-      for (var i = 0; i < cells.length; i++) { cells[i].classList.add('go'); await mxSleep(250); }
+      for (var i = 0; i < cells.length; i++) { cells[i].classList.add('mx-go'); await mxSleep(250); }
       for (var v = 1; v <= 3; v++) { scells.appendChild(ball(v)); await mxSleep(250); }
       inp('x'); out('{1, 2, 3}');
       cap.textContent = mxT('❓ Куда пропали повторяющиеся 3 и 1? Почему скобки фигурные?', '❓ Қайталанған 3 пен 1 қайда кетті? Неге жақшалар фигуралы?');
     },
     async function () {
       inp('x[0]'); await mxSleep(400); shake();
-      out("TypeError: '" + HID + "' object is not subscriptable", 'e');
+      out("TypeError: '" + HID + "' object is not subscriptable", 'mx-e');
       cap.textContent = mxT('❓ Обратиться к элементу по номеру нельзя: у элементов нет индексов.', '❓ Элементке нөмірі бойынша жүгінуге болмайды: элементтерде индекс жоқ.');
     },
     async function () {
       inp('x.append(5)'); await mxSleep(400); shake();
-      out("AttributeError: '" + HID + "' object has no attribute 'append'", 'e');
+      out("AttributeError: '" + HID + "' object has no attribute 'append'", 'mx-e');
       cap.textContent = mxT('❓ Метода append нет — у этой коллекции свои методы.', '❓ append әдісі жоқ — бұл жинақтың өз әдістері бар.');
     },
     async function () {
       inp('x.add(5)'); await mxSleep(400); scells.appendChild(ball(5));
       await mxSleep(600); inp('x'); out('{1, 2, 3, 5}');
       await mxSleep(700); inp('x.add(5)');
-      var e = scells.querySelector('[data-v="5"]'); e.classList.add('hl'); await mxSleep(900); e.classList.remove('hl');
+      var e = scells.querySelector('[data-v="5"]'); e.classList.add('mx-hl'); await mxSleep(900); e.classList.remove('mx-hl');
       inp('x'); out('{1, 2, 3, 5}');
       cap.textContent = mxT('Вместо append здесь add — и второй раз 5 не добавилась!', 'Мұнда append орнына add — және 5 екінші рет қосылмады!');
     },
@@ -3760,7 +3760,7 @@ function mxTopic(box) {
     },
     async function () {
       named = true; draw();
-      sc.className = 'mx-coll mx-set known'; slbl.textContent = mxT('x — set (множество)', 'x — set (жиын)');
+      sc.className = 'mx-coll mx-set mx-known'; slbl.textContent = mxT('x — set (множество)', 'x — set (жиын)');
       cap.textContent = mxT('Это множество — set!', 'Бұл — жиын, set!');
       buildReveal(); reveal.className = 'mx-reveal';
       showTopic(false);

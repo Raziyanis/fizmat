@@ -170,7 +170,7 @@ function mxGame(part) {
   ].forEach(function (s) { ol.appendChild(mxEl('li', null, s)); });
   intro.appendChild(ol);
   var startRow = mxEl('div', 'mx-row');
-  var startBtn = mxEl('button', 'mx-btn main', '▶ ' + mxT('Начать', 'Бастау') + ' · ' + mxTime(LIMIT0));
+  var startBtn = mxEl('button', 'mx-btn mx-main', '▶ ' + mxT('Начать', 'Бастау') + ' · ' + mxTime(LIMIT0));
   startRow.appendChild(startBtn); intro.appendChild(startRow);
   root.appendChild(intro);
 
@@ -184,12 +184,12 @@ function mxGame(part) {
   game.appendChild(chips);
   var board = mxEl('div', 'mx-board');
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'mx-lines');
-  var left = mxEl('div', 'mx-col l'), right = mxEl('div', 'mx-col r');
+  var left = mxEl('div', 'mx-col mx-l'), right = mxEl('div', 'mx-col mx-r');
   left.appendChild(mxEl('h4', null, mxT('Метод', 'Әдіс'))); right.appendChild(mxEl('h4', null, mxT('Описание', 'Сипаттама')));
   board.appendChild(svg); board.appendChild(left); board.appendChild(right);
   game.appendChild(board);
   var act = mxEl('div', 'mx-row');
-  var checkBtn = mxEl('button', 'mx-btn main', '✨ ' + mxT('Проверить', 'Тексеру'));
+  var checkBtn = mxEl('button', 'mx-btn mx-main', '✨ ' + mxT('Проверить', 'Тексеру'));
   var resetBtn = mxEl('button', 'mx-btn', '↻ ' + mxT('Начать заново', 'Қайта бастау'));
   act.appendChild(checkBtn); act.appendChild(resetBtn); game.appendChild(act);
   root.appendChild(game);
@@ -198,7 +198,7 @@ function mxGame(part) {
     ? mxT('Обозначения: s — множество, x — элемент, t — другая коллекция (множество, список, строка).', 'Белгілеулер: s — жиын, x — элемент, t — басқа жинақ (жиын, тізім, жол).')
     : mxT('Обозначения: a, b — множества. Методы с _update изменяют само множество a.', 'Белгілеулер: a, b — жиындар. _update деп аяқталатын әдістер a жиынының өзін өзгертеді.')));
 
-  function codeHtml(m) { return mxEsc(m).replace(/([a-z_]+)\(/, '<span class="fn">$1</span>('); }
+  function codeHtml(m) { return mxEsc(m).replace(/([a-z_]+)\(/, '<span class="mx-fn">$1</span>('); }
   function leftOf(r) { for (var k in links) if (links[k] === r) return +k; return null; }
   function elapsed() { return t0 ? Math.min(limit, Math.floor((Date.now() - t0) / 1000)) : 0; }
   function build() {
@@ -234,13 +234,13 @@ function mxGame(part) {
     var order = Array.prototype.map.call(left.querySelectorAll('.mx-item'), function (e) { return +e.dataset.i; });
     left.querySelectorAll('.mx-item').forEach(function (el) {
       var i = +el.dataset.i, on = links[i] !== undefined, tag = el.querySelector('.mx-tag');
-      el.classList.toggle('sel', selected === i); el.classList.toggle('linked', on);
-      tag.className = on || selected === i ? 'mx-tag on' : 'mx-tag'; tag.textContent = on || selected === i ? order.indexOf(i) + 1 : '';
+      el.classList.toggle('mx-sel', selected === i); el.classList.toggle('mx-linked', on);
+      tag.className = on || selected === i ? 'mx-tag mx-on' : 'mx-tag'; tag.textContent = on || selected === i ? order.indexOf(i) + 1 : '';
     });
     right.querySelectorAll('.mx-item').forEach(function (el) {
       var owner = leftOf(+el.dataset.i), tag = el.querySelector('.mx-tag');
-      el.classList.toggle('linked', owner !== null);
-      if (owner !== null) { el.style.setProperty('--c', MX_COLORS[owner]); tag.className = 'mx-tag on'; tag.textContent = order.indexOf(owner) + 1; }
+      el.classList.toggle('mx-linked', owner !== null);
+      if (owner !== null) { el.style.setProperty('--c', MX_COLORS[owner]); tag.className = 'mx-tag mx-on'; tag.textContent = order.indexOf(owner) + 1; }
       else { el.style.removeProperty('--c'); tag.className = 'mx-tag'; tag.textContent = ''; }
     });
     var n = Object.keys(links).length;
@@ -260,11 +260,11 @@ function mxGame(part) {
       var i = +k, r = links[k], a = left.querySelector('.mx-item[data-i="' + i + '"]'), z = right.querySelector('.mx-item[data-i="' + r + '"]');
       if (!a || !z) continue;
       var color = checked ? (r === i ? '#137333' : '#b3261e') : MX_COLORS[i];
-      html += '<path class="' + (checked && r !== i ? 'bad' : '') + '" d="' + curve(anchor(a, 'r'), anchor(z, 'l')) + '" stroke="' + color + '"/>';
+      html += '<path class="' + (checked && r !== i ? 'mx-pbad' : '') + '" d="' + curve(anchor(a, 'r'), anchor(z, 'l')) + '" stroke="' + color + '"/>';
     }
     if (selected !== null && pointer && !checked) {
       var s = left.querySelector('.mx-item[data-i="' + selected + '"]');
-      html += '<path class="temp" d="' + curve(anchor(s, 'r'), pointer) + '" stroke="' + MX_COLORS[selected] + '"/>';
+      html += '<path class="mx-ptemp" d="' + curve(anchor(s, 'r'), pointer) + '" stroke="' + MX_COLORS[selected] + '"/>';
     }
     svg.innerHTML = html;
   }
@@ -282,10 +282,10 @@ function mxGame(part) {
     var score = 0, wrong = [];
     left.querySelectorAll('.mx-item').forEach(function (el) {
       var i = +el.dataset.i, ok = links[i] === i;
-      el.classList.add(ok ? 'ok' : 'bad'); el.appendChild(mxEl('span', 'mx-mark', ok ? '✅' : '❌'));
+      el.classList.add(ok ? 'mx-ok' : 'mx-bad'); el.appendChild(mxEl('span', 'mx-mark', ok ? '✅' : '❌'));
       if (ok) score++; else wrong.push(i);
     });
-    right.querySelectorAll('.mx-item').forEach(function (el) { var r = +el.dataset.i; el.classList.add(leftOf(r) === r ? 'ok' : 'bad'); });
+    right.querySelectorAll('.mx-item').forEach(function (el) { var r = +el.dataset.i; el.classList.add(leftOf(r) === r ? 'mx-ok' : 'mx-bad'); });
     render();
     var verdict = score === N ? mxT('🏆 Блестяще! Все пары верные!', '🏆 Керемет! Барлық жұп дұрыс!')
       : score >= N - 2 ? mxT('🔥 Отлично, почти всё!', '🔥 Өте жақсы, барлығы дерлік дұрыс!')
@@ -299,21 +299,21 @@ function mxGame(part) {
       ul.appendChild(mxEl('div', null, mxT('Разбор ошибок — нажмите «Почему?»', 'Қателерді талдау — «Неге?» түймесін басыңыз')));
       wrong.forEach(function (i) {
         var r = links[i], none = r === undefined, li = mxEl('li'), L = mxKk() ? 1 : 0;
-        var top = mxEl('div', 'top'), what = mxEl('span');
+        var top = mxEl('div', 'mx-top'), what = mxEl('span');
         what.innerHTML = '❌ <code>' + mxEsc(P[i].m) + '</code> ' + (none ? mxEsc(mxT('— не успели соединить', '— қосып үлгермедіңіз'))
           : mxEsc(mxT('вы соединили с описанием метода', 'сіз мұны мына әдістің сипаттамасымен қостыңыз:')) + ' <code>' + mxEsc(P[r].m) + '</code>');
         var btns = mxEl('span', 'mx-row'); btns.style.marginTop = '0';
         var why = mxEl('button', 'mx-mini', '💡 ' + mxT('Почему?', 'Неге?'));
         var show = mxEl('button', 'mx-mini', '▶ ' + mxT('Показать', 'Көрсету'));
-        why.onclick = function () { li.classList.toggle('open'); };
+        why.onclick = function () { li.classList.toggle('mx-open'); };
         show.onclick = function () { mxGoSlide(part, P[i].slide); };
         btns.appendChild(why); btns.appendChild(show); top.appendChild(what); top.appendChild(btns); li.appendChild(top);
-        var box = mxEl('div', 'why');
+        var box = mxEl('div', 'mx-why');
         if (!none) box.innerHTML += '<p><b>' + mxEsc(mxT('Ваш ответ:', 'Сіздің жауабыңыз:')) + '</b> «' + mxEsc(P[r].d[L]) + '» — ' +
           mxEsc(mxT('так работает', 'бұл')) + ' <code>' + mxEsc(P[r].m) + '</code>' + mxEsc(mxT('.', ' әдісінің жұмысы.')) + '</p>';
         box.innerHTML += '<p><b>' + mxEsc(mxT('Правильно:', 'Дұрысы:')) + '</b> <code>' + mxEsc(P[i].m) + '</code> — ' + mxEsc(P[i].d[L]) + '</p>' +
           '<p><b>' + mxEsc(mxT('Почему:', 'Себебі:')) + '</b> ' + mxEsc(P[i].w[L]) + '</p>' +
-          (none ? '' : '<p class="tip">🔑 ' + mxEsc(mxTip(part, i, r)) + '</p>');
+          (none ? '' : '<p class="mx-tip">🔑 ' + mxEsc(mxTip(part, i, r)) + '</p>');
         li.appendChild(box); ul.appendChild(li);
       });
       res.appendChild(ul);
@@ -324,7 +324,7 @@ function mxGame(part) {
     intro.className = 'mx-hidden'; game.className = ''; t0 = Date.now(); plus.disabled = false;
     timer = setInterval(function () {
       var l = limit - elapsed();
-      timeChip.textContent = '⏱ ' + mxTime(l); timeChip.className = 'mx-chip' + (l <= 30 ? ' hurry' : '');
+      timeChip.textContent = '⏱ ' + mxTime(l); timeChip.className = 'mx-chip' + (l <= 30 ? ' mx-hurry' : '');
       if (l <= 0) { timeUp = true; check(); }
     }, 250);
     setTimeout(drawLines, 30);
@@ -490,12 +490,12 @@ function mxTopic(box) {
   var grid = mxEl('div', 'mx-flips');
   MX_LIST.forEach(function (x, k) {
     var b = mxEl('button', 'mx-flip'); b.style.setProperty('--c', MX_COLORS[k]);
-    b.innerHTML = '<div class="mx-flip-in"><div class="mx-face"><code></code><small></small></div><div class="mx-face back"><span></span><code></code></div></div>';
-    b.querySelector('.mx-face code').textContent = x.m;
-    b.querySelector('.mx-face small').textContent = mxT('нажмите, чтобы вспомнить', 'еске түсіру үшін басыңыз');
-    b.querySelector('.back span').textContent = x.d[K];
-    b.querySelector('.back code').textContent = x.ex;
-    b.onclick = function () { b.classList.toggle('open'); };
+    b.innerHTML = '<div class="mx-flip-in"><div class="mx-face"><code></code><small></small></div><div class="mx-face mx-back"><span></span><code></code></div></div>';
+    b.querySelector('.mx-face:not(.mx-back) code').textContent = x.m;
+    b.querySelector('.mx-face:not(.mx-back) small').textContent = mxT('нажмите, чтобы вспомнить', 'еске түсіру үшін басыңыз');
+    b.querySelector('.mx-back span').textContent = x.d[K];
+    b.querySelector('.mx-back code').textContent = x.ex;
+    b.onclick = function () { b.classList.toggle('mx-open'); };
     grid.appendChild(b);
   });
   cards.appendChild(grid);
@@ -506,16 +506,16 @@ function mxTopic(box) {
   rc.appendChild(mxEl('div', 'mx-sub', mxT('Переложим элементы списка lst в загадочную коллекцию x. Что изменится? Нажимайте «Дальше».',
     'lst тізімінің элементтерін жұмбақ x жинағына салайық. Не өзгереді? «Әрі қарай» түймесін басыңыз.')));
   var riddle = mxEl('div', 'mx-riddle');
-  var lc = mxEl('div', 'mx-coll mx-list'); lc.appendChild(mxEl('span', 'lbl', mxT('lst — список', 'lst — тізім')));
+  var lc = mxEl('div', 'mx-coll mx-list'); lc.appendChild(mxEl('span', 'mx-lbl', mxT('lst — список', 'lst — тізім')));
   var lcells = mxEl('div', 'mx-cells'); lc.appendChild(lcells);
-  var sc = mxEl('div', 'mx-coll mx-set'); var slbl = mxEl('span', 'lbl', 'x — ???'); sc.appendChild(slbl);
+  var sc = mxEl('div', 'mx-coll mx-set'); var slbl = mxEl('span', 'mx-lbl', 'x — ???'); sc.appendChild(slbl);
   var scells = mxEl('div', 'mx-cells'); sc.appendChild(scells);
   riddle.appendChild(lc); riddle.appendChild(mxEl('div', 'mx-arrow', '➜')); riddle.appendChild(sc);
   rc.appendChild(riddle);
   var cons = mxEl('div', 'mx-console'); rc.appendChild(cons);
   var cap = mxEl('div', 'mx-cap'); rc.appendChild(cap);
   var row = mxEl('div', 'mx-row');
-  var nextB = mxEl('button', 'mx-btn main', '▶ ' + mxT('Дальше', 'Әрі қарай'));
+  var nextB = mxEl('button', 'mx-btn mx-main', '▶ ' + mxT('Дальше', 'Әрі қарай'));
   var resetB = mxEl('button', 'mx-btn', '↻ ' + mxT('Сначала', 'Басынан'));
   var skipB = mxEl('button', 'mx-btn', mxT('Пропустить загадку и показать тему', 'Жұмбақты өткізіп, тақырыпты көрсету'));
   row.appendChild(nextB); row.appendChild(resetB); row.appendChild(skipB);
@@ -527,16 +527,16 @@ function mxTopic(box) {
 
   var LST = [3, 1, 3, 2, 1], lines = [], stepN = 0, busy = false, named = false, HID = '\u0000';
   function draw() {
-    var nm = named ? '<span class="q">set</span>' : '<span class="q">▒▒▒</span>';
+    var nm = named ? '<span class="mx-q">set</span>' : '<span class="mx-q">▒▒▒</span>';
     cons.innerHTML = lines.map(function (l) { return l.split(HID).join(nm); }).join('\n');
   }
-  function inp(code) { lines.push('<span class="p">&gt;&gt;&gt;</span> ' + code); draw(); }
+  function inp(code) { lines.push('<span class="mx-p">&gt;&gt;&gt;</span> ' + code); draw(); }
   function out(text, cls) { lines.push(cls ? '<span class="' + cls + '">' + text + '</span>' : text); draw(); }
   function ball(v) { var e = mxEl('div', 'mx-el', String(v)); e.dataset.v = v; return e; }
   function shake() { riddle.classList.remove('mx-shake'); void riddle.offsetWidth; riddle.classList.add('mx-shake'); }
   function reset() {
     stepN = 0; lines = []; named = false; busy = false;
-    lcells.innerHTML = LST.map(function (v, i) { return '<div class="mx-cell"><div class="box">' + v + '</div><span class="idx">[' + i + ']</span></div>'; }).join('');
+    lcells.innerHTML = LST.map(function (v, i) { return '<div class="mx-cell"><div class="mx-box">' + v + '</div><span class="mx-idx">[' + i + ']</span></div>'; }).join('');
     scells.innerHTML = '<span class="mx-qm">?</span>'; sc.className = 'mx-coll mx-set'; slbl.textContent = 'x — ???';
     reveal.className = 'mx-reveal mx-hidden'; nextB.textContent = '▶ ' + mxT('Дальше', 'Әрі қарай'); nextB.disabled = false;
     inp('lst = [3, 1, 3, 2, 1]'); cap.textContent = mxT('Нажмите «Дальше» ▶', '«Әрі қарай» түймесін басыңыз ▶');
@@ -549,16 +549,16 @@ function mxTopic(box) {
   }
   function buildReveal() {
     reveal.textContent = '';
-    reveal.appendChild(mxEl('div', 't', mxT('Тема урока', 'Сабақ тақырыбы')));
+    reveal.appendChild(mxEl('div', 'mx-rt', mxT('Тема урока', 'Сабақ тақырыбы')));
     var Ls = mxLesson();
-    reveal.appendChild(mxEl('div', 'n', Ls ? Ls.title : 'set'));
+    reveal.appendChild(mxEl('div', 'mx-rn', Ls ? Ls.title : 'set'));
     reveal.appendChild(mxEl('div', 'mx-sub', mxT('Методы списка, которые вы знаете → методы множества', 'Сіз білетін тізім әдістері → жиын әдістері')));
     var map = mxEl('div', 'mx-map');
     MX_MAP.forEach(function (r) {
       var rowE = mxEl('div', 'mx-map-row');
-      var l = mxEl('div', 'm' + (r[0] === '-' ? ' none' : ''), r[0]); if (r[1][K]) l.appendChild(mxEl('small', null, r[1][K]));
-      var rr = mxEl('div', 'm' + (r[0] === '-' ? ' new' : ''), r[2]); if (r[3][K]) rr.appendChild(mxEl('small', null, r[3][K]));
-      rowE.appendChild(l); rowE.appendChild(mxEl('div', 'ar', '➜')); rowE.appendChild(rr); map.appendChild(rowE);
+      var l = mxEl('div', 'mx-m' + (r[0] === '-' ? ' mx-none' : ''), r[0]); if (r[1][K]) l.appendChild(mxEl('small', null, r[1][K]));
+      var rr = mxEl('div', 'mx-m' + (r[0] === '-' ? ' mx-new' : ''), r[2]); if (r[3][K]) rr.appendChild(mxEl('small', null, r[3][K]));
+      rowE.appendChild(l); rowE.appendChild(mxEl('div', 'mx-ar', '➜')); rowE.appendChild(rr); map.appendChild(rowE);
     });
     reveal.appendChild(map);
   }
@@ -566,29 +566,29 @@ function mxTopic(box) {
     async function () {
       inp('x = ' + HID + '(lst)');
       var cells = lcells.querySelectorAll('.mx-cell');
-      await mxSleep(500); cells[2].classList.add('dup'); cells[4].classList.add('dup');
+      await mxSleep(500); cells[2].classList.add('mx-dup'); cells[4].classList.add('mx-dup');
       cap.textContent = mxT('Повторяющиеся элементы подсвечены красным…', 'Қайталанатын элементтер қызылмен белгіленді…');
       await mxSleep(1000); scells.textContent = '';
-      for (var i = 0; i < cells.length; i++) { cells[i].classList.add('go'); await mxSleep(250); }
+      for (var i = 0; i < cells.length; i++) { cells[i].classList.add('mx-go'); await mxSleep(250); }
       for (var v = 1; v <= 3; v++) { scells.appendChild(ball(v)); await mxSleep(250); }
       inp('x'); out('{1, 2, 3}');
       cap.textContent = mxT('❓ Куда пропали повторяющиеся 3 и 1? Почему скобки фигурные?', '❓ Қайталанған 3 пен 1 қайда кетті? Неге жақшалар фигуралы?');
     },
     async function () {
       inp('x[0]'); await mxSleep(400); shake();
-      out("TypeError: '" + HID + "' object is not subscriptable", 'e');
+      out("TypeError: '" + HID + "' object is not subscriptable", 'mx-e');
       cap.textContent = mxT('❓ Обратиться к элементу по номеру нельзя: у элементов нет индексов.', '❓ Элементке нөмірі бойынша жүгінуге болмайды: элементтерде индекс жоқ.');
     },
     async function () {
       inp('x.append(5)'); await mxSleep(400); shake();
-      out("AttributeError: '" + HID + "' object has no attribute 'append'", 'e');
+      out("AttributeError: '" + HID + "' object has no attribute 'append'", 'mx-e');
       cap.textContent = mxT('❓ Метода append нет — у этой коллекции свои методы.', '❓ append әдісі жоқ — бұл жинақтың өз әдістері бар.');
     },
     async function () {
       inp('x.add(5)'); await mxSleep(400); scells.appendChild(ball(5));
       await mxSleep(600); inp('x'); out('{1, 2, 3, 5}');
       await mxSleep(700); inp('x.add(5)');
-      var e = scells.querySelector('[data-v="5"]'); e.classList.add('hl'); await mxSleep(900); e.classList.remove('hl');
+      var e = scells.querySelector('[data-v="5"]'); e.classList.add('mx-hl'); await mxSleep(900); e.classList.remove('mx-hl');
       inp('x'); out('{1, 2, 3, 5}');
       cap.textContent = mxT('Вместо append здесь add — и второй раз 5 не добавилась!', 'Мұнда append орнына add — және 5 екінші рет қосылмады!');
     },
@@ -599,7 +599,7 @@ function mxTopic(box) {
     },
     async function () {
       named = true; draw();
-      sc.className = 'mx-coll mx-set known'; slbl.textContent = mxT('x — set (множество)', 'x — set (жиын)');
+      sc.className = 'mx-coll mx-set mx-known'; slbl.textContent = mxT('x — set (множество)', 'x — set (жиын)');
       cap.textContent = mxT('Это множество — set!', 'Бұл — жиын, set!');
       buildReveal(); reveal.className = 'mx-reveal';
       showTopic(false);
