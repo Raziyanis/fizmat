@@ -16,6 +16,7 @@ import content as C  # noqa: E402
 import langkeep  # noqa: E402
 import kkui  # noqa: E402
 import worklock  # noqa: E402
+import server  # noqa: E402
 
 VER = 'set v1 · 10 ноября'
 
@@ -343,6 +344,7 @@ def patch_student(src, data):
     src = kkui.patch_both(src, sub1)
     src = kkui.patch_student(src, sub1)
     src = worklock.patch_student(src, sub1)
+    src = server.patch_student(src, sub1, URL, TOKEN)
     src = sub1(src, '<title>Методы списка — повторение</title>', '<title>Методы множества — урок</title>')
     src = sub1(src, '<div class="display">Методы списка</div>', '<div class="display">Список и кортеж</div>')
     src = sub1(src, "decide: 'Список или кортеж', reflect: 'Рефлексия' };",
@@ -379,16 +381,15 @@ def patch_teacher(src, data):
     src = langkeep.patch_teacher(src, sub1)
     src = kkui.patch_both(src, sub1)
     src = kkui.patch_teacher(src, sub1)
+    src = server.patch_teacher(src, sub1, URL, TOKEN)
     src = sub1(src, '<title>Методы списка — экран учителя</title>', '<title>Методы множества — экран учителя</title>')
     src = sub1(src, '<h1>Методы списка — ответы класса</h1>', '<h1>Методы множества — ответы класса</h1>')
     src = sub1(src, "box.appendChild(el('div', 'eyebrow', 'Этап 6 · список или кортеж'));\n  box.appendChild(el('div', 'display', 'Список или кортеж?'));",
                "box.appendChild(el('div', 'eyebrow', 'Этап 6 · выбор структуры данных'));\n  box.appendChild(el('div', 'display', (L.decide && L.decide.title) || 'Список или кортеж?'));")
     src = sub1(src, "'. В теме письма — «8 класс».'", "'. В теме письма — «9 класс».'")
-    src = sub1(src, 'var TOKEN = "92895e2178f54d52";', 'var TOKEN = "";')
+    src = server.set_token(src, sub1, TOKEN)
     # без таблицы не ждём 20 секунд и объясняем честно
-    src = sub1(src, "  var name = '__lm' + (++jsonpN) + '_' + Date.now();",
-               "  if (!SEND_URL) { setTimeout(function(){ onFail(new Error('no-sheet')); }, 0); return; }\n"
-               "  var name = '__lm' + (++jsonpN) + '_' + Date.now();")
+    # pullResults заменён в server.py: он сам проверяет SEND_URL
     src = sub1(src, "      var why = (!TOKEN || TOKEN === 'ТОКЕН-НЕ-ЗАДАН')",
                "      var why = !SEND_URL\n"
                "        ? 'Таблица для этого урока ещё не подключена, поэтому ответы класса сюда не приходят. ' +\n"
@@ -397,8 +398,17 @@ def patch_teacher(src, data):
     return src
 
 
+URL, TOKEN = '', ''
+
+
 def main():
+    global URL, TOKEN
     s_path, t_path, out_dir = sys.argv[1:4]
+    for arg in sys.argv[4:]:
+        if arg.startswith('--url='):
+            URL = arg[6:].strip()
+        elif arg.startswith('--token='):
+            TOKEN = arg[8:].strip()
     Q, QKK, L, LKK, CL = build()
     base_ukk = json.loads(re.search(r'^var UKK = (.*);$',
                                     open(s_path, encoding='utf-8').read(), re.M).group(1))

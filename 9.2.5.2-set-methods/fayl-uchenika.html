@@ -408,9 +408,34 @@ var VER = "set v1 · 10 ноября";
 
 /* Адрес развёртывания Apps Script для этого урока. Пока пусто: ответы копятся на устройстве ученика и уйдут, когда адрес появится. */
 var SEND_URL = "";
+var LESSON_ID = "set-9.2.5.2";
 var QKEY = 'setmethods.outbox.v1';
 var lastConfirmed = true;
 
+
+/* Запрос к серверу тегом <script>: с диска обычный запрос браузер не пустит. */
+var jsonpN_ = 0;
+function jsonp_(params, onOk, onFail, waitMs) {
+  if (!SEND_URL) { setTimeout(function () { onFail(new Error('no-sheet')); }, 0); return; }
+  var name = '__srv' + (++jsonpN_) + '_' + Date.now();
+  var done = false;
+  var tag = document.createElement('script');
+  window[name] = function (data) {
+    done = true;
+    try { delete window[name]; } catch (e) { window[name] = undefined; }
+    if (tag.parentNode) tag.parentNode.removeChild(tag);
+    if (data && data.error) { onFail(new Error(data.error)); return; }
+    onOk(data);
+  };
+  var q = [];
+  for (var k in params) if (params.hasOwnProperty(k)) q.push(k + '=' + encodeURIComponent(params[k]));
+  q.push('lesson=' + encodeURIComponent(LESSON_ID));
+  q.push('callback=' + name);
+  tag.src = SEND_URL + (SEND_URL.indexOf('?') > -1 ? '&' : '?') + q.join('&');
+  tag.onerror = function () { if (!done) { done = true; onFail(new Error('нет связи с таблицей')); } };
+  document.head.appendChild(tag);
+  setTimeout(function () { if (!done) { done = true; onFail(new Error('таблица не ответила')); } }, waitMs || 20000);
+}
 function qRead(){ try { return JSON.parse(localStorage.getItem(QKEY) || '[]'); } catch(e){ return []; } }
 function qWrite(l){ try { localStorage.setItem(QKEY, JSON.stringify(l)); return true; } catch(e){ return false; } }
 function qAdd(p){ var l = qRead(); l.push(p); return qWrite(l); }
@@ -423,6 +448,7 @@ function qDrop(uid){ qWrite(qRead().filter(function(x){ return x.uid !== uid; })
  */
 function sendOne(payload){
   if (!SEND_URL) return Promise.reject(new Error('таблица урока не подключена'));
+  payload.lesson = payload.lesson || LESSON_ID;
   var body = JSON.stringify(payload);
   var head = { 'Content-Type': 'text/plain;charset=utf-8' };
   return fetch(SEND_URL, { method:'POST', headers: head, body: body })
@@ -536,6 +562,10 @@ window.google = { script: { run: {
   checkAccess: function(){ this._ok({ allowed: true, used: 0, max: 3 }); },
 
   answerQuestion: function(p){
+    // каждый ответ сразу уходит учителю: видно, кто на каком задании
+    qAdd({ type: 'answer', uid: p.uid, attempt: p.attempt, klass: p.klass, name: p.name,
+           qid: p.qid, given: p.given });
+    qFlush();
     var q = qById(p.qid), lq = qLoc_(q);
     this._ok({ ok: p.given === q.correct, correct: q.correct,
                correctText: lq.options[q.correct], note: lq.note,
@@ -571,8 +601,21 @@ window.google = { script: { run: {
     this._ok(res);
   },
 
-  getMyMessages: function(){ this._ok([]); },
-  replyToTeacher: function(){ this._ok({}); }
+  getMyMessages: function(klass, name){
+    var ok = this._ok;
+    jsonp_({ data: 'messages', klass: klass || '', name: name || '' }, function (list) {
+      ok((list || []).map(function (m) {
+        var q = qById(m.qid);
+        return { author: m.author, text: m.text, time: m.time, qid: m.qid,
+                 number: q ? Q.indexOf(q) + 1 : 0 };
+      }));
+    }, function () { ok([]); }, 15000);
+  },
+  replyToTeacher: function(p){
+    qAdd({ type: 'reply', uid: p.uid, klass: p.klass, name: p.name, qid: p.qid, text: p.text });
+    qFlush();
+    this._ok({ ok: true });
+  }
 } } };
 
 </script>

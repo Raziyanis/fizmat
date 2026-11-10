@@ -449,9 +449,34 @@ var VER = "set v1 · 10 ноября";
 
 /* Адрес развёртывания Apps Script для этого урока. Пока пусто: ответы копятся на устройстве ученика и уйдут, когда адрес появится. */
 var SEND_URL = "";
+var LESSON_ID = "set-9.2.5.2";
 var QKEY = 'setmethods.outbox.v1';
 var lastConfirmed = true;
 
+
+/* Запрос к серверу тегом <script>: с диска обычный запрос браузер не пустит. */
+var jsonpN_ = 0;
+function jsonp_(params, onOk, onFail, waitMs) {
+  if (!SEND_URL) { setTimeout(function () { onFail(new Error('no-sheet')); }, 0); return; }
+  var name = '__srv' + (++jsonpN_) + '_' + Date.now();
+  var done = false;
+  var tag = document.createElement('script');
+  window[name] = function (data) {
+    done = true;
+    try { delete window[name]; } catch (e) { window[name] = undefined; }
+    if (tag.parentNode) tag.parentNode.removeChild(tag);
+    if (data && data.error) { onFail(new Error(data.error)); return; }
+    onOk(data);
+  };
+  var q = [];
+  for (var k in params) if (params.hasOwnProperty(k)) q.push(k + '=' + encodeURIComponent(params[k]));
+  q.push('lesson=' + encodeURIComponent(LESSON_ID));
+  q.push('callback=' + name);
+  tag.src = SEND_URL + (SEND_URL.indexOf('?') > -1 ? '&' : '?') + q.join('&');
+  tag.onerror = function () { if (!done) { done = true; onFail(new Error('нет связи с таблицей')); } };
+  document.head.appendChild(tag);
+  setTimeout(function () { if (!done) { done = true; onFail(new Error('таблица не ответила')); } }, waitMs || 20000);
+}
 function qRead(){ try { return JSON.parse(localStorage.getItem(QKEY) || '[]'); } catch(e){ return []; } }
 function qWrite(l){ try { localStorage.setItem(QKEY, JSON.stringify(l)); return true; } catch(e){ return false; } }
 function qAdd(p){ var l = qRead(); l.push(p); return qWrite(l); }
@@ -464,6 +489,7 @@ function qDrop(uid){ qWrite(qRead().filter(function(x){ return x.uid !== uid; })
  */
 function sendOne(payload){
   if (!SEND_URL) return Promise.reject(new Error('таблица урока не подключена'));
+  payload.lesson = payload.lesson || LESSON_ID;
   var body = JSON.stringify(payload);
   var head = { 'Content-Type': 'text/plain;charset=utf-8' };
   return fetch(SEND_URL, { method:'POST', headers: head, body: body })
@@ -528,27 +554,180 @@ function localSkeleton(){
   };
 }
 
-var CACHE_KEY = 'setmethods.teachercache.v1';
-var jsonpN = 0;
+/* ---------- данные класса: журнал с сервера → всё, что на экране ---------- */
+function nk_(k, n) { return (String(k || '') + '|' + String(n || '')).toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim(); }
+function nrm_(v) { return String(v == null ? '' : v).toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, '').trim(); }
+function accepted_(given, list) {
+  var g = nrm_(given);
+  if (!g) return false;
+  for (var i = 0; i < list.length; i++) if (nrm_(list[i]) === g) return true;
+  return false;
+}
+function qNum_(qid) { for (var i = 0; i < Q.length; i++) if (Q[i].id === qid) return i + 1; return 0; }
 
-/** Читаем данные тегом <script>: обычный запрос с диска браузер не пустит. */
-function pullResults(onOk, onFail){
-  if (!SEND_URL) { setTimeout(function(){ onFail(new Error('no-sheet')); }, 0); return; }
-  var name = '__lm' + (++jsonpN) + '_' + Date.now();
-  var done = false;
-  var tag = document.createElement('script');
-  window[name] = function(data){
-    done = true;
-    try { delete window[name]; } catch(e) { window[name] = undefined; }
-    if (tag.parentNode) tag.parentNode.removeChild(tag);
-    if (data && data.error) { onFail(new Error(data.error)); return; }
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch(e) {}
-    onOk(patchLang(data));
+/** Один этап ученика: баллы считаем по заданиям, вшитым в файл. */
+function stageRecord_(rec, p) {
+  var ans = p.answers || {};
+  if (p.stage === 'check') {
+    var marks = [], score = 0;
+    L.check.items.forEach(function (it, i) {
+      var g = ans[String(i)], got = 0;
+      if (it.kind === 'tf') { if (typeof g === 'boolean' && g === it.answer) got = it.points; }
+      else if (it.kind === 'choice') { if (g === it.answer) got = it.points; }
+      else if (it.kind === 'gap') { if (accepted_(g, it.accept)) got = it.points; }
+      else if (it.kind === 'match') {
+        var pairs = g || {};
+        for (var k = 0; k < it.left.length; k++) if (Number(pairs[String(k)]) === k) got++;
+      }
+      marks.push(g === undefined ? null : got);
+      score += got;
+    });
+    rec.check = { score: score, marks: marks, done: true };
+  } else if (p.stage === 'work') {
+    var wm = [], codes = [], ws = 0;
+    L.work.tasks.forEach(function (t, i) {
+      var a = ans[String(i)], o = (a && typeof a === 'object') ? a : {};
+      var code = String(o.code == null ? '' : o.code);
+      var got = o.ok === true ? t.points : 0;
+      wm.push(code.trim() || o.ok === true ? got : null);
+      codes.push({ code: code, got: got, verdict: String(o.verdict || '') });
+      if (!t.extra) ws += got;
+    });
+    rec.work = { score: ws, marks: wm, codes: codes, done: p.final !== false };
+  } else if (p.stage === 'decide') {
+    var ds = 0;
+    L.decide.items.forEach(function (it, i) { if (ans[String(i)] === it.answer) ds++; });
+    rec.decide = { score: ds };
+  } else if (p.stage === 'reflection') {
+    rec.reflection = String(p.choice || '') + (p.text ? ' — ' + p.text : '');
+  }
+}
+
+/** Из журнала записей собирает то же, что раньше присылал сервер. */
+function buildFromLog_(raw) {
+  var rows = (raw.rows || []).slice().sort(function (a, b) { return a.ts - b.ts; });
+  var seenUid = {};
+  rows = rows.filter(function (r) {
+    if (!r.uid) return true;
+    if (seenUid[r.uid]) return false;
+    seenUid[r.uid] = true;
+    return true;
+  });
+
+  var roster = [], inRoster = {}, extraBy = {};
+  CL.forEach(function (c) {
+    c.students.forEach(function (n) { roster.push({ klass: c.klass, name: n }); inRoster[nk_(c.klass, n)] = true; });
+  });
+
+  var tests = {}, stages = {}, dialog = [];
+  rows.forEach(function (r) {
+    var p = r.p || {};
+    var key = nk_(r.klass, r.name);
+    if (r.type === 'answer' || r.type === 'finish') {
+      var s = tests[key] || (tests[key] = { klass: r.klass, name: r.name, att: {}, last: '', fin: 0, time: '' });
+      var id = String(p.attempt || 'a');
+      var a = s.att[id] || (s.att[id] = { answers: {}, finished: false });
+      if (r.type === 'answer') {
+        if (typeof p.given === 'number') a.answers[p.qid] = p.given;
+      } else {
+        a.answers = p.answers || a.answers;
+        if (!a.finished) s.fin++;
+        a.finished = true;
+      }
+      s.last = id; s.time = r.time;
+      if (p.addToClass && !inRoster[key]) {
+        inRoster[key] = true;
+        roster.push({ klass: r.klass, name: r.name });
+        extraBy[r.klass] = (extraBy[r.klass] || 0) + 1;
+      }
+    } else if (r.type === 'stage') {
+      var rec = stages[key] || (stages[key] = { klass: r.klass, name: r.name });
+      stageRecord_(rec, p);
+    } else if (r.type === 'ask' || r.type === 'reply') {
+      dialog.push({ klass: r.klass, name: r.name, qid: p.qid || '', text: p.text || '',
+                    time: r.time, author: r.type === 'ask' ? 'Учитель' : r.name, number: qNum_(p.qid) });
+    }
+  });
+
+  var students = Object.keys(tests).map(function (k) {
+    var s = tests[k], a = s.att[s.last];
+    var marks = [], score = 0, answered = 0;
+    Q.forEach(function (q) {
+      var g = a.answers[q.id];
+      if (typeof g !== 'number') { marks.push(-1); return; }
+      answered++;
+      if (g === q.correct) { score++; marks.push(1); } else marks.push(0);
+    });
+    return { klass: s.klass, name: s.name, finished: a.finished, score: score, total: Q.length,
+             answered: answered, attempts: s.fin, time: s.time, marks: marks, given: a.answers };
+  }).sort(function (x, y) {
+    return x.klass.localeCompare(y.klass, 'ru') || x.name.localeCompare(y.name, 'ru');
+  });
+
+  var perQuestion = Q.map(function (q, i) {
+    var right = [], wrong = [], silent = [], counts = q.options.map(function () { return 0; }), seen = {};
+    students.forEach(function (s) {
+      var g = s.given[q.id];
+      if (typeof g !== 'number') return;
+      seen[nk_(s.klass, s.name)] = true;
+      counts[g] = (counts[g] || 0) + 1;
+      (g === q.correct ? right : wrong).push({ klass: s.klass, name: s.name, chosen: q.options[g] });
+    });
+    roster.forEach(function (p) { if (!seen[nk_(p.klass, p.name)]) silent.push({ klass: p.klass, name: p.name }); });
+    var answered = right.length + wrong.length;
+    return { id: q.id, number: i + 1, topic: q.topic, text: q.text, code: q.code,
+             options: q.options.map(function (o, oi) { return { text: o, count: counts[oi] || 0, correct: oi === q.correct }; }),
+             note: q.note, correctText: q.options[q.correct], correct: q.correct,
+             right: right, wrong: wrong, silent: silent, answered: answered,
+             rightCount: right.length, wrongCount: wrong.length, silentCount: silent.length,
+             percent: answered ? Math.round(right.length / answered * 100) : 0 };
+  });
+
+  var finishedKey = {};
+  students.forEach(function (s) { if (s.finished) finishedKey[nk_(s.klass, s.name)] = s; });
+  var classes = CL.map(function (c) {
+    var n = 0;
+    roster.forEach(function (p) { if (p.klass === c.klass && finishedKey[nk_(p.klass, p.name)]) n++; });
+    return { klass: c.klass, expected: c.students.length, answered: n, extra: extraBy[c.klass] || 0 };
+  });
+  var missing = roster.filter(function (p) { return !finishedKey[nk_(p.klass, p.name)]; });
+  var fin = students.filter(function (s) { return s.finished; });
+  var sum = 0; fin.forEach(function (s) { sum += s.score; });
+
+  return {
+    version: VER, lesson: L, lessonKk: LKK, uiKk: UKK, questionsKk: QKK,
+    roster: roster, stages: stages, students: students, perQuestion: perQuestion, dialog: dialog,
+    classes: classes, missing: missing, total: Q.length,
+    average: fin.length ? Math.round(sum / fin.length * 10) / 10 : 0,
+    spreadsheetUrl: raw.spreadsheetUrl || ''
   };
-  tag.src = SEND_URL + '?data=results&key=' + encodeURIComponent(TOKEN) + '&callback=' + name;
-  tag.onerror = function(){ if (!done) onFail(new Error('нет связи с таблицей')); };
-  document.head.appendChild(tag);
-  setTimeout(function(){ if (!done) onFail(new Error('таблица не ответила')); }, 20000);
+}
+
+/** Строка на ученика: все этапы урока — для письма и листа «Сводка». */
+function summaryRows_(klass) {
+  var d = LAST || {};
+  var test = {};
+  (d.students || []).forEach(function (s) { test[nk_(s.klass, s.name)] = s; });
+  return (d.roster || []).filter(function (p) { return !klass || p.klass === klass; }).map(function (p) {
+    var k = nk_(p.klass, p.name), s = test[k], st = (d.stages || {})[k] || {};
+    return [p.klass, p.name,
+            s ? s.score + ' / ' + s.total + (s.finished ? '' : ' …') : '—',
+            st.check ? st.check.score + ' / ' + L.check.total : '—',
+            st.work ? st.work.score + ' / ' + L.work.total + (st.work.done ? '' : ' …') : '—',
+            st.decide ? st.decide.score + ' / ' + L.decide.items.length : '—',
+            st.reflection || ''];
+  });
+}
+var SUMMARY_HEAD_ = ['Класс', 'Ученик', 'Повторение', 'Понимание', 'Практика', 'Выбор структуры', 'Рефлексия'];
+
+var CACHE_KEY = 'setmethods.teachercache.v2';
+
+function pullResults(onOk, onFail){
+  jsonp_({ data: 'results', key: TOKEN }, function (raw) {
+    var data = buildFromLog_(raw || {});
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) {}
+    onOk(patchLang(data));
+  }, onFail, 20000);
 }
 
 /** Казахский перевод и текст урока лежат в самом файле. Если таблица
@@ -600,16 +779,28 @@ window.google = { script: { run: {
 
   sendReportNow: function(klass){
     var ok = this._ok, fail = this._fail;
+    var rows = summaryRows_(klass || '');
+    var text = rows.map(function (r) {
+      return r[0] + ' · ' + r[1] + '\n  ' + SUMMARY_HEAD_.slice(2).map(function (h, i) {
+        return h + ': ' + r[i + 2];
+      }).join('\n  ');
+    }).join('\n\n');
     sendOne({ type: 'report', token: TOKEN, klass: klass || '',
-              uid: 'r' + Date.now().toString(36) })
-      .then(function(){ ok({ ok: true }); })
+              subject: (L.title || 'Урок') + ' — ' + (klass || 'все классы'),
+              text: text || 'Пока нет ответов.', uid: 'r' + Date.now().toString(36) })
+      .then(function(res){ ok(res || { ok: true }); })
       .catch(function(e){ fail(e); });
   },
 
   buildSummaryNow: function(){
     var ok = this._ok, fail = this._fail;
-    sendOne({ type: 'summary', token: TOKEN, uid: 's' + Date.now().toString(36) })
-      .then(function(res){ ok(res || { ok: true }); })
+    var rows = summaryRows_('');
+    sendOne({ type: 'summary', token: TOKEN, header: SUMMARY_HEAD_, rows: rows,
+              uid: 's' + Date.now().toString(36) })
+      .then(function(res){
+        ok({ ok: true, rows: (res && res.rows) || rows.length,
+             url: (res && res.url) || (LAST && LAST.spreadsheetUrl) || '' });
+      })
       .catch(function(e){ fail(e); });
   },
 
