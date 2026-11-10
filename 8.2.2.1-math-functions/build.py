@@ -13,6 +13,28 @@ from openpyxl.formatting.rule import CellIsRule, FormulaRule
 
 PASSWORD = "8221"
 
+# ---------------------------------------------------------------- язык
+import re
+
+LANG = "ru"          # "ru" или "kz"
+SEEN = set()         # все строки, прошедшие через tr() (для контроля перевода)
+CYR = re.compile("[А-Яа-яЁёӘәҒғҚқҢңӨөҰұҮүҺһІі]")
+
+
+def tr(text):
+    """Перевод строки интерфейса на текущий язык. Строки без кириллицы не переводятся."""
+    if not isinstance(text, str) or not CYR.search(text):
+        return text
+    SEEN.add(text)
+    if LANG == "ru":
+        return text
+    from kz_strings import KZ
+    if text in KZ.values():  # уже переведено
+        return text
+    if text not in KZ:
+        raise KeyError(f"Нет казахского перевода: {text!r}")
+    return KZ[text]
+
 YELLOW = PatternFill("solid", fgColor="FFF2A8")
 HEAD = PatternFill("solid", fgColor="1F4E78")
 DATA = PatternFill("solid", fgColor="EAF1FB")
@@ -38,12 +60,12 @@ LOCKED_MSG = "🔒 Ответьте на вопрос слева"
 
 def check_formula(cell, expected, tol="0.01"):
     """Формула проверки: формула есть + значение верное."""
-    return (f'=IF({cell}="","",IFERROR(IF(NOT(_xlfn.ISFORMULA({cell})),"⚠ нужна формула",'
+    return (f'=IF({cell}="","",IFERROR(IF(NOT(_xlfn.ISFORMULA({cell})),{xl_str(tr("⚠ нужна формула"))},'
             f'IF(ABS({cell}-({expected}))<{tol},"✔","✘")),"✘"))')
 
 
 def text_check(cell, answer):
-    return f'=IF({cell}="","",IF(LOWER(TRIM({cell}))="{answer}","✔","✘"))'
+    return f'=IF({cell}="","",IF(LOWER(TRIM({cell}))={xl_str(tr(answer))},"✔","✘"))'
 
 
 def xl_str(text):
@@ -57,12 +79,13 @@ def hint(ws, row, question, answers, formula_text, teacher, col="I"):
     from openpyxl.utils import column_index_from_string, get_column_letter
     ci = column_index_from_string(col)
     q, a, h = (f"{get_column_letter(ci + k)}{row}" for k in range(3))
+    answers = [tr(x) for x in answers]
     put(ws, q, question, BLUE)
     c = put(ws, a, answers[0] if teacher else None, BLUE, bold=True, align=CENTER)
     c.protection = Protection(locked=False)
     ok = ",".join(f'LOWER(TRIM({a}&""))={xl_str(x.lower())}' for x in answers)
-    c = put(ws, h, f'=IF({a}="",{xl_str(LOCKED_MSG)},IF(OR({ok}),{xl_str(formula_text)},'
-                   f'"✘ Неверно – подумайте ещё"))', HINT_FILL)
+    c = put(ws, h, f'=IF({a}="",{xl_str(tr(LOCKED_MSG))},IF(OR({ok}),{xl_str(tr(formula_text))},'
+                   f'{xl_str(tr("✘ Неверно – подумайте ещё"))}))', HINT_FILL)
     c.font = Font(bold=True, color="1F4E78")
     c.protection = Protection(locked=True, hidden=not teacher)
     HINT_CELLS.append((ws.title, h))
@@ -75,13 +98,13 @@ def hint_header(ws, row, col="I"):
 
 def header(ws, row, titles, col0=1):
     for i, t in enumerate(titles):
-        c = ws.cell(row=row, column=col0 + i, value=t)
+        c = ws.cell(row=row, column=col0 + i, value=tr(t))
         c.fill, c.font, c.alignment, c.border = HEAD, WHITE_B, CENTER, BOX
 
 
 def put(ws, ref, value, fill=None, fmt=None, bold=False, align=WRAP):
     c = ws[ref]
-    c.value = value
+    c.value = value if isinstance(value, str) and value.startswith("=") else tr(value)
     if fill:
         c.fill = fill
     if fmt:
@@ -131,11 +154,11 @@ def protect(ws, teacher):
 # ---------------------------------------------------------------- Инструкция
 def sheet_intro(wb, teacher):
     ws = wb.active
-    ws.title = "Инструкция"
+    ws.title = tr("Инструкция")
     widths(ws, {"A": 3, "B": 30, "C": 85})
-    ws["B1"] = "Практическая работа «Проект: Новый школьный двор»"
+    ws["B1"] = tr("Практическая работа «Проект: Новый школьный двор»")
     ws["B1"].font = TITLE
-    ws["B2"] = "8 класс · ЦО 8.2.2.1 – использовать математические функции СУММ, ABS, КОРЕНЬ, СТЕПЕНЬ, СУММЕСЛИ · 30 минут"
+    ws["B2"] = tr("8 класс · ЦО 8.2.2.1 – использовать математические функции СУММ, ABS, КОРЕНЬ, СТЕПЕНЬ, СУММЕСЛИ · 30 минут")
     ws["B2"].font = SUB
 
     put(ws, "B4", "Фамилия, имя:", bold=True)
@@ -218,20 +241,20 @@ HINT_W = {"I": 36, "J": 11, "K": 44}
 
 
 def title(ws, text, sub, col="A"):
-    ws[f"{col}1"] = text
+    ws[f"{col}1"] = tr(text)
     ws[f"{col}1"].font = TITLE
-    ws[f"{col}2"] = sub
+    ws[f"{col}2"] = tr(sub)
     ws[f"{col}2"].font = SUB
 
 
 def section(ws, ref, text):
-    ws[ref] = text
+    ws[ref] = tr(text)
     ws[ref].font = Font(bold=True, color="1F4E78")
 
 
 # ---------------------------------------------------------------- 1. СУММ
 def sheet_sum(wb, teacher):
-    ws = wb.create_sheet(S1)
+    ws = wb.create_sheet(tr(S1))
     widths(ws, {"A": 5, "B": 40, "C": 14, "D": 9, "E": 9, "F": 13, "G": 17, "H": 16, **HINT_W})
     title(ws, "Этап 1. Смета проекта – функция СУММ",
           "Посчитайте стоимость каждой покупки и общий итог. Застряли? Ответьте на вопрос-ключ – откроется формула-подсказка.")
@@ -269,14 +292,14 @@ PRICE_CHANGES = [("Саженцы туи", 3500, 3200), ("Теннисный с�
 
 
 def sheet_abs(wb, teacher):
-    ws = wb.create_sheet(S2)
+    ws = wb.create_sheet(tr(S2))
     widths(ws, {"A": 3, "B": 40, "C": 18, "D": 18, "E": 20, "F": 14, "G": 20, "H": 14, **HINT_W})
     title(ws, "Этап 2. Укладываемся в бюджет? Функция ABS",
           "Разница бывает отрицательной (перерасход, подешевело) или положительной. ABS показывает её размер без знака.", "B")
     put(ws, "B4", "Бюджет проекта (грант)", DATA, bold=True)
     put(ws, "C4", 4000000, DATA, MONEY)
     put(ws, "B5", "Итог сметы (берётся с листа 1)", DATA, bold=True)
-    put(ws, "C5", f"='{S1}'!G{TOTAL_ROW}", DATA, MONEY)
+    put(ws, "C5", f"='{tr(S1)}'!G{TOTAL_ROW}", DATA, MONEY)
     put(ws, "B6", "Разница: Бюджет − Смета")
     answer(ws, "C6", "=C4-C5", teacher, MONEY)
     check(ws, "D6", check_formula("C6", "C4-C5"), teacher)
@@ -338,7 +361,7 @@ GEO_W = {"A": 5, "B": 32, "C": 11, "D": 18, "E": 11, "F": 16, "G": 14, "H": 16, 
 
 
 def sheet_sqrt(wb, teacher):
-    ws = wb.create_sheet(S3)
+    ws = wb.create_sheet(tr(S3))
     widths(ws, GEO_W)
     title(ws, "Этап 3. Клумбы и площадки – функция КОРЕНЬ",
           "Архитектор знает только площади квадратных участков. Найдите длины сторон и проверьте смету.")
@@ -361,7 +384,7 @@ def sheet_sqrt(wb, teacher):
 
 
 def sheet_power(wb, teacher):
-    ws = wb.create_sheet(S4)
+    ws = wb.create_sheet(tr(S4))
     widths(ws, GEO_W)
     title(ws, "Этап 4. Спортивные площадки и ящики – функция СТЕПЕНЬ",
           "Найдите площади и объёмы. Для корня тоже можно использовать СТЕПЕНЬ с дробным показателем.")
@@ -391,7 +414,7 @@ def sheet_power(wb, teacher):
 
 # ---------------------------------------------------------------- 5. СУММЕСЛИ
 def sheet_sumif(wb, teacher):
-    ws = wb.create_sheet(S5)
+    ws = wb.create_sheet(tr(S5))
     widths(ws, {"A": 5, "B": 40, "C": 18, "D": 12, "E": 17, "F": 3, "G": 3, "H": 3, **HINT_W})
     title(ws, "Этап 5. Куда уходят деньги? Функция СУММЕСЛИ",
           "Стоимости перенесены с листа 1. Найдите суммы по условию и решите, на чём сэкономить.")
@@ -401,7 +424,7 @@ def sheet_sumif(wb, teacher):
         put(ws, f"B{i}", name, DATA)
         put(ws, f"C{i}", cat, DATA, align=CENTER)
         put(ws, f"D{i}", unit, DATA, align=CENTER)
-        put(ws, f"E{i}", f"='{S1}'!G{i}", DATA, MONEY)
+        put(ws, f"E{i}", f"='{tr(S1)}'!G{i}", DATA, MONEY)
     rc, rd, re = f"$C${FIRST}:$C${LAST}", f"$D${FIRST}:$D${LAST}", f"$E${FIRST}:$E${LAST}"
 
     section(ws, "A18", "Расходы по категориям (условие – ссылка на ячейку в столбце B)")
@@ -414,8 +437,8 @@ def sheet_sumif(wb, teacher):
     hint(ws, 20, "Какой знак делает ссылку абсолютной (A1 → $A$1)?", ["$"],
          "Сумма категории = Σ стоимостей тех строк, где Категория = нужной", teacher)
     put(ws, "B25", "Сумма покупок, которые считаются в штуках («шт»)", bold=True)
-    answer(ws, "C25", f'=SUMIF({rd},"шт",{re})', teacher, MONEY)
-    check(ws, "D25", check_formula("C25", f'SUMPRODUCT(({rd}="шт")*{re})'), teacher)
+    answer(ws, "C25", f'=SUMIF({rd},{xl_str(tr("шт"))},{re})', teacher, MONEY)
+    check(ws, "D25", check_formula("C25", f'SUMPRODUCT(({rd}={xl_str(tr("шт"))})*{re})'), teacher)
     hint(ws, 25, "Сколько ячеек в диапазоне A1:B2?", ["4"], "Σ стоимостей тех строк, где Ед. изм. = «шт»", teacher)
     put(ws, "B26", "★ Сумма всех покупок дороже 100 000 тг", STAR, bold=True)
     answer(ws, "C26", f'=SUMIF({re},">100000")', teacher, MONEY)
@@ -442,26 +465,28 @@ MAX_FO = 10  # максимальный балл ФО
 
 
 def sheet_result(wb, teacher):
-    ws = wb.create_sheet("Итог")
+    ws = wb.create_sheet(tr("Итог"))
+    of = tr(" из ")
+    intro = tr("Инструкция")
     widths(ws, {"A": 3, "B": 36, "C": 40, "D": 3, "E": 14, "F": 22})
-    ws["B1"] = "Мой результат"
+    ws["B1"] = tr("Мой результат")
     ws["B1"].font = TITLE
     total = len(CHECK_CELLS)
     parts = "+".join(f"COUNTIF('{s}'!{c},\"✔\")" for s, c in CHECK_CELLS)
     put(ws, "B3", "Фамилия, имя", DATA, bold=True)
-    put(ws, "C3", "=IF(Инструкция!C4=\"\",\"(заполните на листе Инструкция)\",Инструкция!C4)")
+    put(ws, "C3", f"=IF('{intro}'!C4=\"\",{xl_str(tr('(заполните на листе Инструкция)'))},'{intro}'!C4)")
 
     # --- крупно: выполнено заданий
     c = put(ws, "B5", "ВЫПОЛНЕНО ЗАДАНИЙ", HEAD, align=CENTER)
     c.font = Font(bold=True, size=18, color="FFFFFF")
-    c = put(ws, "C5", f"={parts}", DATA, fmt=f'0" из {total}"', align=CENTER)
+    c = put(ws, "C5", f"={parts}", DATA, fmt=f'0"{of}{total}"', align=CENTER)
     c.font = Font(bold=True, size=40, color="1F4E78")
     ws.row_dimensions[5].height = 66
 
     # --- крупно: балл ФО
     c = put(ws, "B7", f"БАЛЛ ФО (макс. {MAX_FO})", HEAD, align=CENTER)
     c.font = Font(bold=True, size=18, color="FFFFFF")
-    c = put(ws, "C7", f"=ROUND(C5/{total}*{MAX_FO},0)", fmt=f'0" из {MAX_FO}"', align=CENTER)
+    c = put(ws, "C7", f"=ROUND(C5/{total}*{MAX_FO},0)", fmt=f'0"{of}{MAX_FO}"', align=CENTER)
     c.font = Font(bold=True, size=48)
     ws.row_dimensions[7].height = 80
     ws.conditional_formatting.add("C7", CellIsRule(operator="greaterThanOrEqual", formula=["8"], fill=GREEN))
@@ -478,10 +503,10 @@ def sheet_result(wb, teacher):
     c.font = Font(color="2E7D32", size=12)
     put(ws, "B12", "Открыто подсказок", DATA, bold=True)
     opened = "+".join(f"IF(OR(LEFT('{s}'!{c},1)=\"🔒\",LEFT('{s}'!{c},1)=\"✘\"),0,1)" for s, c in HINT_CELLS)
-    put(ws, "C12", f'=({opened})&" из {len(HINT_CELLS)}"', align=CENTER)
-    ws["B14"] = "Ошибки по листам:"
+    put(ws, "C12", f'=({opened})&"{of}{len(HINT_CELLS)}"', align=CENTER)
+    ws["B14"] = tr("Ошибки по листам:")
     ws["B14"].font = Font(bold=True)
-    for k, sheet in enumerate(SHEETS, start=15):
+    for k, sheet in enumerate([tr(x) for x in SHEETS], start=15):
         cells = [c for s, c in CHECK_CELLS if s == sheet]
         f = "+".join(f"COUNTIF('{sheet}'!{c},\"✘\")+COUNTIF('{sheet}'!{c},\"⚠*\")" for c in cells)
         put(ws, f"B{k}", sheet, DATA)
@@ -499,7 +524,9 @@ def sheet_result(wb, teacher):
     protect(ws, teacher)
 
 
-def build(teacher):
+def build(teacher, lang="ru"):
+    global LANG
+    LANG = lang
     CHECK_CELLS.clear()
     HINT_CELLS.clear()
     wb = Workbook()
@@ -508,11 +535,20 @@ def build(teacher):
         make(wb, teacher)
     sheet_result(wb, teacher)
     wb.calculation.fullCalcOnLoad = True
-    name = "practical_work_teacher_key.xlsx" if teacher else "practical_work_student.xlsx"
+    name = "practical_work_teacher_key" if teacher else "practical_work_student"
+    name += "_kz.xlsx" if lang == "kz" else ".xlsx"
     wb.save(name)
     print(name, "проверяемых ячеек:", len(CHECK_CELLS))
 
 
 if __name__ == "__main__":
-    build(teacher=False)
-    build(teacher=True)
+    import sys
+    if "--strings" in sys.argv:  # вывести все строки интерфейса (для перевода)
+        build(teacher=True)
+        build(teacher=False)
+        for t in sorted(SEEN):
+            print(repr(t))
+        sys.exit()
+    for lang in ("ru", "kz"):
+        build(teacher=False, lang=lang)
+        build(teacher=True, lang=lang)
