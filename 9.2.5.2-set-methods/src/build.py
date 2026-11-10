@@ -324,6 +324,12 @@ def patch_common(src, Q, QKK, L, LKK, UKK, CL):
             break
     else:
         raise SystemExit('нет функции слайдов')
+    src = sub1(src, "    card.appendChild(el('div', 'askbig', b.ask));\n",
+               "    card.appendChild(el('div', 'askbig', b.ask));\n"
+               "    if (b.askCode) card.appendChild(el('pre', null, b.askCode));\n")
+    src = sub1(src, "      q.appendChild(el('div', null, b.ask));\n",
+               "      q.appendChild(el('div', null, b.ask));\n"
+               "      if (b.askCode) q.appendChild(el('pre', null, b.askCode));\n")
     src = sub1(src, "    card.appendChild(el('div', null, b.text));\n",
                "    card.appendChild(el('div', null, b.text));\n    slideExtras(card, b);\n")
     return src
