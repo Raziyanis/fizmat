@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content as C  # noqa: E402
 import langkeep  # noqa: E402
 import kkui  # noqa: E402
+import worklock  # noqa: E402
 
 VER = 'set v1 · 10 ноября'
 
@@ -341,6 +342,7 @@ def patch_student(src, data):
     src = langkeep.patch_student(src, sub1)
     src = kkui.patch_both(src, sub1)
     src = kkui.patch_student(src, sub1)
+    src = worklock.patch_student(src, sub1)
     src = sub1(src, '<title>Методы списка — повторение</title>', '<title>Методы множества — урок</title>')
     src = sub1(src, '<div class="display">Методы списка</div>', '<div class="display">Список и кортеж</div>')
     src = sub1(src, "decide: 'Список или кортеж', reflect: 'Рефлексия' };",
@@ -402,6 +404,7 @@ def main():
                                     open(s_path, encoding='utf-8').read(), re.M).group(1))
     UKK = dict(base_ukk)
     UKK.update(C.UI_EXTRA)
+    UKK.update(worklock.UI)
     UKK[VER] = VER.replace('ноября', 'қараша')
     UKK['Таблица для этого урока ещё не подключена, поэтому ответы класса сюда не приходят. '
         'Задания, разбор и вызов учеников работают из файла.'] = (
