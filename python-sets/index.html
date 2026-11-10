@@ -380,6 +380,53 @@
   .el.miss { transform: scale(1.2); box-shadow: 0 0 0 5px var(--bad), 0 6px 16px rgba(0,0,0,.35); }
   .item code { overflow-wrap: anywhere; }
 
+  /* ---------- Практика · ФО ---------- */
+  .fo-only { display: none; }
+  body[data-tab="fo"] .fo-only { display: flex; }
+  .fo-meta { display: grid; gap: 6px; padding: 14px 18px; border-radius: 16px; background: rgba(255,255,255,.1); border-left: 5px solid var(--glow); }
+  .fo-desc td:nth-child(3), .fo-desc td:nth-child(4), .fo-desc td:nth-child(5) { text-align: center; white-space: nowrap; }
+  .fo-desc .fo-res-col { display: none; }
+  .fo-desc.done .fo-res-col { display: table-cell; }
+  .fo-name { margin: 0 auto 18px; max-width: 420px; }
+  .fo-name input { width: 100%; font: inherit; font-weight: 700; padding: 12px 16px; border-radius: 14px; border: 2px solid rgba(255,255,255,.35); background: rgba(255,255,255,.95); color: var(--ink); }
+  .fo-name input:focus { outline: 3px solid var(--glow); }
+  .fo-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .fo-chip { font: inherit; font-weight: 900; min-width: 46px; height: 42px; padding: 0 10px; border-radius: 12px; cursor: pointer;
+    border: 2px solid rgba(255,255,255,.4); background: rgba(255,255,255,.12); color: #fff; transition: transform .15s; }
+  .fo-chip:hover { transform: translateY(-2px); }
+  .fo-chip.extra { border-style: dashed; }
+  .fo-chip.ok { background: var(--ok); border-color: var(--ok); }
+  .fo-chip.bad { background: var(--bad); border-color: var(--bad); }
+  .fo-chip.cur { box-shadow: 0 0 0 3px var(--glow); }
+  .fo-sep { align-self: center; opacity: .6; font-weight: 800; padding: 0 4px; }
+  .fo-task { padding: 18px 20px; border-radius: 18px; background: var(--card); color: var(--ink); box-shadow: 0 8px 22px rgba(0,0,0,.22); animation: enter .5s cubic-bezier(.2,1.4,.4,1) both; }
+  .fo-th { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 8px; }
+  .fo-th h3 { margin: 0; font-size: 1.3rem; font-weight: 900; }
+  .fo-stars { color: #e0a000; letter-spacing: 2px; }
+  .fo-tag { font-size: .8rem; font-weight: 800; padding: 3px 10px; border-radius: 99px; background: #efeaff; color: #5b47d6; }
+  .fo-tag.extra { background: #fff3d6; color: #a86f00; }
+  .fo-task p { margin: 6px 0; }
+  .fo-task code { font-family: var(--mono); color: #b5179e; font-weight: 700; }
+  .fo-io { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .fo-io div { padding: 10px 12px; border-radius: 12px; background: #f4f2ff; font-size: .96rem; }
+  .fo-samples { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: .95rem; }
+  .fo-samples th, .fo-samples td { border: 1px solid #ddd8f3; padding: 6px 10px; text-align: left; vertical-align: top; }
+  .fo-samples th { background: #f4f2ff; }
+  .fo-samples pre { margin: 0; font-family: var(--mono); white-space: pre-wrap; }
+  .fo-task textarea.editor { min-height: 200px; }
+  .fo-task .btn:not(.primary) { color: var(--ink); border-color: #c9c4e6; background: #f4f2ff; }
+  .fo-verdict { display: none; margin-top: 12px; padding: 12px 14px; border-radius: 12px; font-weight: 800; white-space: pre-wrap; }
+  .fo-verdict.show { display: block; animation: enter .4s cubic-bezier(.2,1.4,.4,1) both; }
+  .fo-verdict.ok { background: #e9fbf2; color: #0c7a4b; border-left: 5px solid var(--ok); }
+  .fo-verdict.bad { background: #fff0f3; color: #b0213f; border-left: 5px solid var(--bad); }
+  .fo-verdict.info { background: #eef6ff; color: #1b4f8a; border-left: 5px solid #23a6ff; }
+  .fo-verdict .det { display: block; margin-top: 6px; font-weight: 600; font-family: var(--mono); font-size: .92rem; color: var(--ink); }
+  .fo-hint, .fo-noteb { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: #fff8e1; border-left: 5px solid var(--glow); }
+  .fo-noteb { background: #e9fbf2; border-left-color: var(--ok); }
+  .fo-note { margin: 0 0 8px; opacity: .85; }
+  .actions.left { justify-content: flex-start; }
+  @media (max-width: 720px) { .fo-io { grid-template-columns: 1fr; } }
+
   /* ---------- Инструкция ---------- */
   .intro { text-align: center; animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; }
   .intro h2 { margin: 0 0 14px; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 900; }
@@ -475,13 +522,18 @@
     <button class="tab-btn" role="tab" data-tab="theory" id="tb-theory"><span class="tn">2</span>Новая тема</button>
     <button class="tab-btn" role="tab" data-tab="task" id="tb-task"><span class="tn">3</span>Задание</button>
     <button class="tab-btn" role="tab" data-tab="ops" id="tb-ops"><span class="tn">4</span>Операции</button>
+    <button class="tab-btn" role="tab" data-tab="fo" id="tb-fo"><span class="tn">5</span>Практика · ФО</button>
     <div class="stats task-only">
       <div class="chip"><div class="bar"><i id="bar"></i></div><span id="cnt" class="mono">0/8</span></div>
       <div class="chip" id="timerChip">⏱ <span id="timer" class="mono">03:00</span><button class="plus" id="plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
     </div>
     <div class="stats ops-only">
-      <div class="chip"><div class="bar"><i id="ops-bar"></i></div><span id="ops-cnt" class="mono">0/8</span></div>
-      <div class="chip" id="ops-timerChip">⏱ <span id="ops-timer" class="mono">03:00</span><button class="plus" id="ops-plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
+      <div class="chip"><div class="bar"><i id="ops-bar"></i></div><span id="ops-cnt" class="mono">0/10</span></div>
+      <div class="chip" id="ops-timerChip">⏱ <span id="ops-timer" class="mono">04:00</span><button class="plus" id="ops-plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
+    </div>
+    <div class="stats fo-only">
+      <div class="chip"><div class="bar"><i id="fo-bar"></i></div><span id="fo-cnt" class="mono">0/10</span></div>
+      <div class="chip" id="fo-timerChip">⏱ <span id="fo-timer" class="mono">20:00</span><button class="plus" id="fo-plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
     </div>
     <button class="snd" id="snd" aria-label="Звук" title="Звук">🔊</button>
   </nav>
@@ -634,17 +686,18 @@
   </section>
 
 
+    <div class="actions"><button class="btn primary" data-go="ops">Перейти к операциям ➜</button></div>
     <p class="hint">Обозначения: <code>s</code> - множество, <code>x</code> - элемент, <code>t</code> - другая коллекция (множество, список, строка).</p>
   </div>
   <!-- ===================== Вкладка 4: операции над множествами ===================== -->
   <div class="tab" id="tab-ops" role="tabpanel" aria-labelledby="tb-ops">
     <section class="panel">
       <h2 class="sec">🔗 Операции над множествами</h2>
-      <p class="lead-l">Методы из этой части работают сразу с <b>двумя</b> множествами: <code class="mono">a</code> и <code class="mono">b</code>. Одни возвращают новое множество, другие - <code class="mono">True</code> или <code class="mono">False</code>, а <code class="mono">difference_update</code> изменяет само <code class="mono">a</code>.</p>
+      <p class="lead-l">Методы из этой части работают сразу с <b>двумя</b> множествами: <code class="mono">a</code> и <code class="mono">b</code>. Одни возвращают новое множество, другие - <code class="mono">True</code> или <code class="mono">False</code>, а методы с <code class="mono">_update</code> изменяют само <code class="mono">a</code>.</p>
       <div class="props">
         <div class="prop" style="--c:#23a6ff"><div class="pi">🆕</div><b>Новое множество</b><span><code class="mono">union</code>, <code class="mono">intersection</code>, <code class="mono">difference</code>, <code class="mono">symmetric_difference</code> - <code class="mono">a</code> и <code class="mono">b</code> не меняются.</span></div>
         <div class="prop" style="--c:#00b4a6"><div class="pi">❓</div><b>True или False</b><span><code class="mono">issubset</code>, <code class="mono">issuperset</code>, <code class="mono">isdisjoint</code> - только проверяют.</span></div>
-        <div class="prop" style="--c:#ff5d8f"><div class="pi">✏️</div><b>Изменяет a</b><span><code class="mono">difference_update</code> удаляет элементы прямо из <code class="mono">a</code>.</span></div>
+        <div class="prop" style="--c:#ff5d8f"><div class="pi">✏️</div><b>Изменяет a</b><span><code class="mono">difference_update</code>, <code class="mono">intersection_update</code>, <code class="mono">symmetric_difference_update</code> - результат записывается прямо в <code class="mono">a</code>.</span></div>
       </div>
       <h3 class="sub-h">Методы и операторы для <code class="mono">a = {1, 2, 3, 4}</code>, <code class="mono">b = {3, 4, 5, 6}</code></h3>
       <div class="table-wrap">
@@ -659,6 +712,8 @@
             <tr><td><code class="mono">a.issuperset(b)</code></td><td><code class="mono">a &gt;= b</code></td><td>содержит ли a все элементы b</td><td><code class="mono">False</code></td></tr>
             <tr><td><code class="mono">a.isdisjoint(b)</code></td><td>-</td><td>нет ли общих элементов</td><td><code class="mono">False</code></td></tr>
             <tr><td><code class="mono">a.difference_update(b)</code></td><td><code class="mono">a -= b</code></td><td>удаляет из a элементы b</td><td><code class="mono">a</code> → <code class="mono">{1, 2}</code></td></tr>
+            <tr><td><code class="mono">a.intersection_update(b)</code></td><td><code class="mono">a &amp;= b</code></td><td>оставляет в a только общие с b элементы</td><td><code class="mono">a</code> → <code class="mono">{3, 4}</code></td></tr>
+            <tr><td><code class="mono">a.symmetric_difference_update(b)</code></td><td><code class="mono">a ^= b</code></td><td>оставляет в a элементы только одного из множеств</td><td><code class="mono">a</code> → <code class="mono">{1, 2, 5, 6}</code></td></tr>
           </tbody>
         </table>
       </div>
@@ -681,12 +736,12 @@
           <li><span class="ic">👆</span>Нажмите на <b>метод</b> в левой колонке.</li>
           <li><span class="ic">🔗</span>Нажмите на подходящее <b>описание</b> справа - появится цветная линия.</li>
           <li><span class="ic">↩️</span>Передумали? Нажмите на метод ещё раз - пара разорвётся.</li>
-          <li><span class="ic">✨</span>Соедините все 8 пар и нажмите <b>«Проверить»</b>.</li>
-          <li><span class="ic">⏱</span>На задание - <b>3 минуты</b>. Когда время выйдет, ответы проверятся автоматически.</li>
+          <li><span class="ic">✨</span>Соедините все 10 пар и нажмите <b>«Проверить»</b>.</li>
+          <li><span class="ic">⏱</span>На задание - <b>4 минуты</b>. Когда время выйдет, ответы проверятся автоматически.</li>
           <li><span class="ic">💡</span>После проверки нажмите <b>«Почему?»</b> у ошибки, чтобы разобраться, и <b>«Показать»</b>, чтобы увидеть метод в действии.</li>
         </ol>
         <p class="intro-note">Работайте самостоятельно.</p>
-        <button class="btn primary big" id="ops-startBtn">▶ Начать · 3:00</button>
+        <button class="btn primary big" id="ops-startBtn">▶ Начать · 4:00</button>
       </div>
 
       <div class="game" id="ops-game">
@@ -708,7 +763,7 @@
             <circle class="track" cx="75" cy="75" r="62"/>
             <circle class="val" id="ops-ringVal" cx="75" cy="75" r="62" stroke-dasharray="389.6" stroke-dashoffset="389.6" style="stroke:url(#rg2)"/>
           </svg>
-          <div class="num"><div><span id="ops-scoreNum">0</span><small>из 8</small></div></div>
+          <div class="num"><div><span id="ops-scoreNum">0</span><small>из 10</small></div></div>
         </div>
         <div>
           <p class="verdict" id="ops-verdict"></p>
@@ -719,6 +774,71 @@
     </section>
 
     <p class="hint">Обозначения: <code>a</code>, <code>b</code> - множества. Методы с <code>_update</code> и операторы вида <code>-=</code> изменяют само множество <code>a</code>.</p>
+    <div class="actions"><button class="btn primary" data-go="fo">Перейти к ФО ➜</button></div>
+  </div>
+  <!-- ===================== Вкладка 5: практика, формативное оценивание ===================== -->
+  <div class="tab" id="tab-fo" role="tabpanel" aria-labelledby="tb-fo">
+    <section class="panel">
+      <h2 class="sec">📝 Практика · ФО</h2>
+      <p class="lead-l">Работа <b>индивидуальная</b>. <b>10 основных задач</b> от простой к сложной, по 1 баллу за каждую, всего <b>10 баллов</b>. После них 4 дополнительные задачи <b>11★-14★</b>: на оценку они не влияют, решайте, если останется время. В каждой задаче нужно написать программу на Python; задача засчитывается, только если пройдены все проверки.</p>
+      <div class="fo-meta">
+        <div><b>Цель обучения:</b> применять методы множеств: добавлять и удалять элементы, проверять принадлежность, находить объединение, пересечение и разность.</div>
+        <div><b>Критерий оценивания:</b> применяет методы множеств для решения задач.</div>
+        <div><b>Уровень мыслительных навыков:</b> применение.</div>
+      </div>
+      <h3 class="sub-h">Дескрипторы</h3>
+      <div class="table-wrap">
+        <table class="cmp fo-desc">
+          <thead><tr><th>№</th><th>Обучающийся</th><th>Задачи</th><th>Балл</th><th class="fo-res-col">Результат</th></tr></thead>
+          <tbody id="foDesc"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="intro" id="foIntro">
+        <h2>📋 Инструкция</h2>
+        <ol class="steps">
+          <li><span class="ic">✍️</span>Введите <b>фамилию и имя</b>.</li>
+          <li><span class="ic">📖</span>У каждой задачи есть условие, формат ввода и вывода и примеры.</li>
+          <li><span class="ic">▶️</span>«Запустить» - программа выполнится на первом примере. «Проверить» - на всех наборах данных.</li>
+          <li><span class="ic">🔢</span>Номера сверху: зелёный - решено, красный - есть ошибка. Между задачами можно переходить.</li>
+          <li><span class="ic">⏱</span>На работу - <b>20 минут</b>. Когда время выйдет, работа сдастся автоматически.</li>
+          <li><span class="ic">✨</span>Закончили - нажмите <b>«Сдать работу»</b>.</li>
+        </ol>
+        <div class="fo-name"><input id="foName" type="text" placeholder="Фамилия и имя" autocomplete="off" aria-label="Фамилия и имя"></div>
+        <button class="btn primary big" id="foStart">▶ Начать · 20:00</button>
+        <p class="note">Для проверки нужен интернет: при первом запуске загружается Python для браузера (около 10 МБ).</p>
+      </div>
+
+      <div class="game" id="foGame">
+        <div class="fo-chips" id="foChips"></div>
+        <div class="fo-task" id="foTask"></div>
+        <div class="actions">
+          <button class="btn" id="foPrev">← Предыдущая</button>
+          <button class="btn" id="foNext">Следующая →</button>
+          <button class="btn primary" id="foSubmit">📨 Сдать работу</button>
+        </div>
+      </div>
+
+      <div class="result" id="foResult" role="status">
+        <div class="ring">
+          <svg width="150" height="150" viewBox="0 0 150 150">
+            <defs><linearGradient id="rg3" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset=".5" stop-color="#ff5d8f"/><stop offset="1" stop-color="#c77dff"/></linearGradient></defs>
+            <circle class="track" cx="75" cy="75" r="62"/>
+            <circle class="val" id="foRing" cx="75" cy="75" r="62" stroke-dasharray="389.6" stroke-dashoffset="389.6" style="stroke:url(#rg3)"/>
+          </svg>
+          <div class="num"><div><span id="foScore">0</span><small>из 10</small></div></div>
+        </div>
+        <div>
+          <p class="verdict" id="foResVerdict"></p>
+          <p class="who" id="foWho"></p>
+          <p class="fo-note" id="foExtra"></p>
+          <p class="fo-note">Результат по дескрипторам - в таблице в начале вкладки. Решения и разборы можно посмотреть по номерам задач.</p>
+          <div class="actions left"><button class="btn" id="foAgain">↻ Новая попытка</button></div>
+        </div>
+      </div>
+    </section>
   </div>
 </main>
 
@@ -765,7 +885,7 @@ function confusionTip(i, r) {
   return PAIRS[i].m + ' ' + grp(i) + ', а ' + PAIRS[r].m + ' ' + grp(r) + '. Подумайте, что делает метод: добавляет, удаляет или только сообщает информацию.';
 }
 
-var COLORS = ['#ff5d8f', '#ff9f1c', '#e0b000', '#00b4a6', '#23a6ff', '#4361ee', '#7b61ff', '#c04cfd'];
+var COLORS = ['#ff5d8f', '#ff9f1c', '#e0b000', '#00b4a6', '#23a6ff', '#4361ee', '#7b61ff', '#c04cfd', '#17a35a', '#e8590c'];
 
 /* ===================== Звук ===================== */
 var soundOn = true, actx = null;
@@ -1261,7 +1381,7 @@ var game1 = MatchGame({
 });
 
 /* ===================== Вкладки ===================== */
-var TAB_HASH = { topic: 'tema', theory: 'teoriya', task: 'zadanie', ops: 'operacii' };
+var TAB_HASH = { topic: 'tema', theory: 'teoriya', task: 'zadanie', ops: 'operacii', fo: 'fo' };
 function showTab(name, keepScroll) {
   document.body.dataset.tab = name;
   document.querySelectorAll('.tab-btn').forEach(function (b) {
@@ -1551,7 +1671,9 @@ var OPS_PAIRS = [
   { m: 'a.issubset(b)',             d: 'Возвращает True, если каждый элемент a есть в b.' },
   { m: 'a.issuperset(b)',           d: 'Возвращает True, если a содержит все элементы b.' },
   { m: 'a.isdisjoint(b)',           d: 'Возвращает True, если у a и b нет ни одного общего элемента.' },
-  { m: 'a.difference_update(b)',    d: 'Удаляет из самого a все элементы, которые есть в b. Новое множество не создаётся.' }
+  { m: 'a.difference_update(b)',    d: 'Удаляет из самого a все элементы, которые есть в b. Новое множество не создаётся.' },
+  { m: 'a.intersection_update(b)',  d: 'Оставляет в самом a только элементы, которые есть и в b. Новое множество не создаётся.' },
+  { m: 'a.symmetric_difference_update(b)', d: 'Оставляет в самом a элементы, которые есть только в одном из множеств. Новое множество не создаётся.' }
 ];
 var OPS_WHY = [
   'union(b) собирает в новое множество все элементы a и все элементы b. Общие элементы не дублируются. То же самое записывается оператором a | b.',
@@ -1561,7 +1683,9 @@ var OPS_WHY = [
   'issubset(b) отвечает на вопрос «лежит ли a целиком внутри b?» и возвращает True или False. Оператор: a &lt;= b.',
   'issuperset(b) отвечает на вопрос «содержит ли a все элементы b?». Это проверка в обратную сторону по сравнению с issubset. Оператор: a &gt;= b.',
   'isdisjoint(b) возвращает True, если у множеств нет ни одного общего элемента, то есть их пересечение пустое.',
-  'difference_update(b) удаляет элементы b прямо из a и ничего не возвращает. Оператор: a -= b. В отличие от difference, новое множество не создаётся.'
+  'difference_update(b) удаляет элементы b прямо из a и ничего не возвращает. Оператор: a -= b. В отличие от difference, новое множество не создаётся.',
+  'intersection_update(b) оставляет в a только общие с b элементы и ничего не возвращает. Оператор: a &amp;= b. В отличие от intersection, меняется само a.',
+  'symmetric_difference_update(b) записывает в a элементы, которые есть ровно в одном из множеств, и ничего не возвращает. Оператор: a ^= b. В отличие от symmetric_difference, меняется само a.'
 ];
 var OPS_TIPS = {
   '0-1': 'union - все элементы обоих множеств, intersection - только общие элементы.',
@@ -1574,7 +1698,12 @@ var OPS_TIPS = {
   '2-7': 'Оба убирают из a элементы b, но difference возвращает новое множество, а difference_update меняет само a.',
   '1-6': 'intersection возвращает множество общих элементов, а isdisjoint только отвечает True или False: правда ли, что общих элементов нет.',
   '4-6': 'issubset проверяет, что все элементы a есть в b, а isdisjoint - что общих элементов нет вообще.',
-  '5-6': 'issuperset проверяет, что a содержит все элементы b, а isdisjoint - что общих элементов нет вообще.'
+  '5-6': 'issuperset проверяет, что a содержит все элементы b, а isdisjoint - что общих элементов нет вообще.',
+  '7-8': 'Оба меняют a: difference_update убирает из a элементы b, а intersection_update, наоборот, оставляет только элементы b.',
+  '7-9': 'difference_update убирает из a элементы b, а symmetric_difference_update ещё и добавляет в a элементы b, которых там не было.',
+  '8-9': 'intersection_update оставляет только общие элементы, symmetric_difference_update - наоборот, всё, кроме общих.',
+  '1-8': 'Оба находят общие элементы, но intersection возвращает новое множество, а intersection_update меняет само a.',
+  '3-9': 'Оба находят элементы только одного из множеств, но symmetric_difference возвращает новое множество, а symmetric_difference_update меняет само a.'
 };
 function opsTip(i, r) {
   var key = Math.min(i, r) + '-' + Math.max(i, r);
@@ -1633,6 +1762,28 @@ async function allIn(sub, subVals, sup) {
   }
   return true;
 }
+/* методы с _update: keep(естьВa, естьВb) решает, останется ли элемент в a */
+async function updateDemo(code, op, keep, text) {
+  var a = oSet('a', OA), b = oSet('b', OB, 'b'), vals = OA.slice();
+  oIn(code, 'или ' + op);
+  var all = [1, 2, 3, 4, 5, 6];
+  for (var k = 0; k < all.length; k++) {
+    await sleep(450);
+    var v = all[k], ea = oEl(a, v), eb = oEl(b, v), stay = keep(!!ea, !!eb);
+    flash(eb);
+    if (ea && !stay) {
+      vals.splice(vals.indexOf(v), 1); SFX.whoosh();
+      ea.classList.add('out'); (function (x) { setTimeout(function () { x.remove(); }, 600); })(ea);
+    } else if (!ea && stay) {
+      SFX.whoosh(); a.appendChild(makeEl(v, 'in')); vals.push(v);
+    } else if (ea) flash(ea, 'okm');
+  }
+  await sleep(800);
+  oIn(code + ' is None', 'метод ничего не возвращает'); oLine('True');
+  oIn('a', 'a изменилось!'); oLine(fmtSet(vals));
+  oIn('b'); oLine(fmtSet(OB));
+  oCap.textContent = text;
+}
 var OPS_DEMOS = [
   function () { return resultDemo('a.union(b)', 'a | b', function (x, y) { return x || y; },
     'union собирает все элементы обоих множеств в новое множество. 3 и 4 есть и в a, и в b, но в результат попадают один раз.'); },
@@ -1678,23 +1829,12 @@ var OPS_DEMOS = [
     await sleep(300); oBadge('True', true); oLine('True    <span class="c"># общих элементов нет</span>');
     oCap.textContent = 'isdisjoint отвечает True, только если у множеств нет ни одного общего элемента.';
   },
-  async function () {                                  // difference_update
-    var a = oSet('a', OA), b = oSet('b', OB, 'b'), vals = OA.slice();
-    oIn('a.difference_update(b)', 'или a -= b');
-    for (var k = 0; k < OB.length; k++) {
-      await sleep(450);
-      var v = OB[k], eb = oEl(b, v), ea = oEl(a, v);
-      flash(eb);
-      if (ea) {
-        vals.splice(vals.indexOf(v), 1); SFX.whoosh();
-        ea.classList.add('out'); (function (x) { setTimeout(function () { x.remove(); }, 600); })(ea);
-      }
-    }
-    await sleep(800);
-    oIn('a', 'a изменилось!'); oLine(fmtSet(vals));
-    oIn('b'); oLine(fmtSet(OB));
-    oCap.textContent = 'difference_update ничего не возвращает, а меняет само a: из него удалены 3 и 4. Сравните с difference, которое создаёт новое множество.';
-  }
+  function () { return updateDemo('a.difference_update(b)', 'a -= b', function (x, y) { return x && !y; },
+    'difference_update ничего не возвращает, а меняет само a: из него удалены 3 и 4. Сравните с difference, которое создаёт новое множество.'); },
+  function () { return updateDemo('a.intersection_update(b)', 'a &= b', function (x, y) { return x && y; },
+    'intersection_update ничего не возвращает, а меняет само a: в нём остались только общие элементы 3 и 4.'); },
+  function () { return updateDemo('a.symmetric_difference_update(b)', 'a ^= b', function (x, y) { return x !== y; },
+    'symmetric_difference_update меняет само a: общие 3 и 4 удалены, а 5 и 6 из b добавлены.'); }
 ];
 function opsReset() {
   oStage.className = 'stage'; oStage.innerHTML = '';
@@ -1732,12 +1872,335 @@ document.getElementById('opsTry').onclick = function () {
   setTimeout(function () { document.getElementById('editorPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
 };
 var game2 = MatchGame({
-  px: 'ops-', pairs: OPS_PAIRS, why: OPS_WHY, tip: opsTip, limit: 180,
+  px: 'ops-', pairs: OPS_PAIRS, why: OPS_WHY, tip: opsTip, limit: 240,
   demo: function (i) {
     document.getElementById('opsDemo').scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(function () { runOpsDemo(i); }, 600);
   }
 });
+
+/* ===================== Вкладка 5: практика · ФО ===================== */
+/* Задачи: 1-10 основные (по 1 баллу), 11-14 дополнительные (extra). Решения в файл не включены. */
+var FO_TASKS = [{"id":"S1","stars":1,"name":"Сколько элементов в множестве","skill":"set() · len()","text":"В строке записаны числа, среди них есть повторы. Составьте из них множество и выведите, сколько в нём элементов.","inp":"Одна строка — целые числа через пробел.","out":"Одно число — количество элементов множества.","start":"# прочитай числа и составь из них множество\n","hint":"s = set(map(int, input().split())), затем print(len(s)).","note":"set(...) составляет множество, и каждое число попадает в него один раз. Поэтому len(s) — это количество разных чисел в строке.","samples":[["3 1 3 2 1","3"],["7 7 7","1"]],"tests":[{"inputs":["3 1 3 2 1"],"want":"3"},{"inputs":["7 7 7"],"want":"1"},{"inputs":["1 2 3 4"],"want":"4"},{"inputs":["5 -5 5 0 -5 0"],"want":"3"}]},{"id":"S2","stars":1,"name":"Новый участник: add","skill":"add","text":"В первой строке — номера участников кружка, во второй — номер ученика, который хочет записаться. Добавьте его в множество методом add. Выведите количество участников, а на следующей строке — их номера по возрастанию. Если ученик уже записан, количество не изменится.","inp":"Первая строка — различные целые числа через пробел. Вторая — одно целое число.","out":"Первая строка — количество участников, вторая — номера по возрастанию через пробел.","start":"s = set(map(int, input().split()))\n","hint":"x = int(input()), затем s.add(x). Вывод: print(len(s)) и print(*sorted(s)).","note":"add добавляет в множество один элемент. Проверять заранее, есть ли ученик, не нужно: если он уже записан, add ничего не сделает и количество не изменится.","samples":[["3 7 1\n5","4\n1 3 5 7"],["3 7 1\n7","3\n1 3 7"]],"tests":[{"inputs":["3 7 1","5"],"want":"4\n1 3 5 7"},{"inputs":["3 7 1","7"],"want":"3\n1 3 7"},{"inputs":["10","2"],"want":"2\n2 10"},{"inputs":["4 8 15 16 23","42"],"want":"6\n4 8 15 16 23 42"}]},{"id":"S3","stars":1,"name":"Сразу несколько: update","skill":"update","text":"В первой строке — элементы множества, во второй — новые числа. Добавьте все новые числа в множество одной командой update и выведите элементы множества по возрастанию.","inp":"Две строки, в каждой — несколько целых чисел через пробел.","out":"Элементы множества по возрастанию через пробел.","start":"s = set(map(int, input().split()))\n","note":"update добавляет каждый элемент переданной коллекции, а те, что уже есть в множестве, пропускает. Числа второй строки можно передать сразу: s.update(map(int, input().split())).","samples":[["1 5 9\n2 5 7","1 2 5 7 9"],["4\n4 4 4","4"]],"tests":[{"inputs":["1 5 9","2 5 7"],"want":"1 2 5 7 9"},{"inputs":["4","4 4 4"],"want":"4"},{"inputs":["10 20","30 40 10"],"want":"10 20 30 40"},{"inputs":["-1 0","1 -1"],"want":"-1 0 1"}]},{"id":"S4","stars":1,"name":"Ученик пришёл: remove","skill":"remove","text":"В первой строке — номера учеников, которых нет на уроке, во второй — номер ученика, который пришёл. Этот номер точно есть в множестве. Удалите его методом remove и выведите оставшиеся номера по возрастанию. В множестве не меньше двух номеров.","inp":"Первая строка — различные целые числа через пробел. Вторая — одно из этих чисел.","out":"Элементы множества по возрастанию через пробел.","start":"s = set(map(int, input().split()))\nx = int(input())\n","note":"remove(x) удаляет элемент x. Здесь он подходит, потому что номер точно есть в множестве. Если бы номера не было, remove остановил бы программу с ошибкой KeyError.","samples":[["3 8 12\n8","3 12"],["1 2\n1","2"]],"tests":[{"inputs":["3 8 12","8"],"want":"3 12"},{"inputs":["1 2","1"],"want":"2"},{"inputs":["5 4 3 2 1","3"],"want":"1 2 4 5"},{"inputs":["10 20 30","30"],"want":"10 20"}]},{"id":"S5","stars":1,"name":"Удалить без ошибки: discard","skill":"discard","text":"В первой строке — номера учеников, которые ещё не сдали работу, во второй — номер ученика, который только что сдал. Номер мог прийти по ошибке, и такого ученика в множестве может не быть. Удалите номер из множества так, чтобы программа не остановилась с ошибкой, и выведите, сколько учеников ещё не сдали.","inp":"Первая строка — различные целые числа через пробел. Вторая — одно целое число.","out":"Одно число — сколько учеников осталось.","start":"s = set(map(int, input().split()))\nx = int(input())\n","note":"Здесь нужен discard: если элемента нет, он ничего не делает. remove на номере, которого нет, дал бы KeyError, и вторая проверка не прошла бы.","samples":[["1 2 3 4\n3","3"],["1 2 3 4\n9","4"]],"tests":[{"inputs":["1 2 3 4","3"],"want":"3"},{"inputs":["1 2 3 4","9"],"want":"4"},{"inputs":["5","5"],"want":"0"},{"inputs":["10 20 30","-1"],"want":"3"}]},{"id":"S6","stars":1,"name":"Есть ли в списке гостей: in","skill":"in","text":"В первой строке — имена приглашённых через пробел, во второй — имя человека у входа. Составьте множество гостей и выведите True, если человек приглашён, и False, если нет.","inp":"Первая строка — имена через пробел. Вторая — одно имя.","out":"True / False","start":"guests = set(input().split())\n","note":"Оператор in сам даёт True или False, поэтому результат можно печатать сразу. Последняя проверка показывает, зачем нужно множество: в строке «Ая» нашлось бы внутри «Аян», а множество сравнивает имена целиком.","samples":[["Арман Дана Тимур\nДана","True"],["Арман Дана Тимур\nАсель","False"]],"tests":[{"inputs":["Арман Дана Тимур","Дана"],"want":"True"},{"inputs":["Арман Дана Тимур","Асель"],"want":"False"},{"inputs":["Ерлан","Ерлан"],"want":"True"},{"inputs":["Аян Айя Аяна","Ая"],"want":"False"}]},{"id":"S7","stars":2,"name":"Все вместе: union","skill":"объединение · union · |","text":"В первой строке — номера учеников шахматного кружка, во второй — кружка робототехники. Найдите объединение множеств. Выведите, сколько учеников ходит хотя бы в один кружок, а на следующей строке — их номера по возрастанию.","inp":"Две строки, в каждой — несколько целых чисел через пробел.","out":"Первая строка — количество, вторая — номера по возрастанию через пробел.","start":"a = set(map(int, input().split()))\nb = set(map(int, input().split()))\n","note":"a.union(b) (или a | b) собирает учеников обоих кружков, и тот, кто ходит в оба, попадает в результат один раз. Поэтому len(a) + len(b) здесь неверно: общие ученики посчитались бы дважды.","samples":[["1 2 3 4\n3 4 5","5\n1 2 3 4 5"],["8\n8","1\n8"]],"tests":[{"inputs":["1 2 3 4","3 4 5"],"want":"5\n1 2 3 4 5"},{"inputs":["8","8"],"want":"1\n8"},{"inputs":["5 1","2 6 3"],"want":"5\n1 2 3 5 6"},{"inputs":["1 1 2","2 2 3"],"want":"3\n1 2 3"}]},{"id":"S8","stars":2,"name":"Общие элементы: intersection","skill":"пересечение · intersection · &","text":"В программе заданы два множества a и b. Найдите их пересечение и выведите общие элементы по возрастанию через пробел. Хотя бы один общий элемент есть. Строки a = {...} и b = {...} не удаляйте и не меняйте: при проверке в них подставят другие числа.","inp":"Ввода нет: множества a и b уже заданы в программе.","out":"Общие элементы по возрастанию через пробел.","start":"a = {1, 2, 3, 4}\nb = {3, 4, 5}\n","note":"a.intersection(b) (или a & b) оставляет только элементы, которые есть в обоих множествах. Результат — множество без порядка, поэтому перед выводом его сортируют.","samples":[["a = {1, 2, 3, 4}\nb = {3, 4, 5}","3 4"],["a = {7}\nb = {7, 8, 9}","7"]],"tests":[{"data":{"a":[1,2,3,4],"b":[3,4,5]},"want":"3 4"},{"data":{"a":[7],"b":[7,8,9]},"want":"7"},{"data":{"a":[10,20,30,40],"b":[40,30,20,10]},"want":"10 20 30 40"},{"data":{"a":[-2,0,5,9],"b":[9,-2,100]},"want":"-2 9"}]},{"id":"S9","stars":2,"name":"Кто ещё не сдал: difference","skill":"разность · difference · -","text":"В первой строке — номера всех учеников класса, во второй — номера тех, кто уже сдал проект. С помощью разности множеств найдите тех, кто ещё не сдал, и выведите их номера по возрастанию. Такие ученики есть.","inp":"Две строки, в каждой — несколько целых чисел через пробел.","out":"Номера по возрастанию через пробел.","start":"a = set(map(int, input().split()))\nb = set(map(int, input().split()))\n","note":"a.difference(b) (или a - b) — элементы первого множества, которых нет во втором. Порядок важен: b - a дал бы тех, кто сдал, но не числится в классе, — в последнем наборе это ученик 50.","samples":[["1 2 3 4 5\n2 4","1 3 5"],["7 8 9\n1","7 8 9"]],"tests":[{"inputs":["1 2 3 4 5","2 4"],"want":"1 3 5"},{"inputs":["7 8 9","1"],"want":"7 8 9"},{"inputs":["1 2 3","3 2"],"want":"1"},{"inputs":["10 20 30 40","40 10 50"],"want":"20 30"}]},{"id":"S10","stars":2,"name":"Ровно в одном: symmetric_difference","skill":"симметрическая разность · ^","text":"Два ученика записали номера задач олимпиады, которые они решили. Найдите симметрическую разность множеств: задачи, которые решил только один из них. Выведите номера по возрастанию. Такие задачи есть.","inp":"Две строки, в каждой — несколько целых чисел через пробел.","out":"Номера задач по возрастанию через пробел.","start":"a = set(map(int, input().split()))\nb = set(map(int, input().split()))\n","note":"a.symmetric_difference(b) (или a ^ b) — элементы, которые есть ровно в одном из множеств. То же самое: (a | b) - (a & b).","samples":[["1 2 3 4\n3 4 5","1 2 5"],["1 2\n3 4","1 2 3 4"]],"tests":[{"inputs":["1 2 3 4","3 4 5"],"want":"1 2 5"},{"inputs":["1 2","3 4"],"want":"1 2 3 4"},{"inputs":["5 6 7","7"],"want":"5 6"},{"inputs":["2 4 6 8","1 2 3 4"],"want":"1 3 6 8"}]},{"id":"S11","stars":2,"extra":true,"name":"Все ли темы сданы: issubset","skill":"issubset · <=","text":"В первой строке — темы, которые нужно сдать для допуска к олимпиаде, во второй — темы, которые сдал ученик. Выведите True, если ученик сдал все нужные темы, и False, если нет.","inp":"Две строки, в каждой — слова через пробел.","out":"True / False","start":"need = set(input().split())\ndone = set(input().split())\n","note":"need.issubset(done) (или need <= done) проверяет, что каждый элемент need есть в done. Лишние темы в done не мешают.","samples":[["list set\nlist tuple set","True"],["list set dict\nlist set","False"]],"tests":[{"inputs":["list set","list tuple set"],"want":"True"},{"inputs":["list set dict","list set"],"want":"False"},{"inputs":["set","set"],"want":"True"},{"inputs":["a b","c d"],"want":"False"}]},{"id":"S12","stars":2,"extra":true,"name":"Без общих учеников: isdisjoint","skill":"isdisjoint","text":"В первой строке — имена учеников шахматного кружка, во второй — футбольной секции. Можно ли поставить занятия в одно время, то есть нет ли ученика, который ходит и туда, и туда? Выведите True, если общих учеников нет, и False, если есть.","inp":"Две строки, в каждой — имена через пробел.","out":"True / False","start":"chess = set(input().split())\nfootball = set(input().split())\n","note":"isdisjoint даёт True, когда у множеств нет ни одного общего элемента. Это то же самое, что len(chess & football) == 0.","samples":[["Арман Дана\nТимур Бекзат","True"],["Арман Дана\nДана Тимур","False"]],"tests":[{"inputs":["Арман Дана","Тимур Бекзат"],"want":"True"},{"inputs":["Арман Дана","Дана Тимур"],"want":"False"},{"inputs":["Ерлан","Ерлан"],"want":"False"},{"inputs":["Аян Айя","Аяна"],"want":"True"}]},{"id":"S13","stars":3,"extra":true,"name":"Пришли и ушли","skill":"несколько операций","text":"В первой строке — номера учеников кружка в прошлом году, во второй — в этом. Выведите через пробел три числа: сколько учеников пришло впервые, сколько ушло и сколько осталось.","inp":"Две строки, в каждой — различные целые числа через пробел.","out":"Три числа через пробел: пришли, ушли, остались.","start":"a = set(map(int, input().split()))\nb = set(map(int, input().split()))\n","note":"Три операции над одними и теми же множествами: b - a — новенькие, a - b — ушедшие, a & b — оставшиеся. Длина каждого результата — нужное число.","samples":[["1 2 3 4\n3 4 5","1 2 2"],["1 2\n1 2","0 0 2"]],"tests":[{"inputs":["1 2 3 4","3 4 5"],"want":"1 2 2"},{"inputs":["1 2","1 2"],"want":"0 0 2"},{"inputs":["1 2 3","4 5"],"want":"2 3 0"},{"inputs":["10 20 30 40 50","50 60 10 70"],"want":"2 3 2"}]},{"id":"S14","stars":3,"extra":true,"name":"Первый повтор","skill":"множество «уже видели»","text":"Дана строка чисел. Найдите первое число, которое встречается второй раз. Если повторов нет, выведите 0. Подсказка: складывайте просмотренные числа в множество seen.","inp":"Одна строка — целые числа через пробел.","out":"Одно число.","start":"seen = set()\n","note":"Идём по числам слева направо. Если число уже есть в seen, это первый повтор, и цикл можно прервать. Если нет — добавляем его в seen методом add. Проверка x in seen у множества быстрая.","samples":[["3 5 1 5 3","5"],["1 2 3","0"]],"tests":[{"inputs":["3 5 1 5 3"],"want":"5"},{"inputs":["1 2 3"],"want":"0"},{"inputs":["7 7"],"want":"7"},{"inputs":["4 9 2 9 4 2"],"want":"9"}]}];
+var FO_DESC = [
+  ['Создаёт множество из данных и определяет количество уникальных элементов', [1]],
+  ['Добавляет и удаляет элементы методами add, update, remove, discard', [2, 3, 4, 5]],
+  ['Проверяет принадлежность элемента множеству оператором in', [6]],
+  ['Находит объединение, пересечение, разность и симметрическую разность множеств', [7, 8, 9, 10]]
+];
+var FO_TIME = 1200;          // время на работу, секунд (20 минут)
+var FO_HELPER = [
+  'import sys, json, traceback',
+  'class _Stop(Exception):',
+  '    pass',
+  'def _fo_run(code, inputs, limit=300000):',
+  '    data = list(inputs)',
+  '    out = []',
+  '    class _W:',
+  '        def write(self, s):',
+  '            out.append(str(s))',
+  '            return len(str(s))',
+  '        def flush(self):',
+  '            pass',
+  '    def _input(prompt=""):',
+  '        if not data:',
+  '            raise EOFError("кончились входные данные")',
+  '        return str(data.pop(0))',
+  '    steps = [0]',
+  '    def _tr(frame, event, arg):',
+  '        if event == "line":',
+  '            steps[0] += 1',
+  '            if steps[0] > limit:',
+  '                raise _Stop()',
+  '        return _tr',
+  '    g = {"__name__": "__main__", "input": _input}',
+  '    err = None',
+  '    old = sys.stdout',
+  '    sys.stdout = _W()',
+  '    try:',
+  '        obj = compile(code, "<fo_student>", "exec")',
+  '        sys.settrace(_tr)',
+  '        try:',
+  '            exec(obj, g)',
+  '        finally:',
+  '            sys.settrace(None)',
+  '    except _Stop:',
+  '        err = {"type": "Timeout", "line": None, "msg": ""}',
+  '    except SystemExit:',
+  '        pass',
+  '    except SyntaxError as e:',
+  '        err = {"type": type(e).__name__, "line": e.lineno, "msg": str(e.msg)}',
+  '    except BaseException as e:',
+  '        line = None',
+  '        for fr in traceback.extract_tb(e.__traceback__):',
+  '            if fr.filename == "<fo_student>":',
+  '                line = fr.lineno',
+  '        err = {"type": type(e).__name__, "line": line, "msg": str(e)}',
+  '    finally:',
+  '        sys.stdout = old',
+  '    return json.dumps({"out": "".join(out), "err": err})'
+].join('\n');
+var foHelperReady = false;
+function foRun(code, inputs) {
+  return loadPy().then(function (p) {
+    if (!foHelperReady) { p.runPython(FO_HELPER); foHelperReady = true; }
+    var fn = p.globals.get('_fo_run'), arg = p.toPy((inputs || []).map(String));
+    try { return JSON.parse(fn(code, arg)); }
+    finally { arg.destroy(); fn.destroy(); }
+  });
+}
+/* задача 8: строки «a = {...}» и «b = {...}» заменяются данными проверки */
+function foLit(v, br) {
+  var parts = v.map(function (x) { return typeof x === 'string' ? '"' + x + '"' : String(x); });
+  if (br === '{') return parts.length ? '{' + parts.join(', ') + '}' : 'set()';
+  if (br === '(') return '(' + parts.join(', ') + (parts.length === 1 ? ',)' : ')');
+  return '[' + parts.join(', ') + ']';
+}
+function foWithData(code, data) {
+  var c = code;
+  for (var k in (data || {})) {
+    var re = new RegExp('^' + k + '\\s*=\\s*([\\[({]).*[\\])}]\\s*$', 'm'), m = re.exec(c);
+    if (!m) return null;
+    c = c.replace(re, k + ' = ' + foLit(data[k], m[1]));
+  }
+  return c;
+}
+var foTok = function (s) { return String(s).split(/\s+/).filter(Boolean).join(' '); };
+function foErrHelp(e) {
+  var t = e.type, m = e.msg || '';
+  if (t === 'NameError') return 'Python не знает это имя. Чаще всего это опечатка в названии переменной.';
+  if (t === 'EOFError') return 'Программа просит ввод, а данных больше нет: лишний input().';
+  if (t === 'TypeError' && m.indexOf('subscriptable') > -1) return 'У множества нет индексов: s[0] писать нельзя. Если нужен порядок - sorted(s).';
+  if (t === 'TypeError' && m.indexOf('unhashable') > -1) return 'Положить в множество список нельзя. Несколько элементов добавляют через update([...]).';
+  if (t === 'KeyError') return 'Такого элемента в множестве нет. Если его может не быть, пишите discard вместо remove.';
+  if (t === 'AttributeError' && m.indexOf("'set'") > -1) return 'У множества нет такого метода. Добавление - add, удаление - remove или discard.';
+  if (t === 'AttributeError' && m.indexOf("'dict'") > -1) return 'Это не множество, а словарь: {} создаёт пустой словарь. Пустое множество - set().';
+  if (t === 'ValueError' && m.indexOf('invalid literal') > -1) return 'Не получилось прочитать число: если в строке несколько чисел, разбейте её через split().';
+  return '';
+}
+function foShowData(test, code) {
+  if (test.data) return foWithData(code, test.data).split('\n').filter(function (l) { return /^\w+\s*=/.test(l); }).slice(0, Object.keys(test.data).length).join('\n');
+  return (test.inputs || []).join('\n');
+}
+/* проверка задачи на всех наборах данных */
+function foJudge(t, code) {
+  if (!code.trim()) return Promise.resolve({ ok: false, v: 'Редактор пустой: программа не написана.' });
+  var tests = t.tests, n = tests.length;
+  function step(i) {
+    if (i >= n) return { ok: true, v: '✅ Верно: пройдены все проверки - ' + n + ' из ' + n + '.' };
+    var test = tests[i], prepared = foWithData(code, test.data);
+    if (prepared === null) return { ok: false, v: 'Верните на место строки «a = …» и «b = …»: по ним программу проверяют на других данных.' };
+    return foRun(prepared, test.inputs || []).then(function (r) {
+      var e = r.err;
+      if (e && /SyntaxError|IndentationError|TabError/.test(e.type))
+        return { ok: false, v: 'Программа не запустилась: ошибка в записи' + (e.line ? ' (строка ' + e.line + ')' : '') + '.', d: e.msg };
+      if (e && e.type === 'Timeout') return { ok: false, v: 'Проверка ' + (i + 1) + ': программа работает слишком долго.', d: 'Скорее всего, цикл не заканчивается.' };
+      if (e) { var h = foErrHelp(e); return { ok: false, v: 'Проверка ' + (i + 1) + ': ошибка при выполнении - ' + e.type + (e.line ? ', строка ' + e.line : ''), d: e.type + ': ' + e.msg + (h ? '\n' + h : '') }; }
+      var got = foTok(r.out), want = foTok(test.want);
+      if (got !== want) {
+        var why = !got ? 'программа ничего не вывела.' : got.indexOf(want) === 0 ? 'программа вывела лишнее.' : want.indexOf(got) === 0 ? 'программа вывела не всё.' : 'вывод не тот.';
+        return { ok: false, v: 'Проверка ' + (i + 1) + ' из ' + n + ': ' + why,
+                 d: 'Данные:\n' + foShowData(test, code) + '\n\nПрограмма вывела:\n' + (r.out.replace(/\s+$/, '') || '(ничего)') + '\n\nА нужно:\n' + test.want };
+      }
+      return step(i + 1);
+    });
+  }
+  return step(0);
+}
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = 'sets-fo-v1', MAIN = FO_TASKS.filter(function (t) { return !t.extra; }).length;
+  var st, cur = 0, iv = null, busy = false, self = {};
+  function fresh() { return { codes: FO_TASKS.map(function (t) { return t.start; }), res: FO_TASKS.map(function () { return null; }), hint: {}, name: '', t0: null, limit: FO_TIME, done: false, timeUp: false }; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+  function load() { try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.codes && s.codes.length === FO_TASKS.length) return s; } catch (e) {} return null; }
+  function elapsed() { return st.t0 ? Math.min(st.limit, Math.floor((Date.now() - st.t0) / 1000)) : 0; }
+  function solved(i) { return st.res[i] && st.res[i].ok; }
+  function score() { var s = 0; for (var i = 0; i < MAIN; i++) if (solved(i)) s++; return s; }
+  function extraScore() { var s = 0; for (var i = MAIN; i < FO_TASKS.length; i++) if (solved(i)) s++; return s; }
+
+  function drawDesc() {
+    var fin = st.done;
+    $('foDesc').innerHTML = FO_DESC.map(function (d, k) {
+      var got = d[1].filter(function (n) { return solved(n - 1); }).length, max = d[1].length;
+      return '<tr><td>' + (k + 1) + '</td><td>' + esc(d[0]) + '</td><td>' + (max > 1 ? d[1][0] + '-' + d[1][max - 1] : d[1][0]) + '</td><td>' + max + '</td>' +
+        '<td class="fo-res-col">' + (fin ? (got === max ? '✅ ' : got ? '🟡 ' : '❌ ') + got + ' / ' + max : '') + '</td></tr>';
+    }).join('') +
+    '<tr><th></th><th>Итого</th><th>1-' + MAIN + '</th><th>' + MAIN + '</th><td class="fo-res-col">' + (fin ? '<b>' + score() + ' / ' + MAIN + '</b>' : '') + '</td></tr>' +
+    '<tr><td>★</td><td>Дополнительно: issubset, isdisjoint, несколько операций в одной задаче, множество «уже видели»</td><td>11-14</td><td>-</td>' +
+    '<td class="fo-res-col">' + (fin ? extraScore() + ' / ' + (FO_TASKS.length - MAIN) : '') + '</td></tr>';
+    document.querySelector('.fo-desc').classList.toggle('done', fin);
+  }
+  function drawChips() {
+    $('foChips').innerHTML = FO_TASKS.map(function (t, i) {
+      var r = st.res[i], cls = 'fo-chip' + (t.extra ? ' extra' : '') + (r ? (r.ok ? ' ok' : ' bad') : '') + (i === cur ? ' cur' : '');
+      return (i === MAIN ? '<span class="fo-sep">★</span>' : '') +
+        '<button class="' + cls + '" data-i="' + i + '" title="' + esc((t.extra ? 'Дополнительная задача ' : 'Задача ') + (i + 1) + ' · ' + t.name) + '">' + (i + 1) + (t.extra ? '★' : '') + '</button>';
+    }).join('');
+    $('foChips').querySelectorAll('.fo-chip').forEach(function (b) { b.onclick = function () { go(+b.dataset.i); }; });
+    $('fo-bar').style.width = (score() / MAIN * 100) + '%';
+    $('fo-cnt').textContent = score() + '/' + MAIN;
+  }
+  function verdictHtml(r) {
+    return '<div class="fo-verdict show ' + (r.ok ? 'ok' : r.info ? 'info' : 'bad') + '">' + esc(r.v) + (r.d ? '<span class="det">' + esc(r.d) + '</span>' : '') + '</div>';
+  }
+  function drawTask() {
+    var t = FO_TASKS[cur], r = st.res[cur];
+    var stars = '★★★'.slice(0, t.stars) + '<span style="opacity:.25">' + '★★★'.slice(t.stars) + '</span>';
+    $('foTask').innerHTML =
+      '<div class="fo-th"><h3>' + (cur + 1) + (t.extra ? '★' : '') + '. ' + esc(t.name) + '</h3>' +
+      '<span class="fo-stars" title="Сложность">' + stars + '</span>' +
+      '<span class="fo-tag' + (t.extra ? ' extra' : '') + '">' + (t.extra ? 'дополнительная · на оценку не влияет' : '1 балл') + '</span>' +
+      '<span class="fo-tag">' + esc(t.skill) + '</span></div>' +
+      '<p>' + esc(t.text) + '</p>' +
+      '<div class="fo-io"><div><b>Ввод.</b> ' + esc(t.inp) + '</div><div><b>Вывод.</b> ' + esc(t.out) + '</div></div>' +
+      '<table class="fo-samples"><tr><th>Пример ' + (t.tests[0].data ? '(данные в программе)' : 'ввода') + '</th><th>Вывод</th></tr>' +
+      t.samples.map(function (s) { return '<tr><td><pre>' + esc(s[0]) + '</pre></td><td><pre>' + esc(s[1]) + '</pre></td></tr>'; }).join('') + '</table>' +
+      '<textarea id="foCode" class="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Программа"></textarea>' +
+      '<div class="actions left">' +
+        '<button class="btn" id="foRunBtn">▶ Запустить на примере 1</button>' +
+        '<button class="btn primary" id="foCheckBtn">✅ Проверить</button>' +
+        (t.hint ? '<button class="btn" id="foHintBtn">💡 Подсказка</button>' : '') +
+      '</div>' +
+      '<div id="foVerdict">' + (r ? verdictHtml(r) : '') + '</div>' +
+      (t.hint && st.hint[cur] ? '<div class="fo-hint">💡 ' + esc(t.hint) + '</div>' : '') +
+      (r && r.ok || st.done ? '<div class="fo-noteb"><b>Разбор.</b> ' + esc(t.note) + '</div>' : '');
+    var ed = $('foCode');
+    ed.value = st.codes[cur]; ed.readOnly = st.done;
+    ed.addEventListener('input', function () { st.codes[cur] = ed.value; save(); });
+    ed.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault(); var a = ed.selectionStart;
+        ed.value = ed.value.slice(0, a) + '    ' + ed.value.slice(ed.selectionEnd); ed.selectionStart = ed.selectionEnd = a + 4;
+        st.codes[cur] = ed.value; save();
+      } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('foCheckBtn').click(); }
+    });
+    $('foRunBtn').onclick = runSample;
+    $('foCheckBtn').onclick = checkTask;
+    $('foCheckBtn').disabled = st.done;
+    if ($('foHintBtn')) $('foHintBtn').onclick = function () { st.hint[cur] = true; save(); drawTask(); SFX.pick(); };
+    $('foPrev').disabled = cur === 0; $('foNext').disabled = cur === FO_TASKS.length - 1;
+    drawChips();
+  }
+  function go(i) { cur = Math.max(0, Math.min(FO_TASKS.length - 1, i)); drawTask(); SFX.pick(); }
+  function setBusy(b, msg) {
+    busy = b;
+    ['foRunBtn', 'foCheckBtn'].forEach(function (id) { if ($(id)) $(id).disabled = b || (id === 'foCheckBtn' && st.done); });
+    if (msg) $('foVerdict').innerHTML = verdictHtml({ info: true, v: msg });
+  }
+  function runSample() {
+    if (busy) return;
+    var t = FO_TASKS[cur], code = st.codes[cur], test = t.tests[0];
+    setBusy(true, py ? '⏳ Выполняю…' : '⏳ Загружаю Python… первый раз это занимает 5-20 секунд.');
+    var prepared = foWithData(code, test.data);
+    if (prepared === null) { setBusy(false); $('foVerdict').innerHTML = verdictHtml({ v: 'Верните на место строки «a = …» и «b = …».' }); return; }
+    foRun(prepared, test.inputs || []).then(function (r) {
+      var e = r.err, out = r.out.replace(/\s+$/, '');
+      $('foVerdict').innerHTML = verdictHtml({ info: !e, v: 'Пример 1. Программа вывела:', d: (out || '(ничего)') + (e ? '\n\n' + e.type + (e.line ? ' (строка ' + e.line + ')' : '') + ': ' + e.msg + (foErrHelp(e) ? '\n' + foErrHelp(e) : '') : '') });
+    }).catch(function () {
+      $('foVerdict').innerHTML = verdictHtml({ v: 'Не удалось загрузить Python - проверьте подключение к интернету.' });
+    }).then(function () { setBusy(false); });
+  }
+  function checkTask() {
+    if (busy || st.done) return;
+    var i = cur, t = FO_TASKS[i];
+    setBusy(true, py ? '⏳ Проверяю на всех наборах данных…' : '⏳ Загружаю Python… первый раз это занимает 5-20 секунд.');
+    foJudge(t, st.codes[i]).then(function (r) {
+      var was = solved(i);
+      st.res[i] = r; save();
+      if (r.ok) { SFX.ok(); if (!was) confetti(70); } else SFX.bad();
+      busy = false;
+      if (cur === i) drawTask(); else drawChips();
+      drawDesc();
+    }).catch(function () {
+      busy = false; setBusy(false);
+      $('foVerdict').innerHTML = verdictHtml({ v: 'Не удалось загрузить Python - проверьте подключение к интернету.' });
+    });
+  }
+  function tickStart() {
+    clearInterval(iv);
+    var last = -1;
+    iv = setInterval(function () {
+      var left = st.limit - elapsed();
+      $('fo-timer').textContent = fmtTime(left);
+      $('fo-timerChip').className = 'chip' + (left <= 60 ? ' hurry' : '');
+      if (left !== last && left <= 10 && left > 0) tone([880], .08, 'square');
+      last = left;
+      if (left <= 0) { tone([440, 330, 220], .35, 'sawtooth', .18); finish(true); }
+    }, 250);
+  }
+  function start() {
+    st.name = $('foName').value.trim(); st.t0 = Date.now(); save();
+    $('foIntro').style.display = 'none'; $('foGame').className = 'game show'; $('fo-plusMin').disabled = false;
+    $('foGame').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    SFX.whoosh(); cur = 0; drawTask(); tickStart();
+    loadPy().catch(function () {});        // Python загружается заранее, пока читают первую задачу
+  }
+  function finish(timeUp) {
+    if (st.done) return;
+    if (!timeUp) {
+      var left = FO_TASKS.slice(0, MAIN).filter(function (_, i) { return !solved(i); }).length;
+      if (!confirm(left ? 'Не решено основных задач: ' + left + '. Сдать работу?' : 'Сдать работу?')) return;
+    }
+    st.done = true; st.timeUp = !!timeUp; st.spent = elapsed(); save();
+    clearInterval(iv); $('fo-plusMin').disabled = true;
+    showResult(true);
+  }
+  function showResult(anim) {
+    var s = score(), N = MAIN;
+    drawDesc(); drawTask();
+    var verdict = s === N ? '🏆 Блестяще! Все задачи решены!' : s >= 8 ? '🔥 Отлично!' : s >= 6 ? '👍 Хорошо: цель урока достигнута' : '💡 Повторите методы множества и попробуйте ещё раз';
+    var when = st.timeUp ? '⏰ время вышло' : 'время ' + fmtTime(st.spent || 0);
+    $('foResult').className = 'result show';
+    $('foWho').textContent = (st.name ? st.name + ' · ' : '') + when;
+    $('foExtra').textContent = 'Дополнительные задачи: решено ' + extraScore() + ' из ' + (FO_TASKS.length - MAIN) + '.';
+    $('foResVerdict').textContent = verdict;
+    $('foSubmit').disabled = true;
+    requestAnimationFrame(function () { $('foRing').style.strokeDashoffset = 389.6 * (1 - s / N); });
+    countUp($('foScore'), s, anim ? 1200 : 1);
+    if (!anim) return;
+    $('foResult').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    activeGame = self;
+    showBigScore(s, N, verdict, (st.name ? st.name + ' · ' : '') + (st.timeUp ? '⏰ Время вышло' : '⏱ ' + fmtTime(st.spent || 0)));
+    if (s === N) { SFX.fanfare(); confetti(260); setTimeout(function () { confetti(160); }, 700); }
+    else if (s >= 6) { SFX.ok(); confetti(110); } else SFX.bad();
+  }
+  function reset() {
+    clearInterval(iv); st = fresh(); save(); cur = 0;
+    $('foIntro').style.display = ''; $('foGame').className = 'game'; $('foResult').className = 'result';
+    $('foRing').style.strokeDashoffset = 389.6; $('foSubmit').disabled = false; $('foName').value = '';
+    $('fo-timer').textContent = fmtTime(FO_TIME); $('fo-timerChip').className = 'chip'; $('fo-plusMin').disabled = true;
+    drawDesc(); drawChips();
+  }
+  self.result = function () { return $('foResult'); };
+  $('foStart').onclick = start;
+  $('foSubmit').onclick = function () { finish(false); };
+  $('foPrev').onclick = function () { go(cur - 1); };
+  $('foNext').onclick = function () { go(cur + 1); };
+  $('foAgain').onclick = function () { if (confirm('Начать заново? Все программы будут стёрты.')) { reset(); $('foIntro').scrollIntoView({ behavior: 'smooth', block: 'start' }); } };
+  $('fo-plusMin').onclick = function () {
+    if (st.done || !st.t0) return;
+    st.limit += 60; save();
+    var left = st.limit - elapsed();
+    $('fo-timer').textContent = fmtTime(left);
+    $('fo-timerChip').className = 'chip' + (left <= 60 ? ' hurry' : '');
+    this.classList.remove('bump'); void this.offsetWidth; this.classList.add('bump');
+    SFX.ok();
+  };
+
+  /* восстановление работы после перезагрузки страницы */
+  st = load();
+  if (!st) { reset(); return; }
+  $('foName').value = st.name || '';
+  drawDesc();
+  if (!st.t0) { drawChips(); return; }
+  $('foIntro').style.display = 'none'; $('foGame').className = 'game show';
+  drawTask();
+  if (st.done) { showResult(false); $('fo-timer').textContent = fmtTime(Math.max(0, st.limit - (st.spent || 0))); }
+  else if (elapsed() >= st.limit) finish(true);
+  else { $('fo-plusMin').disabled = false; tickStart(); }
+})();
 
 /* ===================== Запуск ===================== */
 buildDemoButtons();
