@@ -361,6 +361,9 @@
   pre.out .o-err { color: #ff7b8f; } pre.out .o-sys { color: #8a85b5; }
   .note { margin: 10px 0 0; font-size: .88rem; color: rgba(255,255,255,.65); }
   @media (max-width: 720px) {
+    .tabs { flex-wrap: nowrap; overflow-x: auto; width: 100%; justify-content: flex-start; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tabs > * { flex: none; }
     .tab-btn { padding: 8px 10px; font-size: .92rem; }
     .map-row { grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); gap: 4px; }
     .map-row .m { font-size: .85rem; padding: 8px; overflow-wrap: anywhere; }
@@ -404,6 +407,76 @@
   .bug .mini { margin-top: 6px; }
   .bn-emoji { font-size: clamp(6rem, 22vw, 12rem); line-height: 1; animation: pop .8s ease; }
   @media (max-width: 900px) { .dk-grid { grid-template-columns: 1fr; } textarea.dk-editor { min-height: 380px; } }
+
+  /* ---------- ФО: уровни ---------- */
+  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .level {
+    --c: #17c27a; position: relative; text-align: left; cursor: pointer; font: inherit; color: var(--ink);
+    padding: 18px 18px 16px; border-radius: 18px; background: var(--card); border: 3px solid transparent;
+    border-top: 10px solid var(--c); box-shadow: 0 8px 22px rgba(0,0,0,.25); transition: transform .18s, box-shadow .18s;
+    animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s);
+  }
+  .level:hover { transform: translateY(-4px); }
+  .level:focus-visible { outline: 3px solid var(--glow); outline-offset: 3px; }
+  .level.on { border-color: var(--c); box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 35%, transparent), 0 12px 30px rgba(0,0,0,.3); transform: translateY(-4px); }
+  .level .lv { font-size: 2.6rem; font-weight: 900; color: var(--c); line-height: 1; }
+  .level .ln { font-weight: 900; font-size: 1.15rem; margin: 6px 0 4px; }
+  .level .ld { color: var(--muted); font-size: .95rem; }
+  .level .dot { position: absolute; right: 16px; top: 14px; font-size: 1.8rem; }
+  .lvl-panel { display: none; }
+  .lvl-panel.show { display: block; animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; border-top: 6px solid var(--lc, #17c27a); }
+  .lvl-title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .lvl-title .sec { margin: 0; }
+  .lvl-badge { padding: 4px 14px; border-radius: 99px; font-weight: 900; color: #1b1640; background: var(--lc, #17c27a); }
+  .lvl-task { font-size: 1.12rem; line-height: 1.6; margin: 12px 0 16px; padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.1); border-left: 5px solid var(--lc, #17c27a); }
+  .lvl-task code { font-family: var(--mono); color: var(--glow); }
+  .lvl-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+  .sol { display: none; margin-top: 12px; }
+  .sol.show { display: block; animation: enter .5s cubic-bezier(.2,1.4,.4,1) both; }
+  .sol-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .selfcheck { align-self: start; padding: 16px; border-radius: 16px; background: var(--card); color: var(--ink); box-shadow: 0 8px 22px rgba(0,0,0,.25); }
+  .selfcheck h3 { margin: 0 0 8px; }
+  .sc-item { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+    padding: 9px 6px; border: none; border-bottom: 1px dashed #d6d1ee; background: none; border-radius: 6px; }
+  .sc-item:hover { background: #f3f0ff; }
+  .sc-item:focus-visible { outline: 3px solid var(--glow); }
+  .sc-item .box { flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid #b9b3dc; display: grid; place-items: center; font-weight: 900; color: #fff; transition: all .2s; }
+  .sc-item.done .box { background: var(--ok); border-color: var(--ok); animation: pop .4s ease; }
+  .sc-item.done span:last-child { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(23,194,122,.6); }
+  .sc-bar { height: 10px; border-radius: 99px; background: #e7e3f7; overflow: hidden; margin-top: 12px; }
+  .sc-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #17c27a, #23c9ff); transition: width .4s cubic-bezier(.3,1.6,.5,1); }
+  .sc-msg { margin: 8px 0 0; font-weight: 800; min-height: 1.4em; }
+
+  /* ---------- Оценивание ---------- */
+  table.checklist { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 1.08rem; }
+  .checklist thead th { text-align: left; padding: 6px 14px; color: rgba(255,255,255,.85); }
+  .checklist thead th:not(:first-child) { text-align: center; width: 150px; }
+  .checklist tbody tr { background: var(--card); color: var(--ink); animation: enter .5s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+  .checklist td { padding: 12px 14px; }
+  .checklist td:first-child { border-radius: 14px 0 0 14px; font-weight: 700; }
+  .checklist td:last-child { border-radius: 0 14px 14px 0; }
+  .checklist td:not(:first-child) { text-align: center; }
+  .checklist code { font-family: var(--mono); color: #b5179e; font-weight: 700; }
+  .mark-btn { width: 56px; height: 48px; border-radius: 12px; font: inherit; font-weight: 900; font-size: 1.4rem; cursor: pointer;
+    border: 2px dashed #c9c4e6; background: #faf9ff; color: #b0aad3; transition: all .2s; }
+  .mark-btn:hover { transform: scale(1.06); }
+  .mark-btn:focus-visible { outline: 3px solid var(--glow); outline-offset: 2px; }
+  .mark-btn.yes.on { background: var(--ok); border: 2px solid var(--ok); color: #fff; animation: pop .4s ease; }
+  .mark-btn.help.on { background: #ff9f1c; border: 2px solid #ff9f1c; color: #fff; animation: pop .4s ease; }
+  .cl-sum { margin-top: 12px; font-size: 1.15rem; font-weight: 800; min-height: 1.5em; }
+  .refl { display: grid; gap: 14px; }
+  .rq { padding: 18px; border-radius: 18px; background: rgba(255,255,255,.1); border-left: 6px solid var(--c); animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+  .rq .qn { font-weight: 900; color: var(--c); letter-spacing: .08em; text-transform: uppercase; font-size: .85rem; }
+  .rq p { margin: 6px 0 12px; font-size: clamp(1.1rem, 2.4vw, 1.35rem); font-style: italic; font-weight: 700; }
+  .rq code { font-family: var(--mono); color: var(--glow); font-style: normal; }
+  .rq .ans { display: none; margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: rgba(10,8,35,.45); }
+  .rq.open .ans { display: block; animation: enter .5s cubic-bezier(.2,1.4,.4,1) both; }
+  @media (max-width: 900px) { .lvl-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) {
+    .checklist thead th:not(:first-child) { width: 64px; font-size: .8rem; }
+    .checklist td { padding: 10px 8px; font-size: .95rem; }
+    .mark-btn { width: 46px; height: 42px; }
+  }
 
   /* ---------- Инструкция ---------- */
   .intro { text-align: center; animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; }
@@ -525,10 +598,12 @@
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Этапы урока">
-    <button class="tab-btn" role="tab" data-tab="topic" id="tb-topic"><span class="tn">1</span>Тема урока</button>
+    <button class="tab-btn" role="tab" data-tab="topic" id="tb-topic"><span class="tn">1</span>Тема</button>
     <button class="tab-btn" role="tab" data-tab="theory" id="tb-theory"><span class="tn">2</span>Новая тема</button>
     <button class="tab-btn" role="tab" data-tab="task" id="tb-task"><span class="tn">3</span>Задание</button>
-    <button class="tab-btn" role="tab" data-tab="detect" id="tb-detect"><span class="tn">4</span>Детективы кода</button>
+    <button class="tab-btn" role="tab" data-tab="detect" id="tb-detect"><span class="tn">4</span>Детективы</button>
+    <button class="tab-btn" role="tab" data-tab="fo" id="tb-fo"><span class="tn">5</span>ФО</button>
+    <button class="tab-btn" role="tab" data-tab="assess" id="tb-assess"><span class="tn">6</span>Оценивание</button>
     <div class="stats task-only">
       <div class="chip"><div class="bar"><i id="bar"></i></div><span id="cnt" class="mono">0/8</span></div>
       <div class="chip" id="timerChip">⏱ <span id="timer" class="mono">03:00</span><button class="plus" id="plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
@@ -755,6 +830,64 @@
           <p class="note">Отметка ✅ появляется, когда ошибка исправлена.</p>
         </aside>
       </div>
+    </section>
+  </div>
+  <!-- ===================== Вкладка 5: формативное оценивание ===================== -->
+  <div class="tab" id="tab-fo" role="tabpanel" aria-labelledby="tb-fo">
+    <section class="panel">
+      <h2 class="sec">📝 Формативное оценивание</h2>
+      <p class="lead-l">Выберите свой уровень. Выполните задание в редакторе, нажмите «Запустить» и отметьте в самопроверке, что получилось.</p>
+      <div class="levels" id="levels"></div>
+    </section>
+
+    <section class="panel lvl-panel" id="lvlPanel">
+      <div class="lvl-title"><span class="lvl-badge" id="lvlBadge"></span><h2 class="sec" id="lvlName"></h2></div>
+      <p class="lvl-task" id="lvlTask"></p>
+      <div class="lvl-grid">
+        <div>
+          <div class="ed-bar"><span class="ed-status"></span></div>
+          <textarea id="foCode" class="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Код решения"></textarea>
+          <div class="actions left">
+            <button class="btn primary" id="foRun">▶ Запустить</button>
+            <button class="btn" id="foReset">↺ Заготовка</button>
+            <button class="btn" id="foSol">👁 Пример решения</button>
+          </div>
+          <pre class="console out" id="foOut" aria-live="polite"></pre>
+          <div class="sol" id="foSolBox">
+            <div class="sol-head"><b>Пример решения</b><button class="mini" id="foSolCopy">Вставить в редактор</button></div>
+            <pre class="code" id="foSolCode"></pre>
+          </div>
+          <p class="note">Если в программе есть <code class="mono">input()</code>, появится окно для ввода. Для запуска нужен интернет (Python загружается при первом запуске).</p>
+        </div>
+        <aside class="selfcheck">
+          <h3>✔️ Самопроверка</h3>
+          <div id="foChecks"></div>
+          <div class="sc-bar"><i id="foBar"></i></div>
+          <p class="sc-msg" id="foMsg"></p>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== Вкладка 6: оценивание и рефлексия ===================== -->
+  <div class="tab" id="tab-assess" role="tabpanel" aria-labelledby="tb-assess">
+    <section class="panel">
+      <h2 class="sec">✅ Чек-лист успеха</h2>
+      <p class="lead-l">Каждый учащийся отмечает уровень освоения материала.</p>
+      <div class="table-wrap">
+        <table class="checklist" id="checklist">
+          <thead><tr><th>Критерий</th><th>Да (+)</th><th>Нужна помощь (?)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="cl-sum" id="clSum"></div>
+      <div class="actions left"><button class="btn" id="clReset">↺ Очистить отметки</button></div>
+    </section>
+
+    <section class="panel">
+      <h2 class="sec">💬 Вопросы для рефлексии</h2>
+      <p class="lead-l">Заключительный диалог.</p>
+      <div class="refl" id="refl"></div>
     </section>
   </div>
 </main>
@@ -1341,12 +1474,13 @@ document.getElementById('reset').onclick = function () { build(); window.scrollT
 build();
 
 /* ===================== Вкладки ===================== */
-var TAB_HASH = { topic: 'tema', theory: 'teoriya', task: 'zadanie', detect: 'detektivy' };
+var TAB_HASH = { topic: 'tema', theory: 'teoriya', task: 'zadanie', detect: 'detektivy', fo: 'fo', assess: 'ocenivanie' };
 function showTab(name, keepScroll) {
   document.body.dataset.tab = name;
   document.querySelectorAll('.tab-btn').forEach(function (b) {
     var on = b.dataset.tab === name;
     b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1;
+    if (on) { var nav = b.parentNode; nav.scrollTo({ left: b.offsetLeft - (nav.clientWidth - b.offsetWidth) / 2, behavior: 'smooth' }); }
   });
   document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t.id === 'tab-' + name); });
   try { history.replaceState(null, '', '#' + TAB_HASH[name]); } catch (e) {}
@@ -1537,20 +1671,27 @@ codeEl.addEventListener('keydown', function (e) {
     e.preventDefault(); runCode();
   }
 });
+var outTarget = null;
 function outAppend(text, cls) {
+  var o = outTarget || outEl;
   var sp = document.createElement('span');
   if (cls) sp.className = cls;
   sp.textContent = text;
-  outEl.appendChild(sp);
-  outEl.scrollTop = outEl.scrollHeight;
+  o.appendChild(sp);
+  o.scrollTop = o.scrollHeight;
 }
 document.getElementById('clearOut').onclick = function () { outEl.textContent = ''; };
 
 var PYODIDE_URL = 'https://cdn.jsdelivr.net/npm/pyodide@0.26.4/';
 var RUNNER = [
-  'import ast, sys, traceback',
+  'import ast, sys, traceback, js',
+  "def __input(prompt=''):",
+  '    v = js.prompt(str(prompt))',
+  "    v = '' if v is None else str(v)",
+  '    print(str(prompt) + v)',
+  '    return v',
   'def __run(src):',
-  "    g = {'__name__': '__main__'}",
+  "    g = {'__name__': '__main__', 'input': __input}",
   '    try:',
   "        tree = ast.parse(src, '<код>')",
   '        last = None',
@@ -1571,7 +1712,7 @@ var RUNNER = [
   '        sys.stderr.flush()'
 ].join('\n');
 var py = null, pyLoading = null;
-function edStatus(t) { document.getElementById('edStatus').textContent = t; }
+function edStatus(t) { document.querySelectorAll('.ed-status').forEach(function (e) { e.textContent = t; }); }
 function loadPy() {
   if (pyLoading) return pyLoading;
   edStatus('⏳ Загружаю Python…');
@@ -1599,19 +1740,19 @@ function loadPy() {
   return pyLoading;
 }
 var running = false;
-async function runCode() {
+async function runIn(src, out, btn) {
   if (running) return;
-  running = true;
-  var btn = document.getElementById('runBtn'); btn.disabled = true;
-  outEl.textContent = '';
+  running = true; btn.disabled = true;
+  outTarget = out; out.textContent = '';
   try {
-    if (!py) { outAppend('Загрузка Python…\n', 'o-sys'); await loadPy(); outEl.textContent = ''; }
-    py.globals.get('__run')(codeEl.value);
+    if (!py) { outAppend('Загрузка Python…\n', 'o-sys'); await loadPy(); out.textContent = ''; }
+    py.globals.get('__run')(src);
   } catch (e) {
     outAppend('Не удалось запустить код: нет подключения к интернету.\n', 'o-err');
   }
   btn.disabled = false; running = false;
 }
+function runCode() { return runIn(codeEl.value, outEl, document.getElementById('runBtn')); }
 document.getElementById('runBtn').onclick = runCode;
 
 
@@ -1842,6 +1983,137 @@ $('dkReset').onclick = () => { clearInterval(iv); iv = null; DK_TIME = 300; left
 makeTeams(); drawTeams(false); showT();
 })();
 
+
+/* ===================== Вкладка 5: ФО ===================== */
+(function () {
+  var LEVELS = [
+    { id: 'A', dot: '🟢', c: '#17c27a', name: 'Уровень A', sub: 'Базовый / адаптированный для обучающихся с ООП',
+      task: 'Создайте множество из 5 чисел. Запросите у пользователя число. Проверьте через <code>in</code>, есть ли оно в множестве: если есть - удалите через <code>discard()</code>, если нет - добавьте через <code>add()</code>. Выведите конечное множество.',
+      start: "# Уровень A\n# 1) Создайте множество из 5 чисел\nnumbers = \n\n# 2) Запросите число у пользователя\nx = int(input(\"Введите число: \"))\n\n# 3) Есть в множестве - discard(), нет - add()\n\n\n# 4) Выведите множество\n",
+      checks: ['Создал(а) множество из 5 чисел', 'Получил(а) число через input() и int()', 'Проверил(а) наличие через in', 'Удалил(а) через discard() или добавил(а) через add()', 'Вывел(а) итоговое множество'],
+      sol: "numbers = {3, 7, 12, 25, 40}\nx = int(input(\"Введите число: \"))\nif x in numbers:\n    numbers.discard(x)\nelse:\n    numbers.add(x)\nprint(numbers)" },
+    { id: 'B', dot: '🟡', c: '#ffc21a', name: 'Уровень B', sub: 'Средний',
+      task: 'Дан список гостей: <code>guests = ["Алихан", "Айша", "Алихан", "Данияр", "Айша", "София"]</code>. Напишите программу, которая вычисляет количество уникальных гостей с помощью <code>set()</code> и <code>len()</code>, а затем выводит их имена в цикле <code>for</code>.',
+      start: 'guests = ["Алихан", "Айша", "Алихан", "Данияр", "Айша", "София"]\n\n# 1) Посчитайте уникальных гостей: set() и len()\n\n\n# 2) Выведите имена в цикле for\n',
+      checks: ['Создал(а) множество из списка: set(guests)', 'Посчитал(а) уникальных гостей через len()', 'Вывел(а) имена в цикле for'],
+      sol: "guests = [\"Алихан\", \"Айша\", \"Алихан\", \"Данияр\", \"Айша\", \"София\"]\nunique = set(guests)\nprint(\"Уникальных гостей:\", len(unique))\nfor name in unique:\n    print(name)" },
+    { id: 'C', dot: '🔴', c: '#ff4d6d', name: 'Уровень C', sub: 'Продвинутый',
+      task: 'Имеется множество спам-слов: <code>bad_words = {"скам", "бесплатно", "выигрыш"}</code>. Пользователь вводит предложение. Разделите предложение на слова (<code>.split()</code>), преобразуйте их в множество и найдите пересечение (<code>&amp;</code>) или проверьте наличие хотя бы одного спам-слова с помощью цикла <code>for</code>.',
+      start: 'bad_words = {"скам", "бесплатно", "выигрыш"}\n\n# 1) Запросите предложение: input()\n\n# 2) Разбейте на слова .split() и превратите в множество\n\n# 3) Найдите пересечение & (или проверьте слова циклом for)\n\n# 4) Выведите результат: есть спам или нет\n',
+      checks: ['Получил(а) предложение через input()', 'Разделил(а) на слова через .split() и сделал(а) множество', 'Нашёл(нашла) спам-слова через & или циклом for', 'Вывел(а) понятный результат: есть спам или нет'],
+      sol: "bad_words = {\"скам\", \"бесплатно\", \"выигрыш\"}\ntext = input(\"Введите предложение: \")\nwords = set(text.lower().split())\n# Слово со знаком препинания («бесплатно!») не совпадёт - это можно обсудить с сильными учениками.\n\n# Способ 1: пересечение множеств\nfound = words & bad_words\nif found:\n    print(\"Спам! Найдены слова:\", found)\nelse:\n    print(\"Спама нет\")\n\n# Способ 2: цикл for\nspam = False\nfor w in words:\n    if w in bad_words:\n        spam = True\nprint(\"Есть спам-слово:\", spam)" }
+  ];
+  var cur = null, codes = {}, done = {};
+  var $ = function (id) { return document.getElementById(id); };
+  $('levels').innerHTML = LEVELS.map(function (L, k) {
+    return '<button class="level" data-l="' + k + '" style="--c:' + L.c + ';--d:' + (k * 0.1) + 's"><span class="dot">' + L.dot + '</span>' +
+      '<div class="lv">' + L.id + '</div><div class="ln">' + L.name + '</div><div class="ld">' + L.sub + '</div></button>';
+  }).join('');
+  $('levels').querySelectorAll('.level').forEach(function (b) { b.onclick = function () { pick(+b.dataset.l); }; });
+
+  function pick(k) {
+    if (cur !== null) codes[cur] = $('foCode').value;
+    cur = k; var L = LEVELS[k];
+    document.querySelectorAll('.level').forEach(function (b) { b.classList.toggle('on', +b.dataset.l === k); });
+    var panel = $('lvlPanel');
+    panel.style.setProperty('--lc', L.c);
+    panel.className = 'panel lvl-panel'; void panel.offsetWidth; panel.className = 'panel lvl-panel show';
+    $('lvlBadge').textContent = L.dot + ' ' + L.id;
+    $('lvlName').textContent = L.name + ' · ' + L.sub;
+    $('lvlTask').innerHTML = L.task;
+    $('foCode').value = codes[k] !== undefined ? codes[k] : L.start;
+    $('foOut').textContent = '';
+    $('foSolBox').className = 'sol'; $('foSol').textContent = '👁 Пример решения';
+    $('foSolCode').textContent = L.sol;
+    done[k] = done[k] || {};
+    drawChecks();
+    SFX.whoosh();
+    setTimeout(function () { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+  }
+  function drawChecks() {
+    var L = LEVELS[cur], d = done[cur];
+    $('foChecks').innerHTML = L.checks.map(function (t, i) {
+      return '<button class="sc-item' + (d[i] ? ' done' : '') + '" data-i="' + i + '" aria-pressed="' + !!d[i] + '"><span class="box">' + (d[i] ? '✓' : '') + '</span><span>' + esc(t) + '</span></button>';
+    }).join('');
+    $('foChecks').querySelectorAll('.sc-item').forEach(function (b) {
+      b.onclick = function () {
+        var i = +b.dataset.i; d[i] = !d[i];
+        if (d[i]) SFX.link(); else SFX.unlink();
+        drawChecks();
+        if (L.checks.every(function (_, j) { return d[j]; })) { SFX.fanfare(); confetti(160); }
+      };
+    });
+    var n = L.checks.filter(function (_, j) { return d[j]; }).length;
+    $('foBar').style.width = (n / L.checks.length * 100) + '%';
+    $('foMsg').textContent = n === L.checks.length ? '🏆 Все шаги выполнены!' : 'Выполнено: ' + n + ' из ' + L.checks.length;
+  }
+  $('foRun').onclick = function () { runIn($('foCode').value, $('foOut'), $('foRun')); };
+  $('foReset').onclick = function () { if (confirm('Вернуть заготовку? Ваш код на этом уровне будет стёрт.')) { $('foCode').value = LEVELS[cur].start; codes[cur] = LEVELS[cur].start; } };
+  $('foSol').onclick = function () {
+    var box = $('foSolBox'), open = box.classList.toggle('show');
+    this.textContent = open ? '🙈 Скрыть решение' : '👁 Пример решения';
+  };
+  $('foSolCopy').onclick = function () { $('foCode').value = LEVELS[cur].sol; codes[cur] = LEVELS[cur].sol; SFX.ok(); };
+  $('foCode').addEventListener('keydown', function (e) {
+    if (e.key === 'Tab' && !e.shiftKey) {
+      e.preventDefault(); var t = e.target, a = t.selectionStart;
+      t.value = t.value.slice(0, a) + '    ' + t.value.slice(t.selectionEnd); t.selectionStart = t.selectionEnd = a + 4;
+    } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('foRun').click(); }
+  });
+})();
+
+/* ===================== Вкладка 6: оценивание ===================== */
+(function () {
+  var CRIT = [
+    'Я могу объяснить, чем <code>set</code> отличается от <code>list</code>',
+    'Я знаю, почему нельзя использовать <code>set[0]</code>',
+    'Я умею добавлять (<code>add</code>) и безопасно удалять (<code>discard</code>) элементы',
+    'Я применил(а) принципы «Адал еңбек» при выполнении работы'
+  ];
+  var marks = {};
+  var tb = document.querySelector('#checklist tbody');
+  function draw() {
+    tb.innerHTML = CRIT.map(function (c, i) {
+      return '<tr style="--d:' + (i * 0.08) + 's"><td>' + c + '</td>' +
+        '<td><button class="mark-btn yes' + (marks[i] === 'y' ? ' on' : '') + '" data-i="' + i + '" data-v="y" aria-label="Да" aria-pressed="' + (marks[i] === 'y') + '">+</button></td>' +
+        '<td><button class="mark-btn help' + (marks[i] === 'h' ? ' on' : '') + '" data-i="' + i + '" data-v="h" aria-label="Нужна помощь" aria-pressed="' + (marks[i] === 'h') + '">?</button></td></tr>';
+    }).join('');
+    tb.querySelectorAll('.mark-btn').forEach(function (b) {
+      b.onclick = function () {
+        var i = +b.dataset.i, v = b.dataset.v;
+        marks[i] = marks[i] === v ? undefined : v;
+        if (marks[i] === 'y') SFX.link(); else if (marks[i] === 'h') SFX.pick(); else SFX.unlink();
+        draw(); tb.querySelectorAll('tr').forEach(function (r) { r.style.animation = 'none'; });
+        var all = CRIT.every(function (_, j) { return marks[j]; });
+        if (all && CRIT.every(function (_, j) { return marks[j] === 'y'; })) { SFX.fanfare(); confetti(200); }
+      };
+    });
+    var y = CRIT.filter(function (_, j) { return marks[j] === 'y'; }).length;
+    var h = CRIT.filter(function (_, j) { return marks[j] === 'h'; }).length;
+    var sum = document.getElementById('clSum');
+    if (!y && !h) sum.textContent = '';
+    else if (y + h < CRIT.length) sum.textContent = 'Отмечено ' + (y + h) + ' из ' + CRIT.length + ' критериев.';
+    else if (!h) sum.textContent = '🏆 Все критерии - «Да»! Отличная работа.';
+    else sum.textContent = '✅ Да: ' + y + ' · ❓ Нужна помощь: ' + h + ' - обратитесь к учителю или соседу по паре.';
+  }
+  document.getElementById('clReset').onclick = function () { marks = {}; draw(); };
+  draw();
+
+  var QS = [
+    { q: '«Если нам нужно хранить список участников соревнований с сохранением порядка финиша, что мы выберем - <code>list</code> или <code>set</code>?»',
+      a: '<b>list.</b> Список хранит элементы в том порядке, в котором их добавили, и у каждого есть индекс: <code>finish[0]</code> - победитель. Множество порядок не хранит.' },
+    { q: '«А если нужно мгновенно проверить, зарегистрирован ли пользователь в системе без повторов?»',
+      a: '<b>set.</b> Повторы во множестве невозможны, а проверка <code>login in users</code> работает очень быстро даже для огромного числа пользователей: не нужно перебирать всех по очереди.' }
+  ];
+  document.getElementById('refl').innerHTML = QS.map(function (x, i) {
+    return '<div class="rq" style="--c:' + ['#ffd23f', '#23c9ff'][i] + ';--d:' + (i * 0.12) + 's"><div class="qn">Вопрос ' + (i + 1) + '</div><p>' + x.q + '</p>' +
+      '<button class="mini">💡 Показать ответ</button><div class="ans">' + x.a + '</div></div>';
+  }).join('');
+  document.querySelectorAll('.rq .mini').forEach(function (b) {
+    b.onclick = function () { var r = b.parentNode, o = r.classList.toggle('open'); b.textContent = o ? '🙈 Скрыть ответ' : '💡 Показать ответ'; SFX.whoosh(); };
+  });
+})();
+
 /* ===================== Запуск ===================== */
 buildDemoButtons();
 (function () {
@@ -1849,6 +2121,10 @@ buildDemoButtons();
   for (var k in TAB_HASH) if (TAB_HASH[k] === h) start = k;
   showTab(start, true);
 })();
+window.addEventListener('hashchange', function () {
+  var h = (location.hash || '').slice(1);
+  for (var k in TAB_HASH) if (TAB_HASH[k] === h && document.body.dataset.tab !== k) showTab(k);
+});
 </script>
 </body>
 </html>
