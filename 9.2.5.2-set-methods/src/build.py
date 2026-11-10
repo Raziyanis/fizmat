@@ -14,6 +14,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import content as C  # noqa: E402
 import langkeep  # noqa: E402
+import kkui  # noqa: E402
 
 VER = 'set v1 · 10 ноября'
 
@@ -338,6 +339,8 @@ def patch_common(src, Q, QKK, L, LKK, UKK, CL):
 def patch_student(src, data):
     src = patch_common(src, *data)
     src = langkeep.patch_student(src, sub1)
+    src = kkui.patch_both(src, sub1)
+    src = kkui.patch_student(src, sub1)
     src = sub1(src, '<title>Методы списка — повторение</title>', '<title>Методы множества — урок</title>')
     src = sub1(src, '<div class="display">Методы списка</div>', '<div class="display">Список и кортеж</div>')
     src = sub1(src, "decide: 'Список или кортеж', reflect: 'Рефлексия' };",
@@ -372,6 +375,8 @@ def patch_student(src, data):
 def patch_teacher(src, data):
     src = patch_common(src, *data)
     src = langkeep.patch_teacher(src, sub1)
+    src = kkui.patch_both(src, sub1)
+    src = kkui.patch_teacher(src, sub1)
     src = sub1(src, '<title>Методы списка — экран учителя</title>', '<title>Методы множества — экран учителя</title>')
     src = sub1(src, '<h1>Методы списка — ответы класса</h1>', '<h1>Методы множества — ответы класса</h1>')
     src = sub1(src, "box.appendChild(el('div', 'eyebrow', 'Этап 6 · список или кортеж'));\n  box.appendChild(el('div', 'display', 'Список или кортеж?'));",

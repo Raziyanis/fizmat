@@ -769,3 +769,18 @@ for _i, _q in _ac.ASK_RU.items():
     BLOCKS[_i - 1]['ask'] = T(_q, BLOCKS[_i - 1]['ask'].kk)
 for _i, _t in _ac.TEXT_RU.items():
     BLOCKS[_i - 1]['text'] = T(_t, BLOCKS[_i - 1]['text'].kk)
+
+# Практика: әр есеп жиынның бір әдісіне арналған
+import tasks_v2 as _tv  # noqa: E402
+
+TASKS = _tv.TASKS
+for _g, _c in zip(HEAD['goalMap'], _tv.GOALMAP_CHECK):
+    _g['check'] = _c
+
+# Қазақша мәтінді түзету
+import kk_fix as _kf  # noqa: E402
+
+_miss = _kf.apply([HEAD, BLOCKS, CARDS, COMPARE, MISTAKES, CHECK, TASKS, WORK_INTRO,
+                   DECIDE, REFLECTION, HOMEWORK, QUESTIONS], T)
+assert not _miss, _miss
+UI_EXTRA.update(_kf.UI_FIX)

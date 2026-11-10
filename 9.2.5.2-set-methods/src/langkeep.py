@@ -4,6 +4,12 @@
 учитель оказывались там же, где были: тот же этап, слайд, ученик, ответы."""
 
 STUDENT_VIEW = r'''/* ---------- смена языка: запоминаем, где были ---------- */
+/* Казахский режим: всё, что появляется на странице, сразу переводится. */
+(function () {
+  if (LANG !== 'kk' || !window.MutationObserver) return;
+  new MutationObserver(function () { txDom(document.body); })
+    .observe(document.body, { childList: true, subtree: true });
+})();
 var VIEW_KEY = 'setmethods.view';
 function saveView_() {
   try {
