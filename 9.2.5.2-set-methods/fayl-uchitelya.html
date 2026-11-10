@@ -2091,7 +2091,8 @@ function drawStageScores(which, title, num) {
     var hr = document.createElement('tr');
     ['Класс', 'Ученик'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
     tasks.forEach(function (x, i) {
-      var h = el('th', 'cnum', String(i + 1) + (x.extra ? '★' : ''));
+      var h = el('th', 'cnum', String(i + 1) + (x.extra ? '★' : '') +
+                 (x.points > 1 ? ' (' + x.points + ')' : ''));
       h.title = (x.extra ? tx('Дополнительная:') + ' ' : '') + (x.name || x.skill || '') +
                 (x.extra ? ' · ' + tx('на оценку не влияет') : ' · ' + pts(x.points));
       hr.appendChild(h);
@@ -2123,6 +2124,9 @@ function drawStageScores(which, title, num) {
         if (Number(got) >= x.points) {
           tr.appendChild(el('td', 'mark y cell', '✓'));
           if (x.extra) extraOk++;
+        } else if (Number(got) > 0) {
+          tr.appendChild(el('td', 'mark cell', got + '/' + x.points));
+          if (!x.extra) bad.push(i + 1);
         } else {
           tr.appendChild(el('td', 'mark n cell', '✗'));
           if (!x.extra) bad.push(i + 1);

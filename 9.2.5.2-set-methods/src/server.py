@@ -363,6 +363,20 @@ def set_token(src, sub1, token):
 
 
 def _rest(src, sub1):
+    # задание дороже одного балла: видно в заголовке, частичный балл — в ячейке
+    src = sub1(src, "      var h = el('th', 'cnum', String(i + 1) + (x.extra ? '★' : ''));",
+               "      var h = el('th', 'cnum', String(i + 1) + (x.extra ? '★' : '') +\n"
+               "                 (x.points > 1 ? ' (' + x.points + ')' : ''));")
+    src = sub1(src, """        if (Number(got) >= x.points) {
+          tr.appendChild(el('td', 'mark y cell', '✓'));
+          if (x.extra) extraOk++;
+        } else {""", """        if (Number(got) >= x.points) {
+          tr.appendChild(el('td', 'mark y cell', '✓'));
+          if (x.extra) extraOk++;
+        } else if (Number(got) > 0) {
+          tr.appendChild(el('td', 'mark cell', got + '/' + x.points));
+          if (!x.extra) bad.push(i + 1);
+        } else {""")
     i = src.index("var CACHE_KEY = 'setmethods.teachercache.v1';")
     j = src.index('/** Казахский перевод и текст урока лежат в самом файле.', i)
     src = src[:i] + TEACHER_PULL.lstrip('\n') + '\n' + src[j:]
