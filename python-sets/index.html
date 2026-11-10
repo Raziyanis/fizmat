@@ -1,0 +1,1854 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Методы множества Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1b1640;
+    --muted: #6a6590;
+    --card: rgba(255, 255, 255, .94);
+    --ok: #17c27a;
+    --bad: #ff4d6d;
+    --glow: #ffd23f;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; color: #fff; overflow-x: hidden;
+    font: 17px/1.45 Nunito, system-ui, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #1a1446 0%, #3a1c71 45%, #0f3b6e 100%) fixed;
+    background-color: #1a1446;
+  }
+
+  /* ---------- Анимированный фон ---------- */
+  .bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; animation: drift 18s ease-in-out infinite alternate; }
+  .blob.b1 { width: 420px; height: 420px; background: #ff5d8f; left: -120px; top: -80px; }
+  .blob.b2 { width: 480px; height: 480px; background: #23c9ff; right: -160px; top: 30%; animation-duration: 22s; }
+  .blob.b3 { width: 380px; height: 380px; background: #7b61ff; left: 30%; bottom: -160px; animation-duration: 26s; }
+  @keyframes drift { to { transform: translate(80px, 60px) scale(1.15); } }
+  .float {
+    position: absolute; font-family: var(--mono); font-weight: 700; color: rgba(255,255,255,.08);
+    animation: rise linear infinite; bottom: -80px; white-space: nowrap;
+  }
+  @keyframes rise { to { transform: translateY(-120vh) rotate(25deg); } }
+
+  main { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* ---------- Шапка ---------- */
+  .hero { text-align: center; margin-bottom: 22px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+    font-weight: 700; font-size: .9rem; letter-spacing: .03em; backdrop-filter: blur(6px);
+  }
+  .badge b { font-family: var(--mono); color: var(--glow); }
+  h1 {
+    font-size: clamp(2rem, 5.5vw, 3.4rem); line-height: 1.05; margin: 14px 0 8px; font-weight: 900;
+    background: linear-gradient(90deg, #ffd23f, #ff5d8f, #c77dff, #23c9ff, #ffd23f);
+    background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shine 8s linear infinite;
+  }
+  @keyframes shine { to { background-position: 300% 0; } }
+  h1 code { font-family: var(--mono); }
+  .sub { margin: 0 auto; max-width: 640px; color: rgba(255,255,255,.85); }
+
+  .stats { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .chip {
+    display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 14px;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); backdrop-filter: blur(6px);
+    font-weight: 700;
+  }
+  .bar { width: 140px; height: 10px; border-radius: 99px; background: rgba(255,255,255,.2); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; border-radius: 99px;
+    background: linear-gradient(90deg, #ffd23f, #ff5d8f, #c77dff); transition: width .4s cubic-bezier(.3,1.6,.5,1); }
+  .chip button { all: unset; cursor: pointer; font-size: 1.15rem; line-height: 1; }
+  .chip button:focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; border-radius: 4px; }
+  .mono { font-family: var(--mono); }
+
+  /* ---------- Игровое поле ---------- */
+  .panel {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+    border-radius: 24px; padding: 20px; backdrop-filter: blur(10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+  .name { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; font-weight: 700; }
+  .name input {
+    flex: 1 1 240px; padding: 10px 14px; border-radius: 12px; border: 2px solid transparent;
+    background: var(--card); color: var(--ink); font: inherit; font-weight: 700;
+  }
+  .name input:focus { outline: none; border-color: var(--glow); }
+
+  .board { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 90px minmax(0, 1.55fr); }
+  .col { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 2; }
+  .col.l { grid-column: 1; } .col.r { grid-column: 3; }
+  .col h2 { margin: 0 0 4px; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+  svg.lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
+  svg.lines path { fill: none; stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 6px currentColor); }
+  svg.lines path.draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: draw .45s ease-out forwards; }
+  svg.lines path.temp { stroke-dasharray: 8 8; stroke-width: 3; opacity: .9; animation: march .6s linear infinite; }
+  svg.lines path.bad { stroke-dasharray: 10 8; animation: none; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes march { to { stroke-dashoffset: -16; } }
+
+  .item {
+    --c: #7b61ff;
+    position: relative; text-align: left; cursor: pointer; font: inherit; color: var(--ink);
+    background: var(--card); border: 3px solid transparent; border-radius: 16px;
+    padding: 12px 14px 12px 52px; min-height: 60px; display: flex; align-items: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,.18);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s;
+  }
+  .item.entering { animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+  @keyframes enter { from { opacity: 0; transform: translateY(24px) scale(.9); } }
+  .col.l .item::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; border-radius: 13px 0 0 13px; background: var(--c);
+  }
+  .item:hover { transform: translateY(-2px) scale(1.015); box-shadow: 0 10px 26px rgba(0,0,0,.28); }
+  .item:focus-visible { outline: 3px solid var(--glow); outline-offset: 3px; }
+  .item.selected {
+    border-color: var(--c); transform: scale(1.04);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 35%, transparent), 0 12px 30px rgba(0,0,0,.3);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 12px color-mix(in srgb, var(--c) 15%, transparent), 0 12px 30px rgba(0,0,0,.3); } }
+  .item.linked { border-color: var(--c); }
+  .item code { font-family: var(--mono); font-weight: 700; font-size: 1.08rem; color: var(--ink); }
+  .item code .fn { color: #b5179e; }
+  .tag {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+    font-weight: 900; font-size: .9rem; border: 2px dashed #c9c4e6; color: #b0aad3; transition: all .25s;
+  }
+  .tag.on { border: none; background: var(--c); color: #fff; transform: translateY(-50%) scale(1.1); text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+
+  .item.ok { border-color: var(--ok); background: #e9fbf2; animation: pop .5s ease both; }
+  .item.bad { border-color: var(--bad); background: #fff0f3; animation: shake .5s ease both; }
+  @keyframes pop { 40% { transform: scale(1.06); } }
+  @keyframes shake { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
+  .item .mark { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; }
+
+  .actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    font: inherit; font-weight: 800; padding: 13px 26px; border-radius: 14px; cursor: pointer;
+    border: 2px solid rgba(255,255,255,.35); background: rgba(255,255,255,.1); color: #fff;
+    transition: transform .15s, box-shadow .15s, opacity .2s;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn.primary {
+    border: none; color: #1b1640; font-size: 1.1rem;
+    background: linear-gradient(90deg, #ffd23f, #ff9f1c, #ff5d8f); box-shadow: 0 8px 24px rgba(255, 93, 143, .45);
+  }
+  .btn.primary:not(:disabled) { animation: ready 1.6s ease-in-out infinite; }
+  @keyframes ready { 50% { box-shadow: 0 8px 34px rgba(255, 210, 63, .8); } }
+  .btn:disabled { opacity: .45; cursor: default; animation: none; }
+
+  /* ---------- Результат ---------- */
+  .result { display: none; margin-top: 22px; }
+  .result.show { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; }
+  .ring { position: relative; width: 150px; height: 150px; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 14; }
+  .ring .track { stroke: rgba(255,255,255,.15); }
+  .ring .val { stroke: url(#rg); stroke-linecap: round; transition: stroke-dashoffset 1.4s cubic-bezier(.3,1,.4,1); }
+  .ring .num { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-weight: 900; font-size: 2.4rem; line-height: 1; }
+  .ring .num small { display: block; font-size: .9rem; font-weight: 700; opacity: .8; }
+  .verdict { font-size: 1.5rem; font-weight: 900; margin: 0 0 6px; }
+  .who { opacity: .85; margin: 0 0 8px; font-weight: 700; }
+  .fix { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+  .fix li { background: rgba(255,255,255,.1); border-left: 4px solid var(--glow); padding: 8px 12px; border-radius: 8px; }
+  .fix code { font-family: var(--mono); color: var(--glow); font-weight: 700; }
+  .fix li.fix-title { background: none; border: none; padding: 0; font-weight: 800; }
+  .fix-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .fix-btns { display: flex; gap: 6px; }
+  .mini {
+    font: inherit; font-size: .9rem; font-weight: 800; cursor: pointer; padding: 6px 12px; border-radius: 10px;
+    border: none; background: var(--glow); color: #1b1640; transition: transform .15s;
+  }
+  .mini.show { background: #23c9ff; }
+  .mini:hover { transform: translateY(-2px); }
+  .why-box { display: none; margin-top: 10px; padding: 12px 14px; border-radius: 10px; background: rgba(10, 8, 35, .45); }
+  .fix li.open .why-box { display: block; animation: enter .4s cubic-bezier(.2,1.4,.4,1) both; }
+  .why-box p { margin: 0 0 8px; }
+  .why-box p:last-child { margin: 0; }
+  .why-box .tip { color: var(--glow); font-weight: 700; }
+
+  /* ---------- Живая демонстрация ---------- */
+
+  .dbtns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .dbtn {
+    --c: #7b61ff; font: inherit; font-family: var(--mono); font-weight: 700; cursor: pointer;
+    padding: 9px 14px; border-radius: 12px; border: 2px solid var(--c); color: #fff;
+    background: color-mix(in srgb, var(--c) 30%, transparent); transition: transform .15s, background .15s;
+  }
+  .dbtn:hover:not(:disabled) { transform: translateY(-2px); background: color-mix(in srgb, var(--c) 55%, transparent); }
+  .dbtn:disabled { opacity: .5; cursor: default; }
+  .stage {
+    position: relative; min-height: 230px; border-radius: 20px; padding: 20px;
+    background: rgba(10, 8, 35, .45); border: 1px solid rgba(255,255,255,.15);
+    display: flex; gap: 24px; align-items: center; justify-content: center; flex-wrap: wrap; overflow: hidden;
+  }
+  .stage.shake, .riddle.shake { animation: shake .5s ease; }
+  .set {
+    position: relative; min-width: 220px; min-height: 130px; padding: 30px 26px 22px;
+    border-radius: 50% / 45%; border: 3px solid #23c9ff; background: rgba(35, 201, 255, .1);
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center;
+    box-shadow: 0 0 30px rgba(35, 201, 255, .35) inset; transition: all .4s;
+  }
+  .set.copy { border-color: #c77dff; background: rgba(199,125,255,.1); box-shadow: 0 0 30px rgba(199,125,255,.35) inset; animation: enter .7s cubic-bezier(.2,1.4,.4,1) both; }
+  .set .lbl {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%); padding: 2px 12px; border-radius: 99px;
+    font-family: var(--mono); font-weight: 700; background: #23c9ff; color: #10203a;
+  }
+  .set.copy .lbl { background: #c77dff; }
+  .set .empty { font-family: var(--mono); opacity: .6; }
+  .el {
+    width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+    font-family: var(--mono); font-weight: 700; font-size: 1.25rem; color: #1b1640;
+    background: radial-gradient(circle at 35% 30%, #fff, #ffd23f 70%); box-shadow: 0 6px 16px rgba(0,0,0,.35);
+    transition: transform .3s, box-shadow .3s;
+  }
+  .el.in { animation: elIn .6s cubic-bezier(.2,1.6,.4,1) both; }
+  .el.out { animation: elOut .6s ease-in forwards; }
+  .el.hl { transform: scale(1.2); box-shadow: 0 0 0 5px #ff5d8f, 0 6px 16px rgba(0,0,0,.35); }
+  .el.ghost { background: radial-gradient(circle at 35% 30%, #fff, #ff9aa9 70%); }
+  @keyframes elIn { from { opacity: 0; transform: translateY(-90px) scale(.2) rotate(-90deg); } }
+  @keyframes elOut { to { opacity: 0; transform: translateY(-110px) scale(.2) rotate(120deg); } }
+  .out-box { display: flex; flex-direction: column; align-items: center; gap: 8px; font-weight: 800; }
+  .err {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); white-space: nowrap;
+    padding: 8px 16px; border-radius: 12px; font-family: var(--mono); font-weight: 700;
+    animation: enter .4s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  .err.red { background: var(--bad); color: #fff; }
+  .err.green { background: var(--ok); color: #fff; }
+  .console {
+    margin-top: 14px; padding: 14px 16px; border-radius: 14px; background: #0d0b22; border: 1px solid rgba(255,255,255,.12);
+    font-family: var(--mono); font-size: .98rem; min-height: 84px; white-space: pre-wrap; color: #e6e3ff;
+  }
+  .console .p { color: #3ddc97; } .console .e { color: #ff7b8f; } .console .c { color: #8a85b5; }
+  .caption { margin-top: 10px; font-weight: 700; color: var(--glow); min-height: 1.4em; }
+
+  .hint { color: rgba(255,255,255,.7); font-size: .92rem; margin-top: 16px; text-align: center; }
+  .hint code { font-family: var(--mono); color: var(--glow); }
+
+  /* ---------- Вкладки ---------- */
+  .tabs {
+    position: sticky; top: 8px; z-index: 30; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    margin: 0 auto 22px; padding: 6px; border-radius: 18px; width: fit-content; max-width: 100%;
+    background: rgba(20, 14, 60, .7); border: 1px solid rgba(255,255,255,.2); backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+  }
+  .tab-btn {
+    font: inherit; font-weight: 800; color: rgba(255,255,255,.8); cursor: pointer; border: none;
+    background: transparent; padding: 10px 18px; border-radius: 13px; display: flex; align-items: center; gap: 8px;
+    transition: background .2s, color .2s, transform .15s;
+  }
+  .tab-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
+  .tab-btn .tn { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; background: rgba(255,255,255,.18); }
+  .tab-btn[aria-selected="true"] { color: #1b1640; background: linear-gradient(90deg, #ffd23f, #ff9f1c, #ff5d8f); box-shadow: 0 6px 18px rgba(255,93,143,.45); }
+  .tab-btn[aria-selected="true"] .tn { background: rgba(27,22,64,.85); color: #fff; }
+  .tab-btn:focus-visible, .snd:focus-visible { outline: 3px solid var(--glow); outline-offset: 2px; }
+  .snd { font-size: 1.2rem; cursor: pointer; border: none; background: transparent; padding: 8px 10px; border-radius: 12px; }
+  .snd:hover { background: rgba(255,255,255,.1); }
+  .tab { display: none; }
+  .tab.active { display: block; animation: tabIn .5s cubic-bezier(.2,1.2,.4,1) both; }
+  @keyframes tabIn { from { opacity: 0; transform: translateY(18px); } }
+  .tab > section + section, .tab > section + div, .tab > section + p { margin-top: 22px; }
+  .task-only { display: none; }
+  .tabs .stats { margin: 0 0 0 6px; gap: 6px; }
+  .tabs .chip { padding: 6px 10px; }
+  .tabs .bar { width: 80px; }
+  .panel, .reveal { scroll-margin-top: 90px; }
+  body[data-tab="task"] .task-only { display: flex; }
+  .sec { margin: 0 0 6px; font-size: clamp(1.5rem, 3.5vw, 2rem); font-weight: 900; }
+  .lead-l { margin: 0 0 16px; color: rgba(255,255,255,.88); font-size: 1.05rem; }
+  .lead-l code, .prop code, .cmp code { color: var(--glow); }
+  .actions.left { justify-content: flex-start; margin-top: 12px; }
+  .sub-h { margin: 20px 0 8px; font-size: 1.2rem; font-weight: 900; }
+
+  /* ---------- Карточки-перевёртыши ---------- */
+  .flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+  .flip { perspective: 900px; height: 190px; border: none; padding: 0; background: none; cursor: pointer; font: inherit;
+    animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+  .flip:focus-visible { outline: 3px solid var(--glow); outline-offset: 4px; border-radius: 18px; }
+  .flip-in { position: relative; width: 100%; height: 100%; transition: transform .6s cubic-bezier(.3,1.4,.5,1); transform-style: preserve-3d; }
+  .flip.open .flip-in { transform: rotateY(180deg); }
+  .face { position: absolute; inset: 0; border-radius: 18px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; text-align: center; }
+  .face.front { background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 55%, #1b1640)); color: #fff; box-shadow: 0 10px 24px rgba(0,0,0,.3); }
+  .face.front code { font-family: var(--mono); font-weight: 700; font-size: 1.3rem; text-shadow: 0 2px 6px rgba(0,0,0,.3); }
+  .face.front small { margin-top: 10px; opacity: .85; font-weight: 700; }
+  .face.back { background: var(--card); color: var(--ink); transform: rotateY(180deg); border: 3px solid var(--c); font-size: .95rem; gap: 8px; }
+  .face.back code { font-family: var(--mono); font-size: .78rem; white-space: pre-wrap !important; text-align: left; max-width: 100%; background: #f0edff; padding: 4px 8px; border-radius: 8px; color: #4b2aa8; }
+
+  /* ---------- Загадка ---------- */
+  .riddle { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; padding: 20px;
+    border-radius: 20px; background: rgba(10, 8, 35, .45); border: 1px solid rgba(255,255,255,.15); min-height: 200px; }
+  .coll { position: relative; padding: 34px 20px 20px; min-width: 240px; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+  .coll .lbl { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 2px 12px; border-radius: 99px;
+    font-family: var(--mono); font-weight: 700; font-size: .9rem; }
+  .list-coll { border: 3px solid #ff9f1c; border-radius: 14px; background: rgba(255,159,28,.08); }
+  .list-coll .lbl { background: #ff9f1c; color: #1b1640; }
+  .set-coll { border: 3px dashed #c77dff; border-radius: 50% / 45%; background: rgba(199,125,255,.08); transition: all .5s; }
+  .set-coll .lbl { background: #c77dff; color: #1b1640; }
+  .set-coll.known { border-style: solid; border-color: #23c9ff; background: rgba(35,201,255,.1); box-shadow: 0 0 40px rgba(35,201,255,.45) inset; }
+  .set-coll.known .lbl { background: #23c9ff; }
+  .cells { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: flex-end; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .cell .box { width: 50px; height: 50px; border-radius: 10px; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 1.25rem;
+    color: #1b1640; background: linear-gradient(180deg, #fff, #ffd9a0); box-shadow: 0 5px 14px rgba(0,0,0,.3); transition: all .4s; }
+  .cell .idx { font-family: var(--mono); font-size: .8rem; color: rgba(255,255,255,.7); }
+  .cell.dup .box { box-shadow: 0 0 0 4px var(--bad), 0 5px 14px rgba(0,0,0,.3); }
+  .cell.go .box { transform: translateY(-14px) scale(.9); opacity: .45; }
+  .qm { font-size: 3.4rem; font-weight: 900; color: #c77dff; animation: bob 1.6s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(8deg); } }
+  .r-arrow { font-size: 2.4rem; color: var(--glow); animation: nudge 1.2s ease-in-out infinite; }
+  @keyframes nudge { 50% { transform: translateX(8px); } }
+  .dup-x { position: absolute; font-size: 1.6rem; animation: elOut .9s ease-in forwards; }
+  .big-cap { font-size: 1.25rem; min-height: 1.6em; }
+  .console .q { color: #c77dff; font-weight: 700; }
+  .reveal { display: none; margin-top: 24px; text-align: center; padding: 26px 18px; border-radius: 22px;
+    background: radial-gradient(circle at 50% 0%, rgba(255,210,63,.25), rgba(10,8,35,.35)); border: 2px solid rgba(255,210,63,.5); }
+  .reveal.show { display: block; animation: enter .8s cubic-bezier(.2,1.5,.4,1) both; }
+  .reveal-title { font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.8); }
+  .reveal-name { font-size: clamp(2.6rem, 9vw, 5.5rem); font-weight: 900; line-height: 1.05; margin: 6px 0 10px;
+    background: linear-gradient(90deg, #ffd23f, #ff5d8f, #c77dff, #23c9ff); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 8px 30px rgba(255,93,143,.45)); }
+  .reveal-goal { font-size: 1.15rem; font-weight: 700; margin: 0 auto 18px; max-width: 700px; }
+  .reveal h3 { margin: 0 0 12px; font-size: 1.15rem; }
+  .map { display: grid; gap: 8px; max-width: 720px; margin: 0 auto; text-align: left; }
+  .map-row { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); align-items: center; gap: 8px; animation: enter .5s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+  .map-row .m { padding: 9px 12px; border-radius: 12px; font-family: var(--mono); font-weight: 700; background: var(--card); color: var(--ink); }
+  .map-row .m.l { border-left: 6px solid #ff9f1c; }
+  .map-row .m.r { border-left: 6px solid #23c9ff; }
+  .map-row .m small { display: block; font-family: Nunito, system-ui, sans-serif; font-weight: 600; color: var(--muted); font-size: .82rem; }
+  .map-row .m.none { opacity: .55; }
+  .map-row .m.new { box-shadow: 0 0 0 3px var(--glow); }
+  .map-row .ar { text-align: center; font-size: 1.4rem; color: var(--glow); }
+
+  /* ---------- Теория ---------- */
+  .props { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .prop { padding: 16px; border-radius: 16px; background: rgba(255,255,255,.1); border-top: 5px solid var(--c); display: flex; flex-direction: column; gap: 6px; }
+  .prop .pi { font-size: 2rem; }
+  .prop b { font-size: 1.1rem; }
+  .prop span { color: rgba(255,255,255,.85); }
+  pre.code { margin: 0; padding: 16px; border-radius: 14px; background: #0d0b22; border: 1px solid rgba(255,255,255,.12);
+    font-family: var(--mono); font-size: 1rem; line-height: 1.6; color: #e6e3ff; overflow-x: auto; }
+  pre.code .c { color: #8a85b5; } pre.code .kw { color: #ffd23f; } pre.code .warn { color: #ff7b8f; font-weight: 700; }
+  .table-wrap { overflow-x: auto; }
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 1.02rem; }
+  .cmp th, .cmp td { padding: 10px 14px; text-align: left; }
+  .cmp thead th { font-size: 1.1rem; }
+  .cmp thead th:nth-child(2) { color: #ffb75e; } .cmp thead th:nth-child(3) { color: #6fdcff; }
+  .cmp tbody tr { background: rgba(255,255,255,.08); }
+  .cmp tbody th { border-radius: 10px 0 0 10px; color: rgba(255,255,255,.8); font-weight: 800; }
+  .cmp tbody td:last-child { border-radius: 0 10px 10px 0; }
+
+  /* ---------- Редактор ---------- */
+  .ed-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; font-weight: 700; }
+  .ed-bar select { font: inherit; font-weight: 700; padding: 8px 12px; border-radius: 10px; border: none; background: var(--card); color: var(--ink); max-width: 100%; }
+  .ed-status { font-size: .9rem; color: var(--glow); }
+  textarea.editor { width: 100%; min-height: 230px; resize: vertical; padding: 14px 16px; border-radius: 14px; tab-size: 4;
+    font-family: var(--mono); font-size: 1.02rem; line-height: 1.55; color: #f1eeff; background: #0d0b22; border: 2px solid rgba(255,255,255,.15); }
+  textarea.editor:focus { outline: none; border-color: var(--glow); }
+  pre.out { margin: 12px 0 0; min-height: 70px; max-height: 360px; overflow: auto; }
+  pre.out .o-err { color: #ff7b8f; } pre.out .o-sys { color: #8a85b5; }
+  .note { margin: 10px 0 0; font-size: .88rem; color: rgba(255,255,255,.65); }
+  @media (max-width: 720px) {
+    .tab-btn { padding: 8px 10px; font-size: .92rem; }
+    .map-row { grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); gap: 4px; }
+    .map-row .m { font-size: .85rem; padding: 8px; overflow-wrap: anywhere; }
+    .coll { min-width: 0; width: 100%; }
+    .r-arrow { transform: rotate(90deg); animation: none; }
+  }
+
+  /* ---------- Детективы кода ---------- */
+  body[data-tab="detect"] .dk-only { display: flex; }
+  .dk-only { display: none; }
+  #dkChip.low { background: rgba(255, 77, 109, .45); border-color: #ff4d6d; animation: hurry .8s ease-in-out infinite; }
+  .dk-head { display: flex; gap: 16px; align-items: center; }
+  .dk-emoji { font-size: 3.6rem; animation: bob 2s ease-in-out infinite; }
+  .cheat { margin-top: 8px; padding: 14px 18px; border-radius: 16px; background: rgba(255,255,255,.1); border-left: 5px solid var(--glow); }
+  .cheat summary { cursor: pointer; font-weight: 900; font-size: 1.15rem; }
+  .cheat ul { margin: 10px 0 0; padding-left: 1.2em; display: grid; gap: 6px; }
+  .cheat code { font-family: var(--mono); color: var(--glow); }
+  .dk-cnt { margin-top: 8px; }
+  .dk-trow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .dk-timer { font-size: clamp(2.4rem, 7vw, 3.6rem); font-weight: 700; min-width: 5ch; text-shadow: 0 0 24px rgba(35,201,255,.6); }
+  .dk-timer.low { color: #ff7b8f; text-shadow: 0 0 24px rgba(255,77,109,.8); animation: hurry .8s ease-in-out infinite; }
+  .dk-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .dk-tab { --c: #7b61ff; font: inherit; font-weight: 800; cursor: pointer; padding: 9px 16px; border-radius: 12px; color: #fff;
+    border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 22%, transparent); transition: transform .15s, background .15s; }
+  .dk-tab:hover { transform: translateY(-2px); }
+  .dk-tab.on { background: var(--c); box-shadow: 0 6px 18px color-mix(in srgb, var(--c) 60%, transparent); }
+  .dk-grid { display: grid; grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); gap: 16px; }
+  textarea.dk-editor { min-height: 520px; white-space: pre; overflow: auto; }
+  pre.out.bad { color: #ff7b8f; }
+  .dk-win { display: none; margin-top: 12px; padding: 16px; border-radius: 14px; text-align: center; font-weight: 900; font-size: 1.2rem;
+    color: #fff; background: linear-gradient(90deg, #17c27a, #23c9ff); animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; }
+  .dk-bugs { align-self: start; padding: 16px; border-radius: 16px; background: var(--card); color: var(--ink); box-shadow: 0 8px 22px rgba(0,0,0,.25); }
+  .dk-bugs h3 { margin: 0 0 8px; font-size: 1.15rem; }
+  .dk-bugs .note { color: var(--muted); }
+  .bug { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px dashed #d6d1ee; }
+  .bug:last-child { border: 0; }
+  .bug .bm { font-size: 1.4rem; width: 1.8rem; transition: transform .3s; }
+  .bug.fixed .bm { animation: pop .5s ease; }
+  .bug.fixed b { color: var(--ok); }
+  .bug small { display: block; color: var(--muted); font-size: .92rem; margin-top: 4px; }
+  .bug .mini { margin-top: 6px; }
+  .bn-emoji { font-size: clamp(6rem, 22vw, 12rem); line-height: 1; animation: pop .8s ease; }
+  @media (max-width: 900px) { .dk-grid { grid-template-columns: 1fr; } textarea.dk-editor { min-height: 380px; } }
+
+  /* ---------- Инструкция ---------- */
+  .intro { text-align: center; animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; }
+  .intro h2 { margin: 0 0 14px; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 900; }
+  .steps { list-style: none; counter-reset: st; padding: 0; margin: 0 auto 16px; max-width: 760px; display: grid; gap: 10px; text-align: left; }
+  .steps li {
+    counter-increment: st; position: relative; display: block;
+    padding: 14px 16px 14px 100px; min-height: 56px; border-radius: 16px; background: var(--card); color: var(--ink);
+    font-size: clamp(1rem, 2.2vw, 1.25rem); box-shadow: 0 6px 18px rgba(0,0,0,.2);
+    animation: enter .6s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  .steps li:nth-child(1) { animation-delay: .1s; } .steps li:nth-child(2) { animation-delay: .2s; }
+  .steps li:nth-child(3) { animation-delay: .3s; } .steps li:nth-child(4) { animation-delay: .4s; }
+  .steps li:nth-child(5) { animation-delay: .5s; } .steps li:nth-child(6) { animation-delay: .6s; }
+  .steps li::before {
+    content: counter(st); position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 900; color: #fff;
+    background: linear-gradient(135deg, #ff5d8f, #7b61ff);
+  }
+  .steps .ic { position: absolute; left: 56px; top: 50%; transform: translateY(-50%); font-size: 1.5rem; }
+  .intro-note { font-weight: 700; color: var(--glow); margin: 0 0 18px; }
+  .btn.big { font-size: 1.35rem; padding: 16px 40px; }
+  .game { display: none; }
+  .game.show { display: block; }
+  .chip .plus {
+    all: unset; cursor: pointer; font-weight: 900; font-size: .9rem; padding: 3px 10px; border-radius: 99px;
+    background: var(--glow); color: #1b1640; margin-left: 4px;
+  }
+  .chip .plus:disabled { opacity: .4; cursor: default; }
+  .chip .plus:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .chip .plus.bump { animation: pop .4s ease; }
+
+  /* ---------- Таймер ---------- */
+  .chip.hurry { background: rgba(255, 77, 109, .45); border-color: #ff4d6d; animation: hurry .8s ease-in-out infinite; }
+  @keyframes hurry { 50% { transform: scale(1.08); box-shadow: 0 0 24px rgba(255, 77, 109, .8); } }
+
+  /* ---------- Большой экран со счётом ---------- */
+  .big-score {
+    position: fixed; inset: 0; z-index: 40; display: none; place-items: center; text-align: center; padding: 16px;
+    background: radial-gradient(circle at 50% 40%, rgba(58, 28, 113, .92), rgba(10, 8, 35, .97));
+    backdrop-filter: blur(8px);
+  }
+  .big-score.show { display: grid; animation: fadeIn .4s ease both; }
+  @keyframes fadeIn { from { opacity: 0; } }
+  .bs-inner { animation: enter .8s cubic-bezier(.2,1.5,.4,1) both; max-width: 100%; }
+  .bs-who { font-size: clamp(1.4rem, 4vw, 2.6rem); font-weight: 900; color: #fff; margin-bottom: 4px; overflow-wrap: anywhere; }
+  .bs-num { font-size: clamp(7rem, 30vw, 20rem); font-weight: 900; line-height: 1; letter-spacing: -.03em;
+    background: linear-gradient(90deg, #ffd23f, #ff5d8f, #c77dff); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 10px 40px rgba(255, 93, 143, .45)); }
+  .bs-num.top { background-image: linear-gradient(90deg, #ffd23f, #3ddc97, #23c9ff); }
+  .bs-num.low { background-image: linear-gradient(90deg, #ff9f1c, #ff4d6d); }
+  .bs-of { font-size: .35em; opacity: .85; margin-left: .1em; }
+  .bs-verdict { font-size: clamp(1.6rem, 5vw, 3.4rem); font-weight: 900; margin: 6px 0 4px; }
+  .bs-time { font-size: clamp(1.1rem, 3vw, 1.8rem); font-weight: 700; opacity: .85; margin-bottom: 26px; font-family: var(--mono); }
+
+  /* ---------- Пары ---------- */
+  .teams { margin-bottom: 22px; }
+  .teams-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .teams-head h2 { margin: 0; font-size: 1.6rem; font-weight: 900; }
+  .pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin-top: 16px; }
+  .pairs-empty { grid-column: 1 / -1; margin: 0; color: rgba(255,255,255,.75); }
+  .pair {
+    --c: #7b61ff; position: relative; padding: 16px 16px 14px; border-radius: 18px; color: var(--ink);
+    background: var(--card); border-top: 8px solid var(--c); box-shadow: 0 8px 22px rgba(0,0,0,.25);
+    animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s);
+  }
+  .pair h3 {
+    margin: 0 0 8px; font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 900; color: var(--c);
+  }
+  .pair .n { font-weight: 800; font-size: 1.15rem; line-height: 1.3; padding: 3px 0; transition: color .2s; }
+  .pair .n.spin { color: #b0aad3; filter: blur(.6px); }
+  .pair .n.lock { animation: lock .45s cubic-bezier(.2,1.8,.4,1); }
+  @keyframes lock { 0% { transform: scale(1.35); color: var(--c); } }
+  .pair .big {
+    position: absolute; right: 12px; top: 6px; font-size: 2.6rem; font-weight: 900; opacity: .12; color: var(--c);
+  }
+  canvas#fx { position: fixed; inset: 0; z-index: 50; pointer-events: none; }
+
+  @media (max-width: 720px) {
+    .board { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .col.l, .col.r { grid-column: 1; }
+    svg.lines { display: none; }
+    .result.show { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .fix { text-align: left; }
+    .panel { padding: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important; transition-duration: .01s !important; }
+  }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="big-score" id="banner" role="dialog" aria-modal="true" aria-labelledby="bnTitle">
+  <div class="bs-inner">
+    <div class="bn-emoji" id="bnEmoji"></div>
+    <div class="bs-verdict" id="bnTitle"></div>
+    <div class="bs-time" id="bnSub"></div>
+    <button class="btn primary" id="bnClose">Продолжить</button>
+  </div>
+</div>
+<div class="big-score" id="bigScore" role="dialog" aria-modal="true" aria-labelledby="bsNum">
+  <div class="bs-inner">
+    <div class="bs-who" id="bsWho"></div>
+    <div class="bs-num" id="bsNum"><span id="bsVal">0</span><span class="bs-of">/ 8</span></div>
+    <div class="bs-verdict" id="bsVerdict"></div>
+    <div class="bs-time" id="bsTime"></div>
+    <button class="btn primary" id="bsClose">Посмотреть разбор ↓</button>
+  </div>
+</div>
+
+<main>
+  <header class="hero">
+    <span class="badge"><b>{ }</b> Python · открытый урок</span>
+    <h1>Множества <code>set</code> в Python</h1>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Этапы урока">
+    <button class="tab-btn" role="tab" data-tab="topic" id="tb-topic"><span class="tn">1</span>Тема урока</button>
+    <button class="tab-btn" role="tab" data-tab="theory" id="tb-theory"><span class="tn">2</span>Новая тема</button>
+    <button class="tab-btn" role="tab" data-tab="task" id="tb-task"><span class="tn">3</span>Задание</button>
+    <button class="tab-btn" role="tab" data-tab="detect" id="tb-detect"><span class="tn">4</span>Детективы кода</button>
+    <div class="stats task-only">
+      <div class="chip"><div class="bar"><i id="bar"></i></div><span id="cnt" class="mono">0/8</span></div>
+      <div class="chip" id="timerChip">⏱ <span id="timer" class="mono">03:00</span><button class="plus" id="plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
+    </div>
+    <div class="stats dk-only"><div class="chip" id="dkChip">🕵️ <span id="dkTnav" class="mono">05:00</span></div></div>
+    <button class="snd" id="snd" aria-label="Звук" title="Звук">🔊</button>
+  </nav>
+
+  <!-- ===================== Вкладка 1: определение темы ===================== -->
+  <div class="tab" id="tab-topic" role="tabpanel" aria-labelledby="tb-topic">
+    <section class="panel">
+      <h2 class="sec">🧩 Вспомним методы списка</h2>
+      <p class="lead-l">Нажмите на карточку - она перевернётся и покажет, что делает метод.</p>
+      <div class="flip-grid" id="listCards"></div>
+    </section>
+
+    <section class="panel">
+      <h2 class="sec">🕵️ Загадка</h2>
+      <p class="lead-l">Переложим элементы списка <code class="mono">lst</code> в загадочную коллекцию <code class="mono">x</code>. Что изменится? Нажимайте «Дальше».</p>
+      <div class="riddle" id="riddle">
+        <div class="coll list-coll"><span class="lbl">lst - список</span><div class="cells" id="lstCells"></div></div>
+        <div class="r-arrow" aria-hidden="true">➜</div>
+        <div class="coll set-coll" id="mystery"><span class="lbl" id="mysteryLbl">x - ???</span><div class="cells" id="mysCells"><span class="qm">?</span></div></div>
+      </div>
+      <div class="console" id="rConsole"></div>
+      <div class="caption big-cap" id="rCaption"></div>
+      <div class="actions">
+        <button class="btn primary" id="rNext">▶ Дальше</button>
+        <button class="btn" id="rReset">↻ Сначала</button>
+      </div>
+
+      <div class="reveal" id="reveal">
+        <div class="reveal-title">Тема урока</div>
+        <div class="reveal-name">Множества <span class="mono">set</span></div>
+        <p class="reveal-goal">🎯 Цель: научиться создавать множества и пользоваться методами добавления и удаления элементов.</p>
+        <h3>Методы списка, которые вы знаете, → методы множества</h3>
+        <div class="map" id="mapTable"></div>
+        <div class="actions"><button class="btn primary" data-go="theory">Перейти к новой теме ➜</button></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== Вкладка 2: новая тема ===================== -->
+  <div class="tab" id="tab-theory" role="tabpanel" aria-labelledby="tb-theory">
+    <section class="panel">
+      <h2 class="sec">📘 Что такое множество</h2>
+      <p class="lead-l"><b>Множество (set)</b> - коллекция, в которой каждый элемент встречается только один раз.</p>
+      <div class="props">
+        <div class="prop" style="--c:#ff5d8f"><div class="pi">🎯</div><b>Только уникальные</b><span>Повторы удаляются автоматически: <code class="mono">set([1, 2, 2])</code> → <code class="mono">{1, 2}</code></span></div>
+        <div class="prop" style="--c:#23a6ff"><div class="pi">🔀</div><b>Нет порядка и индексов</b><span>Нельзя написать <code class="mono">s[0]</code> - у элементов нет номеров.</span></div>
+        <div class="prop" style="--c:#7b61ff"><div class="pi">🧊</div><b>Неизменяемые элементы</b><span>Числа, строки, кортежи - можно. Список внутри множества - нельзя.</span></div>
+      </div>
+      <h3 class="sub-h">Как создать множество</h3>
+      <pre class="code"><span class="kw">s</span> = {3, 1, 2}          <span class="c"># в фигурных скобках</span>
+<span class="kw">s</span> = set([1, 2, 2])    <span class="c"># из списка → {1, 2}</span>
+<span class="kw">s</span> = set('мама')       <span class="c"># из строки → {'м', 'а'}</span>
+<span class="kw">s</span> = set()             <span class="c"># пустое множество</span>
+<span class="kw">d</span> = {}                <span class="warn"># ⚠ это НЕ множество, а пустой словарь (dict)!</span></pre>
+    </section>
+
+    <section class="panel">
+      <h2 class="sec">⚖️ Список и множество</h2>
+      <div class="table-wrap">
+        <table class="cmp">
+          <thead><tr><th></th><th>Список <code class="mono">list</code></th><th>Множество <code class="mono">set</code></th></tr></thead>
+          <tbody>
+            <tr><th>Запись</th><td><code class="mono">[3, 1, 3]</code></td><td><code class="mono">{3, 1}</code></td></tr>
+            <tr><th>Повторы</th><td>✅ можно</td><td>❌ удаляются</td></tr>
+            <tr><th>Порядок, индексы</th><td>✅ <code class="mono">lst[0]</code></td><td>❌ нет</td></tr>
+            <tr><th>Добавить</th><td><code class="mono">append</code>, <code class="mono">extend</code></td><td><code class="mono">add</code>, <code class="mono">update</code></td></tr>
+            <tr><th>Удалить</th><td><code class="mono">remove</code>, <code class="mono">pop</code>, <code class="mono">clear</code></td><td><code class="mono">remove</code>, <code class="mono">discard</code>, <code class="mono">pop</code>, <code class="mono">clear</code></td></tr>
+            <tr><th>Проверка <code class="mono">x in …</code></th><td>перебирает элементы по очереди</td><td>⚡ очень быстрая</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel demo" id="demo">
+      <h2 class="sec">🔬 Живая демонстрация</h2>
+      <p class="lead-l">Нажмите на метод и посмотрите, что он делает с множеством <code class="mono">s</code>.</p>
+      <div class="dbtns" id="dbtns"></div>
+      <div class="stage" id="stage"></div>
+      <div class="console" id="console"></div>
+      <div class="caption" id="caption"></div>
+    </section>
+
+    <section class="panel" id="editorPanel">
+      <h2 class="sec">💻 Редактор кода</h2>
+      <p class="lead-l">Напишите свой код на Python и нажмите «Запустить» (или Ctrl+Enter). Значение последней строки выводится, как в интерактивном Python.</p>
+      <div class="ed-bar">
+        <label for="exSel">Пример:</label>
+        <select id="exSel"></select>
+        <span class="ed-status" id="edStatus"></span>
+      </div>
+      <textarea id="code" class="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Код на Python"></textarea>
+      <div class="actions left">
+        <button class="btn primary" id="runBtn">▶ Запустить</button>
+        <button class="btn" id="clearOut">🧹 Очистить вывод</button>
+      </div>
+      <pre class="console out" id="out" aria-live="polite"></pre>
+      <p class="note">Для запуска нужен интернет: при первом нажатии загружается Python для браузера (около 10 МБ), это занимает 5-20 секунд.</p>
+    </section>
+
+    <div class="actions"><button class="btn primary" data-go="task">Перейти к заданию ➜</button></div>
+  </div>
+
+  <!-- ===================== Вкладка 3: задание ===================== -->
+  <div class="tab" id="tab-task" role="tabpanel" aria-labelledby="tb-task">
+    <section class="panel teams" id="teams">
+      <div class="teams-head">
+        <h2>👥 Работа в парах</h2>
+        <button class="btn primary" id="pairBtn">🎲 Разбить на пары</button>
+      </div>
+      <div class="pairs" id="pairs"><p class="pairs-empty">Нажмите кнопку - компьютер случайно распределит класс по парам.</p></div>
+    </section>
+
+  <section class="panel">
+    <div class="intro" id="intro">
+      <h2>📋 Инструкция</h2>
+      <ol class="steps">
+        <li><span class="ic">👆</span>Нажмите на <b>метод</b> в левой колонке.</li>
+        <li><span class="ic">🔗</span>Нажмите на подходящее <b>описание</b> справа - появится цветная линия.</li>
+        <li><span class="ic">↩️</span>Передумали? Нажмите на метод ещё раз - пара разорвётся.</li>
+        <li><span class="ic">✨</span>Соедините все 8 пар и нажмите <b>«Проверить»</b>.</li>
+        <li><span class="ic">⏱</span>На задание - <b>3 минуты</b>. Когда время выйдет, ответы проверятся автоматически.</li>
+        <li><span class="ic">💡</span>После проверки нажмите <b>«Почему?»</b> у ошибки, чтобы разобраться, и <b>«Показать»</b>, чтобы увидеть метод в действии.</li>
+      </ol>
+      <p class="intro-note">Работаете в паре: обсудите ответ вместе, прежде чем соединять.</p>
+      <button class="btn primary big" id="startBtn">▶ Начать · 3:00</button>
+    </div>
+
+    <div class="game" id="game">
+
+    <div class="board" id="board">
+      <svg class="lines" id="lines"></svg>
+      <div class="col l" id="left"><h2>Метод</h2></div>
+      <div class="col r" id="right"><h2>Описание</h2></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="check" disabled>✨ Проверить</button>
+      <button class="btn" id="reset">↻ Начать заново</button>
+    </div>
+    </div>
+
+    <div class="result" id="result" role="status">
+      <div class="ring">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset=".5" stop-color="#ff5d8f"/><stop offset="1" stop-color="#c77dff"/></linearGradient></defs>
+          <circle class="track" cx="75" cy="75" r="62"/>
+          <circle class="val" id="ringVal" cx="75" cy="75" r="62" stroke-dasharray="389.6" stroke-dashoffset="389.6"/>
+        </svg>
+        <div class="num"><div><span id="scoreNum">0</span><small>из 8</small></div></div>
+      </div>
+      <div>
+        <p class="verdict" id="verdict"></p>
+        <p class="who" id="who"></p>
+        <ul class="fix" id="fix"></ul>
+      </div>
+    </div>
+  </section>
+
+
+    <p class="hint">Обозначения: <code>s</code> - множество, <code>x</code> - элемент, <code>t</code> - другая коллекция (множество, список, строка).</p>
+  </div>
+  <!-- ===================== Вкладка 4: детективы кода ===================== -->
+  <div class="tab" id="tab-detect" role="tabpanel" aria-labelledby="tb-detect">
+    <section class="panel">
+      <div class="dk-head">
+        <div class="dk-emoji" aria-hidden="true">🕵️</div>
+        <div>
+          <h2 class="sec">Детективы кода</h2>
+          <p class="lead-l">Язык: Python. Тема: множества (set). В программе спрятано ровно <b>5 ошибок</b>. Найдите их, исправьте и запустите работающий код. Время - <b>5 минут</b>.</p>
+        </div>
+      </div>
+      <details class="cheat" open>
+        <summary>📚 Шпаргалка по множествам</summary>
+        <ul>
+          <li><b>Создание:</b> <code>{1, 2, 3}</code> или <code>set([1, 2, 2, 3])</code> - set() принимает один набор элементов; повторы исчезают. Пустое множество - только <code>set()</code>.</li>
+          <li><b>Проверка:</b> <code>x in s</code>. <b>Перебор:</b> <code>for x in s:</code></li>
+          <li><b>Добавление и удаление:</b> <code>s.add(x)</code>, <code>s.remove(x)</code> (ошибка, если элемента нет), <code>s.discard(x)</code>; размер - <code>len(s)</code>.</li>
+          <li><b>Почему нет индексов:</b> множество - это «мешок» уникальных элементов без номеров. Важно, <i>есть ли</i> элемент, а не что лежит под номером 0, поэтому <code>s[0]</code> вызывает <code>TypeError</code>. Порядок элементов не гарантируется и может меняться от запуска к запуску.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="panel">
+      <div class="teams-head">
+        <h2>🔎 Команды сыщиков</h2>
+        <button class="btn primary" id="dkShuf">🎲 Перемешать команды</button>
+      </div>
+      <p class="lead-l dk-cnt" id="dkCnt"></p>
+      <div class="pairs" id="dkGroups"></div>
+    </section>
+
+    <section class="panel">
+      <div class="teams-head">
+        <h2>⏱ Таймер расследования</h2>
+        <div class="dk-trow">
+          <div class="dk-timer mono" id="dkT">05:00</div>
+          <button class="btn primary" id="dkStart">▶ Старт</button>
+          <button class="btn" id="dkPlus">+1 мин</button>
+          <button class="btn" id="dkReset">↺ Сброс</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="sec">🗂 Рабочий стол детектива</h2>
+      <div class="dk-tabs" id="dkTabs"></div>
+      <div class="dk-grid">
+        <div>
+          <textarea id="dkCode" class="editor dk-editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Код программы"></textarea>
+          <div class="actions left">
+            <button class="btn primary" id="dkRun">▶ Запустить программу</button>
+            <button class="btn" id="dkOrig">↺ Вернуть исходный код</button>
+          </div>
+          <pre class="console out" id="dkOut">Здесь появится результат…</pre>
+          <div class="dk-win" id="dkWin">🎉 Дело раскрыто! Все 5 ошибок найдены, программа работает!</div>
+        </div>
+        <aside class="dk-bugs">
+          <h3>🧩 Улики (ошибки)</h3>
+          <div id="dkBugs"></div>
+          <p class="note">Отметка ✅ появляется, когда ошибка исправлена.</p>
+        </aside>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+/* ===================== Данные ===================== */
+var PAIRS = [
+  { m: 's.add(x)',     d: 'Добавляет один элемент x. Если такой элемент уже есть, множество не меняется.' },
+  { m: 's.remove(x)',  d: 'Удаляет элемент x. Если такого элемента нет, возникает ошибка KeyError.' },
+  { m: 's.discard(x)', d: 'Удаляет элемент x, если он есть. Если его нет, ошибки не будет.' },
+  { m: 's.pop()',      d: 'Удаляет из множества произвольный элемент и возвращает его. Для пустого множества - ошибка KeyError.' },
+  { m: 's.clear()',    d: 'Удаляет все элементы: множество становится пустым.' },
+  { m: 's.update(t)',  d: 'Добавляет в множество сразу все элементы из t.' },
+  { m: 's.copy()',     d: 'Возвращает новое множество с теми же элементами.' },
+  { m: 'len(s)',       d: 'Возвращает количество элементов множества.' }
+];
+/* Объяснения для разбора ошибок */
+var WHY = [
+  'add(x) кладёт в множество ровно один элемент. Если x уже есть, ничего не меняется: в множестве не бывает повторов. Добавить сразу несколько элементов - это update.',
+  'remove(x) удаляет именно тот элемент, который указан в скобках. Если такого элемента нет, Python останавливает программу с ошибкой KeyError - в этом главное отличие от discard.',
+  'discard(x) тоже удаляет указанный элемент x, но если его нет, просто ничего не делает - ошибки не будет.',
+  'У pop() скобки пустые: вы не говорите, что удалить. Python сам выбирает элемент, удаляет его и возвращает, поэтому его можно сохранить: x = s.pop().',
+  'clear() удаляет не один элемент, а все сразу. После него множество пустое: set().',
+  'update(t) получает целую коллекцию t (список, строку, множество) и добавляет все её элементы. add добавляет только один.',
+  'copy() не меняет s, а создаёт новое множество с такими же элементами. Если изменить копию, исходное множество останется прежним.',
+  'len(s) - функция, а не метод: пишется len(s), а не s.len(). Она ничего не меняет в множестве, только считает элементы.'
+];
+var TIPS = {
+  '1-2': 'remove и discard оба удаляют x. Разница в том, что будет, если x нет: remove → ошибка KeyError, discard → ничего не происходит.',
+  '0-5': 'add - один элемент: s.add(5). update - много элементов из коллекции: s.update([5, 6, 7]).',
+  '1-3': 'Посмотрите на скобки: remove(x) удаляет указанный элемент, pop() - без аргумента, сам выбирает элемент и возвращает его.',
+  '2-3': 'Посмотрите на скобки: discard(x) удаляет указанный элемент, pop() - без аргумента, сам выбирает элемент и возвращает его.',
+  '3-4': 'pop удаляет один элемент, clear - все элементы сразу.',
+  '1-4': 'remove удаляет один указанный элемент, clear - все элементы сразу.',
+  '2-4': 'discard удаляет один указанный элемент, clear - все элементы сразу.',
+  '6-7': 'copy возвращает новое множество, len - число (количество элементов).',
+  '0-6': 'add меняет само множество s, а copy создаёт новое множество и s не меняет.',
+  '5-6': 'update меняет само множество s, а copy создаёт новое множество и s не меняет.'
+};
+function confusionTip(i, r) {
+  var key = Math.min(i, r) + '-' + Math.max(i, r);
+  if (TIPS[key]) return TIPS[key];
+  var add = [0, 5], del = [1, 2, 3, 4], info = [6, 7];
+  function grp(k) { return add.indexOf(k) >= 0 ? 'добавляет элементы' : del.indexOf(k) >= 0 ? 'удаляет элементы' : 'не меняет множество'; }
+  return PAIRS[i].m + ' ' + grp(i) + ', а ' + PAIRS[r].m + ' ' + grp(r) + '. Подумайте, что делает метод: добавляет, удаляет или только сообщает информацию.';
+}
+
+var COLORS = ['#ff5d8f', '#ff9f1c', '#e0b000', '#00b4a6', '#23a6ff', '#4361ee', '#7b61ff', '#c04cfd'];
+
+/* ===================== Звук ===================== */
+var soundOn = true, actx = null;
+function tone(freqs, dur, type, gap) {
+  if (!soundOn) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach(function (f, k) {
+      var t0 = actx.currentTime + k * (gap || 0.09);
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = type || 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.18, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+    });
+  } catch (e) {}
+}
+var SFX = {
+  pick:    function () { tone([520], .12, 'triangle'); },
+  link:    function () { tone([523, 784], .16, 'triangle', .07); },
+  unlink:  function () { tone([392, 262], .14, 'triangle', .07); },
+  ok:      function () { tone([523, 659, 784, 1047], .25, 'triangle', .1); },
+  fanfare: function () { tone([523, 659, 784, 1047, 784, 1047, 1319], .3, 'triangle', .11); },
+  bad:     function () { tone([196, 147], .25, 'sawtooth', .12); },
+  whoosh:  function () { tone([880, 1175], .12, 'sine', .05); }
+};
+document.getElementById('snd').onclick = function () {
+  soundOn = !soundOn; this.textContent = soundOn ? '🔊' : '🔇';
+};
+
+/* ===================== Фон: плавающие символы ===================== */
+(function () {
+  var bg = document.querySelector('.bg');
+  var syms = ['{ }', 'set()', 'add', 'pop()', '{1, 2, 3}', 'len', '∪', '∩', 'remove', '{ }', 'clear()', 'update'];
+  for (var i = 0; i < 16; i++) {
+    var s = document.createElement('span');
+    s.className = 'float';
+    s.textContent = syms[i % syms.length];
+    s.style.left = (Math.random() * 100) + '%';
+    s.style.fontSize = (16 + Math.random() * 30) + 'px';
+    s.style.animationDuration = (18 + Math.random() * 22) + 's';
+    s.style.animationDelay = (-Math.random() * 30) + 's';
+    bg.appendChild(s);
+  }
+})();
+
+/* ===================== Игра ===================== */
+var links = {}, selected = null, checked = false;
+var leftEl = document.getElementById('left'), rightEl = document.getElementById('right');
+var board = document.getElementById('board'), svg = document.getElementById('lines');
+var t0 = null, timerId = null, pointer = null;
+
+function shuffle(a) {
+  a = a.slice();
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function codeHtml(m) { return esc(m).replace(/([a-z]+)\(/, '<span class="fn">$1</span>('); }
+
+function build() {
+  links = {}; selected = null; checked = false; t0 = null; timeUp = false; TIME_LIMIT = DEFAULT_LIMIT;
+  document.getElementById('bigScore').className = 'big-score';
+  document.getElementById('intro').style.display = '';
+  document.getElementById('game').className = 'game';
+  document.getElementById('plusMin').disabled = true;
+  clearInterval(timerId); document.getElementById('timer').textContent = fmtTime(TIME_LIMIT);
+  document.getElementById('timerChip').className = 'chip';
+  leftEl.querySelectorAll('.item').forEach(function (e) { e.remove(); });
+  rightEl.querySelectorAll('.item').forEach(function (e) { e.remove(); });
+  document.getElementById('result').className = 'result';
+  document.getElementById('ringVal').style.strokeDashoffset = 389.6;
+
+  shuffle(PAIRS.map(function (_, i) { return i; })).forEach(function (i, k) {
+    var b = document.createElement('button');
+    b.className = 'item entering'; b.dataset.i = i;
+    b.addEventListener('animationend', function (e) { if (e.animationName === 'enter') this.classList.remove('entering'); });
+    b.style.setProperty('--c', COLORS[i]); b.style.setProperty('--d', (k * 0.07) + 's');
+    b.innerHTML = '<span class="tag"></span><code>' + codeHtml(PAIRS[i].m) + '</code>';
+    b.onclick = function () { pickLeft(i); };
+    leftEl.appendChild(b);
+  });
+  shuffle(PAIRS.map(function (_, i) { return i; })).forEach(function (i, k) {
+    var b = document.createElement('button');
+    b.className = 'item entering'; b.dataset.i = i;
+    b.addEventListener('animationend', function (e) { if (e.animationName === 'enter') this.classList.remove('entering'); });
+    b.style.setProperty('--d', (0.3 + k * 0.07) + 's');
+    b.innerHTML = '<span class="tag"></span><span></span>';
+    b.lastChild.textContent = PAIRS[i].d;
+    b.onclick = function () { pickRight(i); };
+    rightEl.appendChild(b);
+  });
+  render();
+  setTimeout(drawLines, 50);
+}
+
+var DEFAULT_LIMIT = 180; // время на задание, секунд (3 минуты)
+var TIME_LIMIT = DEFAULT_LIMIT;
+function fmtTime(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+function elapsed() { return t0 ? Math.min(TIME_LIMIT, Math.floor((Date.now() - t0) / 1000)) : 0; }
+function startTimer() {
+  if (t0) return;
+  t0 = Date.now();
+  var lastLeft = TIME_LIMIT;
+  timerId = setInterval(function () {
+    var left = TIME_LIMIT - elapsed();
+    document.getElementById('timer').textContent = fmtTime(left);
+    document.getElementById('timerChip').className = 'chip' + (left <= 30 ? ' hurry' : '');
+    if (left !== lastLeft && left <= 10 && left > 0) tone([880], .08, 'square');
+    lastLeft = left;
+    if (left <= 0) { clearInterval(timerId); timeUp = true; document.getElementById('plusMin').disabled = true; tone([440, 330, 220], .35, 'sawtooth', .18); check(); }
+  }, 250);
+}
+var timeUp = false;
+
+function leftOf(r) { for (var k in links) if (links[k] === r) return +k; return null; }
+
+function pickLeft(i) {
+  if (checked) return;
+  if (links[i] !== undefined) { delete links[i]; selected = null; SFX.unlink(); }
+  else if (selected === i) { selected = null; }
+  else { selected = i; SFX.pick(); }
+  render();
+}
+
+function pickRight(r) {
+  if (checked) return;
+  var owner = leftOf(r);
+  if (selected === null) {
+    if (owner !== null) { delete links[owner]; SFX.unlink(); }
+  } else {
+    if (owner !== null) delete links[owner];
+    links[selected] = r; window._justLinked = selected; selected = null; SFX.link();
+  }
+  pointer = null;
+  render();
+}
+
+function render() {
+  var order = Array.prototype.map.call(leftEl.querySelectorAll('.item'), function (e) { return +e.dataset.i; });
+  leftEl.querySelectorAll('.item').forEach(function (el) {
+    var i = +el.dataset.i, on = links[i] !== undefined, tag = el.querySelector('.tag');
+    el.classList.toggle('selected', selected === i);
+    el.classList.toggle('linked', on);
+    el.setAttribute('aria-pressed', selected === i);
+    tag.className = on || selected === i ? 'tag on' : 'tag';
+    tag.textContent = on || selected === i ? order.indexOf(i) + 1 : '';
+  });
+  rightEl.querySelectorAll('.item').forEach(function (el) {
+    var owner = leftOf(+el.dataset.i), tag = el.querySelector('.tag');
+    el.classList.toggle('linked', owner !== null);
+    if (owner !== null) { el.style.setProperty('--c', COLORS[owner]); tag.className = 'tag on'; tag.textContent = order.indexOf(owner) + 1; }
+    else { el.style.removeProperty('--c'); tag.className = 'tag'; tag.textContent = ''; }
+  });
+  var n = Object.keys(links).length;
+  document.getElementById('bar').style.width = (n / PAIRS.length * 100) + '%';
+  document.getElementById('cnt').textContent = n + '/' + PAIRS.length;
+  document.getElementById('check').disabled = checked || n < PAIRS.length;
+  drawLines();
+}
+
+function anchor(el, side) {
+  var b = board.getBoundingClientRect(), r = el.getBoundingClientRect();
+  return { x: (side === 'r' ? r.right : r.left) - b.left, y: r.top + r.height / 2 - b.top };
+}
+function curve(a, z) {
+  var dx = Math.max(40, (z.x - a.x) * 0.5);
+  return 'M' + a.x + ' ' + a.y + ' C' + (a.x + dx) + ' ' + a.y + ' ' + (z.x - dx) + ' ' + z.y + ' ' + z.x + ' ' + z.y;
+}
+function drawLines() {
+  var html = '';
+  for (var k in links) {
+    var i = +k, r = links[k];
+    var a = anchor(leftEl.querySelector('.item[data-i="' + i + '"]'), 'r');
+    var z = anchor(rightEl.querySelector('.item[data-i="' + r + '"]'), 'l');
+    var color = COLORS[i], cls = '';
+    if (checked) { color = r === i ? '#17c27a' : '#ff4d6d'; cls = r === i ? '' : 'bad'; }
+    else if (window._justLinked === i) cls = 'draw';
+    html += '<path class="' + cls + '" d="' + curve(a, z) + '" stroke="' + color + '" style="color:' + color + '"/>';
+  }
+  if (selected !== null && pointer && !checked) {
+    var s = anchor(leftEl.querySelector('.item[data-i="' + selected + '"]'), 'r');
+    html += '<path class="temp" d="' + curve(s, pointer) + '" stroke="' + COLORS[selected] + '" style="color:' + COLORS[selected] + '"/>';
+  }
+  svg.innerHTML = html;
+  window._justLinked = null;
+}
+board.addEventListener('pointermove', function (e) {
+  if (selected === null || checked || e.pointerType === 'touch') return;
+  var b = board.getBoundingClientRect();
+  pointer = { x: e.clientX - b.left, y: e.clientY - b.top };
+  drawLines();
+});
+board.addEventListener('pointerleave', function () { pointer = null; drawLines(); });
+window.addEventListener('resize', drawLines);
+if (window.ResizeObserver) new ResizeObserver(drawLines).observe(board);
+
+/* ===================== Проверка ===================== */
+function check() {
+  if (checked) return;
+  checked = true; document.getElementById('plusMin').disabled = true; selected = null; clearInterval(timerId);
+  var score = 0, wrong = [];
+  leftEl.querySelectorAll('.item').forEach(function (el, k) {
+    var i = +el.dataset.i, ok = links[i] === i;
+    setTimeout(function () {
+      el.classList.add(ok ? 'ok' : 'bad');
+      el.insertAdjacentHTML('beforeend', '<span class="mark">' + (ok ? '✅' : '❌') + '</span>');
+    }, k * 120);
+    if (ok) score++; else wrong.push(i);
+  });
+  rightEl.querySelectorAll('.item').forEach(function (el, k) {
+    var r = +el.dataset.i;
+    setTimeout(function () { el.classList.add(leftOf(r) === r ? 'ok' : 'bad'); }, k * 120);
+  });
+  render();
+
+  var name = '';
+  var spent = fmtTime(elapsed());
+  var verdicts = [[8, '🏆 Блестяще! Все пары верные!'], [6, '🔥 Отлично, почти всё!'], [4, '👍 Неплохо, но есть над чем подумать'], [0, '💡 Попробуйте ещё раз']];
+  document.getElementById('verdict').textContent = verdicts.filter(function (v) { return score >= v[0]; })[0][1];
+  document.getElementById('who').textContent = (name ? name + ' · ' : '') + (timeUp ? '⏰ время вышло' : 'время ' + spent);
+  var fixEl = document.getElementById('fix');
+  fixEl.innerHTML = wrong.length ? '<li class="fix-title">Разбор ошибок - нажмите «Почему?»</li>' : '';
+  wrong.forEach(function (i) {
+    var r = links[i], none = r === undefined;
+    var li = document.createElement('li');
+    li.innerHTML =
+      '<div class="fix-top"><span>❌ <code>' + esc(PAIRS[i].m) + '</code> ' +
+        (none ? 'не успели соединить' : 'вы соединили с описанием метода <code>' + esc(PAIRS[r].m) + '</code>') + '</span>' +
+      '<span class="fix-btns"><button class="mini why">💡 Почему?</button><button class="mini show">▶ Показать</button></span></div>' +
+      '<div class="why-box">' +
+        (none ? '' : '<p><b>Ваш ответ:</b> «' + esc(PAIRS[r].d) + '» - так работает <code>' + esc(PAIRS[r].m) + '</code>.</p>') +
+        '<p><b>Правильно:</b> <code>' + esc(PAIRS[i].m) + '</code> - ' + esc(PAIRS[i].d) + '</p>' +
+        '<p><b>Почему:</b> ' + WHY[i] + '</p>' +
+        (none ? '' : '<p class="tip">🔑 ' + confusionTip(i, r) + '</p>') +
+      '</div>';
+    li.querySelector('.why').onclick = function () { li.classList.toggle('open'); };
+    li.querySelector('.show').onclick = function () {
+      showTab('theory', true);
+      setTimeout(function () { document.getElementById('demo').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+      setTimeout(function () { runDemo(i); }, 600);
+    };
+    fixEl.appendChild(li);
+  });
+
+  setTimeout(function () {
+    var box = document.getElementById('result');
+    box.className = 'result show';
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    requestAnimationFrame(function () {
+      document.getElementById('ringVal').style.strokeDashoffset = 389.6 * (1 - score / PAIRS.length);
+    });
+    countUp(document.getElementById('scoreNum'), score, 1200);
+    showBigScore(score, name, verdicts.filter(function (v) { return score >= v[0]; })[0][1], timeUp ? '⏰ Время вышло' : '⏱ ' + spent);
+    if (score === PAIRS.length) { SFX.fanfare(); confetti(260); setTimeout(function () { confetti(160); }, 700); }
+    else if (score >= 6) { SFX.ok(); confetti(110); }
+    else { SFX.bad(); }
+  }, PAIRS.length * 120 + 200);
+}
+function showBigScore(score, name, verdict, time) {
+  var o = document.getElementById('bigScore');
+  document.getElementById('bsWho').textContent = name || '';
+  document.getElementById('bsVerdict').textContent = verdict;
+  document.getElementById('bsTime').textContent = time;
+  document.getElementById('bsNum').className = 'bs-num ' + (score === PAIRS.length ? 'top' : score >= 6 ? 'good' : score >= 4 ? 'mid' : 'low');
+  o.className = 'big-score show';
+  countUp(document.getElementById('bsVal'), score, 1400);
+  document.getElementById('bsClose').focus();
+}
+document.getElementById('bsClose').onclick = function () {
+  document.getElementById('bigScore').className = 'big-score';
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') document.getElementById('bsClose').click(); });
+function countUp(el, to, ms) {
+  var start = performance.now();
+  (function step(now) {
+    var p = Math.min(1, (now - start) / ms);
+    el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(step);
+  })(start);
+}
+
+/* ===================== Конфетти ===================== */
+var fx = document.getElementById('fx'), ctx = fx.getContext('2d'), parts = [], running = false;
+function sizeFx() { fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; }
+sizeFx(); window.addEventListener('resize', sizeFx);
+function confetti(n) {
+  var cols = ['#ffd23f', '#ff5d8f', '#23c9ff', '#c77dff', '#3ddc97', '#ff9f1c', '#ffffff'];
+  var shapes = ['rect', 'circle', '{', '}'];
+  for (var i = 0; i < n; i++) {
+    var fromLeft = i % 2 === 0;
+    parts.push({
+      x: (fromLeft ? 0.05 : 0.95) * innerWidth, y: innerHeight * 0.75,
+      vx: (fromLeft ? 1 : -1) * (4 + Math.random() * 9), vy: -(10 + Math.random() * 12),
+      r: 5 + Math.random() * 7, a: Math.random() * 6.28, va: (Math.random() - .5) * .35,
+      c: cols[i % cols.length], s: shapes[Math.floor(Math.random() * shapes.length)], life: 0
+    });
+  }
+  if (!running) { running = true; requestAnimationFrame(tick); }
+}
+function tick() {
+  var d = devicePixelRatio;
+  ctx.setTransform(d, 0, 0, d, 0, 0);
+  ctx.clearRect(0, 0, innerWidth, innerHeight);
+  parts = parts.filter(function (p) { return p.y < innerHeight + 40 && p.life < 400; });
+  parts.forEach(function (p) {
+    p.vy += 0.32; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.a += p.va; p.life++;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c;
+    if (p.s === 'rect') ctx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2);
+    else if (p.s === 'circle') { ctx.beginPath(); ctx.arc(0, 0, p.r / 2.4, 0, 6.28); ctx.fill(); }
+    else { ctx.font = 'bold ' + (p.r * 2.6) + 'px monospace'; ctx.fillText(p.s, -p.r / 2, p.r / 2); }
+    ctx.restore();
+  });
+  if (parts.length) requestAnimationFrame(tick);
+  else { running = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+}
+
+/* ===================== Живая демонстрация ===================== */
+var stage = document.getElementById('stage'), cons = document.getElementById('console'), cap = document.getElementById('caption');
+var busy = false;
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+function fmtSet(a) { return a.length ? '{' + a.slice().sort(function (x, y) { return x - y; }).join(', ') + '}' : 'set()'; }
+
+function makeSet(label, values, cls) {
+  var box = document.createElement('div');
+  box.className = 'set' + (cls ? ' ' + cls : '');
+  box.innerHTML = '<span class="lbl">' + label + '</span>';
+  values.forEach(function (v) { box.appendChild(makeEl(v)); });
+  return box;
+}
+function makeEl(v, extra) {
+  var e = document.createElement('div');
+  e.className = 'el' + (extra ? ' ' + extra : ''); e.textContent = v; e.dataset.v = v;
+  return e;
+}
+function showS(vals) { line('<span class="p">&gt;&gt;&gt;</span> s'); line(fmtSet(vals)); }
+function line(html) { cons.innerHTML += html + '\n'; }
+function badge(text, color) {
+  var b = document.createElement('div'); b.className = 'err ' + color; b.textContent = text; stage.appendChild(b);
+}
+
+var S0 = [1, 4, 6];
+var DEMOS = {
+  0: async function (s, vals) {                       // add
+    line('<span class="p">&gt;&gt;&gt;</span> s.add(3)');
+    await sleep(400); SFX.whoosh(); s.appendChild(makeEl(3, 'in')); vals.push(3);
+    await sleep(700); showS(vals);
+    await sleep(700); line('<span class="p">&gt;&gt;&gt;</span> s.add(4)   <span class="c"># 4 уже есть</span>');
+    var e = s.querySelector('[data-v="4"]'); e.classList.add('hl'); await sleep(900); e.classList.remove('hl');
+    showS(vals); cap.textContent = 'add добавляет один элемент; повтор не добавляется - в множестве нет одинаковых элементов.';
+  },
+  1: async function (s, vals) {                       // remove
+    line('<span class="p">&gt;&gt;&gt;</span> s.remove(4)');
+    await sleep(400); await leave(s, 4, vals); showS(vals);
+    await sleep(600); line('<span class="p">&gt;&gt;&gt;</span> s.remove(9)');
+    await sleep(400); SFX.bad(); stage.classList.add('shake'); badge('KeyError: 9', 'red');
+    line('<span class="e">KeyError: 9</span>');
+    cap.textContent = 'remove удаляет элемент, а если его нет - программа останавливается с ошибкой.';
+  },
+  2: async function (s, vals) {                       // discard
+    line('<span class="p">&gt;&gt;&gt;</span> s.discard(4)');
+    await sleep(400); await leave(s, 4, vals); showS(vals);
+    await sleep(600); line('<span class="p">&gt;&gt;&gt;</span> s.discard(9)');
+    await sleep(500); SFX.ok(); badge('ошибки нет ✓', 'green'); line('<span class="p">&gt;&gt;&gt;</span> s   <span class="c"># ошибки нет, ничего не изменилось</span>'); line(fmtSet(vals));
+    cap.textContent = 'discard - «мягкое» удаление: если элемента нет, ничего не происходит.';
+  },
+  3: async function (s, vals) {                       // pop
+    line('<span class="p">&gt;&gt;&gt;</span> x = s.pop()');
+    var v = vals[0], e = s.querySelector('[data-v="' + v + '"]');
+    await sleep(300); e.classList.add('hl'); await sleep(700);
+    await leave(s, v, vals);
+    var out = document.createElement('div'); out.className = 'out-box';
+    out.innerHTML = '<span>x =</span>'; out.appendChild(makeEl(v, 'in')); stage.appendChild(out);
+    line('<span class="p">&gt;&gt;&gt;</span> x'); line(String(v));
+    line('<span class="p">&gt;&gt;&gt;</span> s'); line(fmtSet(vals));
+    cap.textContent = 'pop сам выбирает, какой элемент удалить, и возвращает его. Заранее не известно, какой это будет элемент.';
+  },
+  4: async function (s, vals) {                       // clear
+    line('<span class="p">&gt;&gt;&gt;</span> s.clear()');
+    await sleep(400);
+    var all = vals.slice();
+    for (var k = 0; k < all.length; k++) { leave(s, all[k], vals); await sleep(150); }
+    await sleep(600);
+    var em = document.createElement('span'); em.className = 'empty'; em.textContent = 'пусто'; s.appendChild(em);
+    showS(vals);
+    cap.textContent = 'clear удаляет все элементы сразу. Пустое множество записывается как set(), а не {}.';
+  },
+  5: async function (s, vals) {                       // update
+    line('<span class="p">&gt;&gt;&gt;</span> s.update([2, 7, 4])');
+    var add = [2, 7, 4];
+    for (var k = 0; k < add.length; k++) {
+      await sleep(350);
+      if (vals.indexOf(add[k]) >= 0) { var e = s.querySelector('[data-v="' + add[k] + '"]'); e.classList.add('hl'); setTimeout(function (x) { x.classList.remove('hl'); }, 700, e); }
+      else { SFX.whoosh(); s.appendChild(makeEl(add[k], 'in')); vals.push(add[k]); }
+    }
+    await sleep(700); showS(vals);
+    cap.textContent = 'update добавляет сразу много элементов из списка, строки или другого множества. Повторы (4) пропускаются.';
+  },
+  6: async function (s, vals) {                       // copy
+    line('<span class="p">&gt;&gt;&gt;</span> t = s.copy()');
+    await sleep(400); SFX.whoosh(); stage.appendChild(makeSet('t', vals.slice(), 'copy'));
+    await sleep(900); line('<span class="p">&gt;&gt;&gt;</span> t.add(5)');
+    var t = stage.querySelector('.set.copy'); t.appendChild(makeEl(5, 'in'));
+    await sleep(700); line('<span class="p">&gt;&gt;&gt;</span> s, t'); line('(' + fmtSet(vals) + ', ' + fmtSet(vals.concat(5)) + ')');
+    cap.textContent = 'copy создаёт новое, независимое множество: изменение t не меняет s.';
+  },
+  7: async function (s, vals) {                       // len
+    line('<span class="p">&gt;&gt;&gt;</span> len(s)');
+    var els = s.querySelectorAll('.el');
+    for (var k = 0; k < els.length; k++) {
+      await sleep(450); els[k].classList.add('hl'); els[k].textContent = k + 1; tone([440 + k * 120], .15, 'triangle');
+    }
+    await sleep(700);
+    els.forEach(function (e) { e.classList.remove('hl'); e.textContent = e.dataset.v; });
+    line(String(els.length));
+    cap.textContent = 'len - не метод множества, а функция: она возвращает количество элементов.';
+  }
+};
+function leave(s, v, vals) {
+  var e = s.querySelector('[data-v="' + v + '"]');
+  vals.splice(vals.indexOf(v), 1); SFX.whoosh();
+  e.classList.remove('hl'); e.classList.add('out');
+  return sleep(600).then(function () { e.remove(); });
+}
+
+function buildDemoButtons() {
+  var wrap = document.getElementById('dbtns');
+  wrap.innerHTML = '';
+  PAIRS.forEach(function (p, i) {
+    var b = document.createElement('button');
+    b.className = 'dbtn'; b.style.setProperty('--c', COLORS[i]); b.textContent = p.m;
+    b.onclick = function () { runDemo(i); };
+    wrap.appendChild(b);
+  });
+  resetStage();
+}
+function resetStage() {
+  stage.className = 'stage'; stage.innerHTML = '';
+  stage.appendChild(makeSet('s', S0));
+  cons.innerHTML = '<span class="p">&gt;&gt;&gt;</span> s = ' + fmtSet(S0) + '\n';
+  cap.textContent = 'Выберите метод ↑';
+}
+async function runDemo(i) {
+  if (busy) return;
+  busy = true;
+  document.querySelectorAll('.dbtn').forEach(function (b) { b.disabled = true; });
+  resetStage(); cap.textContent = '';
+  await sleep(250);
+  await DEMOS[i](stage.querySelector('.set'), S0.slice());
+  document.querySelectorAll('.dbtn').forEach(function (b) { b.disabled = false; });
+  busy = false;
+}
+
+/* ===================== Разбиение на пары ===================== */
+var STUDENTS = [
+  'Алтай Айбын', 'Базылов Жангирхан', 'Даулеткалиев Адильжан', 'Касенов Алияр',
+  'Колкобаева Дамели', 'Курамысов Темирлан', 'Оразымбет Ильяс', 'Садретдинова Элина',
+  'Смағұлова Сәтті', 'Ұлан Адия', 'Хасенов Мирас', 'Хати Алдияр', 'Ыдырыс Сүлеймен'
+];
+var pairing = false;
+
+function makeGroups() {
+  var s = shuffle(STUDENTS), groups = [];
+  for (var i = 0; i + 1 < s.length; i += 2) groups.push([s[i], s[i + 1]]);
+  if (s.length % 2) groups[groups.length - 1].push(s[s.length - 1]); // нечётное число - последняя группа из трёх
+  return groups;
+}
+
+async function showPairs() {
+  if (pairing) return;
+  pairing = true;
+  var btn = document.getElementById('pairBtn');
+  btn.disabled = true;
+  var groups = makeGroups(), box = document.getElementById('pairs');
+  box.innerHTML = '';
+  var cells = [];
+  groups.forEach(function (g, k) {
+    var c = document.createElement('div');
+    c.className = 'pair';
+    c.style.setProperty('--c', COLORS[k % COLORS.length]);
+    c.style.setProperty('--d', (k * 0.08) + 's');
+    c.innerHTML = '<span class="big">' + (k + 1) + '</span><h3>' + (g.length === 3 ? 'Тройка ' : 'Пара ') + (k + 1) + '</h3>';
+    g.forEach(function (name) {
+      var n = document.createElement('div'); n.className = 'n spin'; n.textContent = '…';
+      c.appendChild(n); cells.push({ el: n, name: name });
+    });
+    box.appendChild(c);
+  });
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // «рулетка»: имена мелькают, затем по одному фиксируются
+  var spinner = setInterval(function () {
+    cells.forEach(function (x) { if (x.el.classList.contains('spin')) x.el.textContent = STUDENTS[Math.floor(Math.random() * STUDENTS.length)]; });
+    tone([300 + Math.random() * 400], .04, 'square');
+  }, 90);
+  await sleep(1200);
+  for (var i = 0; i < cells.length; i++) {
+    await sleep(260);
+    cells[i].el.classList.remove('spin'); cells[i].el.classList.add('lock');
+    cells[i].el.textContent = cells[i].name;
+    tone([523 + (i % 6) * 70], .15, 'triangle');
+  }
+  clearInterval(spinner);
+  SFX.fanfare(); confetti(140);
+
+  btn.textContent = '🎲 Перемешать ещё раз';
+  btn.disabled = false;
+  pairing = false;
+}
+document.getElementById('pairBtn').onclick = showPairs;
+
+document.getElementById('startBtn').onclick = function () {
+  document.getElementById('intro').style.display = 'none';
+  var g = document.getElementById('game');
+  g.className = 'game show';
+  g.parentNode.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  SFX.whoosh();
+  startTimer();
+  document.getElementById('plusMin').disabled = false;
+  setTimeout(drawLines, 50);
+};
+document.getElementById('plusMin').onclick = function () {
+  if (checked || !t0) return;
+  TIME_LIMIT += 60;
+  var left = TIME_LIMIT - elapsed();
+  document.getElementById('timer').textContent = fmtTime(left);
+  document.getElementById('timerChip').className = 'chip' + (left <= 30 ? ' hurry' : '');
+  this.classList.remove('bump'); void this.offsetWidth; this.classList.add('bump');
+  SFX.ok();
+};
+
+document.getElementById('check').onclick = check;
+document.getElementById('reset').onclick = function () { build(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+build();
+
+/* ===================== Вкладки ===================== */
+var TAB_HASH = { topic: 'tema', theory: 'teoriya', task: 'zadanie', detect: 'detektivy' };
+function showTab(name, keepScroll) {
+  document.body.dataset.tab = name;
+  document.querySelectorAll('.tab-btn').forEach(function (b) {
+    var on = b.dataset.tab === name;
+    b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1;
+  });
+  document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t.id === 'tab-' + name); });
+  try { history.replaceState(null, '', '#' + TAB_HASH[name]); } catch (e) {}
+  if (!keepScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'task') setTimeout(drawLines, 60);
+}
+document.querySelectorAll('.tab-btn').forEach(function (b) {
+  b.onclick = function () { showTab(b.dataset.tab); SFX.pick(); };
+  b.onkeydown = function (e) {
+    var all = Array.prototype.slice.call(document.querySelectorAll('.tab-btn')), k = all.indexOf(b);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      var n = all[(k + (e.key === 'ArrowRight' ? 1 : all.length - 1)) % all.length];
+      n.focus(); n.click();
+    }
+  };
+});
+document.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { showTab(b.dataset.go); SFX.whoosh(); }; });
+
+/* ===================== Вкладка 1: методы списка ===================== */
+var LIST_METHODS = [
+  { m: 'lst.append(x)', d: 'Добавляет один элемент в конец списка.', ex: 'a = [1, 2]\na.append(3)  # [1, 2, 3]' },
+  { m: 'lst.extend(t)', d: 'Добавляет в конец все элементы из t.', ex: 'a = [1, 2]\na.extend([3, 4])  # [1, 2, 3, 4]' },
+  { m: 'lst.remove(x)', d: 'Удаляет первое вхождение x. Если x нет - ошибка ValueError.', ex: 'a = [1, 2, 1]\na.remove(1)  # [2, 1]' },
+  { m: 'lst.pop()', d: 'Удаляет и возвращает последний элемент (pop(i) - элемент с индексом i).', ex: 'a = [1, 2, 3]\na.pop()  # 3, a = [1, 2]' },
+  { m: 'lst.clear()', d: 'Удаляет все элементы списка.', ex: 'a = [1, 2]\na.clear()  # []' },
+  { m: 'lst.copy()', d: 'Возвращает новый список - копию.', ex: 'b = a.copy()' },
+  { m: 'len(lst)', d: 'Возвращает количество элементов.', ex: 'len([5, 7, 9])  # 3' }
+];
+(function () {
+  var grid = document.getElementById('listCards');
+  LIST_METHODS.forEach(function (x, k) {
+    var b = document.createElement('button');
+    b.className = 'flip'; b.style.setProperty('--c', COLORS[k]); b.style.setProperty('--d', (k * 0.07) + 's');
+    b.setAttribute('aria-label', x.m + ' - перевернуть карточку');
+    b.innerHTML = '<div class="flip-in"><div class="face front"><code></code><small>нажмите, чтобы вспомнить</small></div>' +
+                  '<div class="face back"><span></span><code></code></div></div>';
+    b.querySelector('.front code').textContent = x.m;
+    b.querySelector('.back span').textContent = x.d;
+    b.querySelector('.back code').textContent = x.ex;
+    b.querySelector('.back code').style.whiteSpace = 'pre';
+    b.onclick = function () { b.classList.toggle('open'); SFX.whoosh(); };
+    grid.appendChild(b);
+  });
+})();
+
+/* ===================== Вкладка 1: загадка ===================== */
+var LST = [3, 1, 3, 2, 1];
+var rLines = [], rStep = 0, rBusy = false, revealed = false;
+var T = '\u0000';   // место, где спрятано название коллекции
+function rRender() {
+  var name = revealed ? '<span class="q">set</span>' : '<span class="q">▒▒▒</span>';
+  document.getElementById('rConsole').innerHTML = rLines.map(function (l) { return l.split(T).join(name); }).join('\n');
+}
+function rIn(code) { rLines.push('<span class="p">&gt;&gt;&gt;</span> ' + code); rRender(); }
+function rOut(text, cls) { rLines.push(cls ? '<span class="' + cls + '">' + text + '</span>' : text); rRender(); }
+function rCap(t) { document.getElementById('rCaption').textContent = t; }
+function myst() { return document.getElementById('mysCells'); }
+
+function rReset() {
+  rStep = 0; rLines = []; revealed = false; rBusy = false;
+  var lc = document.getElementById('lstCells');
+  lc.innerHTML = LST.map(function (v, i) { return '<div class="cell"><div class="box">' + v + '</div><span class="idx">[' + i + ']</span></div>'; }).join('');
+  myst().innerHTML = '<span class="qm">?</span>';
+  document.getElementById('mystery').className = 'coll set-coll';
+  document.getElementById('mysteryLbl').textContent = 'x - ???';
+  document.getElementById('reveal').className = 'reveal';
+  var nb = document.getElementById('rNext'); nb.textContent = '▶ Дальше'; nb.disabled = false;
+  rIn('lst = [3, 1, 3, 2, 1]');
+  rCap('Нажмите «Дальше» ▶');
+}
+
+var R_STEPS = [
+  async function () {                                   // переложить в коллекцию
+    rIn('x = ' + T + '(lst)');
+    var cells = document.querySelectorAll('#lstCells .cell');
+    await sleep(500);
+    [2, 4].forEach(function (i) { cells[i].classList.add('dup'); });
+    SFX.bad(); rCap('Повторяющиеся элементы подсвечены красным…');
+    await sleep(1100);
+    myst().innerHTML = '';
+    var seen = {};
+    for (var i = 0; i < LST.length; i++) {
+      cells[i].classList.add('go');
+      if (seen[LST[i]]) { tone([200], .12, 'square'); await sleep(300); continue; }
+      seen[LST[i]] = true;
+      await sleep(300);
+    }
+    [1, 2, 3].forEach(function (v, k) { setTimeout(function () { SFX.whoosh(); myst().appendChild(makeEl(v, 'in')); }, k * 250); });
+    await sleep(1000);
+    rIn('x'); rOut('{1, 2, 3}');
+    rCap('❓ Куда пропали повторяющиеся 3 и 1? Почему скобки фигурные?');
+  },
+  async function () {                                   // индексов нет
+    rIn('x[0]');
+    await sleep(400); SFX.bad();
+    document.getElementById('riddle').classList.add('shake');
+    setTimeout(function () { document.getElementById('riddle').classList.remove('shake'); }, 600);
+    rOut("TypeError: '" + T + "' object is not subscriptable", 'e');
+    rCap('❓ Обратиться к элементу по номеру нельзя: у элементов нет индексов.');
+  },
+  async function () {                                   // нет append
+    rIn('x.append(5)');
+    await sleep(400); SFX.bad();
+    rOut("AttributeError: '" + T + "' object has no attribute 'append'", 'e');
+    rCap('❓ Метода append нет - у этой коллекции свои методы.');
+  },
+  async function () {                                   // add и уникальность
+    rIn('x.add(5)');
+    await sleep(400); SFX.whoosh(); myst().appendChild(makeEl(5, 'in'));
+    await sleep(700); rIn('x'); rOut('{1, 2, 3, 5}');
+    await sleep(800); rIn('x.add(5)');
+    var e = myst().querySelector('[data-v="5"]'); e.classList.add('hl'); await sleep(900); e.classList.remove('hl');
+    rIn('x'); rOut('{1, 2, 3, 5}');
+    rCap('Вместо append здесь add - и второй раз 5 не добавилась!');
+  },
+  async function () {                                   // вопрос классу
+    rCap('🤔 Только уникальные элементы, фигурные скобки, нет порядка и индексов… Как в математике называется такая совокупность элементов?');
+    document.getElementById('rNext').textContent = '🎉 Открыть тему';
+  },
+  async function () {                                   // раскрытие темы
+    revealed = true; rRender();
+    document.getElementById('mystery').className = 'coll set-coll known';
+    document.getElementById('mysteryLbl').textContent = 'x - set (множество)';
+    rCap('Это множество - set!');
+    var r = document.getElementById('reveal');
+    r.className = 'reveal show';
+    buildMap();
+    SFX.fanfare(); confetti(260); setTimeout(function () { confetti(160); }, 600);
+    setTimeout(function () { r.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
+    document.getElementById('rNext').disabled = true;
+  }
+];
+document.getElementById('rNext').onclick = async function () {
+  if (rBusy || rStep >= R_STEPS.length) return;
+  rBusy = true; this.disabled = true;
+  await R_STEPS[rStep++]();
+  rBusy = false; this.disabled = rStep >= R_STEPS.length;
+};
+document.getElementById('rReset').onclick = rReset;
+
+var MAP = [
+  ['lst.append(x)', 'в конец списка', 's.add(x)', ''],
+  ['lst.extend(t)', '', 's.update(t)', ''],
+  ['lst.remove(x)', 'нет x → ValueError', 's.remove(x)', 'нет x → KeyError'],
+  ['-', '', 's.discard(x)', '🆕 нет x → ошибки нет'],
+  ['lst.pop()', 'удаляет последний', 's.pop()', 'удаляет произвольный'],
+  ['lst.clear()', '', 's.clear()', ''],
+  ['lst.copy()', '', 's.copy()', ''],
+  ['len(lst)', '', 'len(s)', '']
+];
+function buildMap() {
+  document.getElementById('mapTable').innerHTML = MAP.map(function (r, k) {
+    return '<div class="map-row" style="--d:' + (0.3 + k * 0.12) + 's">' +
+      '<div class="m l' + (r[0] === '-' ? ' none' : '') + '">' + esc(r[0]) + (r[1] ? '<small>' + esc(r[1]) + '</small>' : '') + '</div>' +
+      '<div class="ar">➜</div>' +
+      '<div class="m r' + (r[0] === '-' ? ' new' : '') + '">' + esc(r[2]) + (r[3] ? '<small>' + esc(r[3]) + '</small>' : '') + '</div></div>';
+  }).join('');
+}
+rReset();
+
+/* ===================== Вкладка 2: редактор кода ===================== */
+var EXAMPLES = [
+  ['Создание множества',
+   "s = {3, 1, 2, 3, 1}\nprint(s)\nprint(len(s))\nprint(set())       # пустое множество\nprint(type({}))    # а это словарь!"],
+  ['Удаление повторов из списка',
+   "marks = [5, 4, 5, 3, 4, 5]\nunique = set(marks)\nprint(unique)\nprint('Разных оценок:', len(unique))"],
+  ['Добавление: add и update',
+   "s = {1, 2}\ns.add(3)\ns.add(2)          # 2 уже есть\nprint(s)\ns.update([4, 5, 1])\nprint(s)"],
+  ['Удаление: remove и discard',
+   "s = {1, 2, 3}\ns.discard(10)     # ошибки нет\nprint(s)\ns.remove(10)      # KeyError!"],
+  ['pop и clear',
+   "s = {10, 20, 30}\nx = s.pop()\nprint('Удалили:', x)\nprint('Осталось:', s)\ns.clear()\ns"],
+  ['Разные буквы в слове',
+   "word = 'информатика'\nletters = set(word)\nprint(letters)\nprint('Букв в слове:', len(word))\nprint('Разных букв:', len(letters))"],
+  ['Пустой лист (свой код)', '']
+];
+var codeEl = document.getElementById('code'), outEl = document.getElementById('out'), exSel = document.getElementById('exSel');
+EXAMPLES.forEach(function (e, k) { var o = document.createElement('option'); o.value = k; o.textContent = e[0]; exSel.appendChild(o); });
+exSel.onchange = function () { codeEl.value = EXAMPLES[+exSel.value][1]; codeEl.focus(); };
+codeEl.value = EXAMPLES[0][1];
+codeEl.addEventListener('keydown', function (e) {
+  if (e.key === 'Tab' && !e.shiftKey) {
+    e.preventDefault();
+    var a = codeEl.selectionStart, z = codeEl.selectionEnd;
+    codeEl.value = codeEl.value.slice(0, a) + '    ' + codeEl.value.slice(z);
+    codeEl.selectionStart = codeEl.selectionEnd = a + 4;
+  } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault(); runCode();
+  }
+});
+function outAppend(text, cls) {
+  var sp = document.createElement('span');
+  if (cls) sp.className = cls;
+  sp.textContent = text;
+  outEl.appendChild(sp);
+  outEl.scrollTop = outEl.scrollHeight;
+}
+document.getElementById('clearOut').onclick = function () { outEl.textContent = ''; };
+
+var PYODIDE_URL = 'https://cdn.jsdelivr.net/npm/pyodide@0.26.4/';
+var RUNNER = [
+  'import ast, sys, traceback',
+  'def __run(src):',
+  "    g = {'__name__': '__main__'}",
+  '    try:',
+  "        tree = ast.parse(src, '<код>')",
+  '        last = None',
+  '        if tree.body and isinstance(tree.body[-1], ast.Expr):',
+  '            last = ast.Expression(tree.body.pop().value)',
+  "        exec(compile(tree, '<код>', 'exec'), g)",
+  '        if last is not None:',
+  "            v = eval(compile(last, '<код>', 'eval'), g)",
+  '            if v is not None:',
+  '                print(repr(v))',
+  '    except BaseException as e:',
+  '        tb = e.__traceback__',
+  "        while tb is not None and tb.tb_frame.f_code.co_filename != '<код>':",
+  '            tb = tb.tb_next',
+  "        sys.stderr.write(''.join(traceback.format_exception(type(e), e, tb)))",
+  '    finally:',
+  '        sys.stdout.flush()',
+  '        sys.stderr.flush()'
+].join('\n');
+var py = null, pyLoading = null;
+function edStatus(t) { document.getElementById('edStatus').textContent = t; }
+function loadPy() {
+  if (pyLoading) return pyLoading;
+  edStatus('⏳ Загружаю Python…');
+  pyLoading = new Promise(function (res, rej) {
+    var sc = document.createElement('script');
+    sc.src = PYODIDE_URL + 'pyodide.js';
+    var to = setTimeout(function () { rej(new Error('timeout')); }, 30000);
+    sc.onload = function () { clearTimeout(to); res(); };
+    sc.onerror = function () { clearTimeout(to); rej(new Error('network')); };
+    document.head.appendChild(sc);
+  }).then(function () {
+    return loadPyodide({ indexURL: PYODIDE_URL });
+  }).then(function (p) {
+    py = p;
+    p.setStdout({ batched: function (t) { outAppend(t + '\n'); } });
+    p.setStderr({ batched: function (t) { outAppend(t + '\n', 'o-err'); } });
+    p.runPython(RUNNER);
+    edStatus('✅ Python готов');
+    return p;
+  }).catch(function (e) {
+    pyLoading = null;
+    edStatus('⚠ Не удалось загрузить Python - проверьте подключение к интернету');
+    throw e;
+  });
+  return pyLoading;
+}
+var running = false;
+async function runCode() {
+  if (running) return;
+  running = true;
+  var btn = document.getElementById('runBtn'); btn.disabled = true;
+  outEl.textContent = '';
+  try {
+    if (!py) { outAppend('Загрузка Python…\n', 'o-sys'); await loadPy(); outEl.textContent = ''; }
+    py.globals.get('__run')(codeEl.value);
+  } catch (e) {
+    outAppend('Не удалось запустить код: нет подключения к интернету.\n', 'o-err');
+  }
+  btn.disabled = false; running = false;
+}
+document.getElementById('runBtn').onclick = runCode;
+
+
+/* ===================== Вкладка 4: детективы кода ===================== */
+function showBanner(emoji, title, sub) {
+  document.getElementById('bnEmoji').textContent = emoji;
+  document.getElementById('bnTitle').textContent = title;
+  document.getElementById('bnSub').textContent = sub || '';
+  document.getElementById('banner').className = 'big-score show';
+  document.getElementById('bnClose').focus();
+}
+document.getElementById('bnClose').onclick = function () { document.getElementById('banner').className = 'big-score'; };
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') document.getElementById('banner').className = 'big-score'; });
+
+(function () {
+const KIDS = STUDENTS;
+const NAMES = ["Шерлок Холмс", "Эркюль Пуаро", "Комиссар Мегрэ", "Мисс Марпл"];
+const SRC=`# Дело №1: подозреваемые и улики
+# ЦЕЛЬ ПРОГРАММЫ: учёт подозреваемых и улик с помощью множеств (set).
+# ОЖИДАЕМЫЙ ВЫВОД: «Улик найдено: 4», «Подозреваемых: 4», «Борис в списке подозреваемых»,
+# три строки «Проверяем: имя» (Анна, Борис, Глеб - в любом порядке) и сообщение про индекс.
+
+# ШАГ 1. Создать множество подозреваемых из трёх человек.
+suspects = {"Анна", "Борис", "Вера"}
+# ШАГ 2. Создать множество улик из 5 слов: повтор «нож» исчезнет, останется 4 улики.
+clues = set("нож", "перчатка", "ключ", "нож", "следы")
+
+# ШАГ 3. Добавить Глеба (подозреваемых станет 4); повторное добавление Анны ничего не меняет.
+suspects.append("Глеб")
+suspects.add("Анна")
+
+# ШАГ 4. Вывести размеры множеств: улик 4, подозреваемых 4.
+print("Улик найдено:", len(clues))
+print("Подозреваемых:", len(suspects))
+
+# ШАГ 5. Проверить, есть ли Борис в множестве, и вывести сообщение.
+if suspects.has("Борис"):
+    print("Борис в списке подозреваемых")
+
+# ШАГ 6. Удалить Веру из подозреваемых (останутся трое).
+suspects.delete("Вера")
+
+# ШАГ 7. Перебрать оставшихся подозреваемых и вывести каждого: «Проверяем: имя».
+for i in range(len(suspects)):
+    print("Проверяем:", suspects[i])
+
+# Это НЕ ошибка: так мы показываем, что индексов нет
+try:
+    print(suspects[0])
+except TypeError:
+    print("По индексу нельзя: множество неупорядочено")`;
+const REF="Улик найдено: 4\nПодозреваемых: 4\nБорис в списке подозреваемых\nПроверяем: Анна\nПроверяем: Борис\nПроверяем: Глеб\nПо индексу нельзя: множество неупорядочено";
+const BUGS=[
+ {h:"Подсказка: set() принимает ОДИН аргумент - набор элементов, например список в [ ].",bad:{test:c=>!(/^\s*clues\s*=\s*set\(\s*[\[({]/m.test(c)||/^\s*clues\s*=\s*set\(\s*\)/m.test(c)||/^\s*clues\s*=\s*\{[^:}]+\}/m.test(c))}},
+ {h:"Подсказка: у множества нет append. Какой метод добавляет элемент?",bad:/suspects\.append/},
+ {h:"Подсказка: в Python наличие элемента проверяют оператором in.",bad:{test:c=>/suspects\.has/.test(c)||/^\s*if\s+suspects\s+in\b/m.test(c)||!/^\s*if\s+.+\s+in\s+suspects\s*:/m.test(c)}},
+ {h:"Подсказка: delete - из других языков. В Python метод называется иначе (remove или discard).",bad:/suspects\.delete/},
+ {h:"Подсказка: по индексу множество не читается. Переберите элементы напрямую: for name in ...",bad:/suspects\[i\]/}
+];
+
+
+class PyErr{constructor(t,m,l){this.t=t;this.m=m;this.l=l}}
+class Bound{constructor(o,n){this.o=o;this.n=n}}
+function pyRun(src){
+ const out=[],env={};let L=0;
+ const err=(t,m)=>{throw new PyErr(t,m,L)};
+ const lines=[];
+ src.split("\n").forEach((raw,i)=>{const t=raw.replace(/\s+$/,""),s=t.trim();if(!s||s[0]==="#")return;lines.push({ind:t.length-t.trimStart().length,s,n:i+1})});
+ const q=x=>typeof x==="string"?"'"+x+"'":show(x);
+ const show=v=>v instanceof Set?"{"+[...v].map(q).join(", ")+"}":Array.isArray(v)?"["+v.map(q).join(", ")+"]":String(v);
+ const B={
+  print:(...a)=>{out.push(a.map(x=>typeof x==="string"?x:show(x)).join(" ")+"\n")},
+  len:x=>x instanceof Set?x.size:x.length,
+  set:(...a)=>{if(a.length>1)err("TypeError","set expected at most 1 argument, got "+a.length);return new Set(a[0]||[])},
+  list:x=>[...x],sorted:x=>[...x].sort(),str:x=>typeof x==="string"?x:show(x),
+  range:n=>Array.from({length:n},(_,i)=>i)};
+ function tokens(s){const re=/\s*("(?:[^"\\]|\\.)*"|'[^']*'|\d+|[\p{L}_][\p{L}\p{N}_]*|==|[()\[\]{},.:=])/uy;const r=[];let pos=0;
+  while(s.slice(pos).trim()){re.lastIndex=pos;const m=re.exec(s);if(!m)err("SyntaxError","invalid syntax");pos=re.lastIndex;const v=m[1],c=v[0];
+   r.push(c==='"'||c==="'"?{k:"s",v:v.slice(1,-1)}:/\d/.test(c)?{k:"n",v:+v}:/[\p{L}_]/u.test(c)?{k:"id",v}:{k:"op",v})}
+  return r}
+ function method(o,n,a){
+  if(o instanceof Set){if(n==="add"){o.add(a[0]);return null}
+   if(n==="remove"){if(!o.has(a[0]))err("KeyError",q(a[0]));o.delete(a[0]);return null}
+   if(n==="discard"){o.delete(a[0]);return null}if(n==="clear"){o.clear();return null}}
+  else if(Array.isArray(o)&&n==="append"){o.push(a[0]);return null}
+  err("AttributeError","'"+(o instanceof Set?"set":Array.isArray(o)?"list":typeof o==="string"?"str":"int")+"' object has no attribute '"+n+"'")}
+ function ev(toks){let p=0;
+  const pk=()=>toks[p],op=o=>pk()&&pk().k==="op"&&pk().v===o,id=o=>pk()&&pk().k==="id"&&pk().v===o;
+  const need=o=>{if(!op(o))err("SyntaxError","invalid syntax (не хватает "+o+")");p++};
+  function list(c){const a=[];while(!op(c)){a.push(cmp());if(op(","))p++;else break}need(c);return a}
+  function atom(){const t=toks[p++];if(!t)err("SyntaxError","invalid syntax");
+   if(t.k==="s"||t.k==="n")return t.v;
+   if(t.k==="id"){if(t.v in env)return env[t.v];if(t.v in B)return B[t.v];err("NameError","name '"+t.v+"' is not defined")}
+   if(t.v==="("){const v=cmp();need(")");return v}
+   if(t.v==="{")return new Set(list("}"));
+   if(t.v==="[")return list("]");
+   err("SyntaxError","invalid syntax")}
+  function post(){let v=atom();for(;;){
+   if(op(".")){p++;const n=toks[p++];if(!n||n.k!=="id")err("SyntaxError","invalid syntax");v=new Bound(v,n.v)}
+   else if(op("(")){p++;const a=list(")");v=v instanceof Bound?method(v.o,v.n,a):typeof v==="function"?v(...a):err("TypeError","object is not callable")}
+   else if(op("[")){p++;const i=cmp();need("]");
+    if(v instanceof Set)err("TypeError","'set' object is not subscriptable (у множества нет индексов)");
+    if(v[i]===undefined)err("IndexError","index out of range");v=v[i]}
+   else return v}}
+  function cmp(){const l=post();let neg=false;
+   if(id("not")&&toks[p+1]&&toks[p+1].v==="in"){p++;neg=true}
+   if(id("in")){p++;const r=post();if(typeof r==="string"&&typeof l!=="string")err("TypeError","'in <string>' requires string as left operand, not "+(l instanceof Set?"set":Array.isArray(l)?"list":typeof l==="number"?"int":"object"));const h=r instanceof Set?r.has(l):r.includes(l);return neg?!h:h}
+   return l}
+  const v=cmp();if(p<toks.length)err("SyntaxError","invalid syntax");return v}
+ const truthy=v=>v instanceof Set||Array.isArray(v)?v.size>0||v.length>0:!!v;
+ function rng(i,ind){let j=i+1;while(j<lines.length&&lines[j].ind>ind)j++;if(j===i+1)err("IndentationError","expected an indented block");return[i+1,j]}
+ function block(a,b){let i=a;while(i<b)i=stmt(i)}
+ function stmt(i){const ln=lines[i];L=ln.n;const t=tokens(ln.s),f=t[0].v;const colon=t[t.length-1].v===":";
+  if(f==="if"||f==="for"||f==="try"){
+   if(!colon)err("SyntaxError","expected ':'");
+   const[a,b]=rng(i,ln.ind);
+   if(f==="if"){if(truthy(ev(t.slice(1,-1))))block(a,b);return b}
+   if(f==="for"){if(!t[1]||t[1].k!=="id"||!t[2]||t[2].v!=="in")err("SyntaxError","invalid syntax");
+    const it=ev(t.slice(3,-1));if(typeof it==="number")err("TypeError","'int' object is not iterable");
+    for(const x of [...it]){env[t[1].v]=x;block(a,b)}return b}
+   const ex=lines[b];if(!ex||ex.ind!==ln.ind||!ex.s.startsWith("except")){L=ln.n;err("SyntaxError","expected 'except' block")}
+   const[ea,eb]=rng(b,ex.ind),et=tokens(ex.s)[1];
+   try{block(a,b)}catch(e){if(e instanceof PyErr&&(!et||et.v===":"||et.v===e.t))block(ea,eb);else throw e}
+   return eb}
+  if(t[1]&&t[1].v==="="&&t[0].k==="id"){env[f]=ev(t.slice(2));return i+1}
+  ev(t);return i+1}
+ try{block(0,lines.length);return{ok:true,text:out.join("")}}
+ catch(e){if(e instanceof PyErr)return{ok:false,text:out.join("")+e.t+": "+e.m+" (строка "+e.l+")"};return{ok:false,text:"Ошибка: "+e.message}}}
+const norm=s=>s.split("\n").map(x=>x.trim()).filter(Boolean).sort().join("\n");
+
+const $ = id => document.getElementById(id);
+let groups = [], cur = 0, codes = [], lastFixed = {}, hints = {};
+const fixedCount = c => BUGS.filter(b => !b.bad.test(c)).length;
+
+function makeTeams() {
+  const a = shuffle(KIDS);
+  const n = Math.ceil(a.length / 4);
+  groups = Array.from({ length: n }, () => []);
+  a.forEach((k, i) => groups[i % n].push(k));
+  codes = groups.map(() => SRC); cur = 0; hints = {}; lastFixed = {};
+  drawTeams(true); drawDesk();
+}
+function drawTeams(animate) {
+  $('dkCnt').textContent = KIDS.length + ' учеников → ' + groups.length + ' команды';
+  $('dkGroups').innerHTML = groups.map((g, i) =>
+    '<div class="pair" style="--c:' + COLORS[(i * 2 + 1) % COLORS.length] + ';--d:' + (animate ? i * 0.12 : 0) + 's">' +
+    '<span class="big">🔎</span><h3>' + esc(NAMES[i]) + '</h3>' +
+    g.map(k => '<div class="n">' + esc(k) + '</div>').join('') + '</div>').join('');
+}
+function drawDesk() {
+  $('dkTabs').innerHTML = groups.map((g, i) =>
+    '<button class="dk-tab' + (i === cur ? ' on' : '') + '" style="--c:' + COLORS[(i * 2 + 1) % COLORS.length] + '" data-i="' + i + '">🔎 ' + esc(NAMES[i]) + '</button>').join('');
+  $('dkTabs').querySelectorAll('button').forEach(b => b.onclick = () => { codes[cur] = $('dkCode').value; cur = +b.dataset.i; drawDesk(); SFX.pick(); });
+  $('dkCode').value = codes[cur];
+  lastFixed[cur] = fixedCount(codes[cur]);
+  $('dkOut').textContent = 'Здесь появится результат…'; $('dkOut').className = 'console out';
+  $('dkWin').style.display = 'none';
+  drawBugs();
+}
+function drawBugs() {
+  const code = $('dkCode').value;
+  $('dkBugs').innerHTML = BUGS.map((b, i) => {
+    const fixed = !b.bad.test(code), key = cur + '-' + i;
+    return '<div class="bug' + (fixed ? ' fixed' : '') + '"><div class="bm">' + (fixed ? '✅' : '❓') + '</div><div><b>Ошибка ' + (i + 1) + '</b>' +
+      (hints[key] ? '<small>' + esc(b.h) + '</small>' : '<br><button class="mini" data-k="' + key + '">💡 Подсказка</button>') + '</div></div>';
+  }).join('');
+  $('dkBugs').querySelectorAll('.mini').forEach(h => h.onclick = () => { hints[h.dataset.k] = 1; drawBugs(); SFX.pick(); });
+}
+$('dkCode').addEventListener('input', () => {
+  const c = $('dkCode').value; codes[cur] = c;
+  const n = fixedCount(c);
+  if (n > (lastFixed[cur] ?? n)) { SFX.link(); confetti(30); }
+  lastFixed[cur] = n; drawBugs();
+});
+$('dkCode').addEventListener('keydown', e => {
+  if (e.key === 'Tab' && !e.shiftKey) {
+    e.preventDefault(); const t = e.target, s = t.selectionStart;
+    t.value = t.value.slice(0, s) + '    ' + t.value.slice(t.selectionEnd); t.selectionStart = t.selectionEnd = s + 4;
+    t.dispatchEvent(new Event('input'));
+  } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('dkRun').click(); }
+});
+$('dkRun').onclick = () => {
+  const code = $('dkCode').value;
+  const all = BUGS.every(b => !b.bad.test(code));
+  const r = pyRun(code);
+  $('dkOut').textContent = r.text || '(пусто)';
+  $('dkOut').className = 'console out' + (r.ok ? '' : ' bad');
+  const won = r.ok && norm(r.text) === norm(REF) && all;
+  $('dkWin').style.display = won ? 'block' : 'none';
+  if (won) {
+    SFX.fanfare(); confetti(260); setTimeout(() => confetti(160), 600);
+    showBanner('🎉', 'Дело раскрыто!', NAMES[cur] + ': все 5 ошибок найдены' + (t0dk ? ' · ' + fmtTime(DK_TIME - left) : ''));
+  } else SFX.bad();
+};
+$('dkOrig').onclick = () => {
+  if (confirm('Вернуть исходный код с ошибками?')) {
+    codes[cur] = SRC; $('dkCode').value = SRC; lastFixed[cur] = fixedCount(SRC); $('dkWin').style.display = 'none'; drawBugs();
+  }
+};
+$('dkShuf').onclick = () => { makeTeams(); SFX.fanfare(); confetti(120); };
+
+/* таймер */
+let DK_TIME = 300, left = DK_TIME, iv = null, t0dk = false;
+function showT() {
+  const txt = fmtTime(Math.max(0, left));
+  $('dkT').textContent = txt; $('dkTnav').textContent = txt;
+  $('dkT').className = 'dk-timer mono' + (left <= 60 ? ' low' : '');
+  $('dkChip').className = 'chip' + (left <= 60 && iv ? ' low' : '');
+}
+$('dkStart').onclick = () => {
+  if (iv) { clearInterval(iv); iv = null; $('dkStart').textContent = '▶ Старт'; showT(); return; }
+  if (left <= 0) return;
+  t0dk = true; $('dkStart').textContent = '⏸ Пауза'; SFX.whoosh();
+  iv = setInterval(() => {
+    left--; showT();
+    if (left > 0 && left <= 10) tone([880], .08, 'square');
+    if (left <= 0) {
+      clearInterval(iv); iv = null; $('dkStart').textContent = '▶ Старт'; showT();
+      tone([440, 330, 220], .35, 'sawtooth', .18);
+      showBanner('⏰', 'Время вышло!', 'Покажите результат.');
+    }
+  }, 1000);
+  showT();
+};
+$('dkPlus').onclick = () => { left += 60; DK_TIME += 60; showT(); SFX.ok(); };
+$('dkReset').onclick = () => { clearInterval(iv); iv = null; DK_TIME = 300; left = DK_TIME; t0dk = false; $('dkStart').textContent = '▶ Старт'; showT(); };
+
+makeTeams(); drawTeams(false); showT();
+})();
+
+/* ===================== Запуск ===================== */
+buildDemoButtons();
+(function () {
+  var h = (location.hash || '').slice(1), start = 'topic';
+  for (var k in TAB_HASH) if (TAB_HASH[k] === h) start = k;
+  showTab(start, true);
+})();
+</script>
+</body>
+</html>
