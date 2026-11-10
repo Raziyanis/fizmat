@@ -536,7 +536,7 @@
     </div>
     <div class="stats fo-only">
       <div class="chip"><div class="bar"><i id="fo-bar"></i></div><span id="fo-cnt" class="mono">0/10</span></div>
-      <div class="chip" id="fo-timerChip">⏱ <span id="fo-timer" class="mono">20:00</span><button class="plus" id="fo-plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
+      <div class="chip" id="fo-timerChip">⏱ <span id="fo-timer" class="mono">80:00</span><button class="plus" id="fo-plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
     </div>
     <button class="snd" id="snd" aria-label="Звук" title="Звук">🔊</button>
   </nav>
@@ -806,11 +806,11 @@
           <li><span class="ic">📖</span>У каждой задачи есть условие, формат ввода и вывода и примеры.</li>
           <li><span class="ic">▶️</span>«Запустить» - программа выполнится на первом примере. «Проверить» - на всех наборах данных.</li>
           <li><span class="ic">🔢</span>Номера сверху: зелёный - решено, красный - есть ошибка. Между задачами можно переходить.</li>
-          <li><span class="ic">⏱</span>На работу - <b>20 минут</b>. Когда время выйдет, работа сдастся автоматически.</li>
+          <li><span class="ic">⏱</span>На работу - <b>80 минут</b>. Когда время выйдет, работа сдастся автоматически.</li>
           <li><span class="ic">✨</span>Закончили - нажмите <b>«Сдать работу»</b>.</li>
         </ol>
         <div class="fo-name"><input id="foName" type="text" placeholder="Фамилия и имя" autocomplete="off" aria-label="Фамилия и имя"></div>
-        <button class="btn primary big" id="foStart">▶ Начать · 20:00</button>
+        <button class="btn primary big" id="foStart">▶ Начать · 80:00</button>
         <p class="note">Для проверки нужен интернет: при первом запуске загружается Python для браузера (около 10 МБ).</p>
       </div>
 
@@ -1891,7 +1891,7 @@ var FO_DESC = [
   ['Проверяет принадлежность элемента множеству оператором in', [6]],
   ['Находит объединение, пересечение, разность и симметрическую разность множеств', [7, 8, 9, 10]]
 ];
-var FO_TIME = 1200;          // время на работу, секунд (20 минут)
+var FO_TIME = 4800;          // время на работу, секунд (80 минут)
 var FO_HELPER = [
   'import sys, json, traceback',
   'class _Stop(Exception):',
