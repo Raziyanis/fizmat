@@ -313,6 +313,18 @@ def patch_common(src, Q, QKK, L, LKK, UKK, CL):
     src = sub1(src, '<span class="lbl">Список/кортеж</span>', '<span class="lbl">Список/кортеж/set</span>')
     src = sub1(src, "cmp.appendChild(el('div', 'refname', 'Список или кортеж: сравнение'));",
                "cmp.appendChild(el('div', 'refname', R.compare.title || 'Список или кортеж: сравнение'));")
+    here = os.path.dirname(os.path.abspath(__file__))
+    css = open(os.path.join(here, 'venn.css'), encoding='utf-8').read()
+    vjs = open(os.path.join(here, 'venn.js'), encoding='utf-8').read()
+    src = sub1(src, '</style>', css + '</style>')
+    for fn in ('function renderLesson() {', 'function drawLessonPanel() {'):
+        if src.count('\n' + fn) == 1:
+            src = src.replace('\n' + fn, '\n' + vjs + fn)
+            break
+    else:
+        raise SystemExit('нет функции слайдов')
+    src = sub1(src, "    card.appendChild(el('div', null, b.text));\n",
+               "    card.appendChild(el('div', null, b.text));\n    slideExtras(card, b);\n")
     return src
 
 
