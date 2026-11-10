@@ -179,10 +179,7 @@
   .why-box .tip { color: var(--glow); font-weight: 700; }
 
   /* ---------- Живая демонстрация ---------- */
-  .demo { display: none; margin-top: 26px; }
-  .demo.show { display: block; animation: enter .7s cubic-bezier(.2,1.4,.4,1) both; }
-  .demo h2 { margin: 0 0 4px; font-size: 1.6rem; font-weight: 900; }
-  .demo p.sub { margin: 0 0 14px; text-align: left; max-width: none; }
+
   .dbtns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
   .dbtn {
     --c: #7b61ff; font: inherit; font-family: var(--mono); font-weight: 700; cursor: pointer;
@@ -196,7 +193,7 @@
     background: rgba(10, 8, 35, .45); border: 1px solid rgba(255,255,255,.15);
     display: flex; gap: 24px; align-items: center; justify-content: center; flex-wrap: wrap; overflow: hidden;
   }
-  .stage.shake { animation: shake .5s ease; }
+  .stage.shake, .riddle.shake { animation: shake .5s ease; }
   .set {
     position: relative; min-width: 220px; min-height: 130px; padding: 30px 26px 22px;
     border-radius: 50% / 45%; border: 3px solid #23c9ff; background: rgba(35, 201, 255, .1);
@@ -239,6 +236,138 @@
 
   .hint { color: rgba(255,255,255,.7); font-size: .92rem; margin-top: 16px; text-align: center; }
   .hint code { font-family: var(--mono); color: var(--glow); }
+
+  /* ---------- Вкладки ---------- */
+  .tabs {
+    position: sticky; top: 8px; z-index: 30; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    margin: 0 auto 22px; padding: 6px; border-radius: 18px; width: fit-content; max-width: 100%;
+    background: rgba(20, 14, 60, .7); border: 1px solid rgba(255,255,255,.2); backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+  }
+  .tab-btn {
+    font: inherit; font-weight: 800; color: rgba(255,255,255,.8); cursor: pointer; border: none;
+    background: transparent; padding: 10px 18px; border-radius: 13px; display: flex; align-items: center; gap: 8px;
+    transition: background .2s, color .2s, transform .15s;
+  }
+  .tab-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
+  .tab-btn .tn { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; background: rgba(255,255,255,.18); }
+  .tab-btn[aria-selected="true"] { color: #1b1640; background: linear-gradient(90deg, #ffd23f, #ff9f1c, #ff5d8f); box-shadow: 0 6px 18px rgba(255,93,143,.45); }
+  .tab-btn[aria-selected="true"] .tn { background: rgba(27,22,64,.85); color: #fff; }
+  .tab-btn:focus-visible, .snd:focus-visible { outline: 3px solid var(--glow); outline-offset: 2px; }
+  .snd { font-size: 1.2rem; cursor: pointer; border: none; background: transparent; padding: 8px 10px; border-radius: 12px; }
+  .snd:hover { background: rgba(255,255,255,.1); }
+  .tab { display: none; }
+  .tab.active { display: block; animation: tabIn .5s cubic-bezier(.2,1.2,.4,1) both; }
+  @keyframes tabIn { from { opacity: 0; transform: translateY(18px); } }
+  .tab > section + section, .tab > section + div, .tab > section + p { margin-top: 22px; }
+  .task-only { display: none; }
+  .tabs .stats { margin: 0 0 0 6px; gap: 6px; }
+  .tabs .chip { padding: 6px 10px; }
+  .tabs .bar { width: 80px; }
+  .panel, .reveal { scroll-margin-top: 90px; }
+  body[data-tab="task"] .task-only { display: flex; }
+  .sec { margin: 0 0 6px; font-size: clamp(1.5rem, 3.5vw, 2rem); font-weight: 900; }
+  .lead-l { margin: 0 0 16px; color: rgba(255,255,255,.88); font-size: 1.05rem; }
+  .lead-l code, .prop code, .cmp code { color: var(--glow); }
+  .actions.left { justify-content: flex-start; margin-top: 12px; }
+  .sub-h { margin: 20px 0 8px; font-size: 1.2rem; font-weight: 900; }
+
+  /* ---------- Карточки-перевёртыши ---------- */
+  .flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+  .flip { perspective: 900px; height: 190px; border: none; padding: 0; background: none; cursor: pointer; font: inherit;
+    animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+  .flip:focus-visible { outline: 3px solid var(--glow); outline-offset: 4px; border-radius: 18px; }
+  .flip-in { position: relative; width: 100%; height: 100%; transition: transform .6s cubic-bezier(.3,1.4,.5,1); transform-style: preserve-3d; }
+  .flip.open .flip-in { transform: rotateY(180deg); }
+  .face { position: absolute; inset: 0; border-radius: 18px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; text-align: center; }
+  .face.front { background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 55%, #1b1640)); color: #fff; box-shadow: 0 10px 24px rgba(0,0,0,.3); }
+  .face.front code { font-family: var(--mono); font-weight: 700; font-size: 1.3rem; text-shadow: 0 2px 6px rgba(0,0,0,.3); }
+  .face.front small { margin-top: 10px; opacity: .85; font-weight: 700; }
+  .face.back { background: var(--card); color: var(--ink); transform: rotateY(180deg); border: 3px solid var(--c); font-size: .95rem; gap: 8px; }
+  .face.back code { font-family: var(--mono); font-size: .78rem; white-space: pre-wrap !important; text-align: left; max-width: 100%; background: #f0edff; padding: 4px 8px; border-radius: 8px; color: #4b2aa8; }
+
+  /* ---------- Загадка ---------- */
+  .riddle { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; padding: 20px;
+    border-radius: 20px; background: rgba(10, 8, 35, .45); border: 1px solid rgba(255,255,255,.15); min-height: 200px; }
+  .coll { position: relative; padding: 34px 20px 20px; min-width: 240px; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+  .coll .lbl { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 2px 12px; border-radius: 99px;
+    font-family: var(--mono); font-weight: 700; font-size: .9rem; }
+  .list-coll { border: 3px solid #ff9f1c; border-radius: 14px; background: rgba(255,159,28,.08); }
+  .list-coll .lbl { background: #ff9f1c; color: #1b1640; }
+  .set-coll { border: 3px dashed #c77dff; border-radius: 50% / 45%; background: rgba(199,125,255,.08); transition: all .5s; }
+  .set-coll .lbl { background: #c77dff; color: #1b1640; }
+  .set-coll.known { border-style: solid; border-color: #23c9ff; background: rgba(35,201,255,.1); box-shadow: 0 0 40px rgba(35,201,255,.45) inset; }
+  .set-coll.known .lbl { background: #23c9ff; }
+  .cells { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: flex-end; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .cell .box { width: 50px; height: 50px; border-radius: 10px; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 1.25rem;
+    color: #1b1640; background: linear-gradient(180deg, #fff, #ffd9a0); box-shadow: 0 5px 14px rgba(0,0,0,.3); transition: all .4s; }
+  .cell .idx { font-family: var(--mono); font-size: .8rem; color: rgba(255,255,255,.7); }
+  .cell.dup .box { box-shadow: 0 0 0 4px var(--bad), 0 5px 14px rgba(0,0,0,.3); }
+  .cell.go .box { transform: translateY(-14px) scale(.9); opacity: .45; }
+  .qm { font-size: 3.4rem; font-weight: 900; color: #c77dff; animation: bob 1.6s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(8deg); } }
+  .r-arrow { font-size: 2.4rem; color: var(--glow); animation: nudge 1.2s ease-in-out infinite; }
+  @keyframes nudge { 50% { transform: translateX(8px); } }
+  .dup-x { position: absolute; font-size: 1.6rem; animation: elOut .9s ease-in forwards; }
+  .big-cap { font-size: 1.25rem; min-height: 1.6em; }
+  .console .q { color: #c77dff; font-weight: 700; }
+  .reveal { display: none; margin-top: 24px; text-align: center; padding: 26px 18px; border-radius: 22px;
+    background: radial-gradient(circle at 50% 0%, rgba(255,210,63,.25), rgba(10,8,35,.35)); border: 2px solid rgba(255,210,63,.5); }
+  .reveal.show { display: block; animation: enter .8s cubic-bezier(.2,1.5,.4,1) both; }
+  .reveal-title { font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.8); }
+  .reveal-name { font-size: clamp(2.6rem, 9vw, 5.5rem); font-weight: 900; line-height: 1.05; margin: 6px 0 10px;
+    background: linear-gradient(90deg, #ffd23f, #ff5d8f, #c77dff, #23c9ff); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 8px 30px rgba(255,93,143,.45)); }
+  .reveal-goal { font-size: 1.15rem; font-weight: 700; margin: 0 auto 18px; max-width: 700px; }
+  .reveal h3 { margin: 0 0 12px; font-size: 1.15rem; }
+  .map { display: grid; gap: 8px; max-width: 720px; margin: 0 auto; text-align: left; }
+  .map-row { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); align-items: center; gap: 8px; animation: enter .5s cubic-bezier(.2,1.4,.4,1) both; animation-delay: var(--d, 0s); }
+  .map-row .m { padding: 9px 12px; border-radius: 12px; font-family: var(--mono); font-weight: 700; background: var(--card); color: var(--ink); }
+  .map-row .m.l { border-left: 6px solid #ff9f1c; }
+  .map-row .m.r { border-left: 6px solid #23c9ff; }
+  .map-row .m small { display: block; font-family: Nunito, system-ui, sans-serif; font-weight: 600; color: var(--muted); font-size: .82rem; }
+  .map-row .m.none { opacity: .55; }
+  .map-row .m.new { box-shadow: 0 0 0 3px var(--glow); }
+  .map-row .ar { text-align: center; font-size: 1.4rem; color: var(--glow); }
+
+  /* ---------- Теория ---------- */
+  .props { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .prop { padding: 16px; border-radius: 16px; background: rgba(255,255,255,.1); border-top: 5px solid var(--c); display: flex; flex-direction: column; gap: 6px; }
+  .prop .pi { font-size: 2rem; }
+  .prop b { font-size: 1.1rem; }
+  .prop span { color: rgba(255,255,255,.85); }
+  pre.code { margin: 0; padding: 16px; border-radius: 14px; background: #0d0b22; border: 1px solid rgba(255,255,255,.12);
+    font-family: var(--mono); font-size: 1rem; line-height: 1.6; color: #e6e3ff; overflow-x: auto; }
+  pre.code .c { color: #8a85b5; } pre.code .kw { color: #ffd23f; } pre.code .warn { color: #ff7b8f; font-weight: 700; }
+  .table-wrap { overflow-x: auto; }
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 1.02rem; }
+  .cmp th, .cmp td { padding: 10px 14px; text-align: left; }
+  .cmp thead th { font-size: 1.1rem; }
+  .cmp thead th:nth-child(2) { color: #ffb75e; } .cmp thead th:nth-child(3) { color: #6fdcff; }
+  .cmp tbody tr { background: rgba(255,255,255,.08); }
+  .cmp tbody th { border-radius: 10px 0 0 10px; color: rgba(255,255,255,.8); font-weight: 800; }
+  .cmp tbody td:last-child { border-radius: 0 10px 10px 0; }
+
+  /* ---------- Редактор ---------- */
+  .ed-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; font-weight: 700; }
+  .ed-bar select { font: inherit; font-weight: 700; padding: 8px 12px; border-radius: 10px; border: none; background: var(--card); color: var(--ink); max-width: 100%; }
+  .ed-status { font-size: .9rem; color: var(--glow); }
+  textarea.editor { width: 100%; min-height: 230px; resize: vertical; padding: 14px 16px; border-radius: 14px; tab-size: 4;
+    font-family: var(--mono); font-size: 1.02rem; line-height: 1.55; color: #f1eeff; background: #0d0b22; border: 2px solid rgba(255,255,255,.15); }
+  textarea.editor:focus { outline: none; border-color: var(--glow); }
+  pre.out { margin: 12px 0 0; min-height: 70px; max-height: 360px; overflow: auto; }
+  pre.out .o-err { color: #ff7b8f; } pre.out .o-sys { color: #8a85b5; }
+  .note { margin: 10px 0 0; font-size: .88rem; color: rgba(255,255,255,.65); }
+  @media (max-width: 720px) {
+    .tab-btn { padding: 8px 10px; font-size: .92rem; }
+    .map-row { grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); gap: 4px; }
+    .map-row .m { font-size: .85rem; padding: 8px; overflow-wrap: anywhere; }
+    .coll { min-width: 0; width: 100%; }
+    .r-arrow { transform: rotate(90deg); animation: none; }
+  }
+
   /* ---------- Инструкция ---------- */
   .intro { text-align: center; animation: enter .6s cubic-bezier(.2,1.4,.4,1) both; }
   .intro h2 { margin: 0 0 14px; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 900; }
@@ -346,33 +475,138 @@
 
 <main>
   <header class="hero">
-    <span class="badge"><b>{ }</b> Python · множества</span>
-    <h1>Методы множества <code>set</code></h1>
-    <p class="sub">Соедините каждый метод с его описанием: нажмите на метод, затем на подходящее описание. Чтобы разорвать пару, нажмите на элемент ещё раз.</p>
-    <div class="stats">
-      <div class="chip"><span>Пары</span><div class="bar"><i id="bar"></i></div><span id="cnt" class="mono">0/8</span></div>
-      <div class="chip" id="timerChip">⏱ <span id="timer" class="mono">03:00</span><button class="plus" id="plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
-      <div class="chip"><button id="snd" aria-label="Звук">🔊</button></div>
-    </div>
+    <span class="badge"><b>{ }</b> Python · открытый урок</span>
+    <h1>Множества <code>set</code> в Python</h1>
   </header>
 
-  <section class="panel teams" id="teams">
-    <div class="teams-head">
-      <h2>👥 Работа в парах</h2>
-      <button class="btn primary" id="pairBtn">🎲 Разбить на пары</button>
+  <nav class="tabs" role="tablist" aria-label="Этапы урока">
+    <button class="tab-btn" role="tab" data-tab="topic" id="tb-topic"><span class="tn">1</span>Тема урока</button>
+    <button class="tab-btn" role="tab" data-tab="theory" id="tb-theory"><span class="tn">2</span>Новая тема</button>
+    <button class="tab-btn" role="tab" data-tab="task" id="tb-task"><span class="tn">3</span>Задание</button>
+    <div class="stats task-only">
+      <div class="chip"><div class="bar"><i id="bar"></i></div><span id="cnt" class="mono">0/8</span></div>
+      <div class="chip" id="timerChip">⏱ <span id="timer" class="mono">03:00</span><button class="plus" id="plusMin" title="Добавить 1 минуту" disabled>+1 мин</button></div>
     </div>
-    <div class="pairs" id="pairs"><p class="pairs-empty">Нажмите кнопку — компьютер случайно распределит класс по парам.</p></div>
-  </section>
+    <button class="snd" id="snd" aria-label="Звук" title="Звук">🔊</button>
+  </nav>
+
+  <!-- ===================== Вкладка 1: определение темы ===================== -->
+  <div class="tab" id="tab-topic" role="tabpanel" aria-labelledby="tb-topic">
+    <section class="panel">
+      <h2 class="sec">🧩 Вспомним методы списка</h2>
+      <p class="lead-l">Нажмите на карточку - она перевернётся и покажет, что делает метод.</p>
+      <div class="flip-grid" id="listCards"></div>
+    </section>
+
+    <section class="panel">
+      <h2 class="sec">🕵️ Загадка</h2>
+      <p class="lead-l">Переложим элементы списка <code class="mono">lst</code> в загадочную коллекцию <code class="mono">x</code>. Что изменится? Нажимайте «Дальше».</p>
+      <div class="riddle" id="riddle">
+        <div class="coll list-coll"><span class="lbl">lst - список</span><div class="cells" id="lstCells"></div></div>
+        <div class="r-arrow" aria-hidden="true">➜</div>
+        <div class="coll set-coll" id="mystery"><span class="lbl" id="mysteryLbl">x - ???</span><div class="cells" id="mysCells"><span class="qm">?</span></div></div>
+      </div>
+      <div class="console" id="rConsole"></div>
+      <div class="caption big-cap" id="rCaption"></div>
+      <div class="actions">
+        <button class="btn primary" id="rNext">▶ Дальше</button>
+        <button class="btn" id="rReset">↻ Сначала</button>
+      </div>
+
+      <div class="reveal" id="reveal">
+        <div class="reveal-title">Тема урока</div>
+        <div class="reveal-name">Множества <span class="mono">set</span></div>
+        <p class="reveal-goal">🎯 Цель: научиться создавать множества и пользоваться методами добавления и удаления элементов.</p>
+        <h3>Методы списка, которые вы знаете, → методы множества</h3>
+        <div class="map" id="mapTable"></div>
+        <div class="actions"><button class="btn primary" data-go="theory">Перейти к новой теме ➜</button></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== Вкладка 2: новая тема ===================== -->
+  <div class="tab" id="tab-theory" role="tabpanel" aria-labelledby="tb-theory">
+    <section class="panel">
+      <h2 class="sec">📘 Что такое множество</h2>
+      <p class="lead-l"><b>Множество (set)</b> - коллекция, в которой каждый элемент встречается только один раз.</p>
+      <div class="props">
+        <div class="prop" style="--c:#ff5d8f"><div class="pi">🎯</div><b>Только уникальные</b><span>Повторы удаляются автоматически: <code class="mono">set([1, 2, 2])</code> → <code class="mono">{1, 2}</code></span></div>
+        <div class="prop" style="--c:#23a6ff"><div class="pi">🔀</div><b>Нет порядка и индексов</b><span>Нельзя написать <code class="mono">s[0]</code> - у элементов нет номеров.</span></div>
+        <div class="prop" style="--c:#7b61ff"><div class="pi">🧊</div><b>Неизменяемые элементы</b><span>Числа, строки, кортежи - можно. Список внутри множества - нельзя.</span></div>
+      </div>
+      <h3 class="sub-h">Как создать множество</h3>
+      <pre class="code"><span class="kw">s</span> = {3, 1, 2}          <span class="c"># в фигурных скобках</span>
+<span class="kw">s</span> = set([1, 2, 2])    <span class="c"># из списка → {1, 2}</span>
+<span class="kw">s</span> = set('мама')       <span class="c"># из строки → {'м', 'а'}</span>
+<span class="kw">s</span> = set()             <span class="c"># пустое множество</span>
+<span class="kw">d</span> = {}                <span class="warn"># ⚠ это НЕ множество, а пустой словарь (dict)!</span></pre>
+    </section>
+
+    <section class="panel">
+      <h2 class="sec">⚖️ Список и множество</h2>
+      <div class="table-wrap">
+        <table class="cmp">
+          <thead><tr><th></th><th>Список <code class="mono">list</code></th><th>Множество <code class="mono">set</code></th></tr></thead>
+          <tbody>
+            <tr><th>Запись</th><td><code class="mono">[3, 1, 3]</code></td><td><code class="mono">{3, 1}</code></td></tr>
+            <tr><th>Повторы</th><td>✅ можно</td><td>❌ удаляются</td></tr>
+            <tr><th>Порядок, индексы</th><td>✅ <code class="mono">lst[0]</code></td><td>❌ нет</td></tr>
+            <tr><th>Добавить</th><td><code class="mono">append</code>, <code class="mono">extend</code></td><td><code class="mono">add</code>, <code class="mono">update</code></td></tr>
+            <tr><th>Удалить</th><td><code class="mono">remove</code>, <code class="mono">pop</code>, <code class="mono">clear</code></td><td><code class="mono">remove</code>, <code class="mono">discard</code>, <code class="mono">pop</code>, <code class="mono">clear</code></td></tr>
+            <tr><th>Проверка <code class="mono">x in …</code></th><td>перебирает элементы по очереди</td><td>⚡ очень быстрая</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel demo" id="demo">
+      <h2 class="sec">🔬 Живая демонстрация</h2>
+      <p class="lead-l">Нажмите на метод и посмотрите, что он делает с множеством <code class="mono">s</code>.</p>
+      <div class="dbtns" id="dbtns"></div>
+      <div class="stage" id="stage"></div>
+      <div class="console" id="console"></div>
+      <div class="caption" id="caption"></div>
+    </section>
+
+    <section class="panel" id="editorPanel">
+      <h2 class="sec">💻 Редактор кода</h2>
+      <p class="lead-l">Напишите свой код на Python и нажмите «Запустить» (или Ctrl+Enter). Значение последней строки выводится, как в интерактивном Python.</p>
+      <div class="ed-bar">
+        <label for="exSel">Пример:</label>
+        <select id="exSel"></select>
+        <span class="ed-status" id="edStatus"></span>
+      </div>
+      <textarea id="code" class="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Код на Python"></textarea>
+      <div class="actions left">
+        <button class="btn primary" id="runBtn">▶ Запустить</button>
+        <button class="btn" id="clearOut">🧹 Очистить вывод</button>
+      </div>
+      <pre class="console out" id="out" aria-live="polite"></pre>
+      <p class="note">Для запуска нужен интернет: при первом нажатии загружается Python для браузера (около 10 МБ), это занимает 5-20 секунд.</p>
+    </section>
+
+    <div class="actions"><button class="btn primary" data-go="task">Перейти к заданию ➜</button></div>
+  </div>
+
+  <!-- ===================== Вкладка 3: задание ===================== -->
+  <div class="tab" id="tab-task" role="tabpanel" aria-labelledby="tb-task">
+    <section class="panel teams" id="teams">
+      <div class="teams-head">
+        <h2>👥 Работа в парах</h2>
+        <button class="btn primary" id="pairBtn">🎲 Разбить на пары</button>
+      </div>
+      <div class="pairs" id="pairs"><p class="pairs-empty">Нажмите кнопку - компьютер случайно распределит класс по парам.</p></div>
+    </section>
 
   <section class="panel">
     <div class="intro" id="intro">
       <h2>📋 Инструкция</h2>
       <ol class="steps">
         <li><span class="ic">👆</span>Нажмите на <b>метод</b> в левой колонке.</li>
-        <li><span class="ic">🔗</span>Нажмите на подходящее <b>описание</b> справа — появится цветная линия.</li>
-        <li><span class="ic">↩️</span>Передумали? Нажмите на метод ещё раз — пара разорвётся.</li>
+        <li><span class="ic">🔗</span>Нажмите на подходящее <b>описание</b> справа - появится цветная линия.</li>
+        <li><span class="ic">↩️</span>Передумали? Нажмите на метод ещё раз - пара разорвётся.</li>
         <li><span class="ic">✨</span>Соедините все 8 пар и нажмите <b>«Проверить»</b>.</li>
-        <li><span class="ic">⏱</span>На задание — <b>3 минуты</b>. Когда время выйдет, ответы проверятся автоматически.</li>
+        <li><span class="ic">⏱</span>На задание - <b>3 минуты</b>. Когда время выйдет, ответы проверятся автоматически.</li>
         <li><span class="ic">💡</span>После проверки нажмите <b>«Почему?»</b> у ошибки, чтобы разобраться, и <b>«Показать»</b>, чтобы увидеть метод в действии.</li>
       </ol>
       <p class="intro-note">Работаете в паре: обсудите ответ вместе, прежде чем соединять.</p>
@@ -380,11 +614,6 @@
     </div>
 
     <div class="game" id="game">
-    <div class="name">
-      <label for="student">👥 Пара:</label>
-      <input id="student" list="pairList" autocomplete="off" placeholder="Выберите свою пару или впишите фамилии">
-      <datalist id="pairList"></datalist>
-    </div>
 
     <div class="board" id="board">
       <svg class="lines" id="lines"></svg>
@@ -415,16 +644,9 @@
     </div>
   </section>
 
-  <section class="panel demo" id="demo">
-    <h2>🔬 Живая демонстрация</h2>
-    <p class="sub">Нажмите на метод и посмотрите, что он делает с множеством <code class="mono">s</code>.</p>
-    <div class="dbtns" id="dbtns"></div>
-    <div class="stage" id="stage"></div>
-    <div class="console" id="console"></div>
-    <div class="caption" id="caption"></div>
-  </section>
 
-  <p class="hint">Обозначения: <code>s</code> — множество, <code>x</code> — элемент, <code>t</code> — другая коллекция (множество, список, строка).</p>
+    <p class="hint">Обозначения: <code>s</code> - множество, <code>x</code> - элемент, <code>t</code> - другая коллекция (множество, список, строка).</p>
+  </div>
 </main>
 
 <script>
@@ -433,7 +655,7 @@ var PAIRS = [
   { m: 's.add(x)',     d: 'Добавляет один элемент x. Если такой элемент уже есть, множество не меняется.' },
   { m: 's.remove(x)',  d: 'Удаляет элемент x. Если такого элемента нет, возникает ошибка KeyError.' },
   { m: 's.discard(x)', d: 'Удаляет элемент x, если он есть. Если его нет, ошибки не будет.' },
-  { m: 's.pop()',      d: 'Удаляет из множества произвольный элемент и возвращает его. Для пустого множества — ошибка KeyError.' },
+  { m: 's.pop()',      d: 'Удаляет из множества произвольный элемент и возвращает его. Для пустого множества - ошибка KeyError.' },
   { m: 's.clear()',    d: 'Удаляет все элементы: множество становится пустым.' },
   { m: 's.update(t)',  d: 'Добавляет в множество сразу все элементы из t.' },
   { m: 's.copy()',     d: 'Возвращает новое множество с теми же элементами.' },
@@ -441,24 +663,24 @@ var PAIRS = [
 ];
 /* Объяснения для разбора ошибок */
 var WHY = [
-  'add(x) кладёт в множество ровно один элемент. Если x уже есть, ничего не меняется: в множестве не бывает повторов. Добавить сразу несколько элементов — это update.',
-  'remove(x) удаляет именно тот элемент, который указан в скобках. Если такого элемента нет, Python останавливает программу с ошибкой KeyError — в этом главное отличие от discard.',
-  'discard(x) тоже удаляет указанный элемент x, но если его нет, просто ничего не делает — ошибки не будет.',
+  'add(x) кладёт в множество ровно один элемент. Если x уже есть, ничего не меняется: в множестве не бывает повторов. Добавить сразу несколько элементов - это update.',
+  'remove(x) удаляет именно тот элемент, который указан в скобках. Если такого элемента нет, Python останавливает программу с ошибкой KeyError - в этом главное отличие от discard.',
+  'discard(x) тоже удаляет указанный элемент x, но если его нет, просто ничего не делает - ошибки не будет.',
   'У pop() скобки пустые: вы не говорите, что удалить. Python сам выбирает элемент, удаляет его и возвращает, поэтому его можно сохранить: x = s.pop().',
   'clear() удаляет не один элемент, а все сразу. После него множество пустое: set().',
   'update(t) получает целую коллекцию t (список, строку, множество) и добавляет все её элементы. add добавляет только один.',
   'copy() не меняет s, а создаёт новое множество с такими же элементами. Если изменить копию, исходное множество останется прежним.',
-  'len(s) — функция, а не метод: пишется len(s), а не s.len(). Она ничего не меняет в множестве, только считает элементы.'
+  'len(s) - функция, а не метод: пишется len(s), а не s.len(). Она ничего не меняет в множестве, только считает элементы.'
 ];
 var TIPS = {
   '1-2': 'remove и discard оба удаляют x. Разница в том, что будет, если x нет: remove → ошибка KeyError, discard → ничего не происходит.',
-  '0-5': 'add — один элемент: s.add(5). update — много элементов из коллекции: s.update([5, 6, 7]).',
-  '1-3': 'Посмотрите на скобки: remove(x) удаляет указанный элемент, pop() — без аргумента, сам выбирает элемент и возвращает его.',
-  '2-3': 'Посмотрите на скобки: discard(x) удаляет указанный элемент, pop() — без аргумента, сам выбирает элемент и возвращает его.',
-  '3-4': 'pop удаляет один элемент, clear — все элементы сразу.',
-  '1-4': 'remove удаляет один указанный элемент, clear — все элементы сразу.',
-  '2-4': 'discard удаляет один указанный элемент, clear — все элементы сразу.',
-  '6-7': 'copy возвращает новое множество, len — число (количество элементов).',
+  '0-5': 'add - один элемент: s.add(5). update - много элементов из коллекции: s.update([5, 6, 7]).',
+  '1-3': 'Посмотрите на скобки: remove(x) удаляет указанный элемент, pop() - без аргумента, сам выбирает элемент и возвращает его.',
+  '2-3': 'Посмотрите на скобки: discard(x) удаляет указанный элемент, pop() - без аргумента, сам выбирает элемент и возвращает его.',
+  '3-4': 'pop удаляет один элемент, clear - все элементы сразу.',
+  '1-4': 'remove удаляет один указанный элемент, clear - все элементы сразу.',
+  '2-4': 'discard удаляет один указанный элемент, clear - все элементы сразу.',
+  '6-7': 'copy возвращает новое множество, len - число (количество элементов).',
   '0-6': 'add меняет само множество s, а copy создаёт новое множество и s не меняет.',
   '5-6': 'update меняет само множество s, а copy создаёт новое множество и s не меняет.'
 };
@@ -543,7 +765,6 @@ function build() {
   leftEl.querySelectorAll('.item').forEach(function (e) { e.remove(); });
   rightEl.querySelectorAll('.item').forEach(function (e) { e.remove(); });
   document.getElementById('result').className = 'result';
-  document.getElementById('demo').className = 'panel demo';
   document.getElementById('ringVal').style.strokeDashoffset = 389.6;
 
   shuffle(PAIRS.map(function (_, i) { return i; })).forEach(function (i, k) {
@@ -689,13 +910,13 @@ function check() {
   });
   render();
 
-  var name = document.getElementById('student').value.trim();
+  var name = '';
   var spent = fmtTime(elapsed());
   var verdicts = [[8, '🏆 Блестяще! Все пары верные!'], [6, '🔥 Отлично, почти всё!'], [4, '👍 Неплохо, но есть над чем подумать'], [0, '💡 Попробуйте ещё раз']];
   document.getElementById('verdict').textContent = verdicts.filter(function (v) { return score >= v[0]; })[0][1];
   document.getElementById('who').textContent = (name ? name + ' · ' : '') + (timeUp ? '⏰ время вышло' : 'время ' + spent);
   var fixEl = document.getElementById('fix');
-  fixEl.innerHTML = wrong.length ? '<li class="fix-title">Разбор ошибок — нажмите «Почему?»</li>' : '';
+  fixEl.innerHTML = wrong.length ? '<li class="fix-title">Разбор ошибок - нажмите «Почему?»</li>' : '';
   wrong.forEach(function (i) {
     var r = links[i], none = r === undefined;
     var li = document.createElement('li');
@@ -704,15 +925,16 @@ function check() {
         (none ? 'не успели соединить' : 'вы соединили с описанием метода <code>' + esc(PAIRS[r].m) + '</code>') + '</span>' +
       '<span class="fix-btns"><button class="mini why">💡 Почему?</button><button class="mini show">▶ Показать</button></span></div>' +
       '<div class="why-box">' +
-        (none ? '' : '<p><b>Ваш ответ:</b> «' + esc(PAIRS[r].d) + '» — так работает <code>' + esc(PAIRS[r].m) + '</code>.</p>') +
-        '<p><b>Правильно:</b> <code>' + esc(PAIRS[i].m) + '</code> — ' + esc(PAIRS[i].d) + '</p>' +
+        (none ? '' : '<p><b>Ваш ответ:</b> «' + esc(PAIRS[r].d) + '» - так работает <code>' + esc(PAIRS[r].m) + '</code>.</p>') +
+        '<p><b>Правильно:</b> <code>' + esc(PAIRS[i].m) + '</code> - ' + esc(PAIRS[i].d) + '</p>' +
         '<p><b>Почему:</b> ' + WHY[i] + '</p>' +
         (none ? '' : '<p class="tip">🔑 ' + confusionTip(i, r) + '</p>') +
       '</div>';
     li.querySelector('.why').onclick = function () { li.classList.toggle('open'); };
     li.querySelector('.show').onclick = function () {
-      document.getElementById('demo').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(function () { runDemo(i); }, 500);
+      showTab('theory', true);
+      setTimeout(function () { document.getElementById('demo').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+      setTimeout(function () { runDemo(i); }, 600);
     };
     fixEl.appendChild(li);
   });
@@ -729,8 +951,6 @@ function check() {
     if (score === PAIRS.length) { SFX.fanfare(); confetti(260); setTimeout(function () { confetti(160); }, 700); }
     else if (score >= 6) { SFX.ok(); confetti(110); }
     else { SFX.bad(); }
-    document.getElementById('demo').className = 'panel demo show';
-    buildDemoButtons();
   }, PAIRS.length * 120 + 200);
 }
 function showBigScore(score, name, verdict, time) {
@@ -824,7 +1044,7 @@ var DEMOS = {
     await sleep(700); showS(vals);
     await sleep(700); line('<span class="p">&gt;&gt;&gt;</span> s.add(4)   <span class="c"># 4 уже есть</span>');
     var e = s.querySelector('[data-v="4"]'); e.classList.add('hl'); await sleep(900); e.classList.remove('hl');
-    showS(vals); cap.textContent = 'add добавляет один элемент; повтор не добавляется — в множестве нет одинаковых элементов.';
+    showS(vals); cap.textContent = 'add добавляет один элемент; повтор не добавляется - в множестве нет одинаковых элементов.';
   },
   1: async function (s, vals) {                       // remove
     line('<span class="p">&gt;&gt;&gt;</span> s.remove(4)');
@@ -832,14 +1052,14 @@ var DEMOS = {
     await sleep(600); line('<span class="p">&gt;&gt;&gt;</span> s.remove(9)');
     await sleep(400); SFX.bad(); stage.classList.add('shake'); badge('KeyError: 9', 'red');
     line('<span class="e">KeyError: 9</span>');
-    cap.textContent = 'remove удаляет элемент, а если его нет — программа останавливается с ошибкой.';
+    cap.textContent = 'remove удаляет элемент, а если его нет - программа останавливается с ошибкой.';
   },
   2: async function (s, vals) {                       // discard
     line('<span class="p">&gt;&gt;&gt;</span> s.discard(4)');
     await sleep(400); await leave(s, 4, vals); showS(vals);
     await sleep(600); line('<span class="p">&gt;&gt;&gt;</span> s.discard(9)');
     await sleep(500); SFX.ok(); badge('ошибки нет ✓', 'green'); line('<span class="p">&gt;&gt;&gt;</span> s   <span class="c"># ошибки нет, ничего не изменилось</span>'); line(fmtSet(vals));
-    cap.textContent = 'discard — «мягкое» удаление: если элемента нет, ничего не происходит.';
+    cap.textContent = 'discard - «мягкое» удаление: если элемента нет, ничего не происходит.';
   },
   3: async function (s, vals) {                       // pop
     line('<span class="p">&gt;&gt;&gt;</span> x = s.pop()');
@@ -890,7 +1110,7 @@ var DEMOS = {
     await sleep(700);
     els.forEach(function (e) { e.classList.remove('hl'); e.textContent = e.dataset.v; });
     line(String(els.length));
-    cap.textContent = 'len — не метод множества, а функция: она возвращает количество элементов.';
+    cap.textContent = 'len - не метод множества, а функция: она возвращает количество элементов.';
   }
 };
 function leave(s, v, vals) {
@@ -939,7 +1159,7 @@ var pairing = false;
 function makeGroups() {
   var s = shuffle(STUDENTS), groups = [];
   for (var i = 0; i + 1 < s.length; i += 2) groups.push([s[i], s[i + 1]]);
-  if (s.length % 2) groups[groups.length - 1].push(s[s.length - 1]); // нечётное число — последняя группа из трёх
+  if (s.length % 2) groups[groups.length - 1].push(s[s.length - 1]); // нечётное число - последняя группа из трёх
   return groups;
 }
 
@@ -980,9 +1200,6 @@ async function showPairs() {
   clearInterval(spinner);
   SFX.fanfare(); confetti(140);
 
-  document.getElementById('pairList').innerHTML = groups.map(function (g, k) {
-    return '<option value="' + esc((g.length === 3 ? 'Тройка ' : 'Пара ') + (k + 1) + ': ' + g.join(', ')) + '">';
-  }).join('');
   btn.textContent = '🎲 Перемешать ещё раз';
   btn.disabled = false;
   pairing = false;
@@ -1012,6 +1229,288 @@ document.getElementById('plusMin').onclick = function () {
 document.getElementById('check').onclick = check;
 document.getElementById('reset').onclick = function () { build(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 build();
+
+/* ===================== Вкладки ===================== */
+var TAB_HASH = { topic: 'tema', theory: 'teoriya', task: 'zadanie' };
+function showTab(name, keepScroll) {
+  document.body.dataset.tab = name;
+  document.querySelectorAll('.tab-btn').forEach(function (b) {
+    var on = b.dataset.tab === name;
+    b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1;
+  });
+  document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t.id === 'tab-' + name); });
+  try { history.replaceState(null, '', '#' + TAB_HASH[name]); } catch (e) {}
+  if (!keepScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'task') setTimeout(drawLines, 60);
+}
+document.querySelectorAll('.tab-btn').forEach(function (b) {
+  b.onclick = function () { showTab(b.dataset.tab); SFX.pick(); };
+  b.onkeydown = function (e) {
+    var all = Array.prototype.slice.call(document.querySelectorAll('.tab-btn')), k = all.indexOf(b);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      var n = all[(k + (e.key === 'ArrowRight' ? 1 : all.length - 1)) % all.length];
+      n.focus(); n.click();
+    }
+  };
+});
+document.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { showTab(b.dataset.go); SFX.whoosh(); }; });
+
+/* ===================== Вкладка 1: методы списка ===================== */
+var LIST_METHODS = [
+  { m: 'lst.append(x)', d: 'Добавляет один элемент в конец списка.', ex: 'a = [1, 2]\na.append(3)  # [1, 2, 3]' },
+  { m: 'lst.extend(t)', d: 'Добавляет в конец все элементы из t.', ex: 'a = [1, 2]\na.extend([3, 4])  # [1, 2, 3, 4]' },
+  { m: 'lst.remove(x)', d: 'Удаляет первое вхождение x. Если x нет - ошибка ValueError.', ex: 'a = [1, 2, 1]\na.remove(1)  # [2, 1]' },
+  { m: 'lst.pop()', d: 'Удаляет и возвращает последний элемент (pop(i) - элемент с индексом i).', ex: 'a = [1, 2, 3]\na.pop()  # 3, a = [1, 2]' },
+  { m: 'lst.clear()', d: 'Удаляет все элементы списка.', ex: 'a = [1, 2]\na.clear()  # []' },
+  { m: 'lst.copy()', d: 'Возвращает новый список - копию.', ex: 'b = a.copy()' },
+  { m: 'len(lst)', d: 'Возвращает количество элементов.', ex: 'len([5, 7, 9])  # 3' }
+];
+(function () {
+  var grid = document.getElementById('listCards');
+  LIST_METHODS.forEach(function (x, k) {
+    var b = document.createElement('button');
+    b.className = 'flip'; b.style.setProperty('--c', COLORS[k]); b.style.setProperty('--d', (k * 0.07) + 's');
+    b.setAttribute('aria-label', x.m + ' - перевернуть карточку');
+    b.innerHTML = '<div class="flip-in"><div class="face front"><code></code><small>нажмите, чтобы вспомнить</small></div>' +
+                  '<div class="face back"><span></span><code></code></div></div>';
+    b.querySelector('.front code').textContent = x.m;
+    b.querySelector('.back span').textContent = x.d;
+    b.querySelector('.back code').textContent = x.ex;
+    b.querySelector('.back code').style.whiteSpace = 'pre';
+    b.onclick = function () { b.classList.toggle('open'); SFX.whoosh(); };
+    grid.appendChild(b);
+  });
+})();
+
+/* ===================== Вкладка 1: загадка ===================== */
+var LST = [3, 1, 3, 2, 1];
+var rLines = [], rStep = 0, rBusy = false, revealed = false;
+var T = '\u0000';   // место, где спрятано название коллекции
+function rRender() {
+  var name = revealed ? '<span class="q">set</span>' : '<span class="q">▒▒▒</span>';
+  document.getElementById('rConsole').innerHTML = rLines.map(function (l) { return l.split(T).join(name); }).join('\n');
+}
+function rIn(code) { rLines.push('<span class="p">&gt;&gt;&gt;</span> ' + code); rRender(); }
+function rOut(text, cls) { rLines.push(cls ? '<span class="' + cls + '">' + text + '</span>' : text); rRender(); }
+function rCap(t) { document.getElementById('rCaption').textContent = t; }
+function myst() { return document.getElementById('mysCells'); }
+
+function rReset() {
+  rStep = 0; rLines = []; revealed = false; rBusy = false;
+  var lc = document.getElementById('lstCells');
+  lc.innerHTML = LST.map(function (v, i) { return '<div class="cell"><div class="box">' + v + '</div><span class="idx">[' + i + ']</span></div>'; }).join('');
+  myst().innerHTML = '<span class="qm">?</span>';
+  document.getElementById('mystery').className = 'coll set-coll';
+  document.getElementById('mysteryLbl').textContent = 'x - ???';
+  document.getElementById('reveal').className = 'reveal';
+  var nb = document.getElementById('rNext'); nb.textContent = '▶ Дальше'; nb.disabled = false;
+  rIn('lst = [3, 1, 3, 2, 1]');
+  rCap('Нажмите «Дальше» ▶');
+}
+
+var R_STEPS = [
+  async function () {                                   // переложить в коллекцию
+    rIn('x = ' + T + '(lst)');
+    var cells = document.querySelectorAll('#lstCells .cell');
+    await sleep(500);
+    [2, 4].forEach(function (i) { cells[i].classList.add('dup'); });
+    SFX.bad(); rCap('Повторяющиеся элементы подсвечены красным…');
+    await sleep(1100);
+    myst().innerHTML = '';
+    var seen = {};
+    for (var i = 0; i < LST.length; i++) {
+      cells[i].classList.add('go');
+      if (seen[LST[i]]) { tone([200], .12, 'square'); await sleep(300); continue; }
+      seen[LST[i]] = true;
+      await sleep(300);
+    }
+    [1, 2, 3].forEach(function (v, k) { setTimeout(function () { SFX.whoosh(); myst().appendChild(makeEl(v, 'in')); }, k * 250); });
+    await sleep(1000);
+    rIn('x'); rOut('{1, 2, 3}');
+    rCap('❓ Куда пропали повторяющиеся 3 и 1? Почему скобки фигурные?');
+  },
+  async function () {                                   // индексов нет
+    rIn('x[0]');
+    await sleep(400); SFX.bad();
+    document.getElementById('riddle').classList.add('shake');
+    setTimeout(function () { document.getElementById('riddle').classList.remove('shake'); }, 600);
+    rOut("TypeError: '" + T + "' object is not subscriptable", 'e');
+    rCap('❓ Обратиться к элементу по номеру нельзя: у элементов нет индексов.');
+  },
+  async function () {                                   // нет append
+    rIn('x.append(5)');
+    await sleep(400); SFX.bad();
+    rOut("AttributeError: '" + T + "' object has no attribute 'append'", 'e');
+    rCap('❓ Метода append нет - у этой коллекции свои методы.');
+  },
+  async function () {                                   // add и уникальность
+    rIn('x.add(5)');
+    await sleep(400); SFX.whoosh(); myst().appendChild(makeEl(5, 'in'));
+    await sleep(700); rIn('x'); rOut('{1, 2, 3, 5}');
+    await sleep(800); rIn('x.add(5)');
+    var e = myst().querySelector('[data-v="5"]'); e.classList.add('hl'); await sleep(900); e.classList.remove('hl');
+    rIn('x'); rOut('{1, 2, 3, 5}');
+    rCap('Вместо append здесь add - и второй раз 5 не добавилась!');
+  },
+  async function () {                                   // вопрос классу
+    rCap('🤔 Только уникальные элементы, фигурные скобки, нет порядка и индексов… Как в математике называется такая совокупность элементов?');
+    document.getElementById('rNext').textContent = '🎉 Открыть тему';
+  },
+  async function () {                                   // раскрытие темы
+    revealed = true; rRender();
+    document.getElementById('mystery').className = 'coll set-coll known';
+    document.getElementById('mysteryLbl').textContent = 'x - set (множество)';
+    rCap('Это множество - set!');
+    var r = document.getElementById('reveal');
+    r.className = 'reveal show';
+    buildMap();
+    SFX.fanfare(); confetti(260); setTimeout(function () { confetti(160); }, 600);
+    setTimeout(function () { r.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
+    document.getElementById('rNext').disabled = true;
+  }
+];
+document.getElementById('rNext').onclick = async function () {
+  if (rBusy || rStep >= R_STEPS.length) return;
+  rBusy = true; this.disabled = true;
+  await R_STEPS[rStep++]();
+  rBusy = false; this.disabled = rStep >= R_STEPS.length;
+};
+document.getElementById('rReset').onclick = rReset;
+
+var MAP = [
+  ['lst.append(x)', 'в конец списка', 's.add(x)', ''],
+  ['lst.extend(t)', '', 's.update(t)', ''],
+  ['lst.remove(x)', 'нет x → ValueError', 's.remove(x)', 'нет x → KeyError'],
+  ['-', '', 's.discard(x)', '🆕 нет x → ошибки нет'],
+  ['lst.pop()', 'удаляет последний', 's.pop()', 'удаляет произвольный'],
+  ['lst.clear()', '', 's.clear()', ''],
+  ['lst.copy()', '', 's.copy()', ''],
+  ['len(lst)', '', 'len(s)', '']
+];
+function buildMap() {
+  document.getElementById('mapTable').innerHTML = MAP.map(function (r, k) {
+    return '<div class="map-row" style="--d:' + (0.3 + k * 0.12) + 's">' +
+      '<div class="m l' + (r[0] === '-' ? ' none' : '') + '">' + esc(r[0]) + (r[1] ? '<small>' + esc(r[1]) + '</small>' : '') + '</div>' +
+      '<div class="ar">➜</div>' +
+      '<div class="m r' + (r[0] === '-' ? ' new' : '') + '">' + esc(r[2]) + (r[3] ? '<small>' + esc(r[3]) + '</small>' : '') + '</div></div>';
+  }).join('');
+}
+rReset();
+
+/* ===================== Вкладка 2: редактор кода ===================== */
+var EXAMPLES = [
+  ['Создание множества',
+   "s = {3, 1, 2, 3, 1}\nprint(s)\nprint(len(s))\nprint(set())       # пустое множество\nprint(type({}))    # а это словарь!"],
+  ['Удаление повторов из списка',
+   "marks = [5, 4, 5, 3, 4, 5]\nunique = set(marks)\nprint(unique)\nprint('Разных оценок:', len(unique))"],
+  ['Добавление: add и update',
+   "s = {1, 2}\ns.add(3)\ns.add(2)          # 2 уже есть\nprint(s)\ns.update([4, 5, 1])\nprint(s)"],
+  ['Удаление: remove и discard',
+   "s = {1, 2, 3}\ns.discard(10)     # ошибки нет\nprint(s)\ns.remove(10)      # KeyError!"],
+  ['pop и clear',
+   "s = {10, 20, 30}\nx = s.pop()\nprint('Удалили:', x)\nprint('Осталось:', s)\ns.clear()\ns"],
+  ['Разные буквы в слове',
+   "word = 'информатика'\nletters = set(word)\nprint(letters)\nprint('Букв в слове:', len(word))\nprint('Разных букв:', len(letters))"],
+  ['Пустой лист (свой код)', '']
+];
+var codeEl = document.getElementById('code'), outEl = document.getElementById('out'), exSel = document.getElementById('exSel');
+EXAMPLES.forEach(function (e, k) { var o = document.createElement('option'); o.value = k; o.textContent = e[0]; exSel.appendChild(o); });
+exSel.onchange = function () { codeEl.value = EXAMPLES[+exSel.value][1]; codeEl.focus(); };
+codeEl.value = EXAMPLES[0][1];
+codeEl.addEventListener('keydown', function (e) {
+  if (e.key === 'Tab' && !e.shiftKey) {
+    e.preventDefault();
+    var a = codeEl.selectionStart, z = codeEl.selectionEnd;
+    codeEl.value = codeEl.value.slice(0, a) + '    ' + codeEl.value.slice(z);
+    codeEl.selectionStart = codeEl.selectionEnd = a + 4;
+  } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault(); runCode();
+  }
+});
+function outAppend(text, cls) {
+  var sp = document.createElement('span');
+  if (cls) sp.className = cls;
+  sp.textContent = text;
+  outEl.appendChild(sp);
+  outEl.scrollTop = outEl.scrollHeight;
+}
+document.getElementById('clearOut').onclick = function () { outEl.textContent = ''; };
+
+var PYODIDE_URL = 'https://cdn.jsdelivr.net/npm/pyodide@0.26.4/';
+var RUNNER = [
+  'import ast, sys, traceback',
+  'def __run(src):',
+  "    g = {'__name__': '__main__'}",
+  '    try:',
+  "        tree = ast.parse(src, '<код>')",
+  '        last = None',
+  '        if tree.body and isinstance(tree.body[-1], ast.Expr):',
+  '            last = ast.Expression(tree.body.pop().value)',
+  "        exec(compile(tree, '<код>', 'exec'), g)",
+  '        if last is not None:',
+  "            v = eval(compile(last, '<код>', 'eval'), g)",
+  '            if v is not None:',
+  '                print(repr(v))',
+  '    except BaseException as e:',
+  '        tb = e.__traceback__',
+  "        while tb is not None and tb.tb_frame.f_code.co_filename != '<код>':",
+  '            tb = tb.tb_next',
+  "        sys.stderr.write(''.join(traceback.format_exception(type(e), e, tb)))",
+  '    finally:',
+  '        sys.stdout.flush()',
+  '        sys.stderr.flush()'
+].join('\n');
+var py = null, pyLoading = null;
+function edStatus(t) { document.getElementById('edStatus').textContent = t; }
+function loadPy() {
+  if (pyLoading) return pyLoading;
+  edStatus('⏳ Загружаю Python…');
+  pyLoading = new Promise(function (res, rej) {
+    var sc = document.createElement('script');
+    sc.src = PYODIDE_URL + 'pyodide.js';
+    var to = setTimeout(function () { rej(new Error('timeout')); }, 30000);
+    sc.onload = function () { clearTimeout(to); res(); };
+    sc.onerror = function () { clearTimeout(to); rej(new Error('network')); };
+    document.head.appendChild(sc);
+  }).then(function () {
+    return loadPyodide({ indexURL: PYODIDE_URL });
+  }).then(function (p) {
+    py = p;
+    p.setStdout({ batched: function (t) { outAppend(t + '\n'); } });
+    p.setStderr({ batched: function (t) { outAppend(t + '\n', 'o-err'); } });
+    p.runPython(RUNNER);
+    edStatus('✅ Python готов');
+    return p;
+  }).catch(function (e) {
+    pyLoading = null;
+    edStatus('⚠ Не удалось загрузить Python - проверьте подключение к интернету');
+    throw e;
+  });
+  return pyLoading;
+}
+var running = false;
+async function runCode() {
+  if (running) return;
+  running = true;
+  var btn = document.getElementById('runBtn'); btn.disabled = true;
+  outEl.textContent = '';
+  try {
+    if (!py) { outAppend('Загрузка Python…\n', 'o-sys'); await loadPy(); outEl.textContent = ''; }
+    py.globals.get('__run')(codeEl.value);
+  } catch (e) {
+    outAppend('Не удалось запустить код: нет подключения к интернету.\n', 'o-err');
+  }
+  btn.disabled = false; running = false;
+}
+document.getElementById('runBtn').onclick = runCode;
+
+/* ===================== Запуск ===================== */
+buildDemoButtons();
+(function () {
+  var h = (location.hash || '').slice(1), start = 'topic';
+  for (var k in TAB_HASH) if (TAB_HASH[k] === h) start = k;
+  showTab(start, true);
+})();
 </script>
 </body>
 </html>
