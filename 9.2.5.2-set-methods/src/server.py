@@ -245,7 +245,15 @@ function pullResults(onOk, onFail){
     var data = buildFromLog_(raw || {});
     try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) {}
     onOk(patchLang(data));
-  }, onFail, 20000);
+  }, function (err) {
+    // ключ не подошёл — забываем его, при следующем открытии файл спросит снова
+    if (/ключ/i.test(String(err && err.message))) {
+      forgetKey_();
+      err = new Error('Мұғалім кілті қате. Бетті жаңартып (F5), кілтті қайта енгізіңіз. ' +
+                      'Ключ учителя не подошёл — обновите страницу и введите его заново');
+    }
+    onFail(err);
+  }, 20000);
 }
 '''
 
@@ -325,10 +333,33 @@ def patch_teacher(src, sub1, url, token):
     return _rest(src, sub1)
 
 
+ASK_KEY = r'''
+/* Ключ учителя: если его нет в файле, спрашиваем один раз и запоминаем на этом компьютере. */
+var KEY_STORE = 'setmethods.teacherkey';
+(function () {
+  if (TOKEN) return;
+  try { TOKEN = localStorage.getItem(KEY_STORE) || ''; } catch (e) {}
+  if (TOKEN || !SEND_URL) return;
+  var k = window.prompt(
+    'Мұғалім кілтін (TOKEN) енгізіңіз. Ол Apps Script-те diagnose() функциясын іске қосқанда журналда шығады.\n\n' +
+    'Введите ключ учителя (TOKEN) — он есть в журнале функции diagnose() в Apps Script.', '');
+  if (k && k.trim()) {
+    TOKEN = k.trim();
+    try { localStorage.setItem(KEY_STORE, TOKEN); } catch (e) {}
+  }
+})();
+function forgetKey_() {
+  try { localStorage.removeItem(KEY_STORE); } catch (e) {}
+}
+'''
+
+
 def set_token(src, sub1, token):
     import re
     assert len(re.findall(r'^var TOKEN = ".*";$', src, re.M)) == 1
-    return re.sub(r'^var TOKEN = ".*";$', lambda m: 'var TOKEN = "%s";' % token.replace('"', ''), src, flags=re.M)
+    src = re.sub(r'^var TOKEN = ".*";$', lambda m: 'var TOKEN = "%s";' % token.replace('"', ''), src, flags=re.M)
+    # спросить ключ можно только после того, как объявлен SEND_URL
+    return sub1(src, '\nvar LESSON_ID = ', ASK_KEY + '\nvar LESSON_ID = ')
 
 
 def _rest(src, sub1):

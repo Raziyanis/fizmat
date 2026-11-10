@@ -449,6 +449,24 @@ var VER = "set v1 · 10 ноября";
 
 /* Адрес развёртывания Apps Script для этого урока. Пока пусто: ответы копятся на устройстве ученика и уйдут, когда адрес появится. */
 var SEND_URL = "https://script.google.com/macros/s/AKfycbym0lks4d4Nl7uEqnXa64OQcMwOok_G5Gzxukk3TXbbaXVZgK5pIi_-_aytue58u4jF-g/exec";
+/* Ключ учителя: если его нет в файле, спрашиваем один раз и запоминаем на этом компьютере. */
+var KEY_STORE = 'setmethods.teacherkey';
+(function () {
+  if (TOKEN) return;
+  try { TOKEN = localStorage.getItem(KEY_STORE) || ''; } catch (e) {}
+  if (TOKEN || !SEND_URL) return;
+  var k = window.prompt(
+    'Мұғалім кілтін (TOKEN) енгізіңіз. Ол Apps Script-те diagnose() функциясын іске қосқанда журналда шығады.\n\n' +
+    'Введите ключ учителя (TOKEN) — он есть в журнале функции diagnose() в Apps Script.', '');
+  if (k && k.trim()) {
+    TOKEN = k.trim();
+    try { localStorage.setItem(KEY_STORE, TOKEN); } catch (e) {}
+  }
+})();
+function forgetKey_() {
+  try { localStorage.removeItem(KEY_STORE); } catch (e) {}
+}
+
 var LESSON_ID = "set-9.2.5.2";
 var QKEY = 'setmethods.outbox.v1';
 var lastConfirmed = true;
@@ -727,7 +745,15 @@ function pullResults(onOk, onFail){
     var data = buildFromLog_(raw || {});
     try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) {}
     onOk(patchLang(data));
-  }, onFail, 20000);
+  }, function (err) {
+    // ключ не подошёл — забываем его, при следующем открытии файл спросит снова
+    if (/ключ/i.test(String(err && err.message))) {
+      forgetKey_();
+      err = new Error('Мұғалім кілті қате. Бетті жаңартып (F5), кілтті қайта енгізіңіз. ' +
+                      'Ключ учителя не подошёл — обновите страницу и введите его заново');
+    }
+    onFail(err);
+  }, 20000);
 }
 
 /** Казахский перевод и текст урока лежат в самом файле. Если таблица
