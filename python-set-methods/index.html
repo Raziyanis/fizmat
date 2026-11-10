@@ -431,9 +431,6 @@
   .lvl-task { font-size: 1.12rem; line-height: 1.6; margin: 12px 0 16px; padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.1); border-left: 5px solid var(--lc, #17c27a); }
   .lvl-task code { font-family: var(--mono); color: var(--glow); }
   .lvl-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
-  .sol { display: none; margin-top: 12px; }
-  .sol.show { display: block; animation: enter .5s cubic-bezier(.2,1.4,.4,1) both; }
-  .sol-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
   .selfcheck { align-self: start; padding: 16px; border-radius: 16px; background: var(--card); color: var(--ink); box-shadow: 0 8px 22px rgba(0,0,0,.25); }
   .selfcheck h3 { margin: 0 0 8px; }
   .sc-item { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
@@ -850,13 +847,8 @@
           <div class="actions left">
             <button class="btn primary" id="foRun">▶ Запустить</button>
             <button class="btn" id="foReset">↺ Заготовка</button>
-            <button class="btn" id="foSol">👁 Пример решения</button>
           </div>
           <pre class="console out" id="foOut" aria-live="polite"></pre>
-          <div class="sol" id="foSolBox">
-            <div class="sol-head"><b>Пример решения</b><button class="mini" id="foSolCopy">Вставить в редактор</button></div>
-            <pre class="code" id="foSolCode"></pre>
-          </div>
           <p class="note">Если в программе есть <code class="mono">input()</code>, появится окно для ввода. Для запуска нужен интернет (Python загружается при первом запуске).</p>
         </div>
         <aside class="selfcheck">
@@ -1990,18 +1982,15 @@ makeTeams(); drawTeams(false); showT();
     { id: 'A', dot: '🟢', c: '#17c27a', name: 'Уровень A', sub: 'Базовый / адаптированный для обучающихся с ООП',
       task: 'Создайте множество из 5 чисел. Запросите у пользователя число. Проверьте через <code>in</code>, есть ли оно в множестве: если есть - удалите через <code>discard()</code>, если нет - добавьте через <code>add()</code>. Выведите конечное множество.',
       start: "# Уровень A\n# 1) Создайте множество из 5 чисел\nnumbers = \n\n# 2) Запросите число у пользователя\nx = int(input(\"Введите число: \"))\n\n# 3) Есть в множестве - discard(), нет - add()\n\n\n# 4) Выведите множество\n",
-      checks: ['Создал(а) множество из 5 чисел', 'Получил(а) число через input() и int()', 'Проверил(а) наличие через in', 'Удалил(а) через discard() или добавил(а) через add()', 'Вывел(а) итоговое множество'],
-      sol: "numbers = {3, 7, 12, 25, 40}\nx = int(input(\"Введите число: \"))\nif x in numbers:\n    numbers.discard(x)\nelse:\n    numbers.add(x)\nprint(numbers)" },
+      checks: ['Создал(а) множество из 5 чисел', 'Получил(а) число через input() и int()', 'Проверил(а) наличие через in', 'Удалил(а) через discard() или добавил(а) через add()', 'Вывел(а) итоговое множество'] },
     { id: 'B', dot: '🟡', c: '#ffc21a', name: 'Уровень B', sub: 'Средний',
       task: 'Дан список гостей: <code>guests = ["Алихан", "Айша", "Алихан", "Данияр", "Айша", "София"]</code>. Напишите программу, которая вычисляет количество уникальных гостей с помощью <code>set()</code> и <code>len()</code>, а затем выводит их имена в цикле <code>for</code>.',
       start: 'guests = ["Алихан", "Айша", "Алихан", "Данияр", "Айша", "София"]\n\n# 1) Посчитайте уникальных гостей: set() и len()\n\n\n# 2) Выведите имена в цикле for\n',
-      checks: ['Создал(а) множество из списка: set(guests)', 'Посчитал(а) уникальных гостей через len()', 'Вывел(а) имена в цикле for'],
-      sol: "guests = [\"Алихан\", \"Айша\", \"Алихан\", \"Данияр\", \"Айша\", \"София\"]\nunique = set(guests)\nprint(\"Уникальных гостей:\", len(unique))\nfor name in unique:\n    print(name)" },
+      checks: ['Создал(а) множество из списка: set(guests)', 'Посчитал(а) уникальных гостей через len()', 'Вывел(а) имена в цикле for'] },
     { id: 'C', dot: '🔴', c: '#ff4d6d', name: 'Уровень C', sub: 'Продвинутый',
       task: 'Имеется множество спам-слов: <code>bad_words = {"скам", "бесплатно", "выигрыш"}</code>. Пользователь вводит предложение. Разделите предложение на слова (<code>.split()</code>), преобразуйте их в множество и найдите пересечение (<code>&amp;</code>) или проверьте наличие хотя бы одного спам-слова с помощью цикла <code>for</code>.',
       start: 'bad_words = {"скам", "бесплатно", "выигрыш"}\n\n# 1) Запросите предложение: input()\n\n# 2) Разбейте на слова .split() и превратите в множество\n\n# 3) Найдите пересечение & (или проверьте слова циклом for)\n\n# 4) Выведите результат: есть спам или нет\n',
-      checks: ['Получил(а) предложение через input()', 'Разделил(а) на слова через .split() и сделал(а) множество', 'Нашёл(нашла) спам-слова через & или циклом for', 'Вывел(а) понятный результат: есть спам или нет'],
-      sol: "bad_words = {\"скам\", \"бесплатно\", \"выигрыш\"}\ntext = input(\"Введите предложение: \")\nwords = set(text.lower().split())\n# Слово со знаком препинания («бесплатно!») не совпадёт - это можно обсудить с сильными учениками.\n\n# Способ 1: пересечение множеств\nfound = words & bad_words\nif found:\n    print(\"Спам! Найдены слова:\", found)\nelse:\n    print(\"Спама нет\")\n\n# Способ 2: цикл for\nspam = False\nfor w in words:\n    if w in bad_words:\n        spam = True\nprint(\"Есть спам-слово:\", spam)" }
+      checks: ['Получил(а) предложение через input()', 'Разделил(а) на слова через .split() и сделал(а) множество', 'Нашёл(нашла) спам-слова через & или циклом for', 'Вывел(а) понятный результат: есть спам или нет'] }
   ];
   var cur = null, codes = {}, done = {};
   var $ = function (id) { return document.getElementById(id); };
@@ -2023,8 +2012,6 @@ makeTeams(); drawTeams(false); showT();
     $('lvlTask').innerHTML = L.task;
     $('foCode').value = codes[k] !== undefined ? codes[k] : L.start;
     $('foOut').textContent = '';
-    $('foSolBox').className = 'sol'; $('foSol').textContent = '👁 Пример решения';
-    $('foSolCode').textContent = L.sol;
     done[k] = done[k] || {};
     drawChecks();
     SFX.whoosh();
@@ -2049,11 +2036,6 @@ makeTeams(); drawTeams(false); showT();
   }
   $('foRun').onclick = function () { runIn($('foCode').value, $('foOut'), $('foRun')); };
   $('foReset').onclick = function () { if (confirm('Вернуть заготовку? Ваш код на этом уровне будет стёрт.')) { $('foCode').value = LEVELS[cur].start; codes[cur] = LEVELS[cur].start; } };
-  $('foSol').onclick = function () {
-    var box = $('foSolBox'), open = box.classList.toggle('show');
-    this.textContent = open ? '🙈 Скрыть решение' : '👁 Пример решения';
-  };
-  $('foSolCopy').onclick = function () { $('foCode').value = LEVELS[cur].sol; codes[cur] = LEVELS[cur].sol; SFX.ok(); };
   $('foCode').addEventListener('keydown', function (e) {
     if (e.key === 'Tab' && !e.shiftKey) {
       e.preventDefault(); var t = e.target, a = t.selectionStart;
