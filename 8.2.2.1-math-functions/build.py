@@ -5,6 +5,8 @@
   practical_work_teacher_key.xlsx – ключ для учителя (все формулы заполнены).
 Запуск: python3 build.py
 """
+import math
+
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Protection, Side
 from openpyxl.formatting.rule import CellIsRule, FormulaRule
@@ -436,37 +438,64 @@ def sheet_sumif(wb, teacher):
 
 
 # ---------------------------------------------------------------- Итог
+MAX_FO = 10  # максимальный балл ФО
+
+
 def sheet_result(wb, teacher):
     ws = wb.create_sheet("Итог")
-    widths(ws, {"A": 3, "B": 34, "C": 30})
+    widths(ws, {"A": 3, "B": 36, "C": 40, "D": 3, "E": 14, "F": 22})
     ws["B1"] = "Мой результат"
     ws["B1"].font = TITLE
     total = len(CHECK_CELLS)
     parts = "+".join(f"COUNTIF('{s}'!{c},\"✔\")" for s, c in CHECK_CELLS)
     put(ws, "B3", "Фамилия, имя", DATA, bold=True)
     put(ws, "C3", "=IF(Инструкция!C4=\"\",\"(заполните на листе Инструкция)\",Инструкция!C4)")
-    put(ws, "B4", "Верных ответов", DATA, bold=True)
-    put(ws, "C4", f"={parts}", align=CENTER).font = Font(bold=True, size=14)
-    put(ws, "B5", "Всего заданий", DATA, bold=True)
-    put(ws, "C5", total, align=CENTER)
-    put(ws, "B6", "Процент выполнения", DATA, bold=True)
-    put(ws, "C6", "=C4/C5", fmt="0%", align=CENTER).font = Font(bold=True, size=14)
-    put(ws, "B7", "Прогресс", DATA, bold=True)
-    c = put(ws, "C7", '=REPT("█",ROUND(C6*20,0))&REPT("░",20-ROUND(C6*20,0))')
+
+    # --- крупно: выполнено заданий
+    c = put(ws, "B5", "ВЫПОЛНЕНО ЗАДАНИЙ", HEAD, align=CENTER)
+    c.font = Font(bold=True, size=18, color="FFFFFF")
+    c = put(ws, "C5", f"={parts}", DATA, fmt=f'0" из {total}"', align=CENTER)
+    c.font = Font(bold=True, size=40, color="1F4E78")
+    ws.row_dimensions[5].height = 66
+
+    # --- крупно: балл ФО
+    c = put(ws, "B7", f"БАЛЛ ФО (макс. {MAX_FO})", HEAD, align=CENTER)
+    c.font = Font(bold=True, size=18, color="FFFFFF")
+    c = put(ws, "C7", f"=ROUND(C5/{total}*{MAX_FO},0)", fmt=f'0" из {MAX_FO}"', align=CENTER)
+    c.font = Font(bold=True, size=48)
+    ws.row_dimensions[7].height = 80
+    ws.conditional_formatting.add("C7", CellIsRule(operator="greaterThanOrEqual", formula=["8"], fill=GREEN))
+    ws.conditional_formatting.add("C7", CellIsRule(operator="between", formula=["5", "7"], fill=ORANGE))
+    ws.conditional_formatting.add("C7", CellIsRule(operator="lessThan", formula=["5"], fill=RED))
+    ws.merge_cells("B8:C8")
+    c = put(ws, "B8", f"Балл = выполнено заданий ÷ {total} × {MAX_FO}, округление до целого")
+    c.font = Font(italic=True, color="404040")
+
+    put(ws, "B10", "Процент выполнения", DATA, bold=True)
+    put(ws, "C10", f"=C5/{total}", fmt="0%", align=CENTER).font = Font(bold=True, size=14)
+    put(ws, "B11", "Прогресс", DATA, bold=True)
+    c = put(ws, "C11", '=REPT("█",ROUND(C10*20,0))&REPT("░",20-ROUND(C10*20,0))')
     c.font = Font(color="2E7D32", size=12)
-    put(ws, "B8", "Уровень", DATA, bold=True)
-    put(ws, "C8", '=IF(C6>=0.85,"Высокий 🏆",IF(C6>=0.6,"Достаточный 👍",IF(C6>=0.3,"Средний – доработайте ✘",'
-                  '"Начальный – обратитесь к учителю")))', align=CENTER).font = Font(bold=True, size=12)
-    put(ws, "B9", "Открыто подсказок", DATA, bold=True)
+    put(ws, "B12", "Открыто подсказок", DATA, bold=True)
     opened = "+".join(f"IF(OR(LEFT('{s}'!{c},1)=\"🔒\",LEFT('{s}'!{c},1)=\"✘\"),0,1)" for s, c in HINT_CELLS)
-    put(ws, "C9", f'=({opened})&" из {len(HINT_CELLS)}"', align=CENTER)
-    ws["B10"] = "Ошибки (✘) по листам:"
-    ws["B10"].font = Font(bold=True)
-    for k, sheet in enumerate(SHEETS, start=11):
+    put(ws, "C12", f'=({opened})&" из {len(HINT_CELLS)}"', align=CENTER)
+    ws["B14"] = "Ошибки по листам:"
+    ws["B14"].font = Font(bold=True)
+    for k, sheet in enumerate(SHEETS, start=15):
         cells = [c for s, c in CHECK_CELLS if s == sheet]
         f = "+".join(f"COUNTIF('{sheet}'!{c},\"✘\")+COUNTIF('{sheet}'!{c},\"⚠*\")" for c in cells)
         put(ws, f"B{k}", sheet, DATA)
         put(ws, f"C{k}", f"={f}", align=CENTER)
+
+    # --- таблица перевода: задания → балл ФО
+    header(ws, 9, ["Балл ФО", "Выполнено заданий"], col0=5)
+    for i, score in enumerate(range(MAX_FO, -1, -1)):
+        lo = max(0, math.ceil((score - 0.5) * total / MAX_FO - 1e-9))
+        hi = total if score == MAX_FO else math.ceil((score + 0.5) * total / MAX_FO - 1e-9) - 1
+        r = 10 + i
+        put(ws, f"E{r}", score, DATA, align=CENTER).font = Font(bold=True)
+        put(ws, f"F{r}", f"{lo}–{hi}" if lo != hi else f"{lo}", align=CENTER)
+        ws.conditional_formatting.add(f"E{r}:F{r}", FormulaRule(formula=[f"$C$7={score}"], fill=YELLOW))
     protect(ws, teacher)
 
 
