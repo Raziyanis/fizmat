@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<title>Ақиқат кестелері</title>
+<style>
+  @page { size: A4; margin: 12mm 13mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; color: #111; margin: 0; line-height: 1.35; }
+  h1 { font-size: 15pt; margin: 0 0 2px; text-align: center; }
+  .sub { text-align: center; font-size: 9.5pt; margin-bottom: 6px; }
+  .info { display: flex; gap: 10px; border: 1.5px solid #000; padding: 6px 8px; margin-bottom: 8px; font-size: 10pt; }
+  .info div { flex: 1; }
+  .line { display: inline-block; border-bottom: 1px solid #000; min-width: 120px; }
+  .box { border: 1.5px dashed #444; border-radius: 6px; padding: 6px 9px; margin-bottom: 8px; background: #f3f3f3; font-size: 9.8pt; }
+  .box b.t { display: block; margin-bottom: 3px; }
+  .task { margin-bottom: 9px; page-break-inside: avoid; }
+  .th { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #000; margin-bottom: 4px; }
+  .th h2 { font-size: 11.5pt; margin: 0; }
+  .th span { font-size: 9pt; white-space: nowrap; }
+  p { margin: 3px 0; }
+  table.tt { border-collapse: collapse; margin: 4px 0; }
+  table.tt th, table.tt td { border: 1.3px solid #000; text-align: center; min-width: 34px; height: 22px; padding: 1px 6px; font-size: 10.5pt; }
+  table.tt th { background: #e2e2e2; }
+  table.tt td.v { background: #f7f7f7; font-weight: bold; }
+  table.tt th.f, table.tt td.f { border-left: 3px solid #000; }
+  .row { display: flex; gap: 18px; align-items: flex-start; }
+  .ans { border-bottom: 1px solid #000; display: inline-block; min-width: 60px; }
+  .wl { border-bottom: 1px solid #000; height: 20px; }
+  table.grid { border-collapse: collapse; width: 100%; font-size: 10pt; }
+  table.grid th, table.grid td { border: 1.2px solid #000; padding: 3px 5px; }
+  table.grid th { background: #e2e2e2; }
+  .err { color: #111; }
+  .pb { page-break-before: always; }
+  .small { font-size: 9pt; }
+  .star { border: 2px solid #000; border-radius: 6px; padding: 5px 8px; }
+  .key td { height: 18px; }
+  .k { color: #b00000; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Ақиқат кестелерін құру</h1>
+<div class="sub">Информатика, 9-сынып · Оқу мақсаты: 9.2.4.2 берілген логикалық өрнек үшін ақиқат кестелерін құру · Уақыты: 40 минут</div>
+
+<div class="info">
+  <div>Аты-жөні: <span class="line" style="min-width:150px">&nbsp;</span></div>
+  <div style="flex:.5">Сынып: <span class="line" style="min-width:50px">&nbsp;</span></div>
+  <div style="flex:.6">Күні: <span class="line" style="min-width:70px">&nbsp;</span></div>
+  <div style="flex:.6">Ұпай: <span class="line" style="min-width:30px">&nbsp;</span> / 20</div>
+</div>
+
+<div class="box">
+  <b class="t">📌 Есте сақта</b>
+  <b>1 – ақиқат, 0 – жалған.</b> &nbsp; ¬ – ЕМЕС (терістеу) &nbsp;·&nbsp; ∧ – ЖӘНЕ (конъюнкция) &nbsp;·&nbsp; ∨ – НЕМЕСЕ (дизъюнкция)<br>
+  <b>Орындалу реті:</b> ( ) жақша → ¬ ЕМЕС → ∧ ЖӘНЕ → ∨ НЕМЕСЕ<br>
+  <b>Жолдар саны</b> = 2<sup>n</sup>, мұндағы n – айнымалылар саны. &nbsp; <b>Бағандар саны</b> = айнымалылар саны + амалдар саны.<br>
+  Айнымалылардың мәндерін <b>екілік санау</b> ретімен жаз: 00, 01, 10, 11 (2 айнымалы) немесе 000, 001, … , 111 (3 айнымалы).
+</div>
+
+<!-- TASK 1 -->
+<div class="task">
+  <div class="th"><h2>1-тапсырма. Негізгі амалдар «жылуы»</h2><span>⏱ 4 мин · 3 ұпай</span></div>
+  <p>Негізгі логикалық амалдардың ақиқат кестесін толтыр.</p>
+  <div class="row">
+    <table class="tt">
+      <tr><th>A</th><th>B</th><th class="f">¬A</th><th>A ∧ B</th><th>A ∨ B</th></tr>
+      <tr><td class="v">0</td><td class="v">0</td><td class="f"></td><td></td><td></td></tr>
+      <tr><td class="v">0</td><td class="v">1</td><td class="f"></td><td></td><td></td></tr>
+      <tr><td class="v">1</td><td class="v">0</td><td class="f"></td><td></td><td></td></tr>
+      <tr><td class="v">1</td><td class="v">1</td><td class="f"></td><td></td><td></td></tr>
+    </table>
+    <div style="flex:1">
+      <p>Сөйлемді аяқта:</p>
+      <p>• A ∧ B = 1 болады, тек қана <span class="ans" style="min-width:210px">&nbsp;</span></p>
+      <p>• A ∨ B = 0 болады, тек қана <span class="ans" style="min-width:210px">&nbsp;</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- TASK 2 -->
+<div class="task">
+  <div class="th"><h2>2-тапсырма. Кестені жоспарла</h2><span>⏱ 5 мин · 3 ұпай</span></div>
+  <p>Әр өрнек үшін айнымалылар санын, кестедегі жолдар санын анықта. Амалдардың үстіне олардың <b>орындалу ретін</b> (1, 2, 3…) жаз.</p>
+  <table class="grid">
+    <tr><th style="width:44%">Өрнек (амалдардың үстіне ретін жаз)</th><th>Айнымалылар саны</th><th>Жолдар саны</th><th>Ең соңғы орындалатын амал</th></tr>
+    <tr><td style="height:40px; vertical-align:bottom; font-size:12pt">а) &nbsp;A ∧ ¬B</td><td></td><td></td><td></td></tr>
+    <tr><td style="height:40px; vertical-align:bottom; font-size:12pt">ә) &nbsp;¬A ∨ B ∧ C</td><td></td><td></td><td></td></tr>
+    <tr><td style="height:40px; vertical-align:bottom; font-size:12pt">б) &nbsp;(A ∨ B) ∧ ¬(C ∧ D)</td><td></td><td></td><td></td></tr>
+  </table>
+</div>
+
+<!-- TASK 3 -->
+<div class="task">
+  <div class="th"><h2>3-тапсырма. Қадамдап құр</h2><span>⏱ 7 мин · 4 ұпай</span></div>
+  <p><b>F = A ∧ ¬B ∨ ¬A</b> өрнегінің ақиқат кестесін аралық бағандар арқылы толтыр.</p>
+  <div class="row">
+    <table class="tt">
+      <tr><th>A</th><th>B</th><th class="f">¬A</th><th>¬B</th><th>A ∧ ¬B</th><th class="f">F</th></tr>
+      <tr><td class="v">0</td><td class="v">0</td><td class="f"></td><td></td><td></td><td class="f"></td></tr>
+      <tr><td class="v">0</td><td class="v">1</td><td class="f"></td><td></td><td></td><td class="f"></td></tr>
+      <tr><td class="v">1</td><td class="v">0</td><td class="f"></td><td></td><td></td><td class="f"></td></tr>
+      <tr><td class="v">1</td><td class="v">1</td><td class="f"></td><td></td><td></td><td class="f"></td></tr>
+    </table>
+    <div style="flex:1">
+      <p>🧠 <b>Ойлан:</b> F бағанын 1-тапсырмадағы бағандармен салыстыр. F қай қарапайым өрнекке қарама-қарсы (оның терістеуі) болып шықты?</p>
+      <p>F = ¬( <span class="ans" style="min-width:90px">&nbsp;</span> )</p>
+    </div>
+  </div>
+</div>
+
+<!-- TASK 4 -->
+<div class="task">
+  <div class="th"><h2>4-тапсырма. Үш айнымалы</h2><span>⏱ 10 мин · 5 ұпай</span></div>
+  <p><b>F = (A ∨ B) ∧ ¬C</b> өрнегінің ақиқат кестесін <b>толығымен өзің</b> құр: A, B, C бағандарын екілік санау ретімен толтыр, бос тақырыптарға аралық амалдарды жаз.</p>
+  <div class="row">
+    <table class="tt key">
+      <tr><th>A</th><th>B</th><th>C</th><th class="f" style="min-width:62px">&nbsp;</th><th style="min-width:62px">&nbsp;</th><th class="f">F</th></tr>
+      <tr><td></td><td></td><td></td><td class="f"></td><td></td><td class="f"></td></tr>
+      <tr><td></td><td></td><td></td><td class="f"></td><td></td><td class="f"></td></tr>
+      <tr><td></td><td></td><td></td><td class="f"></td><td></td><td class="f"></td></tr>
+      <tr><td></td><td></td><td></td><td class="f"></td><td></td><td class="f"></td></tr>
+      <tr><td></td><td></td><td></td><td class="f"></td><td></td><td class="f"></td></tr>
+      <tr><td></td><td></td><td></td><td class="f"></td><td></td><td class="f"></td></tr>
+      <tr><td></td><td></td><td></td><td class="f"></td><td></td><td class="f"></td></tr>
+      <tr><td></td><td></td><td></td><td class="f"></td><td></td><td class="f"></td></tr>
+    </table>
+    <div style="flex:1">
+      <p>1) Неше жолда F = 1? <span class="ans">&nbsp;</span></p>
+      <p>2) C = 1 болған жолдарда F әрқашан неге тең? <span class="ans">&nbsp;</span> &nbsp;Неліктен?</p>
+      <div class="wl"></div><div class="wl"></div>
+      <p style="margin-top:6px">3) 💡 Өмірден мысал: A – «күн ашық», B – «демалыс күні», C – «үй тапсырмасы көп». F = 1 болса, оқушы <b>серуенге шығады</b>. Ол қандай жағдайда серуенге шығады? Өз сөзіңмен жаз:</p>
+      <div class="wl"></div><div class="wl"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TASK 5 -->
+<div class="task">
+  <div class="th"><h2>5-тапсырма. Логикалық детектив 🔍</h2><span>⏱ 5 мин · 2 ұпай</span></div>
+  <p>Оқушы <b>F = ¬(A ∨ B) ∨ A</b> өрнегінің кестесін құрды, бірақ <b>2 қате</b> жіберді. Қателерді дөңгелектеп, дұрысын жанына жаз.</p>
+  <div class="row">
+    <table class="tt">
+      <tr><th>A</th><th>B</th><th class="f">A ∨ B</th><th>¬(A ∨ B)</th><th class="f">F</th></tr>
+      <tr><td class="v">0</td><td class="v">0</td><td class="f">0</td><td>1</td><td class="f">1</td></tr>
+      <tr><td class="v">0</td><td class="v">1</td><td class="f">1</td><td>0</td><td class="f">1</td></tr>
+      <tr><td class="v">1</td><td class="v">0</td><td class="f">1</td><td>1</td><td class="f">1</td></tr>
+      <tr><td class="v">1</td><td class="v">1</td><td class="f">1</td><td>0</td><td class="f">1</td></tr>
+    </table>
+    <div style="flex:1">
+      <p>Оқушыға кеңес жаз: ол нені ұмытты?</p>
+      <div class="wl"></div><div class="wl"></div><div class="wl"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TASK 6 -->
+<div class="task">
+  <div class="th"><h2>6-тапсырма. Жаңалық аш: екі өрнек – бір кесте?</h2><span>⏱ 7 мин · 3 ұпай</span></div>
+  <p><b>¬(A ∧ B)</b> және <b>¬A ∨ ¬B</b> өрнектерінің кестесін құрып, соңғы бағандарын салыстыр.</p>
+  <div class="row">
+    <table class="tt">
+      <tr><th>A</th><th>B</th><th class="f">A ∧ B</th><th>¬(A ∧ B)</th><th class="f">¬A</th><th>¬B</th><th>¬A ∨ ¬B</th></tr>
+      <tr><td class="v">0</td><td class="v">0</td><td class="f"></td><td></td><td class="f"></td><td></td><td></td></tr>
+      <tr><td class="v">0</td><td class="v">1</td><td class="f"></td><td></td><td class="f"></td><td></td><td></td></tr>
+      <tr><td class="v">1</td><td class="v">0</td><td class="f"></td><td></td><td class="f"></td><td></td><td></td></tr>
+      <tr><td class="v">1</td><td class="v">1</td><td class="f"></td><td></td><td class="f"></td><td></td><td></td></tr>
+    </table>
+    <div style="flex:1">
+      <p>1) Қорытынды: ¬(A ∧ B) <span class="ans" style="min-width:30px">&nbsp;</span> ¬A ∨ ¬B &nbsp;(= немесе ≠ қой)</p>
+      <p>2) Осыған ұқсас болжам жаса: ¬(A ∨ B) = ¬A <span class="ans" style="min-width:30px">&nbsp;</span> ¬B</p>
+      <p class="small">(Бұл заңды ғалым Огастес де Морган ашқан – сен де оны өз кестеңмен дәлелдедің!)</p>
+    </div>
+  </div>
+</div>
+
+<div class="task star">
+  <div class="th"><h2>⭐ Жұлдызды тапсырма (ерте бітіргендерге, +2 ұпай)</h2><span>⏱ қосымша</span></div>
+  <p><b>F = (A ∧ B) ∨ (¬A ∧ ¬B)</b> өрнегінің кестесін дәптерге құр. F = 1 болатын жолдарда A мен B туралы не байқадың? Бұл өрнекті бір сөзбен қалай атауға болады?</p>
+  <div class="wl"></div>
+</div>
+
+<div class="task">
+  <div class="th"><h2>Рефлексия</h2><span>⏱ 2 мин</span></div>
+  <p>Сәйкес белгіні қой: &nbsp; ☐ Кестені өз бетімше құра аламын &nbsp; ☐ Амалдар ретінде қателесемін &nbsp; ☐ 3 айнымалылы кесте әлі қиын</p>
+  <p>Бүгінгі ең қызық жаңалық: <span class="ans" style="min-width:420px">&nbsp;</span></p>
+</div>
+
+<!-- ANSWER KEY -->
+<div class="pb"></div>
+<h1>Мұғалімге: жауаптар кілті</h1>
+<div class="sub">(Бұл бетті оқушыларға басып шығармаңыз)</div>
+
+<div class="task"><div class="th"><h2>1-тапсырма</h2><span></span></div>
+<table class="tt"><tr><th>A</th><th>B</th><th>¬A</th><th>A∧B</th><th>A∨B</th></tr>
+<tr><td>0</td><td>0</td><td class="k">1</td><td class="k">0</td><td class="k">0</td></tr>
+<tr><td>0</td><td>1</td><td class="k">1</td><td class="k">0</td><td class="k">1</td></tr>
+<tr><td>1</td><td>0</td><td class="k">0</td><td class="k">0</td><td class="k">1</td></tr>
+<tr><td>1</td><td>1</td><td class="k">0</td><td class="k">1</td><td class="k">1</td></tr></table>
+<p>A ∧ B = 1 тек екеуі де 1 болғанда; A ∨ B = 0 тек екеуі де 0 болғанда.</p></div>
+
+<div class="task"><div class="th"><h2>2-тапсырма</h2><span></span></div>
+<p>а) A ∧ ¬B: ¬(1), ∧(2); 2 айнымалы, 4 жол; соңғысы – ∧.<br>
+ә) ¬A ∨ B ∧ C: ¬(1), ∧(2), ∨(3); 3 айнымалы, 8 жол; соңғысы – ∨.<br>
+б) (A ∨ B) ∧ ¬(C ∧ D): ∨(1), ∧ жақша ішінде(2), ¬(3), ортадағы ∧(4); 4 айнымалы, 16 жол; соңғысы – ортадағы ∧. (Жақшалардың ретін ауыстыру да қабылданады: C∧D(1), A∨B(2), ¬(3), ∧(4).)</p></div>
+
+<div class="task"><div class="th"><h2>3-тапсырма</h2><span></span></div>
+<div class="row"><table class="tt"><tr><th>A</th><th>B</th><th>¬A</th><th>¬B</th><th>A∧¬B</th><th>F</th></tr>
+<tr><td>0</td><td>0</td><td class="k">1</td><td class="k">1</td><td class="k">0</td><td class="k">1</td></tr>
+<tr><td>0</td><td>1</td><td class="k">1</td><td class="k">0</td><td class="k">0</td><td class="k">1</td></tr>
+<tr><td>1</td><td>0</td><td class="k">0</td><td class="k">1</td><td class="k">1</td><td class="k">1</td></tr>
+<tr><td>1</td><td>1</td><td class="k">0</td><td class="k">0</td><td class="k">0</td><td class="k">0</td></tr></table>
+<p style="flex:1">F бағаны (1,1,1,0) – A∧B бағанының (0,0,0,1) дәл қарама-қарсысы. Демек <b>F = ¬(A ∧ B)</b>. Бұл 6-тапсырмаға «көпір» болады.</p></div></div>
+
+<div class="task"><div class="th"><h2>4-тапсырма</h2><span></span></div>
+<div class="row"><table class="tt"><tr><th>A</th><th>B</th><th>C</th><th>A∨B</th><th>¬C</th><th>F</th></tr>
+<tr><td>0</td><td>0</td><td>0</td><td class="k">0</td><td class="k">1</td><td class="k">0</td></tr>
+<tr><td>0</td><td>0</td><td>1</td><td class="k">0</td><td class="k">0</td><td class="k">0</td></tr>
+<tr><td>0</td><td>1</td><td>0</td><td class="k">1</td><td class="k">1</td><td class="k">1</td></tr>
+<tr><td>0</td><td>1</td><td>1</td><td class="k">1</td><td class="k">0</td><td class="k">0</td></tr>
+<tr><td>1</td><td>0</td><td>0</td><td class="k">1</td><td class="k">1</td><td class="k">1</td></tr>
+<tr><td>1</td><td>0</td><td>1</td><td class="k">1</td><td class="k">0</td><td class="k">0</td></tr>
+<tr><td>1</td><td>1</td><td>0</td><td class="k">1</td><td class="k">1</td><td class="k">1</td></tr>
+<tr><td>1</td><td>1</td><td>1</td><td class="k">1</td><td class="k">0</td><td class="k">0</td></tr></table>
+<p style="flex:1">1) 3 жолда (010, 100, 110).<br>2) C = 1 болса, ¬C = 0, ал 0 ∧ кез келген мән = 0, сондықтан F = 0.<br>3) Үй тапсырмасы көп <b>болмаса</b> және күн ашық <b>немесе</b> демалыс күні болса (екеуі де болса да) серуенге шығады.<br>Бағалау: A,B,C бағандары – 1 ұпай, аралық бағандар – 2 ұпай, F – 1 ұпай, сұрақтар – 1 ұпай.</p></div></div>
+
+<div class="task"><div class="th"><h2>5-тапсырма</h2><span></span></div>
+<p>Қате 1: 2-жол (A=0, B=1): F = 0 болуы керек (0 ∨ 0 = 0).<br>
+Қате 2: 3-жол (A=1, B=0): ¬(A ∨ B) = 0 болуы керек (¬1 = 0). Бұл жолдағы F = 1 дұрыс, өйткені A = 1.<br>
+Кеңес: терістеу мәнді керісінше өзгертеді; НЕМЕСЕ 0 болу үшін екі операнд та 0 болуы керек.</p></div>
+
+<div class="task"><div class="th"><h2>6-тапсырма</h2><span></span></div>
+<div class="row"><table class="tt"><tr><th>A</th><th>B</th><th>A∧B</th><th>¬(A∧B)</th><th>¬A</th><th>¬B</th><th>¬A∨¬B</th></tr>
+<tr><td>0</td><td>0</td><td class="k">0</td><td class="k">1</td><td class="k">1</td><td class="k">1</td><td class="k">1</td></tr>
+<tr><td>0</td><td>1</td><td class="k">0</td><td class="k">1</td><td class="k">1</td><td class="k">0</td><td class="k">1</td></tr>
+<tr><td>1</td><td>0</td><td class="k">0</td><td class="k">1</td><td class="k">0</td><td class="k">1</td><td class="k">1</td></tr>
+<tr><td>1</td><td>1</td><td class="k">1</td><td class="k">0</td><td class="k">0</td><td class="k">0</td><td class="k">0</td></tr></table>
+<p style="flex:1">1) ¬(A ∧ B) <b>=</b> ¬A ∨ ¬B (де Морган заңы).<br>2) ¬(A ∨ B) = ¬A <b>∧</b> ¬B.<br>Байланыс: 3-тапсырмадағы F те дәл осындай баған берді.</p></div></div>
+
+<div class="task"><div class="th"><h2>⭐ Жұлдызды тапсырма</h2><span></span></div>
+<p>F: 00→1, 01→0, 10→0, 11→1. F = 1 тек A мен B мәндері <b>бірдей</b> болғанда. Атауы: «тең мәнділік» (эквиваленттік, A ≡ B).</p></div>
+
+<div class="task">
+  <div class="th"><h2>Бағалау критерийлері</h2><span></span></div>
+  <table class="grid small">
+    <tr><th>Тапсырма</th><th>Дескриптор. Білім алушы:</th><th>Ұпай</th></tr>
+    <tr><td>1</td><td>¬, ∧, ∨ амалдарының ақиқат кестесін дұрыс толтырады; ∧ және ∨ ережесін тұжырымдайды</td><td>3</td></tr>
+    <tr><td>2</td><td>айнымалылар мен жолдар санын анықтайды; амалдардың орындалу ретін белгілейді</td><td>3</td></tr>
+    <tr><td>3</td><td>аралық бағандарды қолданып 2 айнымалылы өрнектің кестесін құрады; нәтижені талдайды</td><td>4</td></tr>
+    <tr><td>4</td><td>3 айнымалылы өрнектің кестесін толық құрады; кесте бойынша қорытынды жасайды</td><td>5</td></tr>
+    <tr><td>5</td><td>дайын кестедегі қателерді тауып, түзетеді</td><td>2</td></tr>
+    <tr><td>6</td><td>екі өрнектің кестесін құрып, олардың тең мәнділігін дәлелдейді</td><td>3</td></tr>
+    <tr><td colspan="2" style="text-align:right"><b>Барлығы</b></td><td><b>20</b></td></tr>
+  </table>
+</div>
+
+<div class="task"><div class="th"><h2>Сабақ уақытының бөлінуі (40 мин)</h2><span></span></div>
+<p class="small">1-тапс. 4 мин → 2-тапс. 5 мин → 3-тапс. 7 мин → 4-тапс. 10 мин → 5-тапс. 5 мин → 6-тапс. 7 мин → рефлексия 2 мин. 3-тапсырмадағы «Ойлан» сұрағы мен 6-тапсырманы байланыстырып талқылау ұсынылады: оқушылар екі түрлі жолмен бір нәтижеге жеткенін өздері байқайды.</p></div>
+
+</body>
+</html>
