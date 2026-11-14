@@ -357,6 +357,11 @@ body.teacher #matchA{display:block!important}
 .res-empty{font-size:.8rem;color:var(--muted)}
 .howto.res-warn{color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 10px;font-weight:500}
 .grp-list{grid-template-columns:1fr}
+nav a.st-done{color:var(--hit);background:var(--ok-soft)}
+nav a.st-miss{color:var(--bad);background:var(--bad-soft)}
+nav a.st-done[aria-current=page],nav a.st-miss[aria-current=page]{background:var(--ink);color:var(--bg)}
+nav a.st-done[aria-current=page]{box-shadow:inset 0 -3px 0 var(--hit)}
+nav a.st-miss[aria-current=page]{box-shadow:inset 0 -3px 0 var(--bad)}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -1221,11 +1226,13 @@ try{if(location.hash==='#uchenik')sessionStorage.setItem('setlab2:preview','1');
 var previewStudent=false;try{previewStudent=sessionStorage.getItem('setlab2:preview')==='1';}catch(e){}
 let teacherMode=(window.__NO_TEACHER||previewStudent)?false:(window.__FORCE_TEACHER===true||store.get('teacher',false));
 if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){location.hash='povtorenie';}}
-function isUnlocked(idx){if(teacherMode)return true;for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return false;}return true;}
+function isUnlocked(idx){return true;}
+var visitedTabs=store.get('visited',{});
 function gateOf(idx){for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return k;}return -1;}
 function toast(msg){let t=$('#lockToast');if(!t){t=document.createElement('div');t.id='lockToast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
   t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),4000);}
 function updateLocks(){
+  navLinks.forEach(a=>{const id=(a.getAttribute('href')||'').slice(1);a.classList.remove('st-done','st-miss');if(teacherMode||!CONF_Q[id])return;if(confState[id])a.classList.add('st-done');else if(visitedTabs[id])a.classList.add('st-miss');});
   navLinks.forEach(a=>{const idx=panels.findIndex(p=>'#'+p.id===a.getAttribute('href'));const lk=!isUnlocked(idx);a.classList.toggle('locked',lk);if(lk)a.setAttribute('aria-disabled','true');else a.removeAttribute('aria-disabled');});
   panels.forEach((p,i)=>{const n=p._next;if(!n)return;const lk=!isUnlocked(i+1);n.classList.toggle('disabled',lk);
     n.querySelector('span').textContent=lk?'Отметьте самооценку выше, чтобы продолжить':'Далее →';});
@@ -1236,7 +1243,7 @@ function showTab(){if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherM
   if(!isUnlocked(idx)){const g=gateOf(idx);toast(`Вкладка «${titleOf(id)}» пока закрыта. Сначала отметьте самооценку на вкладке «${titleOf(panels[g].id)}».`);
     id=panels[g].id;idx=g;try{history.replaceState(null,'','#'+id);}catch(e){}
     setTimeout(()=>{const c=panels[g].querySelector('.conf');if(c){c.scrollIntoView({block:'center'});c.classList.add('pulse');setTimeout(()=>c.classList.remove('pulse'),1600);}},50);}
-  panels.forEach(p=>p.hidden=p.id!==id);updateLocks();
+  panels.forEach(p=>p.hidden=p.id!==id);if(!teacherMode&&!visitedTabs[id]){visitedTabs[id]=1;store.set('visited',visitedTabs);}updateLocks();
   navLinks.forEach(a=>{const on=a.getAttribute('href')==='#'+id;if(on){a.setAttribute('aria-current','page');a.scrollIntoView({block:'nearest',inline:'nearest'});}else a.removeAttribute('aria-current');});
   window.scrollTo(0,0);}
 window.addEventListener('hashchange',showTab);showTab();
@@ -2003,6 +2010,11 @@ body.teacher #matchA{display:block!important}
 .res-empty{font-size:.8rem;color:var(--muted)}
 .howto.res-warn{color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 10px;font-weight:500}
 .grp-list{grid-template-columns:1fr}
+nav a.st-done{color:var(--hit);background:var(--ok-soft)}
+nav a.st-miss{color:var(--bad);background:var(--bad-soft)}
+nav a.st-done[aria-current=page],nav a.st-miss[aria-current=page]{background:var(--ink);color:var(--bg)}
+nav a.st-done[aria-current=page]{box-shadow:inset 0 -3px 0 var(--hit)}
+nav a.st-miss[aria-current=page]{box-shadow:inset 0 -3px 0 var(--bad)}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -2867,11 +2879,13 @@ try{if(location.hash==='#uchenik')sessionStorage.setItem('setlab2:preview','1');
 var previewStudent=false;try{previewStudent=sessionStorage.getItem('setlab2:preview')==='1';}catch(e){}
 let teacherMode=(window.__NO_TEACHER||previewStudent)?false:(window.__FORCE_TEACHER===true||store.get('teacher',false));
 if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){location.hash='povtorenie';}}
-function isUnlocked(idx){if(teacherMode)return true;for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return false;}return true;}
+function isUnlocked(idx){return true;}
+var visitedTabs=store.get('visited',{});
 function gateOf(idx){for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return k;}return -1;}
 function toast(msg){let t=$('#lockToast');if(!t){t=document.createElement('div');t.id='lockToast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
   t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),4000);}
 function updateLocks(){
+  navLinks.forEach(a=>{const id=(a.getAttribute('href')||'').slice(1);a.classList.remove('st-done','st-miss');if(teacherMode||!CONF_Q[id])return;if(confState[id])a.classList.add('st-done');else if(visitedTabs[id])a.classList.add('st-miss');});
   navLinks.forEach(a=>{const idx=panels.findIndex(p=>'#'+p.id===a.getAttribute('href'));const lk=!isUnlocked(idx);a.classList.toggle('locked',lk);if(lk)a.setAttribute('aria-disabled','true');else a.removeAttribute('aria-disabled');});
   panels.forEach((p,i)=>{const n=p._next;if(!n)return;const lk=!isUnlocked(i+1);n.classList.toggle('disabled',lk);
     n.querySelector('span').textContent=lk?'Жалғастыру үшін жоғарыда өзін-өзі бағалауды белгілеңіз':'Әрі қарай →';});
@@ -2882,7 +2896,7 @@ function showTab(){if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherM
   if(!isUnlocked(idx)){const g=gateOf(idx);toast(`«${titleOf(id)}» қойындысы әзірге жабық. Алдымен «${titleOf(panels[g].id)}» қойындысында өзін-өзі бағалауды белгілеңіз.`);
     id=panels[g].id;idx=g;try{history.replaceState(null,'','#'+id);}catch(e){}
     setTimeout(()=>{const c=panels[g].querySelector('.conf');if(c){c.scrollIntoView({block:'center'});c.classList.add('pulse');setTimeout(()=>c.classList.remove('pulse'),1600);}},50);}
-  panels.forEach(p=>p.hidden=p.id!==id);updateLocks();
+  panels.forEach(p=>p.hidden=p.id!==id);if(!teacherMode&&!visitedTabs[id]){visitedTabs[id]=1;store.set('visited',visitedTabs);}updateLocks();
   navLinks.forEach(a=>{const on=a.getAttribute('href')==='#'+id;if(on){a.setAttribute('aria-current','page');a.scrollIntoView({block:'nearest',inline:'nearest'});}else a.removeAttribute('aria-current');});
   window.scrollTo(0,0);}
 window.addEventListener('hashchange',showTab);showTab();
