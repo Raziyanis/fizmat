@@ -332,6 +332,8 @@ body.teacher #matchA{display:block!important}
 .exit-card h2{font-size:1.2rem}
 .exit-card p{color:var(--muted)}
 .exit-row{display:flex;flex-wrap:wrap;gap:8px}
+.pr-present.att{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.pr-present.att[open]{border-color:var(--b)}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -489,6 +491,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
     <div class="sec-head"><h2>Қайталау: тізім және кортеж</h2><p>Өткен сабақтарды еске түсірейік: тізім мен кортеж әдістері және олардың қалай жұмыс істейтіні. Уақыты — шамамен 3 минут.</p></div>
     <div class="picker" id="picker">
       <div class="pk-top"><span class="pk-title">Кім жауап береді?</span><span class="pk-live" id="pkLive" hidden>оқушыларға көрінеді</span><div class="pk-classes" role="group" aria-label="Сынып"><button class="pk-cls" type="button" data-c="8A" aria-pressed="false">8A</button><button class="pk-cls" type="button" data-c="8B" aria-pressed="false">8B</button><button class="pk-cls" type="button" data-c="8D" aria-pressed="false">8D</button><button class="pk-cls" type="button" data-c="8E" aria-pressed="false">8E</button><button class="pk-cls" type="button" data-c="8F" aria-pressed="false">8F</button></div></div>
+      <details class="pr-present att" id="attWrap" hidden><summary>Сабақта кім жоқ? <span id="attCount"></span></summary><p class="howto" style="margin:8px 0 6px">Жоқ оқушылардың белгісін алып тастаңыз. Олар оқушылардағы тізімдерден, «Кім жауап береді?» және жұптардан жойылады.</p><div class="pr-names" id="attList"></div></details>
       <div class="pk-main">
         <div class="pk-name" id="pkName" aria-live="polite">Алдымен сыныпты таңдаңыз</div>
         <div class="pk-ctrl">
@@ -513,7 +516,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
     <p class="howto">Сол жақтағы әдісті немесе кодты, содан кейін оң жақтағы сәйкес әрекетті немесе нәтижені басыңыз. Жұпты алып тастау үшін сол жақтағы элементті қайта басыңыз.</p>
     <div class="pairs t-only" id="pairsT">
       <div class="pk-top"><span class="pk-title">Сәйкестендіруге арналған жұптар</span><span class="pr-cls" id="prCls"></span></div>
-      <details class="pr-present"><summary>Жоқ оқушыларды белгілеңіз (белгіні алып тастаңыз)</summary><div class="pr-names" id="prPresent"></div></details>
+      <p class="howto">Жоқ оқушылар жоғарыдағы «Сабақта кім жоқ?» белгісінен алынады.</p>
       <div class="pk-ctrl"><button class="btn" type="button" id="prMake">Жұптарға бөлу</button><span class="pr-code" id="prCode" hidden></span></div>
       <ol class="pr-list" id="prList"></ol>
       <p class="howto" id="prHint">Алдымен жоғарыдағы «Кім жауап береді?» блогында сыныпты таңдаңыз.</p>
@@ -785,6 +788,10 @@ s.discard(2)</pre></div>
 (function(){
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+var absentMap=null,liveAbsent={};
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function absentOf(cls,src){const a=(src||{})[cls];return a&&a.d===todayStr()&&Array.isArray(a.names)?a.names:[];}
+function presentOf(cls){const ab=(typeof teacherMode!=='undefined'&&teacherMode)?absentOf(cls,absentMap||{}):absentOf(cls,liveAbsent);return (CLASSES[cls]||[]).filter(n=>!ab.includes(n));}
 const CUR_LANG='kz';
 const store={get(k,d){try{const v=localStorage.getItem('setlab2:'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('setlab2:'+k,JSON.stringify(v))}catch(e){}}};
 
@@ -1337,14 +1344,14 @@ const CLASSES={"8A": ["Әбілхан Жасәмір", "Бағланұлы Да�
 let pkClass=store.get('pkClass',null);const pkUsed=store.get('pkUsed',{});
 function pkDraw(){document.querySelectorAll('.pk-cls').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===pkClass));
   if(!pkClass){$('#pkLeft').textContent='';return;}
-  const all=CLASSES[pkClass],used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
+  const all=presentOf(pkClass),used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
   $('#pkLeft').textContent=`${pkClass}: әлі жауап бермегендер ${all.length-used.length}/${all.length}`;}
 document.querySelectorAll('.pk-cls').forEach(b=>b.addEventListener('click',()=>{pkClass=b.dataset.c;store.set('pkClass',pkClass);$('#pkName').textContent='«Оқушыны таңдау» батырмасын басыңыз';$('#pkName').classList.remove('picked');pkDraw();}));
 let pkBusy=false;
 let pkQ=null;
 function pickStudent(target){pkQ=target?[...document.querySelectorAll('.qcards.tf .pk-chip')].indexOf(target)+1:null;
   if(!pkClass){toast('Алдымен «Кім жауап береді?» блогында сыныпты таңдаңыз');$('#picker').scrollIntoView({block:'center'});return;}
-  if(pkBusy)return;const all=CLASSES[pkClass];let used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
+  if(pkBusy)return;const all=presentOf(pkClass);if(!all.length){toast('Сыныпта ешкім қатысып отыр деп белгіленбеген.');return;}let used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
   let pool=$('#pkNoRep').checked?all.filter(n=>!used.includes(n)):all.slice();
   if(!pool.length){used=[];pool=all.slice();toast('Сыныптың барлық оқушысы жауап берді. Жаңа айналымды бастаймыз.');}
   const name=pool[Math.floor(Math.random()*pool.length)];
@@ -1368,7 +1375,7 @@ function stDrawClasses(){const isOther=stPick.cls&&!CLASSES[stPick.cls];
   $('#stClasses').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stPick={cls:b.dataset.c,name:null,manual:b.dataset.c==='__other'};stManualOpen=stPick.manual;stDrawClasses();stDrawNames();}));}
 let stManualOpen=false;
 function stDrawNames(){const st=$('#stNamesStep');st.hidden=!stPick.cls;$('#stGoRow').hidden=!stPick.name;
-  if(!stPick.cls)return;const list=CLASSES[stPick.cls]||[];
+  if(!stPick.cls)return;const list=CLASSES[stPick.cls]?presentOf(stPick.cls):[];
   $('#stMissing').hidden=!list.length||stManualOpen;$('#stManual').hidden=!stManualOpen;$('#stManClsWrap').hidden=!!CLASSES[stPick.cls];
   $('#stNames').innerHTML=list.map(n=>`<button type="button" class="st-name" aria-pressed="${n===stPick.name}">${esc(n)}</button>`).join('');
   $('#stNames').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stPick.name=b.textContent;stPick.manual=false;stManualOpen=false;stDrawNames();$('#stChosen').textContent=`${stPick.name}, ${stPick.cls}`;
@@ -1385,7 +1392,7 @@ $('#stGo').addEventListener('click',()=>{if(!stPick.name)return;
   const changed=student&&(student.name!==stPick.name||student.cls!==stPick.cls);
   if(changed){try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('setlab2:'))ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));}catch(e){}
     store.set('student',{cls:stPick.cls,name:stPick.name,manual:!!stPick.manual});try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}
-  student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();});
+  student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();if(typeof renderNow==='function'){renderNow();renderPairs();}});
 $('#stCancel').addEventListener('click',closeStart);
 $('#stLangCur').addEventListener('click',()=>{store.set('lang',CUR_LANG);stLangOk=true;$('#stLangCur').setAttribute('aria-pressed','true');$('#stClsStep').hidden=false;});
 $('#stMissing').addEventListener('click',()=>{stManualOpen=true;stPick.name=null;stDrawNames();$('#stManName').focus();});
@@ -1412,12 +1419,11 @@ function parseCode(c){const m=String(c).replace(/\s+/g,'').toUpperCase().match(/
 // teacher side
 let prPresentCls=null,prPresentSet=null;
 function prDrawTeacher(){const cls=pkClass;$('#prCls').textContent=cls||'';
-  if(!cls||!CLASSES[cls]){$('#prPresent').innerHTML='';$('#prHint').hidden=false;$('#prMake').disabled=true;return;}
+  if(!cls||!CLASSES[cls]){$('#prHint').hidden=false;$('#prMake').disabled=true;return;}
   $('#prHint').hidden=true;$('#prMake').disabled=false;
-  if(prPresentCls!==cls){prPresentCls=cls;prPresentSet=new Set(CLASSES[cls]);$('#prList').innerHTML='';$('#prCode').hidden=true;}
-  $('#prPresent').innerHTML=CLASSES[cls].map((n,i)=>`<label><input type="checkbox" data-i="${i}" ${prPresentSet.has(n)?'checked':''}> ${esc(n)}</label>`).join('');
-  $('#prPresent').querySelectorAll('input').forEach(cb=>cb.addEventListener('change',()=>{const n=CLASSES[cls][+cb.dataset.i];if(cb.checked)prPresentSet.add(n);else prPresentSet.delete(n);}));}
-$('#prMake').addEventListener('click',()=>{const cls=pkClass;if(!cls||!CLASSES[cls])return;
+  if(prPresentCls!==cls){prPresentCls=cls;$('#prList').innerHTML='';$('#prCode').hidden=true;}
+  prPresentSet=new Set(presentOf(cls));}
+$('#prMake').addEventListener('click',()=>{const cls=pkClass;if(!cls||!CLASSES[cls])return;prPresentSet=new Set(presentOf(cls));
   let mask=0;CLASSES[cls].forEach((n,i)=>{if(prPresentSet.has(n))mask|=(1<<i);});
   if(!mask){toast('Кемінде бір қатысып отырған оқушыны белгілеңіз.');return;}
   const seed=10+Math.floor(Math.random()*90);const code=`${seed}-${mask.toString(16).toUpperCase()}`;
@@ -1430,7 +1436,7 @@ let prState=store.get('pair',null);
 function prShowMine(){const box=$('#prMine'),lock=$('#matchLock'),board=$('#matchA'),pick=$('#prPick'),role=$('#prRole');
   const reset=()=>{lock.hidden=true;board.hidden=false;};
   if(!student||!CLASSES[student.cls]){pick.innerHTML='';role.hidden=true;box.hidden=false;box.className='pr-mine no';box.textContent='Сенің сыныбың тізімде жоқ. Кіммен жұмыс істейтініңді мұғалімнен сұрап, тапсырманы бірге орындаңдар.';reset();return;}
-  const mates=CLASSES[student.cls].filter(n=>n!==student.name);
+  const mates=presentOf(student.cls).filter(n=>n!==student.name);
   pick.innerHTML=mates.map(n=>`<button type="button" class="st-name" aria-pressed="${!!prState&&prState.partner===n}">${esc(n)}</button>`).join('');
   pick.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{prState={partner:btn.textContent,role:null};store.set('pair',prState);prShowMine();}));
   role.hidden=!prState;
@@ -1455,17 +1461,22 @@ document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',(
   const d=await capUse('db');if(!d)return;liveDb=d;
   if(teacherMode){$('#pkLive').hidden=false;return;}
   const fresh=t=>t&&Date.now()-t<3*60*60*1000;
-  d.doc('live/now').onSnapshot(snap=>{const box=$('#liveAns'),v=snap.exists?snap.data():null;
-    if(!v||!student||v.cls!==student.cls||!v.name||!fresh(v.t)){box.hidden=true;return;}
+  d.doc('live/now').onSnapshot(snap=>{lastNow=snap.exists?snap.data():null;renderNow();},()=>{});
+  d.doc('live/absent').onSnapshot(snap=>{const v=snap.exists?snap.data():null;liveAbsent=(v&&v.by)||{};if(!$('#startScreen').hidden)stDrawNames();prShowMine();},()=>{});
+  d.doc('live/pairs').onSnapshot(snap=>{lastPairs=snap.exists?snap.data():null;renderPairs();},()=>{});
+})();
+var lastNow=null,lastPairs=null;
+function liveFresh(t){return t&&Date.now()-t<3*60*60*1000;}
+function renderNow(){const box=$('#liveAns'),v=lastNow;if(!box)return;
+    if(teacherMode||!v||!student||v.cls!==student.cls||!v.name||!liveFresh(v.t)){box.hidden=true;return;}
     const me=v.name===student.name;box.hidden=false;box.className='live-ans s-only'+(me?' me':'');
-    box.innerHTML=me?`<b>Қазір сен жауап бересің!</b>${v.q?` №${v.q} тұжырым.`:''}`:`Қазір жауап беретін: <b>${esc(v.name)}</b>${v.q?` — №${v.q} тұжырым`:''}`;},()=>{});
-  d.doc('live/pairs').onSnapshot(snap=>{const v=snap.exists?snap.data():null;
-    if(!v||!student||v.cls!==student.cls||!fresh(v.t)||!Array.isArray(v.pairs))return;
+    box.innerHTML=me?`<b>Қазір сен жауап бересің!</b>${v.q?` №${v.q} тұжырым.`:''}`:`Қазір жауап беретін: <b>${esc(v.name)}</b>${v.q?` — №${v.q} тұжырым`:''}`;}
+function renderPairs(){const v=lastPairs;
+    if(teacherMode||!v||!student||v.cls!==student.cls||!liveFresh(v.t)||!Array.isArray(v.pairs))return;
     const pr=v.pairs.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!pr)return;
     if(prState&&prState.t===v.t)return;
     const lead=pr[0]===student.name;prState={partner:lead?pr.slice(1).join(', '):pr[0],role:lead?'me':'partner',t:v.t,auto:true};store.set('pair',prState);prShowMine();
-    const h=$('#prHow');if(h)h.textContent='Жұптарды мұғалім тағайындады. Қажет болса, серікті қолмен таңдауға болады.';},()=>{});
-})();
+    const h=$('#prHow');if(h)h.textContent='Жұптарды мұғалім тағайындады. Қажет болса, серікті қолмен таңдауға болады.';}
 
 /* ---------- exit lesson ---------- */
 function askExit(){$('#exitDlg').hidden=false;$('#exitNo').focus();}
@@ -1477,6 +1488,17 @@ $('#exitYes').addEventListener('click',()=>{
   try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('setlab2:')&&k!=='setlab2:lang')ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));}catch(e){}
   try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
   location.reload();});
+
+/* ---------- attendance (teacher) ---------- */
+absentMap=store.get('absent',{});
+function drawAtt(){const cls=pkClass,w=$('#attWrap');if(!cls||!CLASSES[cls]){w.hidden=true;return;}w.hidden=false;const ab=absentOf(cls,absentMap);
+  $('#attCount').textContent=ab.length?`(${ab.length})`:'';
+  $('#attList').innerHTML=CLASSES[cls].map((n,i)=>`<label><input type="checkbox" data-i="${i}" ${ab.includes(n)?'':'checked'}> ${esc(n)}</label>`).join('');
+  $('#attList').querySelectorAll('input').forEach(cb=>cb.addEventListener('change',()=>{const n=CLASSES[cls][+cb.dataset.i];const cur=new Set(absentOf(cls,absentMap));if(cb.checked)cur.delete(n);else cur.add(n);
+    absentMap[cls]={d:todayStr(),names:[...cur]};store.set('absent',absentMap);$('#attCount').textContent=cur.size?`(${cur.size})`:'';pkDraw();prDrawTeacher();
+    const by={};for(const [k,v] of Object.entries(absentMap))if(v&&v.d===todayStr())by[k]=v;liveWrite('absent',{by,t:Date.now()});}));}
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>{drawAtt();prDrawTeacher();},0)));
+drawAtt();pkDraw();
 
 /* ---------- reflection ---------- */
 ['st1','st2','st3','st4'].forEach(id=>{const el=$('#'+id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked));});
