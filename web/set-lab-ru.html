@@ -422,6 +422,22 @@ body.teacher #goalCard,body.teacher #confSum,body.teacher .refl,body.teacher #st
 @media (max-width:600px){.op-top{flex-direction:column;align-items:flex-start}.venn{width:130px}}
 code,pre,textarea,kbd{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
 body:not(.teacher) details.sol,body:not(.teacher) .olysol{display:none!important}
+.hint-modal{position:fixed;inset:0;background:rgba(10,16,30,.45);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.hint-modal[hidden]{display:none}
+.hm-box{background:var(--surface);color:var(--ink);border-radius:14px;padding:18px;max-width:540px;width:100%;display:grid;gap:10px;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.hm-box h3{margin:0}
+.hm-box label{display:grid;gap:4px;font-size:.85rem;font-weight:600}
+.hm-box textarea,.hm-box select{font:inherit;font-weight:400;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg);color:var(--ink)}
+.hm-btns{display:flex;gap:8px;flex-wrap:wrap}
+.hm-list{list-style:none;padding:0;margin:0;display:grid;gap:6px;font-size:.85rem}
+.hm-list li{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.t-hint{background:var(--a-soft);border-left:3px solid var(--a);border-radius:8px;padding:8px 12px;font-size:.92rem}
+.t-hint a{font-weight:600;white-space:nowrap}
+nav a.has-hint::after{content:'💡';margin-left:6px}
+.oly-hbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px;font-size:.85rem}
+.oly-hbar .pk-mini{margin-left:0}
+#olyHints{display:grid;gap:8px;margin-bottom:12px}
+#olyHints:empty{display:none}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -845,6 +861,8 @@ s.discard(2)</pre></div>
       <div class="pk-top"><span class="pk-title">Ученики класса: олимпиада</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
       <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Ученик</th><th>Прогресс</th><th>Детали</th><th>Время</th></tr></thead><tbody class="pg-body"></tbody></table></div>
     </div>
+    <div class="oly-hbar t-only"><span>Подсказка к шагу:</span><button class="pk-mini" type="button" data-hk="oly:0">1</button><button class="pk-mini" type="button" data-hk="oly:1">2</button><button class="pk-mini" type="button" data-hk="oly:2">3</button><button class="pk-mini" type="button" data-hk="oly:3">4</button><button class="pk-mini" type="button" data-hk="oly:4">5</button><button class="pk-mini" type="button" data-hk="oly:5">6</button></div>
+    <div id="olyHints"></div>
     <div class="oly">
       <ol class="oly-steps" id="olySteps"></ol>
       <div class="oly-work">
@@ -935,8 +953,17 @@ chess = {"Нурлан", "Аружан", "Данияр", "Ерлан"}     # ш�
     <div class="task-list" id="opTasks"></div>
   </section>
 </main>
+<div class="hint-modal" id="hintModal" hidden><div class="hm-box" role="dialog" aria-modal="true" aria-labelledby="hmTitle">
+  <h3 id="hmTitle">Подсказка</h3>
+  <p class="howto" style="margin:0">Подсказка направляет ученика к теории. Готовое решение ученик не увидит.</p>
+  <label>Текст подсказки<textarea id="hmText" maxlength="240" rows="4"></textarea></label>
+  <label>Где искать в теории<select id="hmTab"></select></label>
+  <label>Кому<select id="hmTo"></select></label>
+  <div class="hm-btns"><button class="btn" type="button" id="hmSend">Отправить</button><button class="btn-ghost" type="button" id="hmCancel">Закрыть</button></div>
+  <h4 style="margin:6px 0 0">Отправлено сегодня</h4><ul class="hm-list" id="hmList"></ul>
+</div></div>
 <footer><div class="wrap">
-<div class="reset-box" id="resetBox">
+<div class="reset-box t-only" id="resetBox">
   <button class="btn-ghost reset-btn" type="button" id="resetBtn">Очистить все данные</button>
   <span class="reset-ask" id="resetAsk" hidden>Удалить весь прогресс: код, ответы, результаты и рефлексию? Это нельзя отменить.
     <button class="btn danger" type="button" id="resetYes">Да, очистить</button>
@@ -1773,7 +1800,7 @@ function renderNow(){const box=$('#liveAns'),box2=$('#liveAns2'),v=lastNow;if(!b
     const tail=v.s?` — ситуация №${v.s}`:v.q?` — утверждение №${v.q}`:'';const tailMe=v.s?` Ситуация №${v.s}.`:v.q?` Утверждение №${v.q}.`:'';
     [box,box2].forEach(b=>{if(!b)return;b.hidden=false;b.className='live-ans s-only'+(me?' me':'');
       b.innerHTML=me?`<b>Сейчас отвечаешь ты!</b>${tailMe}`:`Сейчас отвечает: <b>${esc(v.name)}</b>${tail}`;});}
-function renderPairs(){renderGroups();const v=lastPairs;
+function renderPairs(){renderGroups();try{renderHints();}catch(e){}const v=lastPairs;
     if(teacherMode||!v||!student||v.cls!==student.cls||!liveFresh(v.t)||!Array.isArray(v.pairs))return;
     const pr=v.pairs.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!pr)return;
     if(prState&&prState.t===v.t)return;
@@ -1839,6 +1866,7 @@ function makeGroups(names){const a=names.slice();for(let i=a.length-1;i>0;i--){c
 function writePairsDoc(){const lp=store.get('lastPairs',null),lg=store.get('lastGroups',null),td=todayStr();const doc={cls:'',pairs:[],t:0};
   if(lp&&lp.d===td){doc.cls=lp.cls;doc.pairs=lp.pairs.map(x=>({m:x}));doc.t=lp.t||0;}
   if(lg&&lg.d===td){doc.g={cls:lg.cls,groups:lg.groups.map(x=>({m:x})),t:lg.t};}
+  const hl=hintsGet();if(hl.length)doc.h=hl;
   liveWrite('pairs',doc);}
 function curGroups(cls){const lg=store.get('lastGroups',null);if(lg&&lg.cls===cls&&lg.d===todayStr())return lg.groups;
   const g=livePairsT&&livePairsT.g;if(g&&g.cls===cls&&Array.isArray(g.groups))return g.groups.map(x=>x&&x.m).filter(Array.isArray);return null;}
@@ -1966,6 +1994,82 @@ function drawGoalTbl(){const box=$('#glBody');if(!box)return;const cls=pkClass;
 window.addEventListener('hashchange',()=>{if(teacherMode&&location.hash==='#refleksiya')drawGoalTbl();});
 document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawGoalTbl,0)));
 if(teacherMode)drawGoalTbl();
+
+/* ---------- teacher hints -> students ---------- */
+const HINTS=[
+ {k:'oly:0',tab:'metody',hint:'Повторы исчезнут, если превратить список в множество. Найдите во вкладке «Методы» карточку «Создание».'},
+ {k:'oly:1',tab:'metody',hint:'Нужен метод, который добавляет один элемент в множество. Имя пишется в кавычках.'},
+ {k:'oly:2',tab:'metody',hint:'Элемент точно есть в множестве. Сравните во вкладке «Методы» два метода удаления: какой из них подходит здесь?'},
+ {k:'oly:3',tab:'metody',hint:'Элемента может не быть. Нужен метод удаления, который не останавливает программу ошибкой.'},
+ {k:'oly:4',tab:'metody',hint:'Проверить, есть ли элемент в множестве, можно оператором, а не методом. Посмотрите карточку «Проверка».'},
+ {k:'oly:5',tab:'metody',hint:'Количество элементов даёт одна функция, список по алфавиту — другая. Выведите оба результата по очереди.'},
+ {k:'dbg:0',tab:'metody',hint:'Что на самом деле создают пустые фигурные скобки? Посмотрите, как во вкладке «Методы» создаётся пустое множество.'},
+ {k:'dbg:1',tab:'metody',hint:'Один из методов удаления вызывает ошибку, если элемента нет. Сравните карточки методов удаления.'},
+ {k:'dbg:2',tab:'svoistva',hint:'У множества нет индексов. Вспомните, как проверить, что элемент есть в множестве.'},
+ {k:'dbg:3',tab:'metody',hint:'append — метод списка. Каким методом элемент добавляется в множество?'},
+ {k:'dbg:4',tab:'metody',hint:'Программа считает элементы не того объекта. Где хранятся только различные имена?'},
+ {k:'dbg:5',tab:'metody',hint:'Нужно удалить один конкретный элемент, а не все сразу. Какие методы удаляют один элемент?'},
+ {k:'dbg:6',tab:'metody',hint:'Сколько элементов принимает метод add за один вызов?'},
+ {k:'dop:A1',tab:'metody',hint:'Повторы исчезнут, если сделать из списка множество. Количество и алфавитный порядок есть в примерах вкладки «Методы».'},
+ {k:'dop:A2',tab:'metody',hint:'Для каждого действия нужен свой метод: добавить, удалить существующий, удалить без ошибки, проверить наличие.'},
+ {k:'dop:B1',tab:'metody',hint:'Перебирайте буквы слова в цикле и проверяйте, входит ли буква в множество казахских букв. Посмотрите пример «add в цикле».'},
+ {k:'dop:B2',tab:'metody',hint:'Нельзя удалять элементы из множества, по которому идёт цикл. Подумайте, по какой копии можно перебирать предметы.'},
+ {k:'dop:C1',tab:'metody',hint:'Разбейте строку на слова и добавляйте каждое слово в множество. Потом проверьте, есть ли искомое слово в множестве.'},
+ {k:'dop:C2',tab:'metody',hint:'Читайте числа в цикле и выходите из него, когда встретится 0. Остальные числа добавляйте в множество.'},
+ {k:'ops:O1',tab:'operacii',hint:'Нужны только общие элементы двух множеств. Найдите эту операцию во вкладке «Операции».'},
+ {k:'ops:O2',tab:'operacii',hint:'Сначала соберите всех участников двух списков в одно множество, потом посчитайте его элементы.'},
+ {k:'ops:O3',tab:'operacii',hint:'Нужны элементы первого множества, которых нет во втором. Обратите внимание на порядок множеств в этой операции.'},
+ {k:'ops:O4',tab:'operacii',hint:'Нужны элементы, которые есть только в одном из множеств, без общих.'},
+ {k:'ops:O5',tab:'operacii',hint:'Каждое слово можно превратить в множество его букв. Затем найдите общие буквы и посчитайте их.'},
+ {k:'ops:O6',tab:'operacii',hint:'Проверьте, входят ли все нужные методы в известные: это проверка подмножества. Недостающие методы — разность двух множеств.'},
+];
+const HINT_TABS=['svoistva','lab','metody','pesochnica','operacii'];
+function hintLabel(k){const [a,b]=k.split(':');
+  if(a==='oly')return `Олимпиада, шаг ${+b+1}`;if(a==='dbg')return `Найди ошибку №${+b+1}`;
+  if(a==='dop')return `Доп. задача ${b}`;if(a==='ops')return `Задание ${b}`;return '';}
+function hintsGet(){const h=store.get('hints',null);return h&&h.d===todayStr()&&Array.isArray(h.list)?h.list:[];}
+function hintsSet(list){store.set('hints',{d:todayStr(),list:list.slice(-8)});writePairsDoc();}
+let hmKey=null;
+function drawHm(){const ul=$('#hmList');const list=hintsGet().slice().reverse();
+  ul.innerHTML=list.length?list.map(h=>`<li><span><b>${esc(hintLabel(h.k))}</b> → ${h.to?esc(h.to):'весь класс '+esc(h.cls)} (${hhmm(h.t)})<br>${esc(h.text)}</span><button class="btn-ghost" type="button" data-hid="${esc(h.id)}">Отозвать</button></li>`).join(''):'<li>Пока ничего не отправлено.</li>';
+  ul.querySelectorAll('[data-hid]').forEach(b=>b.addEventListener('click',()=>{hintsSet(hintsGet().filter(h=>h.id!==b.dataset.hid));drawHm();toast('Подсказка отозвана');}));}
+function openHint(k){if(!pkClass||!CLASSES[pkClass]){toast('Сначала выберите класс в блоке «Кто отвечает?» на вкладке «Повторение».');return;}
+  hmKey=k;const d=HINTS.find(h=>h.k===k)||{};
+  $('#hmTitle').textContent='Подсказка: '+hintLabel(k);$('#hmText').value=d.hint||'';
+  $('#hmTab').innerHTML='<option value="">— не указывать —</option>'+HINT_TABS.map(id=>`<option value="${id}"${id===d.tab?' selected':''}>${esc(titleOf(id))}</option>`).join('');
+  $('#hmTo').innerHTML=`<option value="">Весь класс ${esc(pkClass)}</option>`+presentOf(pkClass).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  drawHm();$('#hintModal').hidden=false;setTimeout(()=>$('#hmText').focus(),30);}
+function closeHint(){$('#hintModal').hidden=true;hmKey=null;}
+$('#hmCancel').addEventListener('click',closeHint);
+$('#hintModal').addEventListener('click',e=>{if(e.target.id==='hintModal')closeHint();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#hintModal').hidden)closeHint();});
+$('#hmSend').addEventListener('click',()=>{const text=$('#hmText').value.trim().slice(0,240);if(!text){toast('Впишите текст подсказки.');return;}
+  const list=hintsGet();list.push({id:Date.now().toString(36),cls:pkClass,to:$('#hmTo').value,k:hmKey,text,tab:$('#hmTab').value,t:Date.now()});
+  hintsSet(list);drawHm();toast('Подсказка отправлена');});
+/* teacher buttons in task boxes */
+const addHintBtn=(box,k)=>{const head=box.querySelector('.task-head');if(!head)return;const b=document.createElement('button');b.className='pk-mini';b.type='button';b.dataset.hk=k;b.textContent='💡 Подсказка';head.appendChild(b);};
+document.querySelectorAll('#tasks .task').forEach((box,i)=>addHintBtn(box,'dop:'+tasks[i].id));
+document.querySelectorAll('#opTasks .task').forEach((box,i)=>addHintBtn(box,'ops:'+opTasks[i].id));
+document.querySelectorAll('#dbg .task').forEach((box,i)=>addHintBtn(box,'dbg:'+i));
+document.querySelectorAll('[data-hk]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();openHint(b.dataset.hk);}));
+/* students */
+var hintSeen=store.get('hintSeen',{});
+const HINT_TAB_OF={dop:'dop',ops:'zadaniya',dbg:'oshibka',oly:'praktika'};
+function hintHost(k){const [a,b]=k.split(':');
+  if(a==='dop')return document.querySelectorAll('#tasks .task')[tasks.findIndex(t=>t.id===b)];
+  if(a==='ops')return document.querySelectorAll('#opTasks .task')[opTasks.findIndex(t=>t.id===b)];
+  if(a==='dbg')return document.querySelectorAll('#dbg .task')[+b];
+  if(a==='oly')return $('#olyHints');return null;}
+function renderHints(){if(teacherMode||!student)return;const v=lastPairs;
+  const list=(v&&Array.isArray(v.h)?v.h:[]).filter(h=>h&&h.k&&h.cls===student.cls&&(!h.to||h.to===student.name)&&liveFresh(h.t));
+  document.querySelectorAll('.t-hint').forEach(e=>e.remove());
+  list.forEach(h=>{const host=hintHost(h.k);if(!host)return;const d=document.createElement('div');d.className='t-hint';
+    d.innerHTML=`<b>💡 Подсказка учителя${h.k.startsWith('oly:')?' (шаг '+(+h.k.split(':')[1]+1)+')':''}:</b> ${esc(h.text)}${h.tab?` <a href="#${esc(h.tab)}">Открыть «${esc(titleOf(h.tab))}» →</a>`:''}`;
+    if(host.id==='olyHints')host.appendChild(d);else{const ref=host.querySelector('.desc');if(ref)ref.after(d);else host.appendChild(d);}
+    if(!hintSeen[h.id]){hintSeen[h.id]=1;store.set('hintSeen',hintSeen);toast('Учитель отправил подсказку: '+hintLabel(h.k));
+      const a=navLinks.find(x=>x.getAttribute('href')==='#'+HINT_TAB_OF[h.k.split(':')[0]]);if(a&&location.hash!==a.getAttribute('href'))a.classList.add('has-hint');}});}
+window.addEventListener('hashchange',()=>{const a=navLinks.find(x=>x.getAttribute('href')===location.hash);if(a)a.classList.remove('has-hint');});
+renderHints();
 
 /* ---------- reflection ---------- */
 ['st1','st2','st3','st4'].forEach(id=>{const el=$('#'+id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked));});
