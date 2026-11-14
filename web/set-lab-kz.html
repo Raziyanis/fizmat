@@ -368,6 +368,42 @@ nav a.st-miss[aria-current=page]{box-shadow:inset 0 -3px 0 var(--bad)}
 .cr-legend{font-size:.8rem;color:var(--muted)}
 body.teacher #goalCard,body.teacher #confSum,body.teacher .refl,body.teacher #stuLine{display:none!important}
 .cs-v{white-space:nowrap}
+/* student side menu */
+.side-stu{display:flex;align-items:center;gap:8px;flex:none;font-size:.85rem}
+.side-stu .ss-lbl{display:none}
+.side-stu .ss-name{font-weight:700;white-space:nowrap}
+.side-stu .ss-meta{display:flex;gap:6px;align-items:center}
+.side-stu .ss-prog,.side-stu .ss-exit,.side-stu .ss-chg,.side-stu .ss-link{display:none}
+@media (min-width:900px){
+  body.has-student:not(.teacher) header.top{position:fixed;top:0;left:0;bottom:0;width:240px;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;padding-top:env(safe-area-inset-top,0px);padding-left:env(safe-area-inset-left,0px)}
+  body.has-student:not(.teacher) header.top .wrap{flex-direction:column;align-items:stretch;gap:10px;max-width:none;padding:16px 14px;overflow:visible}
+  body.has-student:not(.teacher) .lang-sw{margin-left:0;align-self:flex-start}
+  body.has-student:not(.teacher) nav{flex-direction:column;flex-wrap:nowrap;overflow:visible;gap:3px}
+  body.has-student:not(.teacher) nav a{font-size:.95rem;padding:9px 12px;white-space:normal;border-radius:10px}
+  body.has-student:not(.teacher) main.wrap,body.has-student:not(.teacher) footer{margin-left:240px}
+  body.has-student:not(.teacher) main.wrap{max-width:1040px}
+  body.has-student:not(.teacher) footer .wrap{max-width:1040px;margin-left:0}
+  body.has-student:not(.teacher) #stuBar{display:none!important}
+  .side-stu{flex-direction:column;align-items:stretch;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+  .side-stu .ss-lbl{display:block;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .side-stu .ss-name{font-size:1rem;white-space:normal;line-height:1.3}
+  .side-stu .ss-prog{display:inline;color:var(--muted);font-size:.8rem}
+  .side-stu .ss-link{display:block;font-size:.75rem;margin-top:2px;white-space:normal}
+  .side-stu .ss-chg{display:block;margin-top:6px;font-size:.85rem}
+  .side-stu .ss-exit{display:block;margin-top:2px;color:var(--bad);border-color:var(--bad);font-size:.85rem}
+}
+.pg-bar{display:block;height:5px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden;max-width:140px}
+.pg-bar span{display:block;height:100%;background:var(--hit)}
+.prog-box{margin-bottom:16px}
+.pk-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px;margin:0 0 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.pk-name2{font-weight:700;font-size:1.05rem;min-width:140px}
+.pk-name2.picked{color:var(--hit)}
+.mq-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gl-tbl{min-width:720px}
+.gl-tbl td,.gl-tbl th{text-align:center}
+.gl-tbl td:first-child,.gl-tbl th:first-child{text-align:left;white-space:nowrap}
+.gl-c{font-weight:700;font-size:1.05rem}
+.gl-c.ok{color:var(--hit);background:var(--ok-soft)} .gl-c.part{color:var(--b)} .gl-c.no{color:var(--muted)}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -486,6 +522,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
 
 <header class="top"><div class="wrap">
   <div class="brand">Жиын <span>·</span> set</div>
+  <div class="side-stu" id="sideStu" hidden><div class="ss-lbl">Оқушы</div><div class="ss-name" id="ssName"></div><div class="ss-meta"><span class="stu-cls" id="ssCls"></span><span class="ss-prog" id="ssProg"></span></div><span class="link-st ss-link" id="ssLink"></span><button class="btn-ghost ss-chg" type="button" id="ssChange">Оқушыны ауыстыру</button><button class="btn-ghost ss-exit" type="button" id="ssExit">Сабақтан шығу</button></div>
   <nav aria-label="Сабақ бөлімдері">
     <a href="#povtorenie">Қайталау</a><a href="#tema">Тақырып қандай?</a><a href="#cel">Сабақ мақсаты</a><a href="#svoistva">Анықтама</a><a href="#lab">Машина</a><a href="#metody">Әдістер</a><a href="#pesochnica">Құмсалғыш</a><a href="#kakoy">Қай әдіс?</a><a href="#oshibka">Қатені тап</a><a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Қосымша есептер</a><a href="#refleksiya">Рефлексия</a>
   </nav>
@@ -642,16 +679,16 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
       </div>
     </div>
     <h3 class="sub">Тапсырмаларды орындау арқылы мақсатқа қалай жетеміз</h3>
-    <p class="howto">Деңгей өз жолындағы барлық тапсырма орындалғанда есептеледі. Қорытынды <a href="#refleksiya">Рефлексия</a> қойындысында автоматты түрде көрсетіледі.</p>
+    <p class="howto">Мақсат тек жеке тапсырмалар бойынша бағаланады: викторина, практикалық жұмыс және қосымша есептер. Деңгей өз жолындағы барлық тапсырма орындалғанда есептеледі. Қорытынды <a href="#refleksiya">Рефлексия</a> қойындысында автоматты түрде көрсетіледі, мұғалім оны әр оқушы бойынша көреді.</p>
     <div class="tbl-wrap"><table class="plan levels-plan">
       <thead><tr><th>Мақсат деңгейі</th><th>Мен істей аламын</th><th>Мұны қандай тапсырмалар дәлелдейді</th></tr></thead>
       <tbody>
-        <tr><td><span class="lvl a">Барлығы</span></td><td>Жиын құрамын, элемент қосамын, элементті <code>in</code> арқылы тексеремін</td>
-          <td><a href="#praktika">Олимпиада, 1–2-қадамдар</a>: <code>set()</code>, <code>add</code><br><a href="#oshibka">Қатені тап №1</a>: <code>{}</code> орнына <code>set()</code><br><a href="#oshibka">Қатені тап №3</a>: индекс орнына <code>in</code></td></tr>
-        <tr><td><span class="lvl b">Көпшілігі</span></td><td>Элементтерді <code>remove</code> және <code>discard</code> әдістерімен жоямын, қорытындыны <code>len</code> және <code>sorted</code> арқылы шығарамын</td>
-          <td><a href="#praktika">Олимпиада, 3–6-қадамдар</a>: <code>remove</code>, <code>discard</code>, <code>in</code>, <code>len</code>, <code>sorted</code><br><a href="#oshibka">Қатені тап №2, №4, №6</a>: <code>discard</code>, <code>append</code> орнына <code>add</code>, бір элементті жою</td></tr>
-        <tr><td><span class="lvl c">Кейбіреулері</span></td><td>Есепке әдіс таңдаймын, оны цикл мен шартпен бірге қолданамын, логикалық қателерді табамын</td>
-          <td><a href="#oshibka">Қатені тап №5, №7</a>: хабарламасыз қате, <code>add</code> бір-бір элементтен<br><a href="#dop">Қосымша есеп C1 немесе C2</a>: циклдегі <code>add</code>, <code>in</code>, <code>len</code></td></tr>
+        <tr><td><span class="lvl a">Барлығы</span></td><td>Жиын құрамын, <code>add</code> әдісімен элемент қосамын, элементті <code>in</code> арқылы тексеремін</td>
+          <td><a href="#viktorina">Викторина, 1, 2, 6-сұрақтар</a>: қайталанулар, <code>add</code>, <code>in</code><br><a href="#praktika">Олимпиада, 1–2-қадамдар</a>: <code>set()</code>, <code>add</code></td></tr>
+        <tr><td><span class="lvl b">Көпшілігі</span></td><td>Элементтерді <code>remove</code>, <code>discard</code>, <code>clear</code> әдістерімен өшіремін, қорытындыны <code>len</code> және <code>sorted</code> арқылы шығарамын</td>
+          <td><a href="#viktorina">Викторина, 3, 4, 7-сұрақтар</a>: <code>remove</code>, <code>discard</code>, <code>clear</code><br><a href="#praktika">Олимпиада, 3–6-қадамдар</a>: <code>remove</code>, <code>discard</code>, <code>in</code>, <code>len</code>, <code>sorted</code><br><a href="#dop">Қосымша есеп A1 немесе A2</a></td></tr>
+        <tr><td><span class="lvl c">Кейбіреулері</span></td><td>Жаңа есепке әдіс таңдаймын, оны цикл және шартпен бірге қолданамын</td>
+          <td><a href="#dop">Қосымша есеп B1 немесе B2</a><br><a href="#dop">Қосымша есеп C1 немесе C2</a>: циклдегі <code>add</code>, <code>in</code>, <code>len</code></td></tr>
       </tbody>
     </table></div>
     <h3 class="sub">Жаттығу <span class="time">мақсатты бағалауға кірмейді</span></h3>
@@ -749,6 +786,8 @@ s.discard(2)</pre></div>
 
   <section id="kakoy">
     <div class="sec-head"><h2>Қай әдіс керек?</h2><p>Жағдайды оқып, оны шешетін әдісті таңдаңыз. Жауаптан кейін түсіндірме шығады.</p><span class="score" id="mqScore">0 / 0</span></div>
+    <div class="pk-bar t-only"><span class="pk-title">Кім жауап береді?</span><span class="pk-name2" id="pkName2">—</span><button class="btn" type="button" id="pkGo2">Оқушыны таңдау</button><span class="howto" style="margin:0">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы блоктан алынады. Әр жағдаяттың өз батырмасы бар.</span></div>
+    <div class="live-ans s-only" id="liveAns2" hidden></div>
     <div class="quiz" id="mq"></div>
     <div style="margin-top:14px"><button class="btn-ghost" type="button" id="mqReset">Қайта өту</button></div>
   </section>
@@ -784,6 +823,10 @@ s.discard(2)</pre></div>
 
   <section id="praktika">
     <div class="sec-head"><h2>Практикалық жұмыс: мектеп олимпиадасы</h2><p>Сіз информатикадан мектеп олимпиадасының ұйымдастырушысысыз. Бір бағдарламаны қадам бойынша жазыңыз. Келесі қадам ағымдағы қадам тексеруден өткенде ашылады.</p><span class="score" id="olyScore">0 / 6</span></div>
+    <div class="results t-only prog-box" id="pg-oly">
+      <div class="pk-top"><span class="pk-title">Сынып оқушылары: олимпиада</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Оқушы</th><th>Үлгерім</th><th>Толығырақ</th><th>Уақыт</th></tr></thead><tbody class="pg-body"></tbody></table></div>
+    </div>
     <div class="oly">
       <ol class="oly-steps" id="olySteps"></ol>
       <div class="oly-work">
@@ -803,15 +846,22 @@ s.discard(2)</pre></div>
       <button class="lv" type="button" data-lv="B" aria-pressed="false">B — орта</button>
       <button class="lv" type="button" data-lv="C" aria-pressed="false">C — жоғары</button>
     </div>
+    <div class="results t-only prog-box" id="pg-dop">
+      <div class="pk-top"><span class="pk-title">Сынып оқушылары: қосымша есептер</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Оқушы</th><th>Үлгерім</th><th>Толығырақ</th><th>Уақыт</th></tr></thead><tbody class="pg-body"></tbody></table></div>
+    </div>
     <div class="task-list" id="tasks"></div>
   </section>
 
   <section id="refleksiya">
-    <div class="sec-head"><h2>Рефлексия</h2><p>Мақсатқа жету «Қатені тап» және «Практикалық жұмыс» тапсырмалары бойынша автоматты түрде есептеледі. Өзін-өзі бағалауды адал белгілеңіз. Жазбалар тек осы браузерде сақталады.</p></div>
+    <div class="sec-head"><h2>Рефлексия</h2><p>Мақсатқа жету жеке тапсырмалар бойынша автоматты түрде есептеледі: «Викторина», «Практика» және «Қосымша есептер». Өзіңді адал бағала. Жазбалар тек осы браузерде сақталады.</p></div>
     <div class="results t-only" id="classRefl">
       <div class="pk-top"><span class="pk-title">Сынып рефлексиясы</span><span class="pk-ctrl"><span class="pr-cls" id="crCls"></span><span class="res-upd" id="crUpd"></span></span></div>
       <p class="howto" id="crNote">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы «Кім жауап береді?» блогынан алынады. Деректер Google-скрипт арқылы байланысы бар жүктеп алынған файлдардағы оқушылардан келеді.</p>
-      <h3 class="sub" style="margin:4px 0 0">Сыныптың кезеңдер бойынша сенімділігі</h3>
+      <h3 class="sub" style="margin:4px 0 0">Жеке тапсырмалар бойынша мақсатқа жету</h3>
+      <div class="tbl-wrap"><table class="res-tbl gl-tbl"><thead><tr><th>Оқушы</th><th>Викторина</th><th>Олимпиада</th><th>Қосымша есептер</th><th>Барлығы</th><th>Көпшілігі</th><th>Кейбіреулері</th><th>Қорытынды</th></tr></thead><tbody id="glBody"></tbody></table></div>
+      <p class="cr-legend">✓ — деңгейге жетті, ◐ — ішінара, ○ — басталмаған. Тек викторина, олимпиада және қосымша есептер ескеріледі.</p>
+      <h3 class="sub" style="margin:10px 0 0">Уверенность класса по этапам</h3>
       <div class="cs-rows" id="crBars"></div>
       <h3 class="sub" style="margin:10px 0 0">Оқушылар</h3>
       <div class="tbl-wrap"><table class="res-tbl cr-tbl"><thead id="crHead"></thead><tbody id="crBody"></tbody></table></div>
@@ -1141,7 +1191,8 @@ const mq=[
 ];
 let mqState=store.get('mq',{});
 function renderMq(){
-  $('#mq').innerHTML=mq.map((q,i)=>`<div class="q" data-i="${i}"><h3>${i+1}-жағдай</h3><p>${esc(q[0])}</p><div class="opts">${q[1].map((o,j)=>`<button class="opt" type="button" data-o="${j}">${esc(o)}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+  $('#mq').innerHTML=mq.map((q,i)=>`<div class="q" data-i="${i}"><h3 class="mq-h">${i+1}-жағдаят<span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></h3><p>${esc(q[0])}</p><div class="opts">${q[1].map((o,j)=>`<button class="opt" type="button" data-o="${j}">${esc(o)}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+  document.querySelectorAll('#mq .pk-mini').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();pickStudent(b.parentElement.querySelector('.pk-chip'));}));
   document.querySelectorAll('#mq .q').forEach(box=>{const i=+box.dataset.i;
     box.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{if(mqState[i]!==undefined)return;mqState[i]=+b.dataset.o;store.set('mq',mqState);paintMq(box);}));
     if(mqState[i]!==undefined)paintMq(box);});
@@ -1247,6 +1298,7 @@ function gateOf(idx){for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&
 function toast(msg){let t=$('#lockToast');if(!t){t=document.createElement('div');t.id='lockToast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
   t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),4000);}
 function updateLocks(){
+  try{const pr=$('#ssProg');if(pr){const ids=Object.keys(CONF_Q);pr.textContent=`өзін-өзі бағалау: ${ids.filter(id=>confState[id]).length}/${ids.length}`;}}catch(e){}
   navLinks.forEach(a=>{const id=(a.getAttribute('href')||'').slice(1);a.classList.remove('st-done','st-miss');if(teacherMode||!CONF_Q[id])return;if(confState[id])a.classList.add('st-done');else if(visitedTabs[id])a.classList.add('st-miss');});
   navLinks.forEach(a=>{const idx=panels.findIndex(p=>'#'+p.id===a.getAttribute('href'));const lk=!isUnlocked(idx);a.classList.toggle('locked',lk);if(lk)a.setAttribute('aria-disabled','true');else a.removeAttribute('aria-disabled');});
   panels.forEach((p,i)=>{const n=p._next;if(!n)return;const lk=!isUnlocked(i+1);n.classList.toggle('disabled',lk);
@@ -1361,24 +1413,32 @@ function stOly(i){return olyDone>i?(olySeen[i]?'help':'ok'):'no';}
 function stDbg(i){return dbgDone[i]?(dbgSeen[i]?'help':'ok'):'no';}
 function stTask(id){return done[id]?(solSeen[id]?'help':'ok'):'no';}
 function best(a){return a.includes('ok')?'ok':a.includes('help')?'help':'no';}
+const GOAL_DEF=[
+ {name:'Барлығы',goal:'жиын құрамын, add әдісімен элемент қосамын, элементті in арқылы тексеремін',items:[
+   ['q',[0,1,5],'Викторина, 1, 2, 6-сұрақтар','#viktorina'],['oly',[0,1],'Олимпиада, 1–2-қадамдар','#praktika']]},
+ {name:'Көпшілігі',goal:'элементтерді remove, discard, clear әдістерімен өшіремін, қорытындыны len және sorted арқылы шығарамын',items:[
+   ['q',[2,3,6],'Викторина, 3, 4, 7-сұрақтар','#viktorina'],['oly',[2,3,4,5],'Олимпиада, 3–6-қадамдар','#praktika'],['dop',['A1','A2'],'Қосымша есеп A1 немесе A2','#dop']]},
+ {name:'Кейбіреулері',goal:'жаңа есепке әдіс таңдаймын, оны цикл және шартпен бірге қолданамын',items:[
+   ['dop',['B1','B2'],'Қосымша есеп B1 немесе B2','#dop'],['dop',['C1','C2'],'Қосымша есеп C1 немесе C2','#dop']]},
+];
+/* src: {qOk:[indices], oly:n, olySeen:{}, dop:[ids], solSeen:{}} */
+function goalEval(src){const qOk=src.qOk||[],dop=src.dop||[],os=src.olySeen||{},ss=src.solSeen||{};
+  const st=it=>{const [k,a]=it;
+    if(k==='q')return a.every(i=>qOk.includes(i))?'ok':'no';
+    if(k==='oly')return a.every(i=>src.oly>i)?(a.some(i=>os[i])?'help':'ok'):'no';
+    const got=a.filter(id=>dop.includes(id));return got.length?(got.some(id=>!ss[id])?'ok':'help'):'no';};
+  const levels=GOAL_DEF.map(L=>({name:L.name,goal:L.goal,items:L.items.map(it=>[st(it),it[2],it[3]])}));
+  const lv=levels.map(L=>{const x=L.items.map(i=>i[0]);return x.every(v=>v!=='no')?'ok':x.some(v=>v!=='no')?'part':'no';});
+  let reached=-1;for(let i=0;i<lv.length;i++){if(lv[i]==='ok')reached=i;else break;}
+  return {levels,lv,reached};}
+function quizOk(){return quiz.map((q,i)=>qState[i]===q[2]?i:-1).filter(i=>i>=0);}
 function renderGoal(){
-  const levels=[
-   {name:'Барлығы',goal:'жиын құрамын, элемент қосамын, элементті in арқылы тексеремін',items:[
-     [stOly(0),'Олимпиада, 1-қадам: тізімнен жиын','#praktika'],[stOly(1),'Олимпиада, 2-қадам: add','#praktika'],
-     [stDbg(0),'1-қате: бос жиын set()','#oshibka'],[stDbg(2),'3-қате: in арқылы тексеру','#oshibka']]},
-   {name:'Көпшілігі',goal:'жиынды remove, discard әдістерімен өзгертемін, in арқылы тексеремін, қорытынды шығарамын',items:[
-     [stOly(2),'Олимпиада, 3-қадам: remove','#praktika'],[stOly(3),'Олимпиада, 4-қадам: discard','#praktika'],[stOly(4),'Олимпиада, 5-қадам: in','#praktika'],[stOly(5),'Олимпиада, 6-қадам: len және sorted','#praktika'],
-     [stDbg(1),'2-қате: remove орнына discard','#oshibka'],[stDbg(3),'4-қате: append орнына add','#oshibka'],[stDbg(5),'6-қате: бір элементті жою','#oshibka']]},
-   {name:'Кейбіреулері',goal:'есепке әдіс таңдаймын, оны цикл мен шартпен бірге қолданамын',items:[
-     [stDbg(4),'5-қате: хабарламасыз логикалық қате','#oshibka'],[stDbg(6),'7-қате: add бір-бір элементтен','#oshibka'],
-     [best([stTask('C1'),stTask('C2')]),'Қосымша есеп C1 немесе C2','#dop']]},
-  ];
-  const lv=levels.map(L=>{const st=L.items.map(x=>x[0]);return st.every(x=>x==='ok')?'ok':st.some(x=>x!=='no')?'part':'no';});
-  let reached=-1;for(let i=0;i<lv.length;i++){if(lv[i]==='ok')reached=i;else break;}lastGoal=reached;
+  const g=goalEval({qOk:quizOk(),oly:olyDone,olySeen,dop:tasks.filter(t=>done[t.id]).map(t=>t.id),solSeen});
+  const levels=g.levels,lv=g.lv,reached=g.reached;lastGoal=reached;
   const anyHelp=levels.some(L=>L.items.some(x=>x[0]==='help'));
-  const msg=reached<0?['Сабақ мақсатына әзірге жетпедіңіз','Олимпиаданың 1–2-қадамдарынан және 1, 3-қателерден бастаңыз — бұл базалық деңгей.']:
-    reached===0?['8.2.1.5 мақсатына базалық деңгейде жеттіңіз','Сіз жиын құрып, элементті тексере аласыз. Келесі қадам — remove және discard әдістері: олимпиаданың 3–6-қадамдары.']:
-    reached===1?['8.2.1.5 мақсатына «Көпшілігі» деңгейінде жеттіңіз','Сіз жиынды әдістермен сенімді өзгертесіз. 5, 7-қателерді және C1 немесе C2 есебін байқап көріңіз.']:
+  const msg=reached<0?['Сабақ мақсатына әзірге жетпедіңіз','Базалық деңгейден бастаңыз: викторинаның 1, 2, 6-сұрақтары және олимпиаданың 1–2-қадамдары.']:
+    reached===0?['8.2.1.5 мақсатына базалық деңгейде жеттіңіз','Сіз жиын құрып, элемент қосып, тексере аласыз. Келесі қадам — remove, discard, clear: викторинаның 3, 4, 7-сұрақтары, олимпиаданың 3–6-қадамдары және A1 немесе A2 есебі.']:
+    reached===1?['8.2.1.5 мақсатына «Көпшілігі» деңгейінде жеттіңіз','Сіз жиынды әдістермен сенімді өзгертесіз. B1 немесе B2 және C1 немесе C2 есептерін көріңіз.']:
     ['8.2.1.5 мақсатына толық жеттіңіз','Сіз қажетті әдісті таңдап, оны цикл мен шартпен бірге қолданасыз. Керемет жұмыс!'];
   const lab={ok:'жетті',part:'ішінара',no:'басталмаған'},ic={ok:'✓',help:'◐',no:'○'};
   const card=$('#goalCard');card.className='goal-card'+(reached>=0?' reached':'');
@@ -1386,7 +1446,7 @@ function renderGoal(){
    <div class="goal-levels">${levels.map((L,i)=>`<div class="glevel ${lv[i]==='ok'?'ok':lv[i]==='part'?'part':''}"><h4>${esc(L.name)}<span class="gstate ${lv[i]}">${lab[lv[i]]}</span></h4><p style="font-size:.82rem;color:var(--muted)">${esc(L.goal)}</p>
      ${L.items.map(x=>`<div class="gitem ${x[0]}"><span class="ic">${ic[x[0]]}</span><a href="${x[2]}">${esc(x[1])}</a></div>`).join('')}</div>`).join('')}</div>
    ${anyHelp?'<p style="font-size:.85rem;color:var(--muted)">◐ — тапсырма үлгіні көргеннен кейін шешілді. Келесі жолы оны өз бетіңізше шешіп көріңіз.</p>':''}
-   <div class="gstats"><span>Олимпиада: ${Math.min(olyDone,6)} / 6</span><span>Қатені тап: ${Object.keys(dbgDone).filter(k=>dbg[+k]).length} / ${dbg.length}</span><span>Қай әдіс: ${Object.entries(mqState).filter(([i,v])=>mq[+i]&&mq[+i][2]===v).length} / ${mq.length}</span><span>Викторина: ${Object.entries(qState).filter(([i,v])=>quiz[+i]&&quiz[+i][2]===v).length} / ${quiz.length}</span></div>`;
+   <div class="gstats"><span>Викторина: ${quizOk().length} / ${quiz.length}</span><span>Олимпиада: ${Math.min(olyDone,6)} / 6</span><span>Қосымша есептер: ${tasks.filter(t=>done[t.id]).length} / ${tasks.length}</span></div>`;
 }
 window.addEventListener('hashchange',()=>{if(location.hash==='#refleksiya')renderGoal();});
 renderGoal();
@@ -1419,8 +1479,8 @@ function pkDraw(){document.querySelectorAll('.pk-cls').forEach(b=>b.setAttribute
   $('#pkLeft').textContent=`${pkClass}: әлі жауап бермегендер ${all.length-used.length}/${all.length}`;}
 document.querySelectorAll('.pk-cls').forEach(b=>b.addEventListener('click',()=>{pkClass=b.dataset.c;store.set('pkClass',pkClass);$('#pkName').textContent='«Оқушыны таңдау» батырмасын басыңыз';$('#pkName').classList.remove('picked');pkDraw();}));
 let pkBusy=false;
-let pkQ=null;
-function pickStudent(target){pkQ=target?[...document.querySelectorAll('.qcards.tf .pk-chip')].indexOf(target)+1:null;
+let pkQ=null,pkS=null;
+function pickStudent(target){pkQ=null;pkS=null;if(target){const q=target.closest('#mq .q');if(q)pkS=+q.dataset.i+1;else pkQ=[...document.querySelectorAll('.qcards.tf .pk-chip')].indexOf(target)+1;}
   if(!pkClass){toast('Алдымен «Кім жауап береді?» блогында сыныпты таңдаңыз');$('#picker').scrollIntoView({block:'center'});return;}
   if(pkBusy)return;const all=presentOf(pkClass);if(!all.length){toast('Сыныпта ешкім қатысып отыр деп белгіленбеген.');return;}let used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
   let pool=$('#pkNoRep').checked?all.filter(n=>!used.includes(n)):all.slice();
@@ -1428,12 +1488,13 @@ function pickStudent(target){pkQ=target?[...document.querySelectorAll('.qcards.t
   const name=pool[Math.floor(Math.random()*pool.length)];
   used.push(name);pkUsed[pkClass]=used;store.set('pkUsed',pkUsed);
   const el=$('#pkName');el.classList.remove('picked');pkBusy=true;
-  const finish=()=>{el.textContent=name;el.classList.add('picked');pkBusy=false;pkDraw();liveWrite('now',{cls:pkClass,name,q:pkQ||0,t:Date.now()});
+  const el2=$('#pkName2');const finish=()=>{el.textContent=name;el.classList.add('picked');if(el2){el2.textContent=name;el2.classList.add('picked');}pkBusy=false;pkDraw();liveWrite('now',{cls:pkClass,name,q:pkQ||0,s:pkS||0,t:Date.now()});
     if(target){target.hidden=false;target.textContent=name;}};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
-  let k=0;const spin=setInterval(()=>{el.textContent=all[Math.floor(Math.random()*all.length)];if(++k>=14){clearInterval(spin);finish();}},70);
+  if(el2)el2.classList.remove('picked');let k=0;const spin=setInterval(()=>{el.textContent=all[Math.floor(Math.random()*all.length)];if(el2)el2.textContent=el.textContent;if(++k>=14){clearInterval(spin);finish();}},70);
 }
 $('#pkGo').addEventListener('click',()=>pickStudent(null));
+$('#pkGo2').addEventListener('click',()=>pickStudent(null));
 $('#pkReset').addEventListener('click',()=>{if(pkClass){pkUsed[pkClass]=[];store.set('pkUsed',pkUsed);liveWrite('now',{cls:pkClass,name:'',q:0,t:Date.now()});}document.querySelectorAll('.pk-chip').forEach(c=>{c.hidden=true;c.textContent='';});$('#pkName').textContent=pkClass?'«Оқушыны таңдау» батырмасын басыңыз':'Алдымен сыныпты таңдаңыз';$('#pkName').classList.remove('picked');pkDraw();});
 document.querySelectorAll('.qcards.tf .pk-mini').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();pickStudent(b.parentElement.querySelector('.pk-chip'));}));
 pkDraw();
@@ -1456,7 +1517,7 @@ function openStart(mode){stMode=mode;stManualOpen=false;stLangOk=mode==='change'
   $('#startNote').textContent=mode==='change'?'Компьютерге басқа оқушы отырса, соны таңда. Алдыңғы оқушының осы компьютердегі прогресі жойылады.':'Алдымен тілді, содан кейін сыныпты, кейін тегің мен атыңды таңда.';
   $('#stCancel').hidden=mode!=='change';stDrawClasses();stDrawNames();$('#startScreen').hidden=false;document.body.classList.add('locked-scroll');}
 function closeStart(){$('#startScreen').hidden=true;document.body.classList.remove('locked-scroll');}
-function drawStudent(){const on=!!student;$('#stuBar').hidden=!on||teacherMode;$('#stuLine').hidden=!on;
+function drawStudent(){const on=!!student;{const ss=$('#sideStu');if(ss){ss.hidden=!on||teacherMode;if(on){$('#ssName').textContent=student.name;$('#ssCls').textContent=student.cls;}}document.body.classList.toggle('has-student',on&&!teacherMode);}$('#stuBar').hidden=!on||teacherMode;$('#stuLine').hidden=!on;
   if(on){$('#stuName').textContent=student.name;$('#stuCls').textContent=student.cls;$('#stuLine').innerHTML=`Оқушының сабақ қорытындысы: <b>${esc(student.name)}</b>, ${esc(student.cls)}`+(student.manual?' <span class="st-manual-tag">қолмен енгізілді, тізімде жоқ</span>':'');
     if(!pkClass&&CLASSES[student.cls]){pkClass=student.cls;store.set('pkClass',pkClass);pkDraw();$('#pkName').textContent='«Оқушыны таңдау» батырмасын басыңыз';}}}
 $('#stGo').addEventListener('click',()=>{if(!stPick.name)return;
@@ -1526,7 +1587,7 @@ function setLink(st){
   const S={http:['ok','мұғаліммен байланыс: бар'],httpfail:['no','мұғаліммен байланыс жоқ (интернетті тексеріңіз)'],ok:['ok','мұғаліммен байланыс: бар'],file:['no','мұғаліммен байланыс жоқ (файл ашылған)'],none:['no','мұғаліммен байланыс жоқ (claude.ai-ға кіріңіз)']};
   const t=$('#linkT'),u=$('#linkS');
   if(t){t.className='link-st '+T[st][0];t.textContent=T[st][1];}
-  if(u){u.className='link-st '+S[st][0];u.textContent=(previewStudent?'оқушы көрінісі · ':'')+S[st][1];}}
+  if(u){u.className='link-st '+S[st][0];u.textContent=(previewStudent?'оқушы көрінісі · ':'')+S[st][1];const sl=$('#ssLink');if(sl){sl.className='link-st ss-link '+S[st][0];sl.textContent=u.textContent;}}}
 
 const capUse=n=>(window.claude&&typeof window.claude.use==='function')?Promise.resolve(window.claude.use(n)).catch(()=>null):Promise.resolve(undefined);
 let liveDb=null;
@@ -1554,10 +1615,12 @@ document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',(
 })();
 var lastNow=null,lastPairs=null;
 function liveFresh(t){return t&&Date.now()-t<3*60*60*1000;}
-function renderNow(){const box=$('#liveAns'),v=lastNow;if(!box)return;
-    if(teacherMode||!v||!student||v.cls!==student.cls||!v.name||!liveFresh(v.t)){box.hidden=true;return;}
-    const me=v.name===student.name;box.hidden=false;box.className='live-ans s-only'+(me?' me':'');
-    box.innerHTML=me?`<b>Қазір сен жауап бересің!</b>${v.q?` №${v.q} тұжырым.`:''}`:`Қазір жауап беретін: <b>${esc(v.name)}</b>${v.q?` — №${v.q} тұжырым`:''}`;}
+function renderNow(){const box=$('#liveAns'),box2=$('#liveAns2'),v=lastNow;if(!box)return;
+    if(teacherMode||!v||!student||v.cls!==student.cls||!v.name||!liveFresh(v.t)){box.hidden=true;if(box2)box2.hidden=true;return;}
+    const me=v.name===student.name;
+    const tail=v.s?` — №${v.s} жағдаят`:v.q?` — №${v.q} тұжырым`:'';const tailMe=v.s?` №${v.s} жағдаят.`:v.q?` №${v.q} тұжырым.`:'';
+    [box,box2].forEach(b=>{if(!b)return;b.hidden=false;b.className='live-ans s-only'+(me?' me':'');
+      b.innerHTML=me?`<b>Қазір сен жауап бересің!</b>${tailMe}`:`Қазір жауап беретін: <b>${esc(v.name)}</b>${tail}`;});}
 function renderPairs(){renderGroups();const v=lastPairs;
     if(teacherMode||!v||!student||v.cls!==student.cls||!liveFresh(v.t)||!Array.isArray(v.pairs))return;
     const pr=v.pairs.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!pr)return;
@@ -1609,7 +1672,7 @@ function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClas
     const err=(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')+(r.empty?` <span class="res-empty">жалғанбаған: ${r.empty}</span>`:'');
     return `<tr class="${cls2}"><td>${who}</td><td><b>${r.total}-тен ${r.ok}</b></td><td>${err||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
 function pollResults(){if(!teacherMode||!window.__SYNC_URL)return;
-  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Google скрипті ескі нұсқада: нәтижелер қабылданбайды. Жаңа Code.gs кодын қойып, «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть» жасаңыз.';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();if(typeof drawClassRefl==='function')drawClassRefl();if(typeof drawGrpResults==='function'){drawGrpResults();$('#grpUpd').textContent=$('#resUpd').textContent;}}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
+  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Google скрипті ескі нұсқада: нәтижелер қабылданбайды. Жаңа Code.gs кодын қойып, «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть» жасаңыз.';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();if(typeof drawClassRefl==='function')drawClassRefl();if(typeof drawProg==='function')drawProg();if(typeof drawGoalTbl==='function')drawGoalTbl();if(typeof drawGrpResults==='function'){drawGrpResults();$('#grpUpd').textContent=$('#resUpd').textContent;}}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
 $('#resClear').addEventListener('click',()=>{if(!window.__SYNC_URL)return;
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:'clearResults'})}).then(()=>setTimeout(pollResults,1500)).catch(()=>{});
   resList=[];drawResults();});
@@ -1699,6 +1762,57 @@ function drawClassRefl(){const box=$('#crBody');if(!box)return;const cls=pkClass
 window.addEventListener('hashchange',()=>{if(location.hash==='#refleksiya'&&teacherMode)drawClassRefl();});
 document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawClassRefl,0)));
 if(teacherMode){drawClassRefl();if(window.__SYNC_URL)$('#crNote').hidden=true;}
+
+/* ---------- side menu: exit button ---------- */
+$('#ssExit').addEventListener('click',()=>{if(typeof askExit==='function')askExit();});
+$('#ssChange').addEventListener('click',()=>$('#stuChange').click());
+drawStudent();updateLocks();
+
+/* ---------- practice / extra tasks progress ---------- */
+var lastProgSent={};
+function sendProg(force){if(teacherMode||!student||!window.__SYNC_URL)return;
+  const od=Math.min(olyDone,olySteps.length);const dd=tasks.filter(t=>done[t.id]).map(t=>t.id);
+  const qk=quizOk();
+  const items=[{suf:'#quiz',n:qk.length,total:quiz.length,partner:qk.join(','),sig:qk.join(',')+'|'+Object.keys(qState).length},
+               {suf:'#oly',n:od,total:olySteps.length,partner:'',sig:String(od)},
+               {suf:'#dop',n:dd.length,total:tasks.length,partner:dd.join(', '),sig:dd.join(',')}];
+  items.forEach(it=>{if(!force&&lastProgSent[it.suf]===it.sig)return;if(!force&&it.n===0&&lastProgSent[it.suf]===undefined){lastProgSent[it.suf]=it.sig;return;}lastProgSent[it.suf]=it.sig;
+    const data={cls:student.cls,name:student.name+it.suf,partner:it.partner,n:it.n,ok:it.n,total:it.total,wrong:[],empty:0,d:todayStr(),t:Date.now()};
+    fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});});}
+if(!teacherMode&&window.__SYNC_URL){setTimeout(()=>sendProg(false),3000);setInterval(()=>sendProg(false),8000);}
+function drawProg(){const cls=pkClass;const today=todayStr();
+  [['oly','#oly'],['dop','#dop']].forEach(([key,suf])=>{const box=$('#pg-'+key);if(!box)return;const body=box.querySelector('.pg-body');box.querySelector('.pg-cls').textContent=cls||'';
+    if(!cls||!CLASSES[cls]){body.innerHTML='<tr><td colspan="4">«Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
+    const latest={};(resList||[]).forEach(r=>{if(r&&r.cls===cls&&r.d===today&&String(r.name).endsWith(suf)){const n=String(r.name).slice(0,-suf.length);if(!latest[n]||latest[n].t<r.t)latest[n]=r;}});
+    const names=presentOf(cls).slice();Object.keys(latest).filter(n=>!names.includes(n)).forEach(n=>names.push(n));
+    const total=key==='oly'?olySteps.length:tasks.length;
+    body.innerHTML=names.map(n=>{const r=latest[n];
+      if(!r)return `<tr class="res-wait"><td>${esc(n)}</td><td>әлі бастаған жоқ</td><td>—</td><td>—</td></tr>`;
+      const ok=+r.ok||0,tt=+r.total||total;const cl=ok>=tt?'res-ok':ok>=Math.ceil(tt/2)?'res-mid':'res-low';
+      const det=key==='oly'?(ok>=tt?'бағдарлама дайын':`қазір ${ok+1}-қадам`):(r.partner?String(r.partner).split(', ').map(x=>`<code>${esc(x)}</code>`).join(' '):'—');
+      return `<tr class="${cl}"><td>${esc(n)}</td><td><b>${ok} / ${tt}</b><span class="pg-bar"><span style="width:${tt?Math.round(ok/tt*100):0}%"></span></span></td><td>${det}</td><td>${hhmm(r.t)}</td></tr>`;}).join('')||'<tr><td colspan="4">Сыныпта оқушы жоқ.</td></tr>';});}
+window.addEventListener('hashchange',()=>{if(teacherMode&&(location.hash==='#praktika'||location.hash==='#dop'))drawProg();});
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawProg,0)));
+if(teacherMode)drawProg();
+
+/* ---------- teacher: goal by individual tasks ---------- */
+function drawGoalTbl(){const box=$('#glBody');if(!box)return;const cls=pkClass;
+  if(!cls||!CLASSES[cls]){box.innerHTML='<tr><td colspan="8">«Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
+  const today=todayStr();const L={};
+  (resList||[]).forEach(r=>{if(!r||r.cls!==cls||r.d!==today)return;const m=String(r.name).match(/^(.*)#(quiz|oly|dop)$/);if(!m)return;
+    const k=m[1]+'|'+m[2];if(!L[k]||L[k].t<r.t)L[k]=r;});
+  const names=presentOf(cls).slice();Object.keys(L).map(k=>k.split('|')[0]).forEach(n=>{if(!names.includes(n))names.push(n);});
+  const ic={ok:'✓',part:'◐',no:'○'};
+  box.innerHTML=names.map(n=>{const q=L[n+'|quiz'],o=L[n+'|oly'],d=L[n+'|dop'];
+    if(!q&&!o&&!d)return `<tr class="res-wait"><td>${esc(n)}</td><td>—</td><td>—</td><td>—</td><td class="gl-c no">○</td><td class="gl-c no">○</td><td class="gl-c no">○</td><td>дерек жоқ</td></tr>`;
+    const qOk=q&&q.partner?String(q.partner).split(',').filter(x=>x!=='').map(Number):[];
+    const dop=d&&d.partner?String(d.partner).split(', ').filter(Boolean):[];
+    const g=goalEval({qOk,oly:o?+o.ok||0:0,dop});const lvl=g.reached+1;
+    return `<tr><td>${esc(n)}</td><td>${q?q.ok+' / '+q.total:'—'}</td><td>${o?o.ok+' / '+o.total:'—'}</td><td>${d?d.ok+' / '+d.total:'—'}</td>`+
+      g.lv.map(v=>`<td class="gl-c ${v}">${ic[v]}</td>`).join('')+`<td><span class="cr-goal g${lvl}">${GOAL_LBL[lvl]}</span></td></tr>`;}).join('')||'<tr><td colspan="8">Сыныпта оқушы жоқ.</td></tr>';}
+window.addEventListener('hashchange',()=>{if(teacherMode&&location.hash==='#refleksiya')drawGoalTbl();});
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawGoalTbl,0)));
+if(teacherMode)drawGoalTbl();
 
 /* ---------- reflection ---------- */
 ['st1','st2','st3','st4'].forEach(id=>{const el=$('#'+id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked));});
