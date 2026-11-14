@@ -218,7 +218,7 @@ table.levels-plan td:first-child{width:130px}
 .conf-sum{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:16px;display:grid;gap:10px}
 .conf-sum h3{font-size:1rem}
 .cs-rows{display:grid;gap:4px}
-.cs-row{display:grid;grid-template-columns:minmax(110px,170px) 1fr 52px;gap:10px;align-items:center;text-decoration:none;color:var(--ink);font-size:.88rem;padding:3px 0}
+.cs-row{display:grid;grid-template-columns:minmax(110px,170px) 1fr 64px;gap:10px;align-items:center;text-decoration:none;color:var(--ink);font-size:.88rem;padding:3px 0}
 .cs-bar{height:10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
 .cs-bar span{display:block;height:100%;background:var(--a)}
 .cs-bar span.lv1,.cs-bar span.lv2{background:var(--bad)}
@@ -355,6 +355,19 @@ nav a.st-miss{color:var(--bad);background:var(--bad-soft)}
 nav a.st-done[aria-current=page],nav a.st-miss[aria-current=page]{background:var(--ink);color:var(--bg)}
 nav a.st-done[aria-current=page]{box-shadow:inset 0 -3px 0 var(--hit)}
 nav a.st-miss[aria-current=page]{box-shadow:inset 0 -3px 0 var(--bad)}
+.cr-tbl{min-width:760px}
+.cr-tbl th,.cr-tbl td{text-align:center;padding:6px 4px}
+.cr-tbl th:first-child,.cr-tbl td:first-child{text-align:left;padding-left:10px;white-space:nowrap}
+.cr-c{font-family:var(--f-mono);font-weight:600;border-radius:4px}
+.cr-c.c1,.cr-c.c2{background:var(--bad-soft);color:var(--bad)}
+.cr-c.c3{background:var(--b-soft);color:var(--b)}
+.cr-c.c4,.cr-c.c5{background:var(--ok-soft);color:var(--hit)}
+.cr-c.c0{color:var(--muted)}
+.cr-goal{font-size:.78rem;font-weight:600;border-radius:6px;padding:2px 7px;white-space:nowrap}
+.cr-goal.g0{background:var(--bad-soft);color:var(--bad)} .cr-goal.g1{background:var(--a-soft);color:var(--a)} .cr-goal.g2{background:var(--b-soft);color:var(--b)} .cr-goal.g3{background:var(--ok-soft);color:var(--hit)}
+.cr-legend{font-size:.8rem;color:var(--muted)}
+body.teacher #goalCard,body.teacher #confSum,body.teacher .refl,body.teacher #stuLine{display:none!important}
+.cs-v{white-space:nowrap}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -795,6 +808,15 @@ s.discard(2)</pre></div>
 
   <section id="refleksiya">
     <div class="sec-head"><h2>Рефлексия</h2><p>Достижение цели считается автоматически по заданиям «Найди ошибку» и «Практическая работа». Самооценку отметьте честно. Записи сохраняются только в этом браузере.</p></div>
+    <div class="results t-only" id="classRefl">
+      <div class="pk-top"><span class="pk-title">Рефлексия класса</span><span class="pk-ctrl"><span class="pr-cls" id="crCls"></span><span class="res-upd" id="crUpd"></span></span></div>
+      <p class="howto" id="crNote">Класс и отсутствующие берутся из блока «Кто отвечает?» на вкладке «Повторение». Данные приходят от учеников в скачанных файлах со связью через Google-скрипт.</p>
+      <h3 class="sub" style="margin:4px 0 0">Уверенность класса по этапам</h3>
+      <div class="cs-rows" id="crBars"></div>
+      <h3 class="sub" style="margin:10px 0 0">Ученики</h3>
+      <div class="tbl-wrap"><table class="res-tbl cr-tbl"><thead id="crHead"></thead><tbody id="crBody"></tbody></table></div>
+      <p class="cr-legend" id="crLegend"></p>
+    </div>
     <div class="stu-line" id="stuLine" hidden></div>
     <div class="goal-card" id="goalCard"></div>
     <div class="conf-sum" id="confSum"></div>
@@ -1208,7 +1230,7 @@ panels.forEach(p=>{if(!CONF_Q[p.id])return;const box=document.createElement('div
   box.innerHTML=`<div class="conf-q"><span class="conf-tag">Самооценка</span>${esc(CONF_Q[p.id])}</div>
    <div class="conf-row" role="group" aria-label="Уверенность от 1 до 5">${[1,2,3,4,5].map(n=>`<button type="button" class="conf-b" data-v="${n}" title="${CONF_L[n]}">${n}</button>`).join('')}<span class="conf-val"></span></div>
    <div class="conf-scale"><span>1 — не понимаю</span><span>5 — могу объяснить другому</span></div>`;
-  box.querySelectorAll('.conf-b').forEach(b=>b.addEventListener('click',()=>{confState[p.id]=+b.dataset.v;store.set('conf',confState);paintConf(box,p.id);updateLocks();}));
+  box.querySelectorAll('.conf-b').forEach(b=>b.addEventListener('click',()=>{confState[p.id]=+b.dataset.v;store.set('conf',confState);paintConf(box,p.id);updateLocks();if(typeof sendConf==='function')sendConf(true);}));
   p.appendChild(box);paintConf(box,p.id);});
 
 panels.forEach((p,i)=>{const pg=document.createElement('div');pg.className='pager';
@@ -1352,7 +1374,7 @@ function renderGoal(){
      [best([stTask('C1'),stTask('C2')]),'Доп. задача C1 или C2','#dop']]},
   ];
   const lv=levels.map(L=>{const st=L.items.map(x=>x[0]);return st.every(x=>x==='ok')?'ok':st.some(x=>x!=='no')?'part':'no';});
-  let reached=-1;for(let i=0;i<lv.length;i++){if(lv[i]==='ok')reached=i;else break;}
+  let reached=-1;for(let i=0;i<lv.length;i++){if(lv[i]==='ok')reached=i;else break;}lastGoal=reached;
   const anyHelp=levels.some(L=>L.items.some(x=>x[0]==='help'));
   const msg=reached<0?['Цель урока пока не достигнута','Начните с шагов 1–2 олимпиады и ошибок 1 и 3 — это базовый уровень.']:
     reached===0?['Цель 8.2.1.5 достигнута на базовом уровне','Вы умеете создавать множество и проверять элемент. Следующий шаг — методы remove и discard: шаги 3–6 олимпиады.']:
@@ -1574,7 +1596,7 @@ function onMatchCheck(r){if(teacherMode||!student||!window.__SYNC_URL)return;
 function hhmm(t){const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClass;
   if(!window.__SYNC_URL){$('#resNote').hidden=false;}
-  const today=todayStr();const rs=resList.filter(r=>r&&r.cls===cls&&r.d===today&&!String(r.name).endsWith('#dbg'));
+  const today=todayStr();const rs=resList.filter(r=>r&&r.cls===cls&&r.d===today&&!String(r.name).includes('#'));
   let lp=store.get('lastPairs',null);if(!(lp&&lp.cls===cls&&lp.d===today)&&livePairsT&&livePairsT.cls===cls&&Array.isArray(livePairsT.pairs)){lp={cls,d:today,pairs:livePairsT.pairs.map(x=>x&&x.m).filter(Array.isArray)};}const rows=[];const used=new Set();
   if(lp&&lp.cls===cls&&lp.d===today){lp.pairs.forEach(pr=>{const r=rs.filter(x=>pr.includes(x.name)).sort((a,b)=>b.t-a.t)[0];if(r)used.add(r.name);rows.push({pair:pr,r});});}
   rs.filter(r=>!used.has(r.name)).forEach(r=>rows.push({pair:[r.name].concat(r.partner?[r.partner]:[]),r}));
@@ -1587,7 +1609,7 @@ function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClas
     const err=(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')+(r.empty?` <span class="res-empty">не соединено: ${r.empty}</span>`:'');
     return `<tr class="${cls2}"><td>${who}</td><td><b>${r.ok} из ${r.total}</b></td><td>${err||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
 function pollResults(){if(!teacherMode||!window.__SYNC_URL)return;
-  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Скрипт Google старой версии: результаты не принимаются. Вставьте новый Code.gs и сделайте «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть».';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='обновлено '+hhmm(Date.now());drawResults();if(typeof drawGrpResults==='function'){drawGrpResults();$('#grpUpd').textContent=$('#resUpd').textContent;}}).catch(()=>{$('#resUpd').textContent='нет связи со скриптом';});}
+  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Скрипт Google старой версии: результаты не принимаются. Вставьте новый Code.gs и сделайте «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть».';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='обновлено '+hhmm(Date.now());drawResults();if(typeof drawClassRefl==='function')drawClassRefl();if(typeof drawGrpResults==='function'){drawGrpResults();$('#grpUpd').textContent=$('#resUpd').textContent;}}).catch(()=>{$('#resUpd').textContent='нет связи со скриптом';});}
 $('#resClear').addEventListener('click',()=>{if(!window.__SYNC_URL)return;
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:'clearResults'})}).then(()=>setTimeout(pollResults,1500)).catch(()=>{});
   resList=[];drawResults();});
@@ -1646,6 +1668,37 @@ function grpShowMine(){const box=$('#grpMine'),lock=$('#grpLock'),list=$('#dbg')
     lock.innerHTML=`<b>Задания выполняет ведущий группы — ${esc(grpState.leader)}.</b><br>Подойди к компьютеру ведущего и работайте вместе: обсуждайте каждую ошибку и вместе нажимайте «Проверить».`;}}
 window.addEventListener('hashchange',()=>{if(location.hash==='#oshibka'){if(teacherMode){drawGrpT();drawGrpResults();}else grpShowMine();}});
 if(teacherMode){drawGrpT();drawGrpResults();}else grpShowMine();
+
+/* ---------- class reflection (teacher) ---------- */
+var lastGoal=-1,lastConfSent='';
+function sendConf(force){if(teacherMode||!student||!window.__SYNC_URL)return;
+  try{renderGoal();}catch(e){}
+  const ids=Object.keys(CONF_Q);const digits=ids.map(id=>confState[id]||0).join('');
+  const data={cls:student.cls,name:student.name+'#conf',partner:digits,n:lastGoal+1,ok:ids.filter(id=>confState[id]).length,total:ids.length,wrong:[],empty:0,d:todayStr(),t:Date.now()};
+  const sig=digits+'|'+data.n;if(!force&&sig===lastConfSent)return;lastConfSent=sig;
+  fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});}
+if(!teacherMode&&window.__SYNC_URL){setTimeout(()=>sendConf(false),2500);setInterval(()=>sendConf(false),20000);}
+const GOAL_LBL=['не достигнута','Все','Большинство','Некоторые'];
+function drawClassRefl(){const box=$('#crBody');if(!box)return;const cls=pkClass;$('#crCls').textContent=cls||'';
+  const ids=Object.keys(CONF_Q);
+  $('#crHead').innerHTML='<tr><th>Ученик</th>'+ids.map((id,i)=>`<th title="${esc(titleOf(id))}">${i+1}</th>`).join('')+'<th>Ср.</th><th>Цель</th></tr>';
+  $('#crLegend').textContent=ids.map((id,i)=>`${i+1} — ${titleOf(id)}`).join(' · ');
+  if(!cls||!CLASSES[cls]){box.innerHTML=`<tr><td colspan="${ids.length+3}">Выберите класс в блоке «Кто отвечает?» на вкладке «Повторение».</td></tr>`;$('#crBars').innerHTML='';return;}
+  const today=todayStr();const latest={};
+  (resList||[]).forEach(r=>{if(r&&r.cls===cls&&r.d===today&&String(r.name).endsWith('#conf')){const n=String(r.name).slice(0,-5);if(!latest[n]||latest[n].t<r.t)latest[n]=r;}});
+  const names=presentOf(cls);const rows=names.map(n=>({n,r:latest[n]}));
+  Object.keys(latest).filter(n=>!names.includes(n)).forEach(n=>rows.push({n,r:latest[n]}));
+  const sums=ids.map(()=>[0,0]);
+  box.innerHTML=rows.map(({n,r})=>{const dg=r?String(r.partner||''):'';const vals=ids.map((_,i)=>+dg[i]||0);vals.forEach((v,i)=>{if(v){sums[i][0]+=v;sums[i][1]++;}});
+    const marked=vals.filter(Boolean);const avg=marked.length?(marked.reduce((a,b)=>a+b,0)/marked.length):0;
+    const lvl=r?Math.max(0,Math.min(3,(+r.n)||0)):-1;
+    return `<tr class="${r?'':'res-wait'}"><td>${esc(n)}</td>`+vals.map(v=>`<td class="cr-c c${v}">${v||'—'}</td>`).join('')+
+      `<td><b>${marked.length?avg.toFixed(1):'—'}</b></td><td>${r?`<span class="cr-goal g${lvl}">${GOAL_LBL[lvl]}</span>`:'нет данных'}</td></tr>`;}).join('');
+  $('#crBars').innerHTML=ids.map((id,i)=>{const [sum,cnt]=sums[i];const avg=cnt?sum/cnt:0;const lv=Math.round(avg);
+    return `<div class="cs-row"><span class="cs-name">${esc(titleOf(id))}</span><span class="cs-bar"><span style="width:${avg*20}%" class="lv${lv}"></span></span><span class="cs-v">${cnt?avg.toFixed(1)+' ('+cnt+')':'—'}</span></div>`;}).join('');}
+window.addEventListener('hashchange',()=>{if(location.hash==='#refleksiya'&&teacherMode)drawClassRefl();});
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawClassRefl,0)));
+if(teacherMode){drawClassRefl();if(window.__SYNC_URL)$('#crNote').hidden=true;}
 
 /* ---------- reflection ---------- */
 ['st1','st2','st3','st4'].forEach(id=>{const el=$('#'+id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked));});
