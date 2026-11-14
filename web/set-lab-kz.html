@@ -50,7 +50,7 @@ nav{display:flex;flex-wrap:nowrap;gap:2px;flex:1 1 auto;min-width:0;overflow-x:a
 nav a{text-decoration:none;color:var(--muted);font-size:.8rem;padding:6px 6px;border-radius:8px;white-space:nowrap}
 nav a:hover{background:var(--bg);color:var(--ink)}
 .lang-sw{margin-left:auto;flex:none;display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-size:.8rem;font-weight:600}
-.lang-sw span,.lang-sw a{padding:5px 10px;text-decoration:none}
+.lang-sw span,.lang-sw a,.lang-sw button{padding:5px 10px;text-decoration:none;border:0;background:transparent;font:inherit;color:var(--ink)}
 .lang-sw span{background:var(--ink);color:var(--bg)}
 .lang-sw a{color:var(--ink)}
 .lang-sw a:hover{background:var(--bg)}
@@ -319,6 +319,9 @@ body.teacher #matchA{display:block!important}
 .start-langs{display:flex;flex-wrap:wrap;gap:8px}
 .start-langs .pk-cls{padding:9px 18px;font-size:1rem;font-family:var(--f-body);text-decoration:none;display:inline-block}
 .start-hint{font-size:.82rem;color:var(--muted);margin-top:6px}
+.live-ans{border-radius:12px;padding:12px 16px;background:var(--a-soft);border:1px solid var(--a);font-size:1.05rem;margin-bottom:10px}
+.live-ans.me{background:var(--b-soft);border:2px solid var(--b);font-size:1.15rem}
+.pk-live{font-size:.75rem;font-weight:600;color:var(--hit);background:var(--ok-soft);border-radius:6px;padding:2px 8px;margin-left:8px}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -440,15 +443,15 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <nav aria-label="Сабақ бөлімдері">
     <a href="#povtorenie">Қайталау</a><a href="#tema">Тақырып қандай?</a><a href="#cel">Сабақ мақсаты</a><a href="#svoistva">Анықтама</a><a href="#lab">Машина</a><a href="#metody">Әдістер</a><a href="#pesochnica">Құмсалғыш</a><a href="#kakoy">Қай әдіс?</a><a href="#oshibka">Қатені тап</a><a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Қосымша есептер</a><a href="#refleksiya">Рефлексия</a>
   </nav>
-  <div class="lang-sw"><span>Қаз</span><a href="https://claude.ai/artifact/UnZXe8h99VapXUEZsrc3Ue" target="_blank" rel="noopener" title="Русская версия">Рус</a></div>
+  <div class="lang-sw"><span>Қаз</span><button type="button" data-lang="ru" title="Русский">Рус</button></div>
 </div></header>
 
 <div class="start" id="startScreen" hidden>
   <div class="start-card">
     <div class="eyebrow">Информатика · 8 сынып · Жиын: set</div>
-    <h1>Сен кімсің?</h1>
+    <h1>Сабаққа кіру</h1>
     <p class="start-note" id="startNote">Алдымен тілді, содан кейін сыныпты, кейін тегің мен атыңды таңда.</p>
-    <div class="start-step"><div class="start-lbl">1. Тіл / Язык</div><div class="start-langs"><button type="button" class="pk-cls" id="stLangCur" aria-pressed="false">Қазақша</button><a class="pk-cls lang-other" href="https://claude.ai/artifact/UnZXe8h99VapXUEZsrc3Ue" target="_blank" rel="noopener">Русский</a></div><p class="start-hint">«Русский» орыс тіліндегі нұсқаны жаңа қойындыда ашады.</p></div>
+    <div class="start-step"><div class="start-lbl">1. Тіл / Язык</div><div class="start-langs"><button type="button" class="pk-cls" id="stLangCur" aria-pressed="false">Қазақша</button><button type="button" class="pk-cls lang-other" data-lang="ru">Русский</button></div></div>
     <div class="start-step" id="stClsStep" hidden><div class="start-lbl">2. Сынып</div><div class="start-classes" id="stClasses" role="group" aria-label="Сынып"></div></div>
     <div class="start-step" id="stNamesStep" hidden><div class="start-lbl">3. Тегі мен аты</div><div class="start-names" id="stNames" role="group" aria-label="Оқушы"></div>
       <button type="button" class="st-missing" id="stMissing">Мен тізімде жоқпын</button>
@@ -468,7 +471,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <section id="povtorenie">
     <div class="sec-head"><h2>Қайталау: тізім және кортеж</h2><p>Өткен сабақтарды еске түсірейік: тізім мен кортеж әдістері және олардың қалай жұмыс істейтіні. Уақыты — шамамен 3 минут.</p></div>
     <div class="picker" id="picker">
-      <div class="pk-top"><span class="pk-title">Кім жауап береді?</span><div class="pk-classes" role="group" aria-label="Сынып"><button class="pk-cls" type="button" data-c="8A" aria-pressed="false">8A</button><button class="pk-cls" type="button" data-c="8B" aria-pressed="false">8B</button><button class="pk-cls" type="button" data-c="8D" aria-pressed="false">8D</button><button class="pk-cls" type="button" data-c="8E" aria-pressed="false">8E</button><button class="pk-cls" type="button" data-c="8F" aria-pressed="false">8F</button></div></div>
+      <div class="pk-top"><span class="pk-title">Кім жауап береді?</span><span class="pk-live" id="pkLive" hidden>оқушыларға көрінеді</span><div class="pk-classes" role="group" aria-label="Сынып"><button class="pk-cls" type="button" data-c="8A" aria-pressed="false">8A</button><button class="pk-cls" type="button" data-c="8B" aria-pressed="false">8B</button><button class="pk-cls" type="button" data-c="8D" aria-pressed="false">8D</button><button class="pk-cls" type="button" data-c="8E" aria-pressed="false">8E</button><button class="pk-cls" type="button" data-c="8F" aria-pressed="false">8F</button></div></div>
       <div class="pk-main">
         <div class="pk-name" id="pkName" aria-live="polite">Алдымен сыныпты таңдаңыз</div>
         <div class="pk-ctrl">
@@ -479,6 +482,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
       </div>
       <div class="pk-left" id="pkLeft"></div>
     </div>
+    <div class="live-ans s-only" id="liveAns" hidden></div>
     <h3 class="sub">1. Ауызша сұрау «Дұрыс / Бұрыс» <span class="time">≈ 1 мин</span></h3>
     <p class="howto">Мұғалім тұжырымды оқиды, сынып сигнал карточкаларын көтереді. Жауап басқанда ашылады.</p>
     <div class="qcards tf">
@@ -763,6 +767,7 @@ s.discard(2)</pre></div>
 (function(){
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CUR_LANG='kz';
 const store={get(k,d){try{const v=localStorage.getItem('setlab2:'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('setlab2:'+k,JSON.stringify(v))}catch(e){}}};
 
 /* ---------- Python runner ---------- */
@@ -1318,7 +1323,8 @@ function pkDraw(){document.querySelectorAll('.pk-cls').forEach(b=>b.setAttribute
   $('#pkLeft').textContent=`${pkClass}: әлі жауап бермегендер ${all.length-used.length}/${all.length}`;}
 document.querySelectorAll('.pk-cls').forEach(b=>b.addEventListener('click',()=>{pkClass=b.dataset.c;store.set('pkClass',pkClass);$('#pkName').textContent='«Оқушыны таңдау» батырмасын басыңыз';$('#pkName').classList.remove('picked');pkDraw();}));
 let pkBusy=false;
-function pickStudent(target){
+let pkQ=null;
+function pickStudent(target){pkQ=target?[...document.querySelectorAll('.qcards.tf .pk-chip')].indexOf(target)+1:null;
   if(!pkClass){toast('Алдымен «Кім жауап береді?» блогында сыныпты таңдаңыз');$('#picker').scrollIntoView({block:'center'});return;}
   if(pkBusy)return;const all=CLASSES[pkClass];let used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
   let pool=$('#pkNoRep').checked?all.filter(n=>!used.includes(n)):all.slice();
@@ -1326,13 +1332,13 @@ function pickStudent(target){
   const name=pool[Math.floor(Math.random()*pool.length)];
   used.push(name);pkUsed[pkClass]=used;store.set('pkUsed',pkUsed);
   const el=$('#pkName');el.classList.remove('picked');pkBusy=true;
-  const finish=()=>{el.textContent=name;el.classList.add('picked');pkBusy=false;pkDraw();
+  const finish=()=>{el.textContent=name;el.classList.add('picked');pkBusy=false;pkDraw();liveWrite('now',{cls:pkClass,name,q:pkQ||0,t:Date.now()});
     if(target){target.hidden=false;target.textContent=name;}};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
   let k=0;const spin=setInterval(()=>{el.textContent=all[Math.floor(Math.random()*all.length)];if(++k>=14){clearInterval(spin);finish();}},70);
 }
 $('#pkGo').addEventListener('click',()=>pickStudent(null));
-$('#pkReset').addEventListener('click',()=>{if(pkClass){pkUsed[pkClass]=[];store.set('pkUsed',pkUsed);}document.querySelectorAll('.pk-chip').forEach(c=>{c.hidden=true;c.textContent='';});$('#pkName').textContent=pkClass?'«Оқушыны таңдау» батырмасын басыңыз':'Алдымен сыныпты таңдаңыз';$('#pkName').classList.remove('picked');pkDraw();});
+$('#pkReset').addEventListener('click',()=>{if(pkClass){pkUsed[pkClass]=[];store.set('pkUsed',pkUsed);liveWrite('now',{cls:pkClass,name:'',q:0,t:Date.now()});}document.querySelectorAll('.pk-chip').forEach(c=>{c.hidden=true;c.textContent='';});$('#pkName').textContent=pkClass?'«Оқушыны таңдау» батырмасын басыңыз':'Алдымен сыныпты таңдаңыз';$('#pkName').classList.remove('picked');pkDraw();});
 document.querySelectorAll('.qcards.tf .pk-mini').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();pickStudent(b.parentElement.querySelector('.pk-chip'));}));
 pkDraw();
 if(pkClass)$('#pkName').textContent='«Оқушыны таңдау» батырмасын басыңыз';
@@ -1350,7 +1356,7 @@ function stDrawNames(){const st=$('#stNamesStep');st.hidden=!stPick.cls;$('#stGo
   $('#stNames').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stPick.name=b.textContent;stPick.manual=false;stManualOpen=false;stDrawNames();$('#stChosen').textContent=`${stPick.name}, ${stPick.cls}`;
     $('#stGo').textContent=(student&&(student.name!==stPick.name||student.cls!==stPick.cls))?'Сабақты қайта бастау →':'Сабақты бастау →';}));}
 let stLangOk=false;
-function openStart(mode){stMode=mode;stManualOpen=false;stLangOk=mode==='change'||!!student;$('#stClsStep').hidden=!stLangOk;$('#stLangCur').setAttribute('aria-pressed',stLangOk);stPick=student&&CLASSES[student.cls]?{cls:student.cls,name:null}:{cls:null,name:null};$('#stManName').value='';$('#stManCls').value='';$('#stManErr').hidden=true;
+function openStart(mode){stMode=mode;stManualOpen=false;stLangOk=mode==='change'||!!student||store.get('lang',null)===CUR_LANG;$('#stClsStep').hidden=!stLangOk;$('#stLangCur').setAttribute('aria-pressed',stLangOk);stPick=student&&CLASSES[student.cls]?{cls:student.cls,name:null}:{cls:null,name:null};$('#stManName').value='';$('#stManCls').value='';$('#stManErr').hidden=true;
   $('#startNote').textContent=mode==='change'?'Компьютерге басқа оқушы отырса, соны таңда. Алдыңғы оқушының осы компьютердегі прогресі жойылады.':'Алдымен тілді, содан кейін сыныпты, кейін тегің мен атыңды таңда.';
   $('#stCancel').hidden=mode!=='change';stDrawClasses();stDrawNames();$('#startScreen').hidden=false;document.body.classList.add('locked-scroll');}
 function closeStart(){$('#startScreen').hidden=true;document.body.classList.remove('locked-scroll');}
@@ -1363,7 +1369,7 @@ $('#stGo').addEventListener('click',()=>{if(!stPick.name)return;
     store.set('student',{cls:stPick.cls,name:stPick.name,manual:!!stPick.manual});try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}
   student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();});
 $('#stCancel').addEventListener('click',closeStart);
-$('#stLangCur').addEventListener('click',()=>{stLangOk=true;$('#stLangCur').setAttribute('aria-pressed','true');$('#stClsStep').hidden=false;});
+$('#stLangCur').addEventListener('click',()=>{store.set('lang',CUR_LANG);stLangOk=true;$('#stLangCur').setAttribute('aria-pressed','true');$('#stClsStep').hidden=false;});
 $('#stMissing').addEventListener('click',()=>{stManualOpen=true;stPick.name=null;stDrawNames();$('#stManName').focus();});
 $('#stManual').addEventListener('submit',e=>{e.preventDefault();const err=$('#stManErr');
   const name=$('#stManName').value.trim().replace(/\s+/g,' ');const other=!CLASSES[stPick.cls];const cls=other?$('#stManCls').value.trim().toUpperCase():stPick.cls;
@@ -1397,7 +1403,7 @@ $('#prMake').addEventListener('click',()=>{const cls=pkClass;if(!cls||!CLASSES[c
   let mask=0;CLASSES[cls].forEach((n,i)=>{if(prPresentSet.has(n))mask|=(1<<i);});
   if(!mask){toast('Кемінде бір қатысып отырған оқушыны белгілеңіз.');return;}
   const seed=10+Math.floor(Math.random()*90);const code=`${seed}-${mask.toString(16).toUpperCase()}`;
-  const pairs=makePairs(cls,seed,mask);
+  const pairs=makePairs(cls,seed,mask);liveWrite('pairs',{cls,pairs:pairs.map(x=>({m:x})),t:Date.now()});
   $('#prList').innerHTML=pairs.map(pr=>`<li><b>${esc(pr[0])}</b> <span class="pr-lead">орындайды</span> — ${pr.slice(1).map(esc).join(', ')}</li>`).join('');});
 document.querySelectorAll('.pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(prDrawTeacher,0)));
 prDrawTeacher();
@@ -1418,6 +1424,30 @@ function prShowMine(){const box=$('#prMine'),lock=$('#matchLock'),board=$('#matc
     lock.innerHTML=`<b>Тапсырманы серігің орындайды — ${esc(prState.partner)}.</b><br>Серігіңнің компьютеріне барып, бірге жұмыс істеңдер: әр жұпты талқылап, «Тексеру» батырмасын бірге басыңдар.`;}}
 $('#prRole').querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{if(!prState)return;prState.role=btn.dataset.r;store.set('pair',prState);prShowMine();}));
 if(!teacherMode)prShowMine();
+
+/* ---------- owner check + live link teacher -> students ---------- */
+const capUse=n=>(window.claude&&typeof window.claude.use==='function')?Promise.resolve(window.claude.use(n)).catch(()=>null):Promise.resolve(undefined);
+let liveDb=null;
+async function liveWrite(key,data){if(!teacherMode||!liveDb)return;try{await liveDb.doc('live/'+key).set(data);}catch(e){toast('Оқушыларға жіберу мүмкін болмады: '+(e&&e.code||'қате'));}}
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{store.set('lang',b.dataset.lang);try{history.replaceState(null,'',location.pathname+location.search+(teacherMode?'#uchitel':''));}catch(e){}location.reload();}));
+(async()=>{
+  const u=await capUse('user');let owner=true;
+  if(u!==undefined){try{owner=!!(u&&await u.isOwner());}catch(e){owner=false;}}
+  if(!owner&&teacherMode){teacherMode=false;store.set('teacher',false);updateLocks();drawStudent();showTab();if(!student)openStart('first');prShowMine();toast('Мұғалім беті тек сайт иесінде ашылады.');}
+  const d=await capUse('db');if(!d)return;liveDb=d;
+  if(teacherMode){$('#pkLive').hidden=false;return;}
+  const fresh=t=>t&&Date.now()-t<3*60*60*1000;
+  d.doc('live/now').onSnapshot(snap=>{const box=$('#liveAns'),v=snap.exists?snap.data():null;
+    if(!v||!student||v.cls!==student.cls||!v.name||!fresh(v.t)){box.hidden=true;return;}
+    const me=v.name===student.name;box.hidden=false;box.className='live-ans s-only'+(me?' me':'');
+    box.innerHTML=me?`<b>Қазір сен жауап бересің!</b>${v.q?` №${v.q} тұжырым.`:''}`:`Қазір жауап беретін: <b>${esc(v.name)}</b>${v.q?` — №${v.q} тұжырым`:''}`;},()=>{});
+  d.doc('live/pairs').onSnapshot(snap=>{const v=snap.exists?snap.data():null;
+    if(!v||!student||v.cls!==student.cls||!fresh(v.t)||!Array.isArray(v.pairs))return;
+    const pr=v.pairs.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!pr)return;
+    if(prState&&prState.t===v.t)return;
+    const lead=pr[0]===student.name;prState={partner:lead?pr.slice(1).join(', '):pr[0],role:lead?'me':'partner',t:v.t,auto:true};store.set('pair',prState);prShowMine();
+    const h=$('#prHow');if(h)h.textContent='Жұптарды мұғалім тағайындады. Қажет болса, серікті қолмен таңдауға болады.';},()=>{});
+})();
 
 /* ---------- reflection ---------- */
 ['st1','st2','st3','st4'].forEach(id=>{const el=$('#'+id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked));});
