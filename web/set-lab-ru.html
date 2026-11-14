@@ -316,6 +316,9 @@ body.teacher #matchA{display:block!important}
 .pr-role .btn-ghost[aria-pressed=true]{background:var(--a);color:var(--on-a);border-color:var(--a)}
 .pr-mine{background:var(--bg)}
 
+.start-langs{display:flex;flex-wrap:wrap;gap:8px}
+.start-langs .pk-cls{padding:9px 18px;font-size:1rem;font-family:var(--f-body);text-decoration:none;display:inline-block}
+.start-hint{font-size:.82rem;color:var(--muted);margin-top:6px}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -444,9 +447,10 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <div class="start-card">
     <div class="eyebrow">Информатика · 8 класс · Множество: set</div>
     <h1>Кто ты?</h1>
-    <p class="start-note" id="startNote">Выбери свой класс, затем найди свою фамилию и имя.</p>
-    <div class="start-step"><div class="start-lbl">1. Класс</div><div class="start-classes" id="stClasses" role="group" aria-label="Класс"></div></div>
-    <div class="start-step" id="stNamesStep" hidden><div class="start-lbl">2. Фамилия и имя</div><div class="start-names" id="stNames" role="group" aria-label="Ученик"></div>
+    <p class="start-note" id="startNote">Выбери язык, затем класс, затем свою фамилию и имя.</p>
+    <div class="start-step"><div class="start-lbl">1. Язык / Тіл</div><div class="start-langs"><button type="button" class="pk-cls" id="stLangCur" aria-pressed="false">Русский</button><a class="pk-cls lang-other" href="https://claude.ai/artifact/3HbrFDFv82WNgNoaevSheV" target="_blank" rel="noopener">Қазақша</a></div><p class="start-hint">«Қазақша» откроет казахскую версию в новой вкладке.</p></div>
+    <div class="start-step" id="stClsStep" hidden><div class="start-lbl">2. Класс</div><div class="start-classes" id="stClasses" role="group" aria-label="Класс"></div></div>
+    <div class="start-step" id="stNamesStep" hidden><div class="start-lbl">3. Фамилия и имя</div><div class="start-names" id="stNames" role="group" aria-label="Ученик"></div>
       <button type="button" class="st-missing" id="stMissing">Меня нет в списке</button>
       <form class="st-manual" id="stManual" hidden>
         <div class="st-field" id="stManClsWrap" hidden><label for="stManCls">Класс</label><input type="text" id="stManCls" placeholder="Например: 8C" maxlength="10" autocomplete="off"></div>
@@ -1345,8 +1349,9 @@ function stDrawNames(){const st=$('#stNamesStep');st.hidden=!stPick.cls;$('#stGo
   $('#stNames').innerHTML=list.map(n=>`<button type="button" class="st-name" aria-pressed="${n===stPick.name}">${esc(n)}</button>`).join('');
   $('#stNames').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stPick.name=b.textContent;stPick.manual=false;stManualOpen=false;stDrawNames();$('#stChosen').textContent=`${stPick.name}, ${stPick.cls}`;
     $('#stGo').textContent=(student&&(student.name!==stPick.name||student.cls!==stPick.cls))?'Начать урок заново →':'Начать урок →';}));}
-function openStart(mode){stMode=mode;stManualOpen=false;stPick=student&&CLASSES[student.cls]?{cls:student.cls,name:null}:{cls:null,name:null};$('#stManName').value='';$('#stManCls').value='';$('#stManErr').hidden=true;
-  $('#startNote').textContent=mode==='change'?'Если за компьютер садится другой ученик, выбери его. Прогресс предыдущего ученика на этом компьютере будет удалён.':'Выбери свой класс, затем найди свою фамилию и имя.';
+let stLangOk=false;
+function openStart(mode){stMode=mode;stManualOpen=false;stLangOk=mode==='change'||!!student;$('#stClsStep').hidden=!stLangOk;$('#stLangCur').setAttribute('aria-pressed',stLangOk);stPick=student&&CLASSES[student.cls]?{cls:student.cls,name:null}:{cls:null,name:null};$('#stManName').value='';$('#stManCls').value='';$('#stManErr').hidden=true;
+  $('#startNote').textContent=mode==='change'?'Если за компьютер садится другой ученик, выбери его. Прогресс предыдущего ученика на этом компьютере будет удалён.':'Выбери язык, затем класс, затем свою фамилию и имя.';
   $('#stCancel').hidden=mode!=='change';stDrawClasses();stDrawNames();$('#startScreen').hidden=false;document.body.classList.add('locked-scroll');}
 function closeStart(){$('#startScreen').hidden=true;document.body.classList.remove('locked-scroll');}
 function drawStudent(){const on=!!student;$('#stuBar').hidden=!on||teacherMode;$('#stuLine').hidden=!on;
@@ -1358,6 +1363,7 @@ $('#stGo').addEventListener('click',()=>{if(!stPick.name)return;
     store.set('student',{cls:stPick.cls,name:stPick.name,manual:!!stPick.manual});try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}
   student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();});
 $('#stCancel').addEventListener('click',closeStart);
+$('#stLangCur').addEventListener('click',()=>{stLangOk=true;$('#stLangCur').setAttribute('aria-pressed','true');$('#stClsStep').hidden=false;});
 $('#stMissing').addEventListener('click',()=>{stManualOpen=true;stPick.name=null;stDrawNames();$('#stManName').focus();});
 $('#stManual').addEventListener('submit',e=>{e.preventDefault();const err=$('#stManErr');
   const name=$('#stManName').value.trim().replace(/\s+/g,' ');const other=!CLASSES[stPick.cls];const cls=other?$('#stManCls').value.trim().toUpperCase():stPick.cls;
