@@ -349,6 +349,7 @@ body.teacher #matchA{display:block!important}
 .res-tbl code{font-size:.8rem;background:var(--bad-soft);border-radius:4px;padding:1px 5px;white-space:nowrap}
 .res-empty{font-size:.8rem;color:var(--muted)}
 .howto.res-warn{color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 10px;font-weight:500}
+.grp-list{grid-template-columns:1fr}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -736,7 +737,25 @@ s.discard(2)</pre></div>
 
   <section id="oshibka">
     <div class="sec-head"><h2>Қатені тап</h2><p>Әр бағдарламада қате бар. Кодты іске қосып, не дұрыс болмағанын қараңыз, түзетіп, «Тексеру» батырмасын басыңыз. Дұрыс түзету бірінші тексеруден кейін ашылады.</p><span class="score" id="dbgScore">0 / 0</span></div>
+    <div class="pairs t-only" id="grpT">
+      <div class="pk-top"><span class="pk-title">«Қатені тап» үшін топтар</span><span class="pr-cls" id="grpCls"></span></div>
+      <p class="howto">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы «Кім жауап береді?» блогынан алынады. Әр топта 4–5 адам, біріншісі — жетекші: ол компьютерде жұмыс істейді.</p>
+      <div class="pk-ctrl"><button class="btn" type="button" id="grpMake">Топтарға бөлу</button></div>
+      <ol class="pr-list grp-list" id="grpList"></ol>
+    </div>
+    <div class="pairs s-only" id="grpS">
+      <div class="pk-top"><span class="pk-title">Менің тобым</span></div>
+      <p class="howto" id="grpHow">Тобыңның жетекшісін — компьютерде жұмыс істейтін адамды таңда. Топтарды мұғалім экранда көрсетеді.</p>
+      <div class="pr-pick" id="grpPick" role="group" aria-label="Топ жетекшісі"></div>
+      <div class="pr-mine" id="grpMine" hidden></div>
+    </div>
+    <div class="match-lock" id="grpLock" hidden></div>
     <div class="task-list" id="dbg"></div>
+    <div class="results t-only" id="grpResBox">
+      <div class="pk-top"><span class="pk-title">Топтардың нәтижелері</span><span class="res-upd" id="grpUpd"></span></div>
+      <p class="howto">Топ жетекшісі «Тексеру» батырмасын басқанда толтырылады. Google-скрипт арқылы байланысы бар жүктеп алынған файлдарда жұмыс істейді.</p>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Топ</th><th>Түзетілді</th><th>Түзетілмеді</th><th>Уақыты</th></tr></thead><tbody id="grpResBody"></tbody></table></div>
+    </div>
   </section>
 
   <section id="viktorina">
@@ -1155,7 +1174,7 @@ dbg.forEach((d,i)=>{
     dbgTries[i]=(dbgTries[i]||0)+1;store.set('dbgTries',dbgTries);
     if(fail){v.className='verdict no';v.style.whiteSpace='pre-wrap';v.textContent=fail;}
     else{v.className='verdict ok';v.textContent='Қате түзетілді!';dbgDone[i]=true;store.set('dbgDone',dbgDone);}
-    draw();btn.disabled=false;});
+    draw();btn.disabled=false;if(typeof onDbgCheck==='function')onDbgCheck();});
 });
 
 /* ---------- tabs ---------- */
@@ -1415,7 +1434,7 @@ $('#stGo').addEventListener('click',()=>{if(!stPick.name)return;
   const changed=student&&(student.name!==stPick.name||student.cls!==stPick.cls);
   if(changed){try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('setlab2:'))ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));}catch(e){}
     store.set('student',{cls:stPick.cls,name:stPick.name,manual:!!stPick.manual});try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}
-  student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();if(typeof renderNow==='function'){renderNow();renderPairs();}});
+  student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();if(typeof renderNow==='function'){renderNow();renderPairs();}if(typeof grpShowMine==='function')grpShowMine();});
 $('#stCancel').addEventListener('click',closeStart);
 $('#stLangCur').addEventListener('click',()=>{store.set('lang',CUR_LANG);stLangOk=true;$('#stLangCur').setAttribute('aria-pressed','true');$('#stClsStep').hidden=false;});
 $('#stMissing').addEventListener('click',()=>{stManualOpen=true;stPick.name=null;stDrawNames();$('#stManName').focus();});
@@ -1427,7 +1446,7 @@ $('#stManual').addEventListener('submit',e=>{e.preventDefault();const err=$('#st
   err.hidden=true;stPick={cls,name,manual:true};$('#stChosen').textContent=`${name}, ${cls}`;$('#stGoRow').hidden=false;
   $('#stGo').textContent=(student&&(student.name!==name||student.cls!==cls))?'Сабақты қайта бастау →':'Сабақты бастау →';});
 $('#stuChange').addEventListener('click',()=>openStart('change'));
-$('#tExit').addEventListener('click',()=>{teacherMode=false;store.set('teacher',false);updateLocks();drawStudent();showTab();if(!student)openStart('first');prShowMine();});
+$('#tExit').addEventListener('click',()=>{teacherMode=false;store.set('teacher',false);updateLocks();drawStudent();showTab();if(!student)openStart('first');prShowMine();grpShowMine();});
 drawStudent();
 if(!student&&!teacherMode)openStart('first');
 
@@ -1450,7 +1469,7 @@ $('#prMake').addEventListener('click',()=>{const cls=pkClass;if(!cls||!CLASSES[c
   let mask=0;CLASSES[cls].forEach((n,i)=>{if(prPresentSet.has(n))mask|=(1<<i);});
   if(!mask){toast('Кемінде бір қатысып отырған оқушыны белгілеңіз.');return;}
   const seed=10+Math.floor(Math.random()*90);const code=`${seed}-${mask.toString(16).toUpperCase()}`;
-  const pairs=makePairs(cls,seed,mask);liveWrite('pairs',{cls,pairs:pairs.map(x=>({m:x})),t:Date.now()});store.set('lastPairs',{cls,pairs,d:todayStr()});drawResults();
+  const pairs=makePairs(cls,seed,mask);store.set('lastPairs',{cls,pairs,d:todayStr(),t:Date.now()});writePairsDoc();drawResults();
   $('#prList').innerHTML=pairs.map(pr=>`<li><b>${esc(pr[0])}</b> <span class="pr-lead">орындайды</span> — ${pr.slice(1).map(esc).join(', ')}</li>`).join('');});
 document.querySelectorAll('.pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(prDrawTeacher,0)));
 prDrawTeacher();
@@ -1510,7 +1529,7 @@ function renderNow(){const box=$('#liveAns'),v=lastNow;if(!box)return;
     if(teacherMode||!v||!student||v.cls!==student.cls||!v.name||!liveFresh(v.t)){box.hidden=true;return;}
     const me=v.name===student.name;box.hidden=false;box.className='live-ans s-only'+(me?' me':'');
     box.innerHTML=me?`<b>Қазір сен жауап бересің!</b>${v.q?` №${v.q} тұжырым.`:''}`:`Қазір жауап беретін: <b>${esc(v.name)}</b>${v.q?` — №${v.q} тұжырым`:''}`;}
-function renderPairs(){const v=lastPairs;
+function renderPairs(){renderGroups();const v=lastPairs;
     if(teacherMode||!v||!student||v.cls!==student.cls||!liveFresh(v.t)||!Array.isArray(v.pairs))return;
     const pr=v.pairs.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!pr)return;
     if(prState&&prState.t===v.t)return;
@@ -1548,7 +1567,7 @@ function onMatchCheck(r){if(teacherMode||!student||!window.__SYNC_URL)return;
 function hhmm(t){const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClass;
   if(!window.__SYNC_URL){$('#resNote').hidden=false;}
-  const today=todayStr();const rs=resList.filter(r=>r&&r.cls===cls&&r.d===today);
+  const today=todayStr();const rs=resList.filter(r=>r&&r.cls===cls&&r.d===today&&!String(r.name).endsWith('#dbg'));
   let lp=store.get('lastPairs',null);if(!(lp&&lp.cls===cls&&lp.d===today)&&livePairsT&&livePairsT.cls===cls&&Array.isArray(livePairsT.pairs)){lp={cls,d:today,pairs:livePairsT.pairs.map(x=>x&&x.m).filter(Array.isArray)};}const rows=[];const used=new Set();
   if(lp&&lp.cls===cls&&lp.d===today){lp.pairs.forEach(pr=>{const r=rs.filter(x=>pr.includes(x.name)).sort((a,b)=>b.t-a.t)[0];if(r)used.add(r.name);rows.push({pair:pr,r});});}
   rs.filter(r=>!used.has(r.name)).forEach(r=>rows.push({pair:[r.name].concat(r.partner?[r.partner]:[]),r}));
@@ -1561,13 +1580,65 @@ function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClas
     const err=(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')+(r.empty?` <span class="res-empty">жалғанбаған: ${r.empty}</span>`:'');
     return `<tr class="${cls2}"><td>${who}</td><td><b>${r.total}-тен ${r.ok}</b></td><td>${err||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
 function pollResults(){if(!teacherMode||!window.__SYNC_URL)return;
-  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Google скрипті ескі нұсқада: нәтижелер қабылданбайды. Жаңа Code.gs кодын қойып, «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть» жасаңыз.';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
+  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Google скрипті ескі нұсқада: нәтижелер қабылданбайды. Жаңа Code.gs кодын қойып, «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть» жасаңыз.';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();if(typeof drawGrpResults==='function'){drawGrpResults();$('#grpUpd').textContent=$('#resUpd').textContent;}}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
 $('#resClear').addEventListener('click',()=>{if(!window.__SYNC_URL)return;
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:'clearResults'})}).then(()=>setTimeout(pollResults,1500)).catch(()=>{});
   resList=[];drawResults();});
 document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawResults,0)));
 if(teacherMode&&window.__SYNC_URL){$('#resNote').hidden=true;pollResults();setInterval(pollResults,5000);}
 drawResults();
+
+/* ---------- group work for "Найди ошибку" ---------- */
+var grpState=store.get('grp',null);
+function makeGroups(names){const a=names.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  if(a.length<=5)return [a];const g=Math.ceil(a.length/5);const out=Array.from({length:g},()=>[]);a.forEach((x,i)=>out[i%g].push(x));return out;}
+function writePairsDoc(){const lp=store.get('lastPairs',null),lg=store.get('lastGroups',null),td=todayStr();const doc={cls:'',pairs:[],t:0};
+  if(lp&&lp.d===td){doc.cls=lp.cls;doc.pairs=lp.pairs.map(x=>({m:x}));doc.t=lp.t||0;}
+  if(lg&&lg.d===td){doc.g={cls:lg.cls,groups:lg.groups.map(x=>({m:x})),t:lg.t};}
+  liveWrite('pairs',doc);}
+function curGroups(cls){const lg=store.get('lastGroups',null);if(lg&&lg.cls===cls&&lg.d===todayStr())return lg.groups;
+  const g=livePairsT&&livePairsT.g;if(g&&g.cls===cls&&Array.isArray(g.groups))return g.groups.map(x=>x&&x.m).filter(Array.isArray);return null;}
+function drawGrpT(){const cls=pkClass;$('#grpCls').textContent=cls||'';$('#grpMake').disabled=!cls||!CLASSES[cls];
+  const gs=cls?curGroups(cls):null;
+  $('#grpList').innerHTML=gs?gs.map((g,i)=>`<li>${i+1}-топ: <b>${esc(g[0])}</b> <span class="pr-lead">жетекші</span> — ${g.slice(1).map(esc).join(', ')}</li>`).join(''):'';}
+$('#grpMake').addEventListener('click',()=>{const cls=pkClass;if(!cls||!CLASSES[cls]){toast('Алдымен «Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.');return;}
+  const names=presentOf(cls);if(!names.length){toast('Сыныпта ешкім қатысып отыр деп белгіленбеген.');return;}
+  store.set('lastGroups',{cls,groups:makeGroups(names),d:todayStr(),t:Date.now()});writePairsDoc();drawGrpT();drawGrpResults();});
+function drawGrpResults(){const body=$('#grpResBody');if(!body)return;const cls=pkClass;
+  if(!cls){body.innerHTML='<tr><td colspan="4">«Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
+  const today=todayStr();const rs=(resList||[]).filter(r=>r&&r.cls===cls&&r.d===today&&String(r.name).endsWith('#dbg')).map(r=>Object.assign({},r,{who:String(r.name).slice(0,-4)}));
+  const gs=curGroups(cls)||[];const used=new Set();const rows=[];
+  gs.forEach(g=>{const r=rs.filter(x=>g.includes(x.who)).sort((a,b)=>b.t-a.t)[0];if(r)used.add(r.who);rows.push({g,r});});
+  rs.filter(r=>!used.has(r.who)).forEach(r=>rows.push({g:[r.who].concat(r.partner?String(r.partner).split(', '):[]),r}));
+  if(!rows.length){body.innerHTML='<tr><td colspan="4">Әзірге нәтиже жоқ.</td></tr>';return;}
+  body.innerHTML=rows.map(({g,r},i)=>{const lead=r?r.who:g[0];const others=g.filter(n=>n!==lead);
+    const who=`<b>${esc(lead)}</b>${others.length?' — '+others.map(esc).join(', '):''}`;
+    if(!r)return `<tr class="res-wait"><td>${who}</td><td>әлі бастамады</td><td>—</td><td>—</td></tr>`;
+    const cl=r.ok===r.total?'res-ok':r.ok>=Math.ceil(r.total/2)?'res-mid':'res-low';
+    return `<tr class="${cl}"><td>${who}</td><td><b>${r.total}-тен ${r.ok}</b></td><td>${(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
+function onDbgCheck(){if(teacherMode||!student||!window.__SYNC_URL)return;if(grpState&&grpState.leader&&grpState.leader!==student.name)return;
+  const fixed=dbg.filter((_,i)=>dbgDone[i]).length;const left=dbg.filter((_,i)=>!dbgDone[i]).map((d,i)=>d.t);
+  const members=grpState&&Array.isArray(grpState.members)?grpState.members.filter(n=>n!==student.name).join(', '):'';
+  fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({k:'result',data:{cls:student.cls,name:student.name+'#dbg',partner:members,n:fixed,ok:fixed,total:dbg.length,wrong:left,empty:0,d:todayStr(),t:Date.now()}})}).catch(()=>{});}
+function renderGroups(){const v=lastPairs&&lastPairs.g;if(teacherMode||!v||!student||v.cls!==student.cls||!liveFresh(v.t)||!Array.isArray(v.groups))return;
+  const gr=v.groups.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!gr)return;if(grpState&&grpState.t===v.t)return;
+  grpState={leader:gr[0],members:gr,t:v.t,auto:true};store.set('grp',grpState);grpShowMine();
+  const h=$('#grpHow');if(h)h.textContent='Топтарды мұғалім тағайындады. Қажет болса, жетекшіні қолмен таңдауға болады.';}
+function grpShowMine(){const box=$('#grpMine'),lock=$('#grpLock'),list=$('#dbg'),pick=$('#grpPick');if(!box)return;
+  const reset=()=>{lock.hidden=true;list.hidden=false;};
+  if(teacherMode){reset();return;}
+  if(!student||!CLASSES[student.cls]){pick.innerHTML='';box.hidden=false;box.className='pr-mine no';box.textContent='Сенің сыныбың тізімде жоқ. Қай топта екеніңді мұғалімнен сұрап, бірге жұмыс істеңдер.';reset();return;}
+  pick.innerHTML=presentOf(student.cls).map(n=>`<button type="button" class="st-name" aria-pressed="${!!grpState&&grpState.leader===n}">${esc(n)}${n===student.name?' (мен)':''}</button>`).join('');
+  pick.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{const n=btn.textContent.replace(/ \(мен\)$/,'');grpState={leader:n,members:grpState&&grpState.auto?grpState.members:[],t:grpState&&grpState.auto?grpState.t:null,auto:!!(grpState&&grpState.auto)};store.set('grp',grpState);grpShowMine();}));
+  if(!grpState||!grpState.leader){box.hidden=true;reset();return;}
+  const others=(grpState.members||[]).filter(n=>n!==student.name);
+  box.hidden=false;box.className='pr-mine ok';
+  if(grpState.leader===student.name){box.innerHTML=`<span class="pr-lead">Сен топ жетекшісісің</span> — тапсырмаларды өз компьютеріңде орындайсың.`+(others.length?` Сенімен бірге: <b>${others.map(esc).join(', ')}</b>.`:'');reset();}
+  else{box.innerHTML=`Тобыңның жетекшісі: <b>${esc(grpState.leader)}</b>.`;list.hidden=true;lock.hidden=false;
+    lock.innerHTML=`<b>Тапсырмаларды топ жетекшісі орындайды — ${esc(grpState.leader)}.</b><br>Жетекшінің компьютеріне барып, бірге жұмыс істеңдер: әр қатені талқылап, «Тексеру» батырмасын бірге басыңдар.`;}}
+window.addEventListener('hashchange',()=>{if(location.hash==='#oshibka'){if(teacherMode){drawGrpT();drawGrpResults();}else grpShowMine();}});
+if(teacherMode){drawGrpT();drawGrpResults();}else grpShowMine();
 
 /* ---------- reflection ---------- */
 ['st1','st2','st3','st4'].forEach(id=>{const el=$('#'+id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked));});
