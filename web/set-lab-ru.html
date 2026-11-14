@@ -594,7 +594,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <div class="t-bar" id="tBar" hidden><span><b>Страница учителя.</b> Все вкладки открыты, на вкладке «Повторение» работает «Кто отвечает?».</span><span class="link-st" id="linkT"></span><a class="btn-ghost sheet-link" id="sheetLink" target="_blank" rel="noopener" hidden>Google-таблица с результатами ↗</a><button class="btn-ghost" type="button" id="tExit">Выйти из режима учителя</button></div>
   <div class="stu-bar" id="stuBar" hidden><span>Ученик: <b id="stuName"></b> <span class="stu-cls" id="stuCls"></span> <span class="link-st" id="linkS"></span></span><span class="stu-btns"><button class="btn-ghost" type="button" id="stuChange">Сменить ученика</button><button class="btn-ghost exit-btn" type="button" id="stuExit">Выйти из урока</button></span></div>
   <section id="povtorenie">
-    <div class="sec-head"><h2>Повторение: список и кортеж</h2><p>Вспомним прошлые уроки: методы списков и кортежей и то, как они работают. Время — около 3 минут.</p></div>
+    <div class="sec-head"><h2>Повторение: список и кортеж</h2><p>Вспомним прошлые уроки: методы списков и кортежей и то, как они работают. Время — около 7 минут.</p></div>
     <div class="picker" id="picker">
       <div class="pk-top"><span class="pk-title">Кто отвечает?</span><span class="pk-live" id="pkLive" hidden>видно ученикам</span><div class="pk-classes" role="group" aria-label="Класс"><button class="pk-cls" type="button" data-c="8A" aria-pressed="false">8A</button><button class="pk-cls" type="button" data-c="8B" aria-pressed="false">8B</button><button class="pk-cls" type="button" data-c="8D" aria-pressed="false">8D</button><button class="pk-cls" type="button" data-c="8E" aria-pressed="false">8E</button><button class="pk-cls" type="button" data-c="8F" aria-pressed="false">8F</button></div></div>
       <details class="pr-present att" id="attWrap" hidden><summary>Кого нет на уроке? <span id="attCount"></span></summary><p class="howto" style="margin:8px 0 6px">Снимите галочку у отсутствующих. Они исчезнут из списков у учеников, из «Кто отвечает?» и из пар.</p><div class="pr-names" id="attList"></div></details>
@@ -609,7 +609,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
       <div class="pk-left" id="pkLeft"></div>
     </div>
     <div class="live-ans s-only" id="liveAns" hidden></div>
-    <h3 class="sub">1. Устный опрос «Верно / Неверно» <span class="time">≈ 1 мин</span></h3>
+    <h3 class="sub">1. Устный опрос «Верно / Неверно» <span class="time">≈ 3 мин</span></h3>
     <p class="howto">Учитель читает утверждение, класс поднимает сигнальные карточки. Ответ открывается по нажатию.</p>
     <div class="qcards tf">
       <details class="qcard"><summary><span class="qn">1</span><span>Список можно изменить после создания.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кто отвечает?</button></summary><p><b>Верно.</b> append, remove, sort меняют список.</p></details>
@@ -618,7 +618,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
       <details class="qcard"><summary><span class="qn">4</span><span>В списке и в кортеже могут быть повторяющиеся элементы.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кто отвечает?</button></summary><p><b>Верно.</b> [1, 1, 2] и (1, 1, 2) — правильные объекты.</p></details>
       <details class="qcard"><summary><span class="qn">5</span><span>Метод append добавляет элемент в начало списка.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кто отвечает?</button></summary><p><b>Неверно.</b> append добавляет элемент в конец.</p></details>
     </div>
-    <h3 class="sub">2. Сопоставление в парах <span class="time">≈ 2 мин</span></h3>
+    <h3 class="sub">2. Сопоставление в парах <span class="time">≈ 4 мин</span></h3>
     <p class="howto">Нажмите на метод или код слева, затем на подходящее действие или результат справа. Чтобы убрать пару, нажмите на элемент слева ещё раз.</p>
     <div class="pairs t-only" id="pairsT">
       <div class="pk-top"><span class="pk-title">Пары для сопоставления</span><span class="pr-cls" id="prCls"></span></div>

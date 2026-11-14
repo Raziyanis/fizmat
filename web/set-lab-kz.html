@@ -594,7 +594,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <div class="t-bar" id="tBar" hidden><span><b>Мұғалім беті.</b> Барлық қойындылар ашық, «Қайталау» қойындысында «Кім жауап береді?» жұмыс істейді.</span><span class="link-st" id="linkT"></span><a class="btn-ghost sheet-link" id="sheetLink" target="_blank" rel="noopener" hidden>Нәтижелер Google-кестесі ↗</a><button class="btn-ghost" type="button" id="tExit">Мұғалім режимінен шығу</button></div>
   <div class="stu-bar" id="stuBar" hidden><span>Оқушы: <b id="stuName"></b> <span class="stu-cls" id="stuCls"></span> <span class="link-st" id="linkS"></span></span><span class="stu-btns"><button class="btn-ghost" type="button" id="stuChange">Оқушыны ауыстыру</button><button class="btn-ghost exit-btn" type="button" id="stuExit">Сабақтан шығу</button></span></div>
   <section id="povtorenie">
-    <div class="sec-head"><h2>Қайталау: тізім және кортеж</h2><p>Өткен сабақтарды еске түсірейік: тізім мен кортеж әдістері және олардың қалай жұмыс істейтіні. Уақыты — шамамен 3 минут.</p></div>
+    <div class="sec-head"><h2>Қайталау: тізім және кортеж</h2><p>Өткен сабақтарды еске түсірейік: тізім мен кортеж әдістері және олардың қалай жұмыс істейтіні. Уақыты — шамамен 7 минут.</p></div>
     <div class="picker" id="picker">
       <div class="pk-top"><span class="pk-title">Кім жауап береді?</span><span class="pk-live" id="pkLive" hidden>оқушыларға көрінеді</span><div class="pk-classes" role="group" aria-label="Сынып"><button class="pk-cls" type="button" data-c="8A" aria-pressed="false">8A</button><button class="pk-cls" type="button" data-c="8B" aria-pressed="false">8B</button><button class="pk-cls" type="button" data-c="8D" aria-pressed="false">8D</button><button class="pk-cls" type="button" data-c="8E" aria-pressed="false">8E</button><button class="pk-cls" type="button" data-c="8F" aria-pressed="false">8F</button></div></div>
       <details class="pr-present att" id="attWrap" hidden><summary>Сабақта кім жоқ? <span id="attCount"></span></summary><p class="howto" style="margin:8px 0 6px">Жоқ оқушылардың белгісін алып тастаңыз. Олар оқушылардағы тізімдерден, «Кім жауап береді?» және жұптардан жойылады.</p><div class="pr-names" id="attList"></div></details>
@@ -609,7 +609,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
       <div class="pk-left" id="pkLeft"></div>
     </div>
     <div class="live-ans s-only" id="liveAns" hidden></div>
-    <h3 class="sub">1. Ауызша сұрау «Дұрыс / Бұрыс» <span class="time">≈ 1 мин</span></h3>
+    <h3 class="sub">1. Ауызша сұрау «Дұрыс / Бұрыс» <span class="time">≈ 3 мин</span></h3>
     <p class="howto">Мұғалім тұжырымды оқиды, сынып сигнал карточкаларын көтереді. Жауап басқанда ашылады.</p>
     <div class="qcards tf">
       <details class="qcard"><summary><span class="qn">1</span><span>Тізімді құрғаннан кейін өзгертуге болады.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></summary><p><b>Дұрыс.</b> append, remove, sort тізімді өзгертеді.</p></details>
@@ -618,7 +618,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
       <details class="qcard"><summary><span class="qn">4</span><span>Тізімде де, кортежде де қайталанатын элементтер болуы мүмкін.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></summary><p><b>Дұрыс.</b> [1, 1, 2] және (1, 1, 2) — дұрыс нысандар.</p></details>
       <details class="qcard"><summary><span class="qn">5</span><span>append әдісі элементті тізімнің басына қосады.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></summary><p><b>Бұрыс.</b> append элементті соңына қосады.</p></details>
     </div>
-    <h3 class="sub">2. Жұппен сәйкестендіру <span class="time">≈ 2 мин</span></h3>
+    <h3 class="sub">2. Жұппен сәйкестендіру <span class="time">≈ 4 мин</span></h3>
     <p class="howto">Сол жақтағы әдісті немесе кодты, содан кейін оң жақтағы сәйкес әрекетті немесе нәтижені басыңыз. Жұпты алып тастау үшін сол жақтағы элементті қайта басыңыз.</p>
     <div class="pairs t-only" id="pairsT">
       <div class="pk-top"><span class="pk-title">Сәйкестендіруге арналған жұптар</span><span class="pr-cls" id="prCls"></span></div>
