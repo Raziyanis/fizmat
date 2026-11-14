@@ -1163,8 +1163,8 @@ panels.forEach((p,i)=>{const pg=document.createElement('div');pg.className='page
   if(i>0)pg.innerHTML+=`<a href="#${panels[i-1].id}"><span>← Артқа</span>${esc(titleOf(panels[i-1].id))}</a>`;
   if(i<panels.length-1)pg.innerHTML+=`<a class="next" href="#${panels[i+1].id}"><span>Әрі қарай →</span>${esc(titleOf(panels[i+1].id))}</a>`;
   (p.querySelector('.wrap-inner')||p).appendChild(pg);p._next=pg.querySelector('a.next');});
-let teacherMode=store.get('teacher',false);
-if(location.hash==='#uchitel'){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){location.hash='povtorenie';}}
+let teacherMode=window.__NO_TEACHER?false:(window.__FORCE_TEACHER===true||store.get('teacher',false));
+if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){location.hash='povtorenie';}}
 function isUnlocked(idx){if(teacherMode)return true;for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return false;}return true;}
 function gateOf(idx){for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return k;}return -1;}
 function toast(msg){let t=$('#lockToast');if(!t){t=document.createElement('div');t.id='lockToast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
@@ -1174,7 +1174,7 @@ function updateLocks(){
   panels.forEach((p,i)=>{const n=p._next;if(!n)return;const lk=!isUnlocked(i+1);n.classList.toggle('disabled',lk);
     n.querySelector('span').textContent=lk?'Жалғастыру үшін жоғарыда өзін-өзі бағалауды белгілеңіз':'Әрі қарай →';});
   document.body.classList.toggle('teacher',teacherMode);const tb=$('#tBar');if(tb)tb.hidden=!teacherMode;const sb=$('#stuBar');if(sb&&teacherMode)sb.hidden=true;}
-function showTab(){if(location.hash==='#uchitel'){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){}if(typeof closeStart==='function')closeStart();if(typeof drawStudent==='function'&&$('#stuName'))try{drawStudent();}catch(e){}}
+function showTab(){if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){}if(typeof closeStart==='function')closeStart();if(typeof drawStudent==='function'&&$('#stuName'))try{drawStudent();}catch(e){}}
   let id=location.hash.slice(1);if(!panels.some(p=>p.id===id))id=panels[0].id;
   let idx=panels.findIndex(p=>p.id===id);
   if(!isUnlocked(idx)){const g=gateOf(idx);toast(`«${titleOf(id)}» қойындысы әзірге жабық. Алдымен «${titleOf(panels[g].id)}» қойындысында өзін-өзі бағалауды белгілеңіз.`);
