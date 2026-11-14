@@ -900,7 +900,7 @@ s.discard(2)</pre></div>
       <h3 class="sub" style="margin:4px 0 0">Жеке тапсырмалар бойынша мақсатқа жету</h3>
       <div class="tbl-wrap"><table class="res-tbl gl-tbl"><thead><tr><th>Оқушы</th><th>Викторина</th><th>Олимпиада</th><th>Қосымша есептер</th><th>Барлығы</th><th>Көпшілігі</th><th>Кейбіреулері</th><th>Қорытынды</th></tr></thead><tbody id="glBody"></tbody></table></div>
       <p class="cr-legend">✓ — деңгейге жетті, ◐ — ішінара, ○ — басталмаған. Тек викторина, олимпиада және қосымша есептер ескеріледі.</p>
-      <h3 class="sub" style="margin:10px 0 0">Уверенность класса по этапам</h3>
+      <h3 class="sub" style="margin:10px 0 0">Сыныптың кезеңдер бойынша сенімділігі</h3>
       <div class="cs-rows" id="crBars"></div>
       <h3 class="sub" style="margin:10px 0 0">Оқушылар</h3>
       <div class="tbl-wrap"><table class="res-tbl cr-tbl"><thead id="crHead"></thead><tbody id="crBody"></tbody></table></div>
@@ -986,6 +986,7 @@ function todayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+
 function absentOf(cls,src){const a=(src||{})[cls];return a&&a.d===todayStr()&&Array.isArray(a.names)?a.names:[];}
 function presentOf(cls){const ab=(typeof teacherMode!=='undefined'&&teacherMode)?absentOf(cls,absentMap||{}):absentOf(cls,liveAbsent);return (CLASSES[cls]||[]).filter(n=>!ab.includes(n));}
 const CUR_LANG='kz';
+const LESSON='set';
 const store={get(k,d){try{const v=localStorage.getItem('setlab2:'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('setlab2:'+k,JSON.stringify(v))}catch(e){}}};
 
 /* ---------- Python runner ---------- */
@@ -1837,7 +1838,7 @@ var resList=[],livePairsT=null;
 function onMatchCheck(r){if(teacherMode||!student||!window.__SYNC_URL)return;
   const partner=prState&&prState.partner||'';
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({k:'result',data:{cls:student.cls,name:student.name,partner,n:r.n,ok:r.ok,total:r.total,wrong:r.wrong,empty:r.empty,d:todayStr(),t:Date.now()}})}).catch(()=>{});}
+    body:JSON.stringify({k:'result',data:{lesson:LESSON,cls:student.cls,name:student.name,partner,n:r.n,ok:r.ok,total:r.total,wrong:r.wrong,empty:r.empty,d:todayStr(),t:Date.now()}})}).catch(()=>{});}
 function hhmm(t){const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClass;
   if(!window.__SYNC_URL){$('#resNote').hidden=false;}
@@ -1895,7 +1896,7 @@ function onDbgCheck(){if(teacherMode||!student||!window.__SYNC_URL)return;if(grp
   const fixed=dbg.filter((_,i)=>dbgDone[i]).length;const left=dbg.filter((_,i)=>!dbgDone[i]).map((d,i)=>d.t);
   const members=grpState&&Array.isArray(grpState.members)?grpState.members.filter(n=>n!==student.name).join(', '):'';
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({k:'result',data:{cls:student.cls,name:student.name+'#dbg',partner:members,n:fixed,ok:fixed,total:dbg.length,wrong:left,empty:0,d:todayStr(),t:Date.now()}})}).catch(()=>{});}
+    body:JSON.stringify({k:'result',data:{lesson:LESSON,cls:student.cls,name:student.name+'#dbg',partner:members,n:fixed,ok:fixed,total:dbg.length,wrong:left,empty:0,d:todayStr(),t:Date.now()}})}).catch(()=>{});}
 function renderGroups(){const v=lastPairs&&lastPairs.g;if(teacherMode||!v||!student||v.cls!==student.cls||!liveFresh(v.t)||!Array.isArray(v.groups))return;
   const gr=v.groups.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!gr)return;if(grpState&&grpState.t===v.t)return;
   grpState={leader:gr[0],members:gr,t:v.t,auto:true};store.set('grp',grpState);grpShowMine();
@@ -1920,7 +1921,7 @@ var lastGoal=-1,lastConfSent='';
 function sendConf(force){if(teacherMode||!student||!window.__SYNC_URL)return;
   try{renderGoal();}catch(e){}
   const ids=Object.keys(CONF_Q);const digits=ids.map(id=>confState[id]||0).join('');
-  const data={cls:student.cls,name:student.name+'#conf',partner:digits,n:lastGoal+1,ok:ids.filter(id=>confState[id]).length,total:ids.length,wrong:[],empty:0,d:todayStr(),t:Date.now()};
+  const data={lesson:LESSON,cls:student.cls,name:student.name+'#conf',partner:digits,n:lastGoal+1,ok:ids.filter(id=>confState[id]).length,total:ids.length,wrong:[],empty:0,d:todayStr(),t:Date.now()};
   const sig=digits+'|'+data.n;if(!force&&sig===lastConfSent)return;lastConfSent=sig;
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});}
 if(!teacherMode&&window.__SYNC_URL){setTimeout(()=>sendConf(false),2500);setInterval(()=>sendConf(false),20000);}
@@ -1961,7 +1962,7 @@ function sendProg(force){if(teacherMode||!student||!window.__SYNC_URL)return;
                {suf:'#dop',n:dd.length,total:tasks.length,partner:dd.join(', '),sig:dd.join(',')},
                {suf:'#ops',n:opTasks.filter(t=>opDone[t.id]).length,total:opTasks.length,partner:opTasks.filter(t=>opDone[t.id]).map(t=>t.id).join(', '),sig:opTasks.filter(t=>opDone[t.id]).map(t=>t.id).join(',')}];
   items.forEach(it=>{if(!force&&lastProgSent[it.suf]===it.sig)return;if(!force&&it.n===0&&lastProgSent[it.suf]===undefined){lastProgSent[it.suf]=it.sig;return;}lastProgSent[it.suf]=it.sig;
-    const data={cls:student.cls,name:student.name+it.suf,partner:it.partner,n:it.n,ok:it.n,total:it.total,wrong:[],empty:0,d:todayStr(),t:Date.now()};
+    const data={lesson:LESSON,cls:student.cls,name:student.name+it.suf,partner:it.partner,n:it.n,ok:it.n,total:it.total,wrong:[],empty:0,d:todayStr(),t:Date.now()};
     fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});});}
 if(!teacherMode&&window.__SYNC_URL){setTimeout(()=>sendProg(false),3000);setInterval(()=>sendProg(false),8000);}
 function drawProg(){const cls=pkClass;const today=todayStr();
