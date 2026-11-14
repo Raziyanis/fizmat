@@ -438,6 +438,7 @@ nav a.has-hint::after{content:'💡';margin-left:6px}
 .oly-hbar .pk-mini{margin-left:0}
 #olyHints{display:grid;gap:8px;margin-bottom:12px}
 #olyHints:empty{display:none}
+.sheet-link{text-decoration:none;font-size:.85rem}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -590,7 +591,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   </div>
 </div>
 <main class="wrap">
-  <div class="t-bar" id="tBar" hidden><span><b>Мұғалім беті.</b> Барлық қойындылар ашық, «Қайталау» қойындысында «Кім жауап береді?» жұмыс істейді.</span><span class="link-st" id="linkT"></span><button class="btn-ghost" type="button" id="tExit">Мұғалім режимінен шығу</button></div>
+  <div class="t-bar" id="tBar" hidden><span><b>Мұғалім беті.</b> Барлық қойындылар ашық, «Қайталау» қойындысында «Кім жауап береді?» жұмыс істейді.</span><span class="link-st" id="linkT"></span><a class="btn-ghost sheet-link" id="sheetLink" target="_blank" rel="noopener" hidden>Нәтижелер Google-кестесі ↗</a><button class="btn-ghost" type="button" id="tExit">Мұғалім режимінен шығу</button></div>
   <div class="stu-bar" id="stuBar" hidden><span>Оқушы: <b id="stuName"></b> <span class="stu-cls" id="stuCls"></span> <span class="link-st" id="linkS"></span></span><span class="stu-btns"><button class="btn-ghost" type="button" id="stuChange">Оқушыны ауыстыру</button><button class="btn-ghost exit-btn" type="button" id="stuExit">Сабақтан шығу</button></span></div>
   <section id="povtorenie">
     <div class="sec-head"><h2>Қайталау: тізім және кортеж</h2><p>Өткен сабақтарды еске түсірейік: тізім мен кортеж әдістері және олардың қалай жұмыс істейтіні. Уақыты — шамамен 3 минут.</p></div>
@@ -1851,7 +1852,7 @@ function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClas
     const err=(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')+(r.empty?` <span class="res-empty">жалғанбаған: ${r.empty}</span>`:'');
     return `<tr class="${cls2}"><td>${who}</td><td><b>${r.total}-тен ${r.ok}</b></td><td>${err||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
 function pollResults(){if(!teacherMode||!window.__SYNC_URL)return;
-  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Google скрипті ескі нұсқада: нәтижелер қабылданбайды. Жаңа Code.gs кодын қойып, «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть» жасаңыз.';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();if(typeof drawClassRefl==='function')drawClassRefl();if(typeof drawProg==='function')drawProg();if(typeof drawGoalTbl==='function')drawGoalTbl();if(typeof drawGrpResults==='function'){drawGrpResults();$('#grpUpd').textContent=$('#resUpd').textContent;}}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
+  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Google скрипті ескі нұсқада: нәтижелер қабылданбайды. Жаңа Code.gs кодын қойып, «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть» жасаңыз.';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];{const sl=$('#sheetLink');if(sl&&v&&v.sheet&&/^https:\/\/docs\.google\.com\//.test(v.sheet)){sl.href=v.sheet;sl.hidden=false;}}$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();if(typeof drawClassRefl==='function')drawClassRefl();if(typeof drawProg==='function')drawProg();if(typeof drawGoalTbl==='function')drawGoalTbl();if(typeof drawGrpResults==='function'){drawGrpResults();$('#grpUpd').textContent=$('#resUpd').textContent;}}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
 $('#resClear').addEventListener('click',()=>{if(!window.__SYNC_URL)return;
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:'clearResults'})}).then(()=>setTimeout(pollResults,1500)).catch(()=>{});
   resList=[];drawResults();});
