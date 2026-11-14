@@ -355,6 +355,7 @@ body.teacher #matchA{display:block!important}
 .res-tbl tr.res-wait td{color:var(--muted)}
 .res-tbl code{font-size:.8rem;background:var(--bad-soft);border-radius:4px;padding:1px 5px;white-space:nowrap}
 .res-empty{font-size:.8rem;color:var(--muted)}
+.howto.res-warn{color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 10px;font-weight:500}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -1546,7 +1547,7 @@ document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('clic
 drawAtt();pkDraw();
 
 /* ---------- results of the pair matching ---------- */
-var resList=[];
+var resList=[],livePairsT=null;
 function onMatchCheck(r){if(teacherMode||!student||!window.__SYNC_URL)return;
   const partner=prState&&prState.partner||'';
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -1555,7 +1556,7 @@ function hhmm(t){const d=new Date(t);return String(d.getHours()).padStart(2,'0')
 function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClass;
   if(!window.__SYNC_URL){$('#resNote').hidden=false;}
   const today=todayStr();const rs=resList.filter(r=>r&&r.cls===cls&&r.d===today);
-  const lp=store.get('lastPairs',null);const rows=[];const used=new Set();
+  let lp=store.get('lastPairs',null);if(!(lp&&lp.cls===cls&&lp.d===today)&&livePairsT&&livePairsT.cls===cls&&Array.isArray(livePairsT.pairs)){lp={cls,d:today,pairs:livePairsT.pairs.map(x=>x&&x.m).filter(Array.isArray)};}const rows=[];const used=new Set();
   if(lp&&lp.cls===cls&&lp.d===today){lp.pairs.forEach(pr=>{const r=rs.filter(x=>pr.includes(x.name)).sort((a,b)=>b.t-a.t)[0];if(r)used.add(r.name);rows.push({pair:pr,r});});}
   rs.filter(r=>!used.has(r.name)).forEach(r=>rows.push({pair:[r.name].concat(r.partner?[r.partner]:[]),r}));
   if(!cls){body.innerHTML='<tr><td colspan="4">Выберите класс в блоке «Кто отвечает?».</td></tr>';return;}
@@ -1567,7 +1568,7 @@ function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClas
     const err=(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')+(r.empty?` <span class="res-empty">не соединено: ${r.empty}</span>`:'');
     return `<tr class="${cls2}"><td>${who}</td><td><b>${r.ok} из ${r.total}</b></td><td>${err||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
 function pollResults(){if(!teacherMode||!window.__SYNC_URL)return;
-  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='обновлено '+hhmm(Date.now());drawResults();}).catch(()=>{$('#resUpd').textContent='нет связи со скриптом';});}
+  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Скрипт Google старой версии: результаты не принимаются. Вставьте новый Code.gs и сделайте «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть».';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='обновлено '+hhmm(Date.now());drawResults();}).catch(()=>{$('#resUpd').textContent='нет связи со скриптом';});}
 $('#resClear').addEventListener('click',()=>{if(!window.__SYNC_URL)return;
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:'clearResults'})}).then(()=>setTimeout(pollResults,1500)).catch(()=>{});
   resList=[];drawResults();});
@@ -1929,6 +1930,7 @@ body.teacher #matchA{display:block!important}
 .res-tbl tr.res-wait td{color:var(--muted)}
 .res-tbl code{font-size:.8rem;background:var(--bad-soft);border-radius:4px;padding:1px 5px;white-space:nowrap}
 .res-empty{font-size:.8rem;color:var(--muted)}
+.howto.res-warn{color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 10px;font-weight:500}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -3120,7 +3122,7 @@ document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('clic
 drawAtt();pkDraw();
 
 /* ---------- results of the pair matching ---------- */
-var resList=[];
+var resList=[],livePairsT=null;
 function onMatchCheck(r){if(teacherMode||!student||!window.__SYNC_URL)return;
   const partner=prState&&prState.partner||'';
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -3129,7 +3131,7 @@ function hhmm(t){const d=new Date(t);return String(d.getHours()).padStart(2,'0')
 function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClass;
   if(!window.__SYNC_URL){$('#resNote').hidden=false;}
   const today=todayStr();const rs=resList.filter(r=>r&&r.cls===cls&&r.d===today);
-  const lp=store.get('lastPairs',null);const rows=[];const used=new Set();
+  let lp=store.get('lastPairs',null);if(!(lp&&lp.cls===cls&&lp.d===today)&&livePairsT&&livePairsT.cls===cls&&Array.isArray(livePairsT.pairs)){lp={cls,d:today,pairs:livePairsT.pairs.map(x=>x&&x.m).filter(Array.isArray)};}const rows=[];const used=new Set();
   if(lp&&lp.cls===cls&&lp.d===today){lp.pairs.forEach(pr=>{const r=rs.filter(x=>pr.includes(x.name)).sort((a,b)=>b.t-a.t)[0];if(r)used.add(r.name);rows.push({pair:pr,r});});}
   rs.filter(r=>!used.has(r.name)).forEach(r=>rows.push({pair:[r.name].concat(r.partner?[r.partner]:[]),r}));
   if(!cls){body.innerHTML='<tr><td colspan="4">«Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
@@ -3141,7 +3143,7 @@ function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClas
     const err=(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')+(r.empty?` <span class="res-empty">жалғанбаған: ${r.empty}</span>`:'');
     return `<tr class="${cls2}"><td>${who}</td><td><b>${r.total}-тен ${r.ok}</b></td><td>${err||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
 function pollResults(){if(!teacherMode||!window.__SYNC_URL)return;
-  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
+  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Google скрипті ескі нұсқада: нәтижелер қабылданбайды. Жаңа Code.gs кодын қойып, «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть» жасаңыз.';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
 $('#resClear').addEventListener('click',()=>{if(!window.__SYNC_URL)return;
   fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:'clearResults'})}).then(()=>setTimeout(pollResults,1500)).catch(()=>{});
   resList=[];drawResults();});
