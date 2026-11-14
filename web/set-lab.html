@@ -359,6 +359,8 @@ body.teacher #matchA{display:block!important}
 .grp-list{grid-template-columns:1fr}
 nav a.st-done{color:var(--hit);background:var(--ok-soft)}
 nav a.st-miss{color:var(--bad);background:var(--bad-soft)}
+nav a.st-open{color:var(--a);background:var(--a-soft)}
+nav a.st-open[aria-current=page]{background:var(--ink);color:var(--bg);box-shadow:inset 0 -3px 0 var(--a)}
 nav a.st-done[aria-current=page],nav a.st-miss[aria-current=page]{background:var(--ink);color:var(--bg)}
 nav a.st-done[aria-current=page]{box-shadow:inset 0 -3px 0 var(--hit)}
 nav a.st-miss[aria-current=page]{box-shadow:inset 0 -3px 0 var(--bad)}
@@ -411,6 +413,22 @@ body.teacher #goalCard,body.teacher #confSum,body.teacher .refl,body.teacher #st
 .gl-tbl td:first-child,.gl-tbl th:first-child{text-align:left;white-space:nowrap}
 .gl-c{font-weight:700;font-size:1.05rem}
 .gl-c.ok{color:var(--hit);background:var(--ok-soft)} .gl-c.part{color:var(--b)} .gl-c.no{color:var(--muted)}
+.op-data{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.op-data .lbl{display:block;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.op-data pre{margin:0;font-family:var(--f-mono);font-size:.9rem;white-space:pre-wrap}
+.op-list{display:grid;gap:14px}
+.op-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
+.op-top{display:flex;gap:16px;align-items:center}
+.op-top h3{margin:0 0 4px}
+.op-top p{margin:6px 0 0;color:var(--muted)}
+.op-sig{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.9rem}
+.op-sig span{color:var(--muted);font-size:.8rem}
+.venn{width:150px;flex:none;color:var(--b)}
+.venn .vl{font-family:var(--f-mono);font-size:13px;fill:var(--ink)}
+.op-tbl td:last-child{color:var(--muted)}
+@media (max-width:600px){.op-top{flex-direction:column;align-items:flex-start}.venn{width:130px}}
+code,pre,textarea,kbd{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+body:not(.teacher) details.sol,body:not(.teacher) .olysol{display:none!important}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -531,7 +549,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <div class="brand">Жиын <span>·</span> set</div>
   <div class="side-stu" id="sideStu" hidden><div class="ss-lbl">Ученик</div><div class="ss-name" id="ssName"></div><div class="ss-meta"><span class="stu-cls" id="ssCls"></span><span class="ss-prog" id="ssProg"></span></div><span class="link-st ss-link" id="ssLink"></span><button class="btn-ghost ss-chg" type="button" id="ssChange">Сменить ученика</button><button class="btn-ghost ss-exit" type="button" id="ssExit">Выйти из урока</button></div>
   <nav aria-label="Разделы урока">
-    <a href="#povtorenie">Повторение</a><a href="#tema">Какая тема?</a><a href="#cel">Цель урока</a><a href="#svoistva">Определение</a><a href="#lab">Машина</a><a href="#metody">Методы</a><a href="#pesochnica">Песочница</a><a href="#kakoy">Какой метод?</a><a href="#oshibka">Найди ошибку</a><a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Доп. задачи</a><a href="#refleksiya">Рефлексия</a>
+    <a href="#povtorenie">Повторение</a><a href="#tema">Какая тема?</a><a href="#cel">Цель урока</a><a href="#svoistva">Определение</a><a href="#lab">Машина</a><a href="#metody">Методы</a><a href="#pesochnica">Песочница</a><a href="#kakoy">Какой метод?</a><a href="#oshibka">Найди ошибку</a><a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Доп. задачи</a><a href="#refleksiya">Рефлексия</a><a href="#operacii">Операции</a><a href="#zadaniya">Задания</a>
   </nav>
   <div class="lang-sw"><button type="button" data-lang="kz" title="Қазақша">Қаз</button><span>Рус</span></div>
 </div></header>
@@ -846,7 +864,7 @@ s.discard(2)</pre></div>
 
   <section id="dop">
     <div class="sec-head"><h2>Дополнительные задачи</h2><p>Для тех, кто закончил олимпиаду. Выберите уровень и решайте в своём темпе.</p></div>
-    <p class="howto">Кнопка «Проверить» запускает программу на тестах и смотрит, использованы ли нужные методы. Решение-образец открывается после двух попыток проверки.</p>
+    <p class="howto">Кнопка «Проверить» запускает программу на тестах и смотрит, использованы ли нужные методы.<span class="t-only"> Решение-образец под каждой задачей видно только учителю.</span></p>
     <div class="levels" role="group" aria-label="Уровень">
       <button class="lv" type="button" data-lv="all" aria-pressed="true">Все задачи</button>
       <button class="lv" type="button" data-lv="A" aria-pressed="false">A — базовый</button>
@@ -894,6 +912,35 @@ s.discard(2)</pre></div>
     </div>
     <div class="exit-end s-only"><button class="btn exit-main" type="button" id="endLesson">Завершить урок и выйти</button><span>Перед выходом покажи учителю свой итог урока.</span></div>
   </section>
+
+  <section id="operacii">
+    <div class="sec-head"><h2>Операции над множествами</h2><p>Операция берёт два множества и строит новое. Исходные множества не меняются. Сначала предскажите результат, потом нажмите «Запустить».</p></div>
+    <div class="op-data"><span class="lbl">Данные для всех примеров</span><pre>robot = {"Айгерим", "Нурлан", "Данияр"}            # кружок робототехники
+chess = {"Нурлан", "Аружан", "Данияр", "Ерлан"}     # шахматный кружок</pre></div>
+    <div class="op-list" id="opList"></div>
+    <h3 class="sub">Сводная таблица</h3>
+    <div class="tbl-wrap"><table class="plan op-tbl">
+      <thead><tr><th>Операция</th><th>Оператор</th><th>Метод</th><th>Что получится для robot и chess</th></tr></thead>
+      <tbody>
+        <tr><td>Объединение</td><td><code>a | b</code></td><td><code>a.union(b)</code></td><td>все пятеро учеников</td></tr>
+        <tr><td>Пересечение</td><td><code>a &amp; b</code></td><td><code>a.intersection(b)</code></td><td>Данияр, Нурлан — ходят в оба кружка</td></tr>
+        <tr><td>Разность</td><td><code>a - b</code></td><td><code>a.difference(b)</code></td><td>Айгерим — только робототехника</td></tr>
+        <tr><td>Симметрическая разность</td><td><code>a ^ b</code></td><td><code>a.symmetric_difference(b)</code></td><td>Айгерим, Аружан, Ерлан — ровно в одном кружке</td></tr>
+        <tr><td>Подмножество</td><td><code>a &lt;= b</code></td><td><code>a.issubset(b)</code></td><td>True, если все элементы a есть в b</td></tr>
+      </tbody>
+    </table></div>
+    <p class="howto">Разность зависит от порядка: <code>robot - chess</code> и <code>chess - robot</code> дают разные результаты. Объединение, пересечение и симметрическая разность от порядка не зависят.</p>
+  </section>
+
+  <section id="zadaniya">
+    <div class="sec-head"><h2>Задания: операции над множествами</h2><p>Каждая программа читает данные, выполняет операцию и выводит результат. Кнопка «Проверить» запускает тесты и смотрит, использована ли нужная операция.</p><span class="score" id="opScore">0 / 6</span></div>
+    <div class="results t-only prog-box" id="pg-ops">
+      <div class="pk-top"><span class="pk-title">Ученики класса: задания на операции</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Ученик</th><th>Прогресс</th><th>Детали</th><th>Время</th></tr></thead><tbody class="pg-body"></tbody></table></div>
+    </div>
+    <p class="howto">Имена в строке вводятся через пробел. Чтобы порядок вывода был одинаковым, выводите результат через <code>sorted()</code>.<span class="t-only"> Решение-образец под каждой задачей видно только учителю.</span></p>
+    <div class="task-list" id="opTasks"></div>
+  </section>
 </main>
 <footer><div class="wrap">
 <div class="reset-box" id="resetBox">
@@ -903,7 +950,7 @@ s.discard(2)</pre></div>
     <button class="btn-ghost" type="button" id="resetNo">Отмена</button></span>
   <span class="reset-done" id="resetDone" hidden>Данные очищены. Страница перезагружается…</span>
 </div>
-Еңбегі адал – өскелең азамат. Выполняйте задания самостоятельно и проверяйте себя честно.<br>Операции над множествами (объединение, пересечение, разность) — на следующем уроке. Python в браузере работает на интерпретаторе Skulpt. Порядок элементов при выводе множества может отличаться от обычного Python, поэтому в задачах используйте <code>sorted()</code>.</div></footer>
+Еңбегі адал – өскелең азамат. Выполняйте задания самостоятельно и проверяйте себя честно.<br>Операции над множествами (объединение, пересечение, разность) — тема следующего урока; вкладки «Операции» и «Задания» можно открыть заранее. Python в браузере работает на интерпретаторе Skulpt. Порядок элементов при выводе множества может отличаться от обычного Python, поэтому в задачах используйте <code>sorted()</code>.</div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
@@ -1129,7 +1176,7 @@ tasks.forEach(t=>{
     extraBtns:bar=>{const b=document.createElement('button');b.className='btn alt chk';b.type='button';b.textContent='✓ Проверить';bar.appendChild(b);}});
   ed.ta.addEventListener('input',()=>store.set('code-'+t.id,ed.ta.value));
   const verdict=box.querySelector('.verdict'),st=box.querySelector('.status'),sol=box.querySelector('.solbody');
-  const renderSol=()=>{const n=tries[t.id]||0;sol.innerHTML=(n>=2||done[t.id])?`<pre>${esc(t.sol)}</pre>`:`<p style="margin-top:6px">Откроется после ${2-n} ${2-n===1?'попытки':'попыток'} проверки.</p>`;};
+  const renderSol=()=>{sol.innerHTML=`<pre>${esc(t.sol)}</pre>`;};
   const renderSt=()=>{st.className='status'+(done[t.id]?' done':'');st.textContent=done[t.id]?'Решено':'';};
   renderSol();renderSt();
   box.querySelector('.chk').addEventListener('click',async e=>{
@@ -1148,7 +1195,7 @@ tasks.forEach(t=>{
     tries[t.id]=(tries[t.id]||0)+1;store.set('tries',tries);
     if(fail){verdict.className='verdict no';verdict.style.whiteSpace='pre-wrap';verdict.textContent=fail;}
     else{verdict.className='verdict ok';verdict.textContent=`Все тесты пройдены (${t.tests.length} из ${t.tests.length}). Отличная работа!`;done[t.id]=true;store.set('done',done);}
-    renderSol();renderSt();btn.disabled=false;});
+    renderSol();renderSt();btn.disabled=false;try{updateLocks();}catch(e){}});
 });
 document.querySelectorAll('.lv').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.lv').forEach(x=>x.setAttribute('aria-pressed',x===b));
@@ -1174,7 +1221,7 @@ function renderQuiz(){
 function paintQ(i){const q=quiz[i],pick=qState[i];const box=$('#quiz').children[i];
   box.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(j===q[2])b.classList.add('right');else if(j===pick)b.classList.add('wrong');});
   const w=box.querySelector('.why');w.hidden=false;w.textContent=(pick===q[2]?'Верно. ':'Неверно. ')+q[3];}
-function score(){const n=Object.entries(qState).filter(([i,v])=>quiz[i][2]===v).length;$('#score').textContent=`${n} / ${quiz.length}`;}
+function score(){const n=Object.entries(qState).filter(([i,v])=>quiz[i][2]===v).length;$('#score').textContent=`${n} / ${quiz.length}`;try{updateLocks();}catch(e){}}
 $('#quizReset').addEventListener('click',()=>{qState={};store.set('quiz',qState);renderQuiz();});
 renderQuiz();
 
@@ -1248,7 +1295,7 @@ dbg.forEach((d,i)=>{
   ed.ta.addEventListener('input',()=>store.set('dbgc'+i,ed.ta.value));
   const v=box.querySelector('.verdict'),st=box.querySelector('.status'),sol=box.querySelector('.solbody');
   const draw=()=>{st.className='status'+(dbgDone[i]?' done':'');st.textContent=dbgDone[i]?'Исправлено':'';
-    sol.innerHTML=(dbgTries[i]||dbgDone[i])?`<pre>${esc(d.fix)}</pre><p style="margin-top:6px">${esc(d.why)}</p>`:'<p style="margin-top:6px">Откроется после первой проверки.</p>';dbgScoreUpd();};
+    sol.innerHTML=`<pre>${esc(d.fix)}</pre><p style="margin-top:6px">${esc(d.why)}</p>`;dbgScoreUpd();};
   draw();
   box.querySelector('[data-chk]').addEventListener('click',async e=>{const btn=e.currentTarget;btn.disabled=true;v.hidden=false;v.className='verdict';v.textContent='Проверяю…';
     const code=ed.ta.value.replace(/#.*$/gm,'');const miss=d.need.filter(n=>!code.includes(n));
@@ -1261,6 +1308,104 @@ dbg.forEach((d,i)=>{
     else{v.className='verdict ok';v.textContent='Ошибка исправлена!';dbgDone[i]=true;store.set('dbgDone',dbgDone);}
     draw();btn.disabled=false;if(typeof onDbgCheck==='function')onDbgCheck();});
 });
+
+/* ---------- set operations ---------- */
+const OP_DATA='robot = {"Айгерим", "Нурлан", "Данияр"}\nchess = {"Нурлан", "Аружан", "Данияр", "Ерлан"}\n';
+function venn(kind,k){const A='<circle cx="62" cy="48" r="34"/>',B='<circle cx="106" cy="48" r="34"/>';let fill='';
+  if(kind==='union')fill=`<g fill="currentColor" opacity=".35">${A}${B}</g>`;
+  else if(kind==='inter')fill=`<clipPath id="vc${k}">${B}</clipPath><g clip-path="url(#vc${k})" fill="currentColor" opacity=".35">${A}</g>`;
+  else if(kind==='diff')fill=`<mask id="vm${k}"><rect width="168" height="96" fill="#fff"/><circle cx="106" cy="48" r="34" fill="#000"/></mask><g mask="url(#vm${k})" fill="currentColor" opacity=".35">${A}</g>`;
+  else if(kind==='sym')fill=`<clipPath id="vc${k}">${B}</clipPath><mask id="vm${k}"><rect width="168" height="96" fill="#fff"/><g clip-path="url(#vc${k})" fill="#000">${A}</g></mask><g mask="url(#vm${k})" fill="currentColor" opacity=".35">${A}${B}</g>`;
+  if(kind==='sub')return `<svg class="venn" viewBox="0 0 168 96" aria-hidden="true"><circle cx="84" cy="48" r="42" fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="2"/><circle cx="72" cy="52" r="20" fill="currentColor" opacity=".35"/><circle cx="72" cy="52" r="20" fill="none" stroke="currentColor" stroke-width="2"/><text x="66" y="57" class="vl">a</text><text x="112" y="30" class="vl">b</text></svg>`;
+  return `<svg class="venn" viewBox="0 0 168 96" aria-hidden="true">${fill}<g fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="2">${A}${B}</g><text x="40" y="53" class="vl">a</text><text x="120" y="53" class="vl">b</text></svg>`;}
+const ops=[
+ {k:'union',name:'Объединение',sig:['a | b','a.union(b)'],d:'Все элементы, которые есть хотя бы в одном из множеств. Повторы, как всегда, исчезают.',
+  code:'print(sorted(robot | chess))\nprint(sorted(robot.union(chess)))\nprint(len(robot | chess))'},
+ {k:'inter',name:'Пересечение',sig:['a & b','a.intersection(b)'],d:'Только общие элементы: те, что есть в обоих множествах сразу.',
+  code:'print(sorted(robot & chess))\nprint(sorted(robot.intersection(chess)))'},
+ {k:'diff',name:'Разность',sig:['a - b','a.difference(b)'],d:'Элементы первого множества, которых нет во втором. Порядок важен.',
+  code:'print(sorted(robot - chess))\nprint(sorted(chess - robot))'},
+ {k:'sym',name:'Симметрическая разность',sig:['a ^ b','a.symmetric_difference(b)'],d:'Элементы, которые есть ровно в одном из множеств, без общих.',
+  code:'print(sorted(robot ^ chess))\nprint(sorted(robot.symmetric_difference(chess)))'},
+ {k:'sub',name:'Подмножество',sig:['a <= b','a.issubset(b)'],d:'Проверка: входят ли все элементы a в b. Результат — True или False.',
+  code:'school = {"Айгерим", "Нурлан", "Данияр", "Аружан", "Ерлан"}\nprint(robot <= school)\nprint(robot.issubset(chess))\nprint(school >= chess)'},
+];
+ops.forEach((o,i)=>{const box=document.createElement('div');box.className='op-card';
+  box.innerHTML=`<div class="op-top">${venn(o.k,i)}<div><h3>${esc(o.name)}</h3><div class="op-sig"><code>${esc(o.sig[0])}</code><span>или</span><code>${esc(o.sig[1])}</code></div><p>${esc(o.d)}</p></div></div><div class="op-ed"></div>`;
+  $('#opList').appendChild(box);makeEditor(box.querySelector('.op-ed'),{title:'primer'+(i+1)+'.py',code:OP_DATA+'\n'+o.code,compact:true});});
+
+const opTasks=[
+ {id:'O1',lv:'A',title:'Общие участники',
+  desc:'В первой строке — участники кружка робототехники, во второй — шахматного кружка (имена через пробел). Выведите отсортированный список тех, кто ходит в оба кружка.',
+  expect:'Тест: «Айгерим Нурлан Данияр» и «Нурлан Аружан Данияр Ерлан» → [\'Данияр\', \'Нурлан\']',
+  code:'robot = set(input().split())\nchess = set(input().split())\n\n# ваш код\n',stdin:'Айгерим Нурлан Данияр\nНурлан Аружан Данияр Ерлан',
+  need:[['&','.intersection(']],
+  tests:[{in:['Айгерим Нурлан Данияр','Нурлан Аружан Данияр Ерлан'],exp:["['Данияр', 'Нурлан']"]},{in:['a b c','d e'],exp:['[]']}],
+  sol:'robot = set(input().split())\nchess = set(input().split())\nprint(sorted(robot & chess))'},
+ {id:'O2',lv:'A',title:'Сколько всего участников',
+  desc:'Даны два списка участников (две строки, имена через пробел). Некоторые ученики есть в обоих списках. Выведите, сколько всего различных учеников участвует.',
+  expect:'Тест: «Айгерим Нурлан Данияр» и «Нурлан Аружан Данияр Ерлан» → 5',
+  code:'a = set(input().split())\nb = set(input().split())\n\n# ваш код\n',stdin:'Айгерим Нурлан Данияр\nНурлан Аружан Данияр Ерлан',
+  need:[['|','.union(']],
+  tests:[{in:['Айгерим Нурлан Данияр','Нурлан Аружан Данияр Ерлан'],exp:['5']},{in:['x y','y z'],exp:['3']}],
+  sol:'a = set(input().split())\nb = set(input().split())\nprint(len(a | b))'},
+ {id:'O3',lv:'B',title:'Кто не сдал работу',
+  desc:'В первой строке — все ученики класса, во второй — те, кто сдал работу. Выведите отсортированный список тех, кто работу не сдал.',
+  expect:'Тест: «Айгерим Нурлан Данияр Аружан» и «Нурлан Аружан» → [\'Айгерим\', \'Данияр\']',
+  code:'klass = set(input().split())\nsdali = set(input().split())\n\n# ваш код\n',stdin:'Айгерим Нурлан Данияр Аружан\nНурлан Аружан',
+  need:[['-','.difference(']],
+  tests:[{in:['Айгерим Нурлан Данияр Аружан','Нурлан Аружан'],exp:["['Айгерим', 'Данияр']"]},{in:['1 2 3','1 2 3'],exp:['[]']}],
+  sol:'klass = set(input().split())\nsdali = set(input().split())\nprint(sorted(klass - sdali))'},
+ {id:'O4',lv:'B',title:'Ровно в одном кружке',
+  desc:'Даны участники двух кружков (две строки). Выведите отсортированный список тех, кто ходит только в один из кружков.',
+  expect:'Тест: «Айгерим Нурлан Данияр» и «Нурлан Аружан Данияр Ерлан» → [\'Айгерим\', \'Аружан\', \'Ерлан\']',
+  code:'a = set(input().split())\nb = set(input().split())\n\n# ваш код\n',stdin:'Айгерим Нурлан Данияр\nНурлан Аружан Данияр Ерлан',
+  need:[['^','.symmetric_difference(']],
+  tests:[{in:['Айгерим Нурлан Данияр','Нурлан Аружан Данияр Ерлан'],exp:["['Айгерим', 'Аружан', 'Ерлан']"]},{in:['a b c','b c d'],exp:["['a', 'd']"]}],
+  sol:'a = set(input().split())\nb = set(input().split())\nprint(sorted(a ^ b))'},
+ {id:'O5',lv:'C',title:'Общие буквы двух слов',
+  desc:'Даны два слова (каждое в своей строке). Выведите отсортированный список букв, которые есть в обоих словах, а затем количество таких букв.',
+  expect:'Тест: «қазақстан» и «астана» → [\'а\', \'н\', \'с\', \'т\'], затем 4',
+  code:'w1 = input()\nw2 = input()\n\n# ваш код\n',stdin:'қазақстан\nастана',
+  need:[['&','.intersection(']],
+  tests:[{in:['қазақстан','астана'],exp:["['а', 'н', 'с', 'т']",'4']},{in:['кот','пёс'],exp:['[]','0']}],
+  sol:'w1 = input()\nw2 = input()\ncommon = set(w1) & set(w2)\nprint(sorted(common))\nprint(len(common))'},
+ {id:'O6',lv:'C',title:'Готов ли ученик к олимпиаде',
+  desc:'В первой строке — методы, которые нужно знать для олимпиады, во второй — методы, которые знает ученик. Если ученик знает все нужные методы, выведите «да», иначе «нет». Затем выведите отсортированный список методов, которые ещё нужно выучить.',
+  expect:'Тест: «add remove discard len» и «add len in» → нет, [\'discard\', \'remove\']',
+  code:'need = set(input().split())\nknow = set(input().split())\n\n# ваш код\n',stdin:'add remove discard len\nadd len in',
+  need:[['<=','>=','.issubset(','.issuperset('],['-','.difference(']],
+  tests:[{in:['add remove discard len','add len in'],exp:['нет',"['discard', 'remove']"]},{in:['add len','add len pop'],exp:['да','[]']}],
+  sol:'need = set(input().split())\nknow = set(input().split())\nif need <= know:\n    print("да")\nelse:\n    print("нет")\nprint(sorted(need - know))'},
+];
+var opDone=store.get('opDone',{});const opTries=store.get('opTries',{});
+function opScoreUpd(){$('#opScore').textContent=`${opTasks.filter(t=>opDone[t.id]).length} / ${opTasks.length}`;}
+opTasks.forEach(t=>{const box=document.createElement('div');box.className='task';box.dataset.lv=t.lv;
+  box.innerHTML=`<div class="task-head"><span class="badge ${t.lv}">${t.id}</span><h3>${esc(t.title)}</h3><span class="status"></span></div>
+   <p class="desc">${esc(t.desc)}</p><p class="expect">${esc(t.expect)}</p><div class="ed"></div><div class="verdict" hidden></div>
+   <details class="sol"><summary>Решение-образец</summary><div class="solbody"></div></details>`;
+  $('#opTasks').appendChild(box);
+  const ed=makeEditor(box.querySelector('.ed'),{title:t.id.toLowerCase()+'.py',code:store.get('code-'+t.id,null)??t.code,stdin:t.stdin||'',
+    extraBtns:bar=>{const b=document.createElement('button');b.className='btn alt chk';b.type='button';b.textContent='✓ Проверить';bar.appendChild(b);}});
+  ed.ta.addEventListener('input',()=>store.set('code-'+t.id,ed.ta.value));
+  const verdict=box.querySelector('.verdict'),st=box.querySelector('.status'),sol=box.querySelector('.solbody');
+  const renderSol=()=>{sol.innerHTML=`<pre>${esc(t.sol)}</pre>`;};
+  const renderSt=()=>{st.className='status'+(opDone[t.id]?' done':'');st.textContent=opDone[t.id]?'Решено':'';};
+  renderSol();renderSt();
+  box.querySelector('.chk').addEventListener('click',async e=>{const btn=e.currentTarget;btn.disabled=true;verdict.hidden=false;verdict.className='verdict';verdict.textContent='Проверяю…';
+    let fail=null;const code=ed.ta.value.replace(/#.*$/gm,'');
+    const miss=t.need.filter(g=>!g.some(n=>code.includes(n)));
+    if(miss.length)fail='В решении нужно использовать операцию: '+miss.map(g=>g.map(n=>n.replace(/^\./,'').replace(/\($/,'()')).join(' или ')).join('; ')+'.';
+    if(!fail)for(const [i,tc] of t.tests.entries()){const r=await runPython(ed.ta.value,tc.in);
+      if(r.err){fail=`Тест ${i+1} (ввод: ${tc.in.join(' / ')}): ошибка при выполнении.\n${r.err}`;break;}
+      const o=norm(r.out);let pos=0,missing=null;
+      for(const x of tc.exp){const k=o.indexOf(norm(x),pos);if(k<0){missing=x;break;}pos=k+norm(x).length;}
+      if(missing!==null){fail=`Тест ${i+1} (ввод: ${tc.in.join(' / ')}): в выводе не найдено «${missing}» (или порядок строк другой).\nВаш вывод:\n${r.out.trim()||'(пусто)'}`;break;}}
+    opTries[t.id]=(opTries[t.id]||0)+1;store.set('opTries',opTries);
+    if(fail){verdict.className='verdict no';verdict.style.whiteSpace='pre-wrap';verdict.textContent=fail;}
+    else{verdict.className='verdict ok';verdict.textContent=`Все тесты пройдены (${t.tests.length} из ${t.tests.length}). Отличная работа!`;opDone[t.id]=true;store.set('opDone',opDone);}
+    renderSol();renderSt();opScoreUpd();btn.disabled=false;if(typeof sendProg==='function')sendProg(false);});});
+opScoreUpd();
 
 /* ---------- tabs ---------- */
 const panels=[...document.querySelectorAll('main>section')];
@@ -1304,9 +1449,17 @@ var visitedTabs=store.get('visited',{});
 function gateOf(idx){for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return k;}return -1;}
 function toast(msg){let t=$('#lockToast');if(!t){t=document.createElement('div');t.id='lockToast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
   t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),4000);}
+/* quiz & extra tasks: tab colour by result. undefined = not such a tab */
+function workStatus(id){try{
+  if(id==='viktorina'){if(!visitedTabs[id])return null;const ans=Object.keys(qState).filter(i=>quiz[+i]);
+    if(ans.some(i=>qState[i]!==quiz[+i][2]))return 'miss';return ans.length===quiz.length?'done':'open';}
+  if(id==='dop'){if(!visitedTabs[id])return null;if(tasks.some(t=>tries[t.id]&&!done[t.id]))return 'miss';return tasks.some(t=>done[t.id])?'done':'open';}
+  }catch(e){return null;}return undefined;}
 function updateLocks(){
   try{const pr=$('#ssProg');if(pr){const ids=Object.keys(CONF_Q);pr.textContent=`самооценка: ${ids.filter(id=>confState[id]).length} из ${ids.length}`;}}catch(e){}
-  navLinks.forEach(a=>{const id=(a.getAttribute('href')||'').slice(1);a.classList.remove('st-done','st-miss');if(teacherMode||!CONF_Q[id])return;if(confState[id])a.classList.add('st-done');else if(visitedTabs[id])a.classList.add('st-miss');});
+  navLinks.forEach(a=>{const id=(a.getAttribute('href')||'').slice(1);a.classList.remove('st-done','st-miss','st-open');if(teacherMode)return;
+    const ws=workStatus(id);if(ws!==undefined){if(ws)a.classList.add('st-'+ws);return;}
+    if(!CONF_Q[id])return;if(confState[id])a.classList.add('st-done');else if(visitedTabs[id])a.classList.add('st-miss');});
   navLinks.forEach(a=>{const idx=panels.findIndex(p=>'#'+p.id===a.getAttribute('href'));const lk=!isUnlocked(idx);a.classList.toggle('locked',lk);if(lk)a.setAttribute('aria-disabled','true');else a.removeAttribute('aria-disabled');});
   panels.forEach((p,i)=>{const n=p._next;if(!n)return;const lk=!isUnlocked(i+1);n.classList.toggle('disabled',lk);
     n.querySelector('span').textContent=lk?'Отметьте самооценку выше, чтобы продолжить':'Далее →';});
@@ -1359,8 +1512,7 @@ function renderOly(){
   if(olyDone>=olySteps.length){cur.className='oly-current finished';cur.innerHTML='<h3>Программа готова!</h3><p>Все 6 шагов пройдены: вы создали множество, добавили и удалили участников, проверили участие и вывели итог. Переходите к <a href="#dop">дополнительным задачам</a> или к <a href="#refleksiya">рефлексии</a>.</p>';$('#olyCheck').disabled=true;}
   else{const st=olySteps[olyDone],n=olyTries[olyDone]||0;cur.className='oly-current';
     cur.innerHTML=`<h3>Шаг ${olyDone+1} из 6. ${esc(st.t)}</h3><p>${esc(st.d)}</p>
-      <details><summary>Подсказка</summary><p style="margin-top:6px"><code>${esc(st.hint)}</code></p></details>
-      <details class="olysol"><summary>Образец для этого шага</summary><div style="margin-top:6px">${n>=2?`<pre>${esc(st.sol)}</pre>`:`<p>Откроется после ${2-n} ${2-n===1?'попытки':'попыток'} проверки.</p>`}</div></details>`;
+      <details class="olysol"><summary>Образец для этого шага</summary><div style="margin-top:6px"><pre>${esc(st.sol)}</pre></div></details>`;
     cur.querySelector('.olysol').addEventListener('toggle',e=>{if(e.target.open&&(olyTries[olyDone]||0)>=2){olySeen[olyDone]=true;store.set('olySeen',olySeen);}});
     $('#olyCheck').disabled=false;}
   $('#olyScore').textContent=`${Math.min(olyDone,6)} / 6`;
@@ -1391,7 +1543,7 @@ $('#olyCheck').addEventListener('click',async()=>{
       }
       if(reachTo<0){
         fail=evalStep(olyDone);
-        if(!fail){const om=outsMiss(olyDone,olyDone);if(om)fail=`В выводе не найдено «${om[1]}». ${st.d}\nПодсказка: ${st.hint}\n\nВаш вывод:\n${visible.trim()||'(пусто)'}`;}
+        if(!fail){const om=outsMiss(olyDone,olyDone);if(om)fail=`В выводе не найдено «${om[1]}». ${st.d}\n\nВаш вывод:\n${visible.trim()||'(пусто)'}`;}
         if(!fail){const miss=needMiss(olyDone);if(miss.length)fail='Результат верный, но на этом шаге нужно использовать: '+miss.map(m=>m.trim().replace(/^\./,'').replace(/\($/,'()')).join(', ')+'.';}
         if(!fail)fail='Шаг пока не выполнен. Перечитайте задание и подсказку.';
       }
@@ -1601,7 +1753,7 @@ let liveDb=null;
 async function liveWrite(key,data){if(!teacherMode)return;
   if(!liveDb&&window.__SYNC_URL){try{await fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:key,data})});}catch(e){toast('Не удалось передать ученикам: нет интернета или неверный адрес скрипта');}return;}
   if(!liveDb)return;try{await liveDb.doc('live/'+key).set(data);}catch(e){toast('Не удалось передать ученикам: '+(e&&e.code||'ошибка'));}}
-document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{store.set('lang',b.dataset.lang);try{history.replaceState(null,'',location.pathname+location.search+(teacherMode?'#uchitel':''));}catch(e){}location.reload();}));
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{store.set('lang',b.dataset.lang);const cur=(panels.find(p=>!p.hidden)||{}).id;try{history.replaceState(null,'',location.pathname+location.search+(cur?'#'+cur:''));}catch(e){}location.reload();}));
 (async()=>{
   const u=await capUse('user');let owner=true;
   if(u!==undefined){try{owner=!!(u&&await u.isOwner());}catch(e){owner=false;}}
@@ -1782,23 +1934,24 @@ function sendProg(force){if(teacherMode||!student||!window.__SYNC_URL)return;
   const qk=quizOk();
   const items=[{suf:'#quiz',n:qk.length,total:quiz.length,partner:qk.join(','),sig:qk.join(',')+'|'+Object.keys(qState).length},
                {suf:'#oly',n:od,total:olySteps.length,partner:'',sig:String(od)},
-               {suf:'#dop',n:dd.length,total:tasks.length,partner:dd.join(', '),sig:dd.join(',')}];
+               {suf:'#dop',n:dd.length,total:tasks.length,partner:dd.join(', '),sig:dd.join(',')},
+               {suf:'#ops',n:opTasks.filter(t=>opDone[t.id]).length,total:opTasks.length,partner:opTasks.filter(t=>opDone[t.id]).map(t=>t.id).join(', '),sig:opTasks.filter(t=>opDone[t.id]).map(t=>t.id).join(',')}];
   items.forEach(it=>{if(!force&&lastProgSent[it.suf]===it.sig)return;if(!force&&it.n===0&&lastProgSent[it.suf]===undefined){lastProgSent[it.suf]=it.sig;return;}lastProgSent[it.suf]=it.sig;
     const data={cls:student.cls,name:student.name+it.suf,partner:it.partner,n:it.n,ok:it.n,total:it.total,wrong:[],empty:0,d:todayStr(),t:Date.now()};
     fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});});}
 if(!teacherMode&&window.__SYNC_URL){setTimeout(()=>sendProg(false),3000);setInterval(()=>sendProg(false),8000);}
 function drawProg(){const cls=pkClass;const today=todayStr();
-  [['oly','#oly'],['dop','#dop']].forEach(([key,suf])=>{const box=$('#pg-'+key);if(!box)return;const body=box.querySelector('.pg-body');box.querySelector('.pg-cls').textContent=cls||'';
+  [['oly','#oly'],['dop','#dop'],['ops','#ops']].forEach(([key,suf])=>{const box=$('#pg-'+key);if(!box)return;const body=box.querySelector('.pg-body');box.querySelector('.pg-cls').textContent=cls||'';
     if(!cls||!CLASSES[cls]){body.innerHTML='<tr><td colspan="4">Выберите класс в блоке «Кто отвечает?» на вкладке «Повторение».</td></tr>';return;}
     const latest={};(resList||[]).forEach(r=>{if(r&&r.cls===cls&&r.d===today&&String(r.name).endsWith(suf)){const n=String(r.name).slice(0,-suf.length);if(!latest[n]||latest[n].t<r.t)latest[n]=r;}});
     const names=presentOf(cls).slice();Object.keys(latest).filter(n=>!names.includes(n)).forEach(n=>names.push(n));
-    const total=key==='oly'?olySteps.length:tasks.length;
+    const total=key==='oly'?olySteps.length:key==='ops'?opTasks.length:tasks.length;
     body.innerHTML=names.map(n=>{const r=latest[n];
       if(!r)return `<tr class="res-wait"><td>${esc(n)}</td><td>ещё не начинал(а)</td><td>—</td><td>—</td></tr>`;
       const ok=+r.ok||0,tt=+r.total||total;const cl=ok>=tt?'res-ok':ok>=Math.ceil(tt/2)?'res-mid':'res-low';
       const det=key==='oly'?(ok>=tt?'программа готова':`сейчас шаг ${ok+1}`):(r.partner?String(r.partner).split(', ').map(x=>`<code>${esc(x)}</code>`).join(' '):'—');
       return `<tr class="${cl}"><td>${esc(n)}</td><td><b>${ok} из ${tt}</b><span class="pg-bar"><span style="width:${tt?Math.round(ok/tt*100):0}%"></span></span></td><td>${det}</td><td>${hhmm(r.t)}</td></tr>`;}).join('')||'<tr><td colspan="4">В классе нет учеников.</td></tr>';});}
-window.addEventListener('hashchange',()=>{if(teacherMode&&(location.hash==='#praktika'||location.hash==='#dop'))drawProg();});
+window.addEventListener('hashchange',()=>{if(teacherMode&&(location.hash==='#praktika'||location.hash==='#dop'||location.hash==='#zadaniya'))drawProg();});
 document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawProg,0)));
 if(teacherMode)drawProg();
 
@@ -2179,6 +2332,8 @@ body.teacher #matchA{display:block!important}
 .grp-list{grid-template-columns:1fr}
 nav a.st-done{color:var(--hit);background:var(--ok-soft)}
 nav a.st-miss{color:var(--bad);background:var(--bad-soft)}
+nav a.st-open{color:var(--a);background:var(--a-soft)}
+nav a.st-open[aria-current=page]{background:var(--ink);color:var(--bg);box-shadow:inset 0 -3px 0 var(--a)}
 nav a.st-done[aria-current=page],nav a.st-miss[aria-current=page]{background:var(--ink);color:var(--bg)}
 nav a.st-done[aria-current=page]{box-shadow:inset 0 -3px 0 var(--hit)}
 nav a.st-miss[aria-current=page]{box-shadow:inset 0 -3px 0 var(--bad)}
@@ -2231,6 +2386,22 @@ body.teacher #goalCard,body.teacher #confSum,body.teacher .refl,body.teacher #st
 .gl-tbl td:first-child,.gl-tbl th:first-child{text-align:left;white-space:nowrap}
 .gl-c{font-weight:700;font-size:1.05rem}
 .gl-c.ok{color:var(--hit);background:var(--ok-soft)} .gl-c.part{color:var(--b)} .gl-c.no{color:var(--muted)}
+.op-data{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.op-data .lbl{display:block;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.op-data pre{margin:0;font-family:var(--f-mono);font-size:.9rem;white-space:pre-wrap}
+.op-list{display:grid;gap:14px}
+.op-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
+.op-top{display:flex;gap:16px;align-items:center}
+.op-top h3{margin:0 0 4px}
+.op-top p{margin:6px 0 0;color:var(--muted)}
+.op-sig{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.9rem}
+.op-sig span{color:var(--muted);font-size:.8rem}
+.venn{width:150px;flex:none;color:var(--b)}
+.venn .vl{font-family:var(--f-mono);font-size:13px;fill:var(--ink)}
+.op-tbl td:last-child{color:var(--muted)}
+@media (max-width:600px){.op-top{flex-direction:column;align-items:flex-start}.venn{width:130px}}
+code,pre,textarea,kbd{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+body:not(.teacher) details.sol,body:not(.teacher) .olysol{display:none!important}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -2351,7 +2522,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <div class="brand">Жиын <span>·</span> set</div>
   <div class="side-stu" id="sideStu" hidden><div class="ss-lbl">Оқушы</div><div class="ss-name" id="ssName"></div><div class="ss-meta"><span class="stu-cls" id="ssCls"></span><span class="ss-prog" id="ssProg"></span></div><span class="link-st ss-link" id="ssLink"></span><button class="btn-ghost ss-chg" type="button" id="ssChange">Оқушыны ауыстыру</button><button class="btn-ghost ss-exit" type="button" id="ssExit">Сабақтан шығу</button></div>
   <nav aria-label="Сабақ бөлімдері">
-    <a href="#povtorenie">Қайталау</a><a href="#tema">Тақырып қандай?</a><a href="#cel">Сабақ мақсаты</a><a href="#svoistva">Анықтама</a><a href="#lab">Машина</a><a href="#metody">Әдістер</a><a href="#pesochnica">Құмсалғыш</a><a href="#kakoy">Қай әдіс?</a><a href="#oshibka">Қатені тап</a><a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Қосымша есептер</a><a href="#refleksiya">Рефлексия</a>
+    <a href="#povtorenie">Қайталау</a><a href="#tema">Тақырып қандай?</a><a href="#cel">Сабақ мақсаты</a><a href="#svoistva">Анықтама</a><a href="#lab">Машина</a><a href="#metody">Әдістер</a><a href="#pesochnica">Құмсалғыш</a><a href="#kakoy">Қай әдіс?</a><a href="#oshibka">Қатені тап</a><a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Қосымша есептер</a><a href="#refleksiya">Рефлексия</a><a href="#operacii">Амалдар</a><a href="#zadaniya">Тапсырмалар</a>
   </nav>
   <div class="lang-sw"><span>Қаз</span><button type="button" data-lang="ru" title="Русский">Рус</button></div>
 </div></header>
@@ -2666,7 +2837,7 @@ s.discard(2)</pre></div>
 
   <section id="dop">
     <div class="sec-head"><h2>Қосымша есептер</h2><p>Олимпиаданы аяқтағандар үшін. Деңгейді таңдап, өз қарқыныңызбен шығарыңыз.</p></div>
-    <p class="howto">«Тексеру» батырмасы бағдарламаны тесттерде іске қосып, қажетті әдістердің қолданылғанын қарайды. Үлгі шешім екі рет тексергеннен кейін ашылады.</p>
+    <p class="howto">«Тексеру» батырмасы бағдарламаны тесттерде іске қосып, қажетті әдістердің қолданылғанын тексереді.<span class="t-only"> Әр есептің астындағы үлгі шешімді тек мұғалім көреді.</span></p>
     <div class="levels" role="group" aria-label="Деңгей">
       <button class="lv" type="button" data-lv="all" aria-pressed="true">Барлық есептер</button>
       <button class="lv" type="button" data-lv="A" aria-pressed="false">A — базалық</button>
@@ -2714,6 +2885,35 @@ s.discard(2)</pre></div>
     </div>
     <div class="exit-end s-only"><button class="btn exit-main" type="button" id="endLesson">Сабақты аяқтап, шығу</button><span>Шықпас бұрын мұғалімге сабақ қорытындыңды көрсет.</span></div>
   </section>
+
+  <section id="operacii">
+    <div class="sec-head"><h2>Жиындарға амалдар</h2><p>Амал екі жиыннан жаңа жиын құрады. Бастапқы жиындар өзгермейді. Алдымен нәтижені болжаңыз, содан кейін «Іске қосу» батырмасын басыңыз.</p></div>
+    <div class="op-data"><span class="lbl">Барлық мысалдарға арналған деректер</span><pre>robot = {"Айгерим", "Нурлан", "Данияр"}            # робототехника үйірмесі
+chess = {"Нурлан", "Аружан", "Данияр", "Ерлан"}     # шахмат үйірмесі</pre></div>
+    <div class="op-list" id="opList"></div>
+    <h3 class="sub">Жиынтық кесте</h3>
+    <div class="tbl-wrap"><table class="plan op-tbl">
+      <thead><tr><th>Амал</th><th>Оператор</th><th>Әдіс</th><th>robot және chess үшін нәтиже</th></tr></thead>
+      <tbody>
+        <tr><td>Бірігу</td><td><code>a | b</code></td><td><code>a.union(b)</code></td><td>бес оқушының бәрі</td></tr>
+        <tr><td>Қиылысу</td><td><code>a &amp; b</code></td><td><code>a.intersection(b)</code></td><td>Данияр, Нурлан — екі үйірмеге де қатысады</td></tr>
+        <tr><td>Айырма</td><td><code>a - b</code></td><td><code>a.difference(b)</code></td><td>Айгерим — тек робототехника</td></tr>
+        <tr><td>Симметриялық айырма</td><td><code>a ^ b</code></td><td><code>a.symmetric_difference(b)</code></td><td>Айгерим, Аружан, Ерлан — тек бір үйірмеде</td></tr>
+        <tr><td>Ішкі жиын</td><td><code>a &lt;= b</code></td><td><code>a.issubset(b)</code></td><td>a-ның барлық элементі b-да болса, True</td></tr>
+      </tbody>
+    </table></div>
+    <p class="howto">Айырма реттілікке тәуелді: <code>robot - chess</code> және <code>chess - robot</code> әртүрлі нәтиже береді. Бірігу, қиылысу және симметриялық айырма реттілікке тәуелді емес.</p>
+  </section>
+
+  <section id="zadaniya">
+    <div class="sec-head"><h2>Тапсырмалар: жиындарға амалдар</h2><p>Әр бағдарлама деректерді оқиды, амалды орындайды және нәтижені шығарады. «Тексеру» батырмасы тесттерді іске қосып, қажетті амалдың қолданылғанын тексереді.</p><span class="score" id="opScore">0 / 6</span></div>
+    <div class="results t-only prog-box" id="pg-ops">
+      <div class="pk-top"><span class="pk-title">Сынып оқушылары: амалдарға тапсырмалар</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Оқушы</th><th>Үлгерім</th><th>Толығырақ</th><th>Уақыт</th></tr></thead><tbody class="pg-body"></tbody></table></div>
+    </div>
+    <p class="howto">Жолдағы есімдер бос орын арқылы енгізіледі. Шығару реті бірдей болуы үшін нәтижені <code>sorted()</code> арқылы шығарыңыз.<span class="t-only"> Әр есептің астындағы үлгі шешімді тек мұғалім көреді.</span></p>
+    <div class="task-list" id="opTasks"></div>
+  </section>
 </main>
 <footer><div class="wrap">
 <div class="reset-box" id="resetBox">
@@ -2723,7 +2923,7 @@ s.discard(2)</pre></div>
     <button class="btn-ghost" type="button" id="resetNo">Болдырмау</button></span>
   <span class="reset-done" id="resetDone" hidden>Деректер тазаланды. Бет қайта жүктелуде…</span>
 </div>
-Еңбегі адал – өскелең азамат. Тапсырмаларды өз бетіңізше орындап, өзіңізді адал тексеріңіз.<br>Жиындарға амалдар (бірігу, қиылысу, айырма) — келесі сабақта. Браузердегі Python Skulpt интерпретаторында жұмыс істейді. Жиынды шығарғанда элементтердің реті кәдімгі Python-нан өзгеше болуы мүмкін, сондықтан есептерде мынаны қолданыңыз: <code>sorted()</code>.</div></footer>
+Еңбегі адал – өскелең азамат. Тапсырмаларды өз бетіңізше орындап, өзіңізді адал тексеріңіз.<br>Жиындарға амалдар (бірігу, қиылысу, айырма) — келесі сабақтың тақырыбы; вкладки «Операции» и «Задания» можно открыть заранее. Браузердегі Python Skulpt интерпретаторында жұмыс істейді. Жиынды шығарғанда элементтер реті әдеттегі Python-нан өзгеше болуы мүмкін, сондықтан есептерде мынаны қолданыңыз: <code>sorted()</code>.</div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
@@ -2949,7 +3149,7 @@ tasks.forEach(t=>{
     extraBtns:bar=>{const b=document.createElement('button');b.className='btn alt chk';b.type='button';b.textContent='✓ Тексеру';bar.appendChild(b);}});
   ed.ta.addEventListener('input',()=>store.set('code-'+t.id,ed.ta.value));
   const verdict=box.querySelector('.verdict'),st=box.querySelector('.status'),sol=box.querySelector('.solbody');
-  const renderSol=()=>{const n=tries[t.id]||0;sol.innerHTML=(n>=2||done[t.id])?`<pre>${esc(t.sol)}</pre>`:`<p style="margin-top:6px">Тағы ${2-n} рет тексергеннен кейін ашылады.</p>`;};
+  const renderSol=()=>{sol.innerHTML=`<pre>${esc(t.sol)}</pre>`;};
   const renderSt=()=>{st.className='status'+(done[t.id]?' done':'');st.textContent=done[t.id]?'Шешілді':'';};
   renderSol();renderSt();
   box.querySelector('.chk').addEventListener('click',async e=>{
@@ -2968,7 +3168,7 @@ tasks.forEach(t=>{
     tries[t.id]=(tries[t.id]||0)+1;store.set('tries',tries);
     if(fail){verdict.className='verdict no';verdict.style.whiteSpace='pre-wrap';verdict.textContent=fail;}
     else{verdict.className='verdict ok';verdict.textContent=`Барлық тест өтті (${t.tests.length}/${t.tests.length}). Керемет жұмыс!`;done[t.id]=true;store.set('done',done);}
-    renderSol();renderSt();btn.disabled=false;});
+    renderSol();renderSt();btn.disabled=false;try{updateLocks();}catch(e){}});
 });
 document.querySelectorAll('.lv').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.lv').forEach(x=>x.setAttribute('aria-pressed',x===b));
@@ -2994,7 +3194,7 @@ function renderQuiz(){
 function paintQ(i){const q=quiz[i],pick=qState[i];const box=$('#quiz').children[i];
   box.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(j===q[2])b.classList.add('right');else if(j===pick)b.classList.add('wrong');});
   const w=box.querySelector('.why');w.hidden=false;w.textContent=(pick===q[2]?'Дұрыс. ':'Бұрыс. ')+q[3];}
-function score(){const n=Object.entries(qState).filter(([i,v])=>quiz[i][2]===v).length;$('#score').textContent=`${n} / ${quiz.length}`;}
+function score(){const n=Object.entries(qState).filter(([i,v])=>quiz[i][2]===v).length;$('#score').textContent=`${n} / ${quiz.length}`;try{updateLocks();}catch(e){}}
 $('#quizReset').addEventListener('click',()=>{qState={};store.set('quiz',qState);renderQuiz();});
 renderQuiz();
 
@@ -3068,7 +3268,7 @@ dbg.forEach((d,i)=>{
   ed.ta.addEventListener('input',()=>store.set('dbgc'+i,ed.ta.value));
   const v=box.querySelector('.verdict'),st=box.querySelector('.status'),sol=box.querySelector('.solbody');
   const draw=()=>{st.className='status'+(dbgDone[i]?' done':'');st.textContent=dbgDone[i]?'Түзетілді':'';
-    sol.innerHTML=(dbgTries[i]||dbgDone[i])?`<pre>${esc(d.fix)}</pre><p style="margin-top:6px">${esc(d.why)}</p>`:'<p style="margin-top:6px">Бірінші тексеруден кейін ашылады.</p>';dbgScoreUpd();};
+    sol.innerHTML=`<pre>${esc(d.fix)}</pre><p style="margin-top:6px">${esc(d.why)}</p>`;dbgScoreUpd();};
   draw();
   box.querySelector('[data-chk]').addEventListener('click',async e=>{const btn=e.currentTarget;btn.disabled=true;v.hidden=false;v.className='verdict';v.textContent='Тексерілуде…';
     const code=ed.ta.value.replace(/#.*$/gm,'');const miss=d.need.filter(n=>!code.includes(n));
@@ -3081,6 +3281,104 @@ dbg.forEach((d,i)=>{
     else{v.className='verdict ok';v.textContent='Қате түзетілді!';dbgDone[i]=true;store.set('dbgDone',dbgDone);}
     draw();btn.disabled=false;if(typeof onDbgCheck==='function')onDbgCheck();});
 });
+
+/* ---------- set operations ---------- */
+const OP_DATA='robot = {"Айгерим", "Нурлан", "Данияр"}\nchess = {"Нурлан", "Аружан", "Данияр", "Ерлан"}\n';
+function venn(kind,k){const A='<circle cx="62" cy="48" r="34"/>',B='<circle cx="106" cy="48" r="34"/>';let fill='';
+  if(kind==='union')fill=`<g fill="currentColor" opacity=".35">${A}${B}</g>`;
+  else if(kind==='inter')fill=`<clipPath id="vc${k}">${B}</clipPath><g clip-path="url(#vc${k})" fill="currentColor" opacity=".35">${A}</g>`;
+  else if(kind==='diff')fill=`<mask id="vm${k}"><rect width="168" height="96" fill="#fff"/><circle cx="106" cy="48" r="34" fill="#000"/></mask><g mask="url(#vm${k})" fill="currentColor" opacity=".35">${A}</g>`;
+  else if(kind==='sym')fill=`<clipPath id="vc${k}">${B}</clipPath><mask id="vm${k}"><rect width="168" height="96" fill="#fff"/><g clip-path="url(#vc${k})" fill="#000">${A}</g></mask><g mask="url(#vm${k})" fill="currentColor" opacity=".35">${A}${B}</g>`;
+  if(kind==='sub')return `<svg class="venn" viewBox="0 0 168 96" aria-hidden="true"><circle cx="84" cy="48" r="42" fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="2"/><circle cx="72" cy="52" r="20" fill="currentColor" opacity=".35"/><circle cx="72" cy="52" r="20" fill="none" stroke="currentColor" stroke-width="2"/><text x="66" y="57" class="vl">a</text><text x="112" y="30" class="vl">b</text></svg>`;
+  return `<svg class="venn" viewBox="0 0 168 96" aria-hidden="true">${fill}<g fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="2">${A}${B}</g><text x="40" y="53" class="vl">a</text><text x="120" y="53" class="vl">b</text></svg>`;}
+const ops=[
+ {k:'union',name:'Бірігу',sig:['a | b','a.union(b)'],d:'Жиындардың кем дегенде біреуінде бар барлық элемент. Қайталанулар, әдеттегідей, жойылады.',
+  code:'print(sorted(robot | chess))\nprint(sorted(robot.union(chess)))\nprint(len(robot | chess))'},
+ {k:'inter',name:'Қиылысу',sig:['a & b','a.intersection(b)'],d:'Тек ортақ элементтер: екі жиында да бар элементтер.',
+  code:'print(sorted(robot & chess))\nprint(sorted(robot.intersection(chess)))'},
+ {k:'diff',name:'Айырма',sig:['a - b','a.difference(b)'],d:'Бірінші жиында бар, ал екіншісінде жоқ элементтер. Реттілік маңызды.',
+  code:'print(sorted(robot - chess))\nprint(sorted(chess - robot))'},
+ {k:'sym',name:'Симметриялық айырма',sig:['a ^ b','a.symmetric_difference(b)'],d:'Тек бір жиында ғана бар элементтер, ортақтарынсыз.',
+  code:'print(sorted(robot ^ chess))\nprint(sorted(robot.symmetric_difference(chess)))'},
+ {k:'sub',name:'Ішкі жиын',sig:['a <= b','a.issubset(b)'],d:'Тексеру: a-ның барлық элементі b-ға кіре ме. Нәтиже — True немесе False.',
+  code:'school = {"Айгерим", "Нурлан", "Данияр", "Аружан", "Ерлан"}\nprint(robot <= school)\nprint(robot.issubset(chess))\nprint(school >= chess)'},
+];
+ops.forEach((o,i)=>{const box=document.createElement('div');box.className='op-card';
+  box.innerHTML=`<div class="op-top">${venn(o.k,i)}<div><h3>${esc(o.name)}</h3><div class="op-sig"><code>${esc(o.sig[0])}</code><span>немесе</span><code>${esc(o.sig[1])}</code></div><p>${esc(o.d)}</p></div></div><div class="op-ed"></div>`;
+  $('#opList').appendChild(box);makeEditor(box.querySelector('.op-ed'),{title:'primer'+(i+1)+'.py',code:OP_DATA+'\n'+o.code,compact:true});});
+
+const opTasks=[
+ {id:'O1',lv:'A',title:'Ортақ қатысушылар',
+  desc:'Бірінші жолда — робототехника үйірмесінің қатысушылары, екіншісінде — шахмат үйірмесінің қатысушылары (есімдер бос орын арқылы). Екі үйірмеге де қатысатындардың сұрыпталған тізімін шығарыңыз.',
+  expect:'Тест: «Айгерим Нурлан Данияр» және «Нурлан Аружан Данияр Ерлан» → [\'Данияр\', \'Нурлан\']',
+  code:'robot = set(input().split())\nchess = set(input().split())\n\n# сіздің кодыңыз\n',stdin:'Айгерим Нурлан Данияр\nНурлан Аружан Данияр Ерлан',
+  need:[['&','.intersection(']],
+  tests:[{in:['Айгерим Нурлан Данияр','Нурлан Аружан Данияр Ерлан'],exp:["['Данияр', 'Нурлан']"]},{in:['a b c','d e'],exp:['[]']}],
+  sol:'robot = set(input().split())\nchess = set(input().split())\nprint(sorted(robot & chess))'},
+ {id:'O2',lv:'A',title:'Барлығы неше қатысушы',
+  desc:'Қатысушылардың екі тізімі берілген (екі жол, есімдер бос орын арқылы). Кейбір оқушылар екі тізімде де бар. Барлығы неше түрлі оқушы қатысатынын шығарыңыз.',
+  expect:'Тест: «Айгерим Нурлан Данияр» және «Нурлан Аружан Данияр Ерлан» → 5',
+  code:'a = set(input().split())\nb = set(input().split())\n\n# сіздің кодыңыз\n',stdin:'Айгерим Нурлан Данияр\nНурлан Аружан Данияр Ерлан',
+  need:[['|','.union(']],
+  tests:[{in:['Айгерим Нурлан Данияр','Нурлан Аружан Данияр Ерлан'],exp:['5']},{in:['x y','y z'],exp:['3']}],
+  sol:'a = set(input().split())\nb = set(input().split())\nprint(len(a | b))'},
+ {id:'O3',lv:'B',title:'Жұмысты кім тапсырмады',
+  desc:'Бірінші жолда — сыныптың барлық оқушысы, екіншісінде — жұмысты тапсырғандар. Жұмысты тапсырмағандардың сұрыпталған тізімін шығарыңыз.',
+  expect:'Тест: «Айгерим Нурлан Данияр Аружан» және «Нурлан Аружан» → [\'Айгерим\', \'Данияр\']',
+  code:'klass = set(input().split())\nsdali = set(input().split())\n\n# сіздің кодыңыз\n',stdin:'Айгерим Нурлан Данияр Аружан\nНурлан Аружан',
+  need:[['-','.difference(']],
+  tests:[{in:['Айгерим Нурлан Данияр Аружан','Нурлан Аружан'],exp:["['Айгерим', 'Данияр']"]},{in:['1 2 3','1 2 3'],exp:['[]']}],
+  sol:'klass = set(input().split())\nsdali = set(input().split())\nprint(sorted(klass - sdali))'},
+ {id:'O4',lv:'B',title:'Тек бір үйірмеде',
+  desc:'Екі үйірменің қатысушылары берілген (екі жол). Тек бір үйірмеге ғана қатысатындардың сұрыпталған тізімін шығарыңыз.',
+  expect:'Тест: «Айгерим Нурлан Данияр» және «Нурлан Аружан Данияр Ерлан» → [\'Айгерим\', \'Аружан\', \'Ерлан\']',
+  code:'a = set(input().split())\nb = set(input().split())\n\n# сіздің кодыңыз\n',stdin:'Айгерим Нурлан Данияр\nНурлан Аружан Данияр Ерлан',
+  need:[['^','.symmetric_difference(']],
+  tests:[{in:['Айгерим Нурлан Данияр','Нурлан Аружан Данияр Ерлан'],exp:["['Айгерим', 'Аружан', 'Ерлан']"]},{in:['a b c','b c d'],exp:["['a', 'd']"]}],
+  sol:'a = set(input().split())\nb = set(input().split())\nprint(sorted(a ^ b))'},
+ {id:'O5',lv:'C',title:'Екі сөздің ортақ әріптері',
+  desc:'Екі сөз берілген (әрқайсысы бөлек жолда). Екі сөзде де бар әріптердің сұрыпталған тізімін, содан кейін олардың санын шығарыңыз.',
+  expect:'Тест: «қазақстан» және «астана» → [\'а\', \'н\', \'с\', \'т\'], содан кейін 4',
+  code:'w1 = input()\nw2 = input()\n\n# сіздің кодыңыз\n',stdin:'қазақстан\nастана',
+  need:[['&','.intersection(']],
+  tests:[{in:['қазақстан','астана'],exp:["['а', 'н', 'с', 'т']",'4']},{in:['кот','пёс'],exp:['[]','0']}],
+  sol:'w1 = input()\nw2 = input()\ncommon = set(w1) & set(w2)\nprint(sorted(common))\nprint(len(common))'},
+ {id:'O6',lv:'C',title:'Оқушы олимпиадаға дайын ба',
+  desc:'Бірінші жолда — олимпиада үшін білу керек әдістер, екіншісінде — оқушы білетін әдістер. Оқушы барлық қажетті әдісті білсе, «иә», әйтпесе «жоқ» деп шығарыңыз. Содан кейін әлі үйрену керек әдістердің сұрыпталған тізімін шығарыңыз.',
+  expect:'Тест: «add remove discard len» және «add len in» → жоқ, [\'discard\', \'remove\']',
+  code:'need = set(input().split())\nknow = set(input().split())\n\n# сіздің кодыңыз\n',stdin:'add remove discard len\nadd len in',
+  need:[['<=','>=','.issubset(','.issuperset('],['-','.difference(']],
+  tests:[{in:['add remove discard len','add len in'],exp:['жоқ',"['discard', 'remove']"]},{in:['add len','add len pop'],exp:['иә','[]']}],
+  sol:'need = set(input().split())\nknow = set(input().split())\nif need <= know:\n    print("иә")\nelse:\n    print("жоқ")\nprint(sorted(need - know))'},
+];
+var opDone=store.get('opDone',{});const opTries=store.get('opTries',{});
+function opScoreUpd(){$('#opScore').textContent=`${opTasks.filter(t=>opDone[t.id]).length} / ${opTasks.length}`;}
+opTasks.forEach(t=>{const box=document.createElement('div');box.className='task';box.dataset.lv=t.lv;
+  box.innerHTML=`<div class="task-head"><span class="badge ${t.lv}">${t.id}</span><h3>${esc(t.title)}</h3><span class="status"></span></div>
+   <p class="desc">${esc(t.desc)}</p><p class="expect">${esc(t.expect)}</p><div class="ed"></div><div class="verdict" hidden></div>
+   <details class="sol"><summary>Үлгі шешім</summary><div class="solbody"></div></details>`;
+  $('#opTasks').appendChild(box);
+  const ed=makeEditor(box.querySelector('.ed'),{title:t.id.toLowerCase()+'.py',code:store.get('code-'+t.id,null)??t.code,stdin:t.stdin||'',
+    extraBtns:bar=>{const b=document.createElement('button');b.className='btn alt chk';b.type='button';b.textContent='✓ Тексеру';bar.appendChild(b);}});
+  ed.ta.addEventListener('input',()=>store.set('code-'+t.id,ed.ta.value));
+  const verdict=box.querySelector('.verdict'),st=box.querySelector('.status'),sol=box.querySelector('.solbody');
+  const renderSol=()=>{sol.innerHTML=`<pre>${esc(t.sol)}</pre>`;};
+  const renderSt=()=>{st.className='status'+(opDone[t.id]?' done':'');st.textContent=opDone[t.id]?'Шешілді':'';};
+  renderSol();renderSt();
+  box.querySelector('.chk').addEventListener('click',async e=>{const btn=e.currentTarget;btn.disabled=true;verdict.hidden=false;verdict.className='verdict';verdict.textContent='Тексерілуде…';
+    let fail=null;const code=ed.ta.value.replace(/#.*$/gm,'');
+    const miss=t.need.filter(g=>!g.some(n=>code.includes(n)));
+    if(miss.length)fail='Шешімде мына амалды қолдану керек: '+miss.map(g=>g.map(n=>n.replace(/^\./,'').replace(/\($/,'()')).join(' немесе ')).join('; ')+'.';
+    if(!fail)for(const [i,tc] of t.tests.entries()){const r=await runPython(ed.ta.value,tc.in);
+      if(r.err){fail=`Тест ${i+1} (енгізу: ${tc.in.join(' / ')}): орындау кезінде қате.\n${r.err}`;break;}
+      const o=norm(r.out);let pos=0,missing=null;
+      for(const x of tc.exp){const k=o.indexOf(norm(x),pos);if(k<0){missing=x;break;}pos=k+norm(x).length;}
+      if(missing!==null){fail=`Тест ${i+1} (енгізу: ${tc.in.join(' / ')}): шығаруда «${missing}» табылмады (немесе жолдар реті басқа).\nСіздің шығаруыңыз:\n${r.out.trim()||'(бос)'}`;break;}}
+    opTries[t.id]=(opTries[t.id]||0)+1;store.set('opTries',opTries);
+    if(fail){verdict.className='verdict no';verdict.style.whiteSpace='pre-wrap';verdict.textContent=fail;}
+    else{verdict.className='verdict ok';verdict.textContent=`Барлық тест өтті (${t.tests.length}/${t.tests.length}). Керемет жұмыс!`;opDone[t.id]=true;store.set('opDone',opDone);}
+    renderSol();renderSt();opScoreUpd();btn.disabled=false;if(typeof sendProg==='function')sendProg(false);});});
+opScoreUpd();
 
 /* ---------- tabs ---------- */
 const panels=[...document.querySelectorAll('main>section')];
@@ -3124,9 +3422,17 @@ var visitedTabs=store.get('visited',{});
 function gateOf(idx){for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return k;}return -1;}
 function toast(msg){let t=$('#lockToast');if(!t){t=document.createElement('div');t.id='lockToast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
   t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),4000);}
+/* quiz & extra tasks: tab colour by result. undefined = not such a tab */
+function workStatus(id){try{
+  if(id==='viktorina'){if(!visitedTabs[id])return null;const ans=Object.keys(qState).filter(i=>quiz[+i]);
+    if(ans.some(i=>qState[i]!==quiz[+i][2]))return 'miss';return ans.length===quiz.length?'done':'open';}
+  if(id==='dop'){if(!visitedTabs[id])return null;if(tasks.some(t=>tries[t.id]&&!done[t.id]))return 'miss';return tasks.some(t=>done[t.id])?'done':'open';}
+  }catch(e){return null;}return undefined;}
 function updateLocks(){
   try{const pr=$('#ssProg');if(pr){const ids=Object.keys(CONF_Q);pr.textContent=`өзін-өзі бағалау: ${ids.filter(id=>confState[id]).length}/${ids.length}`;}}catch(e){}
-  navLinks.forEach(a=>{const id=(a.getAttribute('href')||'').slice(1);a.classList.remove('st-done','st-miss');if(teacherMode||!CONF_Q[id])return;if(confState[id])a.classList.add('st-done');else if(visitedTabs[id])a.classList.add('st-miss');});
+  navLinks.forEach(a=>{const id=(a.getAttribute('href')||'').slice(1);a.classList.remove('st-done','st-miss','st-open');if(teacherMode)return;
+    const ws=workStatus(id);if(ws!==undefined){if(ws)a.classList.add('st-'+ws);return;}
+    if(!CONF_Q[id])return;if(confState[id])a.classList.add('st-done');else if(visitedTabs[id])a.classList.add('st-miss');});
   navLinks.forEach(a=>{const idx=panels.findIndex(p=>'#'+p.id===a.getAttribute('href'));const lk=!isUnlocked(idx);a.classList.toggle('locked',lk);if(lk)a.setAttribute('aria-disabled','true');else a.removeAttribute('aria-disabled');});
   panels.forEach((p,i)=>{const n=p._next;if(!n)return;const lk=!isUnlocked(i+1);n.classList.toggle('disabled',lk);
     n.querySelector('span').textContent=lk?'Жалғастыру үшін жоғарыда өзін-өзі бағалауды белгілеңіз':'Әрі қарай →';});
@@ -3179,8 +3485,7 @@ function renderOly(){
   if(olyDone>=olySteps.length){cur.className='oly-current finished';cur.innerHTML='<h3>Бағдарлама дайын!</h3><p>Барлық 6 қадам орындалды: сіз жиын құрдыңыз, қатысушыларды қостыңыз және жойдыңыз, қатысуды тексердіңіз және қорытындыны шығардыңыз. <a href="#dop">Қосымша есептерге</a> немесе <a href="#refleksiya">рефлексияға</a> өтіңіз.</p>';$('#olyCheck').disabled=true;}
   else{const st=olySteps[olyDone],n=olyTries[olyDone]||0;cur.className='oly-current';
     cur.innerHTML=`<h3>${olyDone+1}-қадам (6-дан). ${esc(st.t)}</h3><p>${esc(st.d)}</p>
-      <details><summary>Кеңес</summary><p style="margin-top:6px"><code>${esc(st.hint)}</code></p></details>
-      <details class="olysol"><summary>Осы қадамның үлгісі</summary><div style="margin-top:6px">${n>=2?`<pre>${esc(st.sol)}</pre>`:`<p>Тағы ${2-n} рет тексергеннен кейін ашылады.</p>`}</div></details>`;
+      <details class="olysol"><summary>Осы қадамның үлгісі</summary><div style="margin-top:6px"><pre>${esc(st.sol)}</pre></div></details>`;
     cur.querySelector('.olysol').addEventListener('toggle',e=>{if(e.target.open&&(olyTries[olyDone]||0)>=2){olySeen[olyDone]=true;store.set('olySeen',olySeen);}});
     $('#olyCheck').disabled=false;}
   $('#olyScore').textContent=`${Math.min(olyDone,6)} / 6`;
@@ -3211,7 +3516,7 @@ $('#olyCheck').addEventListener('click',async()=>{
       }
       if(reachTo<0){
         fail=evalStep(olyDone);
-        if(!fail){const om=outsMiss(olyDone,olyDone);if(om)fail=`Нәтижеде «${om[1]}» табылмады. ${st.d}\nКеңес: ${st.hint}\n\nСіздің нәтижеңіз:\n${visible.trim()||'(бос)'}`;}
+        if(!fail){const om=outsMiss(olyDone,olyDone);if(om)fail=`Нәтижеде «${om[1]}» табылмады. ${st.d}\n\nСіздің нәтижеңіз:\n${visible.trim()||'(бос)'}`;}
         if(!fail){const miss=needMiss(olyDone);if(miss.length)fail='Нәтиже дұрыс, бірақ осы қадамда мынаны қолдану керек: '+miss.map(m=>m.trim().replace(/^\./,'').replace(/\($/,'()')).join(', ')+'.';}
         if(!fail)fail='Қадам әзірге орындалмады. Тапсырма мен кеңесті қайта оқыңыз.';
       }
@@ -3421,7 +3726,7 @@ let liveDb=null;
 async function liveWrite(key,data){if(!teacherMode)return;
   if(!liveDb&&window.__SYNC_URL){try{await fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:key,data})});}catch(e){toast('Оқушыларға жіберу мүмкін болмады: интернет жоқ немесе скрипт мекенжайы қате');}return;}
   if(!liveDb)return;try{await liveDb.doc('live/'+key).set(data);}catch(e){toast('Оқушыларға жіберу мүмкін болмады: '+(e&&e.code||'қате'));}}
-document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{store.set('lang',b.dataset.lang);try{history.replaceState(null,'',location.pathname+location.search+(teacherMode?'#uchitel':''));}catch(e){}location.reload();}));
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{store.set('lang',b.dataset.lang);const cur=(panels.find(p=>!p.hidden)||{}).id;try{history.replaceState(null,'',location.pathname+location.search+(cur?'#'+cur:''));}catch(e){}location.reload();}));
 (async()=>{
   const u=await capUse('user');let owner=true;
   if(u!==undefined){try{owner=!!(u&&await u.isOwner());}catch(e){owner=false;}}
@@ -3602,23 +3907,24 @@ function sendProg(force){if(teacherMode||!student||!window.__SYNC_URL)return;
   const qk=quizOk();
   const items=[{suf:'#quiz',n:qk.length,total:quiz.length,partner:qk.join(','),sig:qk.join(',')+'|'+Object.keys(qState).length},
                {suf:'#oly',n:od,total:olySteps.length,partner:'',sig:String(od)},
-               {suf:'#dop',n:dd.length,total:tasks.length,partner:dd.join(', '),sig:dd.join(',')}];
+               {suf:'#dop',n:dd.length,total:tasks.length,partner:dd.join(', '),sig:dd.join(',')},
+               {suf:'#ops',n:opTasks.filter(t=>opDone[t.id]).length,total:opTasks.length,partner:opTasks.filter(t=>opDone[t.id]).map(t=>t.id).join(', '),sig:opTasks.filter(t=>opDone[t.id]).map(t=>t.id).join(',')}];
   items.forEach(it=>{if(!force&&lastProgSent[it.suf]===it.sig)return;if(!force&&it.n===0&&lastProgSent[it.suf]===undefined){lastProgSent[it.suf]=it.sig;return;}lastProgSent[it.suf]=it.sig;
     const data={cls:student.cls,name:student.name+it.suf,partner:it.partner,n:it.n,ok:it.n,total:it.total,wrong:[],empty:0,d:todayStr(),t:Date.now()};
     fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});});}
 if(!teacherMode&&window.__SYNC_URL){setTimeout(()=>sendProg(false),3000);setInterval(()=>sendProg(false),8000);}
 function drawProg(){const cls=pkClass;const today=todayStr();
-  [['oly','#oly'],['dop','#dop']].forEach(([key,suf])=>{const box=$('#pg-'+key);if(!box)return;const body=box.querySelector('.pg-body');box.querySelector('.pg-cls').textContent=cls||'';
+  [['oly','#oly'],['dop','#dop'],['ops','#ops']].forEach(([key,suf])=>{const box=$('#pg-'+key);if(!box)return;const body=box.querySelector('.pg-body');box.querySelector('.pg-cls').textContent=cls||'';
     if(!cls||!CLASSES[cls]){body.innerHTML='<tr><td colspan="4">«Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
     const latest={};(resList||[]).forEach(r=>{if(r&&r.cls===cls&&r.d===today&&String(r.name).endsWith(suf)){const n=String(r.name).slice(0,-suf.length);if(!latest[n]||latest[n].t<r.t)latest[n]=r;}});
     const names=presentOf(cls).slice();Object.keys(latest).filter(n=>!names.includes(n)).forEach(n=>names.push(n));
-    const total=key==='oly'?olySteps.length:tasks.length;
+    const total=key==='oly'?olySteps.length:key==='ops'?opTasks.length:tasks.length;
     body.innerHTML=names.map(n=>{const r=latest[n];
       if(!r)return `<tr class="res-wait"><td>${esc(n)}</td><td>әлі бастаған жоқ</td><td>—</td><td>—</td></tr>`;
       const ok=+r.ok||0,tt=+r.total||total;const cl=ok>=tt?'res-ok':ok>=Math.ceil(tt/2)?'res-mid':'res-low';
       const det=key==='oly'?(ok>=tt?'бағдарлама дайын':`қазір ${ok+1}-қадам`):(r.partner?String(r.partner).split(', ').map(x=>`<code>${esc(x)}</code>`).join(' '):'—');
       return `<tr class="${cl}"><td>${esc(n)}</td><td><b>${ok} / ${tt}</b><span class="pg-bar"><span style="width:${tt?Math.round(ok/tt*100):0}%"></span></span></td><td>${det}</td><td>${hhmm(r.t)}</td></tr>`;}).join('')||'<tr><td colspan="4">Сыныпта оқушы жоқ.</td></tr>';});}
-window.addEventListener('hashchange',()=>{if(teacherMode&&(location.hash==='#praktika'||location.hash==='#dop'))drawProg();});
+window.addEventListener('hashchange',()=>{if(teacherMode&&(location.hash==='#praktika'||location.hash==='#dop'||location.hash==='#zadaniya'))drawProg();});
 document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawProg,0)));
 if(teacherMode)drawProg();
 
