@@ -338,6 +338,16 @@ body.teacher #matchA{display:block!important}
 .link-st.ok{background:var(--ok-soft);color:var(--hit)}
 .link-st.no{background:var(--bad-soft);color:var(--bad)}
 .link-st:empty{display:none}
+.results{background:var(--surface);border:2px solid var(--hit);border-radius:16px;padding:14px 16px;display:grid;gap:10px;margin-top:12px}
+.res-upd{font-size:.8rem;color:var(--muted)}
+.res-tbl{min-width:560px}
+.res-tbl td{font-size:.92rem}
+.res-tbl tr.res-ok td:nth-child(2){color:var(--hit)}
+.res-tbl tr.res-mid td:nth-child(2){color:var(--b)}
+.res-tbl tr.res-low td:nth-child(2){color:var(--bad)}
+.res-tbl tr.res-wait td{color:var(--muted)}
+.res-tbl code{font-size:.8rem;background:var(--bad-soft);border-radius:4px;padding:1px 5px;white-space:nowrap}
+.res-empty{font-size:.8rem;color:var(--muted)}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -534,6 +544,11 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
     </div>
     <div class="match-lock" id="matchLock" hidden></div>
     <div class="match" id="matchA"></div>
+    <div class="results t-only" id="resBox">
+      <div class="pk-top"><span class="pk-title">Результаты сопоставления</span><span class="pk-ctrl"><span class="res-upd" id="resUpd"></span><button class="btn-ghost" type="button" id="resClear">Очистить результаты</button></span></div>
+      <p class="howto" id="resNote">Таблица заполняется, когда ученик нажимает «Проверить». Работает в скачанных файлах со связью через Google-скрипт.</p>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Пара</th><th>Результат</th><th>Ошибки</th><th>Время</th></tr></thead><tbody id="resBody"></tbody></table></div>
+    </div>
     <details class="memo"><summary>Памятка: list и tuple</summary>
       <div class="tbl-wrap"><table>
         <thead><tr><th>Свойство</th><th>list — список</th><th>tuple — кортеж</th></tr></thead>
@@ -864,7 +879,8 @@ function matcher(host,key,pairs,codeLeft){
       const r=+b.dataset.r;for(const k in links)if(links[k]===r)delete links[k];links[sel]=r;sel=null;checked=false;res.textContent='';store.set(key+':links',links);draw();}));
   }
   bCheck.addEventListener('click',()=>{const n=Object.keys(links).length;checked=true;const ok=pairs.filter((_,i)=>links[i]===i).length;
-    res.textContent=n<pairs.length?`Соединено ${n} из ${pairs.length}. Верно: ${ok}.`:(ok===pairs.length?`Все ${ok} пар верны. Отлично!`:`Верно ${ok} из ${pairs.length}. Красные пары исправьте.`);draw();});
+    res.textContent=n<pairs.length?`Соединено ${n} из ${pairs.length}. Верно: ${ok}.`:(ok===pairs.length?`Все ${ok} пар верны. Отлично!`:`Верно ${ok} из ${pairs.length}. Красные пары исправьте.`);draw();
+    if(typeof onMatchCheck==='function')onMatchCheck({n,ok,total:pairs.length,wrong:pairs.filter((_,i)=>links[i]!==undefined&&links[i]!==i).map(x=>x[0].split('\n')[0]),empty:pairs.filter((_,i)=>links[i]===undefined).length});});
   bReset.addEventListener('click',()=>{links={};sel=null;checked=false;res.textContent='';store.set(key+':links',links);draw();});
   draw();
 }
@@ -1433,7 +1449,7 @@ $('#prMake').addEventListener('click',()=>{const cls=pkClass;if(!cls||!CLASSES[c
   let mask=0;CLASSES[cls].forEach((n,i)=>{if(prPresentSet.has(n))mask|=(1<<i);});
   if(!mask){toast('Отметьте хотя бы одного присутствующего ученика.');return;}
   const seed=10+Math.floor(Math.random()*90);const code=`${seed}-${mask.toString(16).toUpperCase()}`;
-  const pairs=makePairs(cls,seed,mask);liveWrite('pairs',{cls,pairs:pairs.map(x=>({m:x})),t:Date.now()});
+  const pairs=makePairs(cls,seed,mask);liveWrite('pairs',{cls,pairs:pairs.map(x=>({m:x})),t:Date.now()});store.set('lastPairs',{cls,pairs,d:todayStr()});drawResults();
   $('#prList').innerHTML=pairs.map(pr=>`<li><b>${esc(pr[0])}</b> <span class="pr-lead">выполняет</span> — ${pr.slice(1).map(esc).join(', ')}</li>`).join('');});
 document.querySelectorAll('.pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(prDrawTeacher,0)));
 prDrawTeacher();
@@ -1521,6 +1537,36 @@ function drawAtt(){const cls=pkClass,w=$('#attWrap');if(!cls||!CLASSES[cls]){w.h
     const by={};for(const [k,v] of Object.entries(absentMap))if(v&&v.d===todayStr())by[k]=v;liveWrite('absent',{by,t:Date.now()});}));}
 document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>{drawAtt();prDrawTeacher();},0)));
 drawAtt();pkDraw();
+
+/* ---------- results of the pair matching ---------- */
+var resList=[];
+function onMatchCheck(r){if(teacherMode||!student||!window.__SYNC_URL)return;
+  const partner=prState&&prState.partner||'';
+  fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({k:'result',data:{cls:student.cls,name:student.name,partner,n:r.n,ok:r.ok,total:r.total,wrong:r.wrong,empty:r.empty,d:todayStr(),t:Date.now()}})}).catch(()=>{});}
+function hhmm(t){const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClass;
+  if(!window.__SYNC_URL){$('#resNote').hidden=false;}
+  const today=todayStr();const rs=resList.filter(r=>r&&r.cls===cls&&r.d===today);
+  const lp=store.get('lastPairs',null);const rows=[];const used=new Set();
+  if(lp&&lp.cls===cls&&lp.d===today){lp.pairs.forEach(pr=>{const r=rs.filter(x=>pr.includes(x.name)).sort((a,b)=>b.t-a.t)[0];if(r)used.add(r.name);rows.push({pair:pr,r});});}
+  rs.filter(r=>!used.has(r.name)).forEach(r=>rows.push({pair:[r.name].concat(r.partner?[r.partner]:[]),r}));
+  if(!cls){body.innerHTML='<tr><td colspan="4">Выберите класс в блоке «Кто отвечает?».</td></tr>';return;}
+  if(!rows.length){body.innerHTML='<tr><td colspan="4">Пока нет результатов.</td></tr>';return;}
+  body.innerHTML=rows.map(({pair,r})=>{
+    const who=r?`<b>${esc(r.name)}</b>${pair.filter(n=>n!==r.name).length?' — '+pair.filter(n=>n!==r.name).map(esc).join(', '):''}`:`<b>${esc(pair[0])}</b> — ${pair.slice(1).map(esc).join(', ')}`;
+    if(!r)return `<tr class="res-wait"><td>${who}</td><td>ещё не проверяли</td><td>—</td><td>—</td></tr>`;
+    const cls2=r.ok===r.total?'res-ok':r.ok>=Math.ceil(r.total/2)?'res-mid':'res-low';
+    const err=(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')+(r.empty?` <span class="res-empty">не соединено: ${r.empty}</span>`:'');
+    return `<tr class="${cls2}"><td>${who}</td><td><b>${r.ok} из ${r.total}</b></td><td>${err||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
+function pollResults(){if(!teacherMode||!window.__SYNC_URL)return;
+  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{resList=Array.isArray(v&&v.results)?v.results:[];$('#resUpd').textContent='обновлено '+hhmm(Date.now());drawResults();}).catch(()=>{$('#resUpd').textContent='нет связи со скриптом';});}
+$('#resClear').addEventListener('click',()=>{if(!window.__SYNC_URL)return;
+  fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:'clearResults'})}).then(()=>setTimeout(pollResults,1500)).catch(()=>{});
+  resList=[];drawResults();});
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawResults,0)));
+if(teacherMode&&window.__SYNC_URL){$('#resNote').hidden=true;pollResults();setInterval(pollResults,5000);}
+drawResults();
 
 /* ---------- reflection ---------- */
 ['st1','st2','st3','st4'].forEach(id=>{const el=$('#'+id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked));});
