@@ -334,6 +334,10 @@ body.teacher #matchA{display:block!important}
 .exit-row{display:flex;flex-wrap:wrap;gap:8px}
 .pr-present.att{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
 .pr-present.att[open]{border-color:var(--b)}
+.link-st{display:inline-block;font-size:.78rem;font-weight:600;border-radius:6px;padding:2px 8px;margin-left:6px}
+.link-st.ok{background:var(--ok-soft);color:var(--hit)}
+.link-st.no{background:var(--bad-soft);color:var(--bad)}
+.link-st:empty{display:none}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -485,8 +489,8 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   </div>
 </div>
 <main class="wrap">
-  <div class="t-bar" id="tBar" hidden><span><b>Мұғалім беті.</b> Барлық қойындылар ашық, «Қайталау» қойындысында «Кім жауап береді?» жұмыс істейді.</span><button class="btn-ghost" type="button" id="tExit">Мұғалім режимінен шығу</button></div>
-  <div class="stu-bar" id="stuBar" hidden><span>Оқушы: <b id="stuName"></b> <span class="stu-cls" id="stuCls"></span></span><span class="stu-btns"><button class="btn-ghost" type="button" id="stuChange">Оқушыны ауыстыру</button><button class="btn-ghost exit-btn" type="button" id="stuExit">Сабақтан шығу</button></span></div>
+  <div class="t-bar" id="tBar" hidden><span><b>Мұғалім беті.</b> Барлық қойындылар ашық, «Қайталау» қойындысында «Кім жауап береді?» жұмыс істейді.</span><span class="link-st" id="linkT"></span><button class="btn-ghost" type="button" id="tExit">Мұғалім режимінен шығу</button></div>
+  <div class="stu-bar" id="stuBar" hidden><span>Оқушы: <b id="stuName"></b> <span class="stu-cls" id="stuCls"></span> <span class="link-st" id="linkS"></span></span><span class="stu-btns"><button class="btn-ghost" type="button" id="stuChange">Оқушыны ауыстыру</button><button class="btn-ghost exit-btn" type="button" id="stuExit">Сабақтан шығу</button></span></div>
   <section id="povtorenie">
     <div class="sec-head"><h2>Қайталау: тізім және кортеж</h2><p>Өткен сабақтарды еске түсірейік: тізім мен кортеж әдістері және олардың қалай жұмыс істейтіні. Уақыты — шамамен 3 минут.</p></div>
     <div class="picker" id="picker">
@@ -1170,7 +1174,9 @@ panels.forEach((p,i)=>{const pg=document.createElement('div');pg.className='page
   if(i>0)pg.innerHTML+=`<a href="#${panels[i-1].id}"><span>← Артқа</span>${esc(titleOf(panels[i-1].id))}</a>`;
   if(i<panels.length-1)pg.innerHTML+=`<a class="next" href="#${panels[i+1].id}"><span>Әрі қарай →</span>${esc(titleOf(panels[i+1].id))}</a>`;
   (p.querySelector('.wrap-inner')||p).appendChild(pg);p._next=pg.querySelector('a.next');});
-let teacherMode=window.__NO_TEACHER?false:(window.__FORCE_TEACHER===true||store.get('teacher',false));
+try{if(location.hash==='#uchenik')sessionStorage.setItem('setlab2:preview','1');if(location.hash==='#uchitel')sessionStorage.removeItem('setlab2:preview');}catch(e){}
+var previewStudent=false;try{previewStudent=sessionStorage.getItem('setlab2:preview')==='1';}catch(e){}
+let teacherMode=(window.__NO_TEACHER||previewStudent)?false:(window.__FORCE_TEACHER===true||store.get('teacher',false));
 if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){location.hash='povtorenie';}}
 function isUnlocked(idx){if(teacherMode)return true;for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return false;}return true;}
 function gateOf(idx){for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return k;}return -1;}
@@ -1450,15 +1456,31 @@ $('#prRole').querySelectorAll('button').forEach(btn=>btn.addEventListener('click
 if(!teacherMode)prShowMine();
 
 /* ---------- owner check + live link teacher -> students ---------- */
+function setLink(st){
+  const T={http:['ok','Оқушылармен байланыс: Google-скрипт арқылы'],httpfail:['no','Байланыс жоқ: скрипт қолжетімсіз'],ok:['ok','Оқушылармен байланыс: қосылған'],file:['no','Оқушылармен байланыс жоқ: жүктеп алынған файл ашылған. Байланыс тек сайтта жұмыс істейді.'],none:['no','Оқушылармен байланыс жоқ: сайт қоймасы қолжетімсіз.']};
+  const S={http:['ok','мұғаліммен байланыс: бар'],httpfail:['no','мұғаліммен байланыс жоқ (интернетті тексеріңіз)'],ok:['ok','мұғаліммен байланыс: бар'],file:['no','мұғаліммен байланыс жоқ (файл ашылған)'],none:['no','мұғаліммен байланыс жоқ (claude.ai-ға кіріңіз)']};
+  const t=$('#linkT'),u=$('#linkS');
+  if(t){t.className='link-st '+T[st][0];t.textContent=T[st][1];}
+  if(u){u.className='link-st '+S[st][0];u.textContent=(previewStudent?'оқушы көрінісі · ':'')+S[st][1];}}
+
 const capUse=n=>(window.claude&&typeof window.claude.use==='function')?Promise.resolve(window.claude.use(n)).catch(()=>null):Promise.resolve(undefined);
 let liveDb=null;
-async function liveWrite(key,data){if(!teacherMode||!liveDb)return;try{await liveDb.doc('live/'+key).set(data);}catch(e){toast('Оқушыларға жіберу мүмкін болмады: '+(e&&e.code||'қате'));}}
+async function liveWrite(key,data){if(!teacherMode)return;
+  if(!liveDb&&window.__SYNC_URL){try{await fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:key,data})});}catch(e){toast('Оқушыларға жіберу мүмкін болмады: интернет жоқ немесе скрипт мекенжайы қате');}return;}
+  if(!liveDb)return;try{await liveDb.doc('live/'+key).set(data);}catch(e){toast('Оқушыларға жіберу мүмкін болмады: '+(e&&e.code||'қате'));}}
 document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{store.set('lang',b.dataset.lang);try{history.replaceState(null,'',location.pathname+location.search+(teacherMode?'#uchitel':''));}catch(e){}location.reload();}));
 (async()=>{
   const u=await capUse('user');let owner=true;
   if(u!==undefined){try{owner=!!(u&&await u.isOwner());}catch(e){owner=false;}}
   if(!owner&&teacherMode){teacherMode=false;store.set('teacher',false);updateLocks();drawStudent();showTab();if(!student)openStart('first');prShowMine();toast('Мұғалім беті тек сайт иесінде ашылады.');}
-  const d=await capUse('db');if(!d)return;liveDb=d;
+  const d=await capUse('db');
+  if(!d&&window.__SYNC_URL){setLink('http');if(teacherMode){$('#pkLive').hidden=false;return;}
+    let prevAbs='';const poll=()=>fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{
+      lastNow=v&&v.now||null;lastPairs=v&&v.pairs||null;renderNow();renderPairs();
+      const ab=JSON.stringify(v&&v.absent&&v.absent.by||{});if(ab!==prevAbs){prevAbs=ab;liveAbsent=JSON.parse(ab);if(!$('#startScreen').hidden)stDrawNames();prShowMine();}
+      setLink('http');}).catch(()=>setLink('httpfail'));
+    poll();setInterval(poll,4000);return;}
+  setLink(d===undefined?'file':d?'ok':'none');if(!d)return;liveDb=d;
   if(teacherMode){$('#pkLive').hidden=false;return;}
   const fresh=t=>t&&Date.now()-t<3*60*60*1000;
   d.doc('live/now').onSnapshot(snap=>{lastNow=snap.exists?snap.data():null;renderNow();},()=>{});
