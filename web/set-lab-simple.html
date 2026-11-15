@@ -481,6 +481,8 @@ input[type=text],textarea{width:100%;font:inherit;font-family:var(--f-mono);font
 .op:hover{border-color:var(--a)}
 .op.danger b{color:var(--bad)}
 .setbox{border:2px solid var(--a);border-radius:18px;background:var(--a-soft);padding:16px;min-height:150px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;position:relative}
+.setbox.tbox{border-color:var(--hit);background:var(--ok-soft);min-height:70px}
+.setbox.tbox::before{content:"t";color:var(--hit)}
 .setbox::before{content:"s";position:absolute;top:-12px;left:14px;background:var(--surface);color:var(--a);font-family:var(--f-mono);font-weight:600;padding:0 6px}
 .el{font-family:var(--f-mono);font-size:.92rem;padding:5px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line);transition:transform .3s,background .3s,opacity .3s}
 .el.new{background:var(--hit-soft);transform:scale(1.08)}
@@ -815,10 +817,12 @@ s.discard(2)</pre></div>
           <button class="op" type="button" data-op="clear"><b>s.clear()</b><span>очистить</span></button>
           <button class="op" type="button" data-op="len"><b>len(s)</b><span>количество</span></button>
           <button class="op" type="button" data-op="update"><b>s.update([x, …])</b><span>добавить несколько, через запятую</span></button>
+          <button class="op" type="button" data-op="copy"><b>t = s.copy()</b><span>сделать копию t</span></button>
         </div>
       </div>
       <div class="venn-box">
         <div class="setbox" id="setbox" aria-live="polite"></div>
+        <div class="setbox tbox" id="tbox" hidden></div>
         <div class="result" id="labLog"></div>
       </div>
     </div>
@@ -1140,7 +1144,10 @@ function drawSet(mark,cls){const box=$('#setbox');
   if(mark!==undefined)setTimeout(()=>box.querySelectorAll('.el.new,.el.hit').forEach(e=>e.classList.remove('new','hit')),900);}
 function addLog(code,res,kind){log.push({code,res,kind});if(log.length>14)log.shift();
   const el=$('#labLog');el.innerHTML=log.map(l=>`${esc(l.code)}${l.res!==null?`\n<span class="${l.kind||'r'}">${esc(l.res)}</span>`:''}`).join('\n');el.scrollTop=el.scrollHeight;}
-function loadM(k){S=mPresets[k].slice();log=[];$('#labLog').innerHTML='';addLog('s = '+fmtSet(),null);drawSet();}
+let T=null;
+function drawT(){const box=$('#tbox');if(!box)return;if(T===null){box.hidden=true;return;}box.hidden=false;
+  box.innerHTML=T.length?T.map(v=>`<span class="el">${esc(lit(v))}</span>`).join(''):'<span class="empty">t = set()</span>';}
+function loadM(k){S=mPresets[k].slice();T=null;drawT();log=[];$('#labLog').innerHTML='';addLog('s = '+fmtSet(),null);drawSet();}
 document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>loadM(b.dataset.preset)));
 document.querySelectorAll('.op').forEach(b=>b.addEventListener('click',()=>{
   const raw=$('#xval').value,x=toVal(raw),op=b.dataset.op,has=S.includes(x);
@@ -1155,6 +1162,7 @@ document.querySelectorAll('.op').forEach(b=>b.addEventListener('click',()=>{
   else if(op==='pop'){if(!S.length){addLog('s.pop()',"KeyError: 'pop from an empty set'",'e');}else{const i=Math.floor(Math.random()*S.length),v=S[i];S.splice(i,1);addLog('print(s.pop())',lit(v)+`   # произвольный элемент; осталось ${fmtSet()}`);drawSet();}}
   else if(op==='clear'){S=[];addLog('s.clear()','# set()');drawSet();}
   else if(op==='len'){addLog('print(len(s))',String(S.length));}
+  else if(op==='copy'){T=S.slice();const tf=T.length?'{'+T.slice().sort(cmpMix).map(lit).join(', ')+'}':'set()';addLog('t = s.copy()','# t = '+tf);addLog('# t — отдельное множество: изменения s не меняют t',null);drawT();}
   else if(op==='update'){const vals=raw.split(',').map(v=>v.trim()).filter(Boolean).map(toVal);const added=vals.filter((v,i)=>!S.includes(v)&&vals.indexOf(v)===i);added.forEach(v=>S.push(v));
     addLog(`s.update([${vals.map(lit).join(', ')}])`,added.length?`# ${fmtSet()}`:`# все элементы уже есть — множество не изменилось: ${fmtSet()}`,added.length?'r':'c');drawSet();}
 }));
@@ -2581,6 +2589,7 @@ nav a.has-hint::after{content:'💡';margin-left:6px}
   body.teacher header.top .wrap,body:not(.has-student) header.top .wrap{overflow:visible}}
 .ref-tbl td:first-child,.ref-tbl td:nth-child(2){white-space:nowrap}
 .ref-tbl td.y,.ref-tbl td.n{text-align:center}
+textarea,input,code,pre{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"calt" 0!important}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -2609,6 +2618,8 @@ input[type=text],textarea{width:100%;font:inherit;font-family:var(--f-mono);font
 .op:hover{border-color:var(--a)}
 .op.danger b{color:var(--bad)}
 .setbox{border:2px solid var(--a);border-radius:18px;background:var(--a-soft);padding:16px;min-height:150px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;position:relative}
+.setbox.tbox{border-color:var(--hit);background:var(--ok-soft);min-height:70px}
+.setbox.tbox::before{content:"t";color:var(--hit)}
 .setbox::before{content:"s";position:absolute;top:-12px;left:14px;background:var(--surface);color:var(--a);font-family:var(--f-mono);font-weight:600;padding:0 6px}
 .el{font-family:var(--f-mono);font-size:.92rem;padding:5px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line);transition:transform .3s,background .3s,opacity .3s}
 .el.new{background:var(--hit-soft);transform:scale(1.08)}
@@ -2943,10 +2954,12 @@ s.discard(2)</pre></div>
           <button class="op" type="button" data-op="clear"><b>s.clear()</b><span>тазалау</span></button>
           <button class="op" type="button" data-op="len"><b>len(s)</b><span>саны</span></button>
           <button class="op" type="button" data-op="update"><b>s.update([x, …])</b><span>бірнешеуін қосу, үтір арқылы</span></button>
+          <button class="op" type="button" data-op="copy"><b>t = s.copy()</b><span>t көшірмесін жасау</span></button>
         </div>
       </div>
       <div class="venn-box">
         <div class="setbox" id="setbox" aria-live="polite"></div>
+        <div class="setbox tbox" id="tbox" hidden></div>
         <div class="result" id="labLog"></div>
       </div>
     </div>
@@ -3268,7 +3281,10 @@ function drawSet(mark,cls){const box=$('#setbox');
   if(mark!==undefined)setTimeout(()=>box.querySelectorAll('.el.new,.el.hit').forEach(e=>e.classList.remove('new','hit')),900);}
 function addLog(code,res,kind){log.push({code,res,kind});if(log.length>14)log.shift();
   const el=$('#labLog');el.innerHTML=log.map(l=>`${esc(l.code)}${l.res!==null?`\n<span class="${l.kind||'r'}">${esc(l.res)}</span>`:''}`).join('\n');el.scrollTop=el.scrollHeight;}
-function loadM(k){S=mPresets[k].slice();log=[];$('#labLog').innerHTML='';addLog('s = '+fmtSet(),null);drawSet();}
+let T=null;
+function drawT(){const box=$('#tbox');if(!box)return;if(T===null){box.hidden=true;return;}box.hidden=false;
+  box.innerHTML=T.length?T.map(v=>`<span class="el">${esc(lit(v))}</span>`).join(''):'<span class="empty">t = set()</span>';}
+function loadM(k){S=mPresets[k].slice();T=null;drawT();log=[];$('#labLog').innerHTML='';addLog('s = '+fmtSet(),null);drawSet();}
 document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>loadM(b.dataset.preset)));
 document.querySelectorAll('.op').forEach(b=>b.addEventListener('click',()=>{
   const raw=$('#xval').value,x=toVal(raw),op=b.dataset.op,has=S.includes(x);
@@ -3283,6 +3299,7 @@ document.querySelectorAll('.op').forEach(b=>b.addEventListener('click',()=>{
   else if(op==='pop'){if(!S.length){addLog('s.pop()',"KeyError: 'pop from an empty set'",'e');}else{const i=Math.floor(Math.random()*S.length),v=S[i];S.splice(i,1);addLog('print(s.pop())',lit(v)+`   # кез келген элемент; қалғаны ${fmtSet()}`);drawSet();}}
   else if(op==='clear'){S=[];addLog('s.clear()','# set()');drawSet();}
   else if(op==='len'){addLog('print(len(s))',String(S.length));}
+  else if(op==='copy'){T=S.slice();const tf=T.length?'{'+T.slice().sort(cmpMix).map(lit).join(', ')+'}':'set()';addLog('t = s.copy()','# t = '+tf);addLog('# t — бөлек жиын: s-тің өзгерістері t-ны өзгертпейді',null);drawT();}
   else if(op==='update'){const vals=raw.split(',').map(v=>v.trim()).filter(Boolean).map(toVal);const added=vals.filter((v,i)=>!S.includes(v)&&vals.indexOf(v)===i);added.forEach(v=>S.push(v));
     addLog(`s.update([${vals.map(lit).join(', ')}])`,added.length?`# ${fmtSet()}`:`# барлық элемент бар — жиын өзгерген жоқ: ${fmtSet()}`,added.length?'r':'c');drawSet();}
 }));
