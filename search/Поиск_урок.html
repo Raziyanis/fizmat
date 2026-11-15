@@ -3,16 +3,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
 <style>
-:root{--boot-bg:#F3F5F9;--boot-fg:#13203A}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--boot-bg:#0D1422;--boot-fg:#E7ECF6;color-scheme:dark}}
-:root[data-theme="dark"]{--boot-bg:#0D1422;--boot-fg:#E7ECF6;color-scheme:dark}
+:root{--boot-bg:#FFFFFF;--boot-fg:#13203A;color-scheme:light}
 body{background:var(--boot-bg);color:var(--boot-fg)}
 </style>
 <template id="tpl-ru">
 <style>
 /* Layout: one column of lesson stations; the set machine is the visual centre; code panels are the working surface */
 :root{
-  --bg:#F3F5F9; --surface:#FFFFFF; --ink:#13203A; --muted:#5A6680; --line:#D9DFEA;
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#13203A; --muted:#5A6680; --line:#D9DFEA;
   --a:#2C64D8; --a-soft:rgba(44,100,216,.16);
   --b:#D98A06; --b-soft:rgba(217,138,6,.18);
   --hit:#1E9E6A; --hit-soft:rgba(30,158,106,.30);
@@ -22,16 +20,6 @@ body{background:var(--boot-bg);color:var(--boot-fg)}
   --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0D1422; --surface:#151F33; --ink:#E7ECF6; --muted:#9AA6C0; --line:#26324B;
-  --a:#6E9BFF; --a-soft:rgba(110,155,255,.20); --b:#F2B33D; --b-soft:rgba(242,179,61,.20);
-  --hit:#3DD598; --hit-soft:rgba(61,213,152,.30); --bad:#FF7A7A; --bad-soft:rgba(255,122,122,.14); --ok-soft:rgba(61,213,152,.14);
-  --on-a:#0B1426; --code-bg:#080E1A; --code-ink:#E6ECF7; --code-muted:#7D8AA6; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0D1422; --surface:#151F33; --ink:#E7ECF6; --muted:#9AA6C0; --line:#26324B;
-  --a:#6E9BFF; --a-soft:rgba(110,155,255,.20); --b:#F2B33D; --b-soft:rgba(242,179,61,.20);
-  --hit:#3DD598; --hit-soft:rgba(61,213,152,.30); --bad:#FF7A7A; --bad-soft:rgba(255,122,122,.14); --ok-soft:rgba(61,213,152,.14);
-  --on-a:#0B1426; --code-bg:#080E1A; --code-ink:#E6ECF7; --code-muted:#7D8AA6; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
@@ -1846,7 +1834,7 @@ renderHints();
 <style>
 /* Layout: one column of lesson stations; the set machine is the visual centre; code panels are the working surface */
 :root{
-  --bg:#F3F5F9; --surface:#FFFFFF; --ink:#13203A; --muted:#5A6680; --line:#D9DFEA;
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#13203A; --muted:#5A6680; --line:#D9DFEA;
   --a:#2C64D8; --a-soft:rgba(44,100,216,.16);
   --b:#D98A06; --b-soft:rgba(217,138,6,.18);
   --hit:#1E9E6A; --hit-soft:rgba(30,158,106,.30);
@@ -1856,16 +1844,6 @@ renderHints();
   --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0D1422; --surface:#151F33; --ink:#E7ECF6; --muted:#9AA6C0; --line:#26324B;
-  --a:#6E9BFF; --a-soft:rgba(110,155,255,.20); --b:#F2B33D; --b-soft:rgba(242,179,61,.20);
-  --hit:#3DD598; --hit-soft:rgba(61,213,152,.30); --bad:#FF7A7A; --bad-soft:rgba(255,122,122,.14); --ok-soft:rgba(61,213,152,.14);
-  --on-a:#0B1426; --code-bg:#080E1A; --code-ink:#E6ECF7; --code-muted:#7D8AA6; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0D1422; --surface:#151F33; --ink:#E7ECF6; --muted:#9AA6C0; --line:#26324B;
-  --a:#6E9BFF; --a-soft:rgba(110,155,255,.20); --b:#F2B33D; --b-soft:rgba(242,179,61,.20);
-  --hit:#3DD598; --hit-soft:rgba(61,213,152,.30); --bad:#FF7A7A; --bad-soft:rgba(255,122,122,.14); --ok-soft:rgba(61,213,152,.14);
-  --on-a:#0B1426; --code-bg:#080E1A; --code-ink:#E6ECF7; --code-muted:#7D8AA6; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
