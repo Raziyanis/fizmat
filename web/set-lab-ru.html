@@ -441,6 +441,9 @@ nav a.has-hint::after{content:'💡';margin-left:6px}
 .sheet-link{text-decoration:none;font-size:.85rem}
 @media (min-width:821px){body.teacher nav,body:not(.has-student) nav{flex-wrap:wrap;overflow:visible;row-gap:4px}
   body.teacher header.top .wrap,body:not(.has-student) header.top .wrap{overflow:visible}}
+.ref-tbl td:first-child,.ref-tbl td:nth-child(2){white-space:nowrap}
+.ref-tbl td.y,.ref-tbl td.n{text-align:center}
+textarea,input,code,pre{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"calt" 0!important}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -802,6 +805,7 @@ s.discard(2)</pre></div>
           <button class="op" type="button" data-op="pop"><b>s.pop()</b><span>удалить произвольный</span></button>
           <button class="op" type="button" data-op="clear"><b>s.clear()</b><span>очистить</span></button>
           <button class="op" type="button" data-op="len"><b>len(s)</b><span>количество</span></button>
+          <button class="op" type="button" data-op="update"><b>s.update([x, …])</b><span>добавить несколько, через запятую</span></button>
         </div>
       </div>
       <div class="venn-box">
@@ -814,6 +818,32 @@ s.discard(2)</pre></div>
   <section id="metody">
     <div class="sec-head"><h2>Методы множеств</h2><p>Нажмите «В песочницу», чтобы выполнить пример. Сначала предскажите результат, потом запустите.</p></div>
     <div class="methods" id="methods"></div>
+    <h3 class="sub">Справочник: все методы и операции множеств</h3>
+    <p class="howto">«Меняет множество: да» — метод изменяет само множество. «Нет» — возвращает новое множество или True/False, а исходное множество не меняется. Операции над двумя множествами подробно разобраны на вкладке <a href="#operacii">Операции</a>.</p>
+    <div class="tbl-wrap"><table class="ref-tbl">
+      <thead><tr><th>Метод</th><th>Оператор</th><th>Что делает</th><th>Меняет множество</th></tr></thead>
+      <tbody>
+<tr><td><code>add(x)</code></td><td>—</td><td>добавляет элемент</td><td class="y">да</td></tr>
+<tr><td><code>clear()</code></td><td>—</td><td>удаляет все элементы</td><td class="y">да</td></tr>
+<tr><td><code>copy()</code></td><td>—</td><td>возвращает копию множества</td><td class="n">нет</td></tr>
+<tr><td><code>difference(b)</code></td><td><code>-</code></td><td>возвращает разность: элементы, которых нет в b</td><td class="n">нет</td></tr>
+<tr><td><code>difference_update(b)</code></td><td><code>-=</code></td><td>удаляет из множества элементы, которые есть в b</td><td class="y">да</td></tr>
+<tr><td><code>discard(x)</code></td><td>—</td><td>удаляет элемент, если он есть, без ошибки</td><td class="y">да</td></tr>
+<tr><td><code>intersection(b)</code></td><td><code>&amp;</code></td><td>возвращает пересечение: общие элементы</td><td class="n">нет</td></tr>
+<tr><td><code>intersection_update(b)</code></td><td><code>&amp;=</code></td><td>оставляет в множестве только общие с b элементы</td><td class="y">да</td></tr>
+<tr><td><code>isdisjoint(b)</code></td><td>—</td><td>True, если общих элементов нет</td><td class="n">нет</td></tr>
+<tr><td><code>issubset(b)</code></td><td><code>&lt;=</code></td><td>True, если все элементы множества есть в b</td><td class="n">нет</td></tr>
+<tr><td>—</td><td><code>&lt;</code></td><td>True, если множество — подмножество b и не равно ему</td><td class="n">нет</td></tr>
+<tr><td><code>issuperset(b)</code></td><td><code>&gt;=</code></td><td>True, если множество содержит все элементы b</td><td class="n">нет</td></tr>
+<tr><td>—</td><td><code>&gt;</code></td><td>True, если множество — надмножество b и не равно ему</td><td class="n">нет</td></tr>
+<tr><td><code>pop()</code></td><td>—</td><td>удаляет и возвращает произвольный элемент</td><td class="y">да</td></tr>
+<tr><td><code>remove(x)</code></td><td>—</td><td>удаляет элемент; KeyError, если его нет</td><td class="y">да</td></tr>
+<tr><td><code>symmetric_difference(b)</code></td><td><code>^</code></td><td>возвращает элементы, которые есть ровно в одном из множеств</td><td class="n">нет</td></tr>
+<tr><td><code>symmetric_difference_update(b)</code></td><td><code>^=</code></td><td>заменяет множество симметрической разностью с b</td><td class="y">да</td></tr>
+<tr><td><code>union(b)</code></td><td><code>|</code></td><td>возвращает объединение: все элементы обоих множеств</td><td class="n">нет</td></tr>
+<tr><td><code>update(b)</code></td><td><code>|=</code></td><td>добавляет в множество все элементы b</td><td class="y">да</td></tr>
+      </tbody>
+    </table></div>
   </section>
 
   <section id="pesochnica">
@@ -941,6 +971,8 @@ chess = {"Нурлан", "Аружан", "Данияр", "Ерлан"}     # ш�
         <tr><td>Разность</td><td><code>a - b</code></td><td><code>a.difference(b)</code></td><td>Айгерим — только робототехника</td></tr>
         <tr><td>Симметрическая разность</td><td><code>a ^ b</code></td><td><code>a.symmetric_difference(b)</code></td><td>Айгерим, Аружан, Ерлан — ровно в одном кружке</td></tr>
         <tr><td>Подмножество</td><td><code>a &lt;= b</code></td><td><code>a.issubset(b)</code></td><td>True, если все элементы a есть в b</td></tr>
+        <tr><td>Надмножество</td><td><code>a &gt;= b</code></td><td><code>a.issuperset(b)</code></td><td>True, если a содержит все элементы b</td></tr>
+        <tr><td>Нет общих элементов</td><td>—</td><td><code>a.isdisjoint(b)</code></td><td>robot и chess: False — есть общие ученики</td></tr>
       </tbody>
     </table></div>
     <p class="howto">Разность зависит от порядка: <code>robot - chess</code> и <code>chess - robot</code> дают разные результаты. Объединение, пересечение и симметрическая разность от порядка не зависят.</p>
@@ -1103,7 +1135,7 @@ function loadM(k){S=mPresets[k].slice();log=[];$('#labLog').innerHTML='';addLog(
 document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>loadM(b.dataset.preset)));
 document.querySelectorAll('.op').forEach(b=>b.addEventListener('click',()=>{
   const raw=$('#xval').value,x=toVal(raw),op=b.dataset.op,has=S.includes(x);
-  const needX=['add','remove','discard','in'].includes(op);
+  const needX=['add','remove','discard','in','update'].includes(op);
   if(needX&&raw.trim()===''){addLog('# Введите значение x','',null);return;}
   if(op==='add'){const wasMixed=mixedTypes();if(!has)S.push(x);addLog(`s.add(${lit(x)})`,has?`# ${lit(x)} уже есть — множество не изменилось: ${fmtSet()}`:`# ${fmtSet()}`,has?'c':'r');
     if(!has&&!wasMixed&&mixedTypes())addLog('# Внимание: теперь в s есть и числа, и строки.','# Python это разрешает, но обычно элементы одного типа.\n# sorted(s) для такого множества даст TypeError.','c');
@@ -1114,6 +1146,8 @@ document.querySelectorAll('.op').forEach(b=>b.addEventListener('click',()=>{
   else if(op==='pop'){if(!S.length){addLog('s.pop()',"KeyError: 'pop from an empty set'",'e');}else{const i=Math.floor(Math.random()*S.length),v=S[i];S.splice(i,1);addLog('print(s.pop())',lit(v)+`   # произвольный элемент; осталось ${fmtSet()}`);drawSet();}}
   else if(op==='clear'){S=[];addLog('s.clear()','# set()');drawSet();}
   else if(op==='len'){addLog('print(len(s))',String(S.length));}
+  else if(op==='update'){const vals=raw.split(',').map(v=>v.trim()).filter(Boolean).map(toVal);const added=vals.filter((v,i)=>!S.includes(v)&&vals.indexOf(v)===i);added.forEach(v=>S.push(v));
+    addLog(`s.update([${vals.map(lit).join(', ')}])`,added.length?`# ${fmtSet()}`:`# все элементы уже есть — множество не изменилось: ${fmtSet()}`,added.length?'r':'c');drawSet();}
 }));
 $('#xval').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.querySelector('.op[data-op=add]').click();}});
 loadM('nums');
@@ -1129,6 +1163,8 @@ const methods=[
  ['Удаление','pop()','Удаляет и возвращает произвольный элемент. Какой — заранее неизвестно.','s = {"Астана", "Алматы", "Шымкент"}\nx = s.pop()\nprint(x)\nprint(len(s))'],
  ['Удаление','clear()','Удаляет все элементы. Множество остаётся, но пустое.','s = {1, 2, 3}\ns.clear()\nprint(s, len(s))'],
  ['Проверка','len(s) · x in s','Количество элементов и проверка, есть ли элемент в множестве.','s = {"Астана", "Алматы"}\nprint(len(s))\nprint("Астана" in s)\nif "Тараз" not in s:\n    s.add("Тараз")\nprint(sorted(s))'],
+ ['Добавление','update(x)','Добавляет все элементы из другого множества, списка или строки. Повторы не появляются.','s = {"Астана", "Алматы"}\ns.update(["Шымкент", "Астана", "Тараз"])\nprint(sorted(s))\nprint(len(s))'],
+ ['Копирование','copy()','Возвращает независимую копию. Запись b = a копию не создаёт: обе переменные указывают на одно и то же множество.','a = {1, 2, 3}\nb = a\nc = a.copy()\nb.add(4)\nprint(sorted(a))\nprint(sorted(c))'],
 ];
 let sandbox;
 $('#methods').innerHTML=methods.map((m,i)=>`<div class="method"><span class="grp">${m[0]}</span><span class="sig">${esc(m[1])}</span><p>${esc(m[2])}</p><pre>${esc(m[3])}</pre><button class="btn-ghost" type="button" data-m="${i}">В песочницу ↓</button></div>`).join('');
@@ -1266,6 +1302,8 @@ const mq=[
  ['Нужно узнать, сколько различных букв в слове word = "қазақстан".',['len(word)','set(word)','len(set(word))','word.count()'],2,'set(word) оставляет различные буквы, len считает их. Для «қазақстан» ответ 6.'],
  ['Учителю нужно вывести присутствующих из множества present в алфавитном порядке.',['present.sort()','sorted(present)','present[0]','len(present)'],1,'У множества нет метода sort — это метод списка. Функция sorted(present) возвращает новый отсортированный список.'],
  ['В множестве tasks хранятся невыполненные домашние задания. Нужно проверить, что все задания выполнены, то есть множество пустое.',['tasks.clear()','tasks == []','len(tasks) == 0','tasks.pop()'],2,'len(tasks) == 0 даёт True для пустого множества. tasks == [] всегда False: множество не равно списку. clear и pop не проверяют, а удаляют.'],
+ ['Нужно сохранить исходное множество present, а с другим множеством поэкспериментировать. Изменения не должны затронуть present.',['backup = present','backup = present.copy()','backup = set()','backup = {}'],1,'copy() создаёт независимую копию. При backup = present обе переменные указывают на одно множество, и изменения попадут в present.'],
+ ['Пришли сразу три новых ученика: ["Ерлан", "Мира", "Аян"]. Нужно добавить их всех в present одной командой.',['present.add(["Ерлан", "Мира", "Аян"])','present.update(["Ерлан", "Мира", "Аян"])','present.append("Ерлан", "Мира", "Аян")','present = {"Ерлан", "Мира", "Аян"}'],1,'update добавляет все элементы списка. add принимает один элемент, а список целиком добавить нельзя (TypeError). Последний вариант стёр бы прежних учеников.'],
 ];
 let mqState=store.get('mq',{});
 function renderMq(){
@@ -1340,6 +1378,8 @@ function venn(kind,k){const A='<circle cx="62" cy="48" r="34"/>',B='<circle cx="
   else if(kind==='inter')fill=`<clipPath id="vc${k}">${B}</clipPath><g clip-path="url(#vc${k})" fill="currentColor" opacity=".35">${A}</g>`;
   else if(kind==='diff')fill=`<mask id="vm${k}"><rect width="168" height="96" fill="#fff"/><circle cx="106" cy="48" r="34" fill="#000"/></mask><g mask="url(#vm${k})" fill="currentColor" opacity=".35">${A}</g>`;
   else if(kind==='sym')fill=`<clipPath id="vc${k}">${B}</clipPath><mask id="vm${k}"><rect width="168" height="96" fill="#fff"/><g clip-path="url(#vc${k})" fill="#000">${A}</g></mask><g mask="url(#vm${k})" fill="currentColor" opacity=".35">${A}${B}</g>`;
+  if(kind==='disj')return `<svg class="venn" viewBox="0 0 168 96" aria-hidden="true"><g fill="currentColor" opacity=".18"><circle cx="44" cy="48" r="30"/><circle cx="124" cy="48" r="30"/></g><g fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="2"><circle cx="44" cy="48" r="30"/><circle cx="124" cy="48" r="30"/></g><text x="40" y="53" class="vl">a</text><text x="120" y="53" class="vl">b</text></svg>`;
+  if(kind==='sup')return `<svg class="venn" viewBox="0 0 168 96" aria-hidden="true"><circle cx="84" cy="48" r="42" fill="currentColor" opacity=".35"/><circle cx="84" cy="48" r="42" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="72" cy="52" r="20" fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="2"/><text x="112" y="30" class="vl">a</text><text x="66" y="57" class="vl">b</text></svg>`;
   if(kind==='sub')return `<svg class="venn" viewBox="0 0 168 96" aria-hidden="true"><circle cx="84" cy="48" r="42" fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="2"/><circle cx="72" cy="52" r="20" fill="currentColor" opacity=".35"/><circle cx="72" cy="52" r="20" fill="none" stroke="currentColor" stroke-width="2"/><text x="66" y="57" class="vl">a</text><text x="112" y="30" class="vl">b</text></svg>`;
   return `<svg class="venn" viewBox="0 0 168 96" aria-hidden="true">${fill}<g fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="2">${A}${B}</g><text x="40" y="53" class="vl">a</text><text x="120" y="53" class="vl">b</text></svg>`;}
 const ops=[
@@ -1352,10 +1392,18 @@ const ops=[
  {k:'sym',name:'Симметрическая разность',sig:['a ^ b','a.symmetric_difference(b)'],d:'Элементы, которые есть ровно в одном из множеств, без общих.',
   code:'print(sorted(robot ^ chess))\nprint(sorted(robot.symmetric_difference(chess)))'},
  {k:'sub',name:'Подмножество',sig:['a <= b','a.issubset(b)'],d:'Проверка: входят ли все элементы a в b. Результат — True или False.',
-  code:'school = {"Айгерим", "Нурлан", "Данияр", "Аружан", "Ерлан"}\nprint(robot <= school)\nprint(robot.issubset(chess))\nprint(school >= chess)'},
+  code:'school = {"Айгерим", "Нурлан", "Данияр", "Аружан", "Ерлан"}\nprint(robot <= school)\nprint(robot.issubset(chess))'},
+ {k:'sup',name:'Надмножество',sig:['a >= b','a.issuperset(b)'],d:'Проверка «наоборот» к подмножеству: содержит ли a все элементы b.',
+  code:'school = {"Айгерим", "Нурлан", "Данияр", "Аружан", "Ерлан"}\nprint(school >= chess)\nprint(school.issuperset(robot))\nprint(robot.issuperset(chess))'},
+ {k:'sub',name:'Строгое подмножество и надмножество',sig:['a < b','a > b'],d:'Как <= и >=, но множества не должны быть равны: в большем множестве есть хотя бы один лишний элемент.',
+  code:'print({1, 2} < {1, 2, 3})\nprint({1, 2} < {1, 2})\nprint({1, 2} <= {1, 2})\nprint({1, 2, 3} > {1})'},
+ {k:'disj',name:'Нет общих элементов',sig:['a.isdisjoint(b)',''],d:'True, если у множеств нет ни одного общего элемента.',
+  code:'print(robot.isdisjoint(chess))\nprint(robot.isdisjoint({"Ерлан", "Мира"}))'},
+ {k:'union',name:'Операции с обновлением',sig:['a |= b · a &= b · a -= b · a ^= b','update · intersection_update · difference_update · symmetric_difference_update'],d:'Не создают новое множество, а меняют само a. Обычные операции | & - ^ возвращают новое множество, и a остаётся прежним.',
+  code:'a = robot.copy()\na |= chess\nprint(sorted(a))\nb = robot.copy()\nb &= chess\nprint(sorted(b))\nc = robot.copy()\nc.difference_update(chess)\nprint(sorted(c))\nd = robot.copy()\nd.symmetric_difference_update(chess)\nprint(sorted(d))\nprint(sorted(robot))'},
 ];
 ops.forEach((o,i)=>{const box=document.createElement('div');box.className='op-card';
-  box.innerHTML=`<div class="op-top">${venn(o.k,i)}<div><h3>${esc(o.name)}</h3><div class="op-sig"><code>${esc(o.sig[0])}</code><span>или</span><code>${esc(o.sig[1])}</code></div><p>${esc(o.d)}</p></div></div><div class="op-ed"></div>`;
+  box.innerHTML=`<div class="op-top">${venn(o.k,i)}<div><h3>${esc(o.name)}</h3><div class="op-sig"><code>${esc(o.sig[0])}</code>${o.sig[1]?`<span>или</span><code>${esc(o.sig[1])}</code>`:''}</div><p>${esc(o.d)}</p></div></div><div class="op-ed"></div>`;
   $('#opList').appendChild(box);makeEditor(box.querySelector('.op-ed'),{title:'primer'+(i+1)+'.py',code:OP_DATA+'\n'+o.code,compact:true});});
 
 const opTasks=[
