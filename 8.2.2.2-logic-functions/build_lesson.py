@@ -463,6 +463,7 @@ items = [('=C6>10', 'C6>10'), ('=C6>=C7', 'C6>=C7'), ('=C6<>C7', 'C6<>C7'), ('=C
          ('=C8="астана"', 'C8="астана"'), ('=И(C6>10;C7>25)', 'AND(C6>10,C7>25)'), ('=ИЛИ(C6>10;C7>25)', 'OR(C6>10,C7>25)'),
          ('=НЕ(C6=15)', 'NOT(C6=15)'), ('=ЕСЛИ(C6>C7;"A больше";"B больше")', 'IF(C6>C7,"A больше","B больше")'),
          ('=ЕСЛИ(И(C6<C7;C8="Алматы");1;0)', 'IF(AND(C6<C7,C8="Алматы"),1,0)')]
+NRM = lambda x: f'SUBSTITUTE(SUBSTITUTE(UPPER(TRIM({x}&"")),"А","A"),"В","B")'   # Cyrillic А/В -> Latin A/B
 sol1 = [True, False, True, True, True, False, True, False, 'B больше', 0]
 for i, (ru, en) in enumerate(items):
     r = 11 + i
@@ -473,7 +474,7 @@ for i, (ru, en) in enumerate(items):
     checkcell(s, f'D{r}',
         f'=IF(ISBLANK({t}),"",IF(AND(_xlfn.ISFORMULA({t}),ISERROR(SEARCH("TRUE()",_xlfn.FORMULATEXT({t}))),ISERROR(SEARCH("FALSE()",_xlfn.FORMULATEXT({t}))),ISERROR(SEARCH("ИСТИНА()",_xlfn.FORMULATEXT({t}))),ISERROR(SEARCH("ЛОЖЬ()",_xlfn.FORMULATEXT({t})))),"⚠ без формул – подумай сам",IF(ISLOGICAL({e}),'
         f'IF(ISLOGICAL({t}),IF({t}={e},"✔","✘"),IF(OR(AND({e},OR(UPPER({t})="ИСТИНА",UPPER({t})="TRUE")),AND(NOT({e}),OR(UPPER({t})="ЛОЖЬ",UPPER({t})="FALSE"))),"✔","✘")),'
-        f'IF(TRIM({t}&"")=TRIM({e}&""),"✔","✘"))))')
+        f'IF({NRM(t)}={NRM(e)},"✔","✘"))))')
     s.row_dimensions[r].height = 20
 CHECKS['1_Разминка'].append(('D11:D20', False))
 add_cf(s, 'D11:D20')
