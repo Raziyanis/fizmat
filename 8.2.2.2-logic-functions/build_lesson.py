@@ -51,15 +51,19 @@ SELF_OPTS = ['3 – понял(а) полностью: могу объяснит
 def selfcheck(s, r, last):
     W(s, f'A{r}', '🪞 Самооценка: насколько я понял(а) эту часть урока?', bold=True, color=C['white'], bg='7030A0', merge=f'{last}{r}')
     s.row_dimensions[r].height = 22
-    W(s, f'A{r+1}', 'Выбери из списка ▼', italic=True, h='right', merge=f'B{r+1}')
-    W(s, f'C{r+1}', None, bg=C['purple'], border=True, unlock=True, merge=f'{last}{r+1}', bold=True)
-    s.row_dimensions[r+1].height = 24
-    dv = DataValidation(type='list', formula1='"' + ','.join(SELF_OPTS) + '"', allow_blank=True)
-    dv.prompt = 'Оцени себя честно – учитель сравнит с результатом'; dv.promptTitle = 'Самооценка'
+    W(s, f'A{r+1}', 'Выбери 3, 2 или 1 ▶', bold=True, h='right', merge=f'B{r+1}')
+    W(s, f'C{r+1}', None, bg=C['purple'], border=True, unlock=True, h='center', size=16, bold=True)
+    s.row_dimensions[r+1].height = 28
+    dv = DataValidation(type='list', formula1='"3,2,1"', allow_blank=True)
+    dv.prompt = '3 – понял(а) полностью, 2 – с подсказками, 1 – пока не понял(а)'; dv.promptTitle = 'Самооценка'
+    dv.error = 'Выбери из списка: 3, 2 или 1'; dv.errorTitle = 'Самооценка'
     s.add_data_validation(dv); dv.add(f'C{r+1}')
+    W(s, f'A{r+2}', '3 – понял(а) полностью, могу объяснить другу   ·   2 – понял(а), но были подсказки или ошибки   ·   1 – пока не понял(а), нужна помощь',
+      italic=True, size=9, bg=C['purple'], merge=f'{last}{r+2}')
+    s.row_dimensions[r+2].height = 30
     SELF[s.title] = f"'{s.title}'!$C${r+1}"
-    if SOLVED: s[f'C{r+1}'].value = SELF_OPTS[0]
-    return r + 3
+    if SOLVED: s[f'C{r+1}'].value = 3
+    return r + 4
 wb = Workbook()
 th = wb.active; th.title = 'Теория'
 SHEETS = ['1_Разминка', '2_ЕСЛИ', '3_И_ИЛИ_НЕ', '4_ЕСЛИ+И_ИЛИ_НЕ', '5_★Вложенные', '6_Тест']
@@ -689,7 +693,7 @@ for i, (sh, label, crit) in enumerate(PARTS):
     r = 17 + i
     W(s, f'B{r}', label, border=True, bold=True); W(s, f'C{r}', crit, border=True, size=9)
     sc = SELF.get(sh)
-    W(s, f'D{r}', f'=IF({sc}="","— не оценил(а)",{sc})', border=True, size=9)
+    W(s, f'D{r}', f'=IF({sc}="","— не оценил(а)",IFERROR(CHOOSE(VALUE(LEFT({sc}&"",1)),"1 – пока не понял(а)","2 – понял(а) с подсказками","3 – понял(а) полностью"),"— не оценил(а)"))', border=True, size=9)
     if sh in CHECKS:
         tot = sum(rsize(rg) for rg, _ in CHECKS[sh])
         ok = cnt('✔', sheets=[sh])
