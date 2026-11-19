@@ -105,6 +105,10 @@ for bad in ['іздеу', 'Іздеу', 'кітап', 'sandbox', 'pesochnica', '
     if bad == 'makeEditor(':
         left = [l for l in left if 'function makeEditor' not in l]
     assert not left, (bad, left[:2])
+OBJ = 'берілген логикалық өрнекке ақиқат кестесін тұрғызу'
+def kuru(x):
+    return x.replace(OBJ, '\x00').replace('Тұрғыз', 'Құр').replace('тұрғыз', 'құр').replace('\x00', OBJ)
+h = kuru(h); s = kuru(s)
 open(OUTDIR + '/check.js', 'w', encoding='utf-8').write(s)
 
 BOOT = """<script>
@@ -124,6 +128,6 @@ def assemble(first_line, title):
     return '\n'.join([fl, head_rest, '<template id="tpl-kz">', h, '<script>', s, '</script>', '', '</template>', BOOT]) + '\n'
 
 tea_first = open(TEA, encoding='utf-8').read().split('\n')[0]
-open(OUTDIR + '/stu.html', 'w', encoding='utf-8').write(assemble(src[0], 'Ақиқат кестесін тұрғызу'))
-open(OUTDIR + '/tea.html', 'w', encoding='utf-8').write(assemble(tea_first, 'Ақиқат кестесін тұрғызу — мұғалім'))
+open(OUTDIR + '/stu.html', 'w', encoding='utf-8').write(assemble(src[0], 'Ақиқат кестесін құру'))
+open(OUTDIR + '/tea.html', 'w', encoding='utf-8').write(assemble(tea_first, 'Ақиқат кестесін құру — мұғалім'))
 print('ok', len(h), len(s))
