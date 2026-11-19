@@ -73,7 +73,8 @@ function mountTT(host,list,o){
   box.querySelector('.solbody').innerHTML=ttStatic(vars,C)+(t.q?`<p style="margin-top:6px"><b>Жауап:</b> ${esc(t.q.ans[0])}</p>`:'')+(t.why?`<p style="margin-top:6px">${esc(t.why)}</p>`:'');
   const scOf=()=>o.scores?o.scores[key]:undefined;
   const renderSt=()=>{const sc=scOf();st.className='status'+(o.done[key]?' done':'');st.textContent=(o.done[key]?o.doneLbl:'')+(sc?`${o.done[key]?' · ':''}${sc.rows} / ${sc.total} балл`:'');};renderSt();
-  box.querySelector('.tt-clr').addEventListener('click',()=>{cells=init();marks=null;store.set('ttc-'+key,cells);draw();verdict.hidden=true;});
+  const clr=box.querySelector('.tt-clr');const lockClr=()=>{if(o.scores&&o.scores[key]){clr.disabled=true;clr.title='Балл бекітілді: кестені тазалауға болмайды';}};lockClr();
+  clr.addEventListener('click',()=>{if(clr.disabled)return;cells=init();marks=null;store.set('ttc-'+key,cells);draw();verdict.hidden=true;});
   box.querySelector('.chk').addEventListener('click',()=>{verdict.hidden=false;verdict.style.whiteSpace='pre-wrap';
     let empty=0,wrong=0;marks=cells.map((r,ri)=>r.map((v,ci)=>{const ed=t.errs?(ci>=nv||!!t.fillVars):editable(ci);if(!ed)return true;if(o.onlyLast&&ci!==nc-1)return null;if(v==='')empty++;const ok=v!==''&&+v===exp[ri][ci];if(!ok&&v!=='')wrong++;return ok;}));
     let fail=null;
@@ -101,7 +102,7 @@ function mountTT(host,list,o){
       scLine=sc?`\n\nБалл: ${sc.rows} / ${sc.total} — соңғы бағандағы әр дұрыс жол 1 балл. Балл бірінші тексеруде бекітілді.\nЖалпы: ${foRows().ok} / ${foRows().all} балл → ${foFmt(foTotal())} / 10.`:(o.onlyLast?'\n\nБалл F бағаны толық толтырылғанда есептеледі.':'\n\nБалл барлық ұяшық толтырылғанда есептеледі.');}
     if(fail){verdict.className='verdict no';verdict.textContent=fail+scLine;}
     else{verdict.className='verdict ok';verdict.textContent=(t.errs?'Барлық қате түзетілді!':o.onlyLast?`F бағаны толық дұрыс (${exp.length} жол). Керемет!`:`Кесте толық дұрыс (${exp.length} жол, ${nc} баған). Керемет!`)+scLine;o.done[key]=true;store.set(o.keyDone,o.done);}
-    draw();renderSt();if(o.after)o.after();});
+    draw();renderSt();lockClr();if(o.after)o.after();});
  });}
 
 """

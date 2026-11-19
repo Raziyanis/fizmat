@@ -29,6 +29,7 @@ EXTRA_CSS = """
 .ex-card .tt-tbl{font-size:.85rem}
 .tt-bar{border:0;padding:0;background:none;justify-content:flex-start;gap:8px}
 .tt-q{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tt-clr:disabled{opacity:.45;cursor:not-allowed}
 .tt-q input{width:140px;font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px}
 .basic-tt{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
 .basic-tt .prop h3{margin-bottom:6px}
