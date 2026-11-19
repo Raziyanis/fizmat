@@ -862,7 +862,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
     <div class="sec-head"><h2>Қатені тап</h2><p>Әр кестеде қате бар. Қате ұяшықтарды тауып, басу арқылы түзетіңіз де, «Тексеру» батырмасын басыңыз. Уақыты — шамамен 6 минут.<span class="t-only"> Әр тапсырманың астындағы дұрыс кестені тек мұғалім көреді.</span></p><span class="score" id="dbgScore">0 / 0</span></div>
     <div class="pairs t-only" id="grpT">
       <div class="pk-top"><span class="pk-title">«Қатені тап» үшін топтар</span><span class="pr-cls" id="grpCls"></span></div>
-      <p class="howto">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы «Кім жауап береді?» блогынан алынады. Әр топта 4–5 адам, біріншісі — жетекші: ол компьютерде жұмыс істейді.</p>
+      <p class="howto">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы «Кім жауап береді?» блогынан алынады. Әр топта 3–4 адам, біріншісі — жетекші: ол компьютерде жұмыс істейді.</p>
       <div class="pk-ctrl"><button class="btn" type="button" id="grpMake">Топтарға бөлу</button></div>
       <ol class="pr-list grp-list" id="grpList"></ol>
     </div>
@@ -1599,7 +1599,7 @@ drawResults();
 /* ---------- group work for "Найди ошибку" ---------- */
 var grpState=store.get('grp',null);
 function makeGroups(names){const a=names.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
-  if(a.length<=5)return [a];const g=Math.ceil(a.length/5);const out=Array.from({length:g},()=>[]);a.forEach((x,i)=>out[i%g].push(x));return out;}
+  if(a.length<=4)return [a];let g=Math.ceil(a.length/4);if(Math.floor(a.length/g)<3&&g>1)g--;const out=Array.from({length:g},()=>[]);a.forEach((x,i)=>out[i%g].push(x));return out;}
 function writePairsDoc(){const lp=store.get('lastPairs',null),lg=store.get('lastGroups',null),td=todayStr();const doc={cls:'',pairs:[],t:0};
   if(lp&&lp.d===td){doc.cls=lp.cls;doc.pairs=lp.pairs.map(x=>({m:x}));doc.t=lp.t||0;}
   if(lg&&lg.d===td){doc.g={cls:lg.cls,groups:lg.groups.map(x=>({m:x})),t:lg.t};}

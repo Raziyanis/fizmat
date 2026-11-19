@@ -61,6 +61,7 @@ h = rep_re(h, r'    <div class="refl">.*?\n    </div>\n    <div class="exit-end'
 h = rep(h, '✓ — уровень достигнут, ◐ — частично, ○ — не начат.', '✓ — деңгейге жетті, ◐ — ішінара, ○ — басталмаған.')
 h = rep_re(h, r'Еңбегі адал – өскелең азамат\..*?</div></footer>',
   'Еңбегі адал – өскелең азамат. Тапсырмаларды өз бетіңізше орындап, өзіңізді адал тексеріңіз.<br>Ресурс интернетсіз жұмыс істейді: кестелер браузердің өзінде тексеріледі. Интернет болса, нәтижелер мұғалімге жіберіледі.</div></footer>')
+h = rep(h, 'Әр топта 4–5 адам, біріншісі — жетекші', 'Әр топта 3–4 адам, біріншісі — жетекші')
 for bad in ['іздеу алгоритм', 'кітапхана', 'Сызықтық', 'жиын (set)', 'Python', 'pesochnica']:
     assert bad not in h, bad
 
@@ -96,6 +97,7 @@ s = rep(s, "const HINT_TABS=['svoistva','lab','metody','pesochnica'];", "const H
 s = rep(s, "return `Доп. задача ${b}`;", "return `Қосымша есеп ${b}`;")
 s = rep(s, "stLangOk=mode==='change'||!!student||store.get('lang',null)===CUR_LANG;", "stLangOk=true;")
 s = rep(s, "'Алдымен тілді, содан кейін сыныпты, кейін тегің мен атыңды таңда.'", "'Алдымен сыныпты, содан кейін тегің мен атыңды таңда.'")
+s = rep(s, "if(a.length<=5)return [a];const g=Math.ceil(a.length/5);", "if(a.length<=4)return [a];let g=Math.ceil(a.length/4);if(Math.floor(a.length/g)<3&&g>1)g--;")
 s = rep(s, "let pkClass=store.get('pkClass',null);", "let pkClass=store.get('pkClass',null);if(!pkClass&&Object.keys(CLASSES).length===1){pkClass=Object.keys(CLASSES)[0];store.set('pkClass',pkClass);}")
 s = rep(s, 'resList=Array.isArray(v&&v.results)?v.results:[];', 'resList=Array.isArray(v&&v.results)?v.results.filter(r=>r&&(!r.lesson||r.lesson===LESSON)):[];')
 for bad in ['іздеу', 'Іздеу', 'кітап', 'sandbox', 'pesochnica', 'makeEditor(']:
