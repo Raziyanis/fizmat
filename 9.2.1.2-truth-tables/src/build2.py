@@ -96,6 +96,7 @@ s = rep(s, "const HINT_TABS=['svoistva','lab','metody','pesochnica'];", "const H
 s = rep(s, "return `Доп. задача ${b}`;", "return `Қосымша есеп ${b}`;")
 s = rep(s, "stLangOk=mode==='change'||!!student||store.get('lang',null)===CUR_LANG;", "stLangOk=true;")
 s = rep(s, "'Алдымен тілді, содан кейін сыныпты, кейін тегің мен атыңды таңда.'", "'Алдымен сыныпты, содан кейін тегің мен атыңды таңда.'")
+s = rep(s, "let pkClass=store.get('pkClass',null);", "let pkClass=store.get('pkClass',null);if(!pkClass&&Object.keys(CLASSES).length===1){pkClass=Object.keys(CLASSES)[0];store.set('pkClass',pkClass);}")
 s = rep(s, 'resList=Array.isArray(v&&v.results)?v.results:[];', 'resList=Array.isArray(v&&v.results)?v.results.filter(r=>r&&(!r.lesson||r.lesson===LESSON)):[];')
 for bad in ['іздеу', 'Іздеу', 'кітап', 'sandbox', 'pesochnica', 'makeEditor(']:
     left = [l for l in s.split('\n') if bad in l and not l.lstrip().startswith('function makeEditor')]

@@ -1388,7 +1388,7 @@ $('#resetYes').addEventListener('click',()=>{
 
 /* ---------- student picker ---------- */
 const CLASSES={"9": ["Ахмадия Нұрәлі", "Бахтигереева Амира-Челси", "Бекмырза Асхат", "Елемес Әлинұр", "Кайроллин Даниял", "Қайратқызы Мумина", "Нығметолла Дания", "Рахметжан Арсен", "Серікбол Томирис", "Сидалеев Нұрасыл", "Шакизат Ерасыл"]};
-let pkClass=store.get('pkClass',null);const pkUsed=store.get('pkUsed',{});
+let pkClass=store.get('pkClass',null);if(!pkClass&&Object.keys(CLASSES).length===1){pkClass=Object.keys(CLASSES)[0];store.set('pkClass',pkClass);}const pkUsed=store.get('pkUsed',{});
 function pkDraw(){document.querySelectorAll('.pk-cls').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===pkClass));
   if(!pkClass){$('#pkLeft').textContent='';return;}
   const all=presentOf(pkClass),used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
