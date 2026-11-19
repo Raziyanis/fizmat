@@ -912,7 +912,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   </section>
 
   <section id="dop">
-    <div class="sec-head"><h2>Қалыптастырушы бағалау</h2><p>10 тапсырма қарапайымнан күрделіге қарай орналасқан: Ф1–Ф3 базалық, Ф4–Ф7 орта, Ф8–Ф10 жоғары деңгей. Балл автоматты түрде есептеледі: соңғы (F) бағандағы әр дұрыс жол — 1 балл (8 жол дұрыс болса — 8 балл, 5 жол дұрыс болса — 5 балл). Барлық тапсырмадан ең көбі 66 балл жиналады. Жиналған балл пайызға, пайыз 10 балдық бағаға айналады: мысалы, 66-дан 52 балл — 79 % — 7,88 / 10 (≈ 8). Әр тапсырманың нәтижесі бірінші толық тексеруде (барлық ұяшық толтырылғанда) бекітіледі.</p><span class="score" id="dopScore">0 / 10 балл</span><p class="howto" id="dopDetail" style="flex-basis:100%;margin:0"></p></div>
+    <div class="sec-head"><h2>Қалыптастырушы бағалау</h2><p>10 тапсырма қарапайымнан күрделіге қарай орналасқан: Ф1–Ф3 базалық, Ф4–Ф7 орта, Ф8–Ф10 жоғары деңгей. Балл автоматты түрде есептеледі: соңғы (F) бағандағы әр дұрыс жол — 1 балл (8 жол дұрыс болса — 8 балл, 5 жол дұрыс болса — 5 балл). Барлық тапсырмадан ең көбі 66 балл жиналады. Жиналған балл пайызға, пайыз 10 балдық бағаға айналады: мысалы, 66-дан 52 балл — 79 % — 7,88 / 10 (≈ 8). Тек соңғы (F) баған тексеріледі: айнымалылар мен аралық бағандар — өзіңізге көмек, оларды толтыру міндетті емес. Әр тапсырманың нәтижесі F бағаны толық толтырылып, бірінші рет тексерілгенде бекітіледі.</p><span class="score" id="dopScore">0 / 10 балл</span><p class="howto" id="dopDetail" style="flex-basis:100%;margin:0"></p></div>
     <p class="howto">«Тексеру» батырмасы кестені және сұраққа берілген жауапты тексереді. Әр оқушыға тапсырмалардың өз нұсқасы беріледі: өрнектер мен айнымалылар әртүрлі, сондықтан көршіден көшіру мүмкін емес.<span class="t-only"> Мұғалім бетінде 1-нұсқа көрсетілген; оқушылардың жауабы автоматты түрде өз нұсқасы бойынша тексеріледі.</span><span class="t-only"> Әр есептің астындағы үлгі шешімді тек мұғалім көреді.</span></p>
     <div class="levels" role="group" aria-label="Деңгей">
       <button class="lv" type="button" data-lv="all" aria-pressed="true">Барлық тапсырмалар</button>
@@ -1129,7 +1129,7 @@ function mountTT(host,list,o){
   const tbl=box.querySelector('.tt-task');
   function draw(){tbl.innerHTML=`<div class="tbl-wrap"><table class="tt-tbl tt-play"><thead><tr>${vars.map(v=>`<th>${v}</th>`).join('')}${C.map((c,j)=>`<th class="${j===0?'fcol':''}">${esc(c[0])}</th>`).join('')}</tr></thead><tbody>`+
     cells.map((r,ri)=>`<tr>${r.map((v,ci)=>{const ed=t.errs?(ci>=nv||!!t.fillVars):editable(ci);const cl=(ci===nv?'fcol ':'')+(ci<nv?'vcol':'');
-      if(!ed)return `<td class="${cl}">${v}</td>`;const mk=marks?(marks[ri][ci]?' ok':' bad'):'';
+      if(!ed)return `<td class="${cl}">${v}</td>`;const mk=marks?(marks[ri][ci]===null?'':marks[ri][ci]?' ok':' bad'):'';
       return `<td class="${cl} tt-f"><button type="button" class="tt-cell${mk}${ci<nv?' var':''}" data-r="${ri}" data-c="${ci}">${v===''?'·':v}</button></td>`;}).join('')}</tr>`).join('')+'</tbody></table></div>';
     tbl.querySelectorAll('.tt-cell').forEach(b=>b.addEventListener('click',()=>{const r=+b.dataset.r,c=+b.dataset.c;const v=cells[r][c];
       cells[r][c]=v===''?'0':v==='0'?'1':'0';marks=null;store.set('ttc-'+key,cells);draw();}));}
@@ -1140,7 +1140,7 @@ function mountTT(host,list,o){
   const renderSt=()=>{const sc=scOf();st.className='status'+(o.done[key]?' done':'');st.textContent=(o.done[key]?o.doneLbl:'')+(sc?`${o.done[key]?' · ':''}${sc.rows} / ${sc.total} балл`:'');};renderSt();
   box.querySelector('.tt-clr').addEventListener('click',()=>{cells=init();marks=null;store.set('ttc-'+key,cells);draw();verdict.hidden=true;});
   box.querySelector('.chk').addEventListener('click',()=>{verdict.hidden=false;verdict.style.whiteSpace='pre-wrap';
-    let empty=0,wrong=0;marks=cells.map((r,ri)=>r.map((v,ci)=>{const ed=t.errs?(ci>=nv||!!t.fillVars):editable(ci);if(!ed)return true;if(v==='')empty++;const ok=v!==''&&+v===exp[ri][ci];if(!ok&&v!=='')wrong++;return ok;}));
+    let empty=0,wrong=0;marks=cells.map((r,ri)=>r.map((v,ci)=>{const ed=t.errs?(ci>=nv||!!t.fillVars):editable(ci);if(!ed)return true;if(o.onlyLast&&ci!==nc-1)return null;if(v==='')empty++;const ok=v!==''&&+v===exp[ri][ci];if(!ok&&v!=='')wrong++;return ok;}));
     let fail=null;
     const RULE={not:'¬ (ЕМЕС) мәнді керісінше өзгертеді: 0 → 1, 1 → 0',and:'∧ (ЖӘНЕ) тек екі мән де 1 болғанда 1 береді',or:'∨ (НЕМЕСЕ) кемінде біреуі 1 болса 1 береді',imp:'→ тек 1 → 0 жағдайында 0 береді',eq:'↔ мәндер бірдей болса 1 береді'};
     const hint=(ci,ri)=>{if(ci<nv){const g=2**(nv-1-ci);return `«${vars[ci]}» бағаны: `+(ci===0?'жоғарғы жартысы 0, төменгі жартысы 1':g===1?'0 мен 1 кезектеседі (0, 1, 0, 1, …)':`${g} нөл, ${g} бір — кезектесіп қайталанады`)+'. Жиындар екілік санау ретімен жазылады.';}
@@ -1148,24 +1148,24 @@ function mountTT(host,list,o){
       if(!RULE[n.t])return `«${h[0]}» бағанын ${ri+1}-жолда қайта тексеріңіз.`;
       const ex=n.t==='not'?`${lgStr(n.a)} = ${val(n.a)} → ¬${val(n.a)} = ?`:`${lgStr(n.a)} = ${val(n.a)}, ${lgStr(n.b)} = ${val(n.b)} → ${val(n.a)} ${LG_SYM[n.t]} ${val(n.b)} = ?`;
       return `«${h[0]}» бағаны: ${RULE[n.t]}. Мысалы, ${ri+1}-жол: ${ex}`;};
-    if(empty){fail=`Бос ұяшықтар бар: ${empty} («·» белгісі). Әр ұяшықты басып, 0 немесе 1 таңдаңыз.`;marks=null;}
-    else if(wrong){const byCol={};marks.forEach(r=>r.forEach((ok,ci)=>{if(!ok)byCol[ci]=(byCol[ci]||0)+1;}));
+    if(empty){fail=o.onlyLast?`Соңғы (F) бағанда бос ұяшықтар бар: ${empty}. F бағанын толық толтырыңыз — тек сол тексеріледі.`:`Бос ұяшықтар бар: ${empty} («·» белгісі). Әр ұяшықты басып, 0 немесе 1 таңдаңыз.`;marks=null;}
+    else if(wrong){const byCol={};marks.forEach(r=>r.forEach((ok,ci)=>{if(ok===false)byCol[ci]=(byCol[ci]||0)+1;}));
       const cs=Object.keys(byCol).map(Number).sort((a,b)=>a-b);
-      const lines=cs.slice(0,3).map(ci=>'• '+hint(ci,marks.findIndex(r=>!r[ci]))+` (бұл бағанда қате: ${byCol[ci]})`);
-      fail=`Қате ұяшықтар: ${wrong} — қызылмен белгіленді.\n`+lines.join('\n')+(cs.length>1?'\nКеңес: ең сол жақтағы қате бағаннан бастаңыз — ол оң жақтағы бағандарға әсер етеді.':'');}
+      const lines=cs.slice(0,3).map(ci=>'• '+hint(ci,marks.findIndex(r=>r[ci]===false))+` (бұл бағанда қате: ${byCol[ci]})`);
+      fail=(o.onlyLast?`F бағанында қате жолдар: ${wrong} — қызылмен белгіленді. Көмек үшін аралық бағандарды толтырып көріңіз.\n`:`Қате ұяшықтар: ${wrong} — қызылмен белгіленді.\n`)+lines.join('\n')+(cs.length>1?'\nКеңес: ең сол жақтағы қате бағаннан бастаңыз — ол оң жақтағы бағандарға әсер етеді.':'');}
     else if(t.q){const a=(ans.value||'').trim().toLowerCase().replace(/\s+/g,' ');
       if(!a)fail='Кесте дұрыс! Енді төмендегі сұраққа жауап беріңіз.';
       else if(!t.q.ans.includes(a)){const isEq=t.q.ans.includes('иә')||t.q.ans.includes('жоқ'),isCnt=/саны|неше жиында/.test(t.q.text);
         fail='Кесте дұрыс, бірақ сұраққа жауап қате.\n'+(isEq?'Екі өрнектің соңғы бағандарын жол-жолымен салыстырыңыз: барлық жолда бірдей болса — «иә», кемінде бір жолда өзгеше болса — «жоқ».':isCnt?'Соңғы F бағанындағы 1-лерді қайта санаңыз: әр 1 — өрнек ақиқат болатын бір жиын.':(t.q.hint||'Кестені тағы бір қараңыз.'));}}
     o.tries[key]=(o.tries[key]||0)+1;store.set(o.keyTries,o.tries);
     let scLine='';
-    if(o.scores){const lc=nc-1,filledAll=!cells.some((r,ri)=>r.some((v,ci)=>editable(ci)&&v===''));
+    if(o.scores){const lc=nc-1,filledAll=!cells.some((r,ri)=>r.some((v,ci)=>editable(ci)&&(!o.onlyLast||ci===nc-1)&&v===''));
       if(filledAll&&!o.scores[key]){const okRows=exp.filter((r,ri)=>cells[ri][lc]!==''&&+cells[ri][lc]===r[lc]).length;
         o.scores[key]={pts:Math.round(okRows/exp.length*100)/100,rows:okRows,total:exp.length};store.set(o.keyScores,o.scores);}
       const sc=o.scores[key];
-      scLine=sc?`\n\nБалл: ${sc.rows} / ${sc.total} — соңғы бағандағы әр дұрыс жол 1 балл. Балл бірінші толық тексеруде бекітілді.\nЖалпы: ${foRows().ok} / ${foRows().all} балл → ${foFmt(foTotal())} / 10.`:'\n\nБалл барлық ұяшық толтырылғанда есептеледі.';}
+      scLine=sc?`\n\nБалл: ${sc.rows} / ${sc.total} — соңғы бағандағы әр дұрыс жол 1 балл. Балл бірінші тексеруде бекітілді.\nЖалпы: ${foRows().ok} / ${foRows().all} балл → ${foFmt(foTotal())} / 10.`:(o.onlyLast?'\n\nБалл F бағаны толық толтырылғанда есептеледі.':'\n\nБалл барлық ұяшық толтырылғанда есептеледі.');}
     if(fail){verdict.className='verdict no';verdict.textContent=fail+scLine;}
-    else{verdict.className='verdict ok';verdict.textContent=(t.errs?'Барлық қате түзетілді!':`Кесте толық дұрыс (${exp.length} жол, ${nc} баған). Керемет!`)+scLine;o.done[key]=true;store.set(o.keyDone,o.done);}
+    else{verdict.className='verdict ok';verdict.textContent=(t.errs?'Барлық қате түзетілді!':o.onlyLast?`F бағаны толық дұрыс (${exp.length} жол). Керемет!`:`Кесте толық дұрыс (${exp.length} жол, ${nc} баған). Керемет!`)+scLine;o.done[key]=true;store.set(o.keyDone,o.done);}
     draw();renderSt();if(o.after)o.after();});
  });}
 
@@ -1278,7 +1278,7 @@ function foRows(){let ok=0,all=0;tasks.forEach(t=>{all+=2**t.vars.length;const s
 function foTotal(){const r=foRows();return Math.round(r.ok/r.all*1000)/100;}
 function dopScoreUpd(){const e=$('#dopScore');if(!e)return;const r=foRows(),t=foTotal();e.textContent=`${r.ok} / ${r.all} балл → ${foFmt(t)} / 10`;e.title=`${Math.round(r.ok/r.all*100)} %`;
   const d=$('#dopDetail');if(d)d.textContent=`Жиналған балл: ${r.ok} / ${r.all} (${Math.round(r.ok/r.all*100)} %) → ${foFmt(t)} / 10, яғни шамамен ${Math.round(t)} балл.`;}
-mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',scores:foScores,keyScores:'foScore',after:()=>{dopScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
+mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',scores:foScores,keyScores:'foScore',onlyLast:true,after:()=>{dopScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
 dopScoreUpd();
 mountTT($('#prac'),prac,{keyOf:t=>t.id,badge:t=>t.id,done:pracDone,tries:pracTries,keyDone:'pracDone',keyTries:'pracTries',after:()=>{pracScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
 pracScoreUpd();
