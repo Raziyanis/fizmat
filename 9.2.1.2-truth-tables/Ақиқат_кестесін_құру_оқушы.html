@@ -912,7 +912,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   </section>
 
   <section id="dop">
-    <div class="sec-head"><h2>Қалыптастырушы бағалау</h2><p>10 тапсырма қарапайымнан күрделіге қарай орналасқан: Ф1–Ф3 базалық, Ф4–Ф7 орта, Ф8–Ф10 жоғары деңгей. Әр тапсырманы «Тексеру» батырмасы автоматты түрде бағалайды, нәтиже оң жақта және «Рефлексия» қойындысында шығады.</p><span class="score" id="dopScore">0 / 10</span></div>
+    <div class="sec-head"><h2>Қалыптастырушы бағалау</h2><p>10 тапсырма қарапайымнан күрделіге қарай орналасқан: Ф1–Ф3 базалық, Ф4–Ф7 орта, Ф8–Ф10 жоғары деңгей. Балл автоматты түрде есептеледі: соңғы (F) бағандағы әр дұрыс жол — 1 балл (8 жол дұрыс болса — 8 балл, 5 жол дұрыс болса — 5 балл). Барлық тапсырмадан ең көбі 66 балл жиналады. Жиналған балл пайызға, пайыз 10 балдық бағаға айналады: мысалы, 66-дан 52 балл — 79 % — 7,88 / 10 (≈ 8). Әр тапсырманың нәтижесі бірінші толық тексеруде (барлық ұяшық толтырылғанда) бекітіледі.</p><span class="score" id="dopScore">0 / 10 балл</span><p class="howto" id="dopDetail" style="flex-basis:100%;margin:0"></p></div>
     <p class="howto">«Тексеру» батырмасы кестені және сұраққа берілген жауапты тексереді. Әр оқушыға тапсырмалардың өз нұсқасы беріледі: өрнектер мен айнымалылар әртүрлі, сондықтан көршіден көшіру мүмкін емес.<span class="t-only"> Мұғалім бетінде 1-нұсқа көрсетілген; оқушылардың жауабы автоматты түрде өз нұсқасы бойынша тексеріледі.</span><span class="t-only"> Әр есептің астындағы үлгі шешімді тек мұғалім көреді.</span></p>
     <div class="levels" role="group" aria-label="Деңгей">
       <button class="lv" type="button" data-lv="all" aria-pressed="true">Барлық тапсырмалар</button>
@@ -1136,7 +1136,8 @@ function mountTT(host,list,o){
   draw();
   const verdict=box.querySelector('.verdict'),st=box.querySelector('.status');
   box.querySelector('.solbody').innerHTML=ttStatic(vars,C)+(t.q?`<p style="margin-top:6px"><b>Жауап:</b> ${esc(t.q.ans[0])}</p>`:'')+(t.why?`<p style="margin-top:6px">${esc(t.why)}</p>`:'');
-  const renderSt=()=>{st.className='status'+(o.done[key]?' done':'');st.textContent=o.done[key]?o.doneLbl:'';};renderSt();
+  const scOf=()=>o.scores?o.scores[key]:undefined;
+  const renderSt=()=>{const sc=scOf();st.className='status'+(o.done[key]?' done':'');st.textContent=(o.done[key]?o.doneLbl:'')+(sc?`${o.done[key]?' · ':''}${sc.rows} / ${sc.total} балл`:'');};renderSt();
   box.querySelector('.tt-clr').addEventListener('click',()=>{cells=init();marks=null;store.set('ttc-'+key,cells);draw();verdict.hidden=true;});
   box.querySelector('.chk').addEventListener('click',()=>{verdict.hidden=false;verdict.style.whiteSpace='pre-wrap';
     let empty=0,wrong=0;marks=cells.map((r,ri)=>r.map((v,ci)=>{const ed=t.errs?(ci>=nv||!!t.fillVars):editable(ci);if(!ed)return true;if(v==='')empty++;const ok=v!==''&&+v===exp[ri][ci];if(!ok&&v!=='')wrong++;return ok;}));
@@ -1157,8 +1158,14 @@ function mountTT(host,list,o){
       else if(!t.q.ans.includes(a)){const isEq=t.q.ans.includes('иә')||t.q.ans.includes('жоқ'),isCnt=/саны|неше жиында/.test(t.q.text);
         fail='Кесте дұрыс, бірақ сұраққа жауап қате.\n'+(isEq?'Екі өрнектің соңғы бағандарын жол-жолымен салыстырыңыз: барлық жолда бірдей болса — «иә», кемінде бір жолда өзгеше болса — «жоқ».':isCnt?'Соңғы F бағанындағы 1-лерді қайта санаңыз: әр 1 — өрнек ақиқат болатын бір жиын.':(t.q.hint||'Кестені тағы бір қараңыз.'));}}
     o.tries[key]=(o.tries[key]||0)+1;store.set(o.keyTries,o.tries);
-    if(fail){verdict.className='verdict no';verdict.textContent=fail;}
-    else{verdict.className='verdict ok';verdict.textContent=t.errs?'Барлық қате түзетілді!':`Кесте толық дұрыс (${exp.length} жол, ${nc} баған). Керемет!`;o.done[key]=true;store.set(o.keyDone,o.done);}
+    let scLine='';
+    if(o.scores){const lc=nc-1,filledAll=!cells.some((r,ri)=>r.some((v,ci)=>editable(ci)&&v===''));
+      if(filledAll&&!o.scores[key]){const okRows=exp.filter((r,ri)=>cells[ri][lc]!==''&&+cells[ri][lc]===r[lc]).length;
+        o.scores[key]={pts:Math.round(okRows/exp.length*100)/100,rows:okRows,total:exp.length};store.set(o.keyScores,o.scores);}
+      const sc=o.scores[key];
+      scLine=sc?`\n\nБалл: ${sc.rows} / ${sc.total} — соңғы бағандағы әр дұрыс жол 1 балл. Балл бірінші толық тексеруде бекітілді.\nЖалпы: ${foRows().ok} / ${foRows().all} балл → ${foFmt(foTotal())} / 10.`:'\n\nБалл барлық ұяшық толтырылғанда есептеледі.';}
+    if(fail){verdict.className='verdict no';verdict.textContent=fail+scLine;}
+    else{verdict.className='verdict ok';verdict.textContent=(t.errs?'Барлық қате түзетілді!':`Кесте толық дұрыс (${exp.length} жол, ${nc} баған). Керемет!`)+scLine;o.done[key]=true;store.set(o.keyDone,o.done);}
     draw();renderSt();if(o.after)o.after();});
  });}
 
@@ -1265,8 +1272,13 @@ const done=store.get('done',{}),tries=store.get('tries',{});
 const pracDone=store.get('pracDone',{}),pracTries=store.get('pracTries',{});
 function pracScoreUpd(){$('#pracScore').textContent=`${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}`;}
 const afterCheck=()=>{try{updateLocks();}catch(e){}if(typeof sendProg==='function')sendProg(false);};
-function dopScoreUpd(){const e=$('#dopScore');if(e)e.textContent=`${tasks.filter(t=>done[t.id]).length} / ${tasks.length}`;}
-mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',after:()=>{dopScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
+const foScores=store.get('foScore',{});
+function foFmt(x){return String(Math.round(x*100)/100).replace('.',',');}
+function foRows(){let ok=0,all=0;tasks.forEach(t=>{all+=2**t.vars.length;const sc=foScores[t.id];if(sc)ok+=sc.rows;});return {ok,all};}
+function foTotal(){const r=foRows();return Math.round(r.ok/r.all*1000)/100;}
+function dopScoreUpd(){const e=$('#dopScore');if(!e)return;const r=foRows(),t=foTotal();e.textContent=`${r.ok} / ${r.all} балл → ${foFmt(t)} / 10`;e.title=`${Math.round(r.ok/r.all*100)} %`;
+  const d=$('#dopDetail');if(d)d.textContent=`Жиналған балл: ${r.ok} / ${r.all} (${Math.round(r.ok/r.all*100)} %) → ${foFmt(t)} / 10, яғни шамамен ${Math.round(t)} балл.`;}
+mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',scores:foScores,keyScores:'foScore',after:()=>{dopScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
 dopScoreUpd();
 mountTT($('#prac'),prac,{keyOf:t=>t.id,badge:t=>t.id,done:pracDone,tries:pracTries,keyDone:'pracDone',keyTries:'pracTries',after:()=>{pracScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
 pracScoreUpd();
@@ -1417,7 +1429,7 @@ function renderGoal(){
   card.innerHTML=`<div class="goal-verdict"><span class="obj-code">9.2.1.2</span><div><div class="big">${esc(msg[0])}</div><p>${esc(msg[1])}</p></div></div>
    <div class="goal-levels">${levels.map((L,i)=>`<div class="glevel ${lv[i]==='ok'?'ok':lv[i]==='part'?'part':''}"><h4>${esc(L.name)}<span class="gstate ${lv[i]}">${lab[lv[i]]}</span></h4><p style="font-size:.82rem;color:var(--muted)">${esc(L.goal)}</p>
      ${L.items.map(x=>`<div class="gitem ${x[0]}"><span class="ic">${ic[x[0]]}</span><a href="${x[2]}">${esc(x[1])}</a></div>`).join('')}</div>`).join('')}</div>
-   <div class="gstats"><span>Викторина: ${quizOk().length} / ${quiz.length}</span><span>Практика: ${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}</span><span>Қалыптастырушы бағалау: ${tasks.filter(t=>done[t.id]).length} / ${tasks.length}</span></div>`;
+   <div class="gstats"><span>Викторина: ${quizOk().length} / ${quiz.length}</span><span>Практика: ${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}</span><span>Қалыптастырушы бағалау: ${foRows().ok} / ${foRows().all} балл → ${foFmt(foTotal())} / 10</span></div>`;
 }
 window.addEventListener('hashchange',()=>{if(location.hash==='#refleksiya')renderGoal();});
 renderGoal();
@@ -1747,7 +1759,7 @@ function sendProg(force){if(teacherMode||!student||!window.__SYNC_URL)return;
   const qk=quizOk();
   const items=[{suf:'#quiz',n:qk.length,total:quiz.length,partner:qk.join(','),sig:qk.join(',')+'|'+Object.keys(qState).length},
                {suf:'#oly',n:pd.length,total:prac.length,partner:pd.join(', '),sig:pd.join(',')},
-               {suf:'#dop',n:dd.length,total:tasks.length,partner:dd.join(', '),sig:dd.join(',')}];
+               {suf:'#dop',n:foTotal(),total:10,partner:dd.join(', '),sig:dd.join(',')+'|'+foTotal()}];
   items.forEach(it=>{if(!force&&lastProgSent[it.suf]===it.sig)return;if(!force&&it.n===0&&lastProgSent[it.suf]===undefined){lastProgSent[it.suf]=it.sig;return;}lastProgSent[it.suf]=it.sig;
     const data={lesson:LESSON,cls:student.cls,name:student.name+it.suf,partner:it.partner,n:it.n,ok:it.n,total:it.total,wrong:[],empty:0,d:todayStr(),t:Date.now()};
     fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});});}
