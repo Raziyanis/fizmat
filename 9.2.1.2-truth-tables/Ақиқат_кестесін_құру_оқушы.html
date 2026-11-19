@@ -606,13 +606,20 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
 .tt-q input{width:140px;font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px}
 .basic-tt{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
 .basic-tt .prop h3{margin-bottom:6px}
+.gen-big{font-family:var(--f-mono);font-size:1.25rem}
+.gen-cols{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.92rem;color:var(--muted)}
+.gen-cols b{color:var(--ink)}
+.gen-wrap{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.gen-wrap thead th{position:sticky;top:0;background:var(--surface)}
+.tt-tbl td.gen-no,.tt-tbl td.gen-k{color:var(--muted);font-weight:400}
+.tt-tbl td.b1{background:var(--b-soft);font-weight:700}
 </style>
 
 <header class="top"><div class="wrap">
   <div class="brand">Ақиқат <span>·</span> кесте</div>
   <div class="side-stu" id="sideStu" hidden><div class="ss-lbl">Оқушы</div><div class="ss-name" id="ssName"></div><div class="ss-meta"><span class="stu-cls" id="ssCls"></span><span class="ss-prog" id="ssProg"></span></div><span class="link-st ss-link" id="ssLink"></span><button class="btn-ghost ss-chg" type="button" id="ssChange">Оқушыны ауыстыру</button><button class="btn-ghost ss-exit" type="button" id="ssExit">Сабақтан шығу</button></div>
   <nav aria-label="Сабақ бөлімдері">
-    <a href="#povtorenie">Қайталау</a><a href="#tema">Тақырып қандай?</a><a href="#cel">Сабақ мақсаты</a><a href="#svoistva">Алгоритм</a><a href="#lab">Конструктор</a><a href="#metody">Мысалдар</a><a href="#kakoy">Қай өрнек?</a><a href="#oshibka">Қатені тап</a><a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Қосымша есептер</a><a href="#refleksiya">Рефлексия</a>
+    <a href="#povtorenie">Қайталау</a><a href="#tema">Тақырып қандай?</a><a href="#cel">Сабақ мақсаты</a><a href="#svoistva">Алгоритм</a><a href="#lab">Конструктор</a><a href="#metody">Мысалдар</a><a href="#kakoy">Қай өрнек?</a><a href="#oshibka">Қатені тап</a><a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Қалыптастырушы бағалау</a><a href="#refleksiya">Рефлексия</a>
   </nav>
   
 </div></header>
@@ -751,16 +758,16 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
       </div>
     </div>
     <h3 class="sub">Тапсырмаларды орындау арқылы мақсатқа қалай жетеміз</h3>
-    <p class="howto">Мақсат тек жеке тапсырмалар бойынша бағаланады: викторина, практикалық жұмыс және қосымша есептер. Деңгей өз жолындағы барлық тапсырма орындалғанда есептеледі. Қорытынды <a href="#refleksiya">Рефлексия</a> қойындысында автоматты түрде көрсетіледі, мұғалім оны әр оқушы бойынша көреді.</p>
+    <p class="howto">Мақсат тек жеке тапсырмалар бойынша бағаланады: викторина, практикалық жұмыс және қалыптастырушы бағалау. Деңгей өз жолындағы барлық тапсырма орындалғанда есептеледі. Қорытынды <a href="#refleksiya">Рефлексия</a> қойындысында автоматты түрде көрсетіледі, мұғалім оны әр оқушы бойынша көреді.</p>
     <div class="tbl-wrap"><table class="plan levels-plan">
       <thead><tr><th>Мақсат деңгейі</th><th>Мен істей аламын</th><th>Мұны қандай тапсырмалар дәлелдейді</th></tr></thead>
       <tbody>
         <tr><td><span class="lvl a">Барлығы</span></td><td>Екі айнымалы өрнектің ақиқат кестесін құрамын</td>
           <td><a href="#viktorina">Викторина, 1, 2-сұрақтар</a><br><a href="#praktika">Практика P1, P2</a></td></tr>
         <tr><td><span class="lvl b">Көпшілігі</span></td><td>Аралық бағандармен үш айнымалы өрнектің кестесін құрамын</td>
-          <td><a href="#viktorina">Викторина, 3, 4, 5-сұрақтар</a><br><a href="#praktika">Практика P3, P4</a><br><a href="#dop">Қосымша есеп A1 немесе A2</a></td></tr>
+          <td><a href="#viktorina">Викторина, 3, 4, 5-сұрақтар</a><br><a href="#praktika">Практика P3, P4</a><br><a href="#dop">Қалыптастырушы бағалау: Ф4–Ф7 тапсырмаларының бірі</a></td></tr>
         <tr><td><span class="lvl c">Кейбіреулері</span></td><td>Кестені талдаймын: ақиқат жиындарды санаймын, тең мәнділікті тексеремін</td>
-          <td><a href="#viktorina">Викторина, 6, 7-сұрақтар</a><br><a href="#praktika">Практика P5, P6</a><br><a href="#dop">B немесе C деңгейіндегі қосымша есеп</a></td></tr>
+          <td><a href="#viktorina">Викторина, 6, 7-сұрақтар</a><br><a href="#praktika">Практика P5, P6</a><br><a href="#dop">Қалыптастырушы бағалау: Ф8–Ф10 тапсырмаларының бірі</a></td></tr>
       </tbody>
     </table></div>
     <h3 class="sub">40 минуттық жоспар</h3>
@@ -776,7 +783,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
         <tr><td>37–40 мин</td><td>Рефлексия, мақсатқа жету</td><td><a href="#refleksiya">Рефлексия</a></td></tr>
       </tbody>
     </table></div>
-    <p class="howto">«Қай өрнек?» және «Қосымша есептер» — жылдам аяқтағандарға, мұғалімнің таңдауымен немесе үй жұмысына.</p>
+    <p class="howto">«Қай өрнек?» — жылдам аяқтағандарға. «Қалыптастырушы бағалау» (10 тапсырма, автоматты тексеріледі) — сабақтың соңында немесе үй жұмысы ретінде.</p>
     <h3 class="sub">Жаттығу <span class="time">мақсатты бағалауға кірмейді</span></h3>
     <div class="train">
       <a href="#lab">Конструктор</a><span>кесте қалай құрылатынын қадамдап көреміз</span>
@@ -791,6 +798,13 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
     <div class="definition">
       <div class="def-label">Анықтама</div>
       <p class="def-text"><b>Ақиқат кестесі</b> (таблица истинности, truth table) — логикалық өрнектің айнымалылар мәндерінің барлық жиынында қабылдайтын мәндерінің кестесі. n айнымалы үшін 2<sup>n</sup> жиын, яғни 2<sup>n</sup> жол болады.</p>
+    </div>
+    <h3 class="sub">Айнымалылар саны → жолдар саны</h3>
+    <p class="howto">Айнымалылар санын таңдаңыз (1-ден 6-ға дейін). Жолдар саны есептеліп, айнымалылардың барлық мәндер жиыны екілік санау ретімен автоматты түрде жазылады. Әр жол — 0-ден 2<sup>n</sup> − 1-ге дейінгі санның екілік жазуы.</p>
+    <div class="viz">
+      <div class="viz-row" role="group" aria-label="Айнымалылар саны"><span class="viz-lbl">Айнымалылар саны n:</span><button class="alg-b" type="button" data-gn="1">1</button><button class="alg-b" type="button" data-gn="2">2</button><button class="alg-b" type="button" data-gn="3">3</button><button class="alg-b" type="button" data-gn="4">4</button><button class="alg-b" type="button" data-gn="5">5</button><button class="alg-b" type="button" data-gn="6">6</button></div>
+      <div id="genStat" style="display:grid;gap:8px"></div>
+      <div class="gen-wrap"><table class="tt-tbl" id="genTbl"></table></div>
     </div>
     <h3 class="sub">Негізгі амалдардың ақиқат кестелері</h3>
     <div class="basic-tt">
@@ -898,28 +912,28 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   </section>
 
   <section id="dop">
-    <div class="sec-head"><h2>Қосымша есептер</h2><p>Практикалық жұмысты аяқтағандарға. Деңгейді таңдап, өз қарқыныңызбен шығарыңыз.</p></div>
-    <p class="howto">«Тексеру» батырмасы кестені және сұраққа берілген жауапты тексереді.<span class="t-only"> Әр есептің астындағы үлгі шешімді тек мұғалім көреді.</span></p>
+    <div class="sec-head"><h2>Қалыптастырушы бағалау</h2><p>10 тапсырма қарапайымнан күрделіге қарай орналасқан: Ф1–Ф3 базалық, Ф4–Ф7 орта, Ф8–Ф10 жоғары деңгей. Әр тапсырманы «Тексеру» батырмасы автоматты түрде бағалайды, нәтиже оң жақта және «Рефлексия» қойындысында шығады.</p><span class="score" id="dopScore">0 / 10</span></div>
+    <p class="howto">«Тексеру» батырмасы кестені және сұраққа берілген жауапты тексереді. Әр оқушыға тапсырмалардың өз нұсқасы беріледі: өрнектер мен айнымалылар әртүрлі, сондықтан көршіден көшіру мүмкін емес.<span class="t-only"> Мұғалім бетінде 1-нұсқа көрсетілген; оқушылардың жауабы автоматты түрде өз нұсқасы бойынша тексеріледі.</span><span class="t-only"> Әр есептің астындағы үлгі шешімді тек мұғалім көреді.</span></p>
     <div class="levels" role="group" aria-label="Деңгей">
-      <button class="lv" type="button" data-lv="all" aria-pressed="true">Барлық есептер</button>
+      <button class="lv" type="button" data-lv="all" aria-pressed="true">Барлық тапсырмалар</button>
       <button class="lv" type="button" data-lv="A" aria-pressed="false">A — базалық</button>
       <button class="lv" type="button" data-lv="B" aria-pressed="false">B — орта</button>
       <button class="lv" type="button" data-lv="C" aria-pressed="false">C — жоғары</button>
     </div>
     <div class="results t-only prog-box" id="pg-dop">
-      <div class="pk-top"><span class="pk-title">Сынып оқушылары: қосымша есептер</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
+      <div class="pk-top"><span class="pk-title">Сынып оқушылары: қалыптастырушы бағалау</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
       <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Оқушы</th><th>Үлгерім</th><th>Толығырақ</th><th>Уақыт</th></tr></thead><tbody class="pg-body"></tbody></table></div>
     </div>
     <div class="task-list" id="tasks"></div>
   </section>
 
   <section id="refleksiya">
-    <div class="sec-head"><h2>Рефлексия</h2><p>Мақсатқа жету жеке тапсырмалар бойынша автоматты түрде есептеледі: «Викторина», «Практика» және «Қосымша есептер». Өзіңді адал бағала. Жазбалар тек осы браузерде сақталады.</p></div>
+    <div class="sec-head"><h2>Рефлексия</h2><p>Мақсатқа жету жеке тапсырмалар бойынша автоматты түрде есептеледі: «Викторина», «Практика» және «Қалыптастырушы бағалау». Өзіңді адал бағала. Жазбалар тек осы браузерде сақталады.</p></div>
     <div class="results t-only" id="classRefl">
       <div class="pk-top"><span class="pk-title">Сынып рефлексиясы</span><span class="pk-ctrl"><span class="pr-cls" id="crCls"></span><span class="res-upd" id="crUpd"></span></span></div>
       <p class="howto" id="crNote">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы «Кім жауап береді?» блогынан алынады. Деректер Google-скрипт арқылы байланысы бар жүктеп алынған файлдардағы оқушылардан келеді.</p>
       <h3 class="sub" style="margin:4px 0 0">Жеке тапсырмалар бойынша мақсатқа жету</h3>
-      <div class="tbl-wrap"><table class="res-tbl gl-tbl"><thead><tr><th>Оқушы</th><th>Викторина</th><th>Практика</th><th>Қосымша есептер</th><th>Барлығы</th><th>Көпшілігі</th><th>Кейбіреулері</th><th>Қорытынды</th></tr></thead><tbody id="glBody"></tbody></table></div>
+      <div class="tbl-wrap"><table class="res-tbl gl-tbl"><thead><tr><th>Оқушы</th><th>Викторина</th><th>Практика</th><th>ҚБ</th><th>Барлығы</th><th>Көпшілігі</th><th>Кейбіреулері</th><th>Қорытынды</th></tr></thead><tbody id="glBody"></tbody></table></div>
       <p class="cr-legend">✓ — деңгейге жетті, ◐ — ішінара, ○ — басталмаған. Тек викторина, практика және қосымша есептер ескеріледі.</p>
       <h3 class="sub" style="margin:10px 0 0">Сыныптың кезеңдер бойынша сенімділігі</h3>
       <div class="cs-rows" id="crBars"></div>
@@ -1200,19 +1214,50 @@ document.querySelectorAll('[data-sym]').forEach(b=>b.addEventListener('click',()
   else{inp.value=v.slice(0,s)+ins+v.slice(e);inp.setSelectionRange(s+ins.length,s+ins.length);}inp.focus();}));
 ttSetMode(ttMode);
 
+/* ---------- variables → rows generator (theory) ---------- */
+const GEN_V=['A','B','C','D','E','F'],SUP='⁰¹²³⁴⁵⁶';
+function genDraw(n){n=Math.max(1,Math.min(6,n|0));document.querySelectorAll('[data-gn]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.gn===n));store.set('genN',n);
+  const rows=2**n,v=GEN_V.slice(0,n);
+  $('#genStat').innerHTML=`<div class="gen-big">n = ${n}  →  2${SUP[n]} = ${n>1?Array(n).fill(2).join(' · ')+' = ':''}<b>${rows} жол</b></div>`+
+    `<div class="gen-cols">${v.map((x,i)=>{const g=2**(n-1-i);return `<span><b>${x}</b>: ${g===1?'0 мен 1 кезектеседі':i===0?`жартысы 0 (${g}), жартысы 1 (${g})`:`${g} нөл, ${g} бір — қайталанады`}</span>`;}).join('')}</div>`;
+  $('#genTbl').innerHTML=`<thead><tr><th>№</th>${v.map(x=>`<th>${x}</th>`).join('')}<th class="fcol">ондық сан</th></tr></thead><tbody>`+
+    Array.from({length:rows},(_,k)=>`<tr><td class="gen-no">${k+1}</td>${v.map((x,i)=>{const b=(k>>(n-1-i))&1;return `<td class="${b?'b1':''}">${b}</td>`;}).join('')}<td class="fcol gen-k">${k}</td></tr>`).join('')+'</tbody>';}
+document.querySelectorAll('[data-gn]').forEach(b=>b.addEventListener('click',()=>genDraw(+b.dataset.gn)));
+genDraw(store.get('genN',3));
+
 const EXAMPLES=[{"grp": "2 айнымалы", "sig": "¬A ∨ B", "p": "2 айнымалы → 4 жол. Амал екеу: алдымен ¬A, содан кейін ∨. Бағандар: A, B, ¬A, F.", "vars": ["A", "B"], "cols": ["¬A", "¬A ∨ B"]}, {"grp": "Жақша", "sig": "¬(A ∧ B)", "p": "Жақша бірінші: алдымен A ∧ B, содан кейін бүкіл жақшаны терістейміз. F бағаны A ∧ B бағанына керісінше.", "vars": ["A", "B"], "cols": ["A ∧ B", "¬(A ∧ B)"]}, {"grp": "3 айнымалы", "sig": "(A ∨ B) ∧ ¬C", "p": "3 айнымалы → 8 жол. Амалдар реті: жақша (A ∨ B), терістеу ¬C, соңында ∧. Барлығы 6 баған.", "vars": ["A", "B", "C"], "cols": ["A ∨ B", "¬C", "(A ∨ B) ∧ ¬C"]}, {"grp": "Амалдар реті", "sig": "A ∨ B ∧ C", "p": "Жақша жоқ, бірақ ∧ бірінші орындалады: A ∨ (B ∧ C). A = 1 болса, F әрқашан 1.", "vars": ["A", "B", "C"], "cols": ["B ∧ C", "A ∨ B ∧ C"]}, {"grp": "Тең мәнділік", "sig": "¬(A ∨ B) = ¬A ∧ ¬B", "p": "Екі өрнектің соңғы бағандары барлық жолда бірдей, демек олар тең мәнді (де Морган заңы).", "vars": ["A", "B"], "cols": ["A ∨ B", "¬(A ∨ B)", "¬A", "¬B", "¬A ∧ ¬B"]}];
 /* ---------- worked examples ---------- */
 $('#methods').innerHTML=EXAMPLES.map((m,i)=>`<div class="method ex-card"><span class="grp">${esc(m.grp)}</span><span class="sig">${esc(m.sig)}</span><p>${esc(m.p)}</p>${ttStatic(m.vars,m.cols)}<button class="btn-ghost" type="button" data-m="${i}">Конструкторда ашу ↓</button></div>`).join('');
 document.querySelectorAll('[data-m]').forEach(b=>b.addEventListener('click',()=>{const m=EXAMPLES[+b.dataset.m];$('#ttExpr').value=m.cols[m.cols.length-1];location.hash='lab';setTimeout(()=>{ttReset();},60);}));
 
-const tasks=[{"id": "A1", "lv": "A", "title": "НЕМЕСЕ", "vars": ["A", "B"], "fillVars": true, "desc": "F = A ∨ B кестесін толық құрыңыз: A, B және F бағандары.", "cols": [["F = A ∨ B", "A ∨ B"]]}, {"id": "A2", "lv": "A", "title": "Терістеу және ЖӘНЕ", "vars": ["A", "B"], "fillVars": false, "desc": "F = ¬A ∧ B. ¬A және F бағандарын толтырыңыз.", "cols": [["¬A", "¬A"], ["F = ¬A ∧ B", "¬A ∧ B"]]}, {"id": "B1", "lv": "B", "title": "Жақшаның терістеуі", "vars": ["A", "B", "C"], "fillVars": false, "desc": "F = ¬(A ∧ B) ∨ C. Аралық бағандарды және F-ті толтырыңыз.", "cols": [["A ∧ B", "A ∧ B"], ["¬(A ∧ B)", "¬(A ∧ B)"], ["F = ¬(A ∧ B) ∨ C", "¬(A ∧ B) ∨ C"]], "q": {"text": "F = 1 болатын жиындар саны:", "ans": ["7"]}}, {"id": "B2", "lv": "B", "title": "Екі жақша", "vars": ["A", "B", "C"], "fillVars": true, "desc": "F = (A ∨ ¬B) ∧ (¬A ∨ C). Барлық бағанды толтырыңыз.", "cols": [["¬B", "¬B"], ["A ∨ ¬B", "A ∨ ¬B"], ["¬A", "¬A"], ["¬A ∨ C", "¬A ∨ C"], ["F", "(A ∨ ¬B) ∧ (¬A ∨ C)"]], "q": {"text": "F = 1 болатын жиындар саны:", "ans": ["4"]}}, {"id": "C1", "lv": "C", "title": "Төрт айнымалы", "vars": ["A", "B", "C", "D"], "fillVars": true, "desc": "F = (A ∧ B) ∨ (C ∧ D). 4 айнымалы — 16 жол. Айнымалы бағандарын да толтырыңыз.", "cols": [["A ∧ B", "A ∧ B"], ["C ∧ D", "C ∧ D"], ["F", "(A ∧ B) ∨ (C ∧ D)"]], "q": {"text": "F = 1 болатын жиындар саны:", "ans": ["7"]}}, {"id": "C2", "lv": "C", "title": "Жақшаны жылжытсақ", "vars": ["A", "B", "C"], "fillVars": false, "desc": "F1 = A ∧ (B ∨ C) және F2 = (A ∧ B) ∨ C. Кестелерді құрып, өрнектерді салыстырыңыз.", "cols": [["B ∨ C", "B ∨ C"], ["F1 = A ∧ (B ∨ C)", "A ∧ (B ∨ C)"], ["A ∧ B", "A ∧ B"], ["F2 = (A ∧ B) ∨ C", "(A ∧ B) ∨ C"]], "q": {"text": "F1 мен F2 тең мәнді ме? (иә / жоқ)", "ans": ["жоқ", "жок"]}}];
+const FO_GEN=[{"id": "Ф1", "lv": "A", "title": "Бір айнымалы", "vars": ["A"], "perm": false, "q": null, "d": "Бір айнымалы — 2 жол. Аралық бағанды және F-ті толтырыңыз.", "v": ["¬A", "¬¬A", "A ∨ ¬A", "A ∧ ¬A"]}, {"id": "Ф2", "lv": "A", "title": "Бір амал", "vars": ["A", "B"], "perm": true, "q": null, "d": "Кестенің бос бағандарын толтырыңыз.", "v": ["A ∧ B", "A ∨ B", "A ∧ ¬B", "¬A ∨ B", "¬A ∧ B", "A ∨ ¬B"]}, {"id": "Ф3", "lv": "A", "title": "Терістеу", "vars": ["A", "B"], "perm": true, "q": null, "d": "Амалдардың ретін сақтап, бағандарды солдан оңға қарай толтырыңыз.", "v": ["¬A ∨ ¬B", "¬A ∧ ¬B", "¬(A ∧ B)", "¬(A ∨ B)", "¬(A ∧ ¬B)", "¬(¬A ∨ B)"]}, {"id": "Ф4", "lv": "B", "title": "Кестені толық құр", "vars": ["A", "B"], "perm": true, "fill": true, "q": null, "d": "A мен B бағандарын да өзіңіз толтырыңыз (екілік санау ретімен).", "v": ["(A ∨ B) ∧ ¬A", "¬A ∨ (A ∧ B)", "(A ∧ ¬B) ∨ (¬A ∧ B)", "(A ∨ ¬B) ∧ (¬A ∨ B)"]}, {"id": "Ф5", "lv": "B", "title": "Үш айнымалы", "vars": ["A", "B", "C"], "perm": true, "q": "count", "d": "Аралық бағандарды және F-ті толтырыңыз.", "v": ["(A ∨ B) ∧ C", "(A ∧ B) ∨ C", "A ∧ (B ∨ C)", "A ∨ (B ∧ C)", "(A ∨ B) ∧ ¬C", "(A ∧ ¬B) ∨ C"]}, {"id": "Ф6", "lv": "B", "title": "Жақша және терістеу", "vars": ["A", "B", "C"], "perm": true, "q": "count", "d": "Жақша, терістеу, содан кейін қалған амалдар.", "v": ["A ∧ ¬(B ∨ C)", "¬(A ∧ B) ∨ C", "¬(A ∨ B) ∨ C", "A ∨ ¬(B ∧ C)", "¬A ∧ (B ∨ C)", "(A ∨ B) ∧ ¬(A ∧ C)"]}, {"id": "Ф7", "lv": "B", "title": "Амалдар реті", "vars": ["A", "B", "C"], "perm": true, "fill": true, "q": "count", "d": "Жақша жоқ: реті ¬, ∧, ∨. A, B, C бағандарын да толтырыңыз.", "v": ["¬A ∨ B ∧ ¬C", "A ∧ ¬B ∨ C", "¬A ∧ B ∨ ¬C", "A ∨ ¬B ∧ C", "¬A ∨ ¬B ∧ C"]}, {"id": "Ф8", "lv": "C", "title": "Тең мәнді ме?", "vars": ["A", "B"], "perm": true, "q": "eq", "d": "Кестені құрып, F бағанын G бағанымен салыстырыңыз.", "v": [{"e": "A ∨ (A ∧ B)", "g": "A"}, {"e": "A ∧ (A ∨ B)", "g": "A"}, {"e": "A ∨ (¬A ∧ B)", "g": "A ∨ B"}, {"e": "A ∧ (¬A ∨ B)", "g": "A ∧ B"}, {"e": "A ∨ (A ∧ B)", "g": "B"}, {"e": "(A ∨ B) ∧ ¬A", "g": "¬A"}]}, {"id": "Ф9", "lv": "C", "title": "Төрт айнымалы", "vars": ["A", "B", "C", "D"], "perm": true, "fill": true, "q": "count", "d": "4 айнымалы — 16 жол. Айнымалы бағандарын да толтырыңыз.", "v": ["(A ∨ B) ∧ ¬(C ∧ D)", "(A ∧ B) ∨ (C ∧ D)", "(A ∨ B) ∧ (C ∨ D)", "(A ∧ ¬B) ∨ (C ∧ ¬D)", "¬(A ∨ B) ∨ (C ∧ D)"]}, {"id": "Ф10", "lv": "C", "title": "Сөзден кестеге", "vars": ["A", "B", "C"], "perm": false, "fill": true, "q": "count", "d": "Кестені толық құрыңыз.", "v": [{"t": "Жиналыс өтеді (F = 1), егер директор келсе (A) ЖӘНЕ екі орынбасардың (B, C) кемінде біреуі келсе.", "e": "A ∧ (B ∨ C)", "q": "Жиналыс неше жиында өтеді?"}, {"t": "Есік ашылады (F = 1), егер карта бар (A) НЕМЕСЕ код дұрыс (B) болса ЖӘНЕ құлып бұғатталмаған болса (C — құлып бұғатталған).", "e": "(A ∨ B) ∧ ¬C", "q": "Есік неше жиында ашылады?"}, {"t": "Шам жанады (F = 1), егер қосқыш қосулы (A) ЖӘНЕ қозғалыс бар (B) НЕМЕСЕ күндізгі жарық жоқ болса (C — күндізгі жарық бар).", "e": "A ∧ (B ∨ ¬C)", "q": "Шам неше жиында жанады?"}, {"t": "Команда жеңеді (F = 1), егер шабуылшы гол соқса (A) НЕМЕСЕ қақпашы гол жібермесе (B — гол жіберді), ал төреші ұпайды жоймаса (C — ұпай жойылды).", "e": "(A ∨ ¬B) ∧ ¬C", "q": "Команда неше жиында жеңеді?"}, {"t": "Оқушы олимпиадаға барады (F = 1), егер математикадан (A) ЖӘНЕ информатикадан (B) жоғары балл алса НЕМЕСЕ мұғалім ұсынса (C).", "e": "(A ∧ B) ∨ C", "q": "Оқушы неше жиында барады?"}]}];
+const FO_CLASSES={"9": ["Ахмадия Нұрәлі", "Бахтигереева Амира-Челси", "Бекмырза Асхат", "Елемес Әлинұр", "Кайроллин Даниял", "Қайратқызы Мумина", "Нығметолла Дания", "Рахметжан Арсен", "Серікбол Томирис", "Сидалеев Нұрасыл", "Шакизат Ерасыл"]};
 const prac=[{"id": "P1", "lv": "A", "title": "Дәліздегі шам", "vars": ["A", "B"], "fillVars": false, "desc": "Шам жанады, егер қозғалыс бар (A) ЖӘНЕ күндізгі жарық жоқ (¬B) болса: F = A ∧ ¬B. ¬B және F бағандарын толтырыңыз.", "cols": [["¬B", "¬B"], ["F = A ∧ ¬B", "A ∧ ¬B"]]}, {"id": "P2", "lv": "A", "title": "Кестені толық құр", "vars": ["A", "B"], "fillVars": true, "desc": "F = ¬(A ∨ B). Бұл жолы A мен B бағандарын да өзіңіз толтырыңыз: жолдар екілік санау ретімен (0 0, 0 1, 1 0, 1 1).", "cols": [["A ∨ B", "A ∨ B"], ["F = ¬(A ∨ B)", "¬(A ∨ B)"]]}, {"id": "P3", "lv": "B", "title": "Үш айнымалы дабыл", "vars": ["A", "B", "C"], "fillVars": false, "desc": "Дабыл (F) қосылады, егер есік ашық (A) НЕМЕСЕ терезе ашық (B) болса ЖӘНЕ күзетші жоқ (¬C) болса: F = (A ∨ B) ∧ ¬C. Аралық бағандарды және F-ті толтырыңыз.", "cols": [["A ∨ B", "A ∨ B"], ["¬C", "¬C"], ["F = (A ∨ B) ∧ ¬C", "(A ∨ B) ∧ ¬C"]]}, {"id": "P4", "lv": "B", "title": "Амалдар реті", "vars": ["A", "B", "C"], "fillVars": true, "desc": "F = A ∨ ¬B ∧ C. Барлық бағанды, оның ішінде A, B, C бағандарын толтырыңыз. Есіңізде болсын: ¬, содан кейін ∧, ең соңында ∨.", "cols": [["¬B", "¬B"], ["¬B ∧ C", "¬B ∧ C"], ["F = A ∨ ¬B ∧ C", "A ∨ ¬B ∧ C"]], "q": {"text": "F = 1 болатын жиындар саны:", "ans": ["5"]}}, {"id": "P5", "lv": "C", "title": "Тең мәнді ме?", "vars": ["A", "B"], "fillVars": false, "desc": "F1 = ¬(A ∧ B) және F2 = ¬A ∨ ¬B өрнектерінің кестесін құрып, соңғы бағандарын салыстырыңыз.", "cols": [["A ∧ B", "A ∧ B"], ["F1 = ¬(A ∧ B)", "¬(A ∧ B)"], ["¬A", "¬A"], ["¬B", "¬B"], ["F2 = ¬A ∨ ¬B", "¬A ∨ ¬B"]], "q": {"text": "F1 мен F2 тең мәнді ме? (иә / жоқ)", "ans": ["иә", "ия", "ие"]}}, {"id": "P6", "lv": "C", "title": "Көпшілік дауыс", "vars": ["A", "B", "C"], "fillVars": false, "desc": "Үш мұғалім (A, B, C) дауыс береді. F = (A ∧ B) ∨ (A ∧ C) ∨ (B ∧ C). Кестені толтырып, F-тің мағынасын анықтаңыз.", "cols": [["A ∧ B", "A ∧ B"], ["A ∧ C", "A ∧ C"], ["B ∧ C", "B ∧ C"], ["F", "(A ∧ B) ∨ (A ∧ C) ∨ (B ∧ C)"]], "q": {"text": "F = 1 болса, кемінде неше мұғалім «иә» (1) деді?", "ans": ["2", "екі", "екеуі"]}}];
 /* ---------- tasks (truth tables) ---------- */
+/* formative assessment: each student gets own variants (seeded by class + name) */
+const _stu=store.get('student',null);window.__ttNeedReload=!_stu;
+function foPerms(a){if(a.length<=1)return [a.slice()];const out=[];a.forEach((x,i)=>foPerms(a.slice(0,i).concat(a.slice(i+1))).forEach(p=>out.push([x].concat(p))));return out;}
+/* distinct combos for students of the same class: k = position in the class list (+ per-task shift) */
+const _stuIdx=_stu&&FO_CLASSES[_stu.cls]?FO_CLASSES[_stu.cls].indexOf(_stu.name):-1;
+function foMake(g,ti){const perms=g.perm?foPerms(g.vars):[g.vars.slice()];const M=g.v.length*perms.length;
+  let k=0;if(_stu){k=_stuIdx>=0?(_stuIdx+ti*3)%M:prHash(_stu.cls+'|'+_stu.name+'|'+g.id)%M;}
+  const vi=k%g.v.length,pi=Math.floor(k/g.v.length)%perms.length;let v=g.v[vi];if(typeof v==='string')v={e:v};
+  const L=perms[pi];const map={};g.vars.forEach((x,i)=>map[x]=L[i]);
+  const P=x=>x.replace(/[A-D]/g,c=>map[c]||c);const e=P(v.e);const ops=lgOps(lgParse(e).ast);
+  const cols=ops.map((o,j)=>j===ops.length-1?[(o.s.length<=18?'F = '+o.s:'F'),o.s]:[o.s,o.s]);
+  const envs=ttEnvRows(g.vars),f=lgCompile(e);let q=null;
+  if(g.q==='count')q={text:v.q||'F = 1 болатын жиындар саны:',ans:[String(envs.filter(env=>f(env)).length)]};
+  if(g.q==='eq'){const G=P(v.g),hf=lgCompile(G);if(!/^[A-D]$/.test(G))lgOps(lgParse(G).ast).forEach((o,j,a)=>{if(!cols.some(c=>c[1]===o.s))cols.push([j===a.length-1?'G = '+o.s:o.s,o.s]);});
+    const same=envs.every(env=>f(env)===hf(env));q={text:`F мен G = ${G} тең мәнді ме? (иә / жоқ)`,ans:same?['иә','ия','ие']:['жоқ','жок']};}
+  return {id:g.id,lv:g.lv,title:g.title,vars:g.vars,fillVars:!!g.fill,cols,q,desc:(v.t?v.t+' ':'')+`F = ${e}. `+g.d,sig:k};}
+const tasks=FO_GEN.map((g,i)=>foMake(g,i));
 const done=store.get('done',{}),tries=store.get('tries',{});
 const pracDone=store.get('pracDone',{}),pracTries=store.get('pracTries',{});
 function pracScoreUpd(){$('#pracScore').textContent=`${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}`;}
 const afterCheck=()=>{try{updateLocks();}catch(e){}if(typeof sendProg==='function')sendProg(false);};
-mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',after:afterCheck,solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
+function dopScoreUpd(){const e=$('#dopScore');if(e)e.textContent=`${tasks.filter(t=>done[t.id]).length} / ${tasks.length}`;}
+mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',after:()=>{dopScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
+dopScoreUpd();
 mountTT($('#prac'),prac,{keyOf:t=>t.id,badge:t=>t.id,done:pracDone,tries:pracTries,keyDone:'pracDone',keyTries:'pracTries',after:()=>{pracScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
 pracScoreUpd();
 document.querySelectorAll('#dop .lv').forEach(b=>b.addEventListener('click',()=>{
@@ -1335,9 +1380,9 @@ const GOAL_DEF=[
  {name:'Барлығы',goal:'екі айнымалы өрнектің ақиқат кестесін құрамын',items:[
    ['q',[0,1],'Викторина, 1, 2-сұрақтар','#viktorina'],['prac',['P1','P2'],'Практика P1, P2','#praktika']]},
  {name:'Көпшілігі',goal:'аралық бағандармен үш айнымалы өрнектің кестесін құрамын',items:[
-   ['q',[2,3,4],'Викторина, 3, 4, 5-сұрақтар','#viktorina'],['prac',['P3','P4'],'Практика P3, P4','#praktika'],['dop',['A1','A2'],'Қосымша есеп A1 немесе A2','#dop']]},
+   ['q',[2,3,4],'Викторина, 3, 4, 5-сұрақтар','#viktorina'],['prac',['P3','P4'],'Практика P3, P4','#praktika'],['dop',['Ф4','Ф5','Ф6','Ф7'],'ҚБ: Ф4–Ф7 тапсырмаларының бірі','#dop']]},
  {name:'Кейбіреулері',goal:'кестені талдаймын: ақиқат жиындарды санаймын, тең мәнділікті тексеремін',items:[
-   ['q',[5,6],'Викторина, 6, 7-сұрақтар','#viktorina'],['prac',['P5','P6'],'Практика P5, P6','#praktika'],['dop',['B1','B2','C1','C2'],'B немесе C деңгейіндегі қосымша есеп','#dop']]},
+   ['q',[5,6],'Викторина, 6, 7-сұрақтар','#viktorina'],['prac',['P5','P6'],'Практика P5, P6','#praktika'],['dop',['Ф8','Ф9','Ф10'],'ҚБ: Ф8–Ф10 тапсырмаларының бірі','#dop']]},
 ];
 /* src: {qOk:[indices], prac:[ids], dop:[ids]} */
 function goalEval(src){const qOk=src.qOk||[],dop=src.dop||[],pr=src.prac||[];
@@ -1354,15 +1399,15 @@ function renderGoal(){
   const g=goalEval({qOk:quizOk(),prac:prac.filter(t=>pracDone[t.id]).map(t=>t.id),dop:tasks.filter(t=>done[t.id]).map(t=>t.id)});
   const levels=g.levels,lv=g.lv,reached=g.reached;lastGoal=reached;
   const msg=reached<0?['Сабақ мақсатына әзірге жетпедіңіз','Базалық деңгейден бастаңыз: викторинаның 1, 2-сұрақтары және практикалық жұмыстың P1, P2 есептері.']:
-    reached===0?['9.2.1.2 мақсатына базалық деңгейде жеттіңіз','Сіз екі айнымалы өрнектің кестесін құрасыз. Келесі қадам — үш айнымалы және аралық бағандар: викторинаның 3–5-сұрақтары, P3, P4 есептері және A1 немесе A2 қосымша есебі.']:
-    reached===1?['9.2.1.2 мақсатына «Көпшілігі» деңгейінде жеттіңіз','Сіз аралық бағандармен кестені қатесіз құрасыз. Енді кестені талдаңыз: 6, 7-сұрақтар, P5, P6 есептері және B немесе C деңгейіндегі қосымша есеп.']:
+    reached===0?['9.2.1.2 мақсатына базалық деңгейде жеттіңіз','Сіз екі айнымалы өрнектің кестесін құрасыз. Келесі қадам — үш айнымалы және аралық бағандар: викторинаның 3–5-сұрақтары, P3, P4 есептері және қалыптастырушы бағалаудың Ф4–Ф7 тапсырмаларының бірі.']:
+    reached===1?['9.2.1.2 мақсатына «Көпшілігі» деңгейінде жеттіңіз','Сіз аралық бағандармен кестені қатесіз құрасыз. Енді кестені талдаңыз: 6, 7-сұрақтар, P5, P6 есептері және қалыптастырушы бағалаудың Ф8–Ф10 тапсырмаларының бірі.']:
     ['9.2.1.2 мақсатына толық жеттіңіз','Сіз кестені құрып қана қоймай, оны талдап, өрнектерді салыстырасыз. Керемет жұмыс!'];
   const lab={ok:'жетті',part:'ішінара',no:'басталмаған'},ic={ok:'✓',help:'◐',no:'○'};
   const card=$('#goalCard');card.className='goal-card'+(reached>=0?' reached':'');
   card.innerHTML=`<div class="goal-verdict"><span class="obj-code">9.2.1.2</span><div><div class="big">${esc(msg[0])}</div><p>${esc(msg[1])}</p></div></div>
    <div class="goal-levels">${levels.map((L,i)=>`<div class="glevel ${lv[i]==='ok'?'ok':lv[i]==='part'?'part':''}"><h4>${esc(L.name)}<span class="gstate ${lv[i]}">${lab[lv[i]]}</span></h4><p style="font-size:.82rem;color:var(--muted)">${esc(L.goal)}</p>
      ${L.items.map(x=>`<div class="gitem ${x[0]}"><span class="ic">${ic[x[0]]}</span><a href="${x[2]}">${esc(x[1])}</a></div>`).join('')}</div>`).join('')}</div>
-   <div class="gstats"><span>Викторина: ${quizOk().length} / ${quiz.length}</span><span>Практика: ${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}</span><span>Қосымша есептер: ${tasks.filter(t=>done[t.id]).length} / ${tasks.length}</span></div>`;
+   <div class="gstats"><span>Викторина: ${quizOk().length} / ${quiz.length}</span><span>Практика: ${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}</span><span>Қалыптастырушы бағалау: ${tasks.filter(t=>done[t.id]).length} / ${tasks.length}</span></div>`;
 }
 window.addEventListener('hashchange',()=>{if(location.hash==='#refleksiya')renderGoal();});
 renderGoal();
@@ -1440,7 +1485,7 @@ $('#stGo').addEventListener('click',()=>{if(!stPick.name)return;
   const changed=student&&(student.name!==stPick.name||student.cls!==stPick.cls);
   if(changed){try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('ttablelab:'))ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));}catch(e){}
     store.set('student',{cls:stPick.cls,name:stPick.name,manual:!!stPick.manual});try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}
-  student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();if(typeof renderNow==='function'){renderNow();renderPairs();}if(typeof grpShowMine==='function')grpShowMine();});
+  student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);if(window.__ttNeedReload){try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();if(typeof renderNow==='function'){renderNow();renderPairs();}if(typeof grpShowMine==='function')grpShowMine();});
 $('#stCancel').addEventListener('click',closeStart);
 $('#stLangCur').addEventListener('click',()=>{store.set('lang',CUR_LANG);stLangOk=true;$('#stLangCur').setAttribute('aria-pressed','true');$('#stClsStep').hidden=false;});
 $('#stMissing').addEventListener('click',()=>{stManualOpen=true;stPick.name=null;stDrawNames();$('#stManName').focus();});
@@ -1732,11 +1777,11 @@ document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('clic
 if(teacherMode)drawGoalTbl();
 
 /* ---------- teacher hints -> students ---------- */
-const HINTS=[{"k": "prac:P1", "tab": "svoistva", "hint": "¬B бағаны B бағанына керісінше. F = 1 тек A = 1 және ¬B = 1 болғанда."}, {"k": "prac:P2", "tab": "svoistva", "hint": "A бағаны: 0 0 1 1, B бағаны: 0 1 0 1. Алдымен жақшадағы A ∨ B, содан кейін оны терістеңіз."}, {"k": "prac:P3", "tab": "metody", "hint": "«3 айнымалы» мысалын қараңыз: A ∨ B, ¬C, содан кейін ∧."}, {"k": "prac:P4", "tab": "lab", "hint": "Конструкторда «Бағандап» режимін таңдап, амалдардың ретін қараңыз: ¬B, ¬B ∧ C, соңында ∨."}, {"k": "prac:P5", "tab": "metody", "hint": "«Тең мәнділік» мысалын қараңыз. F1 мен F2 бағандарын жол-жолымен салыстырыңыз."}, {"k": "prac:P6", "tab": "svoistva", "hint": "Әр жұпты (A ∧ B, A ∧ C, B ∧ C) жеке есептеңіз. F = 1 болған жолдарда неше бірлік бар?"}, {"k": "dbg:0", "tab": "svoistva", "hint": "ЖӘНЕ амалының кестесін еске түсіріңіз: 1 тек 1 ∧ 1 жолында."}, {"k": "dbg:1", "tab": "svoistva", "hint": "Алдымен ¬A бағанын тексеріңіз: ол A бағанына керісінше ме?"}, {"k": "dbg:2", "tab": "svoistva", "hint": "B бағаны 0 1 0 1 болуы керек. Жолдардың ретін тексеріңіз."}, {"k": "dbg:3", "tab": "lab", "hint": "¬C бағаны C-ға керісінше болуы керек. Содан кейін F-ті қайта тексеріңіз."}, {"k": "dbg:4", "tab": "metody", "hint": "«Амалдар реті» мысалын қараңыз: A ∨ B ∧ C = A ∨ (B ∧ C)."}, {"k": "dbg:5", "tab": "metody", "hint": "«Жақша» мысалын қараңыз: ¬(A ∧ B) бағаны A ∧ B-ға керісінше."}, {"k": "dop:A1", "tab": "svoistva", "hint": "A: 0 0 1 1, B: 0 1 0 1. НЕМЕСЕ тек 0 ∨ 0 жолында 0."}, {"k": "dop:A2", "tab": "svoistva", "hint": "Алдымен ¬A, содан кейін ¬A ∧ B."}, {"k": "dop:B1", "tab": "lab", "hint": "Өрнекті конструкторға енгізіп, амалдардың ретін салыстырыңыз (кестені өзіңіз толтырыңыз)."}, {"k": "dop:B2", "tab": "svoistva", "hint": "Екі жақшаны бөлек есептеп, соңында ∧ амалын орындаңыз."}, {"k": "dop:C1", "tab": "svoistva", "hint": "16 жол: A — 8 нөл, 8 бір; B — 4-тен; C — 2-ден; D — кезекпен."}, {"k": "dop:C2", "tab": "metody", "hint": "F1 мен F2 бағандарын салыстырыңыз. Бір ғана айырмашылық тең мәнді емес екенін көрсетеді."}];
+const HINTS=[{"k": "prac:P1", "tab": "svoistva", "hint": "¬B бағаны B бағанына керісінше. F = 1 тек A = 1 және ¬B = 1 болғанда."}, {"k": "prac:P2", "tab": "svoistva", "hint": "A бағаны: 0 0 1 1, B бағаны: 0 1 0 1. Алдымен жақшадағы A ∨ B, содан кейін оны терістеңіз."}, {"k": "prac:P3", "tab": "metody", "hint": "«3 айнымалы» мысалын қараңыз: A ∨ B, ¬C, содан кейін ∧."}, {"k": "prac:P4", "tab": "lab", "hint": "Конструкторда «Бағандап» режимін таңдап, амалдардың ретін қараңыз: ¬B, ¬B ∧ C, соңында ∨."}, {"k": "prac:P5", "tab": "metody", "hint": "«Тең мәнділік» мысалын қараңыз. F1 мен F2 бағандарын жол-жолымен салыстырыңыз."}, {"k": "prac:P6", "tab": "svoistva", "hint": "Әр жұпты (A ∧ B, A ∧ C, B ∧ C) жеке есептеңіз. F = 1 болған жолдарда неше бірлік бар?"}, {"k": "dbg:0", "tab": "svoistva", "hint": "ЖӘНЕ амалының кестесін еске түсіріңіз: 1 тек 1 ∧ 1 жолында."}, {"k": "dbg:1", "tab": "svoistva", "hint": "Алдымен ¬A бағанын тексеріңіз: ол A бағанына керісінше ме?"}, {"k": "dbg:2", "tab": "svoistva", "hint": "B бағаны 0 1 0 1 болуы керек. Жолдардың ретін тексеріңіз."}, {"k": "dbg:3", "tab": "lab", "hint": "¬C бағаны C-ға керісінше болуы керек. Содан кейін F-ті қайта тексеріңіз."}, {"k": "dbg:4", "tab": "metody", "hint": "«Амалдар реті» мысалын қараңыз: A ∨ B ∧ C = A ∨ (B ∧ C)."}, {"k": "dbg:5", "tab": "metody", "hint": "«Жақша» мысалын қараңыз: ¬(A ∧ B) бағаны A ∧ B-ға керісінше."}, {"k": "dop:Ф1", "tab": "svoistva", "hint": "Терістеу мәнді керісінше өзгертеді: 0 → 1, 1 → 0."}, {"k": "dop:Ф2", "tab": "svoistva", "hint": "ЖӘНЕ тек екі мән де 1 болғанда 1."}, {"k": "dop:Ф3", "tab": "svoistva", "hint": "Алдымен ¬B бағаны, содан кейін A ∨ ¬B."}, {"k": "dop:Ф4", "tab": "svoistva", "hint": "A: 0 0 1 1, B: 0 1 0 1. Екі терістеуді жеке есептеп, соңында ∧."}, {"k": "dop:Ф5", "tab": "metody", "hint": "Жақша бірінші: A ∨ B, содан кейін ∧ C."}, {"k": "dop:Ф6", "tab": "metody", "hint": "«Жақша» мысалын қараңыз: алдымен B ∨ C, содан кейін оны терістеңіз."}, {"k": "dop:Ф7", "tab": "lab", "hint": "Өрнекті конструкторға енгізіп, амалдардың ретін қараңыз (кестені өзіңіз толтырыңыз)."}, {"k": "dop:Ф8", "tab": "svoistva", "hint": "F бағанын A бағанымен жол-жолымен салыстырыңыз."}, {"k": "dop:Ф9", "tab": "svoistva", "hint": "16 жол: A — 8 нөл, 8 бір; B — 4-тен; C — 2-ден; D — кезекпен."}, {"k": "dop:Ф10", "tab": "metody", "hint": "Алдымен B ∨ C, содан кейін A ∧ (B ∨ C)."}];
 const HINT_TABS=['svoistva','lab','metody'];
 function hintLabel(k){const [a,b]=k.split(':');
   if(a==='prac')return `Практика ${b}`;if(a==='dbg')return `Қатені тап №${+b+1}`;
-  if(a==='dop')return `Қосымша есеп ${b}`;return '';}
+  if(a==='dop')return `ҚБ ${b}`;return '';}
 function hintsGet(){const h=store.get('hints',null);return h&&h.d===todayStr()&&Array.isArray(h.list)?h.list:[];}
 function hintsSet(list){store.set('hints',{d:todayStr(),list:list.slice(-8)});writePairsDoc();}
 let hmKey=null;

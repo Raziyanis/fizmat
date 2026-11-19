@@ -153,6 +153,17 @@ document.querySelectorAll('[data-sym]').forEach(b=>b.addEventListener('click',()
   else{inp.value=v.slice(0,s)+ins+v.slice(e);inp.setSelectionRange(s+ins.length,s+ins.length);}inp.focus();}));
 ttSetMode(ttMode);
 
+/* ---------- variables → rows generator (theory) ---------- */
+const GEN_V=['A','B','C','D','E','F'],SUP='⁰¹²³⁴⁵⁶';
+function genDraw(n){n=Math.max(1,Math.min(6,n|0));document.querySelectorAll('[data-gn]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.gn===n));store.set('genN',n);
+  const rows=2**n,v=GEN_V.slice(0,n);
+  $('#genStat').innerHTML=`<div class="gen-big">n = ${n}  →  2${SUP[n]} = ${n>1?Array(n).fill(2).join(' · ')+' = ':''}<b>${rows} жол</b></div>`+
+    `<div class="gen-cols">${v.map((x,i)=>{const g=2**(n-1-i);return `<span><b>${x}</b>: ${g===1?'0 мен 1 кезектеседі':i===0?`жартысы 0 (${g}), жартысы 1 (${g})`:`${g} нөл, ${g} бір — қайталанады`}</span>`;}).join('')}</div>`;
+  $('#genTbl').innerHTML=`<thead><tr><th>№</th>${v.map(x=>`<th>${x}</th>`).join('')}<th class="fcol">ондық сан</th></tr></thead><tbody>`+
+    Array.from({length:rows},(_,k)=>`<tr><td class="gen-no">${k+1}</td>${v.map((x,i)=>{const b=(k>>(n-1-i))&1;return `<td class="${b?'b1':''}">${b}</td>`;}).join('')}<td class="fcol gen-k">${k}</td></tr>`).join('')+'</tbody>';}
+document.querySelectorAll('[data-gn]').forEach(b=>b.addEventListener('click',()=>genDraw(+b.dataset.gn)));
+genDraw(store.get('genN',3));
+
 """
 
 EXAMPLES_JS = r"""/* ---------- worked examples ---------- */
@@ -162,11 +173,30 @@ document.querySelectorAll('[data-m]').forEach(b=>b.addEventListener('click',()=>
 """
 
 TASKS_JS = r"""/* ---------- tasks (truth tables) ---------- */
+/* formative assessment: each student gets own variants (seeded by class + name) */
+const _stu=store.get('student',null);window.__ttNeedReload=!_stu;
+function foPerms(a){if(a.length<=1)return [a.slice()];const out=[];a.forEach((x,i)=>foPerms(a.slice(0,i).concat(a.slice(i+1))).forEach(p=>out.push([x].concat(p))));return out;}
+/* distinct combos for students of the same class: k = position in the class list (+ per-task shift) */
+const _stuIdx=_stu&&FO_CLASSES[_stu.cls]?FO_CLASSES[_stu.cls].indexOf(_stu.name):-1;
+function foMake(g,ti){const perms=g.perm?foPerms(g.vars):[g.vars.slice()];const M=g.v.length*perms.length;
+  let k=0;if(_stu){k=_stuIdx>=0?(_stuIdx+ti*3)%M:prHash(_stu.cls+'|'+_stu.name+'|'+g.id)%M;}
+  const vi=k%g.v.length,pi=Math.floor(k/g.v.length)%perms.length;let v=g.v[vi];if(typeof v==='string')v={e:v};
+  const L=perms[pi];const map={};g.vars.forEach((x,i)=>map[x]=L[i]);
+  const P=x=>x.replace(/[A-D]/g,c=>map[c]||c);const e=P(v.e);const ops=lgOps(lgParse(e).ast);
+  const cols=ops.map((o,j)=>j===ops.length-1?[(o.s.length<=18?'F = '+o.s:'F'),o.s]:[o.s,o.s]);
+  const envs=ttEnvRows(g.vars),f=lgCompile(e);let q=null;
+  if(g.q==='count')q={text:v.q||'F = 1 болатын жиындар саны:',ans:[String(envs.filter(env=>f(env)).length)]};
+  if(g.q==='eq'){const G=P(v.g),hf=lgCompile(G);if(!/^[A-D]$/.test(G))lgOps(lgParse(G).ast).forEach((o,j,a)=>{if(!cols.some(c=>c[1]===o.s))cols.push([j===a.length-1?'G = '+o.s:o.s,o.s]);});
+    const same=envs.every(env=>f(env)===hf(env));q={text:`F мен G = ${G} тең мәнді ме? (иә / жоқ)`,ans:same?['иә','ия','ие']:['жоқ','жок']};}
+  return {id:g.id,lv:g.lv,title:g.title,vars:g.vars,fillVars:!!g.fill,cols,q,desc:(v.t?v.t+' ':'')+`F = ${e}. `+g.d,sig:k};}
+const tasks=FO_GEN.map((g,i)=>foMake(g,i));
 const done=store.get('done',{}),tries=store.get('tries',{});
 const pracDone=store.get('pracDone',{}),pracTries=store.get('pracTries',{});
 function pracScoreUpd(){$('#pracScore').textContent=`${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}`;}
 const afterCheck=()=>{try{updateLocks();}catch(e){}if(typeof sendProg==='function')sendProg(false);};
-mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',after:afterCheck,solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
+function dopScoreUpd(){const e=$('#dopScore');if(e)e.textContent=`${tasks.filter(t=>done[t.id]).length} / ${tasks.length}`;}
+mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',after:()=>{dopScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
+dopScoreUpd();
 mountTT($('#prac'),prac,{keyOf:t=>t.id,badge:t=>t.id,done:pracDone,tries:pracTries,keyDone:'pracDone',keyTries:'pracTries',after:()=>{pracScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
 pracScoreUpd();
 document.querySelectorAll('#dop .lv').forEach(b=>b.addEventListener('click',()=>{

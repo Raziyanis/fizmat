@@ -8,15 +8,15 @@ def table(vars_, cols):
         env=dict(zip(vars_,vals)); rows.append(list(vals)+[int(bool(eval(py(c[1] if isinstance(c,list) else c),{},env))) for c in cols])
     return rows
 bad=0
-for t in PRAC+TASKS:
+for t in PRAC:
     r=table(t['vars'],t['cols']); ones=sum(x[-1] for x in r)
     print(t['id'], 'rows',len(r),'F=1:',ones, 'q:',t.get('q',{}).get('ans'))
-for t in PRAC+TASKS:
+for t in PRAC:
     if 'q' in t and 'саны' in t['q']['text']:
         ones=sum(x[-1] for x in table(t['vars'],t['cols']))
         if t['q']['ans'][0]!=str(ones): print('Q BAD',t['id']); bad+=1
 p5=table(PRAC[4]['vars'],PRAC[4]['cols']); print('P5 equal', all(x[3]==x[6] for x in p5))
-c2=table(TASKS[5]['vars'],TASKS[5]['cols']); print('C2 equal', all(x[4]==x[6] for x in c2))
+
 p6=table(PRAC[5]['vars'],PRAC[5]['cols']); print('P6 min ones when F=1', min(sum(x[:3]) for x in p6 if x[-1]))
 for d in DBG:
     r=table(d['vars'],d['cols'])

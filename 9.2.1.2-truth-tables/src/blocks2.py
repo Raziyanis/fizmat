@@ -32,6 +32,13 @@ EXTRA_CSS = """
 .tt-q input{width:140px;font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px}
 .basic-tt{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
 .basic-tt .prop h3{margin-bottom:6px}
+.gen-big{font-family:var(--f-mono);font-size:1.25rem}
+.gen-cols{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.92rem;color:var(--muted)}
+.gen-cols b{color:var(--ink)}
+.gen-wrap{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.gen-wrap thead th{position:sticky;top:0;background:var(--surface)}
+.tt-tbl td.gen-no,.tt-tbl td.gen-k{color:var(--muted);font-weight:400}
+.tt-tbl td.b1{background:var(--b-soft);font-weight:700}
 """
 
 TF_CARDS = [
@@ -103,16 +110,16 @@ CEL = """  <section id="cel">
       </div>
     </div>
     <h3 class="sub">Тапсырмаларды орындау арқылы мақсатқа қалай жетеміз</h3>
-    <p class="howto">Мақсат тек жеке тапсырмалар бойынша бағаланады: викторина, практикалық жұмыс және қосымша есептер. Деңгей өз жолындағы барлық тапсырма орындалғанда есептеледі. Қорытынды <a href="#refleksiya">Рефлексия</a> қойындысында автоматты түрде көрсетіледі, мұғалім оны әр оқушы бойынша көреді.</p>
+    <p class="howto">Мақсат тек жеке тапсырмалар бойынша бағаланады: викторина, практикалық жұмыс және қалыптастырушы бағалау. Деңгей өз жолындағы барлық тапсырма орындалғанда есептеледі. Қорытынды <a href="#refleksiya">Рефлексия</a> қойындысында автоматты түрде көрсетіледі, мұғалім оны әр оқушы бойынша көреді.</p>
     <div class="tbl-wrap"><table class="plan levels-plan">
       <thead><tr><th>Мақсат деңгейі</th><th>Мен істей аламын</th><th>Мұны қандай тапсырмалар дәлелдейді</th></tr></thead>
       <tbody>
         <tr><td><span class="lvl a">Барлығы</span></td><td>Екі айнымалы өрнектің ақиқат кестесін тұрғызамын</td>
           <td><a href="#viktorina">Викторина, 1, 2-сұрақтар</a><br><a href="#praktika">Практика P1, P2</a></td></tr>
         <tr><td><span class="lvl b">Көпшілігі</span></td><td>Аралық бағандармен үш айнымалы өрнектің кестесін тұрғызамын</td>
-          <td><a href="#viktorina">Викторина, 3, 4, 5-сұрақтар</a><br><a href="#praktika">Практика P3, P4</a><br><a href="#dop">Қосымша есеп A1 немесе A2</a></td></tr>
+          <td><a href="#viktorina">Викторина, 3, 4, 5-сұрақтар</a><br><a href="#praktika">Практика P3, P4</a><br><a href="#dop">Қалыптастырушы бағалау: Ф4–Ф7 тапсырмаларының бірі</a></td></tr>
         <tr><td><span class="lvl c">Кейбіреулері</span></td><td>Кестені талдаймын: ақиқат жиындарды санаймын, тең мәнділікті тексеремін</td>
-          <td><a href="#viktorina">Викторина, 6, 7-сұрақтар</a><br><a href="#praktika">Практика P5, P6</a><br><a href="#dop">B немесе C деңгейіндегі қосымша есеп</a></td></tr>
+          <td><a href="#viktorina">Викторина, 6, 7-сұрақтар</a><br><a href="#praktika">Практика P5, P6</a><br><a href="#dop">Қалыптастырушы бағалау: Ф8–Ф10 тапсырмаларының бірі</a></td></tr>
       </tbody>
     </table></div>
     <h3 class="sub">40 минуттық жоспар</h3>
@@ -128,7 +135,7 @@ CEL = """  <section id="cel">
         <tr><td>37–40 мин</td><td>Рефлексия, мақсатқа жету</td><td><a href="#refleksiya">Рефлексия</a></td></tr>
       </tbody>
     </table></div>
-    <p class="howto">«Қай өрнек?» және «Қосымша есептер» — жылдам аяқтағандарға, мұғалімнің таңдауымен немесе үй жұмысына.</p>
+    <p class="howto">«Қай өрнек?» — жылдам аяқтағандарға. «Қалыптастырушы бағалау» (10 тапсырма, автоматты тексеріледі) — сабақтың соңында немесе үй жұмысы ретінде.</p>
     <h3 class="sub">Жаттығу <span class="time">мақсатты бағалауға кірмейді</span></h3>
     <div class="train">
       <a href="#lab">Конструктор</a><span>кесте қалай тұрғызылатынын қадамдап көреміз</span>
@@ -143,6 +150,13 @@ SVOISTVA = """  <section id="svoistva">
     <div class="definition">
       <div class="def-label">Анықтама</div>
       <p class="def-text"><b>Ақиқат кестесі</b> (таблица истинности, truth table) — логикалық өрнектің айнымалылар мәндерінің барлық жиынында қабылдайтын мәндерінің кестесі. n айнымалы үшін 2<sup>n</sup> жиын, яғни 2<sup>n</sup> жол болады.</p>
+    </div>
+    <h3 class="sub">Айнымалылар саны → жолдар саны</h3>
+    <p class="howto">Айнымалылар санын таңдаңыз (1-ден 6-ға дейін). Жолдар саны есептеліп, айнымалылардың барлық мәндер жиыны екілік санау ретімен автоматты түрде жазылады. Әр жол — 0-ден 2<sup>n</sup> − 1-ге дейінгі санның екілік жазуы.</p>
+    <div class="viz">
+      <div class="viz-row" role="group" aria-label="Айнымалылар саны"><span class="viz-lbl">Айнымалылар саны n:</span><button class="alg-b" type="button" data-gn="1">1</button><button class="alg-b" type="button" data-gn="2">2</button><button class="alg-b" type="button" data-gn="3">3</button><button class="alg-b" type="button" data-gn="4">4</button><button class="alg-b" type="button" data-gn="5">5</button><button class="alg-b" type="button" data-gn="6">6</button></div>
+      <div id="genStat" style="display:grid;gap:8px"></div>
+      <div class="gen-wrap"><table class="tt-tbl" id="genTbl"></table></div>
     </div>
     <h3 class="sub">Негізгі амалдардың ақиқат кестелері</h3>
     <div class="basic-tt">

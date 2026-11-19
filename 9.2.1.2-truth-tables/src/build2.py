@@ -28,7 +28,7 @@ h = rep(h, '<div class="brand">Іздеу <span>·</span> search</div>', '<div c
 h = rep_re(h, r'<nav aria-label="Сабақ бөлімдері">.*?</nav>',
   '<nav aria-label="Сабақ бөлімдері">\n    <a href="#povtorenie">Қайталау</a><a href="#tema">Тақырып қандай?</a><a href="#cel">Сабақ мақсаты</a><a href="#svoistva">Алгоритм</a>'
   '<a href="#lab">Конструктор</a><a href="#metody">Мысалдар</a><a href="#kakoy">Қай өрнек?</a><a href="#oshibka">Қатені тап</a>'
-  '<a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Қосымша есептер</a><a href="#refleksiya">Рефлексия</a>\n  </nav>')
+  '<a href="#viktorina">Викторина</a><a href="#praktika">Практика</a><a href="#dop">Қалыптастырушы бағалау</a><a href="#refleksiya">Рефлексия</a>\n  </nav>')
 h = rep(h, '<div class="lang-sw"><span>Қаз</span><button type="button" data-lang="ru" title="Русский">Рус</button></div>', '')
 h = rep(h, 'Информатика · 9-сынып · Іздеу', 'Информатика · 9-сынып · Ақиқат кестесі')
 h = rep(h, 'Алдымен тілді, содан кейін сыныпты, кейін тегің мен атыңды таңда.', 'Алдымен сыныпты, содан кейін тегің мен атыңды таңда.')
@@ -62,6 +62,13 @@ h = rep(h, '✓ — уровень достигнут, ◐ — частично,
 h = rep_re(h, r'Еңбегі адал – өскелең азамат\..*?</div></footer>',
   'Еңбегі адал – өскелең азамат. Тапсырмаларды өз бетіңізше орындап, өзіңізді адал тексеріңіз.<br>Ресурс интернетсіз жұмыс істейді: кестелер браузердің өзінде тексеріледі. Интернет болса, нәтижелер мұғалімге жіберіледі.</div></footer>')
 h = rep(h, 'Әр топта 4–5 адам, біріншісі — жетекші', 'Әр топта 3–4 адам, біріншісі — жетекші')
+h = rep(h, '<div class="sec-head"><h2>Қосымша есептер</h2><p>Практикалық жұмысты аяқтағандарға. Деңгейді таңдап, өз қарқыныңызбен шығарыңыз.</p></div>',
+        '<div class="sec-head"><h2>Қалыптастырушы бағалау</h2><p>10 тапсырма қарапайымнан күрделіге қарай орналасқан: Ф1–Ф3 базалық, Ф4–Ф7 орта, Ф8–Ф10 жоғары деңгей. Әр тапсырманы «Тексеру» батырмасы автоматты түрде бағалайды, нәтиже оң жақта және «Рефлексия» қойындысында шығады.</p><span class="score" id="dopScore">0 / 10</span></div>')
+h = rep(h, '>Барлық есептер</button>', '>Барлық тапсырмалар</button>')
+h = rep(h, 'Сынып оқушылары: қосымша есептер', 'Сынып оқушылары: қалыптастырушы бағалау')
+h = rep(h, '«Викторина», «Практика» және «Қосымша есептер»', '«Викторина», «Практика» және «Қалыптастырушы бағалау»')
+h = rep(h, '<th>Қосымша есептер</th>', '<th>ҚБ</th>')
+h = rep(h, '«Тексеру» батырмасы кестені және сұраққа берілген жауапты тексереді.', '«Тексеру» батырмасы кестені және сұраққа берілген жауапты тексереді. Әр оқушыға тапсырмалардың өз нұсқасы беріледі: өрнектер мен айнымалылар әртүрлі, сондықтан көршіден көшіру мүмкін емес.<span class="t-only"> Мұғалім бетінде 1-нұсқа көрсетілген; оқушылардың жауабы автоматты түрде өз нұсқасы бойынша тексеріледі.</span>')
 for bad in ['іздеу алгоритм', 'кітапхана', 'Сызықтық', 'жиын (set)', 'Python', 'pesochnica']:
     assert bad not in h, bad
 
@@ -72,7 +79,7 @@ s = rep_re(s, r"matcher\(\$\('#matchA'\),'mA3',\[.*?\],true\);", "matcher($('#ma
 s = between(s, '/* ---------- tab 2: topic ---------- */', '/* ---------- search visualizer ---------- */', CORE_JS + RACE_JS)
 s = between(s, '/* ---------- search visualizer ---------- */', '/* ---------- methods ---------- */', LAB_JS)
 s = between(s, '/* ---------- methods ---------- */', '/* ---------- tasks ---------- */', 'const EXAMPLES=' + J(EXAMPLES) + ';\n' + EXAMPLES_JS)
-s = between(s, '/* ---------- tasks ---------- */', '/* ---------- quiz ---------- */', 'const tasks=' + J(TASKS) + ';\nconst prac=' + J(PRAC) + ';\n' + TASKS_JS)
+s = between(s, '/* ---------- tasks ---------- */', '/* ---------- quiz ---------- */', 'const FO_GEN=' + J(FO_GEN) + ';\nconst FO_CLASSES=' + re.search(r'const CLASSES=(\{.*?\});', js).group(1) + ';\nconst prac=' + J(PRAC) + ';\n' + TASKS_JS)
 s = rep_re(s, r'const quiz=\[\n.*?\n\];', 'const quiz=' + J(QUIZ) + ';')
 s = rep_re(s, r'const mq=\[\n.*?\n\];', 'const mq=' + J(MQ) + ';')
 s = between(s, '/* ---------- find the bug ---------- */', '/* ---------- tabs ---------- */', 'const dbg=' + J(DBG) + ';\n' + DBG_JS)
@@ -82,23 +89,26 @@ s = rep_re(s, r'const GOAL_DEF=\[.*?\n\];',
   " {name:'Барлығы',goal:'екі айнымалы өрнектің ақиқат кестесін тұрғызамын',items:[\n"
   "   ['q',[0,1],'Викторина, 1, 2-сұрақтар','#viktorina'],['prac',['P1','P2'],'Практика P1, P2','#praktika']]},\n"
   " {name:'Көпшілігі',goal:'аралық бағандармен үш айнымалы өрнектің кестесін тұрғызамын',items:[\n"
-  "   ['q',[2,3,4],'Викторина, 3, 4, 5-сұрақтар','#viktorina'],['prac',['P3','P4'],'Практика P3, P4','#praktika'],['dop',['A1','A2'],'Қосымша есеп A1 немесе A2','#dop']]},\n"
+  "   ['q',[2,3,4],'Викторина, 3, 4, 5-сұрақтар','#viktorina'],['prac',['P3','P4'],'Практика P3, P4','#praktika'],['dop',['Ф4','Ф5','Ф6','Ф7'],'ҚБ: Ф4–Ф7 тапсырмаларының бірі','#dop']]},\n"
   " {name:'Кейбіреулері',goal:'кестені талдаймын: ақиқат жиындарды санаймын, тең мәнділікті тексеремін',items:[\n"
-  "   ['q',[5,6],'Викторина, 6, 7-сұрақтар','#viktorina'],['prac',['P5','P6'],'Практика P5, P6','#praktika'],['dop',['B1','B2','C1','C2'],'B немесе C деңгейіндегі қосымша есеп','#dop']]},\n"
+  "   ['q',[5,6],'Викторина, 6, 7-сұрақтар','#viktorina'],['prac',['P5','P6'],'Практика P5, P6','#praktika'],['dop',['Ф8','Ф9','Ф10'],'ҚБ: Ф8–Ф10 тапсырмаларының бірі','#dop']]},\n"
   "];")
 s = rep_re(s, r"const msg=reached<0\?.*?Керемет жұмыс!'\];",
   "const msg=reached<0?['Сабақ мақсатына әзірге жетпедіңіз','Базалық деңгейден бастаңыз: викторинаның 1, 2-сұрақтары және практикалық жұмыстың P1, P2 есептері.']:\n"
-  "    reached===0?['9.2.1.2 мақсатына базалық деңгейде жеттіңіз','Сіз екі айнымалы өрнектің кестесін тұрғызасыз. Келесі қадам — үш айнымалы және аралық бағандар: викторинаның 3–5-сұрақтары, P3, P4 есептері және A1 немесе A2 қосымша есебі.']:\n"
-  "    reached===1?['9.2.1.2 мақсатына «Көпшілігі» деңгейінде жеттіңіз','Сіз аралық бағандармен кестені қатесіз тұрғызасыз. Енді кестені талдаңыз: 6, 7-сұрақтар, P5, P6 есептері және B немесе C деңгейіндегі қосымша есеп.']:\n"
+  "    reached===0?['9.2.1.2 мақсатына базалық деңгейде жеттіңіз','Сіз екі айнымалы өрнектің кестесін тұрғызасыз. Келесі қадам — үш айнымалы және аралық бағандар: викторинаның 3–5-сұрақтары, P3, P4 есептері және қалыптастырушы бағалаудың Ф4–Ф7 тапсырмаларының бірі.']:\n"
+  "    reached===1?['9.2.1.2 мақсатына «Көпшілігі» деңгейінде жеттіңіз','Сіз аралық бағандармен кестені қатесіз тұрғызасыз. Енді кестені талдаңыз: 6, 7-сұрақтар, P5, P6 есептері және қалыптастырушы бағалаудың Ф8–Ф10 тапсырмаларының бірі.']:\n"
   "    ['9.2.1.2 мақсатына толық жеттіңіз','Сіз кестені тұрғызып қана қоймай, оны талдап, өрнектерді салыстырасыз. Керемет жұмыс!'];")
 s = rep(s, '<span class="obj-code">9.2.5.3</span>', '<span class="obj-code">9.2.1.2</span>')
 s = rep_re(s, r'const HINTS=\[\n.*?\n\];', 'const HINTS=' + J(HINTS) + ';')
 s = rep(s, "const HINT_TABS=['svoistva','lab','metody','pesochnica'];", "const HINT_TABS=['svoistva','lab','metody'];")
-s = rep(s, "return `Доп. задача ${b}`;", "return `Қосымша есеп ${b}`;")
+s = rep(s, "return `Доп. задача ${b}`;", "return `ҚБ ${b}`;")
+s = rep(s, "<span>Қосымша есептер: ${tasks.filter", "<span>Қалыптастырушы бағалау: ${tasks.filter")
 s = rep(s, "stLangOk=mode==='change'||!!student||store.get('lang',null)===CUR_LANG;", "stLangOk=true;")
 s = rep(s, "'Алдымен тілді, содан кейін сыныпты, кейін тегің мен атыңды таңда.'", "'Алдымен сыныпты, содан кейін тегің мен атыңды таңда.'")
 s = rep(s, "if(a.length<=5)return [a];const g=Math.ceil(a.length/5);", "if(a.length<=4)return [a];let g=Math.ceil(a.length/4);if(Math.floor(a.length/g)<3&&g>1)g--;")
 s = rep(s, "let pkClass=store.get('pkClass',null);", "let pkClass=store.get('pkClass',null);if(!pkClass&&Object.keys(CLASSES).length===1){pkClass=Object.keys(CLASSES)[0];store.set('pkClass',pkClass);}")
+s = rep(s, "student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();",
+  "student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);if(window.__ttNeedReload){try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}drawStudent();closeStart();")
 s = rep(s, 'resList=Array.isArray(v&&v.results)?v.results:[];', 'resList=Array.isArray(v&&v.results)?v.results.filter(r=>r&&(!r.lesson||r.lesson===LESSON)):[];')
 for bad in ['іздеу', 'Іздеу', 'кітап', 'sandbox', 'pesochnica', 'makeEditor(']:
     left = [l for l in s.split('\n') if bad in l and not l.lstrip().startswith('function makeEditor')]
