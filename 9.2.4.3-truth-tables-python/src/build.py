@@ -30,6 +30,13 @@ html = '\n'.join(src[1833:2772])
 js = '\n'.join(src[2775:3653])
 head_rest = '\n'.join(src[1:8])
 skulpt = '\n'.join(src[2772:2774])
+# offline: embed Skulpt 1.2.0 (same version as the CDN links) into the page
+_sk = OUTDIR + '/sk/x/package/dist/'
+def _inline(f):
+    t = open(_sk + f, encoding='utf-8').read()
+    t = t.replace('</script', '<\\/script').replace('<!--', '<\\!--')
+    return '<script>/* Skulpt 1.2.0: ' + f + ' (offline) */\n' + t + '\n</script>'
+skulpt = _inline('skulpt.min.js') + '\n' + _inline('skulpt-stdlib.js')
 
 # ---------------- HTML ----------------
 h = html
