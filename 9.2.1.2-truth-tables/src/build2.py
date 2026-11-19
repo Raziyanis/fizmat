@@ -110,7 +110,7 @@ s = rep(s, "let pkClass=store.get('pkClass',null);", "let pkClass=store.get('pkC
 s = rep(s, "student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);drawStudent();closeStart();",
   "student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);if(window.__ttNeedReload){try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}drawStudent();closeStart();")
 s = rep(s, 'resList=Array.isArray(v&&v.results)?v.results:[];', 'resList=Array.isArray(v&&v.results)?v.results.filter(r=>r&&(!r.lesson||r.lesson===LESSON)):[];')
-for bad in ['іздеу', 'Іздеу', 'кітап', 'sandbox', 'pesochnica', 'makeEditor(']:
+for bad in ['іздеу', 'Іздеу', 'sandbox', 'pesochnica', 'makeEditor(']:
     left = [l for l in s.split('\n') if bad in l and not l.lstrip().startswith('function makeEditor')]
     if bad == 'makeEditor(':
         left = [l for l in left if 'function makeEditor' not in l]

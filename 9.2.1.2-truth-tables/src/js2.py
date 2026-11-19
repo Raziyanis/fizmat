@@ -76,11 +76,21 @@ function mountTT(host,list,o){
   box.querySelector('.chk').addEventListener('click',()=>{verdict.hidden=false;verdict.style.whiteSpace='pre-wrap';
     let empty=0,wrong=0;marks=cells.map((r,ri)=>r.map((v,ci)=>{const ed=t.errs?(ci>=nv||!!t.fillVars):editable(ci);if(!ed)return true;if(v==='')empty++;const ok=v!==''&&+v===exp[ri][ci];if(!ok&&v!=='')wrong++;return ok;}));
     let fail=null;
-    if(empty){fail=`Бос ұяшықтар бар: ${empty}. Барлық ұяшықты толтырыңыз.`;marks=null;}
+    const RULE={not:'¬ (ЕМЕС) мәнді керісінше өзгертеді: 0 → 1, 1 → 0',and:'∧ (ЖӘНЕ) тек екі мән де 1 болғанда 1 береді',or:'∨ (НЕМЕСЕ) кемінде біреуі 1 болса 1 береді',imp:'→ тек 1 → 0 жағдайында 0 береді',eq:'↔ мәндер бірдей болса 1 береді'};
+    const hint=(ci,ri)=>{if(ci<nv){const g=2**(nv-1-ci);return `«${vars[ci]}» бағаны: `+(ci===0?'жоғарғы жартысы 0, төменгі жартысы 1':g===1?'0 мен 1 кезектеседі (0, 1, 0, 1, …)':`${g} нөл, ${g} бір — кезектесіп қайталанады`)+'. Жиындар екілік санау ретімен жазылады.';}
+      const h=C[ci-nv],n=lgParse(h[1]).ast,env=envs[ri],val=x=>lgEval(x,env);
+      if(!RULE[n.t])return `«${h[0]}» бағанын ${ri+1}-жолда қайта тексеріңіз.`;
+      const ex=n.t==='not'?`${lgStr(n.a)} = ${val(n.a)} → ¬${val(n.a)} = ?`:`${lgStr(n.a)} = ${val(n.a)}, ${lgStr(n.b)} = ${val(n.b)} → ${val(n.a)} ${LG_SYM[n.t]} ${val(n.b)} = ?`;
+      return `«${h[0]}» бағаны: ${RULE[n.t]}. Мысалы, ${ri+1}-жол: ${ex}`;};
+    if(empty){fail=`Бос ұяшықтар бар: ${empty} («·» белгісі). Әр ұяшықты басып, 0 немесе 1 таңдаңыз.`;marks=null;}
     else if(wrong){const byCol={};marks.forEach(r=>r.forEach((ok,ci)=>{if(!ok)byCol[ci]=(byCol[ci]||0)+1;}));
-      const names=Object.keys(byCol).map(ci=>`${+ci<nv?vars[ci]:C[ci-nv][0]}: ${byCol[ci]}`);
-      fail=`Қате ұяшықтар: ${wrong}. Қызылмен белгіленді.\nБағандар бойынша — ${names.join('; ')}.`+(t.errs?'':' Алдымен сол жақтағы бағандарды тексеріңіз: қате оңға қарай өтеді.');}
-    else if(t.q){const a=(ans.value||'').trim().toLowerCase().replace(/\s+/g,' ');if(!a)fail='Кесте дұрыс! Енді төмендегі сұраққа жауап беріңіз.';else if(!t.q.ans.includes(a))fail='Кесте дұрыс, бірақ сұраққа жауап қате. Кестені тағы бір қараңыз.';}
+      const cs=Object.keys(byCol).map(Number).sort((a,b)=>a-b);
+      const lines=cs.slice(0,3).map(ci=>'• '+hint(ci,marks.findIndex(r=>!r[ci]))+` (бұл бағанда қате: ${byCol[ci]})`);
+      fail=`Қате ұяшықтар: ${wrong} — қызылмен белгіленді.\n`+lines.join('\n')+(cs.length>1?'\nКеңес: ең сол жақтағы қате бағаннан бастаңыз — ол оң жақтағы бағандарға әсер етеді.':'');}
+    else if(t.q){const a=(ans.value||'').trim().toLowerCase().replace(/\s+/g,' ');
+      if(!a)fail='Кесте дұрыс! Енді төмендегі сұраққа жауап беріңіз.';
+      else if(!t.q.ans.includes(a)){const isEq=t.q.ans.includes('иә')||t.q.ans.includes('жоқ'),isCnt=/саны|неше жиында/.test(t.q.text);
+        fail='Кесте дұрыс, бірақ сұраққа жауап қате.\n'+(isEq?'Екі өрнектің соңғы бағандарын жол-жолымен салыстырыңыз: барлық жолда бірдей болса — «иә», кемінде бір жолда өзгеше болса — «жоқ».':isCnt?'Соңғы F бағанындағы 1-лерді қайта санаңыз: әр 1 — өрнек ақиқат болатын бір жиын.':(t.q.hint||'Кестені тағы бір қараңыз.'));}}
     o.tries[key]=(o.tries[key]||0)+1;store.set(o.keyTries,o.tries);
     if(fail){verdict.className='verdict no';verdict.textContent=fail;}
     else{verdict.className='verdict ok';verdict.textContent=t.errs?'Барлық қате түзетілді!':`Кесте толық дұрыс (${exp.length} жол, ${nc} баған). Керемет!`;o.done[key]=true;store.set(o.keyDone,o.done);}
