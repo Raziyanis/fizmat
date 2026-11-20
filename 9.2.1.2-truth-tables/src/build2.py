@@ -149,4 +149,30 @@ def assemble(first_line, title):
 tea_first = open(TEA, encoding='utf-8').read().split('\n')[0]
 open(OUTDIR + '/stu.html', 'w', encoding='utf-8').write(assemble(src[0], 'Ақиқат кестесін құру'))
 open(OUTDIR + '/tea.html', 'w', encoding='utf-8').write(assemble(tea_first, 'Ақиқат кестесін құру — мұғалім'))
+
+# ---------- free version: no class / student selection, no sync ----------
+def make_free(x):
+    def R(a, b, cnt=1):
+        nonlocal x
+        assert x.count(a) == cnt, (a[:60], x.count(a)); x = x.replace(a, b)
+    x = re.sub(r'<script>window\.__NO_TEACHER=true;window\.__SYNC_URL=[^<]*</script>',
+               '<script>window.__NO_TEACHER=true;window.__FREE=true;</script>', x, count=1)
+    assert 'script.google' not in x and '__SYNC_KEY="' not in x
+    x = x.replace('ttablelab:', 'ttablefree:')
+    st = "const store={get(k,d){"; i = x.index(st); j = x.index('};', i) + 2
+    x = x[:j] + "if(!store.get('student',null)){store.set('seed',Math.random().toString(36).slice(2));store.set('student',{cls:'',name:'Оқушы',manual:true});}" + x[j:]
+    R("prHash(_stu.cls+'|'+_stu.name+'|'+g.id)", "prHash(store.get('seed','')+'|'+g.id)")
+    R(', мұғалім оны әр оқушы бойынша көреді.', '.')
+    R('Осы компьютердегі жауаптарың, кодың және рефлексияң жойылады, келесі оқушы үшін сабаққа кіру беті ашылады.',
+      'Осы компьютердегі барлық жауаптар мен рефлексия жойылады, сабақ келесі оқушы үшін басынан ашылады (қалыптастырушы бағалаудың жаңа нұсқасымен).')
+    R('<h2 id="exitTitle">Сабақтан шығасың ба?</h2>', '<h2 id="exitTitle">Жаңа оқушы үшін тазалау керек пе?</h2>')
+    R('id="exitYes">Иә, шығу</button>', 'id="exitYes">Иә, тазалау</button>')
+    R('id="stuExit">Сабақтан шығу</button>', 'id="stuExit">Жаңа оқушы</button>')
+    R('id="ssExit">Сабақтан шығу</button>', 'id="ssExit">Жаңа оқушы</button>')
+    css = ('<style>#stuChange,#ssChange,#pairsS,#grpS,#stuBar>span:first-child,#sideStu .ss-lbl,#ssName,#ssCls,'
+           '#startScreen,.link-st,#stuLine{display:none!important}#stuBar{justify-content:flex-end}</style>')
+    R('</head>', css + '</head>')
+    return x
+stu_html = open(OUTDIR + '/stu.html', encoding='utf-8').read()
+open(OUTDIR + '/free.html', 'w', encoding='utf-8').write(make_free(stu_html))
 print('ok', len(h), len(s))

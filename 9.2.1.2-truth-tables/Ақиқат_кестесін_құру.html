@@ -1,0 +1,1872 @@
+<!doctype html><html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style><script>window.__NO_TEACHER=true;window.__FREE=true;</script><style>#stuChange,#ssChange,#pairsS,#grpS,#stuBar>span:first-child,#sideStu .ss-lbl,#ssName,#ssCls,#startScreen,.link-st,#stuLine{display:none!important}#stuBar{justify-content:flex-end}</style></head><body><title>Ақиқат кестесін құру</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+:root{--boot-bg:#FFFFFF;--boot-fg:#13203A;color-scheme:light}
+body{background:var(--boot-bg);color:var(--boot-fg)}
+</style>
+<template id="tpl-kz">
+<style>
+/* Layout: one column of lesson stations; the set machine is the visual centre; code panels are the working surface */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#13203A; --muted:#5A6680; --line:#D9DFEA;
+  --a:#2C64D8; --a-soft:rgba(44,100,216,.16);
+  --b:#D98A06; --b-soft:rgba(217,138,6,.18);
+  --hit:#1E9E6A; --hit-soft:rgba(30,158,106,.30);
+  --bad:#C83A3A; --bad-soft:rgba(200,58,58,.12); --ok-soft:rgba(30,158,106,.12);
+  --on-a:#FFFFFF; --code-bg:#0F1A2E; --code-ink:#E6ECF7; --code-muted:#8A97B3;
+  --f-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.2;margin:0}
+h2{font-size:clamp(1.25rem,2.6vw,1.6rem);font-weight:700}
+h3{font-size:1rem;font-weight:500}
+p{margin:0}
+code,.mono{font-family:var(--f-mono);font-size:.92em}
+code,pre,textarea,input,.dedupe,.result,.fact,.out,.op b,.sig,.opt,.badge,svg text{font-variant-ligatures:none;font-feature-settings:"calt" 0,"liga" 0}
+section{scroll-margin-top:60px}
+a{color:var(--a)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:16px;padding-block:10px;overflow-x:auto}
+.brand{display:none}
+.brand span{color:var(--a)}
+nav{display:flex;flex-wrap:nowrap;gap:2px;flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:thin}
+nav a{text-decoration:none;color:var(--muted);font-size:.8rem;padding:6px 6px;border-radius:8px;white-space:nowrap}
+nav a:hover{background:var(--bg);color:var(--ink)}
+.lang-sw{margin-left:auto;flex:none;display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-size:.8rem;font-weight:600}
+.lang-sw span,.lang-sw a,.lang-sw button{padding:5px 10px;text-decoration:none;border:0;background:transparent;font:inherit;color:var(--ink)}
+.lang-sw span{background:var(--ink);color:var(--bg)}
+.lang-sw a{color:var(--ink)}
+.lang-sw a:hover{background:var(--bg)}
+nav a[aria-current=page]{background:var(--ink);color:var(--bg)}
+
+/* hero */
+.hero{padding-block:40px 28px;display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+.hero>*{min-width:0}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.hero h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:700;margin-top:10px}
+.hero h1 .tri{display:block;font-size:.42em;font-weight:500;color:var(--muted);margin-top:12px;letter-spacing:.01em}
+.hero p.lead{margin-top:16px;max-width:52ch;color:var(--muted)}
+.goals{margin-top:14px;display:grid;gap:6px;font-size:.93rem}
+.goals-title{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.objective{margin-top:18px;display:flex;gap:12px;align-items:center;padding:10px 14px;border:1px solid var(--a);border-radius:10px;background:var(--a-soft);font-size:.95rem}
+.obj-code{font-family:var(--f-mono);font-weight:600;color:var(--on-a);background:var(--a);padding:3px 8px;border-radius:6px;white-space:nowrap}
+.goals div{display:flex;gap:10px}
+.goals b{min-width:110px;font-weight:600}
+.dedupe{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:18px;font-family:var(--f-mono);font-size:.88rem;overflow-x:auto}
+.dedupe .c{color:var(--code-muted)}
+.dedupe .row{white-space:pre}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+.chip{padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);transition:opacity .4s,transform .4s}
+.chip.dup{opacity:.25;text-decoration:line-through}
+.dedupe button{background:var(--b);color:#1b1300;border:0;border-radius:8px;padding:7px 12px;font-family:var(--f-body);font-weight:600}
+
+main>section{padding-block:28px 12px}
+main>section#cel{padding-block:0 12px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:28px;padding-top:18px;border-top:1px solid var(--line)}
+.pager a{text-decoration:none;font-weight:600;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);max-width:48%}
+.pager a.next{margin-left:auto;background:var(--a);color:var(--on-a);border-color:var(--a)}
+.pager a span{display:block;font-size:.75rem;font-weight:500;opacity:.75}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-bottom:18px}
+.sec-head p{color:var(--muted);max-width:62ch}
+
+/* how we reach the objective */
+table.plan td:first-child{white-space:nowrap;font-weight:600}
+table.plan a{text-decoration:none;border-bottom:1px solid var(--a-soft)}
+.levels-map{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;font-size:.92rem}
+.levels-map div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+
+/* first three tabs */
+h3.sub{font-family:var(--f-display);font-size:1rem;font-weight:500;margin:22px 0 10px}
+.memo{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.memo summary,.reveal summary{cursor:pointer;color:var(--a);font-weight:600}
+.memo .tbl-wrap{margin-top:10px}
+.topic-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;align-content:start;min-width:0}
+.step h3.sub{margin:0}
+.answer-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.answer-row label{font-weight:600;font-size:.92rem}
+.answer-row input[type=text]{width:90px}
+.feedback{padding:8px 12px;border-radius:8px;font-size:.92rem}
+.feedback.ok{background:var(--ok-soft)} .feedback.no{background:var(--bad-soft)}
+.reveal{border-top:1px solid var(--line);padding-top:10px}
+.reveal pre{margin:10px 0 0;background:var(--code-bg);color:var(--code-ink);font-family:var(--f-mono);font-size:.86rem;padding:12px;border-radius:10px;overflow-x:auto}
+.reveal .editor{margin-top:10px}
+.editor.compact .ed-body{grid-template-columns:1fr}
+.editor.compact .ed-side{border-left:0;border-top:1px solid var(--line)}
+.editor.compact .ed-side>div:first-child{display:none}
+.editor.compact textarea.code{min-height:170px}
+.editor.compact .out{min-height:60px}
+.qcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.qcard summary{cursor:pointer;font-weight:500;display:flex;gap:10px;align-items:flex-start;list-style:none}
+.qcard summary::-webkit-details-marker{display:none}
+.qcard .qn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--a-soft);color:var(--a);font-family:var(--f-mono);font-weight:600;font-size:.85rem;display:grid;place-items:center}
+.qcard p{margin-top:8px;padding-left:34px;color:var(--muted)}
+.qcard[open]{border-color:var(--a)}
+.qcard.final{border-color:var(--b);background:var(--b-soft)}
+.qcard.final .qn{background:var(--b);color:#1b1300}
+.topic-reveal{font-family:var(--f-display);font-size:1.15rem;color:var(--ink)!important}
+.topic-head{padding-top:8px}
+.topic-head h1{font-size:clamp(1.6rem,4.4vw,2.6rem);font-weight:700;margin-top:8px}
+.topic-head .tri{color:var(--muted);margin-top:6px;font-weight:500}
+.two-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:6px}
+.lvl{font-size:.8rem;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.lvl.a{background:var(--a-soft);color:var(--a)} .lvl.b{background:var(--b-soft);color:var(--b)} .lvl.c{background:var(--hit-soft);color:var(--hit)}
+@media (max-width:820px){.topic-grid{grid-template-columns:1fr}}
+
+.howto{color:var(--muted);font-size:.9rem;margin:-4px 0 10px}
+h3.sub .time{font-family:var(--f-body);font-size:.8rem;font-weight:600;color:var(--b);background:var(--b-soft);padding:2px 8px;border-radius:6px;margin-left:6px;vertical-align:middle}
+.qcards.tf p b{color:var(--ink)}
+.match{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.m-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px}
+.m-col{display:grid;gap:8px;align-content:start;min-width:0}
+.m-item{display:flex;gap:10px;align-items:center;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--ink);font-size:.92rem;min-height:44px}
+.m-item:hover{border-color:var(--a)}
+.m-item.sel{border-color:var(--a);box-shadow:0 0 0 2px var(--a-soft)}
+.m-item.linked{background:var(--a-soft)}
+.m-item.ok{background:var(--ok-soft);border-color:var(--hit)}
+.m-item.bad{background:var(--bad-soft);border-color:var(--bad)}
+.m-tag{flex:none;min-width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--line);font-family:var(--f-mono);font-size:.82rem;font-weight:600;display:grid;place-items:center}
+.m-left .m-tag{background:var(--a);color:var(--on-a);border-color:var(--a)}
+.m-code{white-space:pre;font-size:.82rem;line-height:1.45}
+.m-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.m-res{font-size:.92rem;font-weight:500}
+p.score{margin-top:10px;font-size:1rem}
+@media (max-width:640px){.m-cols{grid-template-columns:1fr}.m-left{order:0}}
+
+/* definition */
+.definition{border:2px solid var(--a);background:var(--a-soft);border-radius:14px;padding:16px 18px;display:grid;gap:6px}
+.def-label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--a)}
+.def-text{font-size:1.08rem;line-height:1.6;max-width:70ch}
+.def-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px}
+.prop{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:6px;align-content:start;min-width:0}
+.prop h3{font-size:.95rem}
+.prop p{font-size:.9rem;color:var(--muted)}
+.prop pre{margin:0;font-family:var(--f-mono);font-size:.82rem;background:var(--bg);padding:8px;border-radius:6px;overflow-x:auto}
+table.create td:first-child{font-weight:500}
+
+/* olympiad case */
+.oly{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:18px;align-items:start}
+.oly-steps{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.oly-steps li{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:.9rem}
+.oly-steps li .n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:.8rem;font-weight:600;background:var(--bg);border:1px solid var(--line)}
+.oly-steps li.done .n{background:var(--hit);color:var(--on-a);border-color:var(--hit)}
+.oly-steps li.cur{border-color:var(--a);box-shadow:0 0 0 2px var(--a-soft)}
+.oly-steps li.cur .n{background:var(--a);color:var(--on-a);border-color:var(--a)}
+.oly-steps li.lock{opacity:.5}
+.oly-steps li small{display:block;color:var(--muted);font-family:var(--f-mono);font-size:.78rem}
+.oly-work{display:grid;gap:12px;min-width:0}
+.oly-current{background:var(--a-soft);border:1px solid var(--a);border-radius:12px;padding:12px 14px;display:grid;gap:6px}
+.oly-current h3{font-size:1rem}
+.oly-current.finished{background:var(--ok-soft);border-color:var(--hit)}
+.extra-h{margin-top:34px}
+#olyEd textarea.code{min-height:340px}
+header.top .wrap{max-width:1240px}
+/* goal card */
+.goal-card{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:16px;display:grid;gap:14px}
+.goal-card.reached{border-color:var(--hit)}
+.goal-verdict{display:flex;gap:12px;align-items:flex-start}
+.goal-verdict .big{font-family:var(--f-display);font-size:1.15rem;font-weight:700}
+.goal-verdict p{color:var(--muted);margin-top:4px}
+.goal-levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.glevel{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:6px;align-content:start;background:var(--bg)}
+.glevel.ok{border-color:var(--hit);background:var(--ok-soft)}
+.glevel.part{border-color:var(--b)}
+.glevel h4{margin:0;font-size:.95rem;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.gstate{font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.gstate.ok{background:var(--hit);color:var(--on-a)} .gstate.part{background:var(--b-soft);color:var(--b)} .gstate.no{background:var(--bad-soft);color:var(--bad)}
+.gitem{display:flex;gap:8px;font-size:.88rem;align-items:flex-start}
+.gitem .ic{flex:none;width:18px;text-align:center;font-weight:700}
+.gitem.ok .ic{color:var(--hit)} .gitem.help .ic{color:var(--b)} .gitem.no .ic{color:var(--muted)}
+.gitem a{color:inherit}
+.gstats{display:flex;flex-wrap:wrap;gap:8px;font-size:.85rem;color:var(--muted)}
+.gstats span{border:1px solid var(--line);border-radius:8px;padding:3px 8px}
+@media (max-width:820px){.oly{grid-template-columns:1fr}}
+
+table.levels-plan td{vertical-align:top;line-height:1.7}
+table.levels-plan td:first-child{width:130px}
+.train{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;font-size:.92rem;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.train a{font-weight:600;text-decoration:none}
+.train span{color:var(--muted)}
+/* confidence scale */
+.conf{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
+.conf-q{font-weight:500;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.conf-tag{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--a);background:var(--a-soft);padding:2px 8px;border-radius:6px}
+.conf-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.conf-b{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--ink);font-family:var(--f-mono);font-weight:600;font-size:1rem}
+.conf-b:hover{border-color:var(--a)}
+.conf-b.on{background:var(--a);border-color:var(--a);color:var(--on-a)}
+.conf-val{margin-left:6px;font-size:.92rem;color:var(--muted)}
+.conf-scale{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:.78rem;color:var(--muted)}
+.conf-sum{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:16px;display:grid;gap:10px}
+.conf-sum h3{font-size:1rem}
+.cs-rows{display:grid;gap:4px}
+.cs-row{display:grid;grid-template-columns:minmax(110px,170px) 1fr 64px;gap:10px;align-items:center;text-decoration:none;color:var(--ink);font-size:.88rem;padding:3px 0}
+.cs-bar{height:10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.cs-bar span{display:block;height:100%;background:var(--a)}
+.cs-bar span.lv1,.cs-bar span.lv2{background:var(--bad)}
+.cs-bar span.lv3{background:var(--b)}
+.cs-bar span.lv4,.cs-bar span.lv5{background:var(--hit)}
+.cs-v{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);text-align:right}
+.cs-note{font-size:.9rem;color:var(--muted)}
+
+/* tab locks */
+nav a.locked{opacity:.35;cursor:not-allowed}
+.pager a.next.disabled{background:var(--bg);color:var(--muted);border-color:var(--line);pointer-events:none}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;font-size:.92rem;max-width:min(520px,calc(100vw - 32px));opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:20}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.conf.pulse{box-shadow:0 0 0 4px var(--b-soft);border-color:var(--b)}
+
+/* student picker */
+.picker{background:var(--surface);border:2px solid var(--b);border-radius:16px;padding:14px 16px;display:grid;gap:12px;margin-bottom:6px}
+.pk-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.pk-title{font-family:var(--f-display);font-weight:700}
+.pk-classes{display:flex;flex-wrap:wrap;gap:6px}
+.pk-cls{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 14px;font-family:var(--f-mono);font-weight:600}
+.pk-cls[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pk-main{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
+.pk-name{font-family:var(--f-display);font-size:clamp(1.2rem,3.2vw,1.9rem);font-weight:700;padding:10px 14px;border-radius:12px;background:var(--b-soft);min-height:62px;display:flex;align-items:center;color:var(--muted)}
+.pk-name.picked{color:var(--ink);background:var(--ok-soft)}
+.pk-ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pk-opt{display:flex;gap:6px;align-items:center;font-size:.88rem}
+.pk-left{font-size:.85rem;color:var(--muted)}
+.pk-mini{margin-left:auto;flex:none;font-size:.75rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:3px 9px;align-self:center}
+.pk-mini:hover{border-color:var(--b)}
+.pk-chip{flex:none;font-size:.78rem;font-weight:600;background:var(--ok-soft);color:var(--ink);border-radius:999px;padding:3px 9px;align-self:center}
+.qcards.tf .qcard summary{flex-wrap:wrap}
+.qcards.tf .qcard summary>span:nth-child(2){flex:1 1 calc(100% - 40px)}
+@media (max-width:640px){.pk-main{grid-template-columns:1fr}}
+
+/* student login */
+.start{position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;padding:calc(24px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.start-card{max-width:760px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;display:grid;gap:16px}
+.start-card h1{font-size:clamp(1.6rem,4vw,2.2rem)}
+.start-note{color:var(--muted)}
+.start-lbl{font-weight:600;font-size:.9rem;margin-bottom:8px}
+.start-classes{display:flex;flex-wrap:wrap;gap:8px}
+.start-classes .pk-cls{padding:9px 18px;font-size:1rem}
+.start-names{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.st-name{text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:9px 12px;font-size:.95rem}
+.st-name:hover{border-color:var(--a)}
+.st-name[aria-pressed=true]{background:var(--a);color:var(--on-a);border-color:var(--a)}
+.start-go{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--ok-soft);border-radius:12px;padding:12px 14px}
+.start-foot{display:flex;gap:8px;justify-content:flex-end}
+body.locked-scroll{overflow:hidden}
+.stu-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:14px;padding:8px 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;font-size:.92rem}
+.stu-cls{font-family:var(--f-mono);font-weight:600;background:var(--a-soft);color:var(--a);border-radius:6px;padding:1px 7px;margin-left:4px}
+.stu-line{font-size:1rem;margin-bottom:10px}
+
+/* teacher page */
+body:not(.teacher) .picker,body:not(.teacher) .pk-mini,body:not(.teacher) .pk-chip{display:none!important}
+.t-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:14px;padding:10px 14px;background:var(--b-soft);border:1px solid var(--b);border-radius:12px;font-size:.92rem}
+
+/* not in list */
+.st-missing{margin-top:10px;border:1px dashed var(--muted);background:transparent;color:var(--ink);border-radius:10px;padding:9px 14px;font-size:.95rem}
+.st-missing:hover{border-color:var(--a);color:var(--a)}
+.st-manual{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+.st-field{display:grid;gap:4px;flex:1 1 200px}
+.st-field label{font-size:.85rem;font-weight:600}
+.st-field input[type=text]{font-family:var(--f-body);font-size:1rem}
+.st-err{flex-basis:100%;color:var(--bad);font-size:.88rem}
+.pk-cls.other{font-family:var(--f-body);font-weight:500}
+.st-manual-tag{font-size:.78rem;color:var(--b);background:var(--b-soft);border-radius:6px;padding:2px 8px;margin-left:6px}
+
+/* pairs */
+body.teacher .s-only{display:none!important}
+body:not(.teacher) .t-only{display:none!important}
+body.teacher .match-lock{display:none!important}
+body.teacher #matchA{display:block!important}
+.pairs{background:var(--surface);border:2px solid var(--a);border-radius:16px;padding:14px 16px;display:grid;gap:10px;margin-bottom:12px}
+.pr-cls{font-family:var(--f-mono);font-weight:600;background:var(--a-soft);color:var(--a);border-radius:6px;padding:2px 8px}
+.pr-present summary{cursor:pointer;color:var(--a);font-weight:600;font-size:.9rem}
+.pr-names{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 12px;margin-top:8px;font-size:.9rem}
+.pr-names label{display:flex;gap:6px;align-items:center}
+.pr-code{font-size:1.05rem;padding:6px 12px;border-radius:10px;background:var(--b-soft)}
+.pr-code b{font-family:var(--f-mono);font-size:1.3rem;letter-spacing:.04em}
+.pr-list{margin:0;padding-left:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px 18px;font-size:.95rem}
+.pr-list:empty{display:none}
+.pr-lead{font-size:.75rem;font-weight:600;color:var(--hit);background:var(--ok-soft);border-radius:6px;padding:1px 6px}
+.pr-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pr-form label{font-weight:600;font-size:.9rem}
+.pr-form input[type=text]{width:160px;font-size:1rem;font-family:var(--f-mono)}
+.pr-mine{padding:10px 12px;border-radius:10px;font-size:.95rem}
+.pr-mine.ok{background:var(--ok-soft)} .pr-mine.no{background:var(--bad-soft)}
+.match-lock{background:var(--b-soft);border:2px dashed var(--b);border-radius:14px;padding:22px;text-align:center;font-size:1rem;line-height:1.6}
+
+.pr-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px}
+.pr-role{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:500}
+.pr-role .btn-ghost{padding:6px 16px;font-size:.95rem}
+.pr-role .btn-ghost[aria-pressed=true]{background:var(--a);color:var(--on-a);border-color:var(--a)}
+.pr-mine{background:var(--bg)}
+
+.start-langs{display:flex;flex-wrap:wrap;gap:8px}
+.start-langs .pk-cls{padding:9px 18px;font-size:1rem;font-family:var(--f-body);text-decoration:none;display:inline-block}
+.start-hint{font-size:.82rem;color:var(--muted);margin-top:6px}
+.live-ans{border-radius:12px;padding:12px 16px;background:var(--a-soft);border:1px solid var(--a);font-size:1.05rem;margin-bottom:10px}
+.live-ans.me{background:var(--b-soft);border:2px solid var(--b);font-size:1.15rem}
+.pk-live{font-size:.75rem;font-weight:600;color:var(--hit);background:var(--ok-soft);border-radius:6px;padding:2px 8px;margin-left:8px}
+/* exit lesson */
+.stu-btns{display:flex;flex-wrap:wrap;gap:6px}
+.stu-btns .exit-btn{color:var(--bad);border-color:var(--bad)}
+.exit-end{margin-top:18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;padding:16px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:.92rem}
+.exit-main{padding:10px 18px;font-size:1rem}
+.exit-dlg{position:fixed;inset:0;z-index:40;background:rgba(10,16,30,.55);display:grid;place-items:center;padding:16px}
+.exit-card{max-width:440px;width:100%;background:var(--surface);color:var(--ink);border-radius:16px;padding:20px;display:grid;gap:12px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.exit-card h2{font-size:1.2rem}
+.exit-card p{color:var(--muted)}
+.exit-row{display:flex;flex-wrap:wrap;gap:8px}
+.pr-present.att{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.pr-present.att[open]{border-color:var(--b)}
+.link-st{display:inline-block;font-size:.78rem;font-weight:600;border-radius:6px;padding:2px 8px;margin-left:6px}
+.link-st.ok{background:var(--ok-soft);color:var(--hit)}
+.link-st.no{background:var(--bad-soft);color:var(--bad)}
+.link-st:empty{display:none}
+.results{background:var(--surface);border:2px solid var(--hit);border-radius:16px;padding:14px 16px;display:grid;gap:10px;margin-top:12px}
+.res-upd{font-size:.8rem;color:var(--muted)}
+.res-tbl{min-width:560px}
+.res-tbl td{font-size:.92rem}
+.res-tbl tr.res-ok td:nth-child(2){color:var(--hit)}
+.res-tbl tr.res-mid td:nth-child(2){color:var(--b)}
+.res-tbl tr.res-low td:nth-child(2){color:var(--bad)}
+.res-tbl tr.res-wait td{color:var(--muted)}
+.res-tbl code{font-size:.8rem;background:var(--bad-soft);border-radius:4px;padding:1px 5px;white-space:nowrap}
+.res-empty{font-size:.8rem;color:var(--muted)}
+.howto.res-warn{color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 10px;font-weight:500}
+.grp-list{grid-template-columns:1fr}
+nav a.st-done{color:var(--hit);background:var(--ok-soft)}
+nav a.st-miss{color:var(--bad);background:var(--bad-soft)}
+nav a.st-open{color:var(--a);background:var(--a-soft)}
+nav a.st-open[aria-current=page]{background:var(--ink);color:var(--bg);box-shadow:inset 0 -3px 0 var(--a)}
+nav a.st-done[aria-current=page],nav a.st-miss[aria-current=page]{background:var(--ink);color:var(--bg)}
+nav a.st-done[aria-current=page]{box-shadow:inset 0 -3px 0 var(--hit)}
+nav a.st-miss[aria-current=page]{box-shadow:inset 0 -3px 0 var(--bad)}
+.cr-tbl{min-width:760px}
+.cr-tbl th,.cr-tbl td{text-align:center;padding:6px 4px}
+.cr-tbl th:first-child,.cr-tbl td:first-child{text-align:left;padding-left:10px;white-space:nowrap}
+.cr-c{font-family:var(--f-mono);font-weight:600;border-radius:4px}
+.cr-c.c1,.cr-c.c2{background:var(--bad-soft);color:var(--bad)}
+.cr-c.c3{background:var(--b-soft);color:var(--b)}
+.cr-c.c4,.cr-c.c5{background:var(--ok-soft);color:var(--hit)}
+.cr-c.c0{color:var(--muted)}
+.cr-goal{font-size:.78rem;font-weight:600;border-radius:6px;padding:2px 7px;white-space:nowrap}
+.cr-goal.g0{background:var(--bad-soft);color:var(--bad)} .cr-goal.g1{background:var(--a-soft);color:var(--a)} .cr-goal.g2{background:var(--b-soft);color:var(--b)} .cr-goal.g3{background:var(--ok-soft);color:var(--hit)}
+.cr-legend{font-size:.8rem;color:var(--muted)}
+body.teacher #goalCard,body.teacher #confSum,body.teacher .refl,body.teacher #stuLine{display:none!important}
+.cs-v{white-space:nowrap}
+/* student side menu */
+.side-stu{display:flex;align-items:center;gap:8px;flex:none;font-size:.85rem}
+.side-stu .ss-lbl{display:none}
+.side-stu .ss-name{font-weight:700;white-space:nowrap}
+.side-stu .ss-meta{display:flex;gap:6px;align-items:center}
+.side-stu .ss-prog,.side-stu .ss-exit,.side-stu .ss-chg,.side-stu .ss-link{display:none}
+@media (min-width:900px){
+  body.has-student:not(.teacher) header.top{position:fixed;top:0;left:0;bottom:0;width:240px;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;padding-top:env(safe-area-inset-top,0px);padding-left:env(safe-area-inset-left,0px)}
+  body.has-student:not(.teacher) header.top .wrap{flex-direction:column;align-items:stretch;gap:10px;max-width:none;padding:16px 14px;overflow:visible}
+  body.has-student:not(.teacher) .lang-sw{margin-left:0;align-self:flex-start}
+  body.has-student:not(.teacher) nav{flex-direction:column;flex-wrap:nowrap;overflow:visible;gap:3px}
+  body.has-student:not(.teacher) nav a{font-size:.95rem;padding:9px 12px;white-space:normal;border-radius:10px}
+  body.has-student:not(.teacher) main.wrap,body.has-student:not(.teacher) footer{margin-left:240px}
+  body.has-student:not(.teacher) main.wrap{max-width:1040px}
+  body.has-student:not(.teacher) footer .wrap{max-width:1040px;margin-left:0}
+  body.has-student:not(.teacher) #stuBar{display:none!important}
+  .side-stu{flex-direction:column;align-items:stretch;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+  .side-stu .ss-lbl{display:block;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .side-stu .ss-name{font-size:1rem;white-space:normal;line-height:1.3}
+  .side-stu .ss-prog{display:inline;color:var(--muted);font-size:.8rem}
+  .side-stu .ss-link{display:block;font-size:.75rem;margin-top:2px;white-space:normal}
+  .side-stu .ss-chg{display:block;margin-top:6px;font-size:.85rem}
+  .side-stu .ss-exit{display:block;margin-top:2px;color:var(--bad);border-color:var(--bad);font-size:.85rem}
+}
+.pg-bar{display:block;height:5px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden;max-width:140px}
+.pg-bar span{display:block;height:100%;background:var(--hit)}
+.prog-box{margin-bottom:16px}
+.pk-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px;margin:0 0 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.pk-name2{font-weight:700;font-size:1.05rem;min-width:140px}
+.pk-name2.picked{color:var(--hit)}
+.mq-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gl-tbl{min-width:720px}
+.gl-tbl td,.gl-tbl th{text-align:center}
+.gl-tbl td:first-child,.gl-tbl th:first-child{text-align:left;white-space:nowrap}
+.gl-c{font-weight:700;font-size:1.05rem}
+.gl-c.ok{color:var(--hit);background:var(--ok-soft)} .gl-c.part{color:var(--b)} .gl-c.no{color:var(--muted)}
+.op-data{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.op-data .lbl{display:block;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.op-data pre{margin:0;font-family:var(--f-mono);font-size:.9rem;white-space:pre-wrap}
+.op-list{display:grid;gap:14px}
+.op-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
+.op-top{display:flex;gap:16px;align-items:center}
+.op-top h3{margin:0 0 4px}
+.op-top p{margin:6px 0 0;color:var(--muted)}
+.op-sig{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.9rem}
+.op-sig span{color:var(--muted);font-size:.8rem}
+.venn{width:150px;flex:none;color:var(--b)}
+.venn .vl{font-family:var(--f-mono);font-size:13px;fill:var(--ink)}
+.op-tbl td:last-child{color:var(--muted)}
+@media (max-width:600px){.op-top{flex-direction:column;align-items:flex-start}.venn{width:130px}}
+code,pre,textarea,kbd{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+body:not(.teacher) details.sol,body:not(.teacher) .olysol{display:none!important}
+.hint-modal{position:fixed;inset:0;background:rgba(10,16,30,.45);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.hint-modal[hidden]{display:none}
+.hm-box{background:var(--surface);color:var(--ink);border-radius:14px;padding:18px;max-width:540px;width:100%;display:grid;gap:10px;max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.hm-box h3{margin:0}
+.hm-box label{display:grid;gap:4px;font-size:.85rem;font-weight:600}
+.hm-box textarea,.hm-box select{font:inherit;font-weight:400;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg);color:var(--ink)}
+.hm-btns{display:flex;gap:8px;flex-wrap:wrap}
+.hm-list{list-style:none;padding:0;margin:0;display:grid;gap:6px;font-size:.85rem}
+.hm-list li{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.t-hint{background:var(--a-soft);border-left:3px solid var(--a);border-radius:8px;padding:8px 12px;font-size:.92rem}
+.t-hint a{font-weight:600;white-space:nowrap}
+nav a.has-hint::after{content:'💡';margin-left:6px}
+.oly-hbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px;font-size:.85rem}
+.oly-hbar .pk-mini{margin-left:0}
+#olyHints{display:grid;gap:8px;margin-bottom:12px}
+#olyHints:empty{display:none}
+.sheet-link{text-decoration:none;font-size:.85rem}
+@media (min-width:821px){body.teacher nav,body:not(.has-student) nav{flex-wrap:wrap;overflow:visible;row-gap:4px}
+  body.teacher header.top .wrap,body:not(.has-student) header.top .wrap{overflow:visible}}
+textarea,input,code,pre{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"calt" 0!important}
+.viz{display:grid;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.viz-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.viz-lbl{font-size:.85rem;font-weight:600;color:var(--muted)}
+.viz-row input{width:90px!important;flex:none;font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.viz-row label{display:inline;margin:0}
+.alg-b{font:inherit;font-size:.9rem;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.alg-b[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.viz-arr{display:flex;flex-wrap:wrap;gap:6px;padding:6px 0}
+.cell{min-width:46px;border:2px solid var(--line);border-radius:10px;padding:2px 4px 4px;text-align:center;font-family:var(--f-mono);background:var(--bg);transition:opacity .2s,background .2s}
+.cell b{display:block;font-size:1.05rem}
+.cell .ix{display:block;font-size:.68rem;color:var(--muted)}
+.cell .ptr{display:block;min-height:1.1em;font-size:.68rem;font-weight:700;color:var(--a)}
+.cell.cur{border-color:var(--b);background:var(--b-soft)}
+.cell.out{opacity:.28}
+.cell.found{border-color:var(--hit);background:var(--ok-soft)}
+.viz-stat{display:flex;flex-wrap:wrap;gap:16px;font-size:.95rem}
+.viz-log{max-height:260px;overflow:auto;white-space:pre-wrap}
+.viz-log .ok{color:var(--hit);font-weight:600}
+.g-hist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.g-hist .chip{font-family:var(--f-mono);font-size:.85rem;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.g-hist .chip.ok{background:var(--ok-soft);border-color:var(--hit);color:var(--hit);font-weight:600}
+.algo-steps{display:grid;gap:6px;padding-left:22px;margin:0 0 8px}
+/* compare table */
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td.y{color:var(--hit);font-weight:600} td.n{color:var(--bad);font-weight:600}
+tr.set-col td:last-child, td.hl{background:var(--a-soft)}
+.terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:18px}
+.term{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.9rem}
+.term .kz{font-weight:600}
+.term .en{font-family:var(--f-mono);color:var(--a);font-size:.85rem}
+
+/* set machine */
+.lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.lab>*{min-width:0}
+.field{display:grid;gap:4px;margin-bottom:12px}
+.field label{font-size:.85rem;font-weight:600}
+input[type=text],textarea{width:100%;font:inherit;font-family:var(--f-mono);font-size:.9rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;font-size:.85rem}
+.btn-ghost:hover{border-color:var(--a)}
+.ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:6px}
+.op{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:left;color:var(--ink)}
+.op b{font-family:var(--f-mono);font-size:.95rem;display:block}
+.op span{font-size:.78rem;color:var(--muted)}
+.op:hover{border-color:var(--a)}
+.op.danger b{color:var(--bad)}
+.setbox{border:2px solid var(--a);border-radius:18px;background:var(--a-soft);padding:16px;min-height:150px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;position:relative}
+.setbox::before{content:"s";position:absolute;top:-12px;left:14px;background:var(--surface);color:var(--a);font-family:var(--f-mono);font-weight:600;padding:0 6px}
+.el{font-family:var(--f-mono);font-size:.92rem;padding:5px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line);transition:transform .3s,background .3s,opacity .3s}
+.el.new{background:var(--hit-soft);transform:scale(1.08)}
+.el.hit{background:var(--b-soft);border-color:var(--b)}
+.el.gone{opacity:0;transform:scale(.6)}
+.setbox .empty{color:var(--muted);font-family:var(--f-mono);font-size:.9rem;align-self:center}
+.result{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:12px 14px;font-family:var(--f-mono);font-size:.86rem;overflow:auto;white-space:pre;max-height:230px}
+.result .c{color:var(--code-muted)} .result .e{color:#FF8A8A} .result .r{color:#7FE0B4}
+.venn-box{display:grid;gap:12px;align-content:start}
+
+/* methods */
+.methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.method{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:6px;align-content:start}
+.method .sig{font-family:var(--f-mono);font-weight:600;color:var(--a)}
+.method .grp{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.method p{font-size:.9rem}
+.method pre{margin:0;font-family:var(--f-mono);font-size:.8rem;background:var(--bg);padding:8px;border-radius:6px;overflow-x:auto}
+.method button{justify-self:start}
+
+/* editor */
+.editor{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ed-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.ed-bar .title{font-weight:600;font-size:.9rem;margin-right:auto}
+.ed-body{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.ed-body textarea.code{border:0;border-radius:0;background:var(--code-bg);color:var(--code-ink);min-height:260px;resize:vertical;line-height:1.5;padding:14px;tab-size:4;font-size:.88rem}
+.ed-side{display:grid;grid-template-rows:auto 1fr;border-left:1px solid var(--line);min-width:0}
+.ed-side .lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:8px 12px 0;font-weight:600}
+.ed-side textarea.stdin{border:0;border-bottom:1px solid var(--line);border-radius:0;min-height:56px;resize:vertical;background:var(--surface)}
+.out{font-family:var(--f-mono);font-size:.86rem;padding:10px 12px;white-space:pre-wrap;word-break:break-word;min-height:120px;overflow:auto}
+.out .err{color:var(--bad)}
+.btn{background:var(--a);color:var(--on-a);border:0;border-radius:8px;padding:7px 14px;font-weight:600;font-size:.9rem}
+.btn.alt{background:var(--hit)}
+.btn:disabled{opacity:.5;cursor:wait}
+
+/* tasks */
+.levels{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.lv{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:.9rem}
+.lv[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.task-list{display:grid;gap:18px}
+.task{display:grid;gap:10px}
+.task-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.badge{font-family:var(--f-mono);font-size:.8rem;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--a-soft);color:var(--a)}
+.badge.B{background:var(--b-soft);color:var(--b)} .badge.C{background:var(--hit-soft);color:var(--hit)}
+.status{font-size:.82rem;padding:3px 8px;border-radius:6px;margin-left:auto}
+.status.done{background:var(--ok-soft);color:var(--hit);font-weight:600}
+.task .desc{max-width:75ch}
+.task .expect{font-size:.88rem;color:var(--muted)}
+.verdict{padding:10px 12px;border-radius:8px;font-size:.92rem}
+.verdict.ok{background:var(--ok-soft)} .verdict.no{background:var(--bad-soft)}
+details{font-size:.9rem}
+details summary{cursor:pointer;color:var(--a);font-weight:600}
+details pre{font-family:var(--f-mono);font-size:.84rem;background:var(--bg);padding:10px;border-radius:8px;overflow-x:auto}
+
+/* quiz */
+.quiz{display:grid;gap:14px}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px}
+.q pre{margin:0;background:var(--code-bg);color:var(--code-ink);font-family:var(--f-mono);font-size:.88rem;padding:10px 12px;border-radius:8px;overflow-x:auto}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+.opt{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:8px 10px;text-align:left;font-family:var(--f-mono);font-size:.86rem}
+.opt.right{background:var(--ok-soft);border-color:var(--hit)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.q .why{font-size:.9rem;color:var(--muted)}
+.score{font-family:var(--f-display);font-size:1.1rem}
+
+/* reflection */
+.refl{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.93rem}
+.check input{margin-top:4px;width:18px;height:18px;accent-color:var(--hit)}
+.card textarea{font-family:var(--f-body);min-height:52px;resize:vertical}
+.card label{font-size:.88rem;font-weight:600}
+footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+.reset-box{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.reset-btn{color:var(--bad);border-color:var(--bad)}
+.reset-ask{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--ink)}
+.reset-ask[hidden],.reset-done[hidden]{display:none}
+.btn.danger{background:var(--bad);color:var(--on-a)}
+
+@media (max-width:820px){
+  .hero,.lab{grid-template-columns:1fr}
+  .ed-body{grid-template-columns:1fr}
+  .ed-side{border-left:0;border-top:1px solid var(--line)}
+  .brand{display:none}
+  nav{margin-left:0;flex-wrap:nowrap;justify-content:flex-start}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---- 9.2.1.2 truth tables ---- */
+.tt-race,.tt-tbl{border-collapse:collapse;font-family:var(--f-mono);margin:0 auto;width:auto;min-width:0}
+.tt-race th,.tt-race td,.tt-tbl th,.tt-tbl td{text-align:center;min-width:40px;padding:4px 8px;text-transform:none;letter-spacing:0}
+.tt-race th,.tt-tbl th{font-family:var(--f-mono);font-size:.82rem;color:var(--ink);white-space:nowrap}
+.tt-race td.tt-f,.tt-tbl td.tt-f{padding:2px}
+.tt-race button,.tt-cell{width:100%;min-width:44px;min-height:30px;font:inherit;font-weight:700;border:1px solid var(--line);border-radius:6px;background:var(--b-soft);color:var(--ink);cursor:pointer}
+.tt-cell.var{background:var(--a-soft)}
+.tt-race button.ok,.tt-cell.ok{background:var(--ok-soft);border-color:var(--hit)}
+.tt-race button.bad,.tt-cell.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.race-time{font-family:var(--f-mono);font-weight:600;align-self:center}
+.tt-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:820px){.tt-grid{grid-template-columns:1fr}}
+.tt-tbl tr.cur td{background:var(--b-soft)}
+.tt-tbl .curc{background:var(--b-soft)}
+.tt-tbl td.one{color:var(--hit);font-weight:700}
+.tt-tbl td.fcol,.tt-tbl th.fcol{border-left:2px solid var(--ink)}
+.viz-row input.tt-expr{width:min(360px,100%)!important;font-family:var(--f-mono);font-size:1.05rem}
+.sym-b{font-family:var(--f-mono);font-size:1rem;min-width:40px;padding:6px 10px}
+.tt-steps{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:8px;font-size:.92rem}
+.tt-ops{margin:0;padding-left:22px;font-family:var(--f-mono)}
+.tt-ops li{padding:2px 4px;border-radius:4px}
+.tt-ops li.on{background:var(--b-soft);font-weight:700}
+.tt-calc{font-family:var(--f-mono);font-size:.86rem;line-height:1.7}
+.tt-err{color:var(--bad);font-weight:600}
+.ex-b{font-family:var(--f-mono);font-size:.82rem}
+.methods.ex-grid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.ex-card .tt-tbl{font-size:.85rem}
+.tt-bar{border:0;padding:0;background:none;justify-content:flex-start;gap:8px}
+.tt-q{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tt-clr:disabled{opacity:.45;cursor:not-allowed}
+.tt-q input{width:140px;font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px}
+.basic-tt{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.basic-tt .prop h3{margin-bottom:6px}
+.gen-big{font-family:var(--f-mono);font-size:1.25rem}
+.gen-cols{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.92rem;color:var(--muted)}
+.gen-cols b{color:var(--ink)}
+.gen-wrap{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.gen-wrap thead th{position:sticky;top:0;background:var(--surface)}
+.tt-tbl td.gen-no,.tt-tbl td.gen-k{color:var(--muted);font-weight:400}
+.tt-tbl td.b1{background:var(--b-soft);font-weight:700}
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand">Ақиқат <span>·</span> кесте</div>
+  <div class="side-stu" id="sideStu" hidden><div class="ss-lbl">Оқушы</div><div class="ss-name" id="ssName"></div><div class="ss-meta"><span class="stu-cls" id="ssCls"></span><span class="ss-prog" id="ssProg"></span></div><span class="link-st ss-link" id="ssLink"></span><button class="btn-ghost ss-chg" type="button" id="ssChange">Оқушыны ауыстыру</button><button class="btn-ghost ss-exit" type="button" id="ssExit">Жаңа оқушы</button></div>
+  <nav aria-label="Сабақ бөлімдері">
+    <a href="#povtorenie">Қайталау</a><a href="#tema">Тақырып қандай?</a><a href="#cel">Сабақ мақсаты</a><a href="#svoistva">Алгоритм</a><a href="#lab">Конструктор</a><a href="#metody">Мысалдар</a><a href="#kakoy">Қай өрнек?</a><a href="#oshibka">Қатені тап</a><a href="#praktika">Практика</a><a href="#dop">Қалыптастырушы бағалау</a><a href="#refleksiya">Рефлексия</a><a href="#viktorina">Викторина ★</a>
+  </nav>
+  
+</div></header>
+
+<div class="start" id="startScreen" hidden>
+  <div class="start-card">
+    <div class="eyebrow">Информатика · 9-сынып · Ақиқат кестесі</div>
+    <h1>Сабаққа кіру</h1>
+    <p class="start-note" id="startNote">Алдымен сыныпты, содан кейін тегің мен атыңды таңда.</p>
+    <div class="start-step" hidden><div class="start-lbl">1. Тіл / Язык</div><div class="start-langs"><button type="button" class="pk-cls" id="stLangCur" aria-pressed="false">Қазақша</button><button type="button" class="pk-cls lang-other" data-lang="ru">Русский</button></div></div>
+    <div class="start-step" id="stClsStep" hidden><div class="start-lbl">1. Сынып</div><div class="start-classes" id="stClasses" role="group" aria-label="Сынып"></div></div>
+    <div class="start-step" id="stNamesStep" hidden><div class="start-lbl">2. Тегі мен аты</div><div class="start-names" id="stNames" role="group" aria-label="Оқушы"></div>
+      <button type="button" class="st-missing" id="stMissing">Мен тізімде жоқпын</button>
+      <form class="st-manual" id="stManual" hidden>
+        <div class="st-field" id="stManClsWrap" hidden><label for="stManCls">Сынып</label><input type="text" id="stManCls" placeholder="Мысалы: 9B" maxlength="10" autocomplete="off"></div>
+        <div class="st-field"><label for="stManName">Тегі мен аты</label><input type="text" id="stManName" placeholder="Мысалы: Серікбай Айгерим" maxlength="60" autocomplete="off"></div>
+        <button class="btn" type="submit">Дайын</button>
+        <p class="st-err" id="stManErr" hidden></p>
+      </form></div>
+    <div class="start-go" id="stGoRow" hidden><span>Бұл мен: <b id="stChosen"></b></span><button class="btn" type="button" id="stGo">Сабақты бастау →</button></div>
+    <div class="start-foot"><button class="btn-ghost" type="button" id="stCancel" hidden>Болдырмау</button></div>
+  </div>
+</div>
+<div class="exit-dlg" id="exitDlg" hidden role="dialog" aria-modal="true" aria-labelledby="exitTitle">
+  <div class="exit-card">
+    <h2 id="exitTitle">Жаңа оқушы үшін тазалау керек пе?</h2>
+    <p>Осы компьютердегі барлық жауаптар мен рефлексия жойылады, сабақ келесі оқушы үшін басынан ашылады (қалыптастырушы бағалаудың жаңа нұсқасымен).</p>
+    <div class="exit-row"><button class="btn danger" type="button" id="exitYes">Иә, тазалау</button><button class="btn-ghost" type="button" id="exitNo">Қалу</button></div>
+  </div>
+</div>
+<main class="wrap">
+  <div class="t-bar" id="tBar" hidden><span><b>Мұғалім беті.</b> Барлық қойындылар ашық, «Қайталау» қойындысында «Кім жауап береді?» жұмыс істейді.</span><span class="link-st" id="linkT"></span><a class="btn-ghost sheet-link" id="sheetLink" target="_blank" rel="noopener" hidden>Нәтижелер Google-кестесі ↗</a><button class="btn-ghost" type="button" id="tExit">Мұғалім режимінен шығу</button></div>
+  <div class="stu-bar" id="stuBar" hidden><span>Оқушы: <b id="stuName"></b> <span class="stu-cls" id="stuCls"></span> <span class="link-st" id="linkS"></span></span><span class="stu-btns"><button class="btn-ghost" type="button" id="stuChange">Оқушыны ауыстыру</button><button class="btn-ghost exit-btn" type="button" id="stuExit">Жаңа оқушы</button></span></div>
+  <section id="povtorenie">
+    <div class="sec-head"><h2>Қайталау: логикалық амалдар</h2><p>Өткен тақырыпты еске түсірейік: инверсия, конъюнкция, дизъюнкция, амалдар реті және кестедегі жолдар саны. Уақыты — шамамен 5 минут.</p></div>
+    <div class="picker" id="picker">
+      <div class="pk-top"><span class="pk-title">Кім жауап береді?</span><span class="pk-live" id="pkLive" hidden>оқушыларға көрінеді</span><div class="pk-classes" role="group" aria-label="Сынып"><button class="pk-cls" type="button" data-c="9" aria-pressed="false">9</button></div></div>
+      <details class="pr-present att" id="attWrap" hidden><summary>Сабақта кім жоқ? <span id="attCount"></span></summary><p class="howto" style="margin:8px 0 6px">Жоқ оқушылардың белгісін алып тастаңыз. Олар оқушылардағы тізімдерден, «Кім жауап береді?» және жұптардан жойылады.</p><div class="pr-names" id="attList"></div></details>
+      <div class="pk-main">
+        <div class="pk-name" id="pkName" aria-live="polite">Алдымен сыныпты таңдаңыз</div>
+        <div class="pk-ctrl">
+          <button class="btn" type="button" id="pkGo">Оқушыны таңдау</button>
+          <label class="pk-opt"><input type="checkbox" id="pkNoRep" checked> қайталамау</label>
+          <button class="btn-ghost" type="button" id="pkReset">Қайта бастау</button>
+        </div>
+      </div>
+      <div class="pk-left" id="pkLeft"></div>
+    </div>
+    <div class="live-ans s-only" id="liveAns" hidden></div>
+    <h3 class="sub">1. Ауызша сұрау «Дұрыс / Бұрыс» <span class="time">≈ 2 мин</span></h3>
+    <p class="howto">Мұғалім тұжырымды оқиды, сынып сигнал карточкаларын көтереді. Жауап басқанда ашылады.</p>
+    <div class="qcards tf">
+      <details class="qcard"><summary><span class="qn">1</span><span>n айнымалы үшін ақиқат кестесінде 2 · n жол болады.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></summary><p><b>Бұрыс.</b> Жолдар саны 2<sup>n</sup>: 3 айнымалыға 8 жол, 4 айнымалыға 16 жол.</p></details>
+      <details class="qcard"><summary><span class="qn">2</span><span>ЖӘНЕ (∧) амалының нәтижесі екі мән де 1 болғанда ғана 1 болады.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></summary><p><b>Дұрыс.</b> Бір 0 жеткілікті: 1 ∧ 0 = 0.</p></details>
+      <details class="qcard"><summary><span class="qn">3</span><span>¬A ∨ B өрнегінде алдымен ∨ орындалады.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></summary><p><b>Бұрыс.</b> Алдымен терістеу ¬, содан кейін ∧, ең соңында ∨.</p></details>
+      <details class="qcard"><summary><span class="qn">4</span><span>НЕМЕСЕ (∨) амалы екі мән де 0 болғанда ғана 0 болады.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></summary><p><b>Дұрыс.</b> Бір 1 жеткілікті: 0 ∨ 1 = 1.</p></details>
+      <details class="qcard"><summary><span class="qn">5</span><span>Ақиқат кестесінде жиындар екілік санау ретімен жазылады: 00, 01, 10, 11.</span><span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></summary><p><b>Дұрыс.</b> Сонда бірде-бір жиын жоғалмайды. Ал үлкен өрнектің кестесін тез әрі қатесіз қалай құрамыз? Бүгінгі сабақ осы туралы.</p></details>
+    </div>
+    <h3 class="sub">2. Жұппен сәйкестендіру: ұғым және оның мағынасы <span class="time">≈ 3 мин</span></h3>
+    <p class="howto">Сол жақтағы ұғымды, содан кейін оң жақтағы оның мағынасын басыңыз. Жұпты алып тастау үшін сол жақтағы элементті қайта басыңыз.</p>
+    <div class="pairs t-only" id="pairsT">
+      <div class="pk-top"><span class="pk-title">Сәйкестендіруге арналған жұптар</span><span class="pr-cls" id="prCls"></span></div>
+      <p class="howto">Жоқ оқушылар жоғарыдағы «Сабақта кім жоқ?» белгісінен алынады.</p>
+      <div class="pk-ctrl"><button class="btn" type="button" id="prMake">Жұптарға бөлу</button><span class="pr-code" id="prCode" hidden></span></div>
+      <ol class="pr-list" id="prList"></ol>
+      <p class="howto" id="prHint">Алдымен жоғарыдағы «Кім жауап береді?» блогында сыныпты таңдаңыз.</p>
+    </div>
+    <div class="pairs s-only" id="pairsS">
+      <div class="pk-top"><span class="pk-title">Менің жұбым</span></div>
+      <p class="howto" id="prHow">Тізімнен серігіңді таңда. Жұптарды мұғалім экранда көрсетеді.</p>
+      <div class="pr-pick" id="prPick" role="group" aria-label="Серік"></div>
+      <div class="pr-role" id="prRole" hidden><span>Сәйкестендіруді өз компьютерінде кім орындайды?</span><button class="btn-ghost" type="button" data-r="me">Мен</button><button class="btn-ghost" type="button" data-r="partner">Серігім</button></div>
+      <div class="pr-mine" id="prMine" hidden></div>
+    </div>
+    <div class="match-lock" id="matchLock" hidden></div>
+    <div class="match" id="matchA"></div>
+    <div class="results t-only" id="resBox">
+      <div class="pk-top"><span class="pk-title">Сәйкестендіру нәтижелері</span><span class="pk-ctrl"><span class="res-upd" id="resUpd"></span><button class="btn-ghost" type="button" id="resClear">Нәтижелерді тазалау</button></span></div>
+      <p class="howto" id="resNote">Кесте оқушы «Тексеру» батырмасын басқанда толтырылады. Google-скрипт арқылы байланысы бар жүктеп алынған файлдарда жұмыс істейді.</p>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Жұп</th><th>Нәтиже</th><th>Қателер</th><th>Уақыты</th></tr></thead><tbody id="resBody"></tbody></table></div>
+    </div>
+    <details class="memo"><summary>Жадынама: негізгі логикалық амалдар</summary>
+      <div class="tbl-wrap"><table class="tt-tbl">
+        <thead><tr><th>A</th><th>B</th><th class="fcol">¬A</th><th>A ∧ B</th><th>A ∨ B</th></tr></thead>
+        <tbody><tr><td>0</td><td>0</td><td class="fcol">1</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td class="fcol">1</td><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td class="fcol">0</td><td>0</td><td>1</td></tr><tr><td>1</td><td>1</td><td class="fcol">0</td><td>1</td><td>1</td></tr></tbody>
+      </table></div>
+      <p class="howto" style="margin-top:8px">Амалдар реті: жақша ( ) → терістеу ¬ → ЖӘНЕ ∧ → НЕМЕСЕ ∨. Жолдар саны: 2<sup>n</sup>.</p>
+    </details>
+  </section>
+
+  <section id="tema">
+    <div class="sec-head"><h2>Сабақтың тақырыбын анықтаймыз</h2><p>Бір кестені екі тәсілмен толтырып, уақыт пен қателерді салыстырыңыз. Содан кейін бағыттаушы сұрақтарға жауап беріңіз. Уақыты — шамамен 5 минут.</p></div>
+    <div class="topic-grid">
+      <div class="step">
+        <h3 class="sub">1-тәсіл. F-ті бірден</h3>
+        <p><code>F = (A ∨ B) ∧ ¬C</code> өрнегінің мәнін әр жолда ойша есептеп, тек F бағанын толтырыңыз. Ұяшықты басқан сайын мәні 0 мен 1 болып ауысады. Секундомер бірінші басқанда іске қосылады.</p>
+        <div id="race1"></div>
+      </div>
+      <div class="step">
+        <h3 class="sub">2-тәсіл. Аралық бағандармен</h3>
+        <p>Дәл сол өрнек, бірақ алдымен <code>A ∨ B</code>, содан кейін <code>¬C</code>, ең соңында F. Ұяшықтар көбейді — уақыт пен қателер ше?</p>
+        <div id="race2"></div>
+      </div>
+    </div>
+    <h3 class="sub">Бағыттаушы сұрақтар</h3>
+    <div class="qcards">
+      <details class="qcard"><summary><span class="qn">1</span><span>Қай тәсілде қателер аз болды? Неліктен?</span></summary><p>Аралық бағандармен: әр бағанда бір ғана амал есептеледі, ойда ештеңе сақтамаймыз. Қате болса, оны қай бағанда екені бірден көрінеді.</p></details>
+      <details class="qcard"><summary><span class="qn">2</span><span>Кестеде неше жол болды? Ол неге байланысты?</span></summary><p>8 жол: айнымалы үшеу, 2<sup>3</sup> = 8.</p></details>
+      <details class="qcard"><summary><span class="qn">3</span><span>A, B, C мәндері қандай ретпен жазылды?</span></summary><p>Екілік санау ретімен: 000-ден 111-ге дейін. Сонда бірде-бір жиын жоғалмайды және қайталанбайды.</p></details>
+      <details class="qcard"><summary><span class="qn">4</span><span>Аралық бағандардың реті неге байланысты?</span></summary><p>Амалдардың орындалу ретіне: жақша, ¬, ∧, ∨.</p></details>
+      <details class="qcard"><summary><span class="qn">5</span><span>Ақиқат кестесі өмірде қайда керек?</span></summary><p>Сандық сұлбаларда (компьютер, калькулятор), дабыл мен автоматика жүйелерінде, ережелер мен шарттарды тексеруде.</p></details>
+      <details class="qcard final"><summary><span class="qn">?</span><span>Сонымен, сабақтың тақырыбы қандай?</span></summary><p class="topic-reveal">Ақиқат кестесін құру</p><p><a href="#cel">Сабақ мақсатына өту →</a></p></details>
+    </div>
+  </section>
+
+  <section id="cel">
+    <div class="topic-head">
+      <div class="eyebrow">Информатика · 9-сынып · Логика</div>
+      <h1>Ақиқат кестесін құру</h1>
+      <div class="tri">ақиқат кестесі · таблица истинности · truth table</div>
+    </div>
+    <div class="objective"><span class="obj-code">9.2.1.2</span><span><b>Оқыту мақсаты:</b> берілген логикалық өрнекке ақиқат кестесін тұрғызу</span></div>
+    <div class="two-col">
+      <div class="goals">
+        <div class="goals-title">Сабақ мақсаттары</div>
+        <div><b>Барлығы</b><span>екі айнымалы өрнектің ақиқат кестесін құрады: жолдар санын анықтап, жиындарды екілік санау ретімен жазады</span></div>
+        <div><b>Көпшілігі</b><span>амалдардың орындалу ретін анықтап, аралық бағандар арқылы үш айнымалы өрнектің ақиқат кестесін құрады</span></div>
+        <div><b>Кейбіреулері</b><span>кестені талдайды: ақиқат жиындарды санайды, екі өрнектің тең мәнділігін кесте арқылы тексереді</span></div>
+      </div>
+      <div class="goals">
+        <div class="goals-title">Күтілетін нәтижелер — сабақтың соңында мен</div>
+        <div><b>Білемін</b><span>¬, ∧, ∨ амалдарының ақиқат кестелерін және олардың орындалу ретін</span></div>
+        <div><b>Істей аламын</b><span>жолдар мен бағандар санын анықтауды, кестені аралық бағандармен қатесіз толтыруды</span></div>
+        <div><b>Түсінемін</b><span>n айнымалыға неге 2<sup>n</sup> жол керек екенін және кесте екі өрнектің тең мәнділігін қалай дәлелдейтінін</span></div>
+      </div>
+    </div>
+    <h3 class="sub">Тапсырмаларды орындау арқылы мақсатқа қалай жетеміз</h3>
+    <p class="howto">Мақсат тек жеке тапсырмалар бойынша бағаланады: практикалық жұмыс және қалыптастырушы бағалау. Деңгей өз жолындағы барлық тапсырма орындалғанда есептеледі. Қорытынды <a href="#refleksiya">Рефлексия</a> қойындысында автоматты түрде көрсетіледі.</p>
+    <div class="tbl-wrap"><table class="plan levels-plan">
+      <thead><tr><th>Мақсат деңгейі</th><th>Мен істей аламын</th><th>Мұны қандай тапсырмалар дәлелдейді</th></tr></thead>
+      <tbody>
+        <tr><td><span class="lvl a">Барлығы</span></td><td>Екі айнымалы өрнектің ақиқат кестесін құрамын</td>
+          <td><a href="#praktika">Практика P1</a><br><a href="#dop">Қалыптастырушы бағалау: Ф1–Ф3 тапсырмаларының бірі</a></td></tr>
+        <tr><td><span class="lvl b">Көпшілігі</span></td><td>Аралық бағандармен үш айнымалы өрнектің кестесін құрамын</td>
+          <td><a href="#praktika">Практика P2</a><br><a href="#dop">Қалыптастырушы бағалау: Ф4–Ф7 тапсырмаларының бірі</a></td></tr>
+        <tr><td><span class="lvl c">Кейбіреулері</span></td><td>Кестені талдаймын: ақиқат жиындарды санаймын, тең мәнділікті тексеремін</td>
+          <td><a href="#praktika">Практика P3</a><br><a href="#dop">Қалыптастырушы бағалау: Ф8–Ф10 тапсырмаларының бірі</a></td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="sub">40 минуттық жоспар</h3>
+    <div class="tbl-wrap"><table class="plan">
+      <thead><tr><th>Уақыты</th><th>Кезең</th><th>Қойынды</th></tr></thead>
+      <tbody>
+        <tr><td>0–5 мин</td><td>Қайталау: «Дұрыс / Бұрыс», жұппен сәйкестендіру</td><td><a href="#povtorenie">Қайталау</a></td></tr>
+        <tr><td>5–10 мин</td><td>Екі тәсілмен жарыс, тақырып пен мақсат</td><td><a href="#tema">Тақырып қандай?</a>, <a href="#cel">Сабақ мақсаты</a></td></tr>
+        <tr><td>10–17 мин</td><td>Жаңа тақырып: құру алгоритмі, конструктор, мысалдар</td><td><a href="#svoistva">Алгоритм</a>, <a href="#lab">Конструктор</a>, <a href="#metody">Мысалдар</a></td></tr>
+        <tr><td>17–23 мин</td><td>Топпен жұмыс: кестедегі қатені табу</td><td><a href="#oshibka">Қатені тап</a></td></tr>
+        <tr><td>23–29 мин</td><td>Практикалық жұмыс P1–P3</td><td><a href="#praktika">Практика</a></td></tr>
+        <tr><td>29–37 мин</td><td>Қалыптастырушы бағалау Ф1–Ф10</td><td><a href="#dop">Қалыптастырушы бағалау</a></td></tr>
+        <tr><td>37–40 мин</td><td>Рефлексия, мақсатқа жету</td><td><a href="#refleksiya">Рефлексия</a></td></tr>
+        <tr><td>уақыт қалса</td><td>Викторина, «Қай өрнек?»</td><td><a href="#viktorina">Викторина</a>, <a href="#kakoy">Қай өрнек?</a></td></tr>
+      </tbody>
+    </table></div>
+    <p class="howto">«Викторина» мен «Қай өрнек?» — уақыт қалса немесе жылдам аяқтағандарға; олар мақсатқа жету деңгейіне әсер етпейді.</p>
+    <h3 class="sub">Жаттығу <span class="time">мақсатты бағалауға кірмейді</span></h3>
+    <div class="train">
+      <a href="#lab">Конструктор</a><span>кесте қалай құрылатынын қадамдап көреміз</span>
+      <a href="#metody">Мысалдар</a><span>дайын кестелерді оқимыз</span>
+      <a href="#kakoy">Қай өрнек?</a><span>жағдаятқа сай өрнек таңдаймыз</span>
+      <a href="#oshibka">Қатені тап</a><span>топта кестедегі қателерді түзетеміз</span>
+    </div>
+  </section>
+
+  <section id="svoistva">
+    <div class="sec-head"><h2>Ақиқат кестесін құру алгоритмі</h2><p>Уақыты — шамамен 4 минут.</p></div>
+    <div class="definition">
+      <div class="def-label">Анықтама</div>
+      <p class="def-text"><b>Ақиқат кестесі</b> (таблица истинности, truth table) — логикалық өрнектің айнымалылар мәндерінің барлық жиынында қабылдайтын мәндерінің кестесі. n айнымалы үшін 2<sup>n</sup> жиын, яғни 2<sup>n</sup> жол болады.</p>
+    </div>
+    <h3 class="sub">Айнымалылар саны → жолдар саны</h3>
+    <p class="howto">Айнымалылар санын таңдаңыз (1-ден 6-ға дейін). Жолдар саны есептеліп, айнымалылардың барлық мәндер жиыны екілік санау ретімен автоматты түрде жазылады. Әр жол — 0-ден 2<sup>n</sup> − 1-ге дейінгі санның екілік жазуы.</p>
+    <div class="viz">
+      <div class="viz-row" role="group" aria-label="Айнымалылар саны"><span class="viz-lbl">Айнымалылар саны n:</span><button class="alg-b" type="button" data-gn="1">1</button><button class="alg-b" type="button" data-gn="2">2</button><button class="alg-b" type="button" data-gn="3">3</button><button class="alg-b" type="button" data-gn="4">4</button><button class="alg-b" type="button" data-gn="5">5</button><button class="alg-b" type="button" data-gn="6">6</button></div>
+      <div id="genStat" style="display:grid;gap:8px"></div>
+      <div class="gen-wrap"><table class="tt-tbl" id="genTbl"></table></div>
+    </div>
+    <h3 class="sub">Негізгі амалдардың ақиқат кестелері</h3>
+    <div class="basic-tt">
+      <div class="prop"><h3>Инверсия, ¬ (ЕМЕС)</h3><div class="tbl-wrap"><table class="tt-tbl"><thead><tr><th>A</th><th class="fcol">¬A</th></tr></thead><tbody><tr><td>0</td><td class="fcol">1</td></tr><tr><td>1</td><td class="fcol">0</td></tr></tbody></table></div><p>Мәнді керісінше өзгертеді.</p></div>
+      <div class="prop"><h3>Конъюнкция, ∧ (ЖӘНЕ)</h3><div class="tbl-wrap"><table class="tt-tbl"><thead><tr><th>A</th><th>B</th><th class="fcol">A ∧ B</th></tr></thead><tbody><tr><td>0</td><td>0</td><td class="fcol">0</td></tr><tr><td>0</td><td>1</td><td class="fcol">0</td></tr><tr><td>1</td><td>0</td><td class="fcol">0</td></tr><tr><td>1</td><td>1</td><td class="fcol one">1</td></tr></tbody></table></div><p>Екеуі де 1 болса ғана 1.</p></div>
+      <div class="prop"><h3>Дизъюнкция, ∨ (НЕМЕСЕ)</h3><div class="tbl-wrap"><table class="tt-tbl"><thead><tr><th>A</th><th>B</th><th class="fcol">A ∨ B</th></tr></thead><tbody><tr><td>0</td><td>0</td><td class="fcol">0</td></tr><tr><td>0</td><td>1</td><td class="fcol one">1</td></tr><tr><td>1</td><td>0</td><td class="fcol one">1</td></tr><tr><td>1</td><td>1</td><td class="fcol one">1</td></tr></tbody></table></div><p>Кемінде біреуі 1 болса 1.</p></div>
+    </div>
+    <h3 class="sub">Ақиқат кестесін құру қадамдары</h3>
+    <ol class="algo-steps">
+      <li>Айнымалыларды санаңыз: n айнымалы → <b>2<sup>n</sup> жол</b>.</li>
+      <li>Амалдардың орындалу ретін анықтаңыз: жақша ( ) → ¬ → ∧ → ∨. Әр амал — бір баған.</li>
+      <li>Бағандар санын табыңыз: <b>айнымалылар саны + амалдар саны</b>. Кестенің тақырып жолына айнымалыларды, содан кейін амалдарды орындалу ретімен жазыңыз.</li>
+      <li>Айнымалылардың мәндерін <b>екілік санау ретімен</b> жазыңыз: бірінші айнымалы бағанының жартысы 0, жартысы 1; келесісінде топтар екі есе кіші; соңғысында 0 мен 1 кезектеседі.</li>
+      <li>Аралық бағандарды солдан оңға қарай, бағанды толығымен толтырыңыз. Әр бағанда тек бір амал есептеледі.</li>
+      <li>Соңғы баған — F, өрнектің мәні. Кестені талдау керек болса, F = 1 жолдарын санаңыз.</li>
+    </ol>
+    <h3 class="sub">Мысал: F = (A ∨ B) ∧ ¬C</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Қадам</th><th>Нәтиже</th></tr></thead>
+      <tbody>
+        <tr><td>Айнымалылар</td><td>A, B, C → n = 3 → 2<sup>3</sup> = <b>8 жол</b></td></tr>
+        <tr><td>Амалдар реті</td><td>1) A ∨ B (жақша) &nbsp; 2) ¬C &nbsp; 3) (A ∨ B) ∧ ¬C</td></tr>
+        <tr><td>Бағандар</td><td>3 айнымалы + 3 амал = <b>6 баған</b></td></tr>
+        <tr><td>A, B, C бағандары</td><td>A: 0 0 0 0 1 1 1 1 · B: 0 0 1 1 0 0 1 1 · C: 0 1 0 1 0 1 0 1</td></tr>
+      </tbody>
+    </table></div>
+    <div class="terms">
+      <div class="term"><div class="kz">ақиқат кестесі</div>таблица истинности<div class="en">truth table</div></div>
+      <div class="term"><div class="kz">логикалық өрнек</div>логическое выражение<div class="en">logical expression</div></div>
+      <div class="term"><div class="kz">айнымалы</div>переменная<div class="en">variable</div></div>
+      <div class="term"><div class="kz">мәндер жиыны</div>набор значений<div class="en">combination</div></div>
+      <div class="term"><div class="kz">аралық баған</div>промежуточный столбец<div class="en">intermediate column</div></div>
+      <div class="term"><div class="kz">тең мәнді</div>равносильный<div class="en">equivalent</div></div>
+    </div>
+  </section>
+
+  <section id="lab">
+    <div class="sec-head"><h2>Ақиқат кестесінің конструкторы</h2><p>Өрнекті жазыңыз (батырмалармен немесе пернетақтамен): айнымалылар A, B, C, D; амалдар ¬, ∧, ∨ және жақшалар. Конструктор амалдардың ретін анықтап, кестені аралық бағандарымен құрады. «Жолдап» режимінде кесте жол-жолымен, «Бағандап» режимінде баған-бағанымен толады. Уақыты — шамамен 3 минут.</p></div>
+    <div class="viz">
+      <div class="viz-row" role="group" aria-label="Мысалдар"><span class="viz-lbl">Мысалдар:</span>
+        <button class="btn-ghost ex-b" type="button" data-ex="A ∧ ¬B">A ∧ ¬B</button>
+        <button class="btn-ghost ex-b" type="button" data-ex="¬(A ∨ B)">¬(A ∨ B)</button>
+        <button class="btn-ghost ex-b" type="button" data-ex="(A ∨ B) ∧ ¬C">(A ∨ B) ∧ ¬C</button>
+        <button class="btn-ghost ex-b" type="button" data-ex="A ∨ ¬B ∧ C">A ∨ ¬B ∧ C</button>
+        <button class="btn-ghost ex-b" type="button" data-ex="(A ∧ B) ∨ (C ∧ D)">(A ∧ B) ∨ (C ∧ D)</button></div>
+      <div class="viz-row"><label class="viz-lbl" for="ttExpr">F =</label><input type="text" id="ttExpr" class="tt-expr" value="(A ∨ B) ∧ ¬C" spellcheck="false" autocomplete="off"></div>
+      <div class="viz-row" role="group" aria-label="Белгілер"><button class="btn-ghost sym-b" type="button" data-sym="¬">¬</button><button class="btn-ghost sym-b" type="button" data-sym=" ∧ ">∧</button><button class="btn-ghost sym-b" type="button" data-sym=" ∨ ">∨</button><button class="btn-ghost sym-b" type="button" data-sym="(">(</button><button class="btn-ghost sym-b" type="button" data-sym=")">)</button><button class="btn-ghost sym-b" type="button" data-sym="A">A</button><button class="btn-ghost sym-b" type="button" data-sym="B">B</button><button class="btn-ghost sym-b" type="button" data-sym="C">C</button><button class="btn-ghost sym-b" type="button" data-sym="D">D</button><button class="btn-ghost sym-b" type="button" data-sym="⌫">⌫</button></div>
+      <div class="viz-row" role="group" aria-label="Режим"><span class="viz-lbl">Толтыру:</span><button class="alg-b" type="button" data-ttm="row" aria-pressed="true">Жолдап</button><button class="alg-b" type="button" data-ttm="col" aria-pressed="false">Бағандап</button></div>
+      <div class="viz-row"><button class="btn" type="button" id="ttStep">Қадам</button><button class="btn alt" type="button" id="ttAuto">▶ Авто</button><button class="btn-ghost" type="button" id="ttAll">Бүкіл кесте</button><button class="btn-ghost" type="button" id="ttReset">Басынан</button></div>
+      <div class="viz-stat"><span>Айнымалылар: <b id="ttVars">—</b></span><span>Жолдар: <b id="ttRows">—</b></span><span>Бағандар: <b id="ttCols">—</b></span><span>F = 1: <b id="ttOnes">—</b></span><span id="ttState"></span></div>
+      <div class="tt-grid"><div class="tbl-wrap"><table class="tt-tbl" id="ttTbl"></table></div><div class="tt-steps" id="ttSteps"></div></div>
+    </div>
+  </section>
+
+  <section id="metody">
+    <div class="sec-head"><h2>Мысалдар: дайын кестелер</h2><p>Әр кестені оқып, түсіндірмемен салыстырыңыз. «Конструкторда ашу» батырмасы кестенің қалай құрылатынын қадамдап көрсетеді. Уақыты — шамамен 2 минут.</p></div>
+    <div class="methods ex-grid" id="methods"></div>
+  </section>
+
+  <section id="kakoy">
+    <div class="sec-head"><h2>Қай өрнек жарайды?</h2><p>Жағдаятты оқып, жауапты таңдаңыз. Жауаптан кейін түсіндірме шығады. Мұғалім бірнеше жағдаятты сыныппен ауызша талдай алады.</p><span class="score" id="mqScore">0 / 0</span></div>
+    <div class="pk-bar t-only"><span class="pk-title">Кім жауап береді?</span><span class="pk-name2" id="pkName2">—</span><button class="btn" type="button" id="pkGo2">Оқушыны таңдау</button><span class="howto" style="margin:0">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы блоктан алынады. Әр жағдаяттың өз батырмасы бар.</span></div>
+    <div class="live-ans s-only" id="liveAns2" hidden></div>
+    <div class="quiz" id="mq"></div>
+    <div style="margin-top:14px"><button class="btn-ghost" type="button" id="mqReset">Қайта өту</button></div>
+  </section>
+
+  <section id="oshibka">
+    <div class="sec-head"><h2>Қатені тап</h2><p>Әр кестеде қате бар. Қате ұяшықтарды тауып, басу арқылы түзетіңіз де, «Тексеру» батырмасын басыңыз. Уақыты — шамамен 6 минут.<span class="t-only"> Әр тапсырманың астындағы дұрыс кестені тек мұғалім көреді.</span></p><span class="score" id="dbgScore">0 / 0</span></div>
+    <div class="pairs t-only" id="grpT">
+      <div class="pk-top"><span class="pk-title">«Қатені тап» үшін топтар</span><span class="pr-cls" id="grpCls"></span></div>
+      <p class="howto">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы «Кім жауап береді?» блогынан алынады. Әр топта 3–4 адам, біріншісі — жетекші: ол компьютерде жұмыс істейді.</p>
+      <div class="pk-ctrl"><button class="btn" type="button" id="grpMake">Топтарға бөлу</button></div>
+      <ol class="pr-list grp-list" id="grpList"></ol>
+    </div>
+    <div class="pairs s-only" id="grpS">
+      <div class="pk-top"><span class="pk-title">Менің тобым</span></div>
+      <p class="howto" id="grpHow">Тобыңның жетекшісін — компьютерде жұмыс істейтін адамды таңда. Топтарды мұғалім экранда көрсетеді.</p>
+      <div class="pr-pick" id="grpPick" role="group" aria-label="Топ жетекшісі"></div>
+      <div class="pr-mine" id="grpMine" hidden></div>
+    </div>
+    <div class="match-lock" id="grpLock" hidden></div>
+    <div class="task-list" id="dbg"></div>
+    <div class="results t-only" id="grpResBox">
+      <div class="pk-top"><span class="pk-title">Топтардың нәтижелері</span><span class="res-upd" id="grpUpd"></span></div>
+      <p class="howto">Топ жетекшісі «Тексеру» батырмасын басқанда толтырылады. Google-скрипт арқылы байланысы бар жүктеп алынған файлдарда жұмыс істейді.</p>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Топ</th><th>Түзетілді</th><th>Түзетілмеді</th><th>Уақыты</th></tr></thead><tbody id="grpResBody"></tbody></table></div>
+    </div>
+  </section>
+
+
+
+  <section id="praktika">
+    <div class="sec-head"><h2>Практикалық жұмыс: ақиқат кестелерін құру</h2><p>P1–P3 есептері оңайдан қиынға қарай орналасқан. Ұяшықты басқан сайын мәні · → 0 → 1 болып ауысады. «Тексеру» батырмасы кестені тексеріп, қате ұяшықтарды қызылмен көрсетеді. Уақыты — шамамен 6 минут.</p><span class="score" id="pracScore">0 / 6</span></div>
+    <div class="results t-only prog-box" id="pg-oly">
+      <div class="pk-top"><span class="pk-title">Сынып оқушылары: практика</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Оқушы</th><th>Үлгерім</th><th>Толығырақ</th><th>Уақыт</th></tr></thead><tbody class="pg-body"></tbody></table></div>
+    </div>
+    <p class="howto">Кейбір есептерде айнымалылар бағандарын (A, B, C) да өзіңіз толтырасыз — олардың ұяшықтары басқа түсті. Жиындар екілік санау ретімен жазылады: 0 0 0, 0 0 1, …, 1 1 1. Аралық бағандарды солдан оңға қарай толтырыңыз.<span class="t-only"> Әр есептің астындағы үлгі шешімді тек мұғалім көреді.</span></p>
+    <div class="task-list" id="prac"></div>
+  </section>
+
+  <section id="dop">
+    <div class="sec-head"><h2>Қалыптастырушы бағалау</h2><p>10 тапсырма қарапайымнан күрделіге қарай орналасқан: Ф1–Ф3 базалық, Ф4–Ф7 орта, Ф8–Ф10 жоғары деңгей. Балл автоматты түрде есептеледі: соңғы (F) бағандағы әр дұрыс жол — 1 балл (8 жол дұрыс болса — 8 балл, 5 жол дұрыс болса — 5 балл). Барлық тапсырмадан ең көбі 66 балл жиналады. Жиналған балл пайызға, пайыз 10 балдық бағаға айналады: мысалы, 66-дан 52 балл — 79 % — 7,88 / 10 (≈ 8). Тек соңғы (F) баған тексеріледі: айнымалылар мен аралық бағандар — өзіңізге көмек, оларды толтыру міндетті емес. Әр тапсырманың нәтижесі F бағаны толық толтырылып, бірінші рет тексерілгенде бекітіледі.</p><span class="score" id="dopScore">0 / 10 балл</span><p class="howto" id="dopDetail" style="flex-basis:100%;margin:0"></p></div>
+    <p class="howto">«Тексеру» батырмасы кестені және сұраққа берілген жауапты тексереді. Әр оқушыға тапсырмалардың өз нұсқасы беріледі: өрнектер мен айнымалылар әртүрлі, сондықтан көршіден көшіру мүмкін емес.<span class="t-only"> Мұғалім бетінде 1-нұсқа көрсетілген; оқушылардың жауабы автоматты түрде өз нұсқасы бойынша тексеріледі.</span><span class="t-only"> Әр есептің астындағы үлгі шешімді тек мұғалім көреді.</span></p>
+    <div class="levels" role="group" aria-label="Деңгей">
+      <button class="lv" type="button" data-lv="all" aria-pressed="true">Барлық тапсырмалар</button>
+      <button class="lv" type="button" data-lv="A" aria-pressed="false">A — базалық</button>
+      <button class="lv" type="button" data-lv="B" aria-pressed="false">B — орта</button>
+      <button class="lv" type="button" data-lv="C" aria-pressed="false">C — жоғары</button>
+    </div>
+    <div class="results t-only prog-box" id="pg-dop">
+      <div class="pk-top"><span class="pk-title">Сынып оқушылары: қалыптастырушы бағалау</span><span class="pk-ctrl"><span class="pr-cls pg-cls"></span></span></div>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Оқушы</th><th>Үлгерім</th><th>Толығырақ</th><th>Уақыт</th></tr></thead><tbody class="pg-body"></tbody></table></div>
+    </div>
+    <div class="task-list" id="tasks"></div>
+  </section>
+
+  <section id="refleksiya">
+    <div class="sec-head"><h2>Рефлексия</h2><p>Мақсатқа жету жеке тапсырмалар бойынша автоматты түрде есептеледі: «Практика» және «Қалыптастырушы бағалау». Өзіңді адал бағала. Жазбалар тек осы браузерде сақталады.</p></div>
+    <div class="results t-only" id="classRefl">
+      <div class="pk-top"><span class="pk-title">Сынып рефлексиясы</span><span class="pk-ctrl"><span class="pr-cls" id="crCls"></span><span class="res-upd" id="crUpd"></span></span></div>
+      <p class="howto" id="crNote">Сынып пен жоқ оқушылар «Қайталау» қойындысындағы «Кім жауап береді?» блогынан алынады. Деректер Google-скрипт арқылы байланысы бар жүктеп алынған файлдардағы оқушылардан келеді.</p>
+      <h3 class="sub" style="margin:4px 0 0">Жеке тапсырмалар бойынша мақсатқа жету</h3>
+      <div class="tbl-wrap"><table class="res-tbl gl-tbl"><thead><tr><th>Оқушы</th><th>Викторина ★</th><th>Практика</th><th>ҚБ</th><th>Барлығы</th><th>Көпшілігі</th><th>Кейбіреулері</th><th>Қорытынды</th></tr></thead><tbody id="glBody"></tbody></table></div>
+      <p class="cr-legend">✓ — деңгейге жетті, ◐ — ішінара, ○ — басталмаған. Деңгейге тек практика мен қалыптастырушы бағалау әсер етеді; викторина — қосымша.</p>
+      <h3 class="sub" style="margin:10px 0 0">Сыныптың кезеңдер бойынша сенімділігі</h3>
+      <div class="cs-rows" id="crBars"></div>
+      <h3 class="sub" style="margin:10px 0 0">Оқушылар</h3>
+      <div class="tbl-wrap"><table class="res-tbl cr-tbl"><thead id="crHead"></thead><tbody id="crBody"></tbody></table></div>
+      <p class="cr-legend" id="crLegend"></p>
+    </div>
+    <div class="stu-line" id="stuLine" hidden></div>
+    <div class="goal-card" id="goalCard"></div>
+    <div class="conf-sum" id="confSum"></div>
+    <div class="refl">
+      <div class="card">
+        <h3>Табыс баспалдағы</h3>
+        <label class="check"><input type="checkbox" id="st1"><span>¬, ∧, ∨ амалдарының ақиқат кестелерін білемін</span></label>
+        <label class="check"><input type="checkbox" id="st2"><span>Жолдар мен бағандар санын анықтап, жиындарды екілік санау ретімен жазамын</span></label>
+        <label class="check"><input type="checkbox" id="st3"><span>Аралық бағандар арқылы үш айнымалы өрнектің кестесін құрамын</span></label>
+        <label class="check"><input type="checkbox" id="st4"><span>Кестені талдаймын: ақиқат жиындарды санаймын, тең мәнділікті тексеремін</span></label>
+      </div>
+      <div class="card">
+        <h3>Шығу билеті 3-2-1</h3>
+        <label for="r3">Ақиқат кестесін құрудың 3 қадамы</label><textarea id="r3"></textarea>
+        <label for="r2">Аралық бағандардың 2 пайдасы</label><textarea id="r2"></textarea>
+        <label for="r1">Ақиқат кестесі қажет болатын өмірден 1 мысал</label><textarea id="r1"></textarea>
+      </div>
+    </div>
+    <div class="exit-end s-only"><button class="btn exit-main" type="button" id="endLesson">Сабақты аяқтап, шығу</button><span>Шықпас бұрын мұғалімге сабақ қорытындыңды көрсет.</span></div>
+  </section>
+
+  <section id="viktorina">
+    <div class="sec-head"><h2>Викторина ★ (уақыт қалса)</h2><p>Қосымша тапсырма: сабақтың соңында уақыт қалса орындаңыз. Ақиқат кестелері туралы жеті сұрақ, жауаптан кейін түсіндірме шығады. Мақсатқа жету деңгейіне әсер етпейді.</p><span class="score" id="score">0 / 7</span></div>
+    <div class="quiz" id="quiz"></div>
+    <div style="margin-top:14px"><button class="btn-ghost" type="button" id="quizReset">Қайта өту</button></div>
+  </section>
+
+</main>
+<div class="hint-modal" id="hintModal" hidden><div class="hm-box" role="dialog" aria-modal="true" aria-labelledby="hmTitle">
+  <h3 id="hmTitle">Кеңес</h3>
+  <p class="howto" style="margin:0">Кеңес оқушыны теорияға бағыттайды. Дайын шешімді оқушы көрмейді.</p>
+  <label>Кеңес мәтіні<textarea id="hmText" maxlength="240" rows="4"></textarea></label>
+  <label>Теорияның қай жерінен іздеу керек<select id="hmTab"></select></label>
+  <label>Кімге<select id="hmTo"></select></label>
+  <div class="hm-btns"><button class="btn" type="button" id="hmSend">Жіберу</button><button class="btn-ghost" type="button" id="hmCancel">Жабу</button></div>
+  <h4 style="margin:6px 0 0">Бүгін жіберілгендер</h4><ul class="hm-list" id="hmList"></ul>
+</div></div>
+<footer><div class="wrap">
+<div class="reset-box t-only" id="resetBox">
+  <button class="btn-ghost reset-btn" type="button" id="resetBtn">Барлық деректерді тазалау</button>
+  <span class="reset-ask" id="resetAsk" hidden>Барлық прогресті жою керек пе: код, жауаптар, нәтижелер және рефлексия? Мұны қайтару мүмкін емес.
+    <button class="btn danger" type="button" id="resetYes">Иә, тазалау</button>
+    <button class="btn-ghost" type="button" id="resetNo">Болдырмау</button></span>
+  <span class="reset-done" id="resetDone" hidden>Деректер тазаланды. Бет қайта жүктелуде…</span>
+</div>
+Еңбегі адал – өскелең азамат. Тапсырмаларды өз бетіңізше орындап, өзіңізді адал тексеріңіз.<br>Ресурс интернетсіз жұмыс істейді: кестелер браузердің өзінде тексеріледі. Интернет болса, нәтижелер мұғалімге жіберіледі.</div></footer>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+var absentMap=null,liveAbsent={};
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function absentOf(cls,src){const a=(src||{})[cls];return a&&a.d===todayStr()&&Array.isArray(a.names)?a.names:[];}
+function presentOf(cls){const ab=(typeof teacherMode!=='undefined'&&teacherMode)?absentOf(cls,absentMap||{}):absentOf(cls,liveAbsent);return (CLASSES[cls]||[]).filter(n=>!ab.includes(n));}
+const CUR_LANG='kz';
+const LESSON='truthtable';
+const store={get(k,d){try{const v=localStorage.getItem('ttablefree:'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('ttablefree:'+k,JSON.stringify(v))}catch(e){}}};if(!store.get('student',null)){store.set('seed',Math.random().toString(36).slice(2));store.set('student',{cls:'',name:'Оқушы',manual:true});}
+
+/* ---------- Python runner ---------- */
+function runPython(code,inputs){
+  return new Promise(resolve=>{
+    if(typeof Sk==='undefined'){resolve({out:'',err:'Python интерпретаторы жүктелмеді. Интернетке қосылуды тексеріп, бетті жаңартыңыз.'});return;}
+    let out='';const q=(inputs||[]).slice();
+    Sk.configure({output:t=>{out+=t},__future__:Sk.python3,execLimit:5000,yieldLimit:200,
+      read:x=>{if(Sk.builtinFiles===undefined||Sk.builtinFiles.files[x]===undefined)throw "Файл табылмады: "+x;return Sk.builtinFiles.files[x];},
+      inputfunTakesPrompt:true,
+      inputfun:p=>{if(p)out+=p;if(!q.length)throw new Sk.builtin.EOFError("input() үшін кіріс деректері жоқ: оларды «Енгізу» өрісіне жазыңыз");const v=q.shift();out+=(p?'':'')+'';return v;}});
+    Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody('<stdin>',false,code,true))
+      .then(()=>resolve({out,err:null}))
+      .catch(e=>{let m=e.toString();if(/TimeLimitError/.test(m))m='Бағдарлама тым ұзақ жұмыс істеп тұр. Мүмкін, шексіз цикл.';
+        else if(/bad token/.test(m)){const bare=code.replace(/#.*$/gm,'').replace(/(["']).*?\1/g,'');const ln=bare.split('\n').findIndex(l=>/[Ѐ-ӿ]/.test(l));
+          if(ln>=0)m=`${ln+1}-жолда тырнақшадан тыс кирилл әріптері бар, мысалы айнымалының немесе әдістің атында. Пернетақтаны ағылшын тіліне ауыстырып, атын латынша жазыңыз.\n(${m})`;}
+        resolve({out,err:m});});
+  });
+}
+/* set printing order differs between interpreters: turn every {..} into a sorted [..] */
+function splitTop(s){const parts=[];let d=0,q=null,cur='';for(const ch of s){if(q){cur+=ch;if(ch===q)q=null;continue}if(ch==="'"||ch==='"'){q=ch;cur+=ch;continue}if('([{'.includes(ch))d++;if(')]}'.includes(ch))d--;if(ch===','&&d===0){parts.push(cur.trim());cur='';continue}cur+=ch}if(cur.trim())parts.push(cur.trim());return parts}
+function norm(text){
+  let t=text.replace(/set\(\)/g,'[]');
+  t=t.replace(/\{([^{}:]*)\}/g,(m,inner)=>{const p=splitTop(inner);const num=p.every(x=>/^-?\d+(\.\d+)?$/.test(x));
+    p.sort(num?(a,b)=>a-b:(a,b)=>{const x=a.replace(/^['"]|['"]$/g,''),y=b.replace(/^['"]|['"]$/g,'');return x<y?-1:x>y?1:0});return '['+p.join(', ')+']';});
+  return t.replace(/"/g,"'").replace(/[ \t]+\n/g,'\n').trim();
+}
+
+/* ---------- editor component ---------- */
+function makeEditor(host,{title,code,stdin,extraBtns,compact}){
+  host.classList.add('editor');if(compact)host.classList.add('compact');
+  host.innerHTML=`<div class="ed-bar"><span class="title">${esc(title)}</span><button class="btn run" type="button">▶ Іске қосу</button></div>
+  <div class="ed-body"><textarea class="code" spellcheck="false" aria-label="Python коды"></textarea>
+  <div class="ed-side"><div><div class="lbl">Енгізу</div><textarea class="stdin" spellcheck="false" aria-label="Кіріс деректері"></textarea></div>
+  <div><div class="lbl">Шығару</div><div class="out" aria-live="polite"></div></div></div></div>`;
+  const ta=host.querySelector('textarea.code'),si=host.querySelector('textarea.stdin'),out=host.querySelector('.out'),run=host.querySelector('.run');
+  ta.value=code||'';si.value=stdin||'';
+  ta.addEventListener('keydown',e=>{if(e.key==='Tab'&&!e.shiftKey){e.preventDefault();const s=ta.selectionStart;ta.setRangeText('    ',s,ta.selectionEnd,'end');}
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();run.click();}});
+  run.addEventListener('click',async()=>{run.disabled=true;out.textContent='…';
+    const inputs=si.value===''?[]:si.value.split('\n');const r=await runPython(ta.value,inputs);
+    out.innerHTML=esc(r.out)+(r.err?`<span class="err">${esc(r.err)}</span>`:'')||'<span style="opacity:.6">(бос)</span>';
+    if(!r.out&&!r.err)out.innerHTML='<span style="opacity:.6">(бағдарлама ештеңе шығармады)</span>';run.disabled=false;});
+  if(extraBtns)extraBtns(host.querySelector('.ed-bar'));
+  return {ta,si,out,run};
+}
+
+/* ---------- tab 1: review ---------- */
+function matcher(host,key,pairs,codeLeft){
+  const order=store.get(key+':order',null)||pairs.map((_,i)=>i).sort(()=>Math.random()-.5);store.set(key+':order',order);
+  let links=store.get(key+':links',{}),sel=null,checked=false;
+  host.innerHTML=`<div class="m-cols"><div class="m-col m-left"></div><div class="m-col m-right"></div></div>
+   <div class="m-bar"><button class="btn alt" type="button">Тексеру</button><button class="btn-ghost" type="button">Тазалау</button><span class="m-res" aria-live="polite"></span></div>`;
+  const L=host.querySelector('.m-left'),Rt=host.querySelector('.m-right'),res=host.querySelector('.m-res');
+  const [bCheck,bReset]=host.querySelectorAll('.m-bar button');
+  function draw(){
+    const usedBy={};Object.entries(links).forEach(([l,r])=>usedBy[r]=+l);
+    L.innerHTML=pairs.map((pr,i)=>{const r=links[i];const st=checked&&r!==undefined?(r===i?' ok':' bad'):'';
+      return `<button type="button" class="m-item${sel===i?' sel':''}${r!==undefined?' linked':''}${st}" data-l="${i}">${r!==undefined?`<span class="m-tag">${order.indexOf(r)+1}</span>`:''}${codeLeft?`<code class="m-code">${esc(pr[0])}</code>`:`<code>${esc(pr[0])}</code>`}</button>`;}).join('');
+    Rt.innerHTML=order.map((ri,k)=>{const used=usedBy[ri]!==undefined;
+      return `<button type="button" class="m-item m-opt${used?' linked':''}" data-r="${ri}"><span class="m-tag">${k+1}</span><span>${esc(pairs[ri][1])}</span></button>`;}).join('');
+    L.querySelectorAll('[data-l]').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.l;checked=false;res.textContent='';
+      if(links[i]!==undefined&&sel!==i){delete links[i];sel=null;}else sel=(sel===i?null:i);store.set(key+':links',links);draw();}));
+    Rt.querySelectorAll('[data-r]').forEach(b=>b.addEventListener('click',()=>{if(sel===null){res.textContent='Алдымен сол жақтағы элементті таңдаңыз.';return;}
+      const r=+b.dataset.r;for(const k in links)if(links[k]===r)delete links[k];links[sel]=r;sel=null;checked=false;res.textContent='';store.set(key+':links',links);draw();}));
+  }
+  bCheck.addEventListener('click',()=>{const n=Object.keys(links).length;checked=true;const ok=pairs.filter((_,i)=>links[i]===i).length;
+    res.textContent=n<pairs.length?`${pairs.length} жұптың ${n} жалғанды. Дұрысы: ${ok}.`:(ok===pairs.length?`Барлық ${ok} жұп дұрыс. Керемет!`:`${pairs.length} жұптың ${ok} дұрыс. Қызыл жұптарды түзетіңіз.`);draw();
+    if(typeof onMatchCheck==='function')onMatchCheck({n,ok,total:pairs.length,wrong:pairs.filter((_,i)=>links[i]!==undefined&&links[i]!==i).map(x=>x[0].split('\n')[0]),empty:pairs.filter((_,i)=>links[i]===undefined).length});});
+  bReset.addEventListener('click',()=>{links={};sel=null;checked=false;res.textContent='';store.set(key+':links',links);draw();});
+  draw();
+}
+matcher($('#matchA'),'mT2',[["Конъюнкция (∧)", "ЖӘНЕ: екеуі де 1 болса ғана 1"], ["Дизъюнкция (∨)", "НЕМЕСЕ: кемінде біреуі 1 болса 1"], ["Инверсия (¬)", "ЕМЕС: мәнді керісінше өзгертеді"], ["2 айнымалы", "4 жол"], ["3 айнымалы", "8 жол"], ["Амалдар реті", "( )  →  ¬  →  ∧  →  ∨"]],false);
+
+/* ---------- logic expression parser (¬ ∧ ∨ → ↔, also words) ---------- */
+const LG_PREC={eq:1,imp:2,or:3,and:4,not:5,atom:6};
+const LG_SYM={and:'∧',or:'∨',imp:'→',eq:'↔'};
+function lgParse(src){
+  src=String(src).replace(/А/g,'A').replace(/В/g,'B').replace(/С/g,'C');
+  const toks=[];let pos=0;const re=/(\(|\)|¬|∧|∨|→|↔|<->|->|&&|\|\||&|\||!|~|[A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІі_][A-Za-zА-Яа-яӘәҒғҚқҢңӨөҰұҮүҺһІі_0-9]*|\d+)/y;
+  while(pos<src.length){if(/\s/.test(src[pos])){pos++;continue;}re.lastIndex=pos;const m=re.exec(src);if(!m)throw `«${src[pos]}» таңбасы түсініксіз`;toks.push(m[1]);pos=re.lastIndex;}
+  const KW={'¬':'not','!':'not','~':'not','not':'not','ЕМЕС':'not','емес':'not',
+    '∧':'and','&':'and','&&':'and','and':'and','ЖӘНЕ':'and','және':'and',
+    '∨':'or','|':'or','||':'or','or':'or','НЕМЕСЕ':'or','немесе':'or','→':'imp','->':'imp','↔':'eq','<->':'eq'};
+  const T=toks.map(t=>KW[t]||t);let i=0;const vars=new Set();const take=t=>{if(T[i]===t){i++;return true;}return false;};
+  function pEq(){let n=pImp();while(take('eq')){n={t:'eq',a:n,b:pImp()};}return n;}
+  function pImp(){const n=pOr();if(take('imp'))return {t:'imp',a:n,b:pImp()};return n;}
+  function pOr(){let n=pAnd();while(take('or'))n={t:'or',a:n,b:pAnd()};return n;}
+  function pAnd(){let n=pNot();while(take('and'))n={t:'and',a:n,b:pNot()};return n;}
+  function pNot(){if(take('not'))return {t:'not',a:pNot()};return pAtom();}
+  function pAtom(){const t=T[i];if(t===undefined)throw 'өрнек толық емес: соңында айнымалы жетіспейді';i++;
+    if(t==='('){const n=pEq();if(!take(')'))throw 'жабылатын жақша «)» жетіспейді';return n;}
+    if(t==='0'||t==='1')return {t:'c',v:+t};
+    if(/^[A-D]$/.test(t)){vars.add(t);return {t:'v',n:t};}
+    if(['and','or','imp','eq'].includes(t))throw `«${toks[i-1]}» алдында айнымалы немесе жақша керек`;
+    if(t===')')throw 'артық жабылатын жақша «)»';
+    if(/^[a-d]$/.test(t))throw `«${t}» — айнымалыларды бас әріппен жазыңыз: ${t.toUpperCase()}`;
+    throw `«${toks[i-1]}» — белгісіз белгі. Айнымалылар: A, B, C, D; амалдар: ¬, ∧, ∨`;}
+  const ast=pEq();if(i<T.length)throw `«${toks[i]}» артық: амал (∧, ∨) жетіспеуі мүмкін`;
+  return {ast,vars:[...vars].sort()};}
+function lgEval(n,env){switch(n.t){case 'c':return n.v;case 'v':return env[n.n]?1:0;case 'not':return lgEval(n.a,env)?0:1;
+  case 'and':return lgEval(n.a,env)&&lgEval(n.b,env)?1:0;case 'or':return lgEval(n.a,env)||lgEval(n.b,env)?1:0;
+  case 'imp':return (!lgEval(n.a,env)||lgEval(n.b,env))?1:0;case 'eq':return lgEval(n.a,env)===lgEval(n.b,env)?1:0;}}
+function lgPrec(n){return n.t==='c'||n.t==='v'?6:LG_PREC[n.t];}
+function lgStr(n){if(n.t==='c')return String(n.v);if(n.t==='v')return n.n;
+  if(n.t==='not'){const s=lgStr(n.a);return '¬'+(lgPrec(n.a)<5?'('+s+')':s);}
+  const p=LG_PREC[n.t];const L=lgStr(n.a),R=lgStr(n.b);
+  const clar=x=>n.t==='or'&&x.t==='and';const wl=lgPrec(n.a)<p||(n.t==='imp'&&lgPrec(n.a)===p)||clar(n.a);const wr=lgPrec(n.b)<p||(n.t!=='imp'&&lgPrec(n.b)===p&&n.b.t!==n.t)||clar(n.b);
+  return (wl?'('+L+')':L)+' '+LG_SYM[n.t]+' '+(wr?'('+R+')':R);}
+function lgOps(n,acc){acc=acc||[];if(n.t==='c'||n.t==='v')return acc;lgOps(n.a,acc);if(n.b)lgOps(n.b,acc);const s=lgStr(n);if(!acc.some(x=>x.s===s))acc.push({s,n});return acc;}
+function lgCompile(e){const p=lgParse(e);return env=>lgEval(p.ast,env);}
+function ttEnvRows(vars){const n=vars.length;return Array.from({length:2**n},(_,k)=>{const env={};vars.forEach((v,i)=>env[v]=(k>>(n-1-i))&1);return env;});}
+/* table html: vars + cols ([header, expr] or expr) */
+function ttStatic(vars,cols){const C=cols.map(c=>Array.isArray(c)?c:[c,c]);const fs=C.map(c=>lgCompile(c[1]));
+  return `<div class="tbl-wrap"><table class="tt-tbl"><thead><tr>${vars.map(v=>`<th>${v}</th>`).join('')}${C.map((c,j)=>`<th class="${j===0?'fcol':''}">${esc(c[0])}</th>`).join('')}</tr></thead><tbody>`+
+    ttEnvRows(vars).map(env=>`<tr>${vars.map(v=>`<td>${env[v]}</td>`).join('')}${fs.map((f,j)=>{const x=f(env);return `<td class="${j===0?'fcol':''}${j===fs.length-1&&x?' one':''}">${x}</td>`;}).join('')}</tr>`).join('')+'</tbody></table></div>';}
+/* interactive truth table task */
+function mountTT(host,list,o){
+ list.forEach((t,idx)=>{
+  const key=o.keyOf(t,idx);const vars=t.vars,C=t.cols.map(c=>Array.isArray(c)?c:[c,c]),fs=C.map(c=>lgCompile(c[1]));
+  const envs=ttEnvRows(vars),nv=vars.length,nc=nv+C.length;
+  const exp=envs.map(env=>vars.map(v=>env[v]).concat(fs.map(f=>f(env))));
+  const editable=(ci)=>ci<nv?!!t.fillVars:!(t.given||[]).includes(ci-nv);
+  const box=document.createElement('div');box.className='task';if(t.lv)box.dataset.lv=t.lv;
+  box.innerHTML=`<div class="task-head"><span class="badge ${t.lv||''}">${esc(o.badge(t,idx))}</span><h3>${esc(t.title||t.t)}</h3><span class="status"></span></div>
+   <p class="desc">${esc(t.desc||t.goal)}</p><div class="tt-task"></div>
+   ${t.q?`<div class="answer-row tt-q"><label>${esc(t.q.text)}</label><input type="text" class="tt-ans" autocomplete="off"></div>`:''}
+   <div class="ed-bar tt-bar"><button class="btn alt chk" type="button" data-chk="1">✓ Тексеру</button><button class="btn-ghost tt-clr" type="button">${t.errs?'Бастапқы кесте':'Тазалау'}</button></div>
+   <div class="verdict" hidden></div>
+   <details class="sol"><summary>${o.solLbl}</summary><div class="solbody"></div></details>`;
+  host.appendChild(box);
+  const init=()=>exp.map((r,ri)=>r.map((v,ci)=>{if(t.errs){const e=t.errs.find(x=>x[0]===ri&&x[1]===ci);return String(e?e[2]:v);}return editable(ci)?'':String(v);}));
+  let cells=store.get('ttc-'+key,null);if(!Array.isArray(cells)||cells.length!==exp.length)cells=init();
+  let marks=null;const ans=box.querySelector('.tt-ans');if(ans){ans.value=store.get('tta-'+key,'');ans.addEventListener('input',()=>store.set('tta-'+key,ans.value));}
+  const tbl=box.querySelector('.tt-task');
+  function draw(){tbl.innerHTML=`<div class="tbl-wrap"><table class="tt-tbl tt-play"><thead><tr>${vars.map(v=>`<th>${v}</th>`).join('')}${C.map((c,j)=>`<th class="${j===0?'fcol':''}">${esc(c[0])}</th>`).join('')}</tr></thead><tbody>`+
+    cells.map((r,ri)=>`<tr>${r.map((v,ci)=>{const ed=t.errs?(ci>=nv||!!t.fillVars):editable(ci);const cl=(ci===nv?'fcol ':'')+(ci<nv?'vcol':'');
+      if(!ed)return `<td class="${cl}">${v}</td>`;const mk=marks?(marks[ri][ci]===null?'':marks[ri][ci]?' ok':' bad'):'';
+      return `<td class="${cl} tt-f"><button type="button" class="tt-cell${mk}${ci<nv?' var':''}" data-r="${ri}" data-c="${ci}">${v===''?'·':v}</button></td>`;}).join('')}</tr>`).join('')+'</tbody></table></div>';
+    tbl.querySelectorAll('.tt-cell').forEach(b=>b.addEventListener('click',()=>{const r=+b.dataset.r,c=+b.dataset.c;const v=cells[r][c];
+      cells[r][c]=v===''?'0':v==='0'?'1':'0';marks=null;store.set('ttc-'+key,cells);draw();}));}
+  draw();
+  const verdict=box.querySelector('.verdict'),st=box.querySelector('.status');
+  box.querySelector('.solbody').innerHTML=ttStatic(vars,C)+(t.q?`<p style="margin-top:6px"><b>Жауап:</b> ${esc(t.q.ans[0])}</p>`:'')+(t.why?`<p style="margin-top:6px">${esc(t.why)}</p>`:'');
+  const scOf=()=>o.scores?o.scores[key]:undefined;
+  const renderSt=()=>{const sc=scOf();st.className='status'+(o.done[key]?' done':'');st.textContent=(o.done[key]?o.doneLbl:'')+(sc?`${o.done[key]?' · ':''}${sc.rows} / ${sc.total} балл`:'');};renderSt();
+  const clr=box.querySelector('.tt-clr');const lockClr=()=>{if(o.scores&&o.scores[key]){clr.disabled=true;clr.title='Балл бекітілді: кестені тазалауға болмайды';}};lockClr();
+  clr.addEventListener('click',()=>{if(clr.disabled)return;cells=init();marks=null;store.set('ttc-'+key,cells);draw();verdict.hidden=true;});
+  box.querySelector('.chk').addEventListener('click',()=>{verdict.hidden=false;verdict.style.whiteSpace='pre-wrap';
+    let empty=0,wrong=0;marks=cells.map((r,ri)=>r.map((v,ci)=>{const ed=t.errs?(ci>=nv||!!t.fillVars):editable(ci);if(!ed)return true;if(o.onlyLast&&ci!==nc-1)return null;if(v==='')empty++;const ok=v!==''&&+v===exp[ri][ci];if(!ok&&v!=='')wrong++;return ok;}));
+    let fail=null;
+    const RULE={not:'¬ (ЕМЕС) мәнді керісінше өзгертеді: 0 → 1, 1 → 0',and:'∧ (ЖӘНЕ) тек екі мән де 1 болғанда 1 береді',or:'∨ (НЕМЕСЕ) кемінде біреуі 1 болса 1 береді',imp:'→ тек 1 → 0 жағдайында 0 береді',eq:'↔ мәндер бірдей болса 1 береді'};
+    const hint=(ci,ri)=>{if(ci<nv){const g=2**(nv-1-ci);return `«${vars[ci]}» бағаны: `+(ci===0?'жоғарғы жартысы 0, төменгі жартысы 1':g===1?'0 мен 1 кезектеседі (0, 1, 0, 1, …)':`${g} нөл, ${g} бір — кезектесіп қайталанады`)+'. Жиындар екілік санау ретімен жазылады.';}
+      const h=C[ci-nv],n=lgParse(h[1]).ast,env=envs[ri],val=x=>lgEval(x,env);
+      if(!RULE[n.t])return `«${h[0]}» бағанын ${ri+1}-жолда қайта тексеріңіз.`;
+      const ex=n.t==='not'?`${lgStr(n.a)} = ${val(n.a)} → ¬${val(n.a)} = ?`:`${lgStr(n.a)} = ${val(n.a)}, ${lgStr(n.b)} = ${val(n.b)} → ${val(n.a)} ${LG_SYM[n.t]} ${val(n.b)} = ?`;
+      return `«${h[0]}» бағаны: ${RULE[n.t]}. Мысалы, ${ri+1}-жол: ${ex}`;};
+    if(empty){fail=o.onlyLast?`Соңғы (F) бағанда бос ұяшықтар бар: ${empty}. F бағанын толық толтырыңыз — тек сол тексеріледі.`:`Бос ұяшықтар бар: ${empty} («·» белгісі). Әр ұяшықты басып, 0 немесе 1 таңдаңыз.`;marks=null;}
+    else if(wrong){const byCol={};marks.forEach(r=>r.forEach((ok,ci)=>{if(ok===false)byCol[ci]=(byCol[ci]||0)+1;}));
+      const cs=Object.keys(byCol).map(Number).sort((a,b)=>a-b);
+      const lines=cs.slice(0,3).map(ci=>'• '+hint(ci,marks.findIndex(r=>r[ci]===false))+` (бұл бағанда қате: ${byCol[ci]})`);
+      fail=(o.onlyLast?`F бағанында қате жолдар: ${wrong} — қызылмен белгіленді. Көмек үшін аралық бағандарды толтырып көріңіз.\n`:`Қате ұяшықтар: ${wrong} — қызылмен белгіленді.\n`)+lines.join('\n')+(cs.length>1?'\nКеңес: ең сол жақтағы қате бағаннан бастаңыз — ол оң жақтағы бағандарға әсер етеді.':'');}
+    else if(t.q){const a=(ans.value||'').trim().toLowerCase().replace(/\s+/g,' ');
+      if(!a)fail='Кесте дұрыс! Енді төмендегі сұраққа жауап беріңіз.';
+      else if(!t.q.ans.includes(a)){const isEq=t.q.ans.includes('иә')||t.q.ans.includes('жоқ'),isCnt=/саны|неше жиында/.test(t.q.text);
+        fail='Кесте дұрыс, бірақ сұраққа жауап қате.\n'+(isEq?'Екі өрнектің соңғы бағандарын жол-жолымен салыстырыңыз: барлық жолда бірдей болса — «иә», кемінде бір жолда өзгеше болса — «жоқ».':isCnt?'Соңғы F бағанындағы 1-лерді қайта санаңыз: әр 1 — өрнек ақиқат болатын бір жиын.':(t.q.hint||'Кестені тағы бір қараңыз.'));}}
+    o.tries[key]=(o.tries[key]||0)+1;store.set(o.keyTries,o.tries);
+    let scLine='';
+    if(o.scores){const lc=nc-1,filledAll=!cells.some((r,ri)=>r.some((v,ci)=>editable(ci)&&(!o.onlyLast||ci===nc-1)&&v===''));
+      if(filledAll&&!o.scores[key]){const okRows=exp.filter((r,ri)=>cells[ri][lc]!==''&&+cells[ri][lc]===r[lc]).length;
+        o.scores[key]={pts:Math.round(okRows/exp.length*100)/100,rows:okRows,total:exp.length};store.set(o.keyScores,o.scores);}
+      const sc=o.scores[key];
+      scLine=sc?`\n\nБалл: ${sc.rows} / ${sc.total} — соңғы бағандағы әр дұрыс жол 1 балл. Балл бірінші тексеруде бекітілді.\nЖалпы: ${foRows().ok} / ${foRows().all} балл → ${foFmt(foTotal())} / 10.`:(o.onlyLast?'\n\nБалл F бағаны толық толтырылғанда есептеледі.':'\n\nБалл барлық ұяшық толтырылғанда есептеледі.');}
+    if(fail){verdict.className='verdict no';verdict.textContent=fail+scLine;}
+    else{verdict.className='verdict ok';verdict.textContent=(t.errs?'Барлық қате түзетілді!':o.onlyLast?`F бағаны толық дұрыс (${exp.length} жол). Керемет!`:`Кесте толық дұрыс (${exp.length} жол, ${nc} баған). Керемет!`)+scLine;o.done[key]=true;store.set(o.keyDone,o.done);}
+    draw();renderSt();lockClr();if(o.after)o.after();});
+ });}
+
+/* ---------- tab 2: race — F at once vs intermediate columns ---------- */
+function raceMake(id,vars,cols){const host=$('#'+id);const C=cols.map(c=>Array.isArray(c)?c:[c,c]),fs=C.map(c=>lgCompile(c[1]));const envs=ttEnvRows(vars);
+  const exp=envs.map(env=>fs.map(f=>f(env)));let vals,t0=0,t1=0,tick=null,checked=false;
+  host.innerHTML=`<div class="tbl-wrap"><table class="tt-race"></table></div><div class="answer-row"><button class="btn" type="button">Тексеру</button><button class="btn-ghost" type="button">Қайта бастау</button><span class="race-time">0,0 с</span></div><p class="feedback" hidden></p>`;
+  const tb=host.querySelector('table'),[bChk,bNew]=host.querySelectorAll('button.btn,button.btn-ghost'),tm=host.querySelector('.race-time'),fb=host.querySelector('.feedback');
+  const fmt=ms=>(ms/1000).toFixed(1).replace('.',',')+' с';const show=()=>{tm.textContent=fmt(t0?((t1||Date.now())-t0):0);};
+  function draw(){tb.innerHTML=`<thead><tr>${vars.map(v=>`<th>${v}</th>`).join('')}${C.map(c=>`<th>${esc(c[0])}</th>`).join('')}</tr></thead><tbody>`+envs.map((env,k)=>`<tr>${vars.map(v=>`<td>${env[v]}</td>`).join('')}${C.map((c,j)=>{const v=vals[k][j];const cl=checked?(v!==''&&+v===exp[k][j]?'ok':'bad'):'';return `<td class="tt-f"><button type="button" data-k="${k}" data-j="${j}" class="${cl}">${v===''?'·':v}</button></td>`;}).join('')}</tr>`).join('')+'</tbody>';
+    tb.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{if(t1)return;if(!t0){t0=Date.now();tick=setInterval(show,100);}const k=+b.dataset.k,j=+b.dataset.j;vals[k][j]=vals[k][j]===''?'0':vals[k][j]==='0'?'1':'0';checked=false;draw();}));}
+  function reset(){clearInterval(tick);vals=envs.map(()=>C.map(()=>''));t0=0;t1=0;checked=false;fb.hidden=true;draw();show();}
+  bNew.addEventListener('click',reset);
+  bChk.addEventListener('click',()=>{fb.hidden=false;const all=vals.flat(),filled=all.filter(v=>v!=='').length;
+    if(filled<all.length){fb.className='feedback no';fb.textContent=`Барлық ұяшықты толтырыңыз (толтырылғаны: ${filled} / ${all.length}).`;return;}
+    const ok=vals.flat().filter((v,i)=>+v===exp.flat()[i]).length;checked=true;
+    if(ok===all.length){t1=Date.now();clearInterval(tick);show();fb.className='feedback ok';fb.textContent=`Барлығы дұрыс! Уақытыңыз: ${fmt(t1-t0)}.`;}
+    else{fb.className='feedback no';fb.textContent=`Дұрысы: ${ok} / ${all.length}. Қызыл ұяшықтарды түзетіңіз.`;}draw();});
+  reset();}
+raceMake('race1',['A','B','C'],[['F = (A ∨ B) ∧ ¬C','(A ∨ B) ∧ ¬C']]);
+raceMake('race2',['A','B','C'],['A ∨ B','¬C',['F = (A ∨ B) ∧ ¬C','(A ∨ B) ∧ ¬C']]);
+
+/* ---------- truth table constructor ---------- */
+let tt=null,ttTimer=null,ttMode=store.get('ttMode','row');
+function ttStop(){clearInterval(ttTimer);ttTimer=null;$('#ttAuto').textContent='▶ Авто';}
+function ttReset(){ttStop();const src=$('#ttExpr').value.trim();let p;
+  try{if(!src)throw 'өрнекті жазыңыз';p=lgParse(src);if(!p.vars.length)throw 'өрнекте айнымалы жоқ (A, B, C, D)';}
+  catch(e){tt=null;$('#ttTbl').innerHTML='';$('#ttSteps').innerHTML=`<span class="tt-err">Қате: ${esc(e)}</span>`;['#ttVars','#ttRows','#ttCols','#ttOnes'].forEach(s=>$(s).textContent='—');$('#ttState').textContent='';return;}
+  const ops=lgOps(p.ast);if(!ops.length)ops.push({s:lgStr(p.ast),n:p.ast});
+  const envs=ttEnvRows(p.vars);tt={vars:p.vars,ops,envs,F:lgStr(p.ast),step:0,
+    vals:envs.map(env=>ops.map(o=>lgEval(o.n,env)))};
+  tt.total=ttMode==='row'?envs.length:p.vars.length+ops.length;
+  $('#ttVars').textContent=`${p.vars.join(', ')} (n = ${p.vars.length})`;$('#ttRows').textContent=`2^${p.vars.length} = ${envs.length}`;
+  $('#ttCols').textContent=`${p.vars.length} + ${ops.length} = ${p.vars.length+ops.length}`;ttDraw();}
+function ttVisible(r,c){if(!tt)return false;if(ttMode==='row')return r<tt.step;return c<tt.step;}
+function ttDraw(){if(!tt)return;const v=tt.vars,nv=v.length,done=tt.step>=tt.total;
+  const curR=ttMode==='row'?tt.step-1:-1,curC=ttMode==='col'?tt.step-1:-1;
+  $('#ttTbl').innerHTML=`<thead><tr>${v.map((x,c)=>`<th class="${c===curC?'curc':''}">${x}</th>`).join('')}${tt.ops.map((o,j)=>`<th class="${j===0?'fcol ':''}${nv+j===curC?'curc':''}">${esc(o.s)}</th>`).join('')}</tr></thead><tbody>`+
+    tt.envs.map((env,r)=>`<tr class="${r===curR&&!done?'cur':''}">${v.map((x,c)=>`<td class="${c===curC?'curc':''}">${ttVisible(r,c)?env[x]:''}</td>`).join('')}${tt.ops.map((o,j)=>{const c=nv+j;const val=tt.vals[r][j];
+      return `<td class="${j===0?'fcol ':''}${c===curC?'curc ':''}${j===tt.ops.length-1&&val&&ttVisible(r,c)?'one':''}">${ttVisible(r,c)?val:''}</td>`;}).join('')}</tr>`).join('')+'</tbody>';
+  const ones=tt.vals.filter(r=>r[r.length-1]).length;$('#ttOnes').textContent=done?ones:'…';
+  let html='<ol class="tt-ops">'+tt.ops.map((o,j)=>`<li class="${ttMode==='col'&&nv+j===curC?'on':''}">${esc(o.s)}${j===tt.ops.length-1?' <b>= F</b>':''}</li>`).join('')+'</ol>';
+  if(ttMode==='row'&&curR>=0){const env=tt.envs[curR];
+    html+=`<div class="tt-calc"><b>${curR+1}-жол:</b> ${v.map(x=>x+' = '+env[x]).join(', ')}<br>`+tt.ops.map((o,j)=>{const n=o.n;const val=tt.vals[curR][j];
+      const sub=x=>lgEval(x,env);let mid=n.t==='not'?`¬${sub(n.a)}`:n.b?`${sub(n.a)} ${LG_SYM[n.t]} ${sub(n.b)}`:String(val);return `${esc(o.s)} = ${mid} = <b>${val}</b>`;}).join('<br>')+'</div>';}
+  else if(ttMode==='col'&&curC>=0){html+=`<div class="tt-calc">${curC<nv?`<b>${v[curC]}</b> бағаны: ${curC===0?'жартысы 0, жартысы 1':curC===nv-1?'0 мен 1 кезектеседі':'0 мен 1 топтары '+(2**(nv-1-curC))+'-ден'}`:`<b>${esc(tt.ops[curC-nv].s)}</b> бағаны есептелді`}</div>`;}
+  else html+='<div class="tt-calc">«Қадам» батырмасын басыңыз.</div>';
+  $('#ttSteps').innerHTML=html;
+  $('#ttState').textContent=done?`Кесте дайын: ${tt.envs.length} жол, F = 1 болатын жолдар: ${ones}`:'';}
+function ttStepOnce(){if(!tt||tt.step>=tt.total)return false;tt.step++;return true;}
+function ttSetMode(m){ttMode=m;store.set('ttMode',m);document.querySelectorAll('[data-ttm]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ttm===m));ttReset();}
+document.querySelectorAll('[data-ttm]').forEach(b=>b.addEventListener('click',()=>ttSetMode(b.dataset.ttm)));
+$('#ttStep').addEventListener('click',()=>{if(!tt||tt.step>=tt.total)ttReset();if(tt){ttStepOnce();ttDraw();}});
+$('#ttAuto').addEventListener('click',()=>{if(ttTimer){ttStop();return;}if(!tt||tt.step>=tt.total)ttReset();if(!tt)return;
+  $('#ttAuto').textContent='❚❚ Үзіліс';ttTimer=setInterval(()=>{ttStepOnce();ttDraw();if(tt.step>=tt.total)ttStop();},ttMode==='row'?900:1300);});
+$('#ttAll').addEventListener('click',()=>{ttReset();if(!tt)return;tt.step=tt.total;ttDraw();});
+$('#ttReset').addEventListener('click',ttReset);
+$('#ttExpr').addEventListener('change',ttReset);
+$('#ttExpr').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ttReset();}});
+document.querySelectorAll('[data-ex]').forEach(b=>b.addEventListener('click',()=>{$('#ttExpr').value=b.dataset.ex;ttReset();}));
+document.querySelectorAll('[data-sym]').forEach(b=>b.addEventListener('click',()=>{const inp=$('#ttExpr');const s=inp.selectionStart??inp.value.length,e=inp.selectionEnd??s;
+  const ins=b.dataset.sym==='⌫'?'':b.dataset.sym;let v=inp.value;if(b.dataset.sym==='⌫'){if(s===e&&s>0){inp.value=v.slice(0,s-1)+v.slice(e);inp.setSelectionRange(s-1,s-1);}else{inp.value=v.slice(0,s)+v.slice(e);inp.setSelectionRange(s,s);}}
+  else{inp.value=v.slice(0,s)+ins+v.slice(e);inp.setSelectionRange(s+ins.length,s+ins.length);}inp.focus();}));
+ttSetMode(ttMode);
+
+/* ---------- variables → rows generator (theory) ---------- */
+const GEN_V=['A','B','C','D','E','F'],SUP='⁰¹²³⁴⁵⁶';
+function genDraw(n){n=Math.max(1,Math.min(6,n|0));document.querySelectorAll('[data-gn]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.gn===n));store.set('genN',n);
+  const rows=2**n,v=GEN_V.slice(0,n);
+  $('#genStat').innerHTML=`<div class="gen-big">n = ${n}  →  2${SUP[n]} = ${n>1?Array(n).fill(2).join(' · ')+' = ':''}<b>${rows} жол</b></div>`+
+    `<div class="gen-cols">${v.map((x,i)=>{const g=2**(n-1-i);return `<span><b>${x}</b>: ${g===1?'0 мен 1 кезектеседі':i===0?`жартысы 0 (${g}), жартысы 1 (${g})`:`${g} нөл, ${g} бір — қайталанады`}</span>`;}).join('')}</div>`;
+  $('#genTbl').innerHTML=`<thead><tr><th>№</th>${v.map(x=>`<th>${x}</th>`).join('')}<th class="fcol">ондық сан</th></tr></thead><tbody>`+
+    Array.from({length:rows},(_,k)=>`<tr><td class="gen-no">${k+1}</td>${v.map((x,i)=>{const b=(k>>(n-1-i))&1;return `<td class="${b?'b1':''}">${b}</td>`;}).join('')}<td class="fcol gen-k">${k}</td></tr>`).join('')+'</tbody>';}
+document.querySelectorAll('[data-gn]').forEach(b=>b.addEventListener('click',()=>genDraw(+b.dataset.gn)));
+genDraw(store.get('genN',3));
+
+const EXAMPLES=[{"grp": "2 айнымалы", "sig": "¬A ∨ B", "p": "2 айнымалы → 4 жол. Амал екеу: алдымен ¬A, содан кейін ∨. Бағандар: A, B, ¬A, F.", "vars": ["A", "B"], "cols": ["¬A", "¬A ∨ B"]}, {"grp": "Жақша", "sig": "¬(A ∧ B)", "p": "Жақша бірінші: алдымен A ∧ B, содан кейін бүкіл жақшаны терістейміз. F бағаны A ∧ B бағанына керісінше.", "vars": ["A", "B"], "cols": ["A ∧ B", "¬(A ∧ B)"]}, {"grp": "3 айнымалы", "sig": "(A ∨ B) ∧ ¬C", "p": "3 айнымалы → 8 жол. Амалдар реті: жақша (A ∨ B), терістеу ¬C, соңында ∧. Барлығы 6 баған.", "vars": ["A", "B", "C"], "cols": ["A ∨ B", "¬C", "(A ∨ B) ∧ ¬C"]}, {"grp": "Амалдар реті", "sig": "A ∨ B ∧ C", "p": "Жақша жоқ, бірақ ∧ бірінші орындалады: A ∨ (B ∧ C). A = 1 болса, F әрқашан 1.", "vars": ["A", "B", "C"], "cols": ["B ∧ C", "A ∨ B ∧ C"]}, {"grp": "Тең мәнділік", "sig": "¬(A ∨ B) = ¬A ∧ ¬B", "p": "Екі өрнектің соңғы бағандары барлық жолда бірдей, демек олар тең мәнді (де Морган заңы).", "vars": ["A", "B"], "cols": ["A ∨ B", "¬(A ∨ B)", "¬A", "¬B", "¬A ∧ ¬B"]}];
+/* ---------- worked examples ---------- */
+$('#methods').innerHTML=EXAMPLES.map((m,i)=>`<div class="method ex-card"><span class="grp">${esc(m.grp)}</span><span class="sig">${esc(m.sig)}</span><p>${esc(m.p)}</p>${ttStatic(m.vars,m.cols)}<button class="btn-ghost" type="button" data-m="${i}">Конструкторда ашу ↓</button></div>`).join('');
+document.querySelectorAll('[data-m]').forEach(b=>b.addEventListener('click',()=>{const m=EXAMPLES[+b.dataset.m];$('#ttExpr').value=m.cols[m.cols.length-1];location.hash='lab';setTimeout(()=>{ttReset();},60);}));
+
+const FO_GEN=[{"id": "Ф1", "lv": "A", "title": "Бір айнымалы", "vars": ["A"], "perm": false, "q": null, "d": "Бір айнымалы — 2 жол. F бағанын толтырыңыз (аралық баған — көмекші).", "v": ["¬A", "¬¬A", "A ∨ ¬A", "A ∧ ¬A"]}, {"id": "Ф2", "lv": "A", "title": "Бір амал", "vars": ["A", "B"], "perm": true, "q": null, "d": "F бағанын толтырыңыз. Аралық баған — көмекші, ол тексерілмейді.", "v": ["A ∧ B", "A ∨ B", "A ∧ ¬B", "¬A ∨ B", "¬A ∧ B", "A ∨ ¬B"]}, {"id": "Ф3", "lv": "A", "title": "Терістеу", "vars": ["A", "B"], "perm": true, "q": null, "d": "Амалдардың ретін сақтаңыз. Тек F бағаны тексеріледі.", "v": ["¬A ∨ ¬B", "¬A ∧ ¬B", "¬(A ∧ B)", "¬(A ∨ B)", "¬(A ∧ ¬B)", "¬(¬A ∨ B)"]}, {"id": "Ф4", "lv": "B", "title": "Кестені толық құр", "vars": ["A", "B"], "perm": true, "fill": true, "q": null, "d": "Айнымалылар мен аралық бағандар — көмекші, тек F бағаны тексеріледі.", "v": ["(A ∨ B) ∧ ¬A", "¬A ∨ (A ∧ B)", "(A ∧ ¬B) ∨ (¬A ∧ B)", "(A ∨ ¬B) ∧ (¬A ∨ B)", "¬(A ∧ B) ∧ A", "¬A ∧ (A ∨ B)", "(A ∨ ¬B) ∧ ¬A"]}, {"id": "Ф5", "lv": "B", "title": "Үш айнымалы", "vars": ["A", "B", "C"], "perm": true, "q": "count", "d": "Тек F бағаны тексеріледі; аралық бағандар есептеуге көмектеседі.", "v": ["(A ∨ B) ∧ C", "(A ∧ B) ∨ C", "A ∧ (B ∨ C)", "A ∨ (B ∧ C)", "(A ∨ B) ∧ ¬C", "(A ∧ ¬B) ∨ C"]}, {"id": "Ф6", "lv": "B", "title": "Жақша және терістеу", "vars": ["A", "B", "C"], "perm": true, "q": "count", "d": "Жақша, терістеу, содан кейін қалған амалдар. Тек F бағаны тексеріледі.", "v": ["A ∧ ¬(B ∨ C)", "¬(A ∧ B) ∨ C", "¬(A ∨ B) ∨ C", "A ∨ ¬(B ∧ C)", "¬A ∧ (B ∨ C)", "(A ∨ B) ∧ ¬(A ∧ C)"]}, {"id": "Ф7", "lv": "B", "title": "Амалдар реті", "vars": ["A", "B", "C"], "perm": true, "fill": true, "q": "count", "d": "Жақша жоқ: реті ¬, ∧, ∨. Тек F бағаны тексеріледі.", "v": ["¬A ∨ B ∧ ¬C", "A ∧ ¬B ∨ C", "¬A ∧ B ∨ ¬C", "A ∨ ¬B ∧ C", "¬A ∨ ¬B ∧ C"]}, {"id": "Ф8", "lv": "C", "title": "Тең мәнді ме?", "vars": ["A", "B"], "perm": true, "q": "eq", "d": "F бағанын толтырып, G бағанымен салыстырыңыз. Тек F бағаны тексеріледі.", "v": [{"e": "A ∨ (A ∧ B)", "g": "A"}, {"e": "A ∧ (A ∨ B)", "g": "A"}, {"e": "A ∨ (¬A ∧ B)", "g": "A ∨ B"}, {"e": "A ∧ (¬A ∨ B)", "g": "A ∧ B"}, {"e": "A ∨ (A ∧ B)", "g": "B"}, {"e": "(A ∨ B) ∧ ¬A", "g": "¬A"}, {"e": "(A ∧ B) ∨ (A ∧ ¬B)", "g": "A"}, {"e": "(A ∨ B) ∧ (A ∨ ¬B)", "g": "A"}, {"e": "¬(A ∧ B)", "g": "¬A ∧ ¬B"}]}, {"id": "Ф9", "lv": "C", "title": "Төрт айнымалы", "vars": ["A", "B", "C", "D"], "perm": true, "fill": true, "q": "count", "d": "4 айнымалы — 16 жол. Тек F бағаны тексеріледі.", "v": ["(A ∨ B) ∧ ¬(C ∧ D)", "(A ∧ B) ∨ (C ∧ D)", "(A ∨ B) ∧ (C ∨ D)", "(A ∧ ¬B) ∨ (C ∧ ¬D)", "¬(A ∨ B) ∨ (C ∧ D)"]}, {"id": "Ф10", "lv": "C", "title": "Сөзден кестеге", "vars": ["A", "B", "C"], "perm": false, "fill": true, "q": "count", "d": "Тек F бағаны тексеріледі; аралық бағандар — көмекші.", "v": [{"t": "Жиналыс өтеді (F = 1), егер директор келсе (A) ЖӘНЕ екі орынбасардың (B, C) кемінде біреуі келсе.", "e": "A ∧ (B ∨ C)", "q": "Жиналыс неше жиында өтеді?"}, {"t": "Есік ашылады (F = 1), егер карта бар (A) НЕМЕСЕ код дұрыс (B) болса ЖӘНЕ құлып бұғатталмаған болса (C — құлып бұғатталған).", "e": "(A ∨ B) ∧ ¬C", "q": "Есік неше жиында ашылады?"}, {"t": "Шам жанады (F = 1), егер қосқыш қосулы (A) ЖӘНЕ қозғалыс бар (B) НЕМЕСЕ күндізгі жарық жоқ болса (C — күндізгі жарық бар).", "e": "A ∧ (B ∨ ¬C)", "q": "Шам неше жиында жанады?"}, {"t": "Команда жеңеді (F = 1), егер шабуылшы гол соқса (A) НЕМЕСЕ қақпашы гол жібермесе (B — гол жіберді), ал төреші ұпайды жоймаса (C — ұпай жойылды).", "e": "(A ∨ ¬B) ∧ ¬C", "q": "Команда неше жиында жеңеді?"}, {"t": "Оқушы олимпиадаға барады (F = 1), егер математикадан (A) ЖӘНЕ информатикадан (B) жоғары балл алса НЕМЕСЕ мұғалім ұсынса (C).", "e": "(A ∧ B) ∨ C", "q": "Оқушы неше жиында барады?"}, {"t": "Футбол өтеді (F = 1), егер жаңбыр жаумаса (A — жаңбыр жауады) ЖӘНЕ стадион (B) НЕМЕСЕ спортзал (C) бос болса.", "e": "¬A ∧ (B ∨ C)", "q": "Футбол неше жиында өтеді?"}, {"t": "Дабыл қосылады (F = 1), егер түтін бар (A) НЕМЕСЕ температура жоғары болса (B) және дабыл өшірілмеген болса (C — өшірілген).", "e": "A ∨ (B ∧ ¬C)", "q": "Дабыл неше жиында қосылады?"}, {"t": "Кітапхана кітап береді (F = 1), егер оқырман билеті бар (A) ЖӘНЕ қарызы жоқ болса (B — қарызы бар), НЕМЕСЕ мұғалім рұқсат берсе (C).", "e": "(A ∧ ¬B) ∨ C", "q": "Кітап неше жиында беріледі?"}, {"t": "Ойын басталады (F = 1), егер екі ойыншы да (A, B) дайын болса ЖӘНЕ төреші (C) келсе.", "e": "A ∧ B ∧ C", "q": "Ойын неше жиында басталады?"}, {"t": "Ескерту шығады (F = 1), егер ұшқыш (A), диспетчер (B) НЕМЕСЕ компьютер (C) қатені байқаса.", "e": "A ∨ B ∨ C", "q": "Ескерту неше жиында шығады?"}, {"t": "Теледидар қосылады (F = 1), егер пульт (A) НЕМЕСЕ батырма (B) басылса ЖӘНЕ электр (C) болса.", "e": "(A ∨ B) ∧ C", "q": "Теледидар неше жиында қосылады?"}]}];
+const FO_CLASSES={"9": ["Ахмадия Нұрәлі", "Бахтигереева Амира-Челси", "Бекмырза Асхат", "Елемес Әлинұр", "Кайроллин Даниял", "Қайратқызы Мумина", "Нығметолла Дания", "Рахметжан Арсен", "Серікбол Томирис", "Сидалеев Нұрасыл", "Шакизат Ерасыл"]};
+const prac=[{"id": "P1", "lv": "A", "title": "Дәліздегі шам", "vars": ["A", "B"], "fillVars": false, "desc": "Шам жанады, егер қозғалыс бар (A) ЖӘНЕ күндізгі жарық жоқ (¬B) болса: F = A ∧ ¬B. ¬B және F бағандарын толтырыңыз.", "cols": [["¬B", "¬B"], ["F = A ∧ ¬B", "A ∧ ¬B"]]}, {"id": "P2", "lv": "B", "title": "Үш айнымалы дабыл", "vars": ["A", "B", "C"], "fillVars": false, "desc": "Дабыл (F) қосылады, егер есік ашық (A) НЕМЕСЕ терезе ашық (B) болса ЖӘНЕ күзетші жоқ (¬C) болса: F = (A ∨ B) ∧ ¬C. Аралық бағандарды және F-ті толтырыңыз.", "cols": [["A ∨ B", "A ∨ B"], ["¬C", "¬C"], ["F = (A ∨ B) ∧ ¬C", "(A ∨ B) ∧ ¬C"]]}, {"id": "P3", "lv": "C", "title": "Тең мәнді ме?", "vars": ["A", "B"], "fillVars": false, "desc": "F1 = ¬(A ∧ B) және F2 = ¬A ∨ ¬B өрнектерінің кестесін құрып, соңғы бағандарын салыстырыңыз.", "cols": [["A ∧ B", "A ∧ B"], ["F1 = ¬(A ∧ B)", "¬(A ∧ B)"], ["¬A", "¬A"], ["¬B", "¬B"], ["F2 = ¬A ∨ ¬B", "¬A ∨ ¬B"]], "q": {"text": "F1 мен F2 тең мәнді ме? (иә / жоқ)", "ans": ["иә", "ия", "ие"]}}];
+/* ---------- tasks (truth tables) ---------- */
+/* formative assessment: each student gets own variants (seeded by class + name) */
+const _stu=store.get('student',null);window.__ttNeedReload=!_stu;
+function foPerms(a){if(a.length<=1)return [a.slice()];const out=[];a.forEach((x,i)=>foPerms(a.slice(0,i).concat(a.slice(i+1))).forEach(p=>out.push([x].concat(p))));return out;}
+/* distinct combos for students of the same class: k = position in the class list (+ per-task shift) */
+const _stuIdx=_stu&&FO_CLASSES[_stu.cls]?FO_CLASSES[_stu.cls].indexOf(_stu.name):-1;
+function foMake(g,ti){const perms=g.perm?foPerms(g.vars):[g.vars.slice()];const M=g.v.length*perms.length;
+  let k=0;if(_stu){k=_stuIdx>=0?(_stuIdx+ti*3)%M:prHash(store.get('seed','')+'|'+g.id)%M;}
+  const vi=k%g.v.length,pi=Math.floor(k/g.v.length)%perms.length;let v=g.v[vi];if(typeof v==='string')v={e:v};
+  const L=perms[pi];const map={};g.vars.forEach((x,i)=>map[x]=L[i]);
+  const P=x=>x.replace(/[A-D]/g,c=>map[c]||c);const e=P(v.e);const ops=lgOps(lgParse(e).ast);
+  const cols=ops.map((o,j)=>j===ops.length-1?[(o.s.length<=18?'F = '+o.s:'F'),o.s]:[o.s,o.s]);
+  const envs=ttEnvRows(g.vars),f=lgCompile(e);let q=null;
+  if(g.q==='count')q={text:v.q||'F = 1 болатын жиындар саны:',ans:[String(envs.filter(env=>f(env)).length)]};
+  if(g.q==='eq'){const G=P(v.g),hf=lgCompile(G);if(!/^[A-D]$/.test(G))lgOps(lgParse(G).ast).forEach((o,j,a)=>{if(!cols.some(c=>c[1]===o.s))cols.push([j===a.length-1?'G = '+o.s:o.s,o.s]);});
+    const same=envs.every(env=>f(env)===hf(env));q={text:`F мен G = ${G} тең мәнді ме? (иә / жоқ)`,ans:same?['иә','ия','ие']:['жоқ','жок']};}
+  return {id:g.id,lv:g.lv,title:g.title,vars:g.vars,fillVars:!!g.fill,cols,q,desc:(v.t?v.t+' ':'')+`F = ${e}. `+g.d,sig:k};}
+const tasks=FO_GEN.map((g,i)=>foMake(g,i));
+const done=store.get('done',{}),tries=store.get('tries',{});
+const pracDone=store.get('pracDone',{}),pracTries=store.get('pracTries',{});
+function pracScoreUpd(){$('#pracScore').textContent=`${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}`;}
+const afterCheck=()=>{try{updateLocks();}catch(e){}if(typeof sendProg==='function')sendProg(false);};
+const foScores=store.get('foScore',{});
+function foFmt(x){return String(Math.round(x*100)/100).replace('.',',');}
+function foRows(){let ok=0,all=0;tasks.forEach(t=>{all+=2**t.vars.length;const sc=foScores[t.id];if(sc)ok+=sc.rows;});return {ok,all};}
+function foTotal(){const r=foRows();return Math.round(r.ok/r.all*1000)/100;}
+function dopScoreUpd(){const e=$('#dopScore');if(!e)return;const r=foRows(),t=foTotal();e.textContent=`${r.ok} / ${r.all} балл → ${foFmt(t)} / 10`;e.title=`${Math.round(r.ok/r.all*100)} %`;
+  const d=$('#dopDetail');if(d)d.textContent=`Жиналған балл: ${r.ok} / ${r.all} (${Math.round(r.ok/r.all*100)} %) → ${foFmt(t)} / 10, яғни шамамен ${Math.round(t)} балл.`;}
+mountTT($('#tasks'),tasks,{keyOf:t=>t.id,badge:t=>t.id,done,tries,keyDone:'done',keyTries:'tries',scores:foScores,keyScores:'foScore',onlyLast:true,after:()=>{dopScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
+dopScoreUpd();
+mountTT($('#prac'),prac,{keyOf:t=>t.id,badge:t=>t.id,done:pracDone,tries:pracTries,keyDone:'pracDone',keyTries:'pracTries',after:()=>{pracScoreUpd();afterCheck();},solLbl:'Үлгі шешім',doneLbl:'Шешілді'});
+pracScoreUpd();
+document.querySelectorAll('#dop .lv').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#dop .lv').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  document.querySelectorAll('#tasks .task').forEach(t=>t.hidden=!(b.dataset.lv==='all'||t.dataset.lv===b.dataset.lv));}));
+
+/* ---------- quiz ---------- */
+const quiz=[["F = A ∧ ¬B. A = 1, B = 0 болғанда F неге тең?", ["1", "0", "A", "анықталмайды"], 0, "¬B = 1, ал 1 ∧ 1 = 1.", "t"], ["2 айнымалы өрнектің ақиқат кестесінде неше жол бар (тақырып жолынсыз)?", ["4", "2", "8", "6"], 0, "Жолдар саны 2ⁿ: 2² = 4.", "t"], ["F = A ∨ ¬B ∧ C өрнегінде қай амал бірінші орындалады?", ["¬B", "A ∨ ¬B", "¬B ∧ C", "∨"], 0, "Реті: жақша, ¬, ∧, ∨. Жақша жоқ, сондықтан алдымен ¬B.", "t"], ["3 айнымалы кестеде (жолдар екілік санау ретімен) 6-жолдағы A, B, C мәндері қандай?", ["1 0 1", "1 1 0", "0 1 1", "1 0 0"], 0, "Жолдар: 000, 001, 010, 011, 100, 101 — алтыншысы 1 0 1 (5 санының екілік жазуы).", "t"], ["F = (A ∨ B) ∧ ¬C кестесінде айнымалылармен бірге неше баған болады?", ["6", "4", "5", "8"], 0, "3 айнымалы + 3 амал (A ∨ B, ¬C, ∧) = 6 баған.", "t"], ["F = A ∧ ¬A өрнегінің кестесінде F = 1 болатын неше жол бар?", ["0", "1", "2", "4"], 0, "A мен ¬A бір мезгілде 1 бола алмайды, сондықтан F әрқашан 0.", "t"], ["¬(A ∨ B) және ¬A ∧ ¬B өрнектерінің ақиқат кестелерін салыстырсақ, не шығады?", ["барлық жолда бірдей — тең мәнді", "1 жолда өзгеше", "2 жолда өзгеше", "мүлдем өзгеше"], 0, "Бұл де Морган заңы: екі кестенің F бағаны барлық 4 жолда бірдей.", "t"]];
+let qState=store.get('quiz',{});
+function renderQuiz(){
+  $('#quiz').innerHTML=quiz.map((q,i)=>`<div class="q"><h3>${i+1}-сұрақ</h3>${q[4]==='t'?`<p>${esc(q[0])}</p>`:`<pre>${esc(q[0])}</pre>`}
+    <div class="opts">${q[1].map((o,j)=>`<button class="opt" type="button" data-q="${i}" data-o="${j}">${esc(o)}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+  document.querySelectorAll('#quiz .opt').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.q;if(qState[i]!==undefined)return;qState[i]=+b.dataset.o;store.set('quiz',qState);paintQ(i);score();}));
+  Object.keys(qState).forEach(i=>{if(quiz[+i])paintQ(+i);});score();
+}
+function paintQ(i){const q=quiz[i],pick=qState[i];const box=$('#quiz').children[i];
+  box.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(j===q[2])b.classList.add('right');else if(j===pick)b.classList.add('wrong');});
+  const w=box.querySelector('.why');w.hidden=false;w.textContent=(pick===q[2]?'Дұрыс. ':'Бұрыс. ')+q[3];}
+function score(){const n=Object.entries(qState).filter(([i,v])=>quiz[i][2]===v).length;$('#score').textContent=`${n} / ${quiz.length}`;try{updateLocks();}catch(e){}}
+$('#quizReset').addEventListener('click',()=>{qState={};store.set('quiz',qState);renderQuiz();});
+renderQuiz();
+
+/* ---------- which method ---------- */
+const mq=[["Серуенге шығамыз, егер күн ашық (A) ЖӘНЕ сабақ дайын (B) болса.", ["A ∧ B", "A ∨ B", "A ∧ ¬B"], 0, "«Және» — екі шарт та орындалуы керек: ∧."], ["Сабақ болмайды, егер демалыс күні (A) НЕМЕСЕ мереке (B) болса.", ["A ∨ B", "A ∧ B", "¬A ∨ B"], 0, "Бір шарт жеткілікті: ∨."], ["Жаңбыр жаумаса (A — жаңбыр жауады), футбол ойнаймыз.", ["¬A", "A", "A ∨ ¬A"], 0, "«Жаумаса» — терістеу: ¬A."], ["Шам жанады, егер қосқыш қосулы (A) ЖӘНЕ шам күйіп кетпеген (B — шам күйген) болса.", ["A ∧ ¬B", "A ∧ B", "¬A ∧ B"], 0, "«Күйіп кетпеген» — ¬B, ал екі шарт та керек: A ∧ ¬B."], ["«Екеуі де емес»: A да, B да жалған.", ["¬A ∧ ¬B", "¬A ∨ ¬B", "¬(A ∧ B)"], 0, "Екеуі де жалған — ¬A ЖӘНЕ ¬B. Бұл ¬(A ∨ B)-ға тең мәнді."], ["4 айнымалы өрнектің ақиқат кестесінде неше жол бар?", ["16", "8", "4"], 0, "2⁴ = 16."], ["F = ¬A ∨ B ∧ C өрнегінде неше амал бар?", ["3", "2", "4"], 0, "¬, ∧ және ∨ — үш амал, демек үш қосымша баған."], ["3 айнымалы кестеде A бағаны (жоғарыдан төмен) қалай толтырылады?", ["0 0 0 0 1 1 1 1", "0 1 0 1 0 1 0 1", "0 0 1 1 0 0 1 1"], 0, "Бірінші айнымалы ең баяу өзгереді: жартысы 0, жартысы 1."], ["3 айнымалы кестеде C бағаны (жоғарыдан төмен) қалай толтырылады?", ["0 1 0 1 0 1 0 1", "0 0 0 0 1 1 1 1", "0 0 1 1 0 0 1 1"], 0, "Соңғы айнымалы ең жиі өзгереді: 0 мен 1 кезектеседі."], ["Екі өрнек тең мәнді болады, егер…", ["барлық жиында мәндері бірдей болса", "бір жиында мәндері бірдей болса", "айнымалылары бірдей болса"], 0, "Тең мәнділік үшін кестелердің F бағандары барлық жолда сәйкес келуі керек."], ["Шешім қабылданады, егер үш мүшенің (A, B, C) кемінде екеуі «иә» десе.", ["(A ∧ B) ∨ (A ∧ C) ∨ (B ∧ C)", "A ∧ B ∧ C", "A ∨ B ∨ C"], 0, "Кез келген екеуінің жұбы жеткілікті: үш конъюнкцияның дизъюнкциясы."], ["Қай өрнек кез келген жиында 1-ге тең?", ["A ∨ ¬A", "A ∧ ¬A", "A ∨ B"], 0, "A мен ¬A-ның біреуі әрқашан 1, сондықтан A ∨ ¬A = 1."]];
+let mqState=store.get('mq',{});
+function renderMq(){
+  $('#mq').innerHTML=mq.map((q,i)=>`<div class="q" data-i="${i}"><h3 class="mq-h">${i+1}-жағдаят<span class="pk-chip" hidden></span><button class="pk-mini" type="button">Кім жауап береді?</button></h3><p>${esc(q[0])}</p><div class="opts">${q[1].map((o,j)=>`<button class="opt" type="button" data-o="${j}">${esc(o)}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('');
+  document.querySelectorAll('#mq .pk-mini').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();pickStudent(b.parentElement.querySelector('.pk-chip'));}));
+  document.querySelectorAll('#mq .q').forEach(box=>{const i=+box.dataset.i;
+    box.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{if(mqState[i]!==undefined)return;mqState[i]=+b.dataset.o;store.set('mq',mqState);paintMq(box);}));
+    if(mqState[i]!==undefined)paintMq(box);});
+  mqScoreUpd();}
+function paintMq(box){const i=+box.dataset.i,q=mq[i],pick=mqState[i];
+  box.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(j===q[2])b.classList.add('right');else if(j===pick)b.classList.add('wrong');});
+  const w=box.querySelector('.why');w.hidden=false;w.textContent=(pick===q[2]?'Дұрыс. ':'Бұрыс. ')+q[3];mqScoreUpd();}
+function mqScoreUpd(){const n=Object.entries(mqState).filter(([i,v])=>mq[+i]&&mq[+i][2]===v).length;$('#mqScore').textContent=`${n} / ${mq.length}`;}
+$('#mqReset').addEventListener('click',()=>{mqState={};store.set('mq',mqState);renderMq();});
+renderMq();
+
+const dbg=[{"t": "ЖӘНЕ кестесі", "goal": "F = A ∧ B кестесінде 2 қате бар. Қате ұяшықтарды басып, түзетіңіз.", "vars": ["A", "B"], "cols": [["F = A ∧ B", "A ∧ B"]], "errs": [[1, 2, 1], [3, 2, 0]], "why": "ЖӘНЕ тек екі мән де 1 болғанда 1 береді: 0 ∧ 1 = 0, 1 ∧ 1 = 1."}, {"t": "Терістеуді ұмытты", "goal": "F = ¬A ∨ B кестесінде 2 қате бар.", "vars": ["A", "B"], "cols": [["¬A", "¬A"], ["F = ¬A ∨ B", "¬A ∨ B"]], "errs": [[2, 2, 1], [2, 3, 1]], "why": "A = 1 болса ¬A = 0, ал 0 ∨ 0 = 0. Терістеу бағанындағы бір қате F бағанына да өтеді."}, {"t": "Жиындар реті", "goal": "F = A ∨ ¬B кестесінде айнымалылар бағанында 2 қате бар: жолдар екілік санау ретімен жазылмаған.", "vars": ["A", "B"], "cols": [["¬B", "¬B"], ["F = A ∨ ¬B", "A ∨ ¬B"]], "errs": [[2, 1, 1], [3, 1, 0]], "fillVars": true, "why": "Жолдар 0 0, 0 1, 1 0, 1 1 ретімен жазылады. Әйтпесе бір жиын қайталанып, екіншісі жоғалып кетуі мүмкін."}, {"t": "Үш айнымалы", "goal": "F = (A ∨ B) ∧ ¬C кестесінде 2 қате бар.", "vars": ["A", "B", "C"], "cols": [["A ∨ B", "A ∨ B"], ["¬C", "¬C"], ["F", "(A ∨ B) ∧ ¬C"]], "errs": [[4, 4, 0], [6, 5, 0]], "why": "¬C бағаны C бағанына керісінше: C = 0 болса ¬C = 1. F тек A ∨ B = 1 және ¬C = 1 болғанда 1."}, {"t": "Амалдар реті", "goal": "F = A ∨ B ∧ C кестесін оқушы (A ∨ B) ∧ C деп есептеп қойған. F бағанында 2 қате бар.", "vars": ["A", "B", "C"], "cols": [["B ∧ C", "B ∧ C"], ["F = A ∨ B ∧ C", "A ∨ B ∧ C"]], "errs": [[4, 4, 0], [6, 4, 0]], "why": "∧ амалы ∨-дан бұрын орындалады: A ∨ (B ∧ C). A = 1 болса, F әрқашан 1."}, {"t": "Жақшаның алдындағы ¬", "goal": "F = ¬(A ∧ B) кестесінде 2 қате бар: терістеуді ұмытып кеткен.", "vars": ["A", "B"], "cols": [["A ∧ B", "A ∧ B"], ["F = ¬(A ∧ B)", "¬(A ∧ B)"]], "errs": [[0, 3, 0], [3, 3, 1]], "why": "F бағаны A ∧ B бағанына толық керісінше болуы керек: 0 → 1, 1 → 0."}];
+/* ---------- find the error in a table ---------- */
+const dbgDone=store.get('dbgDone',{}),dbgTries=store.get('dbgTries',{});
+function dbgScoreUpd(){$('#dbgScore').textContent=`${Object.keys(dbgDone).filter(k=>dbg[+k]).length} / ${dbg.length}`;}
+mountTT($('#dbg'),dbg,{keyOf:(t,i)=>i,badge:(t,i)=>String(i+1),done:dbgDone,tries:dbgTries,keyDone:'dbgDone',keyTries:'dbgTries',
+  after:()=>{dbgScoreUpd();if(typeof onDbgCheck==='function')onDbgCheck();},solLbl:'Дұрыс кесте',doneLbl:'Түзетілді'});
+dbgScoreUpd();
+
+/* ---------- tabs ---------- */
+const panels=[...document.querySelectorAll('main>section')];
+const navLinks=[...document.querySelectorAll('nav a')];
+const titleOf=id=>(navLinks.find(a=>a.getAttribute('href')==='#'+id)||{}).textContent||'';
+/* ---------- confidence scale 1-5 ---------- */
+const CONF_Q={"povtorenie": "Логикалық амалдарды қаншалықты сенімді еске түсіремін?", "tema": "Аралық бағандар не үшін керек екенін қаншалықты түсінемін?", "cel": "Сабақтың соңында не істей алуым керек екені маған қаншалықты түсінікті?", "svoistva": "Ақиқат кестесін құру қадамдарын қаншалықты сенімді түсіндіре аламын?", "lab": "Кестенің жол бойынша және баған бойынша толтырылуын қаншалықты түсінемін?", "metody": "Дайын кестелерді қаншалықты сенімді оқимын?", "kakoy": "Жағдаятқа сай логикалық өрнекті қаншалықты сенімді таңдаймын?", "oshibka": "Ақиқат кестесіндегі қателерді қаншалықты сенімді табамын?", "viktorina": "Кесте туралы сұрақтарға қаншалықты сенімді жауап беремін?", "praktika": "Берілген өрнекке ақиқат кестесін қаншалықты сенімді құрамын?", "dop": "Күрделірек өрнектердің кестесін қаншалықты сенімді құрамын?"};
+const CONF_L=['','түсінбеймін','қиындықпен түсінемін','көмекпен түсінемін','өзім түсінемін','басқаға түсіндіре аламын'];
+const confState=store.get('conf',{});
+function paintConf(box,id){const v=confState[id];box.querySelectorAll('.conf-b').forEach(b=>{const n=+b.dataset.v;b.setAttribute('aria-pressed',n===v);b.classList.toggle('on',v>=n);});
+  box.querySelector('.conf-val').textContent=v?`${v} — ${CONF_L[v]}`:'1-ден 5-ке дейін таңдаңыз';}
+panels.forEach(p=>{if(!CONF_Q[p.id])return;const box=document.createElement('div');box.className='conf';
+  box.innerHTML=`<div class="conf-q"><span class="conf-tag">Өзін-өзі бағалау</span>${esc(CONF_Q[p.id])}</div>
+   <div class="conf-row" role="group" aria-label="Сенімділік 1-ден 5-ке дейін">${[1,2,3,4,5].map(n=>`<button type="button" class="conf-b" data-v="${n}" title="${CONF_L[n]}">${n}</button>`).join('')}<span class="conf-val"></span></div>
+   <div class="conf-scale"><span>1 — түсінбеймін</span><span>5 — басқаға түсіндіре аламын</span></div>`;
+  box.querySelectorAll('.conf-b').forEach(b=>b.addEventListener('click',()=>{confState[p.id]=+b.dataset.v;store.set('conf',confState);paintConf(box,p.id);updateLocks();if(typeof sendConf==='function')sendConf(true);}));
+  p.appendChild(box);paintConf(box,p.id);});
+
+panels.forEach((p,i)=>{const pg=document.createElement('div');pg.className='pager';
+  if(i>0)pg.innerHTML+=`<a href="#${panels[i-1].id}"><span>← Артқа</span>${esc(titleOf(panels[i-1].id))}</a>`;
+  if(i<panels.length-1)pg.innerHTML+=`<a class="next" href="#${panels[i+1].id}"><span>Әрі қарай →</span>${esc(titleOf(panels[i+1].id))}</a>`;
+  (p.querySelector('.wrap-inner')||p).appendChild(pg);p._next=pg.querySelector('a.next');});
+try{if(location.hash==='#uchenik')sessionStorage.setItem('ttablefree:preview','1');if(location.hash==='#uchitel')sessionStorage.removeItem('ttablefree:preview');}catch(e){}
+var previewStudent=false;try{previewStudent=sessionStorage.getItem('ttablefree:preview')==='1';}catch(e){}
+let teacherMode=(window.__NO_TEACHER||previewStudent)?false:(window.__FORCE_TEACHER===true||store.get('teacher',false));
+if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){location.hash='povtorenie';}}
+function isUnlocked(idx){return true;}
+var visitedTabs=store.get('visited',{});
+function gateOf(idx){for(let k=0;k<idx;k++){const id=panels[k].id;if(CONF_Q[id]&&!confState[id])return k;}return -1;}
+function toast(msg){let t=$('#lockToast');if(!t){t=document.createElement('div');t.id='lockToast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),4000);}
+/* quiz & extra tasks: tab colour by result. undefined = not such a tab */
+function workStatus(id){try{
+  if(id==='viktorina'){if(!visitedTabs[id])return null;const ans=Object.keys(qState).filter(i=>quiz[+i]);
+    if(ans.some(i=>qState[i]!==quiz[+i][2]))return 'miss';return ans.length===quiz.length?'done':'open';}
+  if(id==='dop'){if(!visitedTabs[id])return null;if(tasks.some(t=>tries[t.id]&&!done[t.id]))return 'miss';return tasks.some(t=>done[t.id])?'done':'open';}
+  if(id==='praktika'){if(!visitedTabs[id])return null;if(prac.some(t=>pracTries[t.id]&&!pracDone[t.id]))return 'miss';return prac.some(t=>pracDone[t.id])?'done':'open';}
+  }catch(e){return null;}return undefined;}
+function updateLocks(){
+  try{const pr=$('#ssProg');if(pr){const ids=Object.keys(CONF_Q);pr.textContent=`өзін-өзі бағалау: ${ids.filter(id=>confState[id]).length}/${ids.length}`;}}catch(e){}
+  navLinks.forEach(a=>{const id=(a.getAttribute('href')||'').slice(1);a.classList.remove('st-done','st-miss','st-open');if(teacherMode)return;
+    const ws=workStatus(id);if(ws!==undefined){if(ws)a.classList.add('st-'+ws);return;}
+    if(!CONF_Q[id])return;if(confState[id])a.classList.add('st-done');else if(visitedTabs[id])a.classList.add('st-miss');});
+  navLinks.forEach(a=>{const idx=panels.findIndex(p=>'#'+p.id===a.getAttribute('href'));const lk=!isUnlocked(idx);a.classList.toggle('locked',lk);if(lk)a.setAttribute('aria-disabled','true');else a.removeAttribute('aria-disabled');});
+  panels.forEach((p,i)=>{const n=p._next;if(!n)return;const lk=!isUnlocked(i+1);n.classList.toggle('disabled',lk);
+    n.querySelector('span').textContent=lk?'Жалғастыру үшін жоғарыда өзін-өзі бағалауды белгілеңіз':'Әрі қарай →';});
+  document.body.classList.toggle('teacher',teacherMode);const tb=$('#tBar');if(tb)tb.hidden=!teacherMode;const sb=$('#stuBar');if(sb&&teacherMode)sb.hidden=true;}
+function showTab(){if(location.hash==='#uchitel'&&!window.__NO_TEACHER){teacherMode=true;store.set('teacher',true);try{history.replaceState(null,'','#povtorenie');}catch(e){}if(typeof closeStart==='function')closeStart();if(typeof drawStudent==='function'&&$('#stuName'))try{drawStudent();}catch(e){}}
+  let id=location.hash.slice(1);if(!panels.some(p=>p.id===id))id=panels[0].id;
+  let idx=panels.findIndex(p=>p.id===id);
+  if(!isUnlocked(idx)){const g=gateOf(idx);toast(`«${titleOf(id)}» қойындысы әзірге жабық. Алдымен «${titleOf(panels[g].id)}» қойындысында өзін-өзі бағалауды белгілеңіз.`);
+    id=panels[g].id;idx=g;try{history.replaceState(null,'','#'+id);}catch(e){}
+    setTimeout(()=>{const c=panels[g].querySelector('.conf');if(c){c.scrollIntoView({block:'center'});c.classList.add('pulse');setTimeout(()=>c.classList.remove('pulse'),1600);}},50);}
+  panels.forEach(p=>p.hidden=p.id!==id);if(!teacherMode&&!visitedTabs[id]){visitedTabs[id]=1;store.set('visited',visitedTabs);}updateLocks();
+  navLinks.forEach(a=>{const on=a.getAttribute('href')==='#'+id;if(on){a.setAttribute('aria-current','page');a.scrollIntoView({block:'nearest',inline:'nearest'});}else a.removeAttribute('aria-current');});
+  window.scrollTo(0,0);}
+window.addEventListener('hashchange',showTab);showTab();
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(!a)return;
+  const idx=panels.findIndex(p=>'#'+p.id===a.getAttribute('href'));if(idx>=0&&!isUnlocked(idx)){e.preventDefault();
+    const g=gateOf(idx);toast(`Алдымен «${titleOf(panels[g].id)}» қойындысында өзін-өзі бағалауды белгілеңіз.`);
+    if(location.hash!=='#'+panels[g].id)location.hash=panels[g].id;else{const c=panels[g].querySelector('.conf');if(c){c.scrollIntoView({block:'center'});c.classList.add('pulse');setTimeout(()=>c.classList.remove('pulse'),1600);}}}},true);
+
+
+/* ---------- solution views in extra tasks ---------- */
+const solSeen=store.get('solSeen',{});
+document.querySelectorAll('#tasks .task').forEach((box,i)=>{const id=tasks[i].id;
+  box.querySelector('details.sol').addEventListener('toggle',e=>{if(e.target.open&&(tries[id]||0)>=2&&!done[id]){solSeen[id]=true;store.set('solSeen',solSeen);}});});
+const dbgSeen=store.get('dbgSeen',{});
+document.querySelectorAll('#dbg .task').forEach((box,i)=>{
+  box.querySelector('details.sol').addEventListener('toggle',e=>{if(e.target.open&&(dbgTries[i]||0)>=1&&!dbgDone[i]){dbgSeen[i]=true;store.set('dbgSeen',dbgSeen);}});});
+
+/* ---------- goal achievement ---------- */
+const GOAL_DEF=[
+ {name:'Барлығы',goal:'екі айнымалы өрнектің ақиқат кестесін құрамын',items:[
+   ['prac',['P1'],'Практика P1','#praktika'],['dop',['Ф1','Ф2','Ф3'],'ҚБ: Ф1–Ф3 тапсырмаларының бірі','#dop']]},
+ {name:'Көпшілігі',goal:'аралық бағандармен үш айнымалы өрнектің кестесін құрамын',items:[
+   ['prac',['P2'],'Практика P2','#praktika'],['dop',['Ф4','Ф5','Ф6','Ф7'],'ҚБ: Ф4–Ф7 тапсырмаларының бірі','#dop']]},
+ {name:'Кейбіреулері',goal:'кестені талдаймын: ақиқат жиындарды санаймын, тең мәнділікті тексеремін',items:[
+   ['prac',['P3'],'Практика P3','#praktika'],['dop',['Ф8','Ф9','Ф10'],'ҚБ: Ф8–Ф10 тапсырмаларының бірі','#dop']]},
+];
+/* src: {qOk:[indices], prac:[ids], dop:[ids]} */
+function goalEval(src){const qOk=src.qOk||[],dop=src.dop||[],pr=src.prac||[];
+  const st=it=>{const [k,a]=it;
+    if(k==='q')return a.every(i=>qOk.includes(i))?'ok':'no';
+    if(k==='prac')return a.every(id=>pr.includes(id))?'ok':'no';
+    return a.some(id=>dop.includes(id))?'ok':'no';};
+  const levels=GOAL_DEF.map(L=>({name:L.name,goal:L.goal,items:L.items.map(it=>[st(it),it[2],it[3]])}));
+  const lv=levels.map(L=>{const x=L.items.map(i=>i[0]);return x.every(v=>v!=='no')?'ok':x.some(v=>v!=='no')?'part':'no';});
+  let reached=-1;for(let i=0;i<lv.length;i++){if(lv[i]==='ok')reached=i;else break;}
+  return {levels,lv,reached};}
+function quizOk(){return quiz.map((q,i)=>qState[i]===q[2]?i:-1).filter(i=>i>=0);}
+function renderGoal(){
+  const g=goalEval({qOk:quizOk(),prac:prac.filter(t=>pracDone[t.id]).map(t=>t.id),dop:tasks.filter(t=>done[t.id]).map(t=>t.id)});
+  const levels=g.levels,lv=g.lv,reached=g.reached;lastGoal=reached;
+  const msg=reached<0?['Сабақ мақсатына әзірге жетпедіңіз','Базалық деңгейден бастаңыз: практикалық жұмыстың P1 есебі және қалыптастырушы бағалаудың Ф1–Ф3 тапсырмалары.']:
+    reached===0?['9.2.1.2 мақсатына базалық деңгейде жеттіңіз','Сіз екі айнымалы өрнектің кестесін құрасыз. Келесі қадам — үш айнымалы және аралық бағандар: практиканың P2 есебі және қалыптастырушы бағалаудың Ф4–Ф7 тапсырмаларының бірі.']:
+    reached===1?['9.2.1.2 мақсатына «Көпшілігі» деңгейінде жеттіңіз','Сіз аралық бағандармен кестені қатесіз құрасыз. Енді кестені талдаңыз: практиканың P3 есебі және қалыптастырушы бағалаудың Ф8–Ф10 тапсырмаларының бірі.']:
+    ['9.2.1.2 мақсатына толық жеттіңіз','Сіз кестені құрып қана қоймай, оны талдап, өрнектерді салыстырасыз. Керемет жұмыс!'];
+  const lab={ok:'жетті',part:'ішінара',no:'басталмаған'},ic={ok:'✓',help:'◐',no:'○'};
+  const card=$('#goalCard');card.className='goal-card'+(reached>=0?' reached':'');
+  card.innerHTML=`<div class="goal-verdict"><span class="obj-code">9.2.1.2</span><div><div class="big">${esc(msg[0])}</div><p>${esc(msg[1])}</p></div></div>
+   <div class="goal-levels">${levels.map((L,i)=>`<div class="glevel ${lv[i]==='ok'?'ok':lv[i]==='part'?'part':''}"><h4>${esc(L.name)}<span class="gstate ${lv[i]}">${lab[lv[i]]}</span></h4><p style="font-size:.82rem;color:var(--muted)">${esc(L.goal)}</p>
+     ${L.items.map(x=>`<div class="gitem ${x[0]}"><span class="ic">${ic[x[0]]}</span><a href="${x[2]}">${esc(x[1])}</a></div>`).join('')}</div>`).join('')}</div>
+   <div class="gstats"><span>Викторина: ${quizOk().length} / ${quiz.length}</span><span>Практика: ${prac.filter(t=>pracDone[t.id]).length} / ${prac.length}</span><span>Қалыптастырушы бағалау: ${foRows().ok} / ${foRows().all} балл → ${foFmt(foTotal())} / 10</span></div>`;
+}
+window.addEventListener('hashchange',()=>{if(location.hash==='#refleksiya')renderGoal();});
+renderGoal();
+function renderConf(){
+  const ids=Object.keys(CONF_Q),vals=ids.map(id=>confState[id]).filter(Boolean);
+  const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length):0;
+  const low=ids.filter(id=>confState[id]&&confState[id]<=2);
+  $('#confSum').innerHTML=`<h3>Сабақ кезеңдері бойынша сенімділігім</h3>
+   <div class="cs-rows">${ids.map(id=>{const v=confState[id]||0;return `<a class="cs-row" href="#${id}"><span class="cs-name">${esc(titleOf(id))}</span><span class="cs-bar"><span style="width:${v*20}%" class="lv${v}"></span></span><span class="cs-v">${v?v+' / 5':'—'}</span></a>`;}).join('')}</div>
+   <p class="cs-note">${vals.length?`Белгіленген кезеңдер: ${vals.length}/${ids.length}. Орташа сенімділік: <b>${avg.toFixed(1)}</b> / 5.`:'Сенімділік шкаласы әр қойындының төменгі жағында бар. Оны әр кезеңнен кейін белгілеңіз.'}
+   ${low.length?`<br>Қайталаған жөн: ${low.map(id=>`<a href="#${id}">${esc(titleOf(id))}</a>`).join(', ')}.`:''}</p>`;}
+window.addEventListener('hashchange',()=>{if(location.hash==='#refleksiya')renderConf();});
+renderConf();
+
+/* ---------- reset all data ---------- */
+$('#resetBtn').addEventListener('click',()=>{$('#resetAsk').hidden=false;$('#resetBtn').hidden=true;});
+$('#resetNo').addEventListener('click',()=>{$('#resetAsk').hidden=true;$('#resetBtn').hidden=false;});
+$('#resetYes').addEventListener('click',()=>{
+  try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&(k.startsWith('ttablefree:')||k.startsWith('ttablelab0:')))ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));}catch(e){}
+  $('#resetAsk').hidden=true;$('#resetDone').hidden=false;
+  setTimeout(()=>{try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();},400);
+  setTimeout(()=>{$('#resetDone').textContent='Деректер тазаланды. Бетте ескі жауаптар қалса, оны жаңартыңыз.';},2500);});
+
+/* ---------- student picker ---------- */
+const CLASSES={"9": ["Ахмадия Нұрәлі", "Бахтигереева Амира-Челси", "Бекмырза Асхат", "Елемес Әлинұр", "Кайроллин Даниял", "Қайратқызы Мумина", "Нығметолла Дания", "Рахметжан Арсен", "Серікбол Томирис", "Сидалеев Нұрасыл", "Шакизат Ерасыл"]};
+let pkClass=store.get('pkClass',null);if(!pkClass&&Object.keys(CLASSES).length===1){pkClass=Object.keys(CLASSES)[0];store.set('pkClass',pkClass);}const pkUsed=store.get('pkUsed',{});
+function pkDraw(){document.querySelectorAll('.pk-cls').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===pkClass));
+  if(!pkClass){$('#pkLeft').textContent='';return;}
+  const all=presentOf(pkClass),used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
+  $('#pkLeft').textContent=`${pkClass}: әлі жауап бермегендер ${all.length-used.length}/${all.length}`;}
+document.querySelectorAll('.pk-cls').forEach(b=>b.addEventListener('click',()=>{pkClass=b.dataset.c;store.set('pkClass',pkClass);$('#pkName').textContent='«Оқушыны таңдау» батырмасын басыңыз';$('#pkName').classList.remove('picked');pkDraw();}));
+let pkBusy=false;
+let pkQ=null,pkS=null;
+function pickStudent(target){pkQ=null;pkS=null;if(target){const q=target.closest('#mq .q');if(q)pkS=+q.dataset.i+1;else pkQ=[...document.querySelectorAll('.qcards.tf .pk-chip')].indexOf(target)+1;}
+  if(!pkClass){toast('Алдымен «Кім жауап береді?» блогында сыныпты таңдаңыз');$('#picker').scrollIntoView({block:'center'});return;}
+  if(pkBusy)return;const all=presentOf(pkClass);if(!all.length){toast('Сыныпта ешкім қатысып отыр деп белгіленбеген.');return;}let used=(pkUsed[pkClass]||[]).filter(n=>all.includes(n));
+  let pool=$('#pkNoRep').checked?all.filter(n=>!used.includes(n)):all.slice();
+  if(!pool.length){used=[];pool=all.slice();toast('Сыныптың барлық оқушысы жауап берді. Жаңа айналымды бастаймыз.');}
+  const name=pool[Math.floor(Math.random()*pool.length)];
+  used.push(name);pkUsed[pkClass]=used;store.set('pkUsed',pkUsed);
+  const el=$('#pkName');el.classList.remove('picked');pkBusy=true;
+  const el2=$('#pkName2');const finish=()=>{el.textContent=name;el.classList.add('picked');if(el2){el2.textContent=name;el2.classList.add('picked');}pkBusy=false;pkDraw();liveWrite('now',{cls:pkClass,name,q:pkQ||0,s:pkS||0,t:Date.now()});
+    if(target){target.hidden=false;target.textContent=name;}};
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
+  if(el2)el2.classList.remove('picked');let k=0;const spin=setInterval(()=>{el.textContent=all[Math.floor(Math.random()*all.length)];if(el2)el2.textContent=el.textContent;if(++k>=14){clearInterval(spin);finish();}},70);
+}
+$('#pkGo').addEventListener('click',()=>pickStudent(null));
+$('#pkGo2').addEventListener('click',()=>pickStudent(null));
+$('#pkReset').addEventListener('click',()=>{if(pkClass){pkUsed[pkClass]=[];store.set('pkUsed',pkUsed);liveWrite('now',{cls:pkClass,name:'',q:0,t:Date.now()});}document.querySelectorAll('.pk-chip').forEach(c=>{c.hidden=true;c.textContent='';});$('#pkName').textContent=pkClass?'«Оқушыны таңдау» батырмасын басыңыз':'Алдымен сыныпты таңдаңыз';$('#pkName').classList.remove('picked');pkDraw();});
+document.querySelectorAll('.qcards.tf .pk-mini').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();pickStudent(b.parentElement.querySelector('.pk-chip'));}));
+pkDraw();
+if(pkClass)$('#pkName').textContent='«Оқушыны таңдау» батырмасын басыңыз';
+
+/* ---------- student login ---------- */
+let student=store.get('student',null);let stPick={cls:null,name:null};let stMode='first';
+function stDrawClasses(){const isOther=stPick.cls&&!CLASSES[stPick.cls];
+  $('#stClasses').innerHTML=Object.keys(CLASSES).map(c=>`<button type="button" class="pk-cls" data-c="${c}" aria-pressed="${c===stPick.cls}">${c}</button>`).join('')+`<button type="button" class="pk-cls other" data-c="__other" aria-pressed="${!!isOther}">Басқа сынып</button>`;
+  $('#stClasses').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stPick={cls:b.dataset.c,name:null,manual:b.dataset.c==='__other'};stManualOpen=stPick.manual;stDrawClasses();stDrawNames();}));}
+let stManualOpen=false;
+function stDrawNames(){const st=$('#stNamesStep');st.hidden=!stPick.cls;$('#stGoRow').hidden=!stPick.name;
+  if(!stPick.cls)return;const list=CLASSES[stPick.cls]?presentOf(stPick.cls):[];
+  $('#stMissing').hidden=!list.length||stManualOpen;$('#stManual').hidden=!stManualOpen;$('#stManClsWrap').hidden=!!CLASSES[stPick.cls];
+  $('#stNames').innerHTML=list.map(n=>`<button type="button" class="st-name" aria-pressed="${n===stPick.name}">${esc(n)}</button>`).join('');
+  $('#stNames').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stPick.name=b.textContent;stPick.manual=false;stManualOpen=false;stDrawNames();$('#stChosen').textContent=`${stPick.name}, ${stPick.cls}`;
+    $('#stGo').textContent=(student&&(student.name!==stPick.name||student.cls!==stPick.cls))?'Сабақты қайта бастау →':'Сабақты бастау →';}));}
+let stLangOk=false;
+function openStart(mode){stMode=mode;stManualOpen=false;stLangOk=true;$('#stClsStep').hidden=!stLangOk;$('#stLangCur').setAttribute('aria-pressed',stLangOk);stPick=student&&CLASSES[student.cls]?{cls:student.cls,name:null}:{cls:null,name:null};$('#stManName').value='';$('#stManCls').value='';$('#stManErr').hidden=true;
+  $('#startNote').textContent=mode==='change'?'Компьютерге басқа оқушы отырса, соны таңда. Алдыңғы оқушының осы компьютердегі прогресі жойылады.':'Алдымен сыныпты, содан кейін тегің мен атыңды таңда.';
+  $('#stCancel').hidden=mode!=='change';stDrawClasses();stDrawNames();$('#startScreen').hidden=false;document.body.classList.add('locked-scroll');}
+function closeStart(){$('#startScreen').hidden=true;document.body.classList.remove('locked-scroll');}
+function drawStudent(){const on=!!student;{const ss=$('#sideStu');if(ss){ss.hidden=!on||teacherMode;if(on){$('#ssName').textContent=student.name;$('#ssCls').textContent=student.cls;}}document.body.classList.toggle('has-student',on&&!teacherMode);}$('#stuBar').hidden=!on||teacherMode;$('#stuLine').hidden=!on;
+  if(on){$('#stuName').textContent=student.name;$('#stuCls').textContent=student.cls;$('#stuLine').innerHTML=`Оқушының сабақ қорытындысы: <b>${esc(student.name)}</b>, ${esc(student.cls)}`+(student.manual?' <span class="st-manual-tag">қолмен енгізілді, тізімде жоқ</span>':'');
+    if(!pkClass&&CLASSES[student.cls]){pkClass=student.cls;store.set('pkClass',pkClass);pkDraw();$('#pkName').textContent='«Оқушыны таңдау» батырмасын басыңыз';}}}
+$('#stGo').addEventListener('click',()=>{if(!stPick.name)return;
+  const changed=student&&(student.name!==stPick.name||student.cls!==stPick.cls);
+  if(changed){try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('ttablefree:'))ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));}catch(e){}
+    store.set('student',{cls:stPick.cls,name:stPick.name,manual:!!stPick.manual});try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}
+  student={cls:stPick.cls,name:stPick.name,manual:!!stPick.manual};store.set('student',student);if(window.__ttNeedReload){try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}location.reload();return;}drawStudent();closeStart();if(typeof prShowMine==='function')prShowMine();if(typeof renderNow==='function'){renderNow();renderPairs();}if(typeof grpShowMine==='function')grpShowMine();});
+$('#stCancel').addEventListener('click',closeStart);
+$('#stLangCur').addEventListener('click',()=>{store.set('lang',CUR_LANG);stLangOk=true;$('#stLangCur').setAttribute('aria-pressed','true');$('#stClsStep').hidden=false;});
+$('#stMissing').addEventListener('click',()=>{stManualOpen=true;stPick.name=null;stDrawNames();$('#stManName').focus();});
+$('#stManual').addEventListener('submit',e=>{e.preventDefault();const err=$('#stManErr');
+  const name=$('#stManName').value.trim().replace(/\s+/g,' ');const other=!CLASSES[stPick.cls];const cls=other?$('#stManCls').value.trim().toUpperCase():stPick.cls;
+  let msg='';if(other&&!/^\d{1,2}\s?[A-ZА-ЯӘҒҚҢӨҰҮҺІ]?$/i.test(cls))msg='Сыныпты енгізіңіз, мысалы 8C.';
+  else if(!/^[A-Za-zА-Яа-яЁёӘәҒғҚқҢңӨөҰұҮүҺһІі\- ]{3,}$/.test(name)||name.split(' ').length<2)msg='Тегі мен атын бос орын арқылы, тек әріптермен енгізіңіз.';
+  if(msg){err.hidden=false;err.textContent=msg;return;}
+  err.hidden=true;stPick={cls,name,manual:true};$('#stChosen').textContent=`${name}, ${cls}`;$('#stGoRow').hidden=false;
+  $('#stGo').textContent=(student&&(student.name!==name||student.cls!==cls))?'Сабақты қайта бастау →':'Сабақты бастау →';});
+$('#stuChange').addEventListener('click',()=>openStart('change'));
+$('#tExit').addEventListener('click',()=>{teacherMode=false;store.set('teacher',false);updateLocks();drawStudent();showTab();if(!student)openStart('first');prShowMine();grpShowMine();});
+drawStudent();
+if(!student&&!teacherMode)openStart('first');
+
+/* ---------- pairs ---------- */
+function prRng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function prHash(str){let h=2166136261;for(const c of str){h^=c.codePointAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+function makePairs(cls,seed,mask){const all=CLASSES[cls]||[];const a=all.filter((_,i)=>mask&(1<<i));const r=prRng(seed*7919+prHash(cls));
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  const pairs=[];for(let i=0;i+1<a.length;i+=2)pairs.push([a[i],a[i+1]]);
+  if(a.length%2){if(pairs.length)pairs[pairs.length-1].push(a[a.length-1]);else pairs.push([a[a.length-1]]);}return pairs;}
+function parseCode(c){const m=String(c).replace(/\s+/g,'').toUpperCase().match(/^(\d{2})-([0-9A-F]{1,4})$/);return m?{seed:+m[1],mask:parseInt(m[2],16)}:null;}
+// teacher side
+let prPresentCls=null,prPresentSet=null;
+function prDrawTeacher(){const cls=pkClass;$('#prCls').textContent=cls||'';
+  if(!cls||!CLASSES[cls]){$('#prHint').hidden=false;$('#prMake').disabled=true;return;}
+  $('#prHint').hidden=true;$('#prMake').disabled=false;
+  if(prPresentCls!==cls){prPresentCls=cls;$('#prList').innerHTML='';$('#prCode').hidden=true;}
+  prPresentSet=new Set(presentOf(cls));}
+$('#prMake').addEventListener('click',()=>{const cls=pkClass;if(!cls||!CLASSES[cls])return;prPresentSet=new Set(presentOf(cls));
+  let mask=0;CLASSES[cls].forEach((n,i)=>{if(prPresentSet.has(n))mask|=(1<<i);});
+  if(!mask){toast('Кемінде бір қатысып отырған оқушыны белгілеңіз.');return;}
+  const seed=10+Math.floor(Math.random()*90);const code=`${seed}-${mask.toString(16).toUpperCase()}`;
+  const pairs=makePairs(cls,seed,mask);store.set('lastPairs',{cls,pairs,d:todayStr(),t:Date.now()});writePairsDoc();drawResults();
+  $('#prList').innerHTML=pairs.map(pr=>`<li><b>${esc(pr[0])}</b> <span class="pr-lead">орындайды</span> — ${pr.slice(1).map(esc).join(', ')}</li>`).join('');});
+document.querySelectorAll('.pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(prDrawTeacher,0)));
+prDrawTeacher();
+// student side
+let prState=store.get('pair',null);
+function prShowMine(){const box=$('#prMine'),lock=$('#matchLock'),board=$('#matchA'),pick=$('#prPick'),role=$('#prRole');
+  const reset=()=>{lock.hidden=true;board.hidden=false;};
+  if(!student||!CLASSES[student.cls]){pick.innerHTML='';role.hidden=true;box.hidden=false;box.className='pr-mine no';box.textContent='Сенің сыныбың тізімде жоқ. Кіммен жұмыс істейтініңді мұғалімнен сұрап, тапсырманы бірге орындаңдар.';reset();return;}
+  const mates=presentOf(student.cls).filter(n=>n!==student.name);
+  pick.innerHTML=mates.map(n=>`<button type="button" class="st-name" aria-pressed="${!!prState&&prState.partner===n}">${esc(n)}</button>`).join('');
+  pick.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{prState={partner:btn.textContent,role:null};store.set('pair',prState);prShowMine();}));
+  role.hidden=!prState;
+  role.querySelectorAll('button').forEach(btn=>btn.setAttribute('aria-pressed',!!prState&&prState.role===btn.dataset.r));
+  if(!prState||!prState.role){box.hidden=!prState;if(prState){box.className='pr-mine';box.innerHTML=`Серігің: <b>${esc(prState.partner)}</b>. Енді сәйкестендіруді кім орындайтынын таңда.`;}reset();return;}
+  box.hidden=false;box.className='pr-mine ok';
+  if(prState.role==='me'){box.innerHTML=`Серігің: <b>${esc(prState.partner)}</b>. <span class="pr-lead">Сәйкестендіруді сен орындайсың</span> өз компьютеріңде, серігің сенімен бірге жұмыс істейді.`;reset();}
+  else{box.innerHTML=`Серігің: <b>${esc(prState.partner)}</b>. Сәйкестендіруді серігің орындайды.`;board.hidden=true;lock.hidden=false;
+    lock.innerHTML=`<b>Тапсырманы серігің орындайды — ${esc(prState.partner)}.</b><br>Серігіңнің компьютеріне барып, бірге жұмыс істеңдер: әр жұпты талқылап, «Тексеру» батырмасын бірге басыңдар.`;}}
+$('#prRole').querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{if(!prState)return;prState.role=btn.dataset.r;store.set('pair',prState);prShowMine();}));
+if(!teacherMode)prShowMine();
+
+/* ---------- owner check + live link teacher -> students ---------- */
+function setLink(st){
+  const T={http:['ok','Оқушылармен байланыс: Google-скрипт арқылы'],httpfail:['no','Байланыс жоқ: скрипт қолжетімсіз'],ok:['ok','Оқушылармен байланыс: қосылған'],file:['no','Оқушылармен байланыс жоқ: жүктеп алынған файл ашылған. Байланыс тек сайтта жұмыс істейді.'],none:['no','Оқушылармен байланыс жоқ: сайт қоймасы қолжетімсіз.']};
+  const S={http:['ok','мұғаліммен байланыс: бар'],httpfail:['no','мұғаліммен байланыс жоқ (интернетті тексеріңіз)'],ok:['ok','мұғаліммен байланыс: бар'],file:['no','мұғаліммен байланыс жоқ (файл ашылған)'],none:['no','мұғаліммен байланыс жоқ (claude.ai-ға кіріңіз)']};
+  const t=$('#linkT'),u=$('#linkS');
+  if(t){t.className='link-st '+T[st][0];t.textContent=T[st][1];}
+  if(u){u.className='link-st '+S[st][0];u.textContent=(previewStudent?'оқушы көрінісі · ':'')+S[st][1];const sl=$('#ssLink');if(sl){sl.className='link-st ss-link '+S[st][0];sl.textContent=u.textContent;}}}
+
+const capUse=n=>(window.claude&&typeof window.claude.use==='function')?Promise.resolve(window.claude.use(n)).catch(()=>null):Promise.resolve(undefined);
+let liveDb=null;
+async function liveWrite(key,data){if(!teacherMode)return;
+  if(!liveDb&&window.__SYNC_URL){try{await fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:key,data})});}catch(e){toast('Оқушыларға жіберу мүмкін болмады: интернет жоқ немесе скрипт мекенжайы қате');}return;}
+  if(!liveDb)return;try{await liveDb.doc('live/'+key).set(data);}catch(e){toast('Оқушыларға жіберу мүмкін болмады: '+(e&&e.code||'қате'));}}
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{store.set('lang',b.dataset.lang);const cur=(panels.find(p=>!p.hidden)||{}).id;try{history.replaceState(null,'',location.pathname+location.search+(cur?'#'+cur:''));}catch(e){}location.reload();}));
+(async()=>{
+  const u=await capUse('user');let owner=true;
+  if(u!==undefined){try{owner=!!(u&&await u.isOwner());}catch(e){owner=false;}}
+  if(!owner&&teacherMode){teacherMode=false;store.set('teacher',false);updateLocks();drawStudent();showTab();if(!student)openStart('first');prShowMine();toast('Мұғалім беті тек сайт иесінде ашылады.');}
+  const d=await capUse('db');
+  if(!d&&window.__SYNC_URL){setLink('http');if(teacherMode){$('#pkLive').hidden=false;return;}
+    let prevAbs='';const poll=()=>fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{
+      lastNow=v&&v.now||null;lastPairs=v&&v.pairs||null;renderNow();renderPairs();
+      const ab=JSON.stringify(v&&v.absent&&v.absent.by||{});if(ab!==prevAbs){prevAbs=ab;liveAbsent=JSON.parse(ab);if(!$('#startScreen').hidden)stDrawNames();prShowMine();}
+      setLink('http');}).catch(()=>setLink('httpfail'));
+    poll();setInterval(poll,4000);return;}
+  setLink(d===undefined?'file':d?'ok':'none');if(!d)return;liveDb=d;
+  if(teacherMode){$('#pkLive').hidden=false;return;}
+  const fresh=t=>t&&Date.now()-t<3*60*60*1000;
+  d.doc('live/now').onSnapshot(snap=>{lastNow=snap.exists?snap.data():null;renderNow();},()=>{});
+  d.doc('live/absent').onSnapshot(snap=>{const v=snap.exists?snap.data():null;liveAbsent=(v&&v.by)||{};if(!$('#startScreen').hidden)stDrawNames();prShowMine();},()=>{});
+  d.doc('live/pairs').onSnapshot(snap=>{lastPairs=snap.exists?snap.data():null;renderPairs();},()=>{});
+})();
+var lastNow=null,lastPairs=null;
+function liveFresh(t){return t&&Date.now()-t<3*60*60*1000;}
+function renderNow(){const box=$('#liveAns'),box2=$('#liveAns2'),v=lastNow;if(!box)return;
+    if(teacherMode||!v||!student||v.cls!==student.cls||!v.name||!liveFresh(v.t)){box.hidden=true;if(box2)box2.hidden=true;return;}
+    const me=v.name===student.name;
+    const tail=v.s?` — №${v.s} жағдаят`:v.q?` — №${v.q} тұжырым`:'';const tailMe=v.s?` №${v.s} жағдаят.`:v.q?` №${v.q} тұжырым.`:'';
+    [box,box2].forEach(b=>{if(!b)return;b.hidden=false;b.className='live-ans s-only'+(me?' me':'');
+      b.innerHTML=me?`<b>Қазір сен жауап бересің!</b>${tailMe}`:`Қазір жауап беретін: <b>${esc(v.name)}</b>${tail}`;});}
+function renderPairs(){renderGroups();try{renderHints();}catch(e){}const v=lastPairs;
+    if(teacherMode||!v||!student||v.cls!==student.cls||!liveFresh(v.t)||!Array.isArray(v.pairs))return;
+    const pr=v.pairs.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!pr)return;
+    if(prState&&prState.t===v.t)return;
+    const lead=pr[0]===student.name;prState={partner:lead?pr.slice(1).join(', '):pr[0],role:lead?'me':'partner',t:v.t,auto:true};store.set('pair',prState);prShowMine();
+    const h=$('#prHow');if(h)h.textContent='Жұптарды мұғалім тағайындады. Қажет болса, серікті қолмен таңдауға болады.';}
+
+/* ---------- exit lesson ---------- */
+function askExit(){$('#exitDlg').hidden=false;$('#exitNo').focus();}
+$('#stuExit').addEventListener('click',askExit);
+$('#endLesson').addEventListener('click',askExit);
+$('#exitNo').addEventListener('click',()=>{$('#exitDlg').hidden=true;});
+$('#exitDlg').addEventListener('keydown',e=>{if(e.key==='Escape')$('#exitDlg').hidden=true;});
+$('#exitYes').addEventListener('click',()=>{
+  try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('ttablefree:')&&k!=='ttablefree:lang')ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));}catch(e){}
+  try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+  location.reload();});
+
+/* ---------- attendance (teacher) ---------- */
+absentMap=store.get('absent',{});
+function drawAtt(){const cls=pkClass,w=$('#attWrap');if(!cls||!CLASSES[cls]){w.hidden=true;return;}w.hidden=false;const ab=absentOf(cls,absentMap);
+  $('#attCount').textContent=ab.length?`(${ab.length})`:'';
+  $('#attList').innerHTML=CLASSES[cls].map((n,i)=>`<label><input type="checkbox" data-i="${i}" ${ab.includes(n)?'':'checked'}> ${esc(n)}</label>`).join('');
+  $('#attList').querySelectorAll('input').forEach(cb=>cb.addEventListener('change',()=>{const n=CLASSES[cls][+cb.dataset.i];const cur=new Set(absentOf(cls,absentMap));if(cb.checked)cur.delete(n);else cur.add(n);
+    absentMap[cls]={d:todayStr(),names:[...cur]};store.set('absent',absentMap);$('#attCount').textContent=cur.size?`(${cur.size})`:'';pkDraw();prDrawTeacher();
+    const by={};for(const [k,v] of Object.entries(absentMap))if(v&&v.d===todayStr())by[k]=v;liveWrite('absent',{by,t:Date.now()});}));}
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>{drawAtt();prDrawTeacher();},0)));
+drawAtt();pkDraw();
+
+/* ---------- results of the pair matching ---------- */
+var resList=[],livePairsT=null;
+function onMatchCheck(r){if(teacherMode||!student||!window.__SYNC_URL)return;
+  const partner=prState&&prState.partner||'';
+  fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({k:'result',data:{lesson:LESSON,cls:student.cls,name:student.name,partner,n:r.n,ok:r.ok,total:r.total,wrong:r.wrong,empty:r.empty,d:todayStr(),t:Date.now()}})}).catch(()=>{});}
+function hhmm(t){const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function drawResults(){const body=$('#resBody');if(!body)return;const cls=pkClass;
+  if(!window.__SYNC_URL){$('#resNote').hidden=false;}
+  const today=todayStr();const rs=resList.filter(r=>r&&r.cls===cls&&r.d===today&&!String(r.name).includes('#'));
+  let lp=store.get('lastPairs',null);if(!(lp&&lp.cls===cls&&lp.d===today)&&livePairsT&&livePairsT.cls===cls&&Array.isArray(livePairsT.pairs)){lp={cls,d:today,pairs:livePairsT.pairs.map(x=>x&&x.m).filter(Array.isArray)};}const rows=[];const used=new Set();
+  if(lp&&lp.cls===cls&&lp.d===today){lp.pairs.forEach(pr=>{const r=rs.filter(x=>pr.includes(x.name)).sort((a,b)=>b.t-a.t)[0];if(r)used.add(r.name);rows.push({pair:pr,r});});}
+  rs.filter(r=>!used.has(r.name)).forEach(r=>rows.push({pair:[r.name].concat(r.partner?[r.partner]:[]),r}));
+  if(!cls){body.innerHTML='<tr><td colspan="4">«Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
+  if(!rows.length){body.innerHTML='<tr><td colspan="4">Әзірге нәтиже жоқ.</td></tr>';return;}
+  body.innerHTML=rows.map(({pair,r})=>{
+    const who=r?`<b>${esc(r.name)}</b>${pair.filter(n=>n!==r.name).length?' — '+pair.filter(n=>n!==r.name).map(esc).join(', '):''}`:`<b>${esc(pair[0])}</b> — ${pair.slice(1).map(esc).join(', ')}`;
+    if(!r)return `<tr class="res-wait"><td>${who}</td><td>әлі тексерілмеді</td><td>—</td><td>—</td></tr>`;
+    const cls2=r.ok===r.total?'res-ok':r.ok>=Math.ceil(r.total/2)?'res-mid':'res-low';
+    const err=(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')+(r.empty?` <span class="res-empty">жалғанбаған: ${r.empty}</span>`:'');
+    return `<tr class="${cls2}"><td>${who}</td><td><b>${r.total}-тен ${r.ok}</b></td><td>${err||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
+function pollResults(){if(!teacherMode||!window.__SYNC_URL)return;
+  fetch(window.__SYNC_URL+'?t='+Date.now()).then(r=>r.json()).then(v=>{const oldGas=!(v&&Object.prototype.hasOwnProperty.call(v,'results'));const rn=$('#resNote');if(oldGas){rn.hidden=false;rn.className='howto res-warn';rn.textContent='Google скрипті ескі нұсқада: нәтижелер қабылданбайды. Жаңа Code.gs кодын қойып, «Управление развертываниями» → ✏️ → «Новая версия» → «Развернуть» жасаңыз.';}else if(rn.classList.contains('res-warn')){rn.hidden=true;rn.classList.remove('res-warn');}livePairsT=v&&v.pairs||null;resList=Array.isArray(v&&v.results)?v.results.filter(r=>r&&(!r.lesson||r.lesson===LESSON)):[];{const sl=$('#sheetLink');if(sl&&v&&v.sheet&&/^https:\/\/docs\.google\.com\//.test(v.sheet)){sl.href=v.sheet;sl.hidden=false;}}$('#resUpd').textContent='жаңартылды '+hhmm(Date.now());drawResults();if(typeof drawClassRefl==='function')drawClassRefl();if(typeof drawProg==='function')drawProg();if(typeof drawGoalTbl==='function')drawGoalTbl();if(typeof drawGrpResults==='function'){drawGrpResults();$('#grpUpd').textContent=$('#resUpd').textContent;}}).catch(()=>{$('#resUpd').textContent='скриптпен байланыс жоқ';});}
+$('#resClear').addEventListener('click',()=>{if(!window.__SYNC_URL)return;
+  fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:window.__SYNC_KEY||'',k:'clearResults'})}).then(()=>setTimeout(pollResults,1500)).catch(()=>{});
+  resList=[];drawResults();});
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawResults,0)));
+if(teacherMode&&window.__SYNC_URL){$('#resNote').hidden=true;pollResults();setInterval(pollResults,5000);}
+drawResults();
+
+/* ---------- group work for "Найди ошибку" ---------- */
+var grpState=store.get('grp',null);
+function makeGroups(names){const a=names.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  if(a.length<=4)return [a];let g=Math.ceil(a.length/4);if(Math.floor(a.length/g)<3&&g>1)g--;const out=Array.from({length:g},()=>[]);a.forEach((x,i)=>out[i%g].push(x));return out;}
+function writePairsDoc(){const lp=store.get('lastPairs',null),lg=store.get('lastGroups',null),td=todayStr();const doc={cls:'',pairs:[],t:0};
+  if(lp&&lp.d===td){doc.cls=lp.cls;doc.pairs=lp.pairs.map(x=>({m:x}));doc.t=lp.t||0;}
+  if(lg&&lg.d===td){doc.g={cls:lg.cls,groups:lg.groups.map(x=>({m:x})),t:lg.t};}
+  const hl=hintsGet();if(hl.length)doc.h=hl;
+  liveWrite('pairs',doc);}
+function curGroups(cls){const lg=store.get('lastGroups',null);if(lg&&lg.cls===cls&&lg.d===todayStr())return lg.groups;
+  const g=livePairsT&&livePairsT.g;if(g&&g.cls===cls&&Array.isArray(g.groups))return g.groups.map(x=>x&&x.m).filter(Array.isArray);return null;}
+function drawGrpT(){const cls=pkClass;$('#grpCls').textContent=cls||'';$('#grpMake').disabled=!cls||!CLASSES[cls];
+  const gs=cls?curGroups(cls):null;
+  $('#grpList').innerHTML=gs?gs.map((g,i)=>`<li>${i+1}-топ: <b>${esc(g[0])}</b> <span class="pr-lead">жетекші</span> — ${g.slice(1).map(esc).join(', ')}</li>`).join(''):'';}
+$('#grpMake').addEventListener('click',()=>{const cls=pkClass;if(!cls||!CLASSES[cls]){toast('Алдымен «Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.');return;}
+  const names=presentOf(cls);if(!names.length){toast('Сыныпта ешкім қатысып отыр деп белгіленбеген.');return;}
+  store.set('lastGroups',{cls,groups:makeGroups(names),d:todayStr(),t:Date.now()});writePairsDoc();drawGrpT();drawGrpResults();});
+function drawGrpResults(){const body=$('#grpResBody');if(!body)return;const cls=pkClass;
+  if(!cls){body.innerHTML='<tr><td colspan="4">«Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
+  const today=todayStr();const rs=(resList||[]).filter(r=>r&&r.cls===cls&&r.d===today&&String(r.name).endsWith('#dbg')).map(r=>Object.assign({},r,{who:String(r.name).slice(0,-4)}));
+  const gs=curGroups(cls)||[];const used=new Set();const rows=[];
+  gs.forEach(g=>{const r=rs.filter(x=>g.includes(x.who)).sort((a,b)=>b.t-a.t)[0];if(r)used.add(r.who);rows.push({g,r});});
+  rs.filter(r=>!used.has(r.who)).forEach(r=>rows.push({g:[r.who].concat(r.partner?String(r.partner).split(', '):[]),r}));
+  if(!rows.length){body.innerHTML='<tr><td colspan="4">Әзірге нәтиже жоқ.</td></tr>';return;}
+  body.innerHTML=rows.map(({g,r},i)=>{const lead=r?r.who:g[0];const others=g.filter(n=>n!==lead);
+    const who=`<b>${esc(lead)}</b>${others.length?' — '+others.map(esc).join(', '):''}`;
+    if(!r)return `<tr class="res-wait"><td>${who}</td><td>әлі бастамады</td><td>—</td><td>—</td></tr>`;
+    const cl=r.ok===r.total?'res-ok':r.ok>=Math.ceil(r.total/2)?'res-mid':'res-low';
+    return `<tr class="${cl}"><td>${who}</td><td><b>${r.total}-тен ${r.ok}</b></td><td>${(r.wrong||[]).map(w=>`<code>${esc(w)}</code>`).join(' ')||'—'}</td><td>${hhmm(r.t)}</td></tr>`;}).join('');}
+function onDbgCheck(){if(teacherMode||!student||!window.__SYNC_URL)return;if(grpState&&grpState.leader&&grpState.leader!==student.name)return;
+  const fixed=dbg.filter((_,i)=>dbgDone[i]).length;const left=dbg.filter((_,i)=>!dbgDone[i]).map((d,i)=>d.t);
+  const members=grpState&&Array.isArray(grpState.members)?grpState.members.filter(n=>n!==student.name).join(', '):'';
+  fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({k:'result',data:{lesson:LESSON,cls:student.cls,name:student.name+'#dbg',partner:members,n:fixed,ok:fixed,total:dbg.length,wrong:left,empty:0,d:todayStr(),t:Date.now()}})}).catch(()=>{});}
+function renderGroups(){const v=lastPairs&&lastPairs.g;if(teacherMode||!v||!student||v.cls!==student.cls||!liveFresh(v.t)||!Array.isArray(v.groups))return;
+  const gr=v.groups.map(x=>x&&x.m).find(m=>Array.isArray(m)&&m.includes(student.name));if(!gr)return;if(grpState&&grpState.t===v.t)return;
+  grpState={leader:gr[0],members:gr,t:v.t,auto:true};store.set('grp',grpState);grpShowMine();
+  const h=$('#grpHow');if(h)h.textContent='Топтарды мұғалім тағайындады. Қажет болса, жетекшіні қолмен таңдауға болады.';}
+function grpShowMine(){const box=$('#grpMine'),lock=$('#grpLock'),list=$('#dbg'),pick=$('#grpPick');if(!box)return;
+  const reset=()=>{lock.hidden=true;list.hidden=false;};
+  if(teacherMode){reset();return;}
+  if(!student||!CLASSES[student.cls]){pick.innerHTML='';box.hidden=false;box.className='pr-mine no';box.textContent='Сенің сыныбың тізімде жоқ. Қай топта екеніңді мұғалімнен сұрап, бірге жұмыс істеңдер.';reset();return;}
+  pick.innerHTML=presentOf(student.cls).map(n=>`<button type="button" class="st-name" aria-pressed="${!!grpState&&grpState.leader===n}">${esc(n)}${n===student.name?' (мен)':''}</button>`).join('');
+  pick.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{const n=btn.textContent.replace(/ \(мен\)$/,'');grpState={leader:n,members:grpState&&grpState.auto?grpState.members:[],t:grpState&&grpState.auto?grpState.t:null,auto:!!(grpState&&grpState.auto)};store.set('grp',grpState);grpShowMine();}));
+  if(!grpState||!grpState.leader){box.hidden=true;reset();return;}
+  const others=(grpState.members||[]).filter(n=>n!==student.name);
+  box.hidden=false;box.className='pr-mine ok';
+  if(grpState.leader===student.name){box.innerHTML=`<span class="pr-lead">Сен топ жетекшісісің</span> — тапсырмаларды өз компьютеріңде орындайсың.`+(others.length?` Сенімен бірге: <b>${others.map(esc).join(', ')}</b>.`:'');reset();}
+  else{box.innerHTML=`Тобыңның жетекшісі: <b>${esc(grpState.leader)}</b>.`;list.hidden=true;lock.hidden=false;
+    lock.innerHTML=`<b>Тапсырмаларды топ жетекшісі орындайды — ${esc(grpState.leader)}.</b><br>Жетекшінің компьютеріне барып, бірге жұмыс істеңдер: әр қатені талқылап, «Тексеру» батырмасын бірге басыңдар.`;}}
+window.addEventListener('hashchange',()=>{if(location.hash==='#oshibka'){if(teacherMode){drawGrpT();drawGrpResults();}else grpShowMine();}});
+if(teacherMode){drawGrpT();drawGrpResults();}else grpShowMine();
+
+/* ---------- class reflection (teacher) ---------- */
+var lastGoal=-1,lastConfSent='';
+function sendConf(force){if(teacherMode||!student||!window.__SYNC_URL)return;
+  try{renderGoal();}catch(e){}
+  const ids=Object.keys(CONF_Q);const digits=ids.map(id=>confState[id]||0).join('');
+  const data={lesson:LESSON,cls:student.cls,name:student.name+'#conf',partner:digits,n:lastGoal+1,ok:ids.filter(id=>confState[id]).length,total:ids.length,wrong:[],empty:0,d:todayStr(),t:Date.now()};
+  const sig=digits+'|'+data.n;if(!force&&sig===lastConfSent)return;lastConfSent=sig;
+  fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});}
+if(!teacherMode&&window.__SYNC_URL){setTimeout(()=>sendConf(false),2500);setInterval(()=>sendConf(false),20000);}
+const GOAL_LBL=['жетпеді','Барлығы','Көпшілігі','Кейбіреулері'];
+function drawClassRefl(){const box=$('#crBody');if(!box)return;const cls=pkClass;$('#crCls').textContent=cls||'';
+  const ids=Object.keys(CONF_Q);
+  $('#crHead').innerHTML='<tr><th>Оқушы</th>'+ids.map((id,i)=>`<th title="${esc(titleOf(id))}">${i+1}</th>`).join('')+'<th>Орт.</th><th>Мақсат</th></tr>';
+  $('#crLegend').textContent=ids.map((id,i)=>`${i+1} — ${titleOf(id)}`).join(' · ');
+  if(!cls||!CLASSES[cls]){box.innerHTML=`<tr><td colspan="${ids.length+3}">«Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>`;$('#crBars').innerHTML='';return;}
+  const today=todayStr();const latest={};
+  (resList||[]).forEach(r=>{if(r&&r.cls===cls&&r.d===today&&String(r.name).endsWith('#conf')){const n=String(r.name).slice(0,-5);if(!latest[n]||latest[n].t<r.t)latest[n]=r;}});
+  const names=presentOf(cls);const rows=names.map(n=>({n,r:latest[n]}));
+  Object.keys(latest).filter(n=>!names.includes(n)).forEach(n=>rows.push({n,r:latest[n]}));
+  const sums=ids.map(()=>[0,0]);
+  box.innerHTML=rows.map(({n,r})=>{const dg=r?String(r.partner||''):'';const vals=ids.map((_,i)=>+dg[i]||0);vals.forEach((v,i)=>{if(v){sums[i][0]+=v;sums[i][1]++;}});
+    const marked=vals.filter(Boolean);const avg=marked.length?(marked.reduce((a,b)=>a+b,0)/marked.length):0;
+    const lvl=r?Math.max(0,Math.min(3,(+r.n)||0)):-1;
+    return `<tr class="${r?'':'res-wait'}"><td>${esc(n)}</td>`+vals.map(v=>`<td class="cr-c c${v}">${v||'—'}</td>`).join('')+
+      `<td><b>${marked.length?avg.toFixed(1):'—'}</b></td><td>${r?`<span class="cr-goal g${lvl}">${GOAL_LBL[lvl]}</span>`:'дерек жоқ'}</td></tr>`;}).join('');
+  $('#crBars').innerHTML=ids.map((id,i)=>{const [sum,cnt]=sums[i];const avg=cnt?sum/cnt:0;const lv=Math.round(avg);
+    return `<div class="cs-row"><span class="cs-name">${esc(titleOf(id))}</span><span class="cs-bar"><span style="width:${avg*20}%" class="lv${lv}"></span></span><span class="cs-v">${cnt?avg.toFixed(1)+' ('+cnt+')':'—'}</span></div>`;}).join('');}
+window.addEventListener('hashchange',()=>{if(location.hash==='#refleksiya'&&teacherMode)drawClassRefl();});
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawClassRefl,0)));
+if(teacherMode){drawClassRefl();if(window.__SYNC_URL)$('#crNote').hidden=true;}
+
+/* ---------- side menu: exit button ---------- */
+$('#ssExit').addEventListener('click',()=>{if(typeof askExit==='function')askExit();});
+$('#ssChange').addEventListener('click',()=>$('#stuChange').click());
+drawStudent();updateLocks();
+
+/* ---------- practice / extra tasks progress ---------- */
+var lastProgSent={};
+function sendProg(force){if(teacherMode||!student||!window.__SYNC_URL)return;
+  const pd=prac.filter(t=>pracDone[t.id]).map(t=>t.id);const dd=tasks.filter(t=>done[t.id]).map(t=>t.id);
+  const qk=quizOk();
+  const items=[{suf:'#quiz',n:qk.length,total:quiz.length,partner:qk.join(','),sig:qk.join(',')+'|'+Object.keys(qState).length},
+               {suf:'#oly',n:pd.length,total:prac.length,partner:pd.join(', '),sig:pd.join(',')},
+               {suf:'#dop',n:foTotal(),total:10,partner:dd.join(', '),sig:dd.join(',')+'|'+foTotal()}];
+  items.forEach(it=>{if(!force&&lastProgSent[it.suf]===it.sig)return;if(!force&&it.n===0&&lastProgSent[it.suf]===undefined){lastProgSent[it.suf]=it.sig;return;}lastProgSent[it.suf]=it.sig;
+    const data={lesson:LESSON,cls:student.cls,name:student.name+it.suf,partner:it.partner,n:it.n,ok:it.n,total:it.total,wrong:[],empty:0,d:todayStr(),t:Date.now()};
+    fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{});});}
+if(!teacherMode&&window.__SYNC_URL){setTimeout(()=>sendProg(false),3000);setInterval(()=>sendProg(false),8000);}
+function drawProg(){const cls=pkClass;const today=todayStr();
+  [['oly','#oly'],['dop','#dop']].forEach(([key,suf])=>{const box=$('#pg-'+key);if(!box)return;const body=box.querySelector('.pg-body');box.querySelector('.pg-cls').textContent=cls||'';
+    if(!cls||!CLASSES[cls]){body.innerHTML='<tr><td colspan="4">«Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
+    const latest={};(resList||[]).forEach(r=>{if(r&&r.cls===cls&&r.d===today&&String(r.name).endsWith(suf)){const n=String(r.name).slice(0,-suf.length);if(!latest[n]||latest[n].t<r.t)latest[n]=r;}});
+    const names=presentOf(cls).slice();Object.keys(latest).filter(n=>!names.includes(n)).forEach(n=>names.push(n));
+    const total=key==='oly'?prac.length:tasks.length;
+    body.innerHTML=names.map(n=>{const r=latest[n];
+      if(!r)return `<tr class="res-wait"><td>${esc(n)}</td><td>әлі бастаған жоқ</td><td>—</td><td>—</td></tr>`;
+      const ok=+r.ok||0,tt=+r.total||total;const cl=ok>=tt?'res-ok':ok>=Math.ceil(tt/2)?'res-mid':'res-low';
+      const det=r.partner?String(r.partner).split(', ').map(x=>`<code>${esc(x)}</code>`).join(' '):'—';
+      return `<tr class="${cl}"><td>${esc(n)}</td><td><b>${ok} / ${tt}</b><span class="pg-bar"><span style="width:${tt?Math.round(ok/tt*100):0}%"></span></span></td><td>${det}</td><td>${hhmm(r.t)}</td></tr>`;}).join('')||'<tr><td colspan="4">Сыныпта оқушы жоқ.</td></tr>';});}
+window.addEventListener('hashchange',()=>{if(teacherMode&&(location.hash==='#praktika'||location.hash==='#dop'))drawProg();});
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawProg,0)));
+if(teacherMode)drawProg();
+
+/* ---------- teacher: goal by individual tasks ---------- */
+function drawGoalTbl(){const box=$('#glBody');if(!box)return;const cls=pkClass;
+  if(!cls||!CLASSES[cls]){box.innerHTML='<tr><td colspan="8">«Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.</td></tr>';return;}
+  const today=todayStr();const L={};
+  (resList||[]).forEach(r=>{if(!r||r.cls!==cls||r.d!==today)return;const m=String(r.name).match(/^(.*)#(quiz|oly|dop)$/);if(!m)return;
+    const k=m[1]+'|'+m[2];if(!L[k]||L[k].t<r.t)L[k]=r;});
+  const names=presentOf(cls).slice();Object.keys(L).map(k=>k.split('|')[0]).forEach(n=>{if(!names.includes(n))names.push(n);});
+  const ic={ok:'✓',part:'◐',no:'○'};
+  box.innerHTML=names.map(n=>{const q=L[n+'|quiz'],o=L[n+'|oly'],d=L[n+'|dop'];
+    if(!q&&!o&&!d)return `<tr class="res-wait"><td>${esc(n)}</td><td>—</td><td>—</td><td>—</td><td class="gl-c no">○</td><td class="gl-c no">○</td><td class="gl-c no">○</td><td>дерек жоқ</td></tr>`;
+    const qOk=q&&q.partner?String(q.partner).split(',').filter(x=>x!=='').map(Number):[];
+    const dop=d&&d.partner?String(d.partner).split(', ').filter(Boolean):[];
+    const pr=o&&o.partner?String(o.partner).split(', ').filter(Boolean):[];const g=goalEval({qOk,prac:pr,dop});const lvl=g.reached+1;
+    return `<tr><td>${esc(n)}</td><td>${q?q.ok+' / '+q.total:'—'}</td><td>${o?o.ok+' / '+o.total:'—'}</td><td>${d?d.ok+' / '+d.total:'—'}</td>`+
+      g.lv.map(v=>`<td class="gl-c ${v}">${ic[v]}</td>`).join('')+`<td><span class="cr-goal g${lvl}">${GOAL_LBL[lvl]}</span></td></tr>`;}).join('')||'<tr><td colspan="8">Сыныпта оқушы жоқ.</td></tr>';}
+window.addEventListener('hashchange',()=>{if(teacherMode&&location.hash==='#refleksiya')drawGoalTbl();});
+document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawGoalTbl,0)));
+if(teacherMode)drawGoalTbl();
+
+/* ---------- teacher hints -> students ---------- */
+const HINTS=[{"k": "prac:P1", "tab": "svoistva", "hint": "¬B бағаны B бағанына керісінше. F = 1 тек A = 1 және ¬B = 1 болғанда."}, {"k": "prac:P2", "tab": "metody", "hint": "«3 айнымалы» мысалын қараңыз: A ∨ B, ¬C, содан кейін ∧."}, {"k": "prac:P3", "tab": "metody", "hint": "«Тең мәнділік» мысалын қараңыз. F1 мен F2 бағандарын жол-жолымен салыстырыңыз."}, {"k": "dbg:0", "tab": "svoistva", "hint": "ЖӘНЕ амалының кестесін еске түсіріңіз: 1 тек 1 ∧ 1 жолында."}, {"k": "dbg:1", "tab": "svoistva", "hint": "Алдымен ¬A бағанын тексеріңіз: ол A бағанына керісінше ме?"}, {"k": "dbg:2", "tab": "svoistva", "hint": "B бағаны 0 1 0 1 болуы керек. Жолдардың ретін тексеріңіз."}, {"k": "dbg:3", "tab": "lab", "hint": "¬C бағаны C-ға керісінше болуы керек. Содан кейін F-ті қайта тексеріңіз."}, {"k": "dbg:4", "tab": "metody", "hint": "«Амалдар реті» мысалын қараңыз: A ∨ B ∧ C = A ∨ (B ∧ C)."}, {"k": "dbg:5", "tab": "metody", "hint": "«Жақша» мысалын қараңыз: ¬(A ∧ B) бағаны A ∧ B-ға керісінше."}, {"k": "dop:Ф1", "tab": "svoistva", "hint": "Терістеу мәнді керісінше өзгертеді: 0 → 1, 1 → 0."}, {"k": "dop:Ф2", "tab": "svoistva", "hint": "ЖӘНЕ тек екі мән де 1 болғанда 1."}, {"k": "dop:Ф3", "tab": "svoistva", "hint": "Алдымен ¬B бағаны, содан кейін A ∨ ¬B."}, {"k": "dop:Ф4", "tab": "svoistva", "hint": "A: 0 0 1 1, B: 0 1 0 1. Екі терістеуді жеке есептеп, соңында ∧."}, {"k": "dop:Ф5", "tab": "metody", "hint": "Жақша бірінші: A ∨ B, содан кейін ∧ C."}, {"k": "dop:Ф6", "tab": "metody", "hint": "«Жақша» мысалын қараңыз: алдымен B ∨ C, содан кейін оны терістеңіз."}, {"k": "dop:Ф7", "tab": "lab", "hint": "Өрнекті конструкторға енгізіп, амалдардың ретін қараңыз (кестені өзіңіз толтырыңыз)."}, {"k": "dop:Ф8", "tab": "svoistva", "hint": "F бағанын A бағанымен жол-жолымен салыстырыңыз."}, {"k": "dop:Ф9", "tab": "svoistva", "hint": "16 жол: A — 8 нөл, 8 бір; B — 4-тен; C — 2-ден; D — кезекпен."}, {"k": "dop:Ф10", "tab": "metody", "hint": "Алдымен B ∨ C, содан кейін A ∧ (B ∨ C)."}];
+const HINT_TABS=['svoistva','lab','metody'];
+function hintLabel(k){const [a,b]=k.split(':');
+  if(a==='prac')return `Практика ${b}`;if(a==='dbg')return `Қатені тап №${+b+1}`;
+  if(a==='dop')return `ҚБ ${b}`;return '';}
+function hintsGet(){const h=store.get('hints',null);return h&&h.d===todayStr()&&Array.isArray(h.list)?h.list:[];}
+function hintsSet(list){store.set('hints',{d:todayStr(),list:list.slice(-8)});writePairsDoc();}
+let hmKey=null;
+function drawHm(){const ul=$('#hmList');const list=hintsGet().slice().reverse();
+  ul.innerHTML=list.length?list.map(h=>`<li><span><b>${esc(hintLabel(h.k))}</b> → ${h.to?esc(h.to):'бүкіл сынып '+esc(h.cls)} (${hhmm(h.t)})<br>${esc(h.text)}</span><button class="btn-ghost" type="button" data-hid="${esc(h.id)}">Қайтарып алу</button></li>`).join(''):'<li>Әзірге ештеңе жіберілмеді.</li>';
+  ul.querySelectorAll('[data-hid]').forEach(b=>b.addEventListener('click',()=>{hintsSet(hintsGet().filter(h=>h.id!==b.dataset.hid));drawHm();toast('Кеңес қайтарылды');}));}
+function openHint(k){if(!pkClass||!CLASSES[pkClass]){toast('Алдымен «Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.');return;}
+  hmKey=k;const d=HINTS.find(h=>h.k===k)||{};
+  $('#hmTitle').textContent='Кеңес: '+hintLabel(k);$('#hmText').value=d.hint||'';
+  $('#hmTab').innerHTML='<option value="">— көрсетпеу —</option>'+HINT_TABS.map(id=>`<option value="${id}"${id===d.tab?' selected':''}>${esc(titleOf(id))}</option>`).join('');
+  $('#hmTo').innerHTML=`<option value="">Бүкіл сынып ${esc(pkClass)}</option>`+presentOf(pkClass).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  drawHm();$('#hintModal').hidden=false;setTimeout(()=>$('#hmText').focus(),30);}
+function closeHint(){$('#hintModal').hidden=true;hmKey=null;}
+$('#hmCancel').addEventListener('click',closeHint);
+$('#hintModal').addEventListener('click',e=>{if(e.target.id==='hintModal')closeHint();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#hintModal').hidden)closeHint();});
+$('#hmSend').addEventListener('click',()=>{const text=$('#hmText').value.trim().slice(0,240);if(!text){toast('Кеңес мәтінін жазыңыз.');return;}
+  const list=hintsGet();list.push({id:Date.now().toString(36),cls:pkClass,to:$('#hmTo').value,k:hmKey,text,tab:$('#hmTab').value,t:Date.now()});
+  hintsSet(list);drawHm();toast('Кеңес жіберілді');});
+/* teacher buttons in task boxes */
+const addHintBtn=(box,k)=>{const head=box.querySelector('.task-head');if(!head)return;const b=document.createElement('button');b.className='pk-mini';b.type='button';b.dataset.hk=k;b.textContent='💡 Кеңес';head.appendChild(b);};
+document.querySelectorAll('#tasks .task').forEach((box,i)=>addHintBtn(box,'dop:'+tasks[i].id));
+document.querySelectorAll('#prac .task').forEach((box,i)=>addHintBtn(box,'prac:'+prac[i].id));
+document.querySelectorAll('#dbg .task').forEach((box,i)=>addHintBtn(box,'dbg:'+i));
+document.querySelectorAll('[data-hk]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();openHint(b.dataset.hk);}));
+/* students */
+var hintSeen=store.get('hintSeen',{});
+const HINT_TAB_OF={dop:'dop',prac:'praktika',dbg:'oshibka'};
+function hintHost(k){const [a,b]=k.split(':');
+  if(a==='dop')return document.querySelectorAll('#tasks .task')[tasks.findIndex(t=>t.id===b)];
+  if(a==='prac')return document.querySelectorAll('#prac .task')[prac.findIndex(t=>t.id===b)];
+  if(a==='dbg')return document.querySelectorAll('#dbg .task')[+b];
+  return null;}
+function renderHints(){if(teacherMode||!student)return;const v=lastPairs;
+  const list=(v&&Array.isArray(v.h)?v.h:[]).filter(h=>h&&h.k&&h.cls===student.cls&&(!h.to||h.to===student.name)&&liveFresh(h.t));
+  document.querySelectorAll('.t-hint').forEach(e=>e.remove());
+  list.forEach(h=>{const host=hintHost(h.k);if(!host)return;const d=document.createElement('div');d.className='t-hint';
+    d.innerHTML=`<b>💡 Мұғалімнің кеңесі:</b> ${esc(h.text)}${h.tab?` <a href="#${esc(h.tab)}">«${esc(titleOf(h.tab))}» ашу →</a>`:''}`;
+    if(host.id==='olyHints')host.appendChild(d);else{const ref=host.querySelector('.desc');if(ref)ref.after(d);else host.appendChild(d);}
+    if(!hintSeen[h.id]){hintSeen[h.id]=1;store.set('hintSeen',hintSeen);toast('Мұғалім кеңес жіберді: '+hintLabel(h.k));
+      const a=navLinks.find(x=>x.getAttribute('href')==='#'+HINT_TAB_OF[h.k.split(':')[0]]);if(a&&location.hash!==a.getAttribute('href'))a.classList.add('has-hint');}});}
+window.addEventListener('hashchange',()=>{const a=navLinks.find(x=>x.getAttribute('href')===location.hash);if(a)a.classList.remove('has-hint');});
+renderHints();
+
+/* ---------- reflection ---------- */
+['st1','st2','st3','st4'].forEach(id=>{const el=$('#'+id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked));});
+['r3','r2','r1'].forEach(id=>{const el=$('#'+id);el.value=store.get(id,'');el.addEventListener('input',()=>store.set(id,el.value));});
+})();
+</script>
+
+</template>
+<script>
+(function(){
+  var frag=document.getElementById('tpl-kz').content.cloneNode(true);
+  var scripts=Array.prototype.slice.call(frag.querySelectorAll('script'));
+  scripts.forEach(function(s){s.parentNode.removeChild(s);});
+  document.documentElement.lang='kk';
+  document.body.appendChild(frag);
+  for(var i=0;i<scripts.length;i++){var n=document.createElement('script');n.textContent=scripts[i].textContent;document.body.appendChild(n);}
+})();
+</script>
