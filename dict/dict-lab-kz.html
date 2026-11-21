@@ -1444,7 +1444,7 @@ if(pkClass)$('#pkName').textContent='«Оқушыны таңдау» батыр�
 /* ---------- student login ---------- */
 let student=store.get('student',null);let stPick={cls:null,name:null};let stMode='first';
 function stDrawClasses(){const isOther=stPick.cls&&!CLASSES[stPick.cls];
-  $('#stClasses').innerHTML=Object.keys(CLASSES).map(c=>`<button type="button" class="pk-cls" data-c="${c}" aria-pressed="${c===stPick.cls}">${c}</button>`).join('')+`<button type="button" class="pk-cls other" data-c="__other" aria-pressed="${!!isOther}">Басқа сынып</button>`;
+  $('#stClasses').innerHTML=Object.keys(CLASSES).map(c=>`<button type="button" class="pk-cls" data-c="${c}" aria-pressed="${c===stPick.cls}">${c}</button>`).join('');
   $('#stClasses').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stPick={cls:b.dataset.c,name:null,manual:b.dataset.c==='__other'};stManualOpen=stPick.manual;stDrawClasses();stDrawNames();}));}
 let stManualOpen=false;
 function stDrawNames(){const st=$('#stNamesStep');st.hidden=!stPick.cls;$('#stGoRow').hidden=!stPick.name;
