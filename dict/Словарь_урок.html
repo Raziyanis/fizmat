@@ -1,6 +1,4 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><script>window.__NO_TEACHER=true;window.__SIMPLE=true;try{if(!localStorage.getItem('dictlab:student'))localStorage.setItem('dictlab:student',JSON.stringify({cls:'',name:''}));localStorage.removeItem('dictlab:teacher');localStorage.removeItem('dictlab:pair');localStorage.removeItem('dictlab:grp');}catch(e){}</script>
-<style>#startScreen,.side-stu,#stuBar,#pairsS,#grpS,.exit-end,.live-ans,#matchLock,#grpLock,.t-only,.pk-mini,.pk-chip,.pk-bar,.picker,#tBar{display:none!important}</style>
-<title>Сөздік зертханасы</title>
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style><script>window.__NO_TEACHER=true;</script></head><body><title>Сөздік зертханасы</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
@@ -467,6 +465,7 @@ textarea,input,code,pre{font-variant-ligatures:none!important;font-feature-setti
 .kv{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--surface);font-family:var(--f-mono);font-size:.92rem}
 .kv b{color:var(--a)}.kv i{color:var(--muted);font-style:normal}
 .kv.hit{border-color:var(--hit);background:var(--ok-soft)}
+#pairsT,#pairsS,#grpT,#grpS,#matchLock,#grpLock{display:none!important}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -624,7 +623,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <section id="povtorenie">
     <div class="sec-head"><h2>Повторение: множество (set)</h2><p>Вспомним прошлую тему: свойства множества и его методы. Время — около 7 минут.</p></div>
     <div class="picker" id="picker">
-      <div class="pk-top"><span class="pk-title">Кто отвечает?</span><span class="pk-live" id="pkLive" hidden>видно ученикам</span><div class="pk-classes" role="group" aria-label="Класс"><button class="pk-cls" type="button" data-c="9" aria-pressed="false">9</button></div></div>
+      <div class="pk-top"><span class="pk-title">Кто отвечает?</span><span class="pk-live" id="pkLive" hidden>видно ученикам</span><div class="pk-classes" role="group" aria-label="Класс"><button class="pk-cls" type="button" data-c="8A" aria-pressed="false">8A</button><button class="pk-cls" type="button" data-c="8B" aria-pressed="false">8B</button><button class="pk-cls" type="button" data-c="8D" aria-pressed="false">8D</button><button class="pk-cls" type="button" data-c="8E" aria-pressed="false">8E</button><button class="pk-cls" type="button" data-c="8F" aria-pressed="false">8F</button></div></div>
       <details class="pr-present att" id="attWrap" hidden><summary>Кого нет на уроке? <span id="attCount"></span></summary><p class="howto" style="margin:8px 0 6px">Снимите галочку у отсутствующих. Они исчезнут из списков у учеников, из «Кто отвечает?» и из пар.</p><div class="pr-names" id="attList"></div></details>
       <div class="pk-main">
         <div class="pk-name" id="pkName" aria-live="polite">Сначала выберите класс</div>
@@ -667,7 +666,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
     <div class="results t-only" id="resBox">
       <div class="pk-top"><span class="pk-title">Результаты сопоставления</span><span class="pk-ctrl"><span class="res-upd" id="resUpd"></span><button class="btn-ghost" type="button" id="resClear">Очистить результаты</button></span></div>
       <p class="howto" id="resNote">Таблица заполняется, когда ученик нажимает «Проверить». Работает в скачанных файлах со связью через Google-скрипт.</p>
-      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Пара</th><th>Результат</th><th>Ошибки</th><th>Время</th></tr></thead><tbody id="resBody"></tbody></table></div>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Ученик</th><th>Результат</th><th>Ошибки</th><th>Время</th></tr></thead><tbody id="resBody"></tbody></table></div>
     </div>
     <details class="memo"><summary>Памятка: методы множеств</summary>
       <div class="tbl-wrap"><table>
@@ -862,9 +861,9 @@ del journal["Мира"]</pre></div>
     <div class="match-lock" id="grpLock" hidden></div>
     <div class="task-list" id="dbg"></div>
     <div class="results t-only" id="grpResBox">
-      <div class="pk-top"><span class="pk-title">Результаты групп</span><span class="res-upd" id="grpUpd"></span></div>
-      <p class="howto">Заполняется, когда ведущий группы нажимает «Проверить». Работает в скачанных файлах со связью через Google-скрипт.</p>
-      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Группа</th><th>Исправлено</th><th>Не исправлено</th><th>Время</th></tr></thead><tbody id="grpResBody"></tbody></table></div>
+      <div class="pk-top"><span class="pk-title">Результаты «Найди ошибку»</span><span class="res-upd" id="grpUpd"></span></div>
+      <p class="howto">Заполняется, когда ученик нажимает «Проверить». Работает в скачанных файлах со связью через Google-скрипт.</p>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Ученик</th><th>Исправлено</th><th>Не исправлено</th><th>Время</th></tr></thead><tbody id="grpResBody"></tbody></table></div>
     </div>
   </section>
 
@@ -1418,7 +1417,7 @@ $('#resetYes').addEventListener('click',()=>{
   setTimeout(()=>{$('#resetDone').textContent='Данные очищены. Если на странице остались старые ответы, обновите её.';},2500);});
 
 /* ---------- student picker ---------- */
-const CLASSES={"9": ["Ахмадия Нұрәлі", "Бахтигереева Амира-Челси", "Бекмырза Асхат", "Елемес Әлинұр", "Кайроллин Даниял", "Қайратқызы Мумина", "Нығметолла Дания", "Рахметжан Арсен", "Серікбол Томирис", "Сидалеев Нұрасыл", "Шакизат Ерасыл"]};
+const CLASSES={"8A": ["Әбілхан Жасәмір", "Бағланұлы Даниял", "Дайрабай Дінмұхамед", "Ермұхан Жания", "Исин Бейбарыс", "Қабдыраш Дильназ", "Құдратулла Абылайхан", "Мәжит Аспандияр", "Мұхамбетқазы Нәдір", "Оспанқұл Айсултан", "Сағынтай Іңкәр", "Сеилхан Дәмелі", "Шәріп Бауыржан"], "8B": ["Аманжол Диас", "Әбдуәлі Рахман", "Қайрат Алдияр", "Қалкен Мағжан", "Қуанышпай Інжу", "Мелис Камила", "Оралбай Әлихан", "Русланұлы Амирлан", "Талғат Амина", "Умбеталиев Мансур", "Шералы Нұрали"], "8D": ["Алибекова Жания", "Ахметов Амир", "Биләл Алихан", "Валитхан Әлімжан", "Ганибек Арлин", "Джанасаева Алия", "Дуюмбаева Зере", "Дүйсебай Әлімхан", "Омирбекова Томирис", "Ринатұлы Шыңғыс", "Русланов Рамаз", "Русюк Оксана", "Сулейменова Жания", "Уразбек Інжу", "Орынбасар Дәрмен"], "8E": ["Айсаров Расул", "Биғазы Балнұр", "Булатов Мадияр", "Кабдулла Назар", "Касымбаева Райана", "Кеңесбек Айя", "Керімбай Димаш", "Ли Руслан", "Мукатов Арслан", "Омарбеков Нурали", "Оспанов Айдан", "Саят Даниал", "Серік Асылжан", "Умаргалиева Селин"], "8F": ["Амірбек Ислам", "Елімбай Іңкәр", "Искакбаев Ансар", "Кеңесбаев Бексұлтан", "Қайыр Ерали", "Мусалимов Амир", "Папенфот Илона", "Рустембеков Алихан", "Сабырбек Байнұр", "Сарсенов Алихан", "Сартаев Алихан", "Спирков Богдан", "Темір Арыстан", "Хасенов Алихан"]};
 let pkClass=store.get('pkClass',null);const pkUsed=store.get('pkUsed',{});
 function pkDraw(){document.querySelectorAll('.pk-cls').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===pkClass));
   if(!pkClass){$('#pkLeft').textContent='';return;}
@@ -2279,6 +2278,7 @@ textarea,input,code,pre{font-variant-ligatures:none!important;font-feature-setti
 .kv{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--surface);font-family:var(--f-mono);font-size:.92rem}
 .kv b{color:var(--a)}.kv i{color:var(--muted);font-style:normal}
 .kv.hit{border-color:var(--hit);background:var(--ok-soft)}
+#pairsT,#pairsS,#grpT,#grpS,#matchLock,#grpLock{display:none!important}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -2436,7 +2436,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
   <section id="povtorenie">
     <div class="sec-head"><h2>Қайталау: жиын (set)</h2><p>Өткен тақырыпты еске түсірейік: жиынның қасиеттері мен әдістері. Уақыты — шамамен 7 минут.</p></div>
     <div class="picker" id="picker">
-      <div class="pk-top"><span class="pk-title">Кім жауап береді?</span><span class="pk-live" id="pkLive" hidden>оқушыларға көрінеді</span><div class="pk-classes" role="group" aria-label="Сынып"><button class="pk-cls" type="button" data-c="9" aria-pressed="false">9</button></div></div>
+      <div class="pk-top"><span class="pk-title">Кім жауап береді?</span><span class="pk-live" id="pkLive" hidden>оқушыларға көрінеді</span><div class="pk-classes" role="group" aria-label="Сынып"><button class="pk-cls" type="button" data-c="8A" aria-pressed="false">8A</button><button class="pk-cls" type="button" data-c="8B" aria-pressed="false">8B</button><button class="pk-cls" type="button" data-c="8D" aria-pressed="false">8D</button><button class="pk-cls" type="button" data-c="8E" aria-pressed="false">8E</button><button class="pk-cls" type="button" data-c="8F" aria-pressed="false">8F</button></div></div>
       <details class="pr-present att" id="attWrap" hidden><summary>Сабақта кім жоқ? <span id="attCount"></span></summary><p class="howto" style="margin:8px 0 6px">Жоқ оқушылардың белгісін алып тастаңыз. Олар оқушылардағы тізімдерден, «Кім жауап береді?» және жұптардан жойылады.</p><div class="pr-names" id="attList"></div></details>
       <div class="pk-main">
         <div class="pk-name" id="pkName" aria-live="polite">Алдымен сыныпты таңдаңыз</div>
@@ -2479,7 +2479,7 @@ footer{padding-block:28px 40px;color:var(--muted);font-size:.85rem;border-top:1p
     <div class="results t-only" id="resBox">
       <div class="pk-top"><span class="pk-title">Сәйкестендіру нәтижелері</span><span class="pk-ctrl"><span class="res-upd" id="resUpd"></span><button class="btn-ghost" type="button" id="resClear">Нәтижелерді тазалау</button></span></div>
       <p class="howto" id="resNote">Кесте оқушы «Тексеру» батырмасын басқанда толтырылады. Google-скрипт арқылы байланысы бар жүктеп алынған файлдарда жұмыс істейді.</p>
-      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Жұп</th><th>Нәтиже</th><th>Қателер</th><th>Уақыты</th></tr></thead><tbody id="resBody"></tbody></table></div>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Оқушы</th><th>Нәтиже</th><th>Қателер</th><th>Уақыты</th></tr></thead><tbody id="resBody"></tbody></table></div>
     </div>
     <details class="memo"><summary>Жадынама: жиын әдістері</summary>
       <div class="tbl-wrap"><table>
@@ -2674,9 +2674,9 @@ del journal["Мира"]</pre></div>
     <div class="match-lock" id="grpLock" hidden></div>
     <div class="task-list" id="dbg"></div>
     <div class="results t-only" id="grpResBox">
-      <div class="pk-top"><span class="pk-title">Топтардың нәтижелері</span><span class="res-upd" id="grpUpd"></span></div>
-      <p class="howto">Топ жетекшісі «Тексеру» батырмасын басқанда толтырылады. Google-скрипт арқылы байланысы бар жүктеп алынған файлдарда жұмыс істейді.</p>
-      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Топ</th><th>Түзетілді</th><th>Түзетілмеді</th><th>Уақыты</th></tr></thead><tbody id="grpResBody"></tbody></table></div>
+      <div class="pk-top"><span class="pk-title">«Қатені тап» нәтижелері</span><span class="res-upd" id="grpUpd"></span></div>
+      <p class="howto">Оқушы «Тексеру» батырмасын басқанда толтырылады. Google-скрипт арқылы байланысы бар жүктеп алынған файлдарда жұмыс істейді.</p>
+      <div class="tbl-wrap"><table class="res-tbl"><thead><tr><th>Оқушы</th><th>Түзетілді</th><th>Түзетілмеді</th><th>Уақыты</th></tr></thead><tbody id="grpResBody"></tbody></table></div>
     </div>
   </section>
 
@@ -3230,7 +3230,7 @@ $('#resetYes').addEventListener('click',()=>{
   setTimeout(()=>{$('#resetDone').textContent='Деректер тазаланды. Бетте ескі жауаптар қалса, оны жаңартыңыз.';},2500);});
 
 /* ---------- student picker ---------- */
-const CLASSES={"9": ["Ахмадия Нұрәлі", "Бахтигереева Амира-Челси", "Бекмырза Асхат", "Елемес Әлинұр", "Кайроллин Даниял", "Қайратқызы Мумина", "Нығметолла Дания", "Рахметжан Арсен", "Серікбол Томирис", "Сидалеев Нұрасыл", "Шакизат Ерасыл"]};
+const CLASSES={"8A": ["Әбілхан Жасәмір", "Бағланұлы Даниял", "Дайрабай Дінмұхамед", "Ермұхан Жания", "Исин Бейбарыс", "Қабдыраш Дильназ", "Құдратулла Абылайхан", "Мәжит Аспандияр", "Мұхамбетқазы Нәдір", "Оспанқұл Айсултан", "Сағынтай Іңкәр", "Сеилхан Дәмелі", "Шәріп Бауыржан"], "8B": ["Аманжол Диас", "Әбдуәлі Рахман", "Қайрат Алдияр", "Қалкен Мағжан", "Қуанышпай Інжу", "Мелис Камила", "Оралбай Әлихан", "Русланұлы Амирлан", "Талғат Амина", "Умбеталиев Мансур", "Шералы Нұрали"], "8D": ["Алибекова Жания", "Ахметов Амир", "Биләл Алихан", "Валитхан Әлімжан", "Ганибек Арлин", "Джанасаева Алия", "Дуюмбаева Зере", "Дүйсебай Әлімхан", "Омирбекова Томирис", "Ринатұлы Шыңғыс", "Русланов Рамаз", "Русюк Оксана", "Сулейменова Жания", "Уразбек Інжу", "Орынбасар Дәрмен"], "8E": ["Айсаров Расул", "Биғазы Балнұр", "Булатов Мадияр", "Кабдулла Назар", "Касымбаева Райана", "Кеңесбек Айя", "Керімбай Димаш", "Ли Руслан", "Мукатов Арслан", "Омарбеков Нурали", "Оспанов Айдан", "Саят Даниал", "Серік Асылжан", "Умаргалиева Селин"], "8F": ["Амірбек Ислам", "Елімбай Іңкәр", "Искакбаев Ансар", "Кеңесбаев Бексұлтан", "Қайыр Ерали", "Мусалимов Амир", "Папенфот Илона", "Рустембеков Алихан", "Сабырбек Байнұр", "Сарсенов Алихан", "Сартаев Алихан", "Спирков Богдан", "Темір Арыстан", "Хасенов Алихан"]};
 let pkClass=store.get('pkClass',null);const pkUsed=store.get('pkUsed',{});
 function pkDraw(){document.querySelectorAll('.pk-cls').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===pkClass));
   if(!pkClass){$('#pkLeft').textContent='';return;}
