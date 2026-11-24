@@ -1,0 +1,1110 @@
+<title>Пузырёк против выбора</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* Макет: липкая шапка (этапы + таймер), под ней одна панель этапа; цепочка фаз проблемного обучения в начале каждой панели */
+:root{
+  --paper:#eef1f6;--surface:#ffffff;--ink:#16213a;--mut:#56607a;--line:#d3d9e6;--soft:#e6ebf3;
+  --bub:#0b7f86;--sel:#6a46c4;--cmp:#d98a00;--ok:#1d7f46;--bad:#c0392b;--code:#141a2b;--codefg:#e4e8f5;
+  --bub-soft:#d7eff0;--sel-soft:#e7e0f8;--cmp-soft:#fbecc9;--ok-soft:#d8f0e1;--bad-soft:#f8dedb;
+  --display:"Golos Text",ui-sans-serif,"Segoe UI",Roboto,Arial,sans-serif;
+  --body:"Golos Text",ui-sans-serif,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f1422;--surface:#18203a;--ink:#e7ecf7;--mut:#9ba6c2;--line:#2c3757;--soft:#202a47;
+  --bub:#3cc3c9;--sel:#a98bf0;--cmp:#f2b53a;--ok:#4fc685;--bad:#ff7d70;--code:#0a0e1a;--codefg:#e4e8f5;
+  --bub-soft:#13383d;--sel-soft:#2b2350;--cmp-soft:#3d3115;--ok-soft:#163a28;--bad-soft:#44201c;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1422;--surface:#18203a;--ink:#e7ecf7;--mut:#9ba6c2;--line:#2c3757;--soft:#202a47;
+  --bub:#3cc3c9;--sel:#a98bf0;--cmp:#f2b53a;--ok:#4fc685;--bad:#ff7d70;--code:#0a0e1a;--codefg:#e4e8f5;
+  --bub-soft:#13383d;--sel-soft:#2b2350;--cmp-soft:#3d3115;--ok-soft:#163a28;--bad-soft:#44201c;color-scheme:dark}
+[hidden]{display:none!important}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 120px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 var(--body)}
+body.big{font-size:20px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1060px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.2}
+h2{font-size:1.55em;margin:.2em 0 .4em}
+h3{font-size:1.1em;margin:1.2em 0 .4em}
+p{margin:.5em 0}
+code,.mono{font-family:var(--mono);font-size:.92em}
+
+/* шапка */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;flex-direction:column;gap:8px;padding-block:10px}
+.bar1{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;justify-content:space-between}
+.brand{display:flex;flex-direction:column;min-width:0}
+.brand b{font-family:var(--display);font-size:1.15em;line-height:1.2}
+.brand span{font-size:.8em;color:var(--mut)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.clock{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:4px 6px 4px 10px;background:var(--paper)}
+.clock .lbl{font-size:.75em;color:var(--mut);line-height:1.1}
+.clock .t{font:700 1.35em/1 var(--mono);font-variant-numeric:tabular-nums;min-width:4.2ch;text-align:right}
+.clock .t.low{color:var(--bad)}
+.clock .t.over{color:var(--bad);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+.lessonT{font:600 .8em var(--mono);color:var(--mut)}
+nav.stages{display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}
+nav.stages button{flex:1 0 auto;min-width:110px;text-align:left;font:inherit;font-size:.82em;line-height:1.25;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+nav.stages button small{display:block;color:var(--mut);font-size:.85em}
+nav.stages button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+nav.stages button.on small{color:inherit;opacity:.8}
+nav.stages button.tp{border-style:dashed}
+
+/* кнопки и поля */
+button{font:inherit}
+.btn{font:inherit;font-weight:600;font-size:.95em;padding:8px 14px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--surface);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.sm{padding:4px 10px;font-size:.85em}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.bub{background:var(--bub);border-color:var(--bub);color:#fff}
+.btn.sel{background:var(--sel);border-color:var(--sel);color:#fff}
+:focus-visible{outline:3px solid var(--cmp);outline-offset:2px}
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:8px;padding:6px 9px;max-width:100%}
+textarea{width:100%;min-height:68px;resize:vertical}
+input.ok,select.ok{border-color:var(--ok);background:var(--ok-soft)}
+input.bad,select.bad{border-color:var(--bad);background:var(--bad-soft)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.choice{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.choice button{text-align:left;font:inherit;padding:10px 14px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer}
+.choice button:hover{border-color:var(--mut)}
+.choice button.pick{border-color:var(--ink)}
+.choice button.right{border-color:var(--ok);background:var(--ok-soft)}
+.choice button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.choice.inline{flex-direction:row;flex-wrap:wrap}
+label.ck{display:flex;gap:8px;align-items:flex-start;margin:4px 0;cursor:pointer}
+label.ck input{margin-top:.35em;width:1.05em;height:1.05em;flex:0 0 auto}
+
+/* панели */
+main{padding-block:16px 40px}
+.stage{display:none}
+.stage.on{display:block}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 14px}
+.eyebrow{font:600 .78em var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.chain{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0 2px;padding:0;list-style:none;font-size:.78em}
+.chain li{padding:3px 9px;border-radius:20px;background:var(--soft);color:var(--mut)}
+.chain li.on{background:var(--cmp);color:#1b1200;font-weight:700}
+.chain li.done{color:var(--ink)}
+.lead{font-size:1.08em}
+.task{border-left:4px solid var(--ink);padding:2px 0 2px 14px;margin:14px 0}
+.task>h3:first-child{margin-top:0}
+.note{color:var(--mut);font-size:.9em}
+.fb{padding:10px 14px;border-radius:10px;margin:8px 0;border:1px solid var(--line);background:var(--soft)}
+.fb.ok{border-color:var(--ok);background:var(--ok-soft)}
+.fb.bad{border-color:var(--bad);background:var(--bad-soft)}
+.fb.warn{border-color:var(--cmp);background:var(--cmp-soft)}
+.fb .next{display:block;margin-top:6px;font-weight:600}
+.fb ul{margin:6px 0;padding-left:1.2em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.grid2>*,.grid3>*{min-width:0}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.card.bub{border-top:5px solid var(--bub)}
+.card.sel{border-top:5px solid var(--sel)}
+.card.cmp{border-top:5px solid var(--cmp)}
+.card h3{margin-top:0}
+.tag{display:inline-block;font:700 .72em var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:var(--soft);color:var(--mut)}
+.tag.bub{background:var(--bub-soft);color:var(--bub)}
+.tag.sel{background:var(--sel-soft);color:var(--sel)}
+.roles{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.roles span{font-size:.82em;border:1px dashed var(--mut);border-radius:6px;padding:2px 8px}
+.score-chip{display:inline-block;font:700 .82em var(--mono);padding:3px 10px;border-radius:20px;background:var(--ok-soft);color:var(--ok);border:1px solid var(--ok)}
+details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;background:var(--surface)}
+summary{cursor:pointer;font-weight:600}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93em}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600}
+td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
+td.hl{background:var(--cmp-soft);font-weight:700}
+
+/* ячейки списка (бинарный поиск) */
+.cells{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.cell{width:68px;border:2px solid var(--ink);border-radius:10px;overflow:hidden;text-align:center;background:var(--surface)}
+.cell .ix{display:block;background:var(--ink);color:var(--surface);font:600 .72em var(--mono);padding:1px 0}
+.cell .v{display:block;font:800 1.3em/1.6 var(--display)}
+.cell .tg{display:block;font:700 .68em var(--mono);min-height:1.5em;color:var(--cmp)}
+.cell.off{opacity:.28}
+.cell.mid{border-color:var(--cmp);background:var(--cmp-soft)}
+.cell.tgt .v{color:var(--sel)}
+.bslog{display:flex;flex-direction:column;gap:6px}
+.bsstep{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--paper)}
+
+/* визуализатор */
+.viz{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:10px}
+@media (max-width:820px){.viz{grid-template-columns:minmax(0,1fr)}}
+.viz>*{min-width:0}
+.code{background:var(--code);color:var(--codefg);border-radius:12px;padding:8px 0;font:14px/1.75 var(--mono);overflow-x:auto}
+.cl{display:block;white-space:pre;padding:0 12px;border-left:5px solid transparent}
+.cl.act{background:rgba(242,181,58,.22);border-left-color:#f2b53a;font-weight:700}
+.cl b{color:#7d86a8;font-weight:400;display:inline-block;width:2.4em}
+.k{color:#ff8fc8}.f{color:#76e3d6}.n{color:#ffc27a}.s{color:#b9f18a}
+.vars{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;min-height:30px}
+.vars span{background:var(--ink);color:var(--surface);border-radius:6px;padding:2px 10px;font:600 .82em var(--mono)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:190px;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.b{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-weight:800;min-width:0}
+.b i{display:block;width:100%;max-width:70px;background:#9fb0d0;border-radius:6px 6px 0 0;transition:height .3s;margin:3px 0}
+.b.cmp i{background:var(--cmp)}.b.min i{background:var(--sel)}.b.done i{background:var(--ok)}
+.b small{color:var(--mut);font:400 .72em var(--mono)}
+@media (prefers-reduced-motion:reduce){.b i{transition:none}.clock .t.over{animation:none}}
+.msg{padding:10px 12px;border-left:5px solid var(--ink);background:var(--paper);border-radius:0 8px 8px 0;min-height:5.4em;margin-top:8px}
+.counters{display:flex;gap:16px;flex-wrap:wrap;font:600 .9em var(--mono);margin:8px 0}
+.counters span b{font-size:1.15em}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.82em;color:var(--mut)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+
+/* сравнение */
+.mb{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:6px;margin:3px 0;height:28px;overflow:hidden}
+.mb i{position:absolute;left:0;top:0;bottom:0;opacity:.85;transition:width .3s}
+.mb span{position:relative;padding:0 8px;line-height:28px;font:600 .85em var(--mono)}
+
+/* код-редактор */
+textarea.cd{font:14px/1.7 var(--mono);background:var(--code);color:var(--codefg);min-height:230px;white-space:pre;overflow:auto;border-color:var(--code);tab-size:4}
+.bl{width:5.6em;font:inherit;font-family:var(--mono);padding:0 6px;border:2px solid var(--cmp);border-radius:6px;background:var(--code);color:var(--codefg)}
+.out{background:var(--code);color:#76e3d6;border-radius:8px;padding:6px 12px;font:13px/1.6 var(--mono);white-space:pre-wrap;margin-top:6px}
+.lv{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.lv button{font:inherit;font-weight:600;padding:8px 14px;border-radius:8px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.lv button.on{border-color:var(--ink);background:var(--ink);color:var(--surface)}
+
+/* светофор */
+.light{display:flex;gap:8px;flex-wrap:wrap}
+.light button{font:inherit;padding:8px 14px;border-radius:30px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.light button.on{border-color:var(--ink);font-weight:700}
+.dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;margin-right:6px;vertical-align:-.05em}
+pre.sum{white-space:pre-wrap;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;font:14px/1.6 var(--mono)}
+
+/* режим учителя */
+.tnote{display:none;border:2px dashed var(--sel);background:var(--sel-soft);border-radius:12px;padding:12px 16px;margin:0 0 14px;font-size:.92em}
+.tnote h4{margin:0 0 6px;font-family:var(--display);color:var(--sel)}
+.tnote ul{margin:4px 0;padding-left:1.2em}
+body.teacher .tnote{display:block}
+nav.stages button.tp{display:none}
+body.teacher nav.stages button.tp{display:block}
+.tally{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 14px}
+.tally label{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:.9em}
+.tally input{width:5em}
+</style>
+
+<div class="top">
+ <div class="wrap">
+  <div class="bar1">
+   <div class="brand"><b>Сортировка: метод пузырька и метод выбора</b><span>Информатика · 9 класс · Python · проблемное обучение · 40 минут</span></div>
+   <div class="tools">
+    <div class="clock" title="Таймер текущего этапа">
+     <div><div class="lbl" id="clkLbl">Этап 1</div><div class="lessonT" id="lessonT">урок 00:00 / 40:00</div></div>
+     <span class="t" id="clk">05:00</span>
+     <button class="btn sm" id="clkGo">Старт</button>
+     <button class="btn ghost sm" id="clkRe" aria-label="Сбросить таймер этапа">↺</button>
+    </div>
+    <button class="btn ghost sm" id="bigBtn" aria-pressed="false">Крупный шрифт</button>
+    <button class="btn ghost sm" id="tBtn" aria-pressed="false">Режим учителя</button>
+   </div>
+  </div>
+  <nav class="stages" id="nav" aria-label="Этапы урока"></nav>
+ </div>
+</div>
+
+<main class="wrap">
+
+<!-- ================= ЭТАП 1 ================= -->
+<section class="stage" id="st1">
+ <div class="tnote">
+  <h4>Учителю · 0:00–5:00 · создание проблемной ситуации</h4>
+  <ul>
+   <li><b>Цель этапа:</b> столкнуть известное («бинарный поиск быстрый и надёжный») с фактом («он не нашёл 95»). Тему урока не называть — ученики выведут её на этапе 2.</li>
+   <li><b>0:00–0:40.</b> Приветствие. Прогноз — поднятием руки или кнопками, без комментариев учителя. Посчитайте голоса «Да» (в панели «Паспорт урока» есть поле).</li>
+   <li><b>0:40–2:30.</b> Нажимайте «Следующий шаг» и перед каждым нажатием спрашивайте класс: «Чему равен mid? Куда сдвинем границу?» Говорят ученики, вы только нажимаете.</li>
+   <li><b>2:30–4:00.</b> Вопрос «Почему не нашли?» — 20 секунд на обсуждение в паре, затем 2–3 ответа. Ожидаемый ответ: бинарный поиск рассчитан на упорядоченный список и на первом шаге отбросил левую половину, где лежало 95.</li>
+   <li><b>4:00–5:00.</b> «Может, вызвать sort()?» — запрет sort() задаёт вторую часть проблемы.</li>
+   <li><b>ФО:</b> прогноз и ответ «почему» (первый выбор засчитывается). <b>Лист наблюдения:</b> №5, №6.</li>
+  </ul>
+ </div>
+ <div class="panel">
+  <div class="eyebrow">Этап 1 · 5 минут · фронтально и в парах</div>
+  <h2>Почему компьютер не нашёл 95?</h2>
+  <ol class="chain" data-phase="0"></ol>
+  <p class="lead">Электронный журнал хранит баллы пяти учеников. Нужно найти ученика с баллом <b>95</b>. Вы знаете быстрый способ — <b>бинарный поиск</b>: он каждый раз смотрит в середину и отбрасывает половину списка.</p>
+  <div id="bsList"></div>
+  <div class="task">
+   <h3>1. Ваш прогноз</h3>
+   <p>Найдёт ли бинарный поиск число 95 в этом списке?</p>
+   <div class="choice inline" id="pred"><button data-v="yes">Да, найдёт</button><button data-v="no">Нет, не найдёт</button><button data-v="unk">Не уверен(а)</button></div>
+   <p class="note" id="predOut"></p>
+  </div>
+  <div class="task">
+   <h3>2. Проверим по шагам</h3>
+   <div class="row"><button class="btn" id="bsStep">Следующий шаг поиска</button><button class="btn ghost" id="bsReset">Заново</button></div>
+   <div class="bslog" id="bsLog"></div>
+  </div>
+  <div class="task" id="whyBox" hidden>
+   <h3>3. Противоречие</h3>
+   <p><b>Число 95 есть в списке, а бинарный поиск его не нашёл. Почему?</b> Обсудите в паре 20 секунд, затем выберите ответ.</p>
+   <div class="choice" id="why">
+    <button data-k="0">В коде бинарного поиска ошибка</button>
+    <button data-k="1">Список не упорядочен, поэтому поиск отбросил «не ту» половину</button>
+    <button data-k="0">Число 95 слишком большое для бинарного поиска</button>
+   </div>
+   <div class="fb" id="whyFb" hidden></div>
+  </div>
+  <div class="task" id="sortBox" hidden>
+   <h3>4. Может, просто вызвать <code>sort()</code>?</h3>
+   <p>Встроенный <code>sort()</code> — готовое решение, «чёрный ящик». Разработчик должен понимать, что внутри: какими шагами компьютер упорядочивает данные и сколько операций на это тратит. <b>Сегодня <code>sort()</code> и <code>sorted()</code> запрещены</b> — мы сами научим компьютер сортировать.</p>
+   <button class="btn" data-go="st2">К постановке проблемы →</button>
+  </div>
+ </div>
+</section>
+
+<!-- ================= ЭТАП 2 ================= -->
+<section class="stage" id="st2">
+ <div class="tnote">
+  <h4>Учителю · 5:00–8:00 · постановка проблемы, цели, гипотеза</h4>
+  <ul>
+   <li><b>5:00–6:00.</b> Ученики выбирают формулировку проблемы. Спросите: «Почему вариант про бинарный поиск — не наша проблема?» (его мы уже знаем). После верного выбора открывается тема.</li>
+   <li><b>6:00–6:40.</b> Цели и критерии успеха: прочитать вслух один критерий и спросить, по какому признаку мы поймём, что он достигнут.</li>
+   <li><b>6:40–8:00.</b> Гипотеза — индивидуально, 1 минута. Подчеркните: гипотеза — предположение, она не обязана оказаться верной; ценность в том, чтобы её проверить. Посчитайте поднятием руки, сколько выбрали каждый вариант, и внесите в «Паспорт урока».</li>
+   <li><b>Лист наблюдения:</b> №1 (цели из программы, измеримые глаголы, критерии), №3 (место методического инструмента).</li>
+  </ul>
+ </div>
+ <div class="panel">
+  <div class="eyebrow">Этап 2 · 3 минуты · индивидуально</div>
+  <h2>Какую проблему мы решаем?</h2>
+  <ol class="chain" data-phase="1,2"></ol>
+  <div class="task">
+   <h3>1. Выберите формулировку проблемы урока</h3>
+   <div class="choice" id="prob">
+    <button data-k="0">Как работает бинарный поиск?</button>
+    <button data-k="1">Как упорядочить список, если компьютер за один шаг сравнивает только два элемента, и какой способ сделать это эффективнее?</button>
+    <button data-k="0">Как вывести список на экран с помощью print()?</button>
+   </div>
+   <div class="fb" id="probFb" hidden></div>
+  </div>
+  <div id="goals" hidden>
+   <div class="fb ok"><b>Тема урока: «Сортировка методом пузырька и методом выбора (Python)»</b></div>
+   <div class="grid2">
+    <div class="card">
+     <h3>Цели обучения</h3>
+     <p><b>9.3.3.1</b> — разрабатывать программы с использованием одномерных массивов (списков) на Python.</p>
+     <p><b>9.3.3.2</b> — использовать алгоритмы сортировки (метод пузырька и метод выбора) для упорядочивания данных.</p>
+     <h3>Цели урока</h3>
+     <p><b>Все:</b> объясняют принцип обоих методов и выполняют первый проход вручную.</p>
+     <p><b>Большинство:</b> сравнивают методы по данным эксперимента; находят и исправляют ошибки в коде сортировки.</p>
+     <p><b>Некоторые:</b> пишут оптимизированный пузырёк и обосновывают выбор метода для конкретной задачи.</p>
+    </div>
+    <div class="card">
+     <h3>Критерии успеха</h3>
+     <ol>
+      <li><b>К1.</b> Объясняю, что сравнивается, когда выполняется обмен и что гарантировано после прохода в каждом методе.</li>
+      <li><b>К2.</b> Выполняю первый проход вручную и верно считаю сравнения и обмены.</li>
+      <li><b>К3.</b> Доказываю на данных эксперимента, какой метод и в каких условиях эффективнее.</li>
+      <li><b>К4.</b> Нахожу ошибки в коде сортировки или пишу сортировку на Python сам(а).</li>
+     </ol>
+     <p class="note">Каждый критерий проверяется на своём этапе; баллы собираются в лист самооценивания на этапе 7.</p>
+    </div>
+   </div>
+   <div class="task">
+    <h3>2. Моя гипотеза</h3>
+    <p>Разработчики журнала предложили два способа. <span class="tag bub">Пузырёк</span> сравнивает <b>соседние</b> элементы и меняет их местами, если они стоят неправильно. <span class="tag sel">Выбор</span> ищет <b>самый маленький</b> элемент и ставит его в начало. Какой способ эффективнее?</p>
+    <label class="ck"><input type="radio" name="hyp" id="hyp1" value="эффективнее метод пузырька"> Эффективнее метод пузырька</label>
+    <label class="ck"><input type="radio" name="hyp" id="hyp2" value="эффективнее метод выбора"> Эффективнее метод выбора</label>
+    <label class="ck"><input type="radio" name="hyp" id="hyp3" value="ни один метод не лучше во всех случаях"> Ни один метод не лучше во всех случаях</label>
+    <p>Потому что…</p>
+    <textarea id="hypWhy" placeholder="Я предполагаю, что …, потому что …"></textarea>
+    <p>Чтобы проверить гипотезу, я буду измерять:</p>
+    <div class="row">
+     <label class="ck"><input type="checkbox" id="hm1" value="сравнения"> сравнения</label>
+     <label class="ck"><input type="checkbox" id="hm2" value="обмены"> обмены</label>
+     <label class="ck"><input type="checkbox" id="hm3" value="число проходов"> число проходов</label>
+     <label class="ck"><input type="checkbox" id="hm4" value="время работы"> время работы</label>
+    </div>
+    <div class="row"><button class="btn" id="hypFix">Зафиксировать гипотезу</button><span class="note" id="hypOut"></span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= ЭТАП 3 ================= -->
+<section class="stage" id="st3">
+ <div class="tnote">
+  <h4>Учителю · 8:00–16:00 · поиск решения в парах («пазл»)</h4>
+  <ul>
+   <li><b>8:00–8:30.</b> Распределите роли в паре: ученик 1 исследует пузырёк, ученик 2 — выбор.</li>
+   <li><b>8:30–11:30.</b> Каждый проходит свой алгоритм по шагам и отвечает на три вопроса наблюдения. Ходите по классу, задавайте вопрос «Что гарантировано после прохода?» Готовых определений не давайте.</li>
+   <li><b>11:30–13:30.</b> Партнёры объясняют друг другу свой метод по плану «что сравнивается → когда обмен → что после прохода». Слушающий записывает объяснение своими словами.</li>
+   <li><b>13:30–16:00.</b> Вместе выполняют первый проход обоих методов на бумаге и проверяют ответ. «Показать ключ» становится доступен только после первой проверки.</li>
+   <li><b>ФО:</b> К1, К2; 6 полей, автоматическая обратная связь с подсказкой следующего шага. <b>Лист наблюдения:</b> №5, №7, №8, №9.</li>
+  </ul>
+ </div>
+ <div class="panel">
+  <div class="eyebrow">Этап 3 · 8 минут · пары, у каждого своя роль</div>
+  <h2>Как компьютер упорядочивает, сравнивая только два элемента?</h2>
+  <ol class="chain" data-phase="3"></ol>
+  <div class="grid2">
+   <div class="card bub"><span class="tag bub">Ученик 1</span><h3>Исследую метод пузырька</h3><p class="note">3 минуты наблюдаю, затем 1 минуту объясняю партнёру.</p></div>
+   <div class="card sel"><span class="tag sel">Ученик 2</span><h3>Исследую метод выбора</h3><p class="note">3 минуты наблюдаю, затем 1 минуту объясняю партнёру.</p></div>
+  </div>
+  <p><b>Вопросы наблюдения:</b> 1) Какие элементы сравниваются на каждом шаге? 2) Когда выполняется обмен? 3) Что гарантированно происходит после прохода и с какой стороны растёт упорядоченная часть?</p>
+  <div class="row">
+   <button class="btn bub" id="kb">Метод пузырька</button>
+   <button class="btn ghost" id="ks">Метод выбора</button>
+   <input type="text" id="arr" value="7, 3, 5, 2, 4" style="width:12em" aria-label="Список для визуализации">
+   <button class="btn ghost sm" id="apply">Применить</button>
+   <button class="btn ghost sm" id="rnd">Случайный</button>
+  </div>
+  <div class="viz">
+   <div><div class="code" id="code"></div><div class="vars" id="vars"></div></div>
+   <div>
+    <div class="bars" id="bars" aria-live="polite"></div>
+    <div class="legend"><span><i style="background:var(--cmp)"></i>сравниваются</span><span><i style="background:var(--sel)"></i>текущий минимум</span><span><i style="background:var(--ok)"></i>на своём месте</span></div>
+    <div class="counters"><span>Сравнений: <b id="vc">0</b></span><span>Обменов: <b id="vw">0</b></span><span id="vst"></span></div>
+    <div class="msg" id="msg"></div>
+   </div>
+  </div>
+  <div class="row"><button class="btn ghost" id="prev">← Назад</button><button class="btn" id="step">Шаг →</button><button class="btn ghost" id="play">▶ Авто</button><button class="btn ghost" id="rst">↺ Сначала</button></div>
+
+  <div class="task">
+   <h3>Объяснение партнёра — своими словами</h3>
+   <div class="grid2">
+    <div><b>Метод пузырька</b><textarea id="own1" placeholder="Сравнивает… Меняет, если… После прохода…"></textarea></div>
+    <div><b>Метод выбора</b><textarea id="own2" placeholder="Ищет… Меняет… После прохода…"></textarea></div>
+   </div>
+   <details><summary>Сверить с эталоном (после того как записали своё)</summary>
+    <p><b>Пузырёк:</b> сравнивает соседние элементы и меняет их, если левый больше правого. За проход самый большой из неупорядоченных элементов «всплывает» в конец; упорядоченная часть растёт <b>справа</b>.</p>
+    <p><b>Выбор:</b> за проход находит минимум неупорядоченной части и ставит его в её начало одним обменом; упорядоченная часть растёт <b>слева</b>.</p>
+   </details>
+  </div>
+
+  <div class="task">
+   <h3>Первый проход вручную (К2)</h3>
+   <div class="row"><b>Список:</b> <span id="mA" class="mono" style="font-size:1.2em;font-weight:700"></span><button class="btn ghost sm" id="mNew">Другой список</button><button class="btn ghost sm" id="m0">Исходный</button></div>
+   <div class="grid2">
+    <div class="card bub"><b>Пузырёк — после 1-го прохода</b>
+     <div class="row">Список: <input type="text" id="mba" style="width:11em" placeholder="…, …, …, …, …"></div>
+     <div class="row">Сравнений: <input type="number" id="mbc" style="width:4.5em"> Обменов: <input type="number" id="mbs" style="width:4.5em"></div></div>
+    <div class="card sel"><b>Выбор — после 1-го прохода</b>
+     <div class="row">Список: <input type="text" id="msa" style="width:11em" placeholder="…, …, …, …, …"></div>
+     <div class="row">Сравнений: <input type="number" id="msc" style="width:4.5em"> Обменов: <input type="number" id="mss" style="width:4.5em"></div></div>
+   </div>
+   <div class="row"><button class="btn" id="mChk">Проверить</button><button class="btn ghost" id="mKey" disabled>Показать ключ</button></div>
+   <div class="fb" id="mFb" hidden></div>
+   <div class="fb" id="mKeyOut" hidden></div>
+   <p class="note"><b>Подумайте:</b> почему за первый проход сравнений у обоих методов поровну, а обменов — по-разному?</p>
+  </div>
+ </div>
+</section>
+
+<!-- ================= ЭТАП 4 ================= -->
+<section class="stage" id="st4">
+ <div class="tnote">
+  <h4>Учителю · 16:00–24:00 · проверка гипотезы экспериментом (3 группы)</h4>
+  <ul>
+   <li><b>16:00–17:00.</b> Объедините пары в 3 группы. Роли: <b>оператор</b> (запускает), <b>протоколист</b> (записывает), <b>контролёр</b> (сверяет с правилами подсчёта), <b>спикер</b> (защищает вывод на этапе 5). Прочитайте правила подсчёта: одинаковые данные и правила — условие честного сравнения.</li>
+   <li><b>17:00–17:40.</b> До запуска каждая группа делает прогноз: на каком списке разница в обменах будет наибольшей.</li>
+   <li><b>17:40–23:00.</b> Группы работают по своему заданию. Группа 3 работает с блоком «Масштаб». Спрашивайте: «Какие данные доказывают ваш вывод?»</li>
+   <li><b>23:00–24:00.</b> Спикеры готовят вывод по рамке на этапе 5.</li>
+   <li><b>Если отстаёте:</b> группа 3 берёт только вопрос об удвоении n, без своего списка.</li>
+   <li><b>ФО:</b> К3; два вопроса по данным. <b>Лист наблюдения:</b> №2, №7, №8.</li>
+  </ul>
+ </div>
+ <div class="panel">
+  <div class="eyebrow">Этап 4 · 8 минут · группы по 4 роли</div>
+  <h2>Проверяем гипотезу: какой метод эффективнее?</h2>
+  <ol class="chain" data-phase="3"></ol>
+  <div class="fb warn"><b>Правила подсчёта, одинаковые для всех.</b> Сравнение — каждая проверка двух значений. Обмен — перестановка двух <b>разных</b> позиций (если минимум уже на месте, обмена нет). Оба метода запускаются на одних и тех же списках.</div>
+  <div class="roles"><span>оператор</span><span>протоколист</span><span>контролёр</span><span>спикер</span></div>
+  <div class="grid3">
+   <div class="card bub"><span class="tag bub">Группа 1</span><h3>Алгоритмисты</h3><p>Как исходный порядок данных влияет на число обменов у пузырька? Сравните списки A, B и C.</p></div>
+   <div class="card sel"><span class="tag sel">Группа 2</span><h3>Оптимизаторы</h3><p>Правда ли, что выбор всегда делает меньше обменов? Найдите случай, когда обменов поровну.</p></div>
+   <div class="card cmp"><span class="tag">Группа 3</span><h3>Аналитики</h3><p>Что будет при росте n? Можно ли назвать один метод лучшим всегда? Используйте блок «Масштаб».</p></div>
+  </div>
+  <div class="task">
+   <h3>1. Прогноз группы — до запуска</h3>
+   <div class="row">На каком списке разница в числе обменов будет <b>наибольшей</b>?
+    <select id="labPred"><option value="">—</option><option value="A">A — упорядоченный</option><option value="B">B — обратный</option><option value="C">C — произвольный</option></select></div>
+  </div>
+  <div class="task">
+   <h3>2. Протокол эксперимента</h3>
+   <label class="ck"><input type="checkbox" id="labOpt"> Пузырёк с флагом <code>swapped</code>: если за проход не было обменов, сортировка завершается</label>
+   <div class="row"><button class="btn" id="labRun">Запустить оба метода на A, B, C</button></div>
+   <div class="scroll"><table>
+    <thead><tr><th>Список</th><th class="num">Пузырёк: сравнения</th><th class="num">Пузырёк: обмены</th><th class="num">Выбор: сравнения</th><th class="num">Выбор: обмены</th></tr></thead>
+    <tbody id="labT"></tbody></table></div>
+   <div class="fb" id="labInfo">Нажмите «Запустить», чтобы заполнить протокол.</div>
+   <div id="labQ" hidden>
+    <p><b>Вопрос по данным.</b> На каком списке пузырёк выполнил обмен при <b>каждом</b> сравнении? <span class="note">(засчитывается первый ответ)</span></p>
+    <div class="choice inline" id="labQ1"><button data-k="0">A</button><button data-k="1">B</button><button data-k="0">C</button></div>
+    <div class="fb" id="labQ1Fb" hidden></div>
+   </div>
+   <details><summary>Свой список</summary>
+    <div class="row"><input type="text" id="labC" value="6, 2, 9, 4, 1, 8" style="width:14em" aria-label="Свой список"><button class="btn ghost sm" id="labCBtn">Запустить</button></div>
+    <div id="labCOut" class="note"></div>
+   </details>
+  </div>
+  <div class="task">
+   <h3>3. Масштаб: что будет на больших данных? (группа 3)</h3>
+   <p class="note">Программа запускает оба метода на одном и том же списке. Время замеряется в браузере, поэтому важны не миллисекунды, а соотношение.</p>
+   <div class="row"><label>n = <b id="cmpNv" class="mono">100</b> <input type="range" id="cmpN" min="10" max="2000" step="10" value="100" style="width:200px;vertical-align:middle"></label>
+    <select id="cmpSc" aria-label="Вид списка"><option value="r">случайный</option><option value="s">уже упорядоченный</option><option value="v">обратный</option></select>
+    <button class="btn ghost sm" id="cmpGo">Новый случайный список</button></div>
+   <div class="legend"><span><i style="background:var(--bub)"></i>пузырёк</span><span><i style="background:var(--sel)"></i>выбор</span></div>
+   <div id="cmpOut"></div>
+   <p><b>Вопрос.</b> Поставьте n = 100, затем n = 200. Во сколько раз выросло число сравнений? <span class="note">(засчитывается первый ответ)</span></p>
+   <div class="choice inline" id="labQ2"><button data-k="0">≈ в 2 раза</button><button data-k="1">≈ в 4 раза</button><button data-k="0">≈ в 8 раз</button></div>
+   <div class="fb" id="labQ2Fb" hidden></div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= ЭТАП 5 ================= -->
+<section class="stage" id="st5">
+ <div class="tnote">
+  <h4>Учителю · 24:00–28:00 · решение проблемы и защита выводов</h4>
+  <ul>
+   <li><b>24:00–26:30.</b> Спикеры групп — по 45 секунд, строго по рамке: «Мы проверяли… Данные показали… Значит…». Другие группы отмечают критерии в таблице взаимооценивания.</li>
+   <li><b>26:30–27:15.</b> Вопрос-ловушка (опрос). Если большинство выбрало «Да», попросите группу 2 опровергнуть это своими данными: сравнений у обоих методов поровну.</li>
+   <li><b>27:15–28:00.</b> Возврат к исходной проблеме: отсортировать журнал и повторить бинарный поиск — 95 найдено за 2 шага. Проблемная ситуация снята.</li>
+   <li><b>Главный вывод</b> формулируют ученики: «Безусловно лучшего метода нет: выбор — когда дорога каждая перестановка; пузырёк с флагом — когда данные почти упорядочены; сравнений у обоих n(n−1)/2».</li>
+   <li><b>ФО:</b> К3, взаимооценивание. <b>Лист наблюдения:</b> №5, №7, №8, №10.</li>
+  </ul>
+ </div>
+ <div class="panel">
+  <div class="eyebrow">Этап 5 · 4 минуты · защита выводов групп</div>
+  <h2>Что показал эксперимент?</h2>
+  <ol class="chain" data-phase="4"></ol>
+  <div class="task">
+   <h3>1. Рамка выступления спикера (45 секунд)</h3>
+   <p class="mono" style="font-size:.95em">«Мы проверяли … . На списке … пузырёк сделал … обменов, выбор — … . Сравнений у обоих … . Значит, … ».</p>
+   <div class="scroll"><table>
+    <thead><tr><th>Взаимооценивание</th><th class="num">Группа 1</th><th class="num">Группа 2</th><th class="num">Группа 3</th></tr></thead>
+    <tbody id="peer"></tbody></table></div>
+  </div>
+  <div class="task">
+   <h3>2. Вопрос-ловушка</h3>
+   <p><b>Метод выбора делает меньше обменов. Значит ли это, что он всегда быстрее?</b> <span class="note">(засчитывается первый ответ)</span></p>
+   <div class="choice" id="poll">
+    <button data-k="0">Да: меньше операций — значит быстрее</button>
+    <button data-k="1">Нет: сравнений у обоих поровну, а пузырёк с флагом на почти упорядоченных данных завершается раньше</button>
+    <button data-k="0">Скорость зависит только от размера списка</button>
+   </div>
+   <div class="fb" id="pollFb" hidden></div>
+  </div>
+  <div class="task">
+   <h3>3. Итоговое сравнение</h3>
+   <div class="scroll"><table>
+    <thead><tr><th></th><th>Метод пузырька</th><th>Метод выбора</th></tr></thead>
+    <tbody>
+     <tr><td>Сравнения</td><td>n(n−1)/2 (с флагом — от n−1)</td><td>n(n−1)/2 всегда</td></tr>
+     <tr><td>Обмены</td><td>от 0 до n(n−1)/2 — столько, сколько пар стоит в неправильном порядке</td><td>не более n−1</td></tr>
+     <tr><td>Рост числа операций</td><td>порядка n²</td><td>порядка n²</td></tr>
+     <tr><td>Когда выбирать</td><td>данные почти упорядочены (с флагом)</td><td>перестановки «дорогие» (запись в память)</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="task">
+   <h3>4. Решаем исходную проблему</h3>
+   <p>Отсортируем журнал методом выбора и снова запустим бинарный поиск числа 95.</p>
+   <button class="btn" id="solveBtn">Отсортировать и найти 95</button>
+   <div id="solveOut"></div>
+  </div>
+  <details><summary>Вопросы для защиты (если останется время)</summary>
+   <p><b>Почему на всех трёх списках по 10 сравнений?</b> Число сравнений зависит только от длины: 5·4/2 = 10. Циклы не смотрят на значения.</p>
+   <p><b>Почему на обратном списке пузырёк сделал 10 обменов?</b> Каждая пара стоит в неправильном порядке, поэтому каждое сравнение заканчивается обменом.</p>
+   <p><b>Почему выбор меняет не на каждом проходе?</b> Если минимум уже на своём месте, обмен не нужен. Всего обменов не больше n−1.</p>
+  </details>
+ </div>
+</section>
+
+<!-- ================= ЭТАП 6 ================= -->
+<section class="stage" id="st6">
+ <div class="tnote">
+  <h4>Учителю · 28:00–36:00 · применение, задания трёх уровней</h4>
+  <ul>
+   <li>Каждый выбирает уровень сам. Подсказка для выбора: если на этапе 3 трассировка была неверной — начните с A.</li>
+   <li><b>A</b> — с опорой (шаблон кода + трассировка), до 2 баллов. <b>B</b> — «Код-детектив»: 5 ошибок + трассировка, до 3 баллов. <b>C</b> — программа с нуля: пузырёк с флагом и счётчиком обменов, до 4 баллов.</li>
+   <li>Вы работаете с уровнем A, сильные ученики после C консультируют соседей (только вопросами, не готовым кодом).</li>
+   <li>Код выполняется встроенным мини-интерпретатором Python. Он понимает циклы, условия, списки и print, но не понимает def и f-строки. Предупредите об этом.</li>
+   <li><b>ФО:</b> К2, К4; автопроверка с указанием следующего шага. <b>Лист наблюдения:</b> №2 (дифференциация), №8, №9.</li>
+  </ul>
+ </div>
+ <div class="panel">
+  <div class="eyebrow">Этап 6 · 8 минут · индивидуально, уровень на выбор</div>
+  <h2>Применяем: уровни A, B, C</h2>
+  <ol class="chain" data-phase="5"></ol>
+  <div class="fb"><b>«Адал еңбек».</b> Работаю самостоятельно: пишу и исправляю код сам(а), не копирую чужое решение. В лист самооценивания идёт лучший результат из уровней.</div>
+  <label class="ck"><input type="checkbox" id="pledge"> Даю слово выполнить задание честно и самостоятельно</label>
+  <div class="fb bad" id="pledgeMsg" hidden>Сначала отметьте обещание выше — затем нажмите «Проверить» ещё раз.</div>
+  <div class="lv" id="lvs">
+   <button data-p="pA" class="on">A — с опорой (до 2 б.)</button>
+   <button data-p="pB">B — стандартный (до 3 б.)</button>
+   <button data-p="pC">C — продвинутый (до 4 б.)</button>
+  </div>
+
+  <div class="lvp" id="pA">
+   <h3>A1. Заполните 3 пропуска в сортировке выбором</h3>
+   <div class="code"><span class="cl">a = [64, 25, 12, 22, 11]</span><span class="cl">n = len(a)</span><span class="cl">for i in range(n - 1):</span><span class="cl">    m = <input class="bl" id="bl1" placeholder="?" aria-label="Пропуск 1"></span><span class="cl">    for j in range(<input class="bl" id="bl2" placeholder="?" aria-label="Пропуск 2">, n):</span><span class="cl">        if a[j] &lt; a[m]:</span><span class="cl">            m = j</span><span class="cl">    a[i], a[m] = <input class="bl" id="bl3" placeholder="?" aria-label="Пропуск 3" style="width:7.5em"></span><span class="cl">print(a)</span></div>
+   <h3>A2. Трассировка пузырька</h3>
+   <p>Список <span class="mono">[9, 4, 7, 2, 5]</span>. Запишите его после <b>первого полного прохода</b> пузырьковой сортировки по возрастанию.</p>
+   <div class="row"><input type="text" id="a2" style="width:12em" placeholder="…, …, …, …, …" aria-label="Список после прохода"></div>
+   <div class="row"><button class="btn" id="chkA">Проверить</button></div>
+   <div class="fb" id="resA" hidden></div>
+  </div>
+
+  <div class="lvp" id="pB" hidden>
+   <h3>Код-детектив</h3>
+   <p>Программа должна сортировать список <b>по возрастанию</b> методом пузырька, но в ней <b>5 ошибок</b>: 2 синтаксические и 3 логические. Исправьте их прямо в коде.</p>
+   <textarea class="cd" id="cd" spellcheck="false" autocapitalize="off" aria-label="Код с ошибками"></textarea>
+   <div class="row"><label>Список после 1-го прохода внешнего цикла: <input type="text" id="trB" style="width:12em" placeholder="…, …, …, …, …"></label></div>
+   <div class="row"><button class="btn" id="chkB">Проверить</button><button class="btn ghost" id="resetB">Вернуть исходный код</button></div>
+   <div class="fb" id="resB" hidden></div>
+  </div>
+
+  <div class="lvp" id="pC" hidden>
+   <h3>Оптимизированный пузырёк</h3>
+   <p>Напишите сортировку пузырьком для списка из 8 чисел <b>без sort() и sorted()</b>:</p>
+   <ul>
+    <li>после <b>каждого прохода</b> внешнего цикла выводите список: <code>print(a)</code>;</li>
+    <li>если за проход не было ни одного обмена — завершайте сортировку (<code>swapped</code> + <code>break</code>);</li>
+    <li><b>последней строкой</b> выведите только число обменов: <code>print(swaps)</code>.</li>
+   </ul>
+   <textarea class="cd" id="edC" spellcheck="false" autocapitalize="off" aria-label="Редактор кода"></textarea>
+   <div class="row"><button class="btn" id="chkC">Запустить и проверить</button></div>
+   <div class="fb" id="resC" hidden></div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= ЭТАП 7 ================= -->
+<section class="stage" id="st7">
+ <div class="tnote">
+  <h4>Учителю · 36:00–40:00 · рефлексия и оценивание</h4>
+  <ul>
+   <li><b>36:00–37:00.</b> Возврат к гипотезе: «У кого гипотеза подтвердилась? Кто изменил мнение — что вас переубедило?» Это главное доказательство работы проблемного обучения: внесите число изменивших мнение в «Паспорт урока».</li>
+   <li><b>37:00–38:30.</b> Лист самооценивания заполняется автоматически; ученики отмечают критерии успеха и выбирают сигнал светофора. Попросите поднять руки по каждому критерию и внесите числа в «Паспорт урока» — это доказательная база для критерия №11.</li>
+   <li><b>38:30–40:00.</b> Exit ticket (одно предложение минимум) и домашнее задание по уровню.</li>
+   <li><b>Лист наблюдения:</b> №4 (на рефлексию осталось время), №8, №11.</li>
+  </ul>
+ </div>
+ <div class="panel">
+  <div class="eyebrow">Этап 7 · 4 минуты · индивидуально</div>
+  <h2>Подтвердилась ли моя гипотеза?</h2>
+  <ol class="chain" data-phase="6"></ol>
+  <div class="task">
+   <h3>1. Возврат к гипотезе</h3>
+   <p><b>Я предполагал(а):</b> <span id="hypShow" class="note">гипотеза не зафиксирована (этап 2)</span></p>
+   <div class="row">
+    <label class="ck"><input type="radio" name="hv" id="hv1" value="подтвердилась"> подтвердилась</label>
+    <label class="ck"><input type="radio" name="hv" id="hv2" value="подтвердилась частично"> частично</label>
+    <label class="ck"><input type="radio" name="hv" id="hv3" value="не подтвердилась"> не подтвердилась</label>
+   </div>
+   <textarea id="hvWhy" placeholder="…потому что данные эксперимента показали…"></textarea>
+  </div>
+  <div class="task">
+   <h3>2. Лист самооценивания</h3>
+   <div class="scroll"><table>
+    <thead><tr><th>Критерий</th><th>Где проверялся</th><th class="num">Макс.</th><th class="num">Мой балл</th></tr></thead>
+    <tbody id="sheet"></tbody>
+    <tfoot><tr><th colspan="2">Итого</th><th class="num">10</th><th class="num" id="sheetTot">0</th></tr></tfoot>
+   </table></div>
+   <div class="fb" id="sheetVerdict"></div>
+   <p><b>Я могу…</b> (отметьте честно)</p>
+   <label class="ck"><input type="checkbox" id="sc1"> К1 — объяснить, как работают оба метода</label>
+   <label class="ck"><input type="checkbox" id="sc2"> К2 — выполнить первый проход и посчитать сравнения и обмены</label>
+   <label class="ck"><input type="checkbox" id="sc3"> К3 — доказать данными, какой метод и когда эффективнее</label>
+   <label class="ck"><input type="checkbox" id="sc4"> К4 — найти ошибки в коде сортировки или написать её сам(а)</label>
+  </div>
+  <div class="task">
+   <h3>3. Светофор</h3>
+   <div class="light" id="light">
+    <button data-v="зелёный — всё понял(а), могу объяснить другому"><span class="dot" style="background:var(--ok)"></span>Могу объяснить другому</button>
+    <button data-v="жёлтый — есть вопросы"><span class="dot" style="background:var(--cmp)"></span>Есть вопросы</button>
+    <button data-v="красный — нужна помощь"><span class="dot" style="background:var(--bad)"></span>Нужна помощь</button>
+   </div>
+  </div>
+  <div class="task">
+   <h3>4. Exit ticket</h3>
+   <p>Сегодня я выяснил(а), что…</p><textarea id="ex1"></textarea>
+   <p>Самым сложным было… / Мой вопрос учителю:</p><textarea id="ex2"></textarea>
+   <div class="row"><button class="btn" id="sumBtn">Показать мой итог</button><button class="btn ghost" id="sumCopy" hidden>Скопировать</button></div>
+   <pre class="sum" id="sumOut" hidden></pre>
+  </div>
+  <div class="card">
+   <h3>Домашнее задание — по уровню</h3>
+   <p><b>A:</b> выполнить вручную все проходы пузырька для [5, 1, 4, 2, 8], считая сравнения и обмены.</p>
+   <p><b>B:</b> написать сортировку выбором для 10 чисел со счётчиком обменов.</p>
+   <p><b>C:</b> программа «Журнал»: отсортировать баллы своим методом, затем бинарным поиском найти введённый балл.</p>
+  </div>
+ </div>
+</section>
+
+<!-- ================= ПАСПОРТ УРОКА (учителю) ================= -->
+<section class="stage" id="tp">
+ <div class="panel">
+  <div class="eyebrow">Только для учителя</div>
+  <h2>Паспорт урока</h2>
+  <div class="grid2">
+   <div class="card">
+    <h3>Основное</h3>
+    <p><b>Тема:</b> Сортировка методом пузырька и методом выбора (Python).</p>
+    <p><b>Методическая тема / инструмент:</b> проблемное обучение. Цикл: проблемная ситуация → постановка проблемы → гипотеза → проверка → решение и вывод → применение → рефлексия. Инструмент используется на этапах 1–5 (24 минуты из 40).</p>
+    <p><b>Тип урока:</b> урок открытия нового знания.</p>
+    <p><b>Цели обучения:</b> 9.3.3.1; 9.3.3.2 (сверьте коды с вашим КСП).</p>
+    <p><b>Ресурсы:</b> этот интерактив (работает без интернета, если открыт как файл), проектор, компьютеры, листы бумаги для трассировки.</p>
+   </div>
+   <div class="card">
+    <h3>Перед уроком (чек-лист)</h3>
+    <label class="ck"><input type="checkbox" id="pre1"> Файл открыт на всех компьютерах учеников на этапе 1</label>
+    <label class="ck"><input type="checkbox" id="pre2"> Пары и 3 группы распределены заранее (список на доске)</label>
+    <label class="ck"><input type="checkbox" id="pre3"> На проекторе выключен «Режим учителя»</label>
+    <label class="ck"><input type="checkbox" id="pre4"> Ответы прошлого класса очищены (кнопка внизу)</label>
+    <label class="ck"><input type="checkbox" id="pre5"> Карточки с ролями для групп (оператор, протоколист, контролёр, спикер)</label>
+   </div>
+  </div>
+
+  <h3>Хронометраж</h3>
+  <div class="scroll"><table>
+   <thead><tr><th>Время</th><th>Этап и фаза</th><th>Форма работы</th><th>Формативное оценивание</th></tr></thead>
+   <tbody>
+    <tr><td class="mono">0–5</td><td>1. Проблемная ситуация</td><td>фронтально, пары</td><td>прогноз, ответ «почему»</td></tr>
+    <tr><td class="mono">5–8</td><td>2. Проблема, цели, гипотеза</td><td>индивидуально</td><td>выбор формулировки проблемы</td></tr>
+    <tr><td class="mono">8–16</td><td>3. Поиск решения</td><td>пары, «пазл»</td><td>К1, К2: трассировка с автопроверкой</td></tr>
+    <tr><td class="mono">16–24</td><td>4. Проверка гипотезы</td><td>3 группы, 4 роли</td><td>К3: прогноз и 2 вопроса по данным</td></tr>
+    <tr><td class="mono">24–28</td><td>5. Решение и вывод</td><td>защита групп</td><td>взаимооценивание, опрос</td></tr>
+    <tr><td class="mono">28–36</td><td>6. Применение</td><td>индивидуально, A/B/C</td><td>К2, К4: автопроверка кода</td></tr>
+    <tr><td class="mono">36–40</td><td>7. Рефлексия</td><td>индивидуально</td><td>лист самооценивания, светофор, exit ticket</td></tr>
+   </tbody></table></div>
+
+  <h3>Соответствие листу наблюдения</h3>
+  <div class="scroll"><table>
+   <thead><tr><th class="num">№</th><th>Критерий</th><th>Чем обеспечено на уроке</th></tr></thead>
+   <tbody>
+    <tr><td class="num">1</td><td>Цели конкретны, достижимы, соответствуют программе</td><td>Цели обучения 9.3.3.1, 9.3.3.2; цели «все / большинство / некоторые»; критерии успеха К1–К4 с измеримыми глаголами; каждый критерий проверяется на конкретном этапе.</td></tr>
+    <tr><td class="num">2</td><td>Методы и ресурсы соответствуют возрасту и потребностям</td><td>Визуализатор, трассировка на бумаге, эксперимент; задания трёх уровней A/B/C на этапе 6.</td></tr>
+    <tr><td class="num">3</td><td>Место для методического инструмента в плане</td><td>Проблемное обучение — этапы 1–5, у каждого этапа указаны фаза, время и цель (цепочка фаз в начале экрана).</td></tr>
+    <tr><td class="num">4</td><td>Структура сохранена, время распределено</td><td>Таймер каждого этапа и общий счётчик урока; на рефлексию отведено 4 минуты; в заметках указано, что сократить при отставании.</td></tr>
+    <tr><td class="num">5</td><td>Баланс речи учителя и учеников</td><td>Прогнозы, объяснение партнёру, выступления спикеров, вопрос-ловушка; учитель задаёт вопросы и не даёт готовых определений.</td></tr>
+    <tr><td class="num">6</td><td>Приёмы на нужном этапе, технически грамотно</td><td>Противоречие создаётся до объявления темы; гипотеза фиксируется до исследования; проверка — на одинаковых данных и правилах.</td></tr>
+    <tr><td class="num">7</td><td>Активное взаимодействие, роли</td><td>Пары: ученик 1 — пузырёк, ученик 2 — выбор. Группы: оператор, протоколист, контролёр, спикер.</td></tr>
+    <tr><td class="num">8</td><td>ФО на всех этапах по критериям</td><td>На каждом этапе есть проверка, привязанная к К1–К4; итог в листе самооценивания.</td></tr>
+    <tr><td class="num">9</td><td>Своевременная конструктивная обратная связь</td><td>Автоматическая обратная связь по каждому полю со строкой «Следующий шаг»; взаимооценивание по критериям.</td></tr>
+    <tr><td class="num">10</td><td>Эффективность инструмента</td><td>Доказательства: гипотезы до и после, протоколы групп, число изменивших мнение (таблица ниже).</td></tr>
+    <tr><td class="num">11</td><td>Оценка достижения целей</td><td>Таблица «Достижение целей» ниже: доля учеников по каждому критерию и по светофору.</td></tr>
+    <tr><td class="num">12–13</td><td>Самоанализ и шаги развития</td><td>Поля самоанализа ниже: что сработало и почему, 1–2 конкретных шага.</td></tr>
+   </tbody></table></div>
+
+  <h3>Достижение целей (заполняйте по ходу урока)</h3>
+  <div class="tally" id="tally">
+   <label>Учеников на уроке <input type="number" id="tN" min="0"></label>
+   <label>Прогноз «найдёт» (этап 1) <input type="number" id="tP" min="0"></label>
+   <label>Гипотеза: пузырёк <input type="number" id="tH1" min="0"></label>
+   <label>Гипотеза: выбор <input type="number" id="tH2" min="0"></label>
+   <label>Гипотеза: «ни один» <input type="number" id="tH3" min="0"></label>
+   <label>Изменили мнение (этап 7) <input type="number" id="tCh" min="0"></label>
+   <label>К1 достигнут <input type="number" id="tK1" min="0"></label>
+   <label>К2 достигнут <input type="number" id="tK2" min="0"></label>
+   <label>К3 достигнут <input type="number" id="tK3" min="0"></label>
+   <label>К4 достигнут <input type="number" id="tK4" min="0"></label>
+   <label>Светофор: зелёный <input type="number" id="tLg" min="0"></label>
+   <label>Светофор: жёлтый <input type="number" id="tLy" min="0"></label>
+   <label>Светофор: красный <input type="number" id="tLr" min="0"></label>
+   <label>Выбрали уровень A <input type="number" id="tA" min="0"></label>
+   <label>Выбрали уровень B <input type="number" id="tB" min="0"></label>
+   <label>Выбрали уровень C <input type="number" id="tC" min="0"></label>
+  </div>
+  <div class="fb" id="tallyOut">Введите число учеников на уроке — проценты посчитаются автоматически.</div>
+
+  <h3>Самоанализ (после урока)</h3>
+  <p class="note">Что дало результат и почему? Что не сработало и почему? Опирайтесь на числа выше.</p>
+  <textarea id="sa1" placeholder="Сработало: … Доказательство: … Причина: …"></textarea>
+  <textarea id="sa2" placeholder="Не сработало / заняло больше времени: … Причина: …" style="margin-top:6px"></textarea>
+  <textarea id="sa3" placeholder="Шаг развития 1 (конкретное действие на следующих уроках): …" style="margin-top:6px"></textarea>
+  <textarea id="sa4" placeholder="Шаг развития 2: …" style="margin-top:6px"></textarea>
+  <div class="row"><button class="btn" id="saCopy">Скопировать отчёт</button><span class="note" id="saCopied"></span></div>
+  <pre class="sum" id="saOut" hidden></pre>
+
+  <h3>Очистка перед следующим классом</h3>
+  <p class="note">Удаляет ответы учеников на этом компьютере (гипотезу, баллы, код). Паспорт урока и самоанализ сохраняются.</p>
+  <div class="row"><button class="btn ghost" id="wipe1">Очистить ответы учеников</button><button class="btn" id="wipe2" hidden style="background:var(--bad);border-color:var(--bad)">Да, очистить</button><button class="btn ghost" id="wipe3" hidden>Отмена</button></div>
+ </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+const $=(s,r)=>(r||document).querySelector(s),$$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const parse=t=>(String(t).match(/-?\d+/g)||[]).map(Number);
+const same=(a,b)=>!!a&&!!b&&a.length===b.length&&a.every((v,i)=>v===b[i]);
+const srt=v=>v.slice().sort((x,y)=>x-y);
+
+/* ---------- хранилище (только в этом браузере) ---------- */
+const PFX='sortLesson1:';
+const store={
+ get(k,d){try{const v=localStorage.getItem(PFX+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+ set(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v))}catch(e){}},
+ wipe(keep){try{Object.keys(localStorage).filter(k=>k.startsWith(PFX)&&!keep(k.slice(PFX.length))).forEach(k=>localStorage.removeItem(k))}catch(e){}}
+};
+
+/* ---------- баллы ---------- */
+const S=Object.assign({prob:0,trace:0,labB:0,labN:0,poll:0,A:0,B:0,C:0},store.get('S',{}));
+const first=store.get('first',{});
+let ready=false;
+function setS(k,v){S[k]=v;store.set('S',S);if(ready)renderSheet()}
+function firstAnswer(key,ok){if(!(key in first)){first[key]=ok;store.set('first',first)}return first[key]}
+
+/* ---------- раскрытие блоков ---------- */
+const rev=store.get('rev',{});
+function reveal(id){const e=document.getElementById(id);if(e)e.hidden=false;if(!rev[id]){rev[id]=1;store.set('rev',rev)}}
+
+/* ---------- навигация и таймер ---------- */
+const ST=[
+ {id:'st1',n:'Противоречие',m:5},{id:'st2',n:'Проблема и гипотеза',m:3},{id:'st3',n:'Поиск решения',m:8},
+ {id:'st4',n:'Эксперимент',m:8},{id:'st5',n:'Вывод',m:4},{id:'st6',n:'Применение',m:8},{id:'st7',n:'Рефлексия',m:4}];
+const PH=['Проблемная ситуация','Постановка проблемы','Гипотеза','Проверка','Решение и вывод','Применение','Рефлексия'];
+$$('.chain').forEach(ol=>{const on=ol.dataset.phase.split(',').map(Number),mx=Math.max(...on);
+ ol.innerHTML=PH.map((p,i)=>'<li class="'+(on.includes(i)?'on':i<mx?'done':'')+'">'+p+'</li>').join('')});
+let start=0;const nav=$('#nav');
+ST.forEach((s,i)=>{start+=s.m;const b=document.createElement('button');b.dataset.id=s.id;
+ b.innerHTML=(i+1)+'. '+s.n+'<small>'+(start-s.m)+'–'+start+' мин</small>';b.onclick=()=>go(s.id);nav.append(b)});
+{const b=document.createElement('button');b.className='tp';b.dataset.id='tp';b.innerHTML='Паспорт урока<small>учителю</small>';b.onclick=()=>go('tp');nav.append(b)}
+let cur='st1',left=ST[0].m*60,tid=null;
+const fmt=s=>{const a=Math.abs(s);return(s<0?'−':'')+String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0')};
+let lessonSec=store.get('lessonSec',0),lessonRun=false;
+function showClock(){const t=$('#clk');t.textContent=fmt(left);t.className='t'+(left<0?' over':left<60?' low':'');
+ $('#lessonT').textContent='урок '+fmt(lessonSec)+' / 40:00'}
+function stopClock(){clearInterval(tid);tid=null;$('#clkGo').textContent='Старт'}
+$('#clkGo').onclick=()=>{if(tid){stopClock();return}$('#clkGo').textContent='Пауза';lessonRun=true;
+ tid=setInterval(()=>{left--;lessonSec++;if(lessonSec%5===0)store.set('lessonSec',lessonSec);showClock()},1000)};
+$('#clkRe').onclick=()=>{const s=ST.find(x=>x.id===cur);left=(s?s.m:0)*60;showClock()};
+function go(id,noScroll){if(!document.getElementById(id))id='st1';
+ if(id==='tp'&&!document.body.classList.contains('teacher'))id='st1';
+ const changed=id!==cur;cur=id;
+ $$('.stage').forEach(s=>s.classList.toggle('on',s.id===id));
+ $$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.id===id));
+ const i=ST.findIndex(s=>s.id===id);
+ if(i>=0){$('#clkLbl').textContent='Этап '+(i+1)+' · '+ST[i].m+' мин';if(changed||!tid){left=ST[i].m*60}}
+ else $('#clkLbl').textContent='Паспорт урока';
+ showClock();if(id==='st7')renderReflect();
+ try{if(location.hash!=='#'+id)history.replaceState(null,'','#'+id)}catch(e){}
+ const nb=$('#nav button.on');if(nb&&nb.scrollIntoView)nb.scrollIntoView({block:'nearest',inline:'nearest'});
+ if(!noScroll)window.scrollTo(0,0);store.set('cur',id)}
+$$('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h&&h!==cur)go(h)});
+
+/* режимы */
+function setTeacher(on){document.body.classList.toggle('teacher',on);$('#tBtn').setAttribute('aria-pressed',on);$('#tBtn').textContent=on?'Режим учителя: вкл':'Режим учителя';store.set('teacher',on);if(!on&&cur==='tp')go('st1')}
+$('#tBtn').onclick=()=>setTeacher(!document.body.classList.contains('teacher'));
+function setBig(on){document.body.classList.toggle('big',on);$('#bigBtn').setAttribute('aria-pressed',on);store.set('big',on)}
+$('#bigBtn').onclick=()=>setBig(!document.body.classList.contains('big'));
+
+/* универсальный вопрос с выбором: первый ответ идёт в балл */
+function mcq(boxSel,key,fbSel,onAnswer){const box=$(boxSel);const btns=$$('button',box);
+ function paint(i,ok){btns.forEach(x=>x.classList.remove('right','wrong','pick'));btns[i].classList.add(ok?'right':'wrong')}
+ btns.forEach((b,i)=>b.onclick=()=>{const ok=b.dataset.k==='1';const f=firstAnswer(key,ok);paint(i,ok);store.set('mc:'+key,i);onAnswer(ok,f,true)});
+ const saved=store.get('mc:'+key,null);if(saved!=null&&btns[saved]){const ok=btns[saved].dataset.k==='1';paint(saved,ok);onAnswer(ok,first[key],false)}}
+function fb(sel,cls,html){const e=$(sel);e.hidden=false;e.className='fb '+cls;e.innerHTML=html}
+const firstNote=f=>f?'':' <span class="note">(В балл идёт первый ответ — он был неверным. Главное, что теперь вы понимаете почему.)</span>';
+
+/* ================= ЭТАП 1 ================= */
+const GS=[78,95,62,100,84],TG=95;
+function strip(a,l,r,m,t){return '<div class="cells">'+a.map((v,i)=>'<div class="cell'+(i<l||i>r?' off':'')+(i===m?' mid':'')+(v===t?' tgt':'')+'"><span class="ix">№ '+i+'</span><span class="v">'+v+'</span><span class="tg">'+[i===l?'left':'',i===m?'mid':'',i===r?'right':''].filter(Boolean).join(' ')+'</span></div>').join('')+'</div>'}
+function bsSteps(a,t){const out=[];let l=0,r=a.length-1;const ti=a.indexOf(t);
+ while(l<=r){const m=(l+r)>>1,v=a[m];let nl=l,nr=r,txt;
+  if(v===t){out.push({l,r,m,txt:'Ищем между №'+l+' и №'+r+'. mid = ('+l+' + '+r+') // 2 = <b>'+m+'</b>. В ячейке №'+m+' число <b>'+v+'</b> — <b>найдено!</b>',found:true});return out}
+  if(v<t){nl=m+1;txt='Ищем между №'+l+' и №'+r+'. mid = ('+l+' + '+r+') // 2 = <b>'+m+'</b>, там <b>'+v+'</b>. '+v+' &lt; '+t+' — значит, '+t+' «должно быть» правее: left = '+(m+1)+'.'}
+  else{nr=m-1;txt='Ищем между №'+l+' и №'+r+'. mid = ('+l+' + '+r+') // 2 = <b>'+m+'</b>, там <b>'+v+'</b>. '+v+' &gt; '+t+' — значит, '+t+' «должно быть» левее: right = '+(m-1)+'.'}
+  const lost=ti>=l&&ti<=r&&(ti<nl||ti>nr);
+  out.push({l,r,m,txt,lost});l=nl;r=nr}
+ out.push({end:true,l,r});return out}
+const BS=bsSteps(GS,TG);let bsI=0;
+$('#bsList').innerHTML=strip(GS,0,4,-1,TG);
+function bsRender(){const ti=GS.indexOf(TG);let h='';
+ for(let k=0;k<bsI;k++){const s=BS[k];
+  if(s.end)h+='<div class="fb bad"><b>Результат: не найдено.</b> left = '+s.l+' стал больше right = '+s.r+', искать больше негде. Но число '+TG+' лежит в ячейке №'+ti+'!</div>';
+  else h+='<div class="bsstep"><b>Шаг '+(k+1)+'.</b> '+s.txt+strip(GS,s.l,s.r,s.m,TG)+(s.lost?'<div class="fb warn" style="margin:4px 0 0">Ячейка №'+ti+' с числом '+TG+' только что попала в отброшенную часть.</div>':'')+'</div>'}
+ $('#bsLog').innerHTML=h;$('#bsStep').disabled=bsI>=BS.length;
+ if(bsI>=BS.length)reveal('whyBox')}
+$('#bsStep').onclick=()=>{if(bsI<BS.length){bsI++;store.set('bsI',bsI);bsRender()}};
+$('#bsReset').onclick=()=>{bsI=0;store.set('bsI',0);bsRender()};
+$$('#pred button').forEach(b=>b.onclick=()=>{$$('#pred button').forEach(x=>x.classList.toggle('pick',x===b));store.set('pred',b.dataset.v);
+ $('#predOut').textContent='Прогноз записан: «'+b.textContent+'». Проверим его по шагам.'});
+mcq('#why','why','#whyFb',(ok,f)=>{
+ fb('#whyFb',ok?'ok':'bad',ok?'<b>Верно.</b> Бинарный поиск верит, что числа идут по возрастанию. На шаге 1 он увидел 62 &lt; 95 и отбросил левую часть — вместе с числом 95.':'<b>Не так.</b> Код поиска верный, а 95 — обычное число. Посмотрите на шаг 1: что поиск «решил» про левую часть списка и было ли это правдой?<span class="next">Следующий шаг: сравните соседние числа списка — идут ли они по возрастанию?</span>');
+ if(ok)reveal('sortBox')});
+
+/* ================= ЭТАП 2 ================= */
+mcq('#prob','prob','#probFb',(ok,f,live)=>{
+ fb('#probFb',ok?'ok':'bad',ok?'<b>Да, это наша проблема.</b> В ней две части: <i>как</i> упорядочить, сравнивая по два элемента, и <i>какой способ лучше</i>.'+firstNote(f):'<b>Нет.</b> Это мы уже знаем и умеем. Проблема — то, чего мы пока <i>не</i> умеем, но без чего не обойтись.<span class="next">Следующий шаг: какое действие нужно было сделать со списком до бинарного поиска?</span>');
+ if(ok){reveal('goals');setS('prob',f?1:0)}});
+function hypText(){const r=$$('input[name=hyp]').find(x=>x.checked);if(!r)return '';
+ const m=['hm1','hm2','hm3','hm4'].map(i=>$('#'+i)).filter(x=>x.checked).map(x=>x.value).join(', ');
+ const w=$('#hypWhy').value.trim();
+ return r.value[0].toUpperCase()+r.value.slice(1)+(w?', потому что '+w.replace(/^потому что\s*/i,''):'')+(m?' (измерю: '+m+')':'')}
+$('#hypFix').onclick=()=>{const t=hypText();if(!t){$('#hypOut').textContent='Сначала выберите один из вариантов.';return}
+ store.set('hyp',t);$('#hypOut').textContent='Гипотеза зафиксирована. Вернёмся к ней на этапе 7.'};
+if(store.get('hyp',''))$('#hypOut').textContent='Гипотеза зафиксирована. Вернёмся к ней на этапе 7.';
+
+/* ================= ЭТАП 3: визуализатор ================= */
+const SN={b:['Подготовка','Внешний цикл','Внутренний цикл','Сравнение','Обмен','Результат'],s:['Подготовка','Позиция i','Перебор j','Сравнение','Новый минимум','Обмен','Результат']};
+let kind='b',base=[7,3,5,2,4],G,si=0,vt=null;
+function gen(k,a0){const r=a0.slice(),n=r.length,d=[],s=[],L=[];
+ const P=(line,st,m,o)=>s.push(Object.assign({r:r.slice(),line,st,m,d:d.slice(),c:[],v:{}},o||{}));
+ const A='a = ['+a0.join(', ')+']';
+ if(k==='b'){L.push(A,'n = len(a)','for i in range(n - 1):','    for j in range(n - 1 - i):','        if a[j] > a[j + 1]:','            a[j], a[j + 1] = a[j + 1], a[j]','print(a)');
+  P(1,0,'Создаём список из '+n+' чисел. Упорядочим его по возрастанию.');
+  P(2,0,'n = len(a) = '+n+'. Длина нужна для границ циклов.',{v:{n}});
+  for(let i=0;i<n-1;i++){P(3,1,'Проход №'+(i+1)+' (i = '+i+'). За проход самое большое из неупорядоченных чисел «всплывёт» на позицию '+(n-1-i)+'.',{v:{n,i}});
+   for(let j=0;j<n-1-i;j++){const x=r[j],y=r[j+1],w=x>y;
+    P(4,2,'j = '+j+'. Берём соседнюю пару: a['+j+'] = '+x+' и a['+(j+1)+'] = '+y+'.',{c:[j,j+1],v:{i,j}});
+    P(5,3,'Проверяем a[j] > a[j+1]: '+x+' > '+y+' → '+(w?'True. Левое больше — пара стоит неправильно.':'False. Пара в нужном порядке, обмена нет.'),{c:[j,j+1],cmp:1,v:{i,j}});
+    if(w){const t=r[j];r[j]=r[j+1];r[j+1]=t;P(6,4,'Обмен: теперь a['+j+'] = '+r[j]+', a['+(j+1)+'] = '+r[j+1]+'. Большее число сдвинулось вправо.',{c:[j,j+1],sw:1,v:{i,j}})}}
+   d.push(n-1-i);P(3,1,'Проход №'+(i+1)+' закончен: '+r[n-1-i]+' на своём месте (зелёный) и больше не сравнивается. Упорядоченная часть растёт справа.',{v:{n,i},pe:1})}
+  for(let i=0;i<n;i++)if(!d.includes(i))d.push(i);P(7,5,'Все проходы выполнены. print(a) выводит упорядоченный список.',{out:1})}
+ else{L.push(A,'n = len(a)','for i in range(n - 1):','    m = i','    for j in range(i + 1, n):','        if a[j] < a[m]:','            m = j','    a[i], a[m] = a[m], a[i]','print(a)');
+  P(1,0,'Создаём список из '+n+' чисел.');P(2,0,'n = len(a) = '+n+'. Длина нужна для границ циклов.',{v:{n}});
+  for(let i=0;i<n-1;i++){let m=i;
+   P(3,1,'Проход №'+(i+1)+' (i = '+i+'). Какое число должно встать на позицию '+i+'? Самое маленькое из неупорядоченных.',{v:{n,i}});
+   P(4,1,'m = i = '+i+'. Пока считаем минимумом '+r[i]+' (m — индекс минимума).',{k:m,v:{i,m}});
+   for(let j=i+1;j<n;j++){P(5,2,'j = '+j+'. Берём a['+j+'] = '+r[j]+'.',{c:[j],k:m,v:{i,j,m}});
+    const w=r[j]<r[m];P(6,3,'Проверяем a[j] < a[m]: '+r[j]+' < '+r[m]+' → '+(w?'True. Новый минимум.':'False. Минимум прежний.'),{c:[j],k:m,cmp:1,v:{i,j,m}});
+    if(w){m=j;P(7,4,'m = j = '+j+'. Запоминаем индекс нового минимума ('+r[m]+').',{c:[j],k:m,v:{i,j,m}})}}
+   if(m!==i){const t=r[i];r[i]=r[m];r[m]=t;P(8,5,'Меняем a['+i+'] и a['+m+']: '+r[i]+' встало на позицию '+i+'. За проход — не больше одного обмена.',{c:[i,m],sw:1,v:{i,m}})}
+   else P(8,5,'Минимум уже на позиции '+i+' — обмен не нужен и не считается.',{c:[i],v:{i,m}});
+   d.push(i);s[s.length-1].d=d.slice();s[s.length-1].pe=1}
+  for(let i=0;i<n;i++)if(!d.includes(i))d.push(i);P(9,6,'Список упорядочен. Упорядоченная часть росла слева. print(a) выводит результат.',{out:1})}
+ return{L,s}}
+const hl=t=>esc(t).replace(/\b(for|in|if|and|or|not|while|break)\b/g,'<span class="k">$1</span>').replace(/\b(range|len|print)\b/g,'<span class="f">$1</span>').replace(/\b(\d+)\b/g,'<span class="n">$1</span>');
+function draw(){const t=G.s[si],mx=Math.max(...base,1);
+ $('#code').innerHTML=G.L.map((l,i)=>'<span class="cl'+(t.line===i+1?' act':'')+'"><b>'+(i+1)+'</b>'+hl(l)+'</span>').join('');
+ $('#vars').innerHTML=Object.entries(t.v).map(([k,v])=>'<span>'+k+' = '+v+'</span>').join('');
+ $('#bars').innerHTML=t.r.map((v,i)=>'<div class="b'+(t.c.includes(i)?' cmp':'')+(t.k===i?' min':'')+(t.d.includes(i)?' done':'')+'">'+v+'<i style="height:'+Math.max(10,Math.abs(v)/mx*130)+'px"></i><small>'+i+'</small></div>').join('');
+ $('#msg').innerHTML='<b>'+SN[kind][t.st]+'.</b> '+t.m+(t.out?'<br><span class="mono">&gt;&gt;&gt; ['+t.r.join(', ')+']</span>':'');
+ let c=0,w=0;for(let i=0;i<=si;i++){c+=G.s[i].cmp||0;w+=G.s[i].sw||0}
+ $('#vc').textContent=c;$('#vw').textContent=w;$('#vst').textContent='шаг '+si+' из '+(G.s.length-1);
+ $('#prev').disabled=si===0;$('#step').disabled=si===G.s.length-1;if(si===G.s.length-1)vstop()}
+function vstop(){if(vt){clearInterval(vt);vt=null}$('#play').textContent='▶ Авто'}
+function vinit(){vstop();G=gen(kind,base);si=0;draw()}
+function setKind(k){kind=k;$('#kb').className='btn '+(k==='b'?'bub':'ghost');$('#ks').className='btn '+(k==='s'?'sel':'ghost');vinit()}
+$('#kb').onclick=()=>setKind('b');$('#ks').onclick=()=>setKind('s');
+$('#step').onclick=()=>{if(si<G.s.length-1){si++;draw()}};$('#prev').onclick=()=>{if(si>0){si--;draw()}};$('#rst').onclick=vinit;
+$('#play').onclick=()=>{if(vt){vstop();return}if(si>=G.s.length-1)si=0;$('#play').textContent='❚❚ Пауза';vt=setInterval(()=>{if(si<G.s.length-1){si++;draw()}else vstop()},1300);draw()};
+$('#apply').onclick=()=>{const a=parse($('#arr').value);
+ if(a.length<2||a.length>8||a.some(x=>x<0||x>999)){$('#msg').innerHTML='<b>Проверьте ввод.</b> Нужно от 2 до 8 целых чисел от 0 до 999 через запятую.';return}base=a;vinit()};
+$('#rnd').onclick=()=>{const s=new Set();while(s.size<6)s.add(1+Math.floor(Math.random()*30));base=[...s];$('#arr').value=base.join(', ');vinit()};
+
+/* ================= ЭТАП 3: трассировка ================= */
+function passOne(k,a0){const a=a0.slice(),n=a.length;let c=0,w=0;
+ if(k==='b'){for(let j=0;j<n-1;j++){c++;if(a[j]>a[j+1]){const t=a[j];a[j]=a[j+1];a[j+1]=t;w++}}}
+ else{let m=0;for(let j=1;j<n;j++){c++;if(a[j]<a[m])m=j}if(m!==0){const t=a[0];a[0]=a[m];a[m]=t;w++}}
+ return{a,c,w}}
+let M=store.get('M',[7,3,5,2,4]);
+function setM(a,keep){M=a;store.set('M',a);$('#mA').textContent='['+a.join(', ')+']';
+ if(!keep){['mba','mbc','mbs','msa','msc','mss'].forEach(id=>{const e=$('#'+id);e.value='';e.classList.remove('ok','bad');store.set('f:'+id,'')});$('#mFb').hidden=true;$('#mKeyOut').hidden=true;$('#mKey').disabled=true}}
+function mark(id,ok){const e=$('#'+id);e.classList.remove('ok','bad');e.classList.add(ok?'ok':'bad');return ok}
+const numOk=(id,v)=>$('#'+id).value.trim()!==''&&+$('#'+id).value===v;
+$('#mNew').onclick=()=>{const s=new Set();while(s.size<5)s.add(1+Math.floor(Math.random()*9));setM([...s])};
+$('#m0').onclick=()=>setM([7,3,5,2,4]);
+$('#mChk').onclick=()=>{const b=passOne('b',M),s=passOne('s',M),n=M.length;
+ const r={ba:mark('mba',same(parse($('#mba').value),b.a)),bc:mark('mbc',numOk('mbc',b.c)),bs:mark('mbs',numOk('mbs',b.w)),
+  sa:mark('msa',same(parse($('#msa').value),s.a)),sc:mark('msc',numOk('msc',s.c)),ss:mark('mss',numOk('mss',s.w))};
+ const k=Object.values(r).filter(Boolean).length;const pts=k===6?2:k>=4?1:0;setS('trace',Math.max(S.trace,pts));
+ const tips=[];
+ if(!r.ba)tips.push('<b>Пузырёк, список:</b> идите слева направо по соседним парам и меняйте пару, если левое больше. Самое большое число должно оказаться в конце.');
+ if(!r.bc||!r.sc)tips.push('<b>Сравнения:</b> за первый проход сравнивается каждая соседняя пара (пузырёк) или каждый следующий элемент с минимумом (выбор) — для '+n+' элементов это n − 1.');
+ if(!r.bs)tips.push('<b>Обмены пузырька:</b> посчитайте только те пары, где левое число было больше правого.');
+ if(!r.sa)tips.push('<b>Выбор, список:</b> найдите минимум всего списка и поменяйте его местами с первым элементом. Остальные не двигаются.');
+ if(!r.ss)tips.push('<b>Обмены выбора:</b> за проход — не больше одного обмена, и ноль, если минимум уже стоит первым.');
+ $('#mKey').disabled=false;
+ fb('#mFb',k===6?'ok':k>=4?'warn':'bad',(k===6?'<b>Всё верно: 6 из 6.</b> Критерий К2 достигнут.':'<b>Верно: '+k+' из 6.</b> Красные поля нужно исправить.<ul><li>'+tips.join('</li><li>')+'</li></ul>')+
+  '<span class="next">'+(k===6?'Следующий шаг: ответьте партнёру, почему сравнений поровну, а обменов — по-разному.':'Следующий шаг: исправьте красные поля и нажмите «Проверить» снова.')+'</span> <span class="score-chip">балл: '+S.trace+' / 2</span>')};
+$('#mKey').onclick=()=>{const b=passOne('b',M),s=passOne('s',M);
+ fb('#mKeyOut','',' <b>Ключ.</b> Пузырёк: ['+b.a.join(', ')+'], сравнений '+b.c+', обменов '+b.w+'. Выбор: ['+s.a.join(', ')+'], сравнений '+s.c+', обменов '+s.w+'.<br>Сравнений поровну, потому что их число задают только циклы (n − 1 за первый проход). Обмены зависят от данных: пузырёк меняет каждую «неправильную» пару, выбор — не больше одного раза за проход.')};
+
+/* ================= ЭТАП 4 ================= */
+function count(k,a0){const a=a0.slice(),n=a.length;let c=0,w=0,p=0;
+ if(k!=='s'){for(let i=0;i<n-1;i++){p++;let sw=false;for(let j=0;j<n-1-i;j++){c++;if(a[j]>a[j+1]){const t=a[j];a[j]=a[j+1];a[j+1]=t;w++;sw=true}}if(k==='o'&&!sw)break}}
+ else{for(let i=0;i<n-1;i++){p++;let m=i;for(let j=i+1;j<n;j++){c++;if(a[j]<a[m])m=j}if(m!==i){const t=a[i];a[i]=a[m];a[m]=t;w++}}}
+ return{a,c,w,p}}
+const SETS=[['A — упорядоченный',[1,3,5,7,9]],['B — обратный',[9,7,5,3,1]],['C — произвольный',[7,3,5,2,4]]];
+let labDone=store.get('labDone',false);
+function labRender(){if(!labDone){$('#labT').innerHTML=SETS.map(s=>'<tr><td>'+s[0]+'<br><span class="note mono">['+s[1].join(', ')+']</span></td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>').join('');return}
+ const bk=$('#labOpt').checked?'o':'b';const R=SETS.map(s=>({b:count(bk,s[1]),s:count('s',s[1])}));
+ const diffs=R.map(r=>Math.abs(r.b.w-r.s.w)),mx=Math.max(...diffs),mi=diffs.indexOf(mx);
+ $('#labT').innerHTML=SETS.map((s,i)=>{const r=R[i],h=i===mi?' hl':'';return '<tr><td>'+s[0]+'<br><span class="note mono">['+s[1].join(', ')+']</span></td><td class="num">'+r.b.c+'</td><td class="num'+h+'">'+r.b.w+'</td><td class="num">'+r.s.c+'</td><td class="num'+h+'">'+r.s.w+'</td></tr>'}).join('');
+ const pred=$('#labPred').value,pl=pred?' Прогноз группы («'+pred+'») '+(pred===['A','B','C'][mi]?'<b>подтвердился</b>.':'<b>не подтвердился</b> — это тоже результат: объясните, почему.'):'';
+ const eqC=R.every(r=>r.b.c===r.s.c);
+ fb('#labInfo','',(eqC?'Сравнений у обоих методов поровну на каждом списке: '+R[0].b.c+'.':'Сравнения различаются: пузырёк с флагом на упорядоченном списке A остановился после первого прохода ('+R[0].b.c+' сравнения вместо '+R[0].s.c+').')+
+  ' Обмены: пузырёк '+R.map(r=>r.b.w).join(' / ')+', выбор '+R.map(r=>r.s.w).join(' / ')+'. Наибольшая разница — на списке '+['A','B','C'][mi]+' (выделено).'+pl+
+  '<span class="next">Следующий шаг: ответьте на вопрос по данным ниже, затем '+($('#labOpt').checked?'сравните, что изменил флаг на списке A.':'включите флаг swapped и посмотрите, что изменится на списке A.')+'</span>');
+ $('#labQ').hidden=false}
+$('#labRun').onclick=()=>{labDone=true;store.set('labDone',true);labRender()};
+$('#labOpt').addEventListener('change',labRender);$('#labPred').addEventListener('change',()=>{if(labDone)labRender()});
+mcq('#labQ1','labB','#labQ1Fb',(ok,f)=>{fb('#labQ1Fb',ok?'ok':'bad',ok?'<b>Верно: B.</b> В обратном списке каждая соседняя пара стоит неправильно, поэтому каждое из 10 сравнений заканчивается обменом. Выбору там хватило 2 обменов.'+firstNote(f):'<b>Посмотрите в протокол.</b> Найдите строку, где у пузырька число обменов равно числу сравнений.<span class="next">Следующий шаг: сравните столбцы «Пузырёк: сравнения» и «Пузырёк: обмены».</span>');if(ok)setS('labB',f?1:0)});
+$('#labCBtn').onclick=()=>{const a=parse($('#labC').value).slice(0,12);if(a.length<2){$('#labCOut').textContent='Введите хотя бы два числа.';return}
+ const n=a.length,b=count($('#labOpt').checked?'o':'b',a),s=count('s',a);
+ $('#labCOut').innerHTML='n = '+n+'; n(n−1)/2 = '+n*(n-1)/2+'. Пузырёк: '+b.c+' сравн., '+b.w+' обм. Выбор: '+s.c+' сравн., '+s.w+' обм. (предел для выбора n − 1 = '+(n-1)+').'};
+function mkList(n,t){return Array.from({length:n},(_,i)=>t==='s'?i:t==='v'?n-i:Math.floor(Math.random()*10000))}
+let cmpList=null;
+function cmpRun(fresh){const n=+$('#cmpN').value;$('#cmpNv').textContent=n;const sc=$('#cmpSc').value;
+ if(fresh||!cmpList||cmpList.length!==n||cmpList.sc!==sc){cmpList=mkList(n,sc);cmpList.sc=sc}
+ const bk=$('#labOpt').checked?'o':'b',r={};
+ for(const k of[bk,'s']){const reps=Math.max(1,Math.min(300,Math.round(2e5/(n*n)))),t0=performance.now();let o;for(let q=0;q<reps;q++)o=count(k,cmpList);r[k==='s'?'s':'b']=Object.assign({},o,{t:(performance.now()-t0)/reps})}
+ const MS=[['Сравнения','c',v=>v.toLocaleString('ru-RU')],['Обмены','w',v=>v.toLocaleString('ru-RU')],['Время, мс','t',v=>v.toFixed(2)]];
+ $('#cmpOut').innerHTML=MS.map(([nm,f,fm])=>{const mx=Math.max(r.b[f],r.s[f],1e-9),W=v=>Math.max(1,v/mx*100);
+  return '<div style="margin:8px 0"><b>'+nm+'</b><div class="mb"><i style="width:'+W(r.b[f])+'%;background:var(--bub)"></i><span>пузырёк: '+fm(r.b[f])+'</span></div><div class="mb"><i style="width:'+W(r.s[f])+'%;background:var(--sel)"></i><span>выбор: '+fm(r.s[f])+'</span></div></div>'}).join('')}
+$('#cmpN').addEventListener('input',()=>cmpRun());$('#cmpSc').addEventListener('change',()=>cmpRun());$('#cmpGo').onclick=()=>cmpRun(true);
+$('#labOpt').addEventListener('change',()=>cmpRun());
+mcq('#labQ2','labN','#labQ2Fb',(ok,f)=>{fb('#labQ2Fb',ok?'ok':'bad',ok?'<b>Верно: примерно в 4 раза.</b> При n = 100 сравнений 4 950, при n = 200 — 19 900. Число сравнений n(n−1)/2 растёт как n², поэтому удвоение n даёт рост примерно в 2² = 4 раза.'+firstNote(f):'<b>Проверьте по графику.</b> Запишите число сравнений при n = 100 и при n = 200 и разделите одно на другое.<span class="next">Следующий шаг: подставьте n в формулу n(n−1)/2.</span>');if(ok)setS('labN',f?1:0)});
+
+/* ================= ЭТАП 5 ================= */
+const PEER=['Данные названы точно (числа из протокола)','Объяснена закономерность (почему так)','Вывод следует из данных','Спикер ответил на вопрос'];
+$('#peer').innerHTML=PEER.map((p,i)=>'<tr><td>'+p+'</td>'+[1,2,3].map(g=>'<td class="num"><input type="checkbox" id="pe'+g+'_'+i+'" aria-label="Группа '+g+': '+p+'"></td>').join('')+'</tr>').join('');
+mcq('#poll','poll','#pollFb',(ok,f)=>{fb('#pollFb',ok?'ok':'bad',ok?'<b>Верно.</b> По числу обменов нельзя судить о скорости в целом: сравнений у обоих методов n(n−1)/2, а пузырёк с флагом на упорядоченных данных останавливается после первого прохода. Безусловно лучшего метода нет — выбор зависит от данных и от того, какая операция «дороже».'+firstNote(f):'<b>Подумайте ещё.</b> Сравните в протоколе столбцы сравнений у двух методов и вспомните результат пузырька с флагом на списке A.<span class="next">Следующий шаг: найдите в протоколе случай, где пузырёк выигрывает.</span>');if(ok)setS('poll',f?1:0)});
+$('#solveBtn').onclick=()=>{const r=count('s',GS),steps=bsSteps(r.a,TG);
+ $('#solveOut').innerHTML='<p>Метод выбора: ['+GS.join(', ')+'] → <b>['+r.a.join(', ')+']</b> ('+r.c+' сравнений, '+r.w+' обмена).</p>'+
+  steps.map((s,k)=>'<div class="bsstep"><b>Шаг '+(k+1)+'.</b> '+s.txt+strip(r.a,s.l,s.r,s.m,TG)+'</div>').join('')+
+  '<div class="fb ok"><b>Проблема решена.</b> После сортировки бинарный поиск нашёл 95 за '+steps.length+' шага. Сортировка — условие, без которого быстрый поиск не работает.</div>';
+ store.set('solved',true)};
+
+/* ================= ЭТАП 6: мини-интерпретатор Python ================= */
+const cmt=l=>{let q='',o='';for(const c of l){if(q){if(c===q)q=''}else if(c==='"'||c==="'")q=c;else if(c==='#')break;o+=c}return o};
+const topS=t=>{const r=[];let d=0,b='',q='';for(const c of t){if(q){if(c===q)q=''}else if(c==='"'||c==="'")q=c;else{if('([{'.includes(c))d++;if(')]}'.includes(c))d--}if(c===','&&d===0&&!q){r.push(b);b=''}else b+=c}r.push(b);return r};
+const ex=t=>t.replace(/\bTrue\b/g,'true').replace(/\bFalse\b/g,'false').replace(/\bNone\b/g,'null').replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\s+/g,'!').replace(/\.append\(/g,'.push(').replace(/(\([^()]*\)|[\w\]\[]+)\s*\/\/\s*(\w+|\([^()]*\))/g,'Math.floor($1/$2)');
+function py2js(src){const out=[],st=[];let k=0;const GD='if(++C>3e6)throw new Error("программа выполняется слишком долго (возможно, бесконечный цикл)");';
+ for(let raw of src.split('\n')){raw=cmt(raw).replace(/\t/g,'    ').replace(/\s+$/,'');if(!raw.trim())continue;
+  const I=raw.match(/^ */)[0].length,t=raw.trim(),isE=/^(elif\b|else\s*:)/.test(t);let pre='';
+  while(st.length&&st[st.length-1]>I){st.pop();out.push('}')}
+  if(st.length&&st[st.length-1]===I){st.pop();if(isE)pre='}';else out.push('}')}
+  let m;
+  if(/^(def|class|import|from|lambda|try|with)\b/.test(t)||/\bf["']/.test(t))throw new Error('конструкция «'+t.split(/\s|\(/)[0]+'» не поддерживается мини-интерпретатором — используйте только циклы, условия, списки и print');
+  if(/^(for|while|if|elif|else)\b/.test(t)&&!/:$/.test(t))throw new Error('в строке «'+t+'» не хватает двоеточия в конце');
+  if(m=t.match(/^for\s+(\w+)\s+in\s+range\((.*)\)\s*:$/)){const a=topS(m[2]).map(ex),e='_e'+k++;let lo='0',hi=a[0],stp='1';if(a.length>1){lo=a[0];hi=a[1];if(a[2])stp=a[2]}
+   out.push(pre+'for(var '+m[1]+'='+lo+','+e+'='+hi+';'+m[1]+(/^\s*-/.test(stp)?'>':'<')+e+';'+m[1]+'+='+stp+'){'+GD);st.push(I)}
+  else if(m=t.match(/^while\s+(.*):$/)){out.push(pre+'while('+ex(m[1])+'){'+GD);st.push(I)}
+  else if(m=t.match(/^if\s+(.*):$/)){out.push(pre+'if('+ex(m[1])+'){');st.push(I)}
+  else if(m=t.match(/^elif\s+(.*):$/)){out.push(pre+'else if('+ex(m[1])+'){');st.push(I)}
+  else if(/^else\s*:$/.test(t)){out.push(pre+'else{');st.push(I)}
+  else if(t==='break'||t==='continue')out.push(t+';');
+  else if(t==='pass'){}
+  else if(m=t.match(/^print\((.*)\)$/))out.push('P('+(m[1].trim()?topS(m[1]).map(ex).join(','):'')+');');
+  else if(m=t.match(/^(.+?)\s*([+\-*%]?=)(?!=)\s*(.+)$/)){const l=m[1],o=m[2],r=m[3];
+   if(topS(l).length>1)out.push(';['+topS(l).map(ex).join(',')+']=['+topS(r).map(ex).join(',')+'];');
+   else if(o==='='&&/^[A-Za-z_]\w*$/.test(l.trim()))out.push('var '+l.trim()+'='+ex(r)+';');
+   else out.push(ex(l)+o+ex(r)+';')}
+  else out.push(ex(t)+';')}
+ while(st.length){st.pop();out.push('}')}return out.join('\n')}
+function runPy(src){const code=py2js(src),out=[];
+ const f=v=>Array.isArray(v)?'['+v.map(x=>typeof x==='string'?"'"+x+"'":f(x)).join(', ')+']':v===true?'True':v===false?'False':v===null?'None':v===undefined?'⚠ выход за границы списка':String(v);
+ const P=(...a)=>out.push(a.map(f).join(' '));
+ try{new Function('P','len','sum','min','max','abs','let C=0;\n'+code)(P,x=>x.length,a=>a.reduce((x,y)=>x+y,0),(...a)=>Math.min(...(Array.isArray(a[0])?a[0]:a)),(...a)=>Math.max(...(Array.isArray(a[0])?a[0]:a)),Math.abs)}
+ catch(e){if(e instanceof SyntaxError)throw new Error('синтаксическая ошибка — проверьте скобки, запятые и отступы');
+  if(e instanceof ReferenceError)throw new Error('неизвестное имя: '+String(e.message).split(' ')[0]+' — проверьте написание переменных');throw e}
+ return out}
+const lastList=o=>{const l=o.filter(x=>x[0]==='[').pop();return l?parse(l):null};
+const shuf=()=>{const s=new Set();while(s.size<8)s.add(1+Math.floor(Math.random()*99));return[...s]};
+const litSwap=(t,v)=>t.replace(/\[[\d\s,]+\]/,'['+v.join(', ')+']');
+const li=(ok,t)=>'<li>'+(ok?'✓ ':'✗ ')+t+'</li>';
+const errLi=e=>'<li>✗ Ошибка выполнения: '+esc(e.message||e)+'.</li>';
+function pledgeOk(){const ok=$('#pledge').checked;$('#pledgeMsg').hidden=ok;return ok}
+function showLv(id,html,pt,mx,next){fb(id,pt===mx?'ok':pt>0?'warn':'bad',html+'<span class="next">'+next+'</span> <span class="score-chip">балл: '+pt+' / '+mx+'</span>')}
+$$('#lvs button').forEach(b=>b.onclick=()=>{$$('#lvs button').forEach(x=>x.classList.toggle('on',x===b));$$('.lvp').forEach(p=>p.hidden=p.id!==b.dataset.p);store.set('lv',b.dataset.p)});
+/* A */
+$('#chkA').onclick=()=>{if(!pledgeOk())return;
+ const R=[/^i$/,/^(i\+1|1\+i)$/,/^a\[m\],a\[i\]$/],H=['с какого индекса начинаем искать минимум на проходе i?','с какого индекса просматриваем неупорядоченную часть (после позиции i)?','что записать справа, чтобы a[i] и a[m] поменялись местами?'];
+ let ok=0,h='<ul>';['bl1','bl2','bl3'].forEach((id,i)=>{const e=$('#'+id),g=R[i].test(e.value.replace(/\s+/g,''));if(g)ok++;e.style.borderColor=g?'var(--ok)':'var(--bad)';h+=li(g,'Пропуск '+(i+1)+(g?' — верно':': подумайте, '+H[i]))});
+ const tr=same(parse($('#a2').value),[4,7,2,5,9]);mark('a2',tr);
+ h+=li(tr,'Трассировка'+(tr?' — верно: 9 «всплыло» в конец':': идите по парам слева направо: (9,4) → обмен, (9,7) → обмен, …'))+'</ul>';
+ const pt=(ok===3?1:0)+(tr?1:0);setS('A',Math.max(S.A,pt));
+ showLv('#resA',h,pt,2,pt===2?'Следующий шаг: попробуйте уровень B — «Код-детектив».':'Следующий шаг: исправьте отмеченное и проверьте ещё раз. Можно открыть визуализатор на этапе 3.')};
+/* B */
+const SRC='co2 = [45, 12, 89, 23, 10]\nn = len(co2)\n\nfor i in range(n)\n    for j in range(0, n - i):\n        if co2[j] < co2[j + 1]:\n            co2[j], co2[j + 1] = co2[j], co2[j + 1]\n\nprint("Отсортировано:" co2)';
+const E=[["Двоеточие в заголовке внешнего цикла",/for\s+i\s+in\s+range\(\s*n(\s*-\s*1)?\s*\)\s*:/,"в конце строки с for нужно двоеточие"],
+["Границы внутреннего цикла",/for\s+j\s+in\s+range\(\s*(0\s*,\s*)?n\s*-\s*(1\s*-\s*i|i\s*-\s*1)\s*\)\s*:/,"при j = n − 1 обращение co2[j + 1] выходит за границы списка — какой должна быть правая граница?"],
+["Знак сравнения",/if\s+co2\[j\]\s*>\s*co2\[j\s*\+\s*1\]\s*:|if\s+co2\[j\s*\+\s*1\]\s*<\s*co2\[j\]\s*:/,"сортируем по возрастанию — когда пара стоит неправильно?"],
+["Обмен элементов",/co2\[j\]\s*,\s*co2\[j\s*\+\s*1\]\s*=\s*co2\[j\s*\+\s*1\]\s*,\s*co2\[j\](?!\s*\+)|co2\[j\s*\+\s*1\]\s*,\s*co2\[j\]\s*=\s*co2\[j\]\s*,\s*co2\[j\s*\+\s*1\]/,"сейчас каждый элемент присваивается сам себе — обмена не происходит"],
+["Вывод результата",/print\(\s*(["'])\s*Отсортировано\s*:\s*\1\s*,\s*co2\s*\)/,"между аргументами print нужна запятая"]];
+$('#cd').value=SRC;
+$('#resetB').onclick=()=>{$('#cd').value=SRC;store.set('f:cd',SRC);$('#resB').hidden=true};
+$('#chkB').onclick=()=>{if(!pledgeOk())return;const t=$('#cd').value,res=E.map(e=>e[1].test(t)),found=res.filter(Boolean).length;
+ let run='',runOk=false;if(found===5){try{const o=runPy(t);runOk=o.join('\n').trim()==='Отсортировано: [10, 12, 23, 45, 89]';run='<li>'+(runOk?'✓':'✗')+' Запуск: <span class="mono">'+esc(o.join(' | ')||'—')+'</span></li>'}catch(e){run=errLi(e)}}
+ const tr=same(parse($('#trB').value),[12,45,23,10,89]);mark('trB',tr);
+ const pt=Math.min(3,(found>=4?2:found>=2?1:0)+(tr?1:0));setS('B',Math.max(S.B,pt));
+ const h='<b>Найдено ошибок: '+found+' из 5.</b><ul>'+E.map((e,i)=>li(res[i],'Ошибка '+(i+1)+': '+e[0]+(res[i]?'':' — '+e[2]))).join('')+run+li(tr,'Трассировка 1-го прохода'+(tr?' — верно':$('#trB').value.trim()?': выполните первый проход исправленного кода по парам слева направо':': поле пустое'))+'</ul>';
+ showLv('#resB',h,pt,3,pt===3?'Следующий шаг: уровень C — оптимизированный пузырёк.':'Следующий шаг: исправьте строки, отмеченные ✗, и нажмите «Проверить» снова.')};
+/* C */
+const C0='a = [64, 25, 12, 22, 11, 90, 45, 33]\nn = len(a)\nswaps = 0\n\n# пузырёк с флагом swapped\n# после каждого прохода: print(a)\n\n# последней строкой: print(swaps)\n';
+$('#edC').value=C0;
+const inv=v=>{let c=0;for(let i=0;i<v.length;i++)for(let j=i+1;j<v.length;j++)if(v[i]>v[j])c++;return c};
+$('#chkC').onclick=()=>{if(!pledgeOk())return;const t=$('#edC').value,ns=!/\.sort\s*\(|\bsorted\s*\(/.test(t),lp=(t.match(/^\s*(for|while)\b/gm)||[]).length,lit=/\[[\d\s,]+\]/.test(t);
+ let c2=false,c3=false,c4=false,h='<ul>',out=[];
+ if(!lit)h+='<li>✗ В программе должен быть список чисел в квадратных скобках, например a = [64, 25, …].</li>';
+ try{out=runPy(t);const v=shuf(),o=runPy(litSwap(t,v));c2=ns&&same(lastList(o),srt(v));c4=ns&&(o[o.length-1]||'').trim()===String(inv(v));
+  const sv=srt(v),os=runPy(litSwap(t,sv)).filter(x=>x[0]==='[').length,rv=sv.slice().reverse(),orv=runPy(litSwap(t,rv)).filter(x=>x[0]==='[').length;
+  c3=ns&&os<=1&&orv>=3}catch(e){h+=errLi(e)}
+ const c1=ns&&lp>=2;
+ h+=li(c1,'Сортировка написана самостоятельно: вложенные циклы, без sort() и sorted()')+li(c2,'Список сортируется верно (проверено на случайных 8 числах)')+li(c3,'Флаг работает: на упорядоченном списке — не больше 1 прохода, на обратном — вывод после каждого прохода')+li(c4,'Последняя строка — верное число обменов')+
+  '<li>Ваш вывод: <div class="out">'+esc(out.join('\n')||'—')+'</div></li></ul>';
+ const pt=[c1,c2,c3,c4].filter(Boolean).length;setS('C',Math.max(S.C,pt));
+ const nx=!c2?'добейтесь верной сортировки: сравните a[j] и a[j + 1] и меняйте при a[j] > a[j + 1].':!c3?'перед проходом пишите swapped = False, при обмене — swapped = True, после прохода — print(a) и if not swapped: break.':!c4?'увеличивайте swaps на 1 внутри условия обмена и выведите print(swaps) последней строкой.':'помогите соседу вопросами, не показывая код.';
+ showLv('#resC',h,pt,4,'Следующий шаг: '+nx)};
+['#cd','#edC'].forEach(q=>$(q).addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const t=e.target,p=t.selectionStart;t.value=t.value.slice(0,p)+'    '+t.value.slice(t.selectionEnd);t.selectionStart=t.selectionEnd=p+4;t.dispatchEvent(new Event('input'))}}));
+
+/* ================= ЭТАП 7 ================= */
+const SH=[['К1–К2. Проблема поставлена верно','этап 2','prob',1],['К1, К2. Первый проход вручную','этап 3','trace',2],['К3. Вопрос по данным протокола','этап 4','labB',1],['К3. Рост числа сравнений','этап 4','labN',1],['К3. Вопрос-ловушка','этап 5','poll',1],['К2, К4. Задание уровня A / B / C (лучший)','этап 6','P',4]];
+function practice(){return Math.max(S.A,S.B,S.C)}
+function total(){return S.prob+S.trace+S.labB+S.labN+S.poll+practice()}
+function renderSheet(){$('#sheet').innerHTML=SH.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="num">'+r[3]+'</td><td class="num">'+(r[2]==='P'?practice():S[r[2]])+'</td></tr>').join('');
+ const t=total();$('#sheetTot').textContent=t;
+ fb('#sheetVerdict',t>=8?'ok':t>=5?'warn':'bad',t>=8?'<b>8–10 баллов:</b> цели урока достигнуты полностью.':t>=5?'<b>5–7 баллов:</b> цели в основном достигнуты; посмотрите, где потеряны баллы, и выберите домашнее задание уровня B.':'<b>0–4 балла:</b> нужна дополнительная практика — домашнее задание уровня A и вопрос учителю в exit ticket.')}
+function renderReflect(){$('#hypShow').textContent=store.get('hyp','')||'гипотеза не зафиксирована (этап 2)';renderSheet()}
+let light=store.get('light','');
+$$('#light button').forEach(b=>{if(b.dataset.v===light)b.classList.add('on');b.onclick=()=>{light=b.dataset.v;store.set('light',light);$$('#light button').forEach(x=>x.classList.toggle('on',x===b))}});
+function summary(){const hv=$$('input[name=hv]').find(x=>x.checked),cr=[1,2,3,4].filter(i=>$('#sc'+i).checked).map(i=>'К'+i);
+ const t=total(),lvl=S.C>0?'C':S.B>0?'B':S.A>0?'A':'—';
+ return 'Моя гипотеза: '+(store.get('hyp','')||'—')+'\nГипотеза '+(hv?hv.value:'— (не отмечено)')+($('#hvWhy').value.trim()?': '+$('#hvWhy').value.trim():'')+
+ '\n\nБаллы: '+t+' / 10 (уровень на этапе 6: '+lvl+', '+practice()+' б.)\nМогу: '+(cr.join(', ')||'—')+'\nСветофор: '+(light||'—')+
+ '\n\nСегодня я выяснил(а): '+($('#ex1').value.trim()||'—')+'\nСложно / вопрос: '+($('#ex2').value.trim()||'—')+
+ '\n\nДомашнее задание: уровень '+(t>=8?'C':t>=5?'B':'A')}
+$('#sumBtn').onclick=()=>{const o=$('#sumOut');o.hidden=false;o.textContent=summary();$('#sumCopy').hidden=false};
+function copyText(txt,pre,note){const done=()=>{if(note)note.textContent='Скопировано.'};
+ const fallback=()=>{pre.hidden=false;pre.textContent=txt;const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);if(note)note.textContent='Текст выделен — нажмите Ctrl+C.'};
+ try{navigator.clipboard.writeText(txt).then(done,fallback)}catch(e){fallback()}}
+$('#sumCopy').onclick=()=>copyText(summary(),$('#sumOut'),null);
+
+/* ================= ПАСПОРТ: учёт ================= */
+const TL=['tN','tP','tH1','tH2','tH3','tCh','tK1','tK2','tK3','tK4','tLg','tLy','tLr','tA','tB','tC'];
+const tv=id=>{const v=parseInt($('#'+id).value,10);return isNaN(v)?null:v};
+function tallyText(){const N=tv('tN');if(!N)return '';const p=id=>{const v=tv(id);return v==null?'—':v+' из '+N+' ('+Math.round(v/N*100)+'%)'};
+ return 'Учеников на уроке: '+N+'.\nПрогноз «бинарный поиск найдёт 95»: '+p('tP')+'.\nГипотезы: пузырёк — '+p('tH1')+'; выбор — '+p('tH2')+'; «ни один не лучше всегда» — '+p('tH3')+'.\nИзменили мнение после эксперимента: '+p('tCh')+'.\nДостигли критериев успеха: К1 — '+p('tK1')+'; К2 — '+p('tK2')+'; К3 — '+p('tK3')+'; К4 — '+p('tK4')+'.\nСветофор: зелёный — '+p('tLg')+'; жёлтый — '+p('tLy')+'; красный — '+p('tLr')+'.\nУровни на этапе 6: A — '+p('tA')+'; B — '+p('tB')+'; C — '+p('tC')+'.'}
+function tallyRender(){const t=tallyText();const o=$('#tallyOut');o.className='fb'+(t?' ok':'');o.innerHTML=t?esc(t).replace(/\n/g,'<br>'):'Введите число учеников на уроке — проценты посчитаются автоматически.'}
+TL.forEach(id=>$('#'+id).addEventListener('input',tallyRender));
+function report(){return 'ОТЧЁТ ПО УРОКУ «Сортировка методом пузырька и методом выбора», 9 класс\nМетодический инструмент: проблемное обучение\n\nДостижение целей:\n'+(tallyText()||'—')+
+ '\n\nСработало: '+($('#sa1').value.trim()||'—')+'\nНе сработало: '+($('#sa2').value.trim()||'—')+'\nШаг развития 1: '+($('#sa3').value.trim()||'—')+'\nШаг развития 2: '+($('#sa4').value.trim()||'—')}
+$('#saCopy').onclick=()=>copyText(report(),$('#saOut'),$('#saCopied'));
+$('#wipe1').onclick=()=>{$('#wipe2').hidden=false;$('#wipe3').hidden=false};
+$('#wipe3').onclick=()=>{$('#wipe2').hidden=true;$('#wipe3').hidden=true};
+const TEACH_KEYS=new RegExp('^(teacher|big|f:('+TL.concat(['sa1','sa2','sa3','sa4','pre1','pre2','pre3','pre4','pre5']).join('|')+'))$');
+$('#wipe2').onclick=()=>{store.wipe(k=>TEACH_KEYS.test(k));store.set('cur','tp');location.reload()};
+
+/* ================= сохранение полей ================= */
+$$('input[id],textarea[id],select[id]').forEach(el=>{const k='f:'+el.id,isC=el.type==='checkbox'||el.type==='radio';
+ const v=store.get(k,null);if(v!=null){if(isC)el.checked=!!v;else el.value=v}
+ el.addEventListener(isC||el.tagName==='SELECT'?'change':'input',()=>{store.set(k,isC?el.checked:el.value);
+  if(el.type==='radio')$$('input[name="'+el.name+'"]').forEach(o=>{if(o!==el)store.set('f:'+o.id,false)})})});
+
+/* ================= старт ================= */
+Object.keys(rev).forEach(id=>{const e=document.getElementById(id);if(e)e.hidden=false});
+const pv=store.get('pred',null);if(pv){const b=$$('#pred button').find(x=>x.dataset.v===pv);if(b){b.classList.add('pick');$('#predOut').textContent='Прогноз записан: «'+b.textContent+'».'}}
+bsI=Math.min(store.get('bsI',0),BS.length);bsRender();
+ready=true;
+setM(M,true);setKind('b');labRender();cmpRun(true);renderSheet();tallyRender();
+if(store.get('solved',false))$('#solveBtn').click();
+const lv=store.get('lv','pA');const lb=$$('#lvs button').find(b=>b.dataset.p===lv);if(lb)lb.click();
+setTeacher(store.get('teacher',false));setBig(store.get('big',false));
+const h0=location.hash.slice(1);go(h0&&document.getElementById(h0)?h0:store.get('cur','st1'),true);
+})();
+</script>
