@@ -474,6 +474,12 @@ textarea,input,code,pre{font-variant-ligatures:none!important;font-feature-setti
 .ans-box{margin:0 0 10px}
 .ans-list{margin:8px 0 0;padding-left:22px;display:grid;gap:6px}
 .ans-list li{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}.ans-list li span{color:var(--muted)}
+#fgOv{position:fixed;inset:0;z-index:9999;background:rgba(19,32,58,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+#fgOv[hidden]{display:none!important}
+.fg-card{background:var(--surface,#fff);color:var(--ink,#13203A);border-radius:16px;max-width:520px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.fg-card h2{margin:0 0 10px;font-size:1.35rem}.fg-card p{margin:0 0 18px;line-height:1.5}
+body.fg-lock{overflow:hidden}
+.aw-tbl tr.aw-bad td:nth-child(2){color:#C0392B}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -1819,6 +1825,64 @@ function renderHints(){if(teacherMode||!student)return;const v=lastPairs;
 window.addEventListener('hashchange',()=>{const a=navLinks.find(x=>x.getAttribute('href')===location.hash);if(a)a.classList.remove('has-hint');});
 renderHints();
 
+/* ---------- focus guard: full screen, leaving the lesson page ---------- */
+const FG={"startT": "Урок во весь экран", "startP": "Урок откроется на весь экран. Если вы переключитесь на другую вкладку, окно или программу либо выйдете из полноэкранного режима, это засчитается как уход со страницы и будет видно учителю.", "startB": "Начать урок", "contB": "Продолжить урок", "awayT": "Вы покинули страницу урока", "awayP": "Уход № {n}, вне урока {t}. Учитель видит число уходов. Задания продолжатся, когда вы вернётесь к уроку.", "fsT": "Вы вышли из полноэкранного режима", "fsP": "Это засчитано как уход № {n}. Задания продолжатся, когда вы вернётесь в полноэкранный режим.", "backB": "Вернуться к уроку", "brT": "С возвращением!", "brP": "Вас не было {t}. Долгий перерыв (больше 5 минут, например перемена) не считается уходом со страницы.", "reT": "Урок открыт снова", "reP": "Ваши ответы сохранены. Нажмите кнопку, чтобы продолжить во весь экран.", "sec": "{s} с", "min": "{m} мин {s} с", "fsWord": "выход из полного экрана", "brWord": "перерыв", "tTitle": "Уходы со страницы урока", "tNote": "Уход — переключение на другую вкладку, окно или программу либо выход из полноэкранного режима. Отсутствие дольше 5 минут (перемена, закрытый ноутбук) считается перерывом, а не уходом.", "tHead": ["Ученик", "Уходов", "Время вне урока", "Перерывов", "Открытий файла", "Последние уходы"], "tNo": "нет данных", "tChoose": "Выберите класс в блоке «Кто отвечает?» на вкладке «Повторение».", "tEmpty": "В классе нет учеников."};
+const FG_BREAK=300;
+const fgDur=s=>s<60?FG.sec.replace('{s}',s):FG.min.replace('{m}',Math.floor(s/60)).replace('{s}',s%60);
+function drawAwayTbl(){const box=$('#awBody');if(!box)return;const cls=pkClass;
+  if(!cls||!CLASSES[cls]){box.innerHTML=`<tr><td colspan="6">${esc(FG.tChoose)}</td></tr>`;return;}
+  const today=todayStr(),L={};
+  (resList||[]).forEach(r=>{if(!r||r.cls!==cls||r.d!==today||!String(r.name).endsWith('#away'))return;const n=String(r.name).slice(0,-5);if(!L[n]||L[n].t<r.t)L[n]=r;});
+  const names=presentOf(cls).slice();Object.keys(L).forEach(n=>{if(!names.includes(n))names.push(n);});
+  box.innerHTML=names.map(n=>{const r=L[n];if(!r)return `<tr class="res-wait"><td>${esc(n)}</td><td colspan="5">${esc(FG.tNo)}</td></tr>`;
+    const p=String(r.partner||'').split(',').map(Number);const sec=p[0]||0,br=p[1]||0,ro=p[2]||0;
+    return `<tr${r.n>0?' class="aw-bad"':''}><td>${esc(n)}</td><td><b>${r.n}</b></td><td>${esc(fgDur(sec))}</td><td>${br}</td><td>${ro}</td><td>${esc((r.wrong||[]).slice(-3).join(', '))}</td></tr>`;}).join('')||`<tr><td colspan="6">${esc(FG.tEmpty)}</td></tr>`;}
+if(teacherMode){
+  const lg=$('#glBody')&&$('#glBody').closest('.tbl-wrap').nextElementSibling;
+  if(lg){const w=document.createElement('div');w.className='aw-box';
+    w.innerHTML=`<h3 class="sub" style="margin:10px 0 0">${esc(FG.tTitle)}</h3><p class="cr-legend">${esc(FG.tNote)}</p><div class="tbl-wrap"><table class="res-tbl aw-tbl"><thead><tr>${FG.tHead.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody id="awBody"></tbody></table></div>`;
+    lg.after(w);}
+  const _dg=drawGoalTbl;drawGoalTbl=function(){_dg();drawAwayTbl();};drawAwayTbl();
+  document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawAwayTbl,0)));
+}else if(!window.__SIMPLE)(function(){
+  const today=todayStr();let st=store.get('focus',null);
+  if(!st||st.d!==today)st={d:today,n:0,sec:0,br:0,ro:0,fs:0,log:[]};
+  st.ro++;store.set('focus',st);
+  const fsOk=!!(document.fullscreenEnabled&&document.documentElement.requestFullscreen);
+  let started=false,awayAt=0,lastSend='';
+  const ov=document.createElement('div');ov.id='fgOv';ov.hidden=true;
+  ov.innerHTML='<div class="fg-card" role="dialog" aria-modal="true"><h2 id="fgT"></h2><p id="fgP"></p><button class="btn" type="button" id="fgB"></button></div>';
+  document.body.appendChild(ov);
+  const hhmmNow=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
+  function save(){store.set('focus',st);}
+  function send(){if(!window.__SYNC_URL||!student||!student.name)return;
+    const data={lesson:LESSON,cls:student.cls,name:student.name+'#away',partner:[st.sec,st.br,st.ro,st.fs].join(','),n:st.n,ok:st.n,total:st.ro,wrong:st.log.slice(-10),empty:st.br,d:today,t:Date.now()};
+    const sig=JSON.stringify([st.n,st.sec,st.br,st.ro]);if(sig===lastSend)return;lastSend=sig;
+    fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{lastSend='';});}
+  function show(t,p,b){$('#fgT').textContent=t;$('#fgP').textContent=p;$('#fgB').textContent=b;ov.hidden=false;document.body.classList.add('fg-lock');}
+  function hide(){ov.hidden=true;document.body.classList.remove('fg-lock');}
+  const loginOpen=()=>{const s=$('#startScreen');return !student||(s&&!s.hidden);};
+  const inFs=()=>!fsOk||!!document.fullscreenElement;
+  const present=()=>document.visibilityState==='visible'&&document.hasFocus();
+  function goAway(){if(!started||awayAt||loginOpen())return;awayAt=Date.now();}
+  function comeBack(){if(!awayAt||!present())return;const dur=Math.round((Date.now()-awayAt)/1000);awayAt=0;if(dur<1)return;
+    if(dur>=FG_BREAK){st.br++;st.log.push(hhmmNow()+' '+FG.brWord+' '+Math.round(dur/60)+'′');save();send();show(FG.brT,FG.brP.replace('{t}',fgDur(dur)),FG.contB);return;}
+    st.n++;st.sec+=dur;st.log.push(hhmmNow()+' ('+fgDur(dur)+')');save();send();
+    show(FG.awayT,FG.awayP.replace('{n}',st.n).replace('{t}',fgDur(dur)),FG.backB);}
+  $('#fgB').addEventListener('click',()=>{started=true;hide();if(fsOk&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});send();});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')goAway();else comeBack();});
+  window.addEventListener('blur',goAway);
+  window.addEventListener('focus',comeBack);
+  document.addEventListener('fullscreenchange',()=>{if(!started||document.fullscreenElement||loginOpen())return;
+    if(document.visibilityState!=='visible'){goAway();return;}
+    st.n++;st.fs++;st.log.push(hhmmNow()+' '+FG.fsWord);save();send();show(FG.fsT,FG.fsP.replace('{n}',st.n),FG.backB);});
+  // first screen: after login, before the lesson starts
+  const first=st.ro>1?[FG.reT,FG.reP,FG.contB]:[FG.startT,FG.startP,FG.startB];
+  const tick=()=>{if(!started&&!loginOpen()&&ov.hidden)show(...first);
+    else if(started&&ov.hidden&&!inFs()&&present()&&!loginOpen())show(FG.fsT,FG.fsP.replace('{n}',st.n),FG.backB);};
+  setInterval(tick,700);tick();
+})();
+
 /* ---------- teacher: answer buttons ---------- */
 const ANS_L=["Ответ", "Ответы к сопоставлению", "Скрыть ответы"];
 function addAnsBtns(host,data,headSel){if(!host)return;host.querySelectorAll('.q').forEach((box,i)=>{if(box.querySelector('.ans-btn')||!data[i])return;
@@ -2304,6 +2368,12 @@ textarea,input,code,pre{font-variant-ligatures:none!important;font-feature-setti
 .ans-box{margin:0 0 10px}
 .ans-list{margin:8px 0 0;padding-left:22px;display:grid;gap:6px}
 .ans-list li{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}.ans-list li span{color:var(--muted)}
+#fgOv{position:fixed;inset:0;z-index:9999;background:rgba(19,32,58,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+#fgOv[hidden]{display:none!important}
+.fg-card{background:var(--surface,#fff);color:var(--ink,#13203A);border-radius:16px;max-width:520px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.fg-card h2{margin:0 0 10px;font-size:1.35rem}.fg-card p{margin:0 0 18px;line-height:1.5}
+body.fg-lock{overflow:hidden}
+.aw-tbl tr.aw-bad td:nth-child(2){color:#C0392B}
 /* compare table */
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.94rem;min-width:520px}
@@ -3648,6 +3718,64 @@ function renderHints(){if(teacherMode||!student)return;const v=lastPairs;
       const a=navLinks.find(x=>x.getAttribute('href')==='#'+HINT_TAB_OF[h.k.split(':')[0]]);if(a&&location.hash!==a.getAttribute('href'))a.classList.add('has-hint');}});}
 window.addEventListener('hashchange',()=>{const a=navLinks.find(x=>x.getAttribute('href')===location.hash);if(a)a.classList.remove('has-hint');});
 renderHints();
+
+/* ---------- focus guard: full screen, leaving the lesson page ---------- */
+const FG={"startT": "Сабақ толық экранда", "startP": "Сабақ толық экранда ашылады. Басқа қойындыға, терезеге немесе бағдарламаға ауыссаңыз не толық экраннан шықсаңыз, бұл беттен кету болып есептеледі және мұғалімге көрінеді.", "startB": "Сабақты бастау", "contB": "Сабақты жалғастыру", "awayT": "Сіз сабақ бетінен кеттіңіз", "awayP": "№ {n} кету, сабақтан тыс {t}. Мұғалім кетулер санын көреді. Сабаққа оралғанда тапсырмалар жалғасады.", "fsT": "Сіз толық экраннан шықтыңыз", "fsP": "Бұл № {n} кету болып есептелді. Толық экранға оралғанда тапсырмалар жалғасады.", "backB": "Сабаққа оралу", "brT": "Қош келдіңіз!", "brP": "Сіз {t} болмадыңыз. Ұзақ үзіліс (5 минуттан артық, мысалы үзіліс кезінде) беттен кету болып есептелмейді.", "reT": "Сабақ қайта ашылды", "reP": "Жауаптарыңыз сақталған. Толық экранда жалғастыру үшін батырманы басыңыз.", "sec": "{s} с", "min": "{m} мин {s} с", "fsWord": "толық экраннан шығу", "brWord": "үзіліс", "tTitle": "Сабақ бетінен кетулер", "tNote": "Кету — басқа қойындыға, терезеге немесе бағдарламаға ауысу не толық экраннан шығу. 5 минуттан ұзақ болмау (үзіліс, жабылған ноутбук) кету емес, үзіліс болып есептеледі.", "tHead": ["Оқушы", "Кетулер", "Сабақтан тыс уақыт", "Үзілістер", "Файлды ашу", "Соңғы кетулер"], "tNo": "дерек жоқ", "tChoose": "«Повторение / Қайталау» қойындысындағы «Кім жауап береді?» блогында сыныпты таңдаңыз.", "tEmpty": "Сыныпта оқушы жоқ."};
+const FG_BREAK=300;
+const fgDur=s=>s<60?FG.sec.replace('{s}',s):FG.min.replace('{m}',Math.floor(s/60)).replace('{s}',s%60);
+function drawAwayTbl(){const box=$('#awBody');if(!box)return;const cls=pkClass;
+  if(!cls||!CLASSES[cls]){box.innerHTML=`<tr><td colspan="6">${esc(FG.tChoose)}</td></tr>`;return;}
+  const today=todayStr(),L={};
+  (resList||[]).forEach(r=>{if(!r||r.cls!==cls||r.d!==today||!String(r.name).endsWith('#away'))return;const n=String(r.name).slice(0,-5);if(!L[n]||L[n].t<r.t)L[n]=r;});
+  const names=presentOf(cls).slice();Object.keys(L).forEach(n=>{if(!names.includes(n))names.push(n);});
+  box.innerHTML=names.map(n=>{const r=L[n];if(!r)return `<tr class="res-wait"><td>${esc(n)}</td><td colspan="5">${esc(FG.tNo)}</td></tr>`;
+    const p=String(r.partner||'').split(',').map(Number);const sec=p[0]||0,br=p[1]||0,ro=p[2]||0;
+    return `<tr${r.n>0?' class="aw-bad"':''}><td>${esc(n)}</td><td><b>${r.n}</b></td><td>${esc(fgDur(sec))}</td><td>${br}</td><td>${ro}</td><td>${esc((r.wrong||[]).slice(-3).join(', '))}</td></tr>`;}).join('')||`<tr><td colspan="6">${esc(FG.tEmpty)}</td></tr>`;}
+if(teacherMode){
+  const lg=$('#glBody')&&$('#glBody').closest('.tbl-wrap').nextElementSibling;
+  if(lg){const w=document.createElement('div');w.className='aw-box';
+    w.innerHTML=`<h3 class="sub" style="margin:10px 0 0">${esc(FG.tTitle)}</h3><p class="cr-legend">${esc(FG.tNote)}</p><div class="tbl-wrap"><table class="res-tbl aw-tbl"><thead><tr>${FG.tHead.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody id="awBody"></tbody></table></div>`;
+    lg.after(w);}
+  const _dg=drawGoalTbl;drawGoalTbl=function(){_dg();drawAwayTbl();};drawAwayTbl();
+  document.querySelectorAll('#picker .pk-cls').forEach(b=>b.addEventListener('click',()=>setTimeout(drawAwayTbl,0)));
+}else if(!window.__SIMPLE)(function(){
+  const today=todayStr();let st=store.get('focus',null);
+  if(!st||st.d!==today)st={d:today,n:0,sec:0,br:0,ro:0,fs:0,log:[]};
+  st.ro++;store.set('focus',st);
+  const fsOk=!!(document.fullscreenEnabled&&document.documentElement.requestFullscreen);
+  let started=false,awayAt=0,lastSend='';
+  const ov=document.createElement('div');ov.id='fgOv';ov.hidden=true;
+  ov.innerHTML='<div class="fg-card" role="dialog" aria-modal="true"><h2 id="fgT"></h2><p id="fgP"></p><button class="btn" type="button" id="fgB"></button></div>';
+  document.body.appendChild(ov);
+  const hhmmNow=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
+  function save(){store.set('focus',st);}
+  function send(){if(!window.__SYNC_URL||!student||!student.name)return;
+    const data={lesson:LESSON,cls:student.cls,name:student.name+'#away',partner:[st.sec,st.br,st.ro,st.fs].join(','),n:st.n,ok:st.n,total:st.ro,wrong:st.log.slice(-10),empty:st.br,d:today,t:Date.now()};
+    const sig=JSON.stringify([st.n,st.sec,st.br,st.ro]);if(sig===lastSend)return;lastSend=sig;
+    fetch(window.__SYNC_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({k:'result',data})}).catch(()=>{lastSend='';});}
+  function show(t,p,b){$('#fgT').textContent=t;$('#fgP').textContent=p;$('#fgB').textContent=b;ov.hidden=false;document.body.classList.add('fg-lock');}
+  function hide(){ov.hidden=true;document.body.classList.remove('fg-lock');}
+  const loginOpen=()=>{const s=$('#startScreen');return !student||(s&&!s.hidden);};
+  const inFs=()=>!fsOk||!!document.fullscreenElement;
+  const present=()=>document.visibilityState==='visible'&&document.hasFocus();
+  function goAway(){if(!started||awayAt||loginOpen())return;awayAt=Date.now();}
+  function comeBack(){if(!awayAt||!present())return;const dur=Math.round((Date.now()-awayAt)/1000);awayAt=0;if(dur<1)return;
+    if(dur>=FG_BREAK){st.br++;st.log.push(hhmmNow()+' '+FG.brWord+' '+Math.round(dur/60)+'′');save();send();show(FG.brT,FG.brP.replace('{t}',fgDur(dur)),FG.contB);return;}
+    st.n++;st.sec+=dur;st.log.push(hhmmNow()+' ('+fgDur(dur)+')');save();send();
+    show(FG.awayT,FG.awayP.replace('{n}',st.n).replace('{t}',fgDur(dur)),FG.backB);}
+  $('#fgB').addEventListener('click',()=>{started=true;hide();if(fsOk&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});send();});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')goAway();else comeBack();});
+  window.addEventListener('blur',goAway);
+  window.addEventListener('focus',comeBack);
+  document.addEventListener('fullscreenchange',()=>{if(!started||document.fullscreenElement||loginOpen())return;
+    if(document.visibilityState!=='visible'){goAway();return;}
+    st.n++;st.fs++;st.log.push(hhmmNow()+' '+FG.fsWord);save();send();show(FG.fsT,FG.fsP.replace('{n}',st.n),FG.backB);});
+  // first screen: after login, before the lesson starts
+  const first=st.ro>1?[FG.reT,FG.reP,FG.contB]:[FG.startT,FG.startP,FG.startB];
+  const tick=()=>{if(!started&&!loginOpen()&&ov.hidden)show(...first);
+    else if(started&&ov.hidden&&!inFs()&&present()&&!loginOpen())show(FG.fsT,FG.fsP.replace('{n}',st.n),FG.backB);};
+  setInterval(tick,700);tick();
+})();
 
 /* ---------- teacher: answer buttons ---------- */
 const ANS_L=["Жауап", "Сәйкестендіру жауаптары", "Жауаптарды жасыру"];
