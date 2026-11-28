@@ -111,7 +111,7 @@
   function save(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   // Адрес опубликованного веб-приложения (Code.gs). Нужен, когда страница открыта как отдельный файл.
-  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxl21LzVKI4sJKHMwZ1usKafQQBS2qjypBugkl_sTTkscM1lQLWkSdC91S6lzCsjIG5w/exec';
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMdJQFLVs-Ez716JIFBJv6y656jmzTA2U1mk-klF9i12OmIAWSWPWPxGRqUcL7mf2o/exec';
   function call(fn) {
     var args = Array.prototype.slice.call(arguments, 1);
     if (window.google && google.script && google.script.run) {

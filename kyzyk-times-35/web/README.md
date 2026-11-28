@@ -49,7 +49,7 @@
 
 ## Ваше веб-приложение
 
-Ссылка участников: <https://script.google.com/macros/s/AKfycbwxl21LzVKI4sJKHMwZ1usKafQQBS2qjypBugkl_sTTkscM1lQLWkSdC91S6lzCsjIG5w/exec>
+Ссылка участников: <https://script.google.com/macros/s/AKfycbyMdJQFLVs-Ez716JIFBJv6y656jmzTA2U1mk-klF9i12OmIAWSWPWPxGRqUcL7mf2o/exec>
 Ссылка жюри: та же ссылка + `?page=jury`. QR-код ссылки участников есть на 3-м слайде презентации.
 
 Этот адрес уже вписан в `Participant.html` и `Jury.html` (строка `var SCRIPT_URL = …`). Поэтому страницы работают двумя способами:
