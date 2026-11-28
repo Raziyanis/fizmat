@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Қызық Times 35 · Қатысушылар</title>
+<style>
+  /* Layout: narrow single column on white, gold national ornament band on the left edge (like the show slides) */
+  :root {
+    --ink: #0B1F3A; --ink-2: #3A4E6B; --sky: #00AFCA; --sky-d: #0A7F95; --sky-l: #E3F6FA;
+    --gold: #FEC50C; --gold-d: #B07800; --bg: #FFFFFF; --line: #D5E4EA;
+    --ok: #1E9E5A; --bad: #D9481F;
+    --font: "Segoe UI", Roboto, Arial, "Helvetica Neue", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; }
+  body { min-height: 100vh; background-image: url(%%BAND%%); background-repeat: repeat-y; background-size: 22px auto; background-position: 6px 0; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 48px 40px; }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header img { width: 150px; height: auto; }
+  .teambadge { margin-left: auto; text-align: right; font-size: 14px; color: var(--ink-2); }
+  .teambadge b { display: block; color: var(--ink); font-size: 17px; }
+  .linkbtn { background: none; border: 0; color: var(--sky-d); text-decoration: underline; cursor: pointer; font: inherit; font-size: 13px; padding: 0; }
+  .card { margin-top: 16px; border: 1px solid var(--line); border-radius: 16px; padding: 18px; background: #fff; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-d); }
+  h1 { font-size: 26px; margin: 4px 0 2px; line-height: 1.15; text-wrap: balance; }
+  h2 { font-size: 18px; margin: 0 0 8px; }
+  .sub { color: var(--sky-d); margin: 0 0 12px; }
+  .muted { color: var(--ink-2); font-size: 14px; }
+  label { display: block; font-weight: 600; font-size: 14px; margin: 12px 0 4px; }
+  input[type=text], textarea {
+    width: 100%; font: inherit; font-size: 17px; padding: 11px 12px; border: 1.5px solid var(--line);
+    border-radius: 10px; background: #fff; color: var(--ink);
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  input:focus, textarea:focus, button:focus-visible { outline: 3px solid var(--gold); outline-offset: 1px; border-color: var(--sky); }
+  input:disabled, textarea:disabled { background: #F3F6F8; color: var(--ink-2); }
+  .qrow { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; margin-top: 10px; }
+  .num { width: 40px; height: 40px; border-radius: 50%; background: var(--gold); color: var(--ink); font-weight: 800; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+  .tf { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tf button { padding: 12px 6px; border-radius: 10px; border: 2px solid var(--line); background: #fff; font: inherit; font-weight: 700; cursor: pointer; color: var(--ink); }
+  .tf button.on.t { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .tf button.on.f { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .tf button:disabled { cursor: default; opacity: .75; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 18px; padding: 14px; border: 0; border-radius: 12px; background: var(--ink); color: #fff; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; }
+  .btn.gold { background: var(--gold); color: var(--ink); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .tabs { display: flex; gap: 8px; margin-top: 16px; }
+  .tabs button { flex: 1; padding: 10px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; font: inherit; font-weight: 700; cursor: pointer; color: var(--ink-2); }
+  .tabs button.on { background: var(--sky-l); border-color: var(--sky); color: var(--ink); }
+  .status { margin-top: 12px; padding: 10px 12px; border-radius: 10px; font-size: 14px; }
+  .status.ok { background: #E6F6EE; color: #11663A; }
+  .status.warn { background: #FFF5D6; color: #6B4E00; }
+  .status.err { background: #FDE9E3; color: #8A2A10; }
+  .code { font-size: 34px; font-weight: 800; letter-spacing: .2em; color: var(--ink); background: var(--sky-l); border-radius: 12px; padding: 8px 14px; display: inline-block; font-variant-numeric: tabular-nums; }
+  .stageline { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+  .stageline span { font-size: 12px; padding: 4px 8px; border-radius: 999px; background: #F1F5F7; color: var(--ink-2); }
+  .stageline span.cur { background: var(--gold); color: var(--ink); font-weight: 700; }
+  .stageline span.done { background: var(--sky-l); color: var(--sky-d); }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  th { font-size: 12px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .06em; }
+  td.r { text-align: right; font-weight: 700; }
+  tr.me td { background: #FFF8DC; }
+  .place { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--sky-l); font-weight: 800; }
+  .place.p1 { background: var(--gold); }
+  .noms { display: grid; gap: 8px; margin-top: 12px; }
+  .noms div { background: var(--sky-l); border-radius: 10px; padding: 10px 12px; }
+  .hint { background: url(%%MOTIF%%) no-repeat right 8px center / 64px; padding-right: 80px; min-height: 70px; }
+  .conn { position: fixed; right: 12px; bottom: 12px; font-size: 12px; background: var(--ink); color: #fff; padding: 6px 10px; border-radius: 999px; }
+  @media (prefers-reduced-motion: no-preference) { .card { animation: in .25s ease-out; } @keyframes in { from { transform: translateY(6px); opacity: .6; } to { transform: none; opacity: 1; } } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="%%LOGO%%" alt="Қызық Times · Тәуелсіздікке 35 жыл">
+    <div class="teambadge" id="teambadge" hidden></div>
+  </header>
+  <div id="app"><div class="card"><p class="muted">Жүктелуде… · Загрузка…</p></div></div>
+</div>
+<div class="conn" id="conn" hidden>Байланыс жоқ · Нет связи</div>
+
+<script>
+  // ------------------------------------------------------------ данные раундов (только номера — вопросы на экране)
+  var ROUNDS = {
+    r1: { title: 'БӘЙГЕ', ru: 'Блиц-сұрақтар · Блиц-вопросы', n: 10, kind: 'text', ph: 'Жауап · Ответ',
+          hint: 'Сұрақтар экранда. Әр сұраққа 10 секунд. Жауапты сәйкес нөмірге жазыңыз. · Вопросы на экране, 10 секунд на каждый.' },
+    r2: { title: 'КӨР ДЕ ТАП!', ru: 'Суреттегі не / кім? · Что или кто на картинке?', n: 5, kind: 'text', ph: 'Бұл не / кім? · Что / кто это?',
+          hint: 'Экрандағы суретке 20 секунд. · На каждый слайд 20 секунд.' },
+    r3: { title: 'ӘУЕНДІ ТАП!', ru: 'Музыкалық викторина · Музыкальная викторина', n: 5, kind: 'text', ph: 'Орындаушы немесе ән атауы · Исполнитель или название',
+          hint: 'Әуенді тыңдап, орындаушыны немесе ән атауын жазыңыз. · Назовите исполнителя или песню.' },
+    r4: { title: 'AI СЕНЕСІҢ БЕ?', ru: 'Ақиқат па, жалған ба? · Правда или ложь?', n: 5, kind: 'tf',
+          hint: 'Экрандағы тұжырымды оқып, таңдаңыз. Талқылауға 15 секунд. · 15 секунд на обсуждение.' },
+    r5: { title: 'ҚЫЗЫҚ ТАПСЫРМА', ru: 'Шығармашылық тапсырма · Творческое задание', kind: 'stage' },
+    r6: { title: 'БОЛАШАҚ ҚАЗАҚСТАН', ru: 'Қазақстан – 2050: сіздің идеяңыз', kind: 'idea' }
+  };
+  var STAGE_ORDER = ['teams', 'r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'final'];
+  var STAGE_SHORT = { teams: 'Тіркелу', r1: '1', r2: '2', r3: '3', r4: '4', r5: '5', r6: '6', final: 'Қорытынды' };
+  var NOM_LABEL = { tapqyr: '«Үздік тапқыр команда»', creative: '«Ең креативті команда»', captain: '«Үздік капитан»' };
+
+  // ------------------------------------------------------------ состояние
+  var me = load('kt35_team') || null;   // {id, code, team}
+  var S = null;                          // последнее состояние с сервера
+  var shownKey = '';                     // что сейчас нарисовано (чтобы не стирать ввод)
+  var regTab = 'reg';
+  var busy = false;
+
+  function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+  function save(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function call(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (res, rej) {
+      var r = google.script.run.withSuccessHandler(res).withFailureHandler(function (e) { rej(e && e.message ? e : new Error(String(e))); });
+      r[fn].apply(r, args);
+    });
+  }
+  function errText(e) { return String(e && e.message || e).replace(/^Error:\s*/, '').replace(/^Exception:\s*/, ''); }
+  function $(id) { return document.getElementById(id); }
+
+  // ------------------------------------------------------------ опрос сервера
+  function poll() {
+    call('p_state', me ? me.id : '', me ? me.code : '').then(function (st) {
+      $('conn').hidden = true;
+      if (st.lost) { me = null; save('kt35_team', null); }
+      if (st.team && me) me.team = st.team;
+      S = st;
+      render(false);
+    }).catch(function () { $('conn').hidden = false; })
+      .then(function () { setTimeout(poll, 3000); });
+  }
+
+  // ------------------------------------------------------------ отрисовка
+  function viewKey() {
+    if (!S) return 'loading';
+    if (!me) return 'auth:' + regTab;
+    var k = 'team:' + me.id + ':' + S.stage + ':' + S.open;
+    if (S.stage === 'final') k += ':' + S.showResults + ':' + JSON.stringify(S.results || []) + JSON.stringify(S.noms || {});
+    return k;
+  }
+  function render(force) {
+    var key = viewKey();
+    renderBadge();
+    if (!force && key === shownKey) { updateStatusOnly(); return; }
+    shownKey = key;
+    var app = $('app');
+    if (!S) return;
+    if (!me) { app.innerHTML = authView(); bindAuth(); return; }
+    var html = stageLine();
+    if (S.stage === 'teams') html += waitView();
+    else if (S.stage === 'final') html += finalView();
+    else html += roundView(S.stage);
+    app.innerHTML = html;
+    bindRound(S.stage);
+  }
+  function renderBadge() {
+    var b = $('teambadge');
+    if (me && me.team) {
+      b.hidden = false;
+      b.innerHTML = '<b>' + esc(me.team.name) + '</b>Код: ' + esc(me.code) +
+        ' · <button class="linkbtn" id="logout" type="button">шығу</button>';
+      $('logout').onclick = function () {
+        if (!$('logoutConfirm')) {
+          var c = document.createElement('div');
+          c.id = 'logoutConfirm'; c.className = 'status warn';
+          c.innerHTML = 'Құрылғыдан шығасыз ба? Қайта кіру үшін атау мен код керек. ' +
+            '<button class="linkbtn" id="logoutYes" type="button">Иә, шығу</button>';
+          $('app').prepend(c);
+          $('logoutYes').onclick = function () { me = null; save('kt35_team', null); render(true); };
+        }
+      };
+    } else { b.hidden = true; b.innerHTML = ''; }
+  }
+  function stageLine() {
+    var cur = STAGE_ORDER.indexOf(S.stage);
+    return '<div class="stageline" aria-label="Кезеңдер">' + STAGE_ORDER.map(function (s, i) {
+      return '<span class="' + (i === cur ? 'cur' : i < cur ? 'done' : '') + '">' + STAGE_SHORT[s] + '</span>';
+    }).join('') + '</div>';
+  }
+
+  // --- регистрация / вход
+  function authView() {
+    var reg = regTab === 'reg';
+    return '<div class="tabs"><button type="button" id="tabReg" class="' + (reg ? 'on' : '') + '">Командаңызды тіркеңіз</button>' +
+      '<button type="button" id="tabJoin" class="' + (!reg ? 'on' : '') + '">Тіркелген командаға кіру</button></div>' +
+      (reg ?
+      '<form class="card" id="regForm" autocomplete="off">' +
+        '<div class="eyebrow">1-қадам · Шаг 1</div><h1>Команданы тіркеу</h1><p class="sub">Регистрация команды</p>' +
+        '<label for="fName">Команда атауы · Название *</label><input type="text" id="fName" maxlength="40" required>' +
+        '<label for="fCls">Сынып · Класс</label><input type="text" id="fCls" maxlength="10" placeholder="9А">' +
+        '<label for="fMotto">Ұраны · Девиз</label><input type="text" id="fMotto" maxlength="120">' +
+        '<label for="fCap">Капитан</label><input type="text" id="fCap" maxlength="60">' +
+        '<label for="fMem">Мүшелері (әр жолға бір адам) · Участники (по одному в строке)</label><textarea id="fMem" rows="5"></textarea>' +
+        '<button class="btn gold" type="submit" id="regBtn">Тіркелу · Зарегистрировать</button>' +
+        '<div id="authMsg"></div></form>'
+      :
+      '<form class="card" id="joinForm" autocomplete="off">' +
+        '<h1>Командаға кіру</h1><p class="sub">Войти в уже зарегистрированную команду (другое устройство)</p>' +
+        '<label for="jName">Команда атауы · Название</label><input type="text" id="jName" maxlength="40" required>' +
+        '<label for="jCode">Команда коды · Код команды</label><input type="text" id="jCode" inputmode="numeric" maxlength="6" required>' +
+        '<button class="btn" type="submit" id="joinBtn">Кіру · Войти</button><div id="authMsg"></div></form>');
+  }
+  function bindAuth() {
+    $('tabReg').onclick = function () { regTab = 'reg'; render(true); };
+    $('tabJoin').onclick = function () { regTab = 'join'; render(true); };
+    if ($('regForm')) $('regForm').onsubmit = function (e) {
+      e.preventDefault();
+      if (busy) return; busy = true; $('regBtn').disabled = true;
+      call('p_register', {
+        name: $('fName').value, cls: $('fCls').value, motto: $('fMotto').value, captain: $('fCap').value,
+        members: $('fMem').value.split('\n')
+      }).then(function (r) { me = r; save('kt35_team', r); render(true); })
+        .catch(function (err) { $('authMsg').innerHTML = '<div class="status err">' + esc(errText(err)) + '</div>'; $('regBtn').disabled = false; })
+        .then(function () { busy = false; });
+    };
+    if ($('joinForm')) $('joinForm').onsubmit = function (e) {
+      e.preventDefault();
+      if (busy) return; busy = true; $('joinBtn').disabled = true;
+      call('p_join', $('jName').value, $('jCode').value)
+        .then(function (r) { me = r; save('kt35_team', r); render(true); })
+        .catch(function (err) { $('authMsg').innerHTML = '<div class="status err">' + esc(errText(err)) + '</div>'; $('joinBtn').disabled = false; })
+        .then(function () { busy = false; });
+    };
+  }
+
+  // --- ожидание начала
+  function waitView() {
+    var t = me.team || {};
+    return '<div class="card"><div class="eyebrow">Тіркелді · Зарегистрирована</div><h1>' + esc(t.name) + '</h1>' +
+      (t.motto ? '<p class="sub">«' + esc(t.motto) + '»</p>' : '') +
+      '<p class="muted">Команда коды · Код команды (басқа құрылғыдан кіру үшін):</p><div class="code">' + esc(me.code) + '</div>' +
+      (t.captain ? '<p><b>Капитан:</b> ' + esc(t.captain) + '</p>' : '') +
+      (t.members && t.members.length ? '<p><b>Мүшелері:</b> ' + t.members.map(esc).join(', ') + '</p>' : '') +
+      '<div class="status warn">Шоу басталуын күтіңіз. Бет өзі жаңарады. · Ждите начала — страница обновится сама.</div></div>';
+  }
+
+  // --- раунды
+  function draftKey(rd) { return 'kt35_draft_' + me.id + '_' + rd; }
+  function currentValues(rd) {
+    var R = ROUNDS[rd];
+    var sub = S.answers[rd] && S.answers[rd].answers;
+    var draft = load(draftKey(rd));
+    if (R.kind === 'idea') return draft || sub || {};
+    var v = [];
+    for (var i = 0; i < R.n; i++) v.push(draft && draft[i] != null ? draft[i] : (sub && sub[i]) || '');
+    return v;
+  }
+  function roundView(rd) {
+    var R = ROUNDS[rd];
+    var dis = S.open ? '' : ' disabled';
+    var head = '<div class="card"><div class="eyebrow">ROUND ' + rd.slice(1) + '</div><h1>' + R.title + '</h1><p class="sub">' + R.ru + '</p>';
+    if (R.hint) head += '<p class="muted hint">' + R.hint + '</p>';
+    var body = '';
+    if (R.kind === 'stage') {
+      return head + '<div class="status warn">Бұл раундта жауап сахнада орындалады: карточка нөмірін таңдап, тапсырманы көрсетіңіз. ' +
+        'Дайындық — 20 секунд, орындау — 30 секундқа дейін. · Задание выполняется на сцене.</div>' +
+        '<p class="muted">Бағалау: тапсырмаға сәйкестік — 2, түпнұсқалық — 2, команданың қатысуы — 1 ұпай.</p></div>';
+    }
+    var vals = currentValues(rd);
+    if (R.kind === 'text') {
+      for (var i = 0; i < R.n; i++) {
+        body += '<div class="qrow"><div class="num">' + (i + 1) + '</div><input type="text" id="a' + i + '" maxlength="100" placeholder="' + esc(R.ph) + '" value="' + esc(vals[i]) + '"' + dis + ' aria-label="Жауап ' + (i + 1) + '"></div>';
+      }
+    } else if (R.kind === 'tf') {
+      for (var j = 0; j < R.n; j++) {
+        body += '<div class="qrow"><div class="num">' + (j + 1) + '</div><div class="tf" data-i="' + j + '">' +
+          '<button type="button" class="t' + (vals[j] === 'true' ? ' on' : '') + '" data-v="true"' + dis + '>Ақиқат · Правда</button>' +
+          '<button type="button" class="f' + (vals[j] === 'false' ? ' on' : '') + '" data-v="false"' + dis + '>Жалған · Ложь</button></div></div>';
+      }
+    } else if (R.kind === 'idea') {
+      body += '<p class="muted">Қосымша, AI-сервис, робот, экобастама немесе ақылды қала технологиясы. Дайындық — 4 минут, таныстыру — 1 минут.</p>' +
+        '<label for="iTitle">Идеяның атауы · Название идеи *</label><input type="text" id="iTitle" maxlength="100" value="' + esc(vals.title) + '"' + dis + '>' +
+        '<label for="iProblem">Қандай мәселені шешеді? · Какую проблему решает?</label><textarea id="iProblem" maxlength="600"' + dis + '>' + esc(vals.problem) + '</textarea>' +
+        '<label for="iSolution">Шешім қалай жұмыс істейді? · Как работает решение?</label><textarea id="iSolution" maxlength="1200"' + dis + '>' + esc(vals.solution) + '</textarea>' +
+        '<label for="iBenefit">Қазақстанға пайдасы · Польза для Казахстана</label><textarea id="iBenefit" maxlength="600"' + dis + '>' + esc(vals.benefit) + '</textarea>';
+    }
+    var btn = '<button class="btn" type="button" id="sendBtn"' + dis + '>Жауапты жіберу · Отправить</button>';
+    return head + body + btn + '<div id="status"></div></div>';
+  }
+  function readValues(rd) {
+    var R = ROUNDS[rd];
+    if (R.kind === 'idea') return { title: $('iTitle').value, problem: $('iProblem').value, solution: $('iSolution').value, benefit: $('iBenefit').value };
+    var v = [];
+    for (var i = 0; i < R.n; i++) {
+      if (R.kind === 'text') v.push($('a' + i).value);
+      else { var on = document.querySelector('.tf[data-i="' + i + '"] button.on'); v.push(on ? on.getAttribute('data-v') : ''); }
+    }
+    return v;
+  }
+  function bindRound(rd) {
+    var R = ROUNDS[rd];
+    if (!R || R.kind === 'stage') return;
+    var app = $('app');
+    app.querySelectorAll('input, textarea').forEach(function (el) {
+      el.addEventListener('input', function () { save(draftKey(rd), readValues(rd)); updateStatusOnly(); });
+    });
+    app.querySelectorAll('.tf button').forEach(function (b) {
+      b.onclick = function () {
+        b.parentNode.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+        b.classList.add('on');
+        save(draftKey(rd), readValues(rd));
+        updateStatusOnly();
+      };
+    });
+    var sb = $('sendBtn');
+    if (sb) sb.onclick = function () {
+      var vals = readValues(rd);
+      if (R.kind === 'idea' && !vals.title.trim()) { $('status').innerHTML = '<div class="status err">Идеяның атауын жазыңыз · Введите название идеи</div>'; return; }
+      sb.disabled = true; sb.textContent = 'Жіберілуде… · Отправка…';
+      call('p_submit', me.id, me.code, rd, vals).then(function (r) {
+        S.answers[rd] = { answers: vals, at: r.at };
+        save(draftKey(rd), null);
+        sb.textContent = 'Жауапты жіберу · Отправить';
+        sb.disabled = !S.open;
+        updateStatusOnly();
+      }).catch(function (err) {
+        sb.disabled = false; sb.textContent = 'Жауапты жіберу · Отправить';
+        $('status').innerHTML = '<div class="status err">' + esc(errText(err)) + '</div>';
+      });
+    };
+    updateStatusOnly();
+  }
+  function updateStatusOnly() {
+    var box = $('status');
+    if (!box || !S || !me) return;
+    var rd = S.stage, sub = S.answers[rd];
+    var draft = load(draftKey(rd));
+    var dirty = draft && (!sub || JSON.stringify(draft) !== JSON.stringify(sub.answers));
+    var t = sub ? new Date(sub.at).toLocaleTimeString('kk-KZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+    if (!S.open) box.innerHTML = '<div class="status warn">Жауап қабылдау жабық · Приём ответов закрыт' + (sub ? ' · жіберілген: ' + t : ' · жауап жіберілмеді') + '</div>';
+    else if (sub && !dirty) box.innerHTML = '<div class="status ok">✓ Жіберілді ' + t + '. Жабылғанша өзгертуге болады. · Отправлено, можно исправить до закрытия.</div>';
+    else if (sub && dirty) box.innerHTML = '<div class="status warn">Өзгерістер жіберілмеді — «Жіберу» басыңыз. · Есть неотправленные изменения.</div>';
+    else box.innerHTML = '<div class="status warn">Әлі жіберілмеді · Ещё не отправлено</div>';
+  }
+
+  // --- итоги
+  function finalView() {
+    if (!S.showResults) {
+      return '<div class="card"><div class="eyebrow">Қорытынды · Итоги</div><h1>Нәтижені қазылар шығаруда</h1>' +
+        '<p class="sub">Жюри подводит итоги. Результаты появятся здесь.</p></div>';
+    }
+    var rows = (S.results || []).map(function (r) {
+      var mine = me && me.team && r.name === me.team.name;
+      return '<tr class="' + (mine ? 'me' : '') + '"><td><span class="place' + (r.place === 1 ? ' p1' : '') + '">' + r.place + '</span></td><td>' + esc(r.name) + '</td><td class="r">' + r.total + '</td></tr>';
+    }).join('');
+    var noms = Object.keys(NOM_LABEL).filter(function (k) { return S.noms && S.noms[k]; }).map(function (k) {
+      return '<div><b>' + NOM_LABEL[k] + '</b><br>' + esc(S.noms[k]) + '</div>';
+    }).join('');
+    return '<div class="card"><div class="eyebrow">Қорытынды · Итоги</div><h1>Нәтижелер</h1><p class="sub">Тәуелсіздікке 35 жыл!</p>' +
+      '<table><thead><tr><th>Орын</th><th>Команда</th><th style="text-align:right">Ұпай</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      (noms ? '<h2 style="margin-top:18px">Номинациялар</h2><div class="noms">' + noms + '</div>' : '') + '</div>';
+  }
+
+  poll();
+</script>
+</body>
+</html>
