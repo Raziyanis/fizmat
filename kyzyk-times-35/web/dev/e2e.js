@@ -82,11 +82,6 @@ const ok = (c, m) => { if (!c) throw new Error('CHECK FAILED: ' + m); console.lo
     await A.waitForFunction(n => document.querySelectorAll('.qrow .done').length === n, i + 1, { timeout: 8000 });
   }
   ok(true, 'round 4 answered one by one');
-  // close intake -> B sees closed
-  await J.click('#openNo'); await sleep(3600);
-  ok((await B.textContent('#app')).includes('жабық'), 'closed intake visible to team');
-  await J.click('#openYes'); await sleep(500);
-
   // round 6 idea: single submission with confirmation, then locked
   await J.click('#stages button[data-s="r6"]'); await A.waitForSelector('#iTitle', { timeout: 8000 });
   await A.fill('#iTitle', 'EcoDala'); await A.fill('#iProblem', 'Даладағы өрт'); await A.click('#sendBtn');

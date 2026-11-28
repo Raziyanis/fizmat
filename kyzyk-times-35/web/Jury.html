@@ -113,14 +113,10 @@
     <div class="bar">
       <span class="lbl">Кезең · Этап</span>
       <div class="stages" id="stages"></div>
-      <span class="lbl" style="margin-left:6px">Жауап қабылдау · Приём ответов</span>
-      <div class="seg" id="openSeg" role="group" aria-label="Жауап қабылдау">
-        <button type="button" id="openYes">✓ Ашық · Открыт</button><button type="button" id="openNo">✕ Жабық · Закрыт</button>
-      </div>
-      <span class="lbl" style="margin-left:6px">Нәтиже · Итоги</span>
+      <span style="display:inline-flex;gap:8px;align-items:center;white-space:nowrap"><span class="lbl" style="margin-left:6px">Нәтиже · Итоги</span>
       <div class="seg" id="resSeg" role="group" aria-label="Нәтижені көрсету">
         <button type="button" id="resNo">Жасырын</button><button type="button" id="resYes">Көрсету</button>
-      </div>
+      </div></span>
     </div>
     <div class="tabs" id="tabs"></div>
     <section id="view"></section>
@@ -226,10 +222,11 @@
         act('j_setState', [{ stage: s, open: true }], 'Кезең: ' + b.textContent).then(function () { tab = s === 'final' ? 'results' : s; renderAll(); });
       };
     });
-    $('openYes').className = st.open ? 'on-ok' : '';
-    $('openNo').className = st.open ? '' : 'on-bad';
-    $('openYes').onclick = function () { if (!st.open) act('j_setState', [{ open: true }], 'Жауап қабылдау ашылды'); };
-    $('openNo').onclick = function () { if (st.open) act('j_setState', [{ open: false }], 'Жауап қабылдау жабылды'); };
+    // приём ответов всегда открыт (кнопки «Ашық / Жабық» убраны); если раньше закрыли — открываем
+    if (!st.open && !pending && !renderAll.reopening) {
+      renderAll.reopening = true;
+      act('j_setState', [{ open: true }]).then(function () { renderAll.reopening = false; });
+    }
     $('resYes').className = st.showResults ? 'on-info' : '';
     $('resNo').className = st.showResults ? '' : 'on-mute';
     $('resYes').onclick = function () { if (!st.showResults) act('j_setState', [{ showResults: true }], 'Нәтиже қатысушыларға көрінеді'); };
