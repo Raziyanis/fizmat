@@ -52,6 +52,10 @@ function doGet(e) {
     return api_(e.parameter.api, args, e.parameter.callback);
   }
   var page = (e && e.parameter && e.parameter.page === 'jury') ? 'Jury' : 'Participant';
+  try { HtmlService.createHtmlOutputFromFile(page); } catch (err) {
+    // HTML-файлы в проект не добавлены: страницы раздаются как отдельные файлы — сервер при этом работает
+    return HtmlService.createHtmlOutput('<p style="font:16px Arial;padding:24px">Қызық Times 35: сервер жұмыс істеп тұр ✓<br>Сервер работает. Откройте файл Participant.html или Jury.html.</p>');
+  }
   return HtmlService.createHtmlOutputFromFile(page)
     .setTitle(page === 'Jury' ? 'Қызық Times 35 · Қазылар' : 'Қызық Times 35 · Қатысушылар')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
