@@ -15,13 +15,16 @@ const ctx={ console, Date, Math, JSON, Object, Array, String, Number, Error, isN
     openById(id){ if(!sheetsStore[id]) throw new Error('nf'); return sheetsStore[id]; } },
   CacheService:{ getScriptCache:()=>({ get:k=>cache[k]??null, put:(k,v)=>{ if(v.length>100000) throw new Error('too big'); cache[k]=v; }, remove:k=>{delete cache[k];} }) },
   LockService:{ getScriptLock:()=>({ waitLock(){}, releaseLock(){} }) },
-  Utilities:{ getUuid:()=>crypto.randomUUID() }, Logger:{ log:console.log } };
+  Utilities:{ getUuid:()=>crypto.randomUUID() }, ContentService:{ MimeType:{JSON:'json'}, createTextOutput:t=>({ setMimeType(){ return { _t:t }; } }) }, Logger:{ log:console.log } };
 vm.createContext(ctx); vm.runInContext(fs.readFileSync(__dirname+'/../Code.gs','utf8'), ctx);
 const shim=`<script>window.google={script:{get run(){ let ok=()=>{},fail=()=>{}; const p=new Proxy({}, {get(t,k){ if(k==='withSuccessHandler') return f=>{ok=f;return p;}; if(k==='withFailureHandler') return f=>{fail=f;return p;};
   return (...args)=>fetch('/rpc',{method:'POST',body:JSON.stringify({fn:k,args})}).then(r=>r.json()).then(j=>j.error?fail(new Error(j.error)):ok(j.result)).catch(e=>fail(e)); }}); return p; }}};</script>`;
 http.createServer((req,res)=>{
   if(req.url==='/rpc'){ let b=''; req.on('data',c=>b+=c); req.on('end',()=>{ const {fn,args}=JSON.parse(b);
     try{ const r=ctx[fn](...args); res.end(JSON.stringify({result:r===undefined?null:r})); }catch(e){ res.end(JSON.stringify({error:String(e.message)})); } }); return; }
+  if(req.url.startsWith('/exec') && req.method==='POST'){ let b=''; req.on('data',c=>b+=c); req.on('end',()=>{ const o=ctx.doPost({postData:{contents:b}}); res.setHeader('content-type','application/json'); res.end(o._t); }); return; }
+  if(req.url.startsWith('/standalone')){ const page=req.url.includes('jury')?'Jury':'Participant'; res.setHeader('content-type','text/html; charset=utf-8');
+    res.end(fs.readFileSync(__dirname+'/../'+page+'.html','utf8').replace(/var SCRIPT_URL = '[^']*'/,"var SCRIPT_URL = 'http://localhost:8765/exec'")); return; }
   if(req.url==='/dump'){ res.end(JSON.stringify(Object.values(sheetsStore).map(ss=>ss.getSheets().map(s=>({n:s.getName(),rows:s._s.rows}))))); return; }
   const page=req.url.includes('jury')?'Jury':'Participant';
   res.setHeader('content-type','text/html; charset=utf-8');

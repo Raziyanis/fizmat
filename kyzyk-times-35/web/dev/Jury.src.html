@@ -125,12 +125,19 @@
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // Адрес опубликованного веб-приложения (Code.gs). Нужен, когда страница открыта как отдельный файл.
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxl21LzVKI4sJKHMwZ1usKafQQBS2qjypBugkl_sTTkscM1lQLWkSdC91S6lzCsjIG5w/exec';
   function call(fn) {
     var args = Array.prototype.slice.call(arguments, 1);
-    return new Promise(function (res, rej) {
-      var r = google.script.run.withSuccessHandler(res).withFailureHandler(function (e) { rej(e && e.message ? e : new Error(String(e))); });
-      r[fn].apply(r, args);
-    });
+    if (window.google && google.script && google.script.run) {
+      return new Promise(function (res, rej) {
+        var r = google.script.run.withSuccessHandler(res).withFailureHandler(function (e) { rej(e && e.message ? e : new Error(String(e))); });
+        r[fn].apply(r, args);
+      });
+    }
+    return fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ fn: fn, args: args }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow' })
+      .then(function (r) { if (!r.ok) throw new Error('Сервер жауап бермеді (' + r.status + ')'); return r.json(); })
+      .then(function (j) { if (!j.ok) throw new Error(j.error); return j.result; });
   }
   function errText(e) { return String(e && e.message || e).replace(/^(Error|Exception):\s*/, ''); }
   function toast(t) { var el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2200); }
@@ -328,6 +335,9 @@
       (confirmDel === '__reset'
         ? '<div class="msg warn">Барлық дерек өшіріледі, қайтару мүмкін емес. Сенімдісіз бе? <button class="btn danger" type="button" id="resetYes">Иә, бәрін өшіру</button> <button class="btn light" type="button" id="resetNo">Жоқ</button></div>'
         : '<button class="btn danger" type="button" id="reset">Барлығын тазалау · Очистить всё</button>') +
+      '<h2 style="margin-top:22px">Қатысушылар сілтемесі · Ссылка для участников</h2>' +
+      '<p><input type="text" id="plink" readonly value="' + esc(SCRIPT_URL) + '" style="width:100%;max-width:760px"> <button class="btn light" type="button" id="copyLink">Көшіру · Копировать</button></p>' +
+      '<p class="muted">Қазылар беті: осы сілтеме + <b>?page=jury</b>. QR код презентацияның 3-слайдында.</p>' +
       '<p class="muted" style="margin-top:18px">ПИН-код пен жауап кілттері (1, 2, 4-раундтар) Code.gs файлында өзгертіледі.</p>';
   }
 
@@ -356,6 +366,12 @@
     v.querySelectorAll('[data-del-yes]').forEach(function (b) { b.onclick = function () { var id = b.getAttribute('data-del-yes'); confirmDel = null; act('j_deleteTeam', [id], 'Команда жойылды'); }; });
     if ($('reset')) $('reset').onclick = function () { confirmDel = '__reset'; renderView(); };
     if ($('resetNo')) $('resetNo').onclick = function () { confirmDel = null; renderView(); };
+    if ($('copyLink')) $('copyLink').onclick = function () {
+      var inp = $('plink');
+      var done = function () { toast('Көшірілді'); };
+      try { navigator.clipboard.writeText(inp.value).then(done, function () { inp.select(); document.execCommand('copy'); done(); }); }
+      catch (e) { inp.select(); document.execCommand('copy'); done(); }
+    };
     if ($('resetYes')) $('resetYes').onclick = function () { confirmDel = null; act('j_reset', [], 'Тазаланды'); };
   }
 </script>

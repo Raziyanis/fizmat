@@ -110,12 +110,19 @@
   function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
   function save(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // Адрес опубликованного веб-приложения (Code.gs). Нужен, когда страница открыта как отдельный файл.
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxl21LzVKI4sJKHMwZ1usKafQQBS2qjypBugkl_sTTkscM1lQLWkSdC91S6lzCsjIG5w/exec';
   function call(fn) {
     var args = Array.prototype.slice.call(arguments, 1);
-    return new Promise(function (res, rej) {
-      var r = google.script.run.withSuccessHandler(res).withFailureHandler(function (e) { rej(e && e.message ? e : new Error(String(e))); });
-      r[fn].apply(r, args);
-    });
+    if (window.google && google.script && google.script.run) {
+      return new Promise(function (res, rej) {
+        var r = google.script.run.withSuccessHandler(res).withFailureHandler(function (e) { rej(e && e.message ? e : new Error(String(e))); });
+        r[fn].apply(r, args);
+      });
+    }
+    return fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ fn: fn, args: args }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow' })
+      .then(function (r) { if (!r.ok) throw new Error('Сервер жауап бермеді (' + r.status + ')'); return r.json(); })
+      .then(function (j) { if (!j.ok) throw new Error(j.error); return j.result; });
   }
   function errText(e) { return String(e && e.message || e).replace(/^Error:\s*/, '').replace(/^Exception:\s*/, ''); }
   function $(id) { return document.getElementById(id); }

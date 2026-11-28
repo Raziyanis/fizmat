@@ -118,14 +118,16 @@ s.addNotes("Ведущий 2: «Сегодня вас ждут скорость,
 
 // ---------- 3. TEAMS ----------
 s = add("QUIZ", SEC0, "Ашылу · Открытие");
-s.addText("Командалармен танысу", { x: 0.8, y: 1.3, w: 11.7, h: 1.0, fontSize: 40, bold: true, color: C.text1, margin: 0, objectName: "title" });
-s.addText("Знакомство с командами", { x: 0.8, y: 2.2, w: 11.7, h: 0.6, fontSize: 22, color: C.accent3, margin: 0, objectName: "subtitle" });
+s.addText("Командалармен танысу", { x: 0.8, y: 1.3, w: 8.4, h: 1.0, fontSize: 40, bold: true, color: C.text1, margin: 0, objectName: "title" });
+s.addText("Знакомство с командами", { x: 0.8, y: 2.2, w: 8.4, h: 0.6, fontSize: 22, color: C.accent3, margin: 0, objectName: "subtitle" });
 [["Атауы", "Название"], ["Ұран", "Девиз"], ["Капитан", "Капитан"]].forEach(([kz, ru], i) => {
-  const x = 0.8 + i * 3.4;
+  const x = 0.8 + i * 2.6;
   numCircle(s, i + 1, x, 3.4, 0.9, 26);
   s.addText([{ text: kz, options: { bold: true, color: C.text1, breakLine: true } }, { text: ru, options: { color: C.accent3, fontSize: 14 } }], { x: x + 1.1, y: 3.4, w: 2.1, h: 0.9, fontSize: 20, valign: "middle", margin: 0, objectName: "item" });
 });
-s.addText("Әр командаға — 10 секунд  ·  На каждую команду — 10 секунд", { x: 0.8, y: 4.9, w: 11.7, h: 0.6, fontSize: 18, color: C.accent6, bold: true, margin: 0, objectName: "rule" });
+s.addText("Әр командаға — 10 секунд  ·  На каждую команду — 10 секунд", { x: 0.8, y: 4.9, w: 8.4, h: 0.6, fontSize: 18, color: C.accent6, bold: true, margin: 0, objectName: "rule" });
+s.addImage({ path: __dirname + "/qr.png", x: 9.85, y: 1.2, w: 2.6, h: 2.6, objectName: "qr", altText: "QR-код для регистрации команд" });
+s.addText("Командаңызды тіркеңіз\nРегистрация команд", { x: 9.65, y: 3.85, w: 3.0, h: 0.6, fontSize: 13, bold: true, color: C.text1, align: "center", margin: 0, objectName: "qr-caption" });
 timer(s, 10);
 s.addNotes("Каждая команда за 10 секунд называет название и девиз. Таймер запускается по клику; для следующей команды вернитесь на этот слайд (стрелка влево и снова вправо) — таймер перезапустится.");
 

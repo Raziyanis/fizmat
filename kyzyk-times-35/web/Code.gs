@@ -46,10 +46,47 @@ var NOMINATIONS = ['tapqyr', 'creative', 'captain'];
 
 // ---------------------------------------------------------------- веб-приложение
 function doGet(e) {
+  if (e && e.parameter && e.parameter.api) {
+    var args = [];
+    try { args = JSON.parse(e.parameter.args || '[]'); } catch (err) {}
+    return api_(e.parameter.api, args);
+  }
   var page = (e && e.parameter && e.parameter.page === 'jury') ? 'Jury' : 'Participant';
   return HtmlService.createHtmlOutputFromFile(page)
     .setTitle(page === 'Jury' ? 'Қызық Times 35 · Қазылар' : 'Қызық Times 35 · Қатысушылар')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/** JSON-API: позволяет открывать Participant.html и Jury.html как отдельные файлы (они обращаются к этому скрипту). */
+function doPost(e) {
+  var body = {};
+  try { body = JSON.parse(e.postData.contents); } catch (err) {}
+  return api_(body.fn, body.args || []);
+}
+var API_ = {
+  p_register: function (a) { return p_register(a[0]); },
+  p_join: function (a) { return p_join(a[0], a[1]); },
+  p_state: function (a) { return p_state(a[0], a[1]); },
+  p_submit: function (a) { return p_submit(a[0], a[1], a[2], a[3]); },
+  j_all: function (a) { return j_all(a[0]); },
+  j_setState: function (a) { return j_setState(a[0], a[1]); },
+  j_mark: function (a) { return j_mark(a[0], a[1], a[2], a[3], a[4]); },
+  j_score: function (a) { return j_score(a[0], a[1], a[2], a[3], a[4]); },
+  j_setR3Key: function (a) { return j_setR3Key(a[0], a[1]); },
+  j_setNom: function (a) { return j_setNom(a[0], a[1], a[2]); },
+  j_editTeam: function (a) { return j_editTeam(a[0], a[1], a[2]); },
+  j_deleteTeam: function (a) { return j_deleteTeam(a[0], a[1]); },
+  j_reset: function (a) { return j_reset(a[0]); }
+};
+function api_(fn, args) {
+  var out;
+  try {
+    if (!API_.hasOwnProperty(fn)) throw new Error('Белгісіз әрекет');
+    out = { ok: true, result: API_[fn](args) };
+  } catch (err) {
+    out = { ok: false, error: String(err && err.message || err) };
+  }
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
 /** Запустите один раз из редактора: создаёт таблицу с данными. */
