@@ -28,6 +28,13 @@
     border: 1.5px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 7px 12px; font: inherit; font-weight: 600; cursor: pointer;
   }
   .stages button.on { background: var(--gold); border-color: var(--gold-d); }
+  .seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; overflow: hidden; background: #fff; }
+  .seg button { border: 0; background: #fff; color: var(--ink-2); padding: 7px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+  .seg button + button { border-left: 1.5px solid var(--line); }
+  .seg button.on-ok { background: var(--ok); color: #fff; }
+  .seg button.on-bad { background: var(--bad); color: #fff; }
+  .seg button.on-info { background: var(--sky-d); color: #fff; }
+  .seg button.on-mute { background: var(--ink-2); color: #fff; }
   .toggle { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 7px 14px; border: 0; font: inherit; font-weight: 700; cursor: pointer; color: #fff; }
   .toggle.open { background: var(--ok); } .toggle.closed { background: var(--bad); }
   .toggle.res { background: var(--ink-2); } .toggle.res.on { background: var(--sky-d); }
@@ -106,8 +113,14 @@
     <div class="bar">
       <span class="lbl">Кезең · Этап</span>
       <div class="stages" id="stages"></div>
-      <button type="button" class="toggle" id="openBtn"></button>
-      <button type="button" class="toggle res" id="resBtn"></button>
+      <span class="lbl" style="margin-left:6px">Жауап қабылдау · Приём ответов</span>
+      <div class="seg" id="openSeg" role="group" aria-label="Жауап қабылдау">
+        <button type="button" id="openYes">✓ Ашық · Открыт</button><button type="button" id="openNo">✕ Жабық · Закрыт</button>
+      </div>
+      <span class="lbl" style="margin-left:6px">Нәтиже · Итоги</span>
+      <div class="seg" id="resSeg" role="group" aria-label="Нәтижені көрсету">
+        <button type="button" id="resNo">Жасырын</button><button type="button" id="resYes">Көрсету</button>
+      </div>
     </div>
     <div class="tabs" id="tabs"></div>
     <section id="view"></section>
@@ -213,14 +226,14 @@
         act('j_setState', [{ stage: s, open: true }], 'Кезең: ' + b.textContent).then(function () { tab = s === 'final' ? 'results' : s; renderAll(); });
       };
     });
-    var ob = $('openBtn');
-    ob.className = 'toggle ' + (st.open ? 'open' : 'closed');
-    ob.textContent = st.open ? 'Жауап қабылдау: АШЫҚ · Приём открыт' : 'Жауап қабылдау: ЖАБЫҚ · Приём закрыт';
-    ob.onclick = function () { act('j_setState', [{ open: !st.open }], st.open ? 'Қабылдау жабылды' : 'Қабылдау ашылды'); };
-    var rb = $('resBtn');
-    rb.className = 'toggle res' + (st.showResults ? ' on' : '');
-    rb.textContent = st.showResults ? 'Нәтиже қатысушыларға көрінеді' : 'Нәтиже жасырын · Итоги скрыты';
-    rb.onclick = function () { act('j_setState', [{ showResults: !st.showResults }], 'Сақталды'); };
+    $('openYes').className = st.open ? 'on-ok' : '';
+    $('openNo').className = st.open ? '' : 'on-bad';
+    $('openYes').onclick = function () { if (!st.open) act('j_setState', [{ open: true }], 'Жауап қабылдау ашылды'); };
+    $('openNo').onclick = function () { if (st.open) act('j_setState', [{ open: false }], 'Жауап қабылдау жабылды'); };
+    $('resYes').className = st.showResults ? 'on-info' : '';
+    $('resNo').className = st.showResults ? '' : 'on-mute';
+    $('resYes').onclick = function () { if (!st.showResults) act('j_setState', [{ showResults: true }], 'Нәтиже қатысушыларға көрінеді'); };
+    $('resNo').onclick = function () { if (st.showResults) act('j_setState', [{ showResults: false }], 'Нәтиже жасырылды'); };
     $('tabs').innerHTML = TABS.map(function (t) {
       var live = (t[0] === st.stage) || (t[0] === 'results' && st.stage === 'final');
       return '<button type="button" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'on' : '') + '">' + (/^r\d$/.test(t[0]) ? 'Раунд ' : '') + t[1] + (live ? '<span class="dot" title="Қазіргі кезең"></span>' : '') + '</button>';
@@ -373,7 +386,7 @@
       '<div class="scroll"><table><thead><tr><th>Орын</th><th>Команда</th><th>Бәйге /10</th><th>Көр де тап /10</th><th>Әуен /10</th><th>AI /10</th><th>Қызық /5</th><th>Болашақ /15</th><th class="sum">Барлығы /60</th></tr></thead><tbody>' +
       (tr || '<tr><td colspan="9" class="muted">Команда жоқ</td></tr>') + '</tbody></table></div>' +
       '<h2 style="margin-top:20px">Номинациялар</h2><div class="grid2">' + noms + '</div>' +
-      '<p class="muted" style="margin-top:14px">«Нәтиже жасырын» батырмасын бассаңыз, қорытынды кезеңде нәтиже мен номинациялар қатысушылардың экранында көрінеді.</p>';
+      '<p class="muted" style="margin-top:14px">«Нәтиже: Көрсету» батырмасын бассаңыз, қорытынды кезеңде нәтиже мен номинациялар қатысушылардың экранында көрінеді.</p>';
   }
 
   function settingsView() {

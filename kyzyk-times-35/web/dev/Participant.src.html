@@ -433,7 +433,7 @@
     if (!box || !S || !me) return;
     var rd = S.stage, sub = S.answers[rd];
     if (ROUNDS[rd] && (ROUNDS[rd].kind === 'text' || ROUNDS[rd].kind === 'tf')) {
-      if (!S.open && (!sub || sub.answers.length < ROUNDS[rd].n)) box.innerHTML = '<div class="status warn">Жауап қабылдау жабық · Приём ответов закрыт</div>';
+      if (!S.open && (!sub || sub.answers.length < ROUNDS[rd].n)) box.innerHTML = '<div class="status warn">Қазылар жауап қабылдауды уақытша жапты. Ашылғанда бет өзі жаңарады. · Жюри закрыло приём ответов.</div>';
       return;
     }
     var dirty = false;

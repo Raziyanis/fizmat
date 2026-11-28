@@ -83,9 +83,9 @@ const ok = (c, m) => { if (!c) throw new Error('CHECK FAILED: ' + m); console.lo
   }
   ok(true, 'round 4 answered one by one');
   // close intake -> B sees closed
-  await J.click('#openBtn'); await sleep(3600);
+  await J.click('#openNo'); await sleep(3600);
   ok((await B.textContent('#app')).includes('жабық'), 'closed intake visible to team');
-  await J.click('#openBtn'); await sleep(500);
+  await J.click('#openYes'); await sleep(500);
 
   // round 6 idea: single submission with confirmation, then locked
   await J.click('#stages button[data-s="r6"]'); await A.waitForSelector('#iTitle', { timeout: 8000 });
@@ -94,7 +94,7 @@ const ok = (c, m) => { if (!c) throw new Error('CHECK FAILED: ' + m); console.lo
   ok(await A.$eval('#iTitle', e => e.disabled) && !(await A.$('#sendBtn')), 'idea locked after sending');
 
   await J.click('#stages button[data-s="final"]'); await sleep(600);
-  await J.click('#resBtn'); await sleep(4000);
+  await J.click('#resYes'); await sleep(4000);
   const fin = await A.textContent('#app');
   ok(fin.includes('Тұлпарлар') && fin.includes('Нәтижелер'), 'final results visible to teams');
   console.log('ERRORS', errs);
