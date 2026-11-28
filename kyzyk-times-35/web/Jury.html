@@ -244,8 +244,9 @@
   // ------------------------------------------------------------ вкладки
   function renderView() {
     var v = $('view');
+    var oldServer = D.extra === undefined;   // в старом Code.gs нет синонимов
     D.extra = D.extra || {};
-    var warn = (!D.version || D.version < 3) ? '<div class="msg err" style="margin-bottom:12px"><b>Скриптте ескі Code.gs тұр. Редакторға жаңа Code.gs қойып, «Управление развертываниями → ✏️ → Новая версия → Развернуть» арқылы жариялаңыз. · В скрипте старый Code.gs — обновите и опубликуйте новую версию.</b></div>' : '';
+    var warn = oldServer ? '<div class="msg err" style="margin-bottom:12px"><b>Скриптте ескі Code.gs тұр. Редакторға жаңа Code.gs қойып, «Управление развертываниями → ✏️ → Новая версия → Развернуть» арқылы жариялаңыз. · В скрипте старый Code.gs — обновите и опубликуйте новую версию.</b></div>' : '';
     try { renderViewInner(v); } catch (e) { v.innerHTML = '<div class="msg err">Бетті көрсету қатесі: ' + esc(e.message) + '</div>'; }
     if (warn) v.insertAdjacentHTML('afterbegin', warn);
   }

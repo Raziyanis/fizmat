@@ -184,7 +184,6 @@
     var app = $('app');
     if (!S) return;
     if (!me) { app.innerHTML = authView(); bindAuth(); return; }
-    if (!S.version || S.version < 3) { app.innerHTML = '<div class="card"><div class="status err">Скриптте ескі Code.gs тұр. Редакторға жаңа Code.gs қойып, «Управление развертываниями → ✏️ → Новая версия → Развернуть» арқылы жариялаңыз. · В скрипте старый Code.gs — обновите и опубликуйте новую версию.</div></div>'; return; }
     var html = stageLine();
     if (S.stage === 'teams') html += waitView();
     else if (S.stage === 'final') html += finalView();
@@ -355,7 +354,9 @@
       var c = $('cur'); if (c) c.focus();
     }).catch(function (err) {
       btns.forEach(function (b) { b.disabled = false; });
-      $('status').innerHTML = '<div class="status err">' + esc(errText(err)) + '</div>';
+      var t = errText(err);
+      if (/Белгісіз әрекет|p_answer|is not defined|not a function/i.test(t)) t = 'Скриптте ескі Code.gs тұр. Редакторға жаңа Code.gs қойып, «Управление развертываниями → ✏️ → Новая версия → Развернуть» арқылы жариялаңыз. · В скрипте старый Code.gs — обновите и опубликуйте новую версию.';
+      $('status').innerHTML = '<div class="status err">' + esc(t) + '</div>';
       // если ответ уже был принят (например, двойное нажатие) — подтянуть состояние с сервера
       shownKey = '';
     });
