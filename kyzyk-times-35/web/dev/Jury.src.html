@@ -83,13 +83,8 @@
 <div class="wrap" id="root">
   <div class="login" id="login">
     <img src="%%LOGO%%" alt="Қызық Times · Тәуелсіздікке 35 жыл" style="width:100%">
-    <h2>Қазылар · Жюри</h2>
-    <form id="loginForm">
-      <label for="pin" class="muted">ПИН-код</label>
-      <input type="password" id="pin" inputmode="numeric" autocomplete="off" required>
-      <button class="btn" type="submit" style="width:100%">Кіру · Войти</button>
-      <div id="loginMsg"></div>
-    </form>
+    <h2>Қазылар панелі · Панель жюри</h2>
+    <div id="loginMsg"><div class="msg warn">Жүктелуде… · Загрузка…</div></div>
   </div>
   <div id="main" hidden>
     <header>
@@ -159,21 +154,21 @@
   function toast(t) { var el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2200); }
 
   // ------------------------------------------------------------ вход
-  $('loginForm').onsubmit = function (e) {
-    e.preventDefault();
-    var p = $('pin').value.trim();
-    call('j_all', p).then(function (d) {
-      PIN = p; try { sessionStorage.setItem('kt35_pin', p); } catch (er) {}
-      start(d);
-    }).catch(function (err) { $('loginMsg').innerHTML = '<div class="msg err">' + esc(errText(err)) + '</div>'; });
-  };
+  // ПИН-код отключён: панель открывается сразу (если в Code.gs задан JURY_PIN, ПИН можно добавить к ссылке: ?pin=…)
+  PIN = (location.search.match(/[?&]pin=([^&]+)/) || [])[1] || PIN || '';
+  function boot() {
+    call('j_all', PIN).then(start).catch(function (err) {
+      $('loginMsg').innerHTML = '<div class="msg err">' + esc(errText(err)) + '</div><p class="muted">5 секундтан кейін қайта қосылады.</p>';
+      setTimeout(boot, 5000);
+    });
+  }
   function start(d) {
     $('login').hidden = true; $('main').hidden = false;
     D = d; tab = tab || (d.state.stage === 'final' ? 'results' : d.state.stage);
     renderAll();
     setInterval(refresh, 4000);
   }
-  if (PIN) call('j_all', PIN).then(start).catch(function () { PIN = null; });
+  boot();
 
   function busyEditing() {
     var a = document.activeElement;
@@ -354,7 +349,7 @@
       '<h2 style="margin-top:22px">Қатысушылар сілтемесі · Ссылка для участников</h2>' +
       '<p><input type="text" id="plink" readonly value="' + esc(SCRIPT_URL) + '" style="width:100%;max-width:760px"> <button class="btn light" type="button" id="copyLink">Көшіру · Копировать</button></p>' +
       '<p class="muted">Қазылар беті: осы сілтеме + <b>?page=jury</b>. QR код презентацияның 3-слайдында.</p>' +
-      '<p class="muted" style="margin-top:18px">ПИН-код пен жауап кілттері (1, 2, 4-раундтар) Code.gs файлында өзгертіледі.</p>';
+      '<p class="muted" style="margin-top:18px">Жауап кілттері (1, 2, 4-раундтар) Code.gs файлында өзгертіледі.</p>';
   }
 
   // ------------------------------------------------------------ события

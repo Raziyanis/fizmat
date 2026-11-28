@@ -7,7 +7,7 @@
  * Все данные хранятся в Google Таблице «Қызық Times 35 — данные» (создаётся функцией setup).
  */
 
-var JURY_PIN = '3535';          // ← ПИН-код жюри: обязательно поменяйте перед шоу
+var JURY_PIN = '';              // ПИН-код жюри отключён. Чтобы включить, впишите код, например '3535'
 var CODE_LENGTH = 4;            // длина кода команды
 
 // ---------------------------------------------------------------- этапы и ключи
@@ -179,6 +179,7 @@ function clean_(s, max) {
   return String(s === undefined || s === null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, max || 200);
 }
 function checkPin_(pin) {
+  if (!JURY_PIN) return;
   if (String(pin) !== String(JURY_PIN)) throw new Error('ПИН-код қате · Неверный ПИН-код');
 }
 function checkTeam_(d, teamId, code) {
