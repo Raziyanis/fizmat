@@ -184,6 +184,7 @@
     var app = $('app');
     if (!S) return;
     if (!me) { app.innerHTML = authView(); bindAuth(); return; }
+    if (!S.version || S.version < 3) { app.innerHTML = '<div class="card"><div class="status err">Скриптте ескі Code.gs тұр. Редакторға жаңа Code.gs қойып, «Управление развертываниями → ✏️ → Новая версия → Развернуть» арқылы жариялаңыз. · В скрипте старый Code.gs — обновите и опубликуйте новую версию.</div></div>'; return; }
     var html = stageLine();
     if (S.stage === 'teams') html += waitView();
     else if (S.stage === 'final') html += finalView();

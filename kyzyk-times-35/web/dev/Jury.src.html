@@ -234,6 +234,12 @@
   // ------------------------------------------------------------ вкладки
   function renderView() {
     var v = $('view');
+    D.extra = D.extra || {};
+    var warn = (!D.version || D.version < 3) ? '<div class="msg err" style="margin-bottom:12px"><b>Скриптте ескі Code.gs тұр. Редакторға жаңа Code.gs қойып, «Управление развертываниями → ✏️ → Новая версия → Развернуть» арқылы жариялаңыз. · В скрипте старый Code.gs — обновите и опубликуйте новую версию.</b></div>' : '';
+    try { renderViewInner(v); } catch (e) { v.innerHTML = '<div class="msg err">Бетті көрсету қатесі: ' + esc(e.message) + '</div>'; }
+    if (warn) v.insertAdjacentHTML('afterbegin', warn);
+  }
+  function renderViewInner(v) {
     if (tab === 'teams') v.innerHTML = teamsView();
     else if (tab === 'r1' || tab === 'r2' || tab === 'r3' || tab === 'r4') v.innerHTML = qView(tab);
     else if (tab === 'r5') v.innerHTML = r5View();

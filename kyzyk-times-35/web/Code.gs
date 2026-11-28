@@ -43,6 +43,7 @@ var CRITERIA = {
   r6: [['actual', 3], ['orig', 4], ['real', 4], ['pres', 4]]
 };
 var NOMINATIONS = ['tapqyr', 'creative', 'captain'];
+var SERVER_VERSION = 3;   // страницы проверяют версию и предупреждают, если Code.gs устарел
 
 // ---------------------------------------------------------------- веб-приложение
 function doGet(e) {
@@ -331,7 +332,7 @@ function p_state(teamId, code) {
   var d = data_();
   var st = state_(d);
   var t = teamId ? d['team:' + teamId] : null;
-  var res = { stage: st.stage, open: st.open, showResults: !!st.showResults, team: null, answers: {} };
+  var res = { stage: st.stage, open: st.open, showResults: !!st.showResults, team: null, answers: {}, version: SERVER_VERSION };
   if (t && String(t.code) === String(code)) {
     res.team = publicTeam_(t);
     ['r1', 'r2', 'r3', 'r4', 'r6'].forEach(function (rd) {
@@ -426,6 +427,7 @@ function j_all(pin) {
     computed: compute_(d),
     key: { r1: KEY.r1, r2: KEY.r2, r4: KEY.r4, r3: r3Key_(d) },
     extra: d.extra || {},
+    version: SERVER_VERSION,
     noms: d.noms || {},
     now: Date.now()
   };
