@@ -65,7 +65,7 @@ function add(master, section, round) {
 }
 function sun(slide, x, y, d, transp = 0, dark = true) {
   if (dark) slide.addShape(pres.shapes.OVAL, { x: x - d * 0.12, y: y - d * 0.12, w: d * 1.24, h: d * 1.24, fill: { type: "none" }, line: { color: C.accent2, width: 3, transparency: 40 }, objectName: "sun-ring" });
-  else slide.addShape(pres.shapes.OVAL, { x: x - d * 0.18, y: y - d * 0.18, w: d * 1.36, h: d * 1.36, fill: { color: C.background1, transparency: 55 }, line: { type: "none" }, objectName: "sun-halo" });
+  else slide.addShape(pres.shapes.OVAL, { x: x - d * 0.18, y: y - d * 0.18, w: d * 1.36, h: d * 1.36, fill: { color: C.accent2, transparency: 70 }, line: { type: "none" }, objectName: "sun-halo" });
   slide.addShape(pres.shapes.OVAL, { x, y, w: d, h: d, fill: { color: C.accent2, transparency: transp }, line: { type: "none" }, objectName: "sun" });
 }
 function numCircle(slide, n, x, y, d = 1.0, fs = 30) {
@@ -400,7 +400,7 @@ s.addNotes("Строки «______» — для названий команд-п�
 s = add("COVER", RF);
 s.addImage({ path: MAP, x: (W - 8.4) / 2, y: 0.5, w: 8.4, h: 4.18, objectName: "map", altText: "Карта Казахстана с солнцем и беркутом" });
 s.addText("ТӘУЕЛСІЗДІККЕ 35 ЖЫЛ!", { x: 1.2, y: 4.95, w: 10.9, h: 0.8, fontSize: 32, bold: true, color: C.text1, align: "center", margin: 0, objectName: "title" });
-s.addText("Тәуелсіздігіміз тұғырлы, болашағымыз жарқын болсын!  ·  С праздником, Казахстан!", { x: 1.2, y: 5.85, w: 10.9, h: 0.6, fontSize: 18, bold: true, color: C.background1, align: "center", margin: 0, objectName: "wish" });
+s.addText("Тәуелсіздігіміз тұғырлы, болашағымыз жарқын болсын!  ·  С праздником, Казахстан!", { x: 1.2, y: 5.85, w: 10.9, h: 0.6, fontSize: 18, bold: true, color: C.accent3, align: "center", margin: 0, objectName: "wish" });
 s.addNotes("Ведущий 1: «Тәуелсіздігіміз тұғырлы, болашағымыз жарқын болсын!» Ведущий 2: «С праздником, Казахстан! Спасибо всем участникам, организаторам и болельщикам!» Праздничная музыка, общее фото команд на фоне этого слайда.");
 
 (async () => {

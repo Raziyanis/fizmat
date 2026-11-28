@@ -2,7 +2,7 @@
 const sharp = require("sharp");
 const fs = require("fs");
 const uri = (f) => "data:image/png;base64," + fs.readFileSync(f).toString("base64");
-const BAND = uri("ref/band.png"), MOTIF = uri("ref/motif.png");
+const BAND = uri("ref/band_dk.png"), MOTIF = uri("ref/motif_dk.png");
 const W = 1920, H = 1080;
 const bandW = 88, bandH = Math.round(1371 * bandW / 173);
 function bandCol(x) {
@@ -10,14 +10,12 @@ function bandCol(x) {
   for (let y = 0; y < H; y += bandH) s += `<image href="${BAND}" x="${x}" y="${y}" width="${bandW}" height="${bandH}"/>`;
   return s;
 }
-const sky = `<defs><radialGradient id="g" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#22C3DB"/><stop offset="1" stop-color="#00A3BE"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#g)"/>`;
+const sky = `<rect width="100%" height="100%" fill="#FFFFFF"/>`;
 
 async function content() {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}">${sky}
   ${bandCol(16)}
-  <rect x="139" y="34" width="1770" height="1018" rx="34" fill="#0B1F3A" opacity="0.18"/>
-  <rect x="135" y="28" width="1770" height="1018" rx="34" fill="#FFFFFF"/>
-  <image href="${MOTIF}" x="1560" y="700" width="320" height="320" opacity="0.10"/>
+  <image href="${MOTIF}" x="1560" y="700" width="320" height="320" opacity="0.08"/>
   </svg>`;
   await sharp(Buffer.from(svg)).png().toFile("bg_content.png");
 }
