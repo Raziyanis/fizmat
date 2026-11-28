@@ -14,7 +14,7 @@ const ctx={ console, Date, Math, JSON, Object, Array, String, Number, Error, isN
       getSheetByName:n=>sh.find(x=>x.getName()===n)||null, insertSheet:n=>{const x=makeSheet(n);sh.push(x);return x;} }; sheetsStore[id]=ss; return ss; },
     openById(id){ if(!sheetsStore[id]) throw new Error('nf'); return sheetsStore[id]; } },
   CacheService:{ getScriptCache:()=>({ get:k=>cache[k]??null, put:(k,v)=>{ if(v.length>100000) throw new Error('too big'); cache[k]=v; }, remove:k=>{delete cache[k];} }) },
-  LockService:{ getScriptLock:()=>({ waitLock(){}, releaseLock(){} }) },
+  LockService:{ getScriptLock:()=>({ waitLock(){ if(ctx.__held) throw new Error('NESTED LOCK'); ctx.__held=true; }, releaseLock(){ ctx.__held=false; } }) },
   Utilities:{ getUuid:()=>crypto.randomUUID() }, ContentService:{ MimeType:{JSON:'json',JAVASCRIPT:'js'}, createTextOutput:t=>({ setMimeType(){ return { _t:t }; } }) }, Logger:{ log:console.log } };
 vm.createContext(ctx); vm.runInContext(fs.readFileSync(__dirname+'/../Code.gs','utf8'), ctx);
 const shim=`<script>window.google={script:{get run(){ let ok=()=>{},fail=()=>{}; const p=new Proxy({}, {get(t,k){ if(k==='withSuccessHandler') return f=>{ok=f;return p;}; if(k==='withFailureHandler') return f=>{fail=f;return p;};

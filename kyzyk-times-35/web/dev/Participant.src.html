@@ -43,6 +43,15 @@
   .tf button.on.t { background: var(--ok); border-color: var(--ok); color: #fff; }
   .tf button.on.f { background: var(--bad); border-color: var(--bad); color: #fff; }
   .tf button:disabled { cursor: default; opacity: .75; }
+  .done { padding: 11px 12px; border-radius: 10px; background: #F3F6F8; color: var(--ink); font-size: 17px; display: flex; justify-content: space-between; gap: 8px; }
+  .done .lockico { color: var(--ok); font-weight: 800; white-space: nowrap; font-size: 14px; }
+  .done.skip { color: #8A97A6; font-style: italic; }
+  .qrow.wait .num { background: #EEF2F5; color: #9AA9B8; }
+  .qrow.wait .ph { color: #9AA9B8; font-size: 14px; }
+  .qrow.cur .num { box-shadow: 0 0 0 4px rgba(254,197,12,.35); }
+  .actrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 8px; }
+  .actrow .btn { margin: 0; }
+  .skipbtn { border: 1.5px solid var(--line); background: #fff; color: var(--ink-2); border-radius: 12px; padding: 0 14px; font: inherit; font-weight: 700; cursor: pointer; }
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 18px; padding: 14px; border: 0; border-radius: 12px; background: var(--ink); color: #fff; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; }
   .btn.gold { background: var(--gold); color: var(--ink); }
   .btn:disabled { opacity: .5; cursor: default; }
@@ -162,7 +171,8 @@
   function viewKey() {
     if (!S) return 'loading';
     if (!me) return 'auth:' + regTab;
-    var k = 'team:' + me.id + ':' + S.stage + ':' + S.open;
+    var a = S.answers[S.stage];
+    var k = 'team:' + me.id + ':' + S.stage + ':' + S.open + ':' + (a ? (a.answers.length || 'sent') : 'open');
     if (S.stage === 'final') k += ':' + S.showResults + ':' + JSON.stringify(S.results || []) + JSON.stringify(S.noms || {});
     return k;
   }
@@ -267,15 +277,16 @@
   function currentValues(rd) {
     var R = ROUNDS[rd];
     var sub = S.answers[rd] && S.answers[rd].answers;
-    var draft = load(draftKey(rd));
-    if (R.kind === 'idea') return draft || sub || {};
+    var draft = sub ? null : load(draftKey(rd));   // после отправки показываем отправленный ответ
+    if (R.kind === 'idea') return sub || draft || {};
     var v = [];
     for (var i = 0; i < R.n; i++) v.push(draft && draft[i] != null ? draft[i] : (sub && sub[i]) || '');
     return v;
   }
   function roundView(rd) {
     var R = ROUNDS[rd];
-    var dis = S.open ? '' : ' disabled';
+    var sent = !!S.answers[rd];
+    var dis = (S.open && !sent) ? '' : ' disabled';
     var head = '<div class="card"><div class="eyebrow">ROUND ' + rd.slice(1) + '</div><h1>' + R.title + '</h1><p class="sub">' + R.ru + '</p>';
     if (R.hint) head += '<p class="muted hint">' + R.hint + '</p>';
     var body = '';
@@ -284,6 +295,7 @@
         'Дайындық — 20 секунд, орындау — 30 секундқа дейін. · Задание выполняется на сцене.</div>' +
         '<p class="muted">Бағалау: тапсырмаға сәйкестік — 2, түпнұсқалық — 2, команданың қатысуы — 1 ұпай.</p></div>';
     }
+    if (R.kind === 'text' || R.kind === 'tf') return head + seqView(rd) + '<div id="status"></div></div>';
     var vals = currentValues(rd);
     if (R.kind === 'text') {
       for (var i = 0; i < R.n; i++) {
@@ -302,9 +314,69 @@
         '<label for="iSolution">Шешім қалай жұмыс істейді? · Как работает решение?</label><textarea id="iSolution" maxlength="1200"' + dis + '>' + esc(vals.solution) + '</textarea>' +
         '<label for="iBenefit">Қазақстанға пайдасы · Польза для Казахстана</label><textarea id="iBenefit" maxlength="600"' + dis + '>' + esc(vals.benefit) + '</textarea>';
     }
-    var btn = '<button class="btn" type="button" id="sendBtn"' + dis + '>Жауапты жіберу · Отправить</button>';
+    var btn = sent ? '' : '<button class="btn" type="button" id="sendBtn"' + dis + '>Жауапты жіберу · Отправить</button>' +
+      '<p class="muted" style="margin:8px 0 0">Жауап бір-ақ рет жіберіледі, кейін өзгертуге болмайды. · Ответ отправляется один раз.</p>';
     return head + body + btn + '<div id="status"></div></div>';
   }
+  // ---- раунды 1–4: вопросы по одному
+  function seqView(rd) {
+    var R = ROUNDS[rd];
+    var got = (S.answers[rd] && S.answers[rd].answers) || [];
+    var k = got.length, html = '';
+    for (var i = 0; i < R.n; i++) {
+      if (i < k) {
+        var v = got[i];
+        var label = R.kind === 'tf' ? (v === 'true' ? 'Ақиқат · Правда' : v === 'false' ? 'Жалған · Ложь' : '') : v;
+        html += '<div class="qrow"><div class="num">' + (i + 1) + '</div><div class="done' + (label ? '' : ' skip') + '"><span>' + (label ? esc(label) : 'өткізілді · пропуск') + '</span><span class="lockico">✓ жіберілді</span></div></div>';
+      } else if (i === k && S.open) {
+        if (R.kind === 'tf') {
+          html += '<div class="qrow cur"><div class="num">' + (i + 1) + '</div><div class="tf" data-i="' + i + '">' +
+            '<button type="button" class="t" data-v="true">Ақиқат · Правда</button><button type="button" class="f" data-v="false">Жалған · Ложь</button></div></div>';
+        } else {
+          html += '<div class="qrow cur"><div class="num">' + (i + 1) + '</div><input type="text" id="cur" maxlength="100" placeholder="' + esc(R.ph) + '" value="' + esc(load(draftKey(rd + '_' + i)) || '') + '" aria-label="Жауап ' + (i + 1) + '" enterkeyhint="send"></div>' +
+            '<div class="actrow"><button class="btn" type="button" id="sendOne">Жіберу ▶</button><button class="skipbtn" type="button" id="skipOne">Өткізу</button></div>';
+        }
+      } else {
+        html += '<div class="qrow wait"><div class="num">' + (i + 1) + '</div><span class="ph">' + (i === k ? 'жабық' : 'кезегін күтіңіз') + '</span></div>';
+      }
+    }
+    if (k >= R.n) html += '<div class="status ok" style="margin-top:14px">✓ Барлық жауап жіберілді. Нәтижені қазылар жариялайды. · Все ответы отправлены.</div>';
+    else html += '<p class="muted" style="margin-top:12px">Жіберілген жауапты өзгертуге болмайды. Келесі сұрақ жауаптан кейін ашылады. · Отправленный ответ изменить нельзя.</p>';
+    return html;
+  }
+  function sendOne(rd, idx, value) {
+    var btns = $('app').querySelectorAll('#sendOne, #skipOne, .tf button');
+    btns.forEach(function (b) { b.disabled = true; });
+    call('p_answer', me.id, me.code, rd, idx, value).then(function (r) {
+      S.answers[rd] = { answers: r.answers, at: r.at };
+      save(draftKey(rd + '_' + idx), null);
+      render(true);
+      var c = $('cur'); if (c) c.focus();
+    }).catch(function (err) {
+      btns.forEach(function (b) { b.disabled = false; });
+      $('status').innerHTML = '<div class="status err">' + esc(errText(err)) + '</div>';
+      // если ответ уже был принят (например, двойное нажатие) — подтянуть состояние с сервера
+      shownKey = '';
+    });
+  }
+  function bindSeq(rd) {
+    var R = ROUNDS[rd];
+    var idx = ((S.answers[rd] && S.answers[rd].answers) || []).length;
+    var cur = $('cur');
+    if (cur) {
+      cur.addEventListener('input', function () { save(draftKey(rd + '_' + idx), cur.value); });
+      cur.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('sendOne').click(); } });
+      $('sendOne').onclick = function () {
+        if (!cur.value.trim()) { $('status').innerHTML = '<div class="status warn">Жауап бос. Білмесеңіз — «Өткізу». · Пусто: нажмите «Өткізу», чтобы пропустить.</div>'; cur.focus(); return; }
+        sendOne(rd, idx, cur.value);
+      };
+      $('skipOne').onclick = function () { sendOne(rd, idx, ''); };
+    }
+    $('app').querySelectorAll('.tf button').forEach(function (b) {
+      b.onclick = function () { b.classList.add('on'); sendOne(rd, idx, b.getAttribute('data-v')); };
+    });
+  }
+
   function readValues(rd) {
     var R = ROUNDS[rd];
     if (R.kind === 'idea') return { title: $('iTitle').value, problem: $('iProblem').value, solution: $('iSolution').value, benefit: $('iBenefit').value };
@@ -318,6 +390,7 @@
   function bindRound(rd) {
     var R = ROUNDS[rd];
     if (!R || R.kind === 'stage') return;
+    if (R.kind === 'text' || R.kind === 'tf') { bindSeq(rd); return; }
     var app = $('app');
     app.querySelectorAll('input, textarea').forEach(function (el) {
       el.addEventListener('input', function () { save(draftKey(rd), readValues(rd)); updateStatusOnly(); });
@@ -334,17 +407,23 @@
     if (sb) sb.onclick = function () {
       var vals = readValues(rd);
       if (R.kind === 'idea' && !vals.title.trim()) { $('status').innerHTML = '<div class="status err">Идеяның атауын жазыңыз · Введите название идеи</div>'; return; }
-      sb.disabled = true; sb.textContent = 'Жіберілуде… · Отправка…';
-      call('p_submit', me.id, me.code, rd, vals).then(function (r) {
-        S.answers[rd] = { answers: vals, at: r.at };
-        save(draftKey(rd), null);
-        sb.textContent = 'Жауапты жіберу · Отправить';
-        sb.disabled = !S.open;
-        updateStatusOnly();
-      }).catch(function (err) {
-        sb.disabled = false; sb.textContent = 'Жауапты жіберу · Отправить';
-        $('status').innerHTML = '<div class="status err">' + esc(errText(err)) + '</div>';
-      });
+      var empty = R.kind === 'idea' ? 0 : vals.filter(function (v) { return !String(v).trim(); }).length;
+      $('status').innerHTML = '<div class="status warn"><b>Жауапты жібересіз бе?</b> Жібергеннен кейін өзгерту мүмкін емес.' +
+        (empty ? ' Бос жауаптар: ' + empty + '.' : '') + ' · Отправить? Изменить будет нельзя.' +
+        '<div style="display:flex;gap:8px;margin-top:10px"><button class="btn gold" type="button" id="sendYes" style="margin:0">Иә, жіберу</button>' +
+        '<button class="btn" type="button" id="sendNo" style="margin:0;background:#E3F6FA;color:#0B1F3A">Жоқ, тексеремін</button></div></div>';
+      $('sendNo').onclick = function () { updateStatusOnly(); };
+      $('sendYes').onclick = function () {
+        $('sendYes').disabled = true; sb.disabled = true;
+        call('p_submit', me.id, me.code, rd, readValues(rd)).then(function (r) {
+          S.answers[rd] = { answers: readValues(rd), at: r.at };
+          save(draftKey(rd), S.answers[rd].answers);   // копия на случай, если жюри разрешит отправить заново
+          render(true);
+        }).catch(function (err) {
+          sb.disabled = false;
+          $('status').innerHTML = '<div class="status err">' + esc(errText(err)) + '</div>';
+        });
+      };
     };
     updateStatusOnly();
   }
@@ -352,12 +431,14 @@
     var box = $('status');
     if (!box || !S || !me) return;
     var rd = S.stage, sub = S.answers[rd];
-    var draft = load(draftKey(rd));
-    var dirty = draft && (!sub || JSON.stringify(draft) !== JSON.stringify(sub.answers));
+    if (ROUNDS[rd] && (ROUNDS[rd].kind === 'text' || ROUNDS[rd].kind === 'tf')) {
+      if (!S.open && (!sub || sub.answers.length < ROUNDS[rd].n)) box.innerHTML = '<div class="status warn">Жауап қабылдау жабық · Приём ответов закрыт</div>';
+      return;
+    }
+    var dirty = false;
     var t = sub ? new Date(sub.at).toLocaleTimeString('kk-KZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
-    if (!S.open) box.innerHTML = '<div class="status warn">Жауап қабылдау жабық · Приём ответов закрыт' + (sub ? ' · жіберілген: ' + t : ' · жауап жіберілмеді') + '</div>';
-    else if (sub && !dirty) box.innerHTML = '<div class="status ok">✓ Жіберілді ' + t + '. Жабылғанша өзгертуге болады. · Отправлено, можно исправить до закрытия.</div>';
-    else if (sub && dirty) box.innerHTML = '<div class="status warn">Өзгерістер жіберілмеді — «Жіберу» басыңыз. · Есть неотправленные изменения.</div>';
+    if (!S.open && !sub) box.innerHTML = '<div class="status warn">Жауап қабылдау жабық · Приём ответов закрыт' + (sub ? ' · жіберілген: ' + t : ' · жауап жіберілмеді') + '</div>';
+    else if (sub) box.innerHTML = '<div class="status ok">✓ Жауап қабылданды ' + t + '. Нәтижені қазылар жариялайды. · Ответ принят.</div>';
     else box.innerHTML = '<div class="status warn">Әлі жіберілмеді · Ещё не отправлено</div>';
   }
 

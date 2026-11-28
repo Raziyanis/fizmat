@@ -72,11 +72,15 @@ var API_ = {
   p_join: function (a) { return p_join(a[0], a[1]); },
   p_state: function (a) { return p_state(a[0], a[1]); },
   p_submit: function (a) { return p_submit(a[0], a[1], a[2], a[3]); },
+  p_answer: function (a) { return p_answer(a[0], a[1], a[2], a[3], a[4]); },
   j_all: function (a) { return j_all(a[0]); },
   j_setState: function (a) { return j_setState(a[0], a[1]); },
   j_mark: function (a) { return j_mark(a[0], a[1], a[2], a[3], a[4]); },
   j_score: function (a) { return j_score(a[0], a[1], a[2], a[3], a[4]); },
   j_setR3Key: function (a) { return j_setR3Key(a[0], a[1]); },
+  j_adj: function (a) { return j_adj(a[0], a[1], a[2], a[3]); },
+  j_variant: function (a) { return j_variant(a[0], a[1], a[2], a[3], a[4]); },
+  j_unlock: function (a) { return j_unlock(a[0], a[1], a[2]); },
   j_setNom: function (a) { return j_setNom(a[0], a[1], a[2]); },
   j_editTeam: function (a) { return j_editTeam(a[0], a[1], a[2]); },
   j_deleteTeam: function (a) { return j_deleteTeam(a[0], a[1]); },
@@ -141,9 +145,9 @@ function dbCache_(st) {
   catch (err) { CacheService.getScriptCache().remove('db'); }
 }
 /** Записывает несколько ключей под блокировкой. value === null удаляет ключ. */
-function dbWrite_(changes) {
-  var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+function dbWrite_(changes, alreadyLocked) {
+  var lock = alreadyLocked ? null : LockService.getScriptLock();
+  if (lock) lock.waitLock(20000);
   try {
     CacheService.getScriptCache().remove('db');
     var st = dbLoad_();
@@ -162,7 +166,7 @@ function dbWrite_(changes) {
     dbCache_(st);
     return st.data;
   } finally {
-    lock.releaseLock();
+    if (lock) lock.releaseLock();
   }
 }
 function data_() { return dbLoad_().data; }
@@ -227,6 +231,8 @@ function matches_(answer, variants) {
   });
 }
 function r3Key_(d) { return d.r3key || ['', '', '', '', '']; }
+/** Синонимы, добавленные жюри: d.extra[round][i] = [..] */
+function extra_(d, round, i) { return (d.extra && d.extra[round] && d.extra[round][i]) || []; }
 
 /** Автопроверка одного ответа. null — проверить нельзя (нет ключа). */
 function auto_(d, round, i, answer) {
@@ -234,10 +240,11 @@ function auto_(d, round, i, answer) {
   if (round === 'r4') return String(answer) === KEY.r4[i];
   if (round === 'r3') {
     var k = r3Key_(d)[i];
-    if (!k) return null;
-    return matches_(answer, k.split(';'));
+    var vars = (k ? k.split(';') : []).concat(extra_(d, 'r3', i));
+    if (!vars.length) return null;
+    return matches_(answer, vars);
   }
-  return matches_(answer, KEY[round][i]);
+  return matches_(answer, KEY[round][i].concat(extra_(d, round, i)));
 }
 
 /** Полный расчёт: отметки по вопросам, баллы по раундам, итог и места. */
@@ -245,19 +252,21 @@ function compute_(d) {
   var list = teams_(d);
   var rows = list.map(function (t) {
     var sc = d['score:' + t.id] || {};
-    var r = { id: t.id, name: t.name, rounds: {}, marks: {}, total: 0 };
+    var r = { id: t.id, name: t.name, rounds: {}, marks: {}, adj: {}, total: 0 };
     ['r1', 'r2', 'r3', 'r4'].forEach(function (rd) {
       var ans = (d['ans:' + t.id + ':' + rd] || {}).answers || [];
       var ov = sc[rd] || {};
       var pts = 0, marks = [];
       for (var i = 0; i < COUNT[rd]; i++) {
         var a = auto_(d, rd, i, ans[i]);
-        var m = (ov[i] === true || ov[i] === false) ? ov[i] : a;
+        var m = (ov[i] === true || ov[i] === false) ? ov[i] : a;   // ручная отметка жюри важнее автопроверки
         marks.push({ auto: a, final: m, override: (ov[i] === true || ov[i] === false) });
         if (m === true) pts += POINTS[rd];
       }
+      var adj = Number(ov.adj) || 0;
       r.marks[rd] = marks;
-      r.rounds[rd] = pts;
+      r.adj[rd] = adj;
+      r.rounds[rd] = Math.max(0, Math.min(COUNT[rd] * POINTS[rd], pts + adj));
     });
     ['r5', 'r6'].forEach(function (rd) {
       var c = sc[rd] || {}, pts = 0;
@@ -345,12 +354,40 @@ function p_state(teamId, code) {
   return res;
 }
 
+/** Ответ на один вопрос (раунды 1–4): вопросы открываются по очереди, отправленный ответ изменить нельзя. */
+function p_answer(teamId, code, round, idx, value) {
+  if (['r1', 'r2', 'r3', 'r4'].indexOf(round) < 0) throw new Error('Белгісіз раунд');
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    CacheService.getScriptCache().remove('db');
+    var d = data_();
+    checkTeam_(d, teamId, code);
+    var st = state_(d);
+    if (st.stage !== round || !st.open) throw new Error('Жауап қабылдау жабық · Приём ответов закрыт');
+    var prev = d['ans:' + teamId + ':' + round];
+    var list = prev ? prev.answers.slice() : [];
+    idx = Number(idx);
+    if (idx < list.length) throw new Error('Бұл сұраққа жауап берілген · На этот вопрос уже ответили');
+    if (idx !== list.length || idx >= COUNT[round]) throw new Error('Алдымен алдыңғы сұраққа жауап беріңіз');
+    var v = clean_(value, 100);
+    if (round === 'r4' && v !== 'true' && v !== 'false') v = '';
+    list.push(v);
+    var ch = {}; ch['ans:' + teamId + ':' + round] = { answers: list, at: Date.now() };
+    dbWrite_(ch, true);
+    return { ok: true, answers: list, at: Date.now() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function p_submit(teamId, code, round, answers) {
   var d = data_();
   checkTeam_(d, teamId, code);
   var st = state_(d);
-  if (['r1', 'r2', 'r3', 'r4', 'r6'].indexOf(round) < 0) throw new Error('Бұл раундқа жауап жіберілмейді');
+  if (round !== 'r6') throw new Error('Бұл раундта жауап бір-бірден жіберіледі');
   if (st.stage !== round || !st.open) throw new Error('Жауап қабылдау жабық · Приём ответов закрыт');
+  if (d['ans:' + teamId + ':' + round]) throw new Error('Жауап бұрын жіберілген, өзгертуге болмайды · Ответ уже отправлен');
   var clean;
   if (round === 'r6') {
     clean = {
@@ -388,6 +425,7 @@ function j_all(pin) {
     scores: scores,
     computed: compute_(d),
     key: { r1: KEY.r1, r2: KEY.r2, r4: KEY.r4, r3: r3Key_(d) },
+    extra: d.extra || {},
     noms: d.noms || {},
     now: Date.now()
   };
@@ -432,6 +470,46 @@ function j_score(pin, teamId, round, field, value) {
   if (value === '' || value === null || value === undefined) delete sc[round][field];
   else sc[round][field] = Math.max(0, Math.min(crit[1], Number(value) || 0));
   var ch = {}; ch['score:' + teamId] = sc;
+  writeResultsSheet_(dbWrite_(ch));
+  return j_all(pin);
+}
+
+/** Ручная поправка баллов раунда (может быть отрицательной). */
+function j_adj(pin, teamId, round, value) {
+  checkPin_(pin);
+  if (['r1', 'r2', 'r3', 'r4'].indexOf(round) < 0) throw new Error('Белгісіз раунд');
+  var d = data_();
+  if (!d['team:' + teamId]) throw new Error('Команда табылмады');
+  var sc = d['score:' + teamId] || {};
+  sc[round] = sc[round] || {};
+  var v = Math.round(Number(value) || 0);
+  if (v) sc[round].adj = Math.max(-20, Math.min(20, v)); else delete sc[round].adj;
+  var ch = {}; ch['score:' + teamId] = sc;
+  writeResultsSheet_(dbWrite_(ch));
+  return j_all(pin);
+}
+
+/** Добавить / убрать синоним правильного ответа (засчитывается всем командам). */
+function j_variant(pin, round, idx, text, remove) {
+  checkPin_(pin);
+  if (['r1', 'r2', 'r3'].indexOf(round) < 0) throw new Error('Бұл раундқа синоним қосылмайды');
+  var t = clean_(text, 100);
+  if (!t) throw new Error('Бос мәтін');
+  var d = data_();
+  var ex = d.extra || {};
+  ex[round] = ex[round] || {};
+  var list = ex[round][idx] || [];
+  list = list.filter(function (x) { return norm_(x) !== norm_(t); });
+  if (!remove) list.push(t);
+  if (list.length) ex[round][idx] = list; else delete ex[round][idx];
+  writeResultsSheet_(dbWrite_({ extra: ex }));
+  return j_all(pin);
+}
+
+/** Разрешить команде отправить ответ раунда заново (удаляет её ответ). */
+function j_unlock(pin, teamId, round) {
+  checkPin_(pin);
+  var ch = {}; ch['ans:' + teamId + ':' + round] = null;
   writeResultsSheet_(dbWrite_(ch));
   return j_all(pin);
 }

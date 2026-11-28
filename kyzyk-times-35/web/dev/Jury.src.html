@@ -52,6 +52,17 @@
   .mark { border: 0; border-radius: 8px; padding: 3px 8px; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
   .mark.yes { background: var(--ok-l); color: var(--ok); } .mark.no { background: var(--bad-l); color: var(--bad); } .mark.unk { background: var(--gold-l); color: var(--gold-d); }
   .mark.ov { outline: 2px solid currentColor; }
+  .mk { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .mk button { border: 1.5px solid var(--line); background: #fff; border-radius: 7px; padding: 2px 8px; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; color: #9AA9B8; }
+  .mk button.y.on { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .mk button.n.on { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .mk .ov { font-size: 11px; color: var(--gold-d); font-weight: 700; }
+  .mk .lnk { border: 0; background: none; color: var(--sky-d); text-decoration: underline; font-weight: 600; font-size: 12px; padding: 2px 2px; }
+  .syn { display: inline-flex; align-items: center; gap: 2px; background: var(--ok-l); color: var(--ok); border-radius: 6px; padding: 1px 6px; font-size: 11px; font-weight: 700; margin: 2px 2px 0 0; text-transform: none; }
+  .syn button { border: 0; background: none; color: var(--ok); cursor: pointer; font-weight: 800; padding: 0 2px; }
+  .adj { display: grid; gap: 2px; justify-items: end; margin-top: 6px; font-size: 11px; color: var(--ink-2); font-weight: 600; }
+  .adj input { width: 64px; text-align: right; }
+  .unlock { margin-top: 6px; }
   input[type=number], input[type=text], input[type=password], select, textarea {
     font: inherit; padding: 7px 9px; border: 1.5px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
   }
@@ -236,7 +247,10 @@
     if (!D.teams.length) return '<h2>Командалар</h2><p class="muted">Әзірге тіркелген команда жоқ. Қатысушылар өз бетінде тіркеледі. · Пока нет команд.</p>';
     var rows = D.teams.map(function (t, i) {
       var a = D.answers[t.id] || {};
-      var subm = ['r1', 'r2', 'r3', 'r4', 'r6'].map(function (r) { return '<span class="' + (a[r] ? 'ok' : 'no') + '">' + r.slice(1) + (a[r] ? '✓' : '·') + '</span>'; }).join(' ');
+      var subm = ['r1', 'r2', 'r3', 'r4', 'r6'].map(function (r) {
+        var n = RT[r].n, got = a[r] ? (n ? a[r].answers.length : 1) : 0, full = n ? got >= n : got > 0;
+        return '<span class="' + (got ? 'ok' : 'no') + '">' + r.slice(1) + (n ? ':' + got + '/' + n : (full ? '✓' : '·')) + '</span>';
+      }).join(' ');
       var del = confirmDel === t.id
         ? '<button class="btn danger" type="button" data-del-yes="' + t.id + '">Иә, жою</button> <button class="btn light" type="button" data-del-no="1">Жоқ</button>'
         : '<button class="chipbtn" type="button" data-del="' + t.id + '">Жою</button>';
@@ -255,9 +269,16 @@
     if (rd === 'r4') return a === 'true' ? 'Ақиқат' : a === 'false' ? 'Жалған' : '';
     return a;
   }
+  var unlockAsk = null;
+  function unlockBtn(teamId, rd) {
+    var k = teamId + ':' + rd;
+    return unlockAsk === k
+      ? '<div class="unlock"><button class="chipbtn" type="button" data-unlock-yes="' + rd + '" data-t="' + teamId + '" style="background:#FDE9E3">Растау: жауапты өшіру</button> <button class="chipbtn" type="button" data-unlock-no="1">Жоқ</button></div>'
+      : '<div class="unlock"><button class="chipbtn" type="button" data-unlock="' + rd + '" data-t="' + teamId + '" title="Команда жауапты қайта жібере алады">Қайта ашу</button></div>';
+  }
   function qView(rd) {
     var R = RT[rd];
-    var head = '<h2>' + R.title + '</h2><p class="sub">Дұрыс жауап — ' + R.pts + ' ұпай. Белгіні басу: авто → ✓ → ✗ → авто. Қоршалған белгі — қолмен қойылған.</p>';
+    var head = '<h2>' + R.title + '</h2><p class="sub">Дұрыс жауап — ' + R.pts + ' ұпай. Жауапты қолмен бағалау: ✓ / ✗. «+ кілт» — жауапты синоним ретінде кілтке қосу (сол жауапты жазған барлық командаға есептеледі). «± түзету» — раунд ұпайын қолмен өзгерту.</p>';
     var keyEdit = '';
     if (rd === 'r3') {
       keyEdit = '<div class="keyedit"><b>Жауап кілті (әндер) · Ключ ответов</b><span class="muted">Әр әуенге дұрыс нұсқаларды «;» арқылы жазыңыз: мысалы «Димаш; Dimash; Махаббат бер маған». Кілт болмаса — белгіні қолмен қойыңыз.</span>' +
@@ -266,7 +287,10 @@
     }
     if (!D.teams.length) return head + keyEdit + '<p class="muted">Команда жоқ.</p>';
     var th = '<th>Команда</th>';
-    for (var i = 0; i < R.n; i++) th += '<th class="cell">' + (i + 1) + '<span class="key">' + esc(keyLabel(rd, i)) + '</span></th>';
+    for (var i = 0; i < R.n; i++) {
+      var syn = ((D.extra[rd] || {})[i] || []).map(function (v) { return '<span class="syn">' + esc(v) + '<button type="button" title="Синонимді алып тастау" data-unsyn="' + i + '" data-v="' + esc(v) + '">×</button></span>'; }).join('');
+      th += '<th class="cell">' + (i + 1) + '<span class="key">' + esc(keyLabel(rd, i)) + '</span>' + syn + '</th>';
+    }
     th += '<th class="sum">Ұпай</th>';
     var rows = D.teams.map(function (t) {
       var c = compOf(t.id) || { marks: {}, rounds: {} };
@@ -276,12 +300,18 @@
       for (var j = 0; j < R.n; j++) {
         var m = (c.marks[rd] || [])[j] || { final: false };
         var a = ansLabel(rd, ans[j]);
-        var cls = m.final === true ? 'yes' : m.final === false ? 'no' : 'unk';
-        var txt = m.final === true ? '✓ +' + R.pts : m.final === false ? '✗ 0' : '? тексеру';
-        tds += '<td class="cell"><span class="ans' + (a ? '' : ' empty') + '">' + (a ? esc(a) : 'жауап жоқ') + '</span>' +
-          '<button type="button" class="mark ' + cls + (m.override ? ' ov' : '') + '" data-t="' + t.id + '" data-i="' + j + '" data-ov="' + (m.override ? m.final : 'auto') + '">' + txt + '</button></td>';
+        var canSyn = rd !== 'r4' && ans[j] && String(ans[j]).trim() && m.final !== true;
+        tds += '<td class="cell"><span class="ans' + (a ? '' : ' empty') + '">' + (a ? esc(a) : 'жауап жоқ') + '</span><div class="mk">' +
+          '<button type="button" class="y' + (m.final === true ? ' on' : '') + '" data-mark="true" data-t="' + t.id + '" data-i="' + j + '" title="Дұрыс">✓</button>' +
+          '<button type="button" class="n' + (m.final === false ? ' on' : '') + '" data-mark="false" data-t="' + t.id + '" data-i="' + j + '" title="Қате">✗</button>' +
+          (m.final === null ? '<span class="ov">кілт жоқ</span>' : '') +
+          (m.override ? '<button type="button" class="lnk" data-mark="auto" data-t="' + t.id + '" data-i="' + j + '" title="Автотексеруге қайтару">авто</button>' : '') +
+          (canSyn ? '<button type="button" class="lnk" data-syn="' + j + '" data-v="' + esc(ans[j]) + '" title="Осы жауапты дұрыс синоним ретінде қосу">+ кілт</button>' : '') +
+          '</div></td>';
       }
-      return '<tr><td class="team">' + esc(t.name) + (sub ? '<div class="muted">' + new Date(sub.at).toLocaleTimeString('kk-KZ') + '</div>' : '<div class="muted">жіберілмеді</div>') + '</td>' + tds + '<td class="sum">' + (c.rounds[rd] || 0) + ' / ' + R.max + '</td></tr>';
+      var adj = (c.adj || {})[rd] || 0;
+      return '<tr><td class="team">' + esc(t.name) + (sub ? '<div class="muted">' + new Date(sub.at).toLocaleTimeString('kk-KZ') + '</div>' + unlockBtn(t.id, rd) : '<div class="muted">жіберілмеді</div>') + '</td>' + tds +
+        '<td class="sum">' + (c.rounds[rd] || 0) + ' / ' + R.max + '<label class="adj">± түзету<input type="number" step="1" min="-20" max="20" data-adj="' + rd + '" data-t="' + t.id + '" value="' + (adj || '') + '" placeholder="0"></label></td></tr>';
     }).join('');
     return head + keyEdit + '<div class="scroll"><table data-round="' + rd + '"><thead><tr>' + th + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
@@ -315,7 +345,7 @@
         (a.solution ? '<p><b>Шешім:</b> ' + esc(a.solution) + '</p>' : '') +
         (a.benefit ? '<p><b>Пайдасы:</b> ' + esc(a.benefit) + '</p>' : '')
         : '<p class="muted">Идея жіберілмеді (ауызша таныстыруды бағалауға болады).</p>';
-      return '<div class="idea"><div class="muted">' + esc(t.name) + '</div>' + body + '<div class="crit">' + critInputs('r6', t) + '<div style="margin-left:auto;align-self:end;font-weight:800;font-size:18px">' + (c.rounds.r6 || 0) + ' / 15</div></div></div>';
+      return '<div class="idea"><div class="muted">' + esc(t.name) + '</div>' + (a ? unlockBtn(t.id, 'r6') : '') + body + '<div class="crit">' + critInputs('r6', t) + '<div style="margin-left:auto;align-self:end;font-weight:800;font-size:18px">' + (c.rounds.r6 || 0) + ' / 15</div></div></div>';
     }).join('') + '</div>';
   }
 
@@ -355,11 +385,25 @@
   // ------------------------------------------------------------ события
   function bindView() {
     var v = $('view');
-    v.querySelectorAll('.mark').forEach(function (b) {
+    v.querySelectorAll('[data-mark]').forEach(function (b) {
       b.onclick = function () {
-        var cur = b.getAttribute('data-ov'), next = cur === 'auto' ? true : cur === 'true' ? false : null;
-        act('j_mark', [b.getAttribute('data-t'), b.closest('table').getAttribute('data-round'), Number(b.getAttribute('data-i')), next]);
+        var m = b.getAttribute('data-mark'), val = m === 'true' ? true : m === 'false' ? false : null;
+        act('j_mark', [b.getAttribute('data-t'), b.closest('table').getAttribute('data-round'), Number(b.getAttribute('data-i')), val]);
       };
+    });
+    v.querySelectorAll('[data-syn]').forEach(function (b) {
+      b.onclick = function () { act('j_variant', [b.closest('table').getAttribute('data-round'), Number(b.getAttribute('data-syn')), b.getAttribute('data-v'), false], 'Синоним кілтке қосылды'); };
+    });
+    v.querySelectorAll('[data-unsyn]').forEach(function (b) {
+      b.onclick = function () { act('j_variant', [b.closest('table').getAttribute('data-round'), Number(b.getAttribute('data-unsyn')), b.getAttribute('data-v'), true], 'Синоним алынды'); };
+    });
+    v.querySelectorAll('input[data-adj]').forEach(function (inp) {
+      inp.onchange = function () { act('j_adj', [inp.getAttribute('data-t'), inp.getAttribute('data-adj'), inp.value], 'Түзету сақталды'); };
+    });
+    v.querySelectorAll('[data-unlock]').forEach(function (b) { b.onclick = function () { unlockAsk = b.getAttribute('data-t') + ':' + b.getAttribute('data-unlock'); renderView(); }; });
+    v.querySelectorAll('[data-unlock-no]').forEach(function (b) { b.onclick = function () { unlockAsk = null; renderView(); }; });
+    v.querySelectorAll('[data-unlock-yes]').forEach(function (b) {
+      b.onclick = function () { unlockAsk = null; act('j_unlock', [b.getAttribute('data-t'), b.getAttribute('data-unlock-yes')], 'Команда жауапты қайта жібере алады'); };
     });
     v.querySelectorAll('input[data-score]').forEach(function (inp) {
       inp.onchange = function () {
