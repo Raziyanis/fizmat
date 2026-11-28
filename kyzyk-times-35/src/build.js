@@ -14,7 +14,8 @@ const THEME = {
   },
 };
 const HEX = THEME.colors;
-const BG = __dirname + "/bg.png", LOGO = __dirname + "/../logo.png";
+const BG_FULL = __dirname + "/bg_full.png", BG_CONTENT = __dirname + "/bg_content.png", LOGO = __dirname + "/../logo.png", MAP = __dirname + "/ref/map.png";
+const DX = 0.35; // content slides: shift right to sit inside the white panel
 
 const pres = new pptxgen();
 pres.layout = "LAYOUT_WIDE"; // 13.333 x 7.5
@@ -27,20 +28,20 @@ const W = 13.333;
 // ---------- layouts ----------
 pres.defineSlideMaster({
   title: "COVER",
-  background: { path: BG },
+  background: { path: BG_FULL },
   objects: [],
 });
 pres.defineSlideMaster({
   title: "ROUND",
-  background: { path: BG },
+  background: { path: BG_FULL },
   objects: [],
 });
 pres.defineSlideMaster({
   title: "QUIZ",
-  background: { path: BG },
+  background: { path: BG_CONTENT },
   objects: [
-    { text: { text: "ҚЫЗЫҚ TIMES · SPECIAL EDITION 35", options: { x: 0.8, y: 0.3, w: 6, h: 0.4, fontSize: 12, bold: true, color: C.accent6, charSpacing: 2, margin: 0 } } },
-    { placeholder: { options: { name: "round", type: "body", x: 6.73, y: 0.3, w: 6, h: 0.4, fontSize: 12, bold: true, color: C.accent3, align: "right", margin: 0 }, text: "" } },
+    { text: { text: "ҚЫЗЫҚ TIMES · ТӘУЕЛСІЗДІККЕ 35 ЖЫЛ", options: { x: 1.2, y: 0.35, w: 6, h: 0.4, fontSize: 12, bold: true, color: C.accent6, charSpacing: 2, margin: 0 } } },
+    { placeholder: { options: { name: "round", type: "body", x: 7.0, y: 0.35, w: 5.75, h: 0.4, fontSize: 12, bold: true, color: C.accent3, align: "right", margin: 0 }, text: "" } },
   ],
 });
 
@@ -48,12 +49,23 @@ let slideCount = 0;
 function add(master, section, round) {
   slideCount++;
   const s = pres.addSlide({ masterName: master, sectionTitle: section });
+  const fix = (o) => {
+    if (!o || o.placeholder) return o;
+    if (master === "QUIZ" && typeof o.x === "number") o.x += DX;
+    if (master === "ROUND" && typeof o.x === "number") o.x += 0.25;
+    if (master !== "QUIZ" && (o.color === C.accent3 || o.color === C.accent6)) o.color = C.text1;
+    return o;
+  };
+  const [aT, aS, aI] = [s.addText, s.addShape, s.addImage];
+  s.addText = (t, o) => aT.call(s, t, fix(o));
+  s.addShape = (t, o) => aS.call(s, t, fix(o));
+  s.addImage = (o) => aI.call(s, fix(o));
   if (round) s.addText(round, { placeholder: "round" });
   return s;
 }
 function sun(slide, x, y, d, transp = 0, dark = true) {
   if (dark) slide.addShape(pres.shapes.OVAL, { x: x - d * 0.12, y: y - d * 0.12, w: d * 1.24, h: d * 1.24, fill: { type: "none" }, line: { color: C.accent2, width: 3, transparency: 40 }, objectName: "sun-ring" });
-  else slide.addShape(pres.shapes.OVAL, { x: x - d * 0.18, y: y - d * 0.18, w: d * 1.36, h: d * 1.36, fill: { color: C.accent2, transparency: 70 }, line: { type: "none" }, objectName: "sun-halo" });
+  else slide.addShape(pres.shapes.OVAL, { x: x - d * 0.18, y: y - d * 0.18, w: d * 1.36, h: d * 1.36, fill: { color: C.background1, transparency: 55 }, line: { type: "none" }, objectName: "sun-halo" });
   slide.addShape(pres.shapes.OVAL, { x, y, w: d, h: d, fill: { color: C.accent2, transparency: transp }, line: { type: "none" }, objectName: "sun" });
 }
 function numCircle(slide, n, x, y, d = 1.0, fs = 30) {
@@ -87,9 +99,9 @@ const timers = [];
 const SEC0 = "Открытие";
 pres.addSection({ title: SEC0 });
 let s = add("COVER", SEC0);
-s.addImage({ path: LOGO, x: (W - 8.0) / 2, y: 0.55, w: 8.0, h: 4.74, objectName: "LOGO_ANIM", altText: "Логотип «Қызық Times – Special Edition 35»" });
+s.addImage({ path: LOGO, x: (W - 7.8) / 2, y: 0.45, w: 7.8, h: 4.79, objectName: "LOGO_ANIM", altText: "Логотип «Қызық Times – Special Edition 35»" });
 s.addText("Қазақстан Республикасы Тәуелсіздігінің 35 жылдығы  ·  35 лет Независимости Республики Казахстан", { x: 0.8, y: 5.75, w: 11.7, h: 0.5, fontSize: 16, bold: true, color: C.accent3, align: "center", margin: 0, objectName: "occasion" });
-s.addText("9 желтоқсан 2026 · РФМШ, Астана", { x: 0.8, y: 6.35, w: 11.7, h: 0.4, fontSize: 14, color: C.text1, align: "center", margin: 0, objectName: "date" });
+s.addText("9 желтоқсан 2026 · РФМШ, Астана филиалы", { x: 0.8, y: 6.35, w: 11.7, h: 0.4, fontSize: 14, color: C.text1, align: "center", margin: 0, objectName: "date" });
 s.addNotes("Заставка: логотип мероприятия появляется на экране автоматически (плавное проявление). Звучит энергичная музыка, команды занимают места. Затем Ведущий 1: «Қайырлы күн, құрметті ұстаздар мен оқушылар! Бүгін біз ерекше кездесуде бас қосып отырмыз!» Ведущий 2: «Добрый день! Сегодня мы отмечаем важную дату — 35 лет Независимости Республики Казахстан…»");
 
 // ---------- 2. THEME ----------
@@ -135,8 +147,8 @@ s.addNotes("Ведущий 2: «Правила просты: вниматель�
 function divider(section, num, name, ru, pts, mins, rule) {
   pres.addSection({ title: section });
   const d = add("ROUND", section);
-  sun(d, 9.8, 3.6, 4.6, 0, false);
-  d.addText(String(num), { x: 9.8, y: 3.6, w: 4.6, h: 3.4, fontSize: 160, bold: true, color: C.text1, align: "center", valign: "middle", margin: 0, objectName: "round-num" });
+  sun(d, 8.0, 3.6, 3.4, 0, false);
+  d.addText(String(num), { x: 8.0, y: 3.6, w: 3.4, h: 3.4, fontSize: 140, bold: true, color: C.text1, align: "center", valign: "middle", margin: 0, objectName: "round-num" });
   d.addText(`ROUND ${num}`, { x: 0.8, y: 1.0, w: 8.5, h: 0.7, fontSize: 24, bold: true, color: C.text1, charSpacing: 6, margin: 0, objectName: "kicker" });
   d.addText(name, { x: 0.8, y: 1.8, w: 9.0, h: 1.4, fontSize: 60, bold: true, color: C.text1, margin: 0, fit: "shrink", objectName: "title" });
   d.addText(ru, { x: 0.8, y: 3.2, w: 8.5, h: 0.6, fontSize: 22, color: C.text1, margin: 0, objectName: "subtitle" });
@@ -145,7 +157,7 @@ function divider(section, num, name, ru, pts, mins, rule) {
     d.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 4.2, w: 2.3, h: 1.3, rectRadius: 0.15, fill: { color: C.text1 }, line: { type: "none" }, objectName: "badge" });
     d.addText([{ text: v, options: { fontSize: 36, bold: true, color: C.accent2, breakLine: true } }, { text: l, options: { fontSize: 13, color: C.background1 } }], { x, y: 4.25, w: 2.3, h: 1.2, align: "center", valign: "middle", margin: 0, objectName: "badge-text" });
   });
-  d.addText(rule, { x: 0.8, y: 5.85, w: 8.6, h: 0.9, fontSize: 16, color: C.text1, margin: 0, valign: "top", objectName: "rule" });
+  d.addText(rule, { x: 0.8, y: 5.85, w: 6.8, h: 0.9, fontSize: 16, color: C.text1, margin: 0, valign: "top", objectName: "rule" });
   return d;
 }
 function bil(kz, ru) {
@@ -157,16 +169,16 @@ const R1 = "Раунд 1 · БӘЙГЕ";
 let d = divider(R1, 1, "БӘЙГЕ", "Блиц-вопросы об истории независимого Казахстана", 10, 8, "10 сұрақ · на каждый 10 секунд · ответы пишем на карточках · 1 балл за верный ответ");
 d.addNotes("Ведущий 1: «Бастаймыз! Первый раунд — «БӘЙГЕ». Здесь важны знания и скорость!» Ведущий 2: «На каждый вопрос у вас будет 10 секунд. Команды записывают ответы на карточках. За каждый правильный ответ — 1 балл.»");
 const q1 = [
-  ["1991 жылғы 29 тамызда қай ядролық сынақ полигоны жабылды?", "Какой ядерный полигон был закрыт 29 августа 1991 года?", "Семей полигоны · Семипалатинский", "Указ о закрытии Семипалатинского испытательного ядерного полигона подписан 29 августа 1991 года."],
-  ["1991 жылы ғарышқа ұшқан тұңғыш қазақ ғарышкері кім?", "Кто стал первым казахским космонавтом (полёт 1991 года)?", "Тоқтар Әубәкіров", "Полёт Токтара Аубакирова — октябрь 1991 года, корабль «Союз ТМ-13»."],
+  ["Қазақстан мемлекеттік тәуелсіздігін қай жылы жариялады?", "В каком году Казахстан провозгласил государственную независимость?", "1991 жыл · 1991 год", "16 декабря 1991 года принят Конституционный закон о государственной независимости."],
+  ["Мемлекеттің негізгі заңы қалай аталады?", "Как называется основной закон государства?", "Конституция", "Основной закон — Конституция Республики Казахстан."],
+  ["Қазақстанның ұлттық валютасы қалай аталады?", "Как называется национальная валюта Казахстана?", "Теңге · Тенге", "Тенге введён 15 ноября 1993 года."],
+  ["Қазақстан Республикасының астанасы — қай қала?", "Какой город является столицей Республики Казахстан?", "Астана", "Столица перенесена в Акмолу (ныне Астана) 10 декабря 1997 года."],
+  ["Қазақстанның Мемлекеттік Гимні әнінің авторы кім?", "Кто является автором музыки Государственного гимна Казахстана?", "Шәмші Қалдаяқов", "Гимн «Менің Қазақстаным» утверждён в 2006 году; музыка Шамши Калдаякова."],
+  ["Қазақстан аумағындағы ғарыш айлағы қалай аталады?", "Как называется космодром, расположенный в Казахстане?", "Байқоңыр · Байконур", "Байконур — первый и крупнейший космодром мира, находится в Кызылординской области."],
+  ["16 желтоқсанда қандай мемлекеттік мереке аталып өтеді?", "Какой государственный праздник отмечается 16 декабря?", "Тәуелсіздік күні · День Независимости", "16 декабря — День Независимости Республики Казахстан."],
+  ["Мемлекеттік Туда күннің астында қандай бейне бар?", "Какой символ расположен под солнцем на Государственном флаге?", "Қалықтаған қыран · Парящий орёл", "Под солнцем изображён парящий степной орёл."],
   ["Қазақстан қай жылы БҰҰ-ға мүше болды?", "В каком году Казахстан стал членом ООН?", "1992 жыл · 1992 год", "Казахстан принят в ООН 2 марта 1992 года."],
-  ["Қазақстанның Мемлекеттік Туының авторы кім?", "Кто является автором Государственного флага Казахстана?", "Шәкен Ниязбеков", "Государственные символы утверждены 4 июня 1992 года; автор флага — Шакен Ниязбеков."],
-  ["Ұлттық валюта — теңге қай жылы айналымға енгізілді?", "В каком году в обращение была введена национальная валюта — тенге?", "1993 жыл · 1993 год", "Тенге введён 15 ноября 1993 года (День национальной валюты)."],
-  ["Елорда Алматыдан Ақмолаға қай жылы көшірілді?", "В каком году столица была перенесена из Алматы в Акмолу?", "1997 жыл · 1997 год", "Столица официально перенесена 10 декабря 1997 года."],
-  ["2006 жылы қай ән Мемлекеттік Гимн болып бекітілді?", "Какая песня в 2006 году утверждена Государственным гимном?", "«Менің Қазақстаным»", "Гимн утверждён в январе 2006 года; музыка Шамши Калдаякова."],
-  ["Қазақстанның тұңғыш байланыс спутнигі қалай аталады?", "Как называется первый казахстанский спутник связи?", "KazSat-1 · ҚазСат-1", "Спутник KazSat-1 выведен на орбиту в июне 2006 года."],
-  ["2011 жылы Астана мен Алматыда қандай халықаралық жарыс өтті?", "Какие международные соревнования прошли в Астане и Алматы в 2011 году?", "VII қысқы Азия ойындары", "VII зимние Азиатские игры — январь–февраль 2011 года."],
-  ["2017 жылы қазақ әліпбиін қай графикаға көшіру туралы шешім қабылданды?", "На какую графику в 2017 году решено перевести казахский алфавит?", "Латын графикасы · Латиница", "Указ о переводе алфавита казахского языка на латинскую графику — 26 октября 2017 года."],
+  ["Теңгенің халықаралық әріптік белгісі қандай?", "Как обозначается тенге в международном буквенном формате?", "KZT", "Международный код тенге по стандарту ISO 4217 — KZT."],
 ];
 q1.forEach(([kz, ru, a, fact], i) => {
   const q = add("QUIZ", R1, `ROUND 1 · БӘЙГЕ · ${i + 1}/10`);
@@ -359,11 +371,11 @@ for (let t = 1; t <= 6; t++) {
 const RF = "Награждение";
 pres.addSection({ title: RF });
 s = add("COVER", RF);
-sun(s, 9.4, -1.2, 5.2);
-s.addText("35", { x: 9.6, y: 0.2, w: 4.0, h: 2.6, fontSize: 150, bold: true, color: C.text1, align: "center", valign: "middle", margin: 0, objectName: "big35" });
-s.addText("Қорытынды", { x: 0.8, y: 2.3, w: 9, h: 1.2, fontSize: 64, bold: true, color: C.text1, margin: 0, objectName: "title" });
-s.addText("Подведение итогов и награждение", { x: 0.8, y: 3.5, w: 9, h: 0.7, fontSize: 26, color: C.accent6, margin: 0, objectName: "subtitle" });
-s.addText("35 жыл ішінде еліміз үлкен жолдан өтті. Ал келесі 35 жыл — біздің білімімізге, еңбегімізге және бірлігімізге байланысты.", { x: 0.8, y: 4.6, w: 8.6, h: 1.4, fontSize: 18, italic: true, color: C.accent3, margin: 0, objectName: "quote" });
+sun(s, 8.6, 1.4, 3.4);
+s.addText("35", { x: 8.6, y: 1.4, w: 3.4, h: 3.4, fontSize: 120, bold: true, color: C.text1, align: "center", valign: "middle", margin: 0, objectName: "big35" });
+s.addText("Қорытынды", { x: 1.2, y: 2.3, w: 7, h: 1.2, fontSize: 64, bold: true, color: C.text1, margin: 0, objectName: "title" });
+s.addText("Подведение итогов и награждение", { x: 1.2, y: 3.5, w: 7, h: 0.7, fontSize: 26, color: C.accent6, margin: 0, objectName: "subtitle" });
+s.addText("35 жыл ішінде еліміз үлкен жолдан өтті. Ал келесі 35 жыл — біздің білімімізге, еңбегімізге және бірлігімізге байланысты.", { x: 1.2, y: 4.6, w: 7, h: 1.4, fontSize: 18, italic: true, color: C.accent3, margin: 0, objectName: "quote" });
 s.addNotes("Ведущий 2: «Все раунды завершены. Сегодня мы увидели, насколько талантливы, умны и креативны наши девятиклассники!» Ведущий 1: «35 жыл ішінде еліміз үлкен жолдан өтті…» Ведущий 2: «Итак, результаты «Қызық Times»!» Секретарь передаёт итоговую таблицу.");
 
 s = add("QUIZ", RF, "Номинациялар · Номинации");
@@ -386,9 +398,9 @@ s.addNotes("Строки «______» — для названий команд-п�
 });
 
 s = add("COVER", RF);
-s.addImage({ path: LOGO, x: (W - 7.6) / 2, y: 0.5, w: 7.6, h: 4.5, objectName: "logo", altText: "Логотип «Қызық Times – Special Edition 35»" });
-s.addText("ТӘУЕЛСІЗДІККЕ 35 ЖЫЛ · 35 YEARS OF INDEPENDENCE", { x: 0.6, y: 5.5, w: 12.1, h: 0.8, fontSize: 32, bold: true, color: C.text1, align: "center", margin: 0, objectName: "title" });
-s.addText("Тәуелсіздігіміз тұғырлы, болашағымыз жарқын болсын!  ·  С праздником, Казахстан!", { x: 0.6, y: 6.35, w: 12.1, h: 0.6, fontSize: 18, color: C.accent6, align: "center", margin: 0, objectName: "wish" });
+s.addImage({ path: MAP, x: (W - 8.4) / 2, y: 0.5, w: 8.4, h: 4.18, objectName: "map", altText: "Карта Казахстана с солнцем и беркутом" });
+s.addText("ТӘУЕЛСІЗДІККЕ 35 ЖЫЛ!", { x: 1.2, y: 4.95, w: 10.9, h: 0.8, fontSize: 32, bold: true, color: C.text1, align: "center", margin: 0, objectName: "title" });
+s.addText("Тәуелсіздігіміз тұғырлы, болашағымыз жарқын болсын!  ·  С праздником, Казахстан!", { x: 1.2, y: 5.85, w: 10.9, h: 0.6, fontSize: 18, bold: true, color: C.background1, align: "center", margin: 0, objectName: "wish" });
 s.addNotes("Ведущий 1: «Тәуелсіздігіміз тұғырлы, болашағымыз жарқын болсын!» Ведущий 2: «С праздником, Казахстан! Спасибо всем участникам, организаторам и болельщикам!» Праздничная музыка, общее фото команд на фоне этого слайда.");
 
 (async () => {
