@@ -135,10 +135,26 @@
         r[fn].apply(r, args);
       });
     }
-    return fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ fn: fn, args: args }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow' })
-      .then(function (r) { if (!r.ok) throw new Error('Сервер жауап бермеді (' + r.status + ')'); return r.json(); })
-      .then(function (j) { if (!j.ok) throw new Error(j.error); return j.result; });
+    var body = JSON.stringify({ fn: fn, args: args });
+    return fetch(SCRIPT_URL, { method: 'POST', body: body, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow' })
+      .then(function (r) { return r.json(); })
+      .catch(function () { return jsonp(fn, args); })
+      .then(function (j) { if (!j || !j.ok) throw new Error(j && j.error || 'Сервер жауап бермеді'); return j.result; });
   }
+  var jsonpN = 0;
+  function jsonp(fn, args) {
+    return new Promise(function (res, rej) {
+      var cb = 'kt35cb' + (++jsonpN) + '_' + Date.now();
+      var sc = document.createElement('script');
+      var done = function () { try { delete window[cb]; } catch (e) { window[cb] = undefined; } sc.remove(); clearTimeout(t); };
+      var t = setTimeout(function () { done(); rej(new Error(CONN_HELP)); }, 15000);
+      window[cb] = function (j) { done(); res(j); };
+      sc.onerror = function () { done(); rej(new Error(CONN_HELP)); };
+      sc.src = SCRIPT_URL + '?api=' + encodeURIComponent(fn) + '&args=' + encodeURIComponent(JSON.stringify(args)) + '&callback=' + cb;
+      document.head.appendChild(sc);
+    });
+  }
+  var CONN_HELP = 'Скриптке қосылу мүмкін болмады · Нет связи со скриптом. Тексеріңіз: 1) редакторда жаңа Code.gs қойылып, «Управление развертываниями → Новая версия» жарияланған; 2) «У кого есть доступ: Все»; 3) интернет бар.';
   function errText(e) { return String(e && e.message || e).replace(/^(Error|Exception):\s*/, ''); }
   function toast(t) { var el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 2200); }
 

@@ -49,7 +49,7 @@ function doGet(e) {
   if (e && e.parameter && e.parameter.api) {
     var args = [];
     try { args = JSON.parse(e.parameter.args || '[]'); } catch (err) {}
-    return api_(e.parameter.api, args);
+    return api_(e.parameter.api, args, e.parameter.callback);
   }
   var page = (e && e.parameter && e.parameter.page === 'jury') ? 'Jury' : 'Participant';
   return HtmlService.createHtmlOutputFromFile(page)
@@ -78,7 +78,7 @@ var API_ = {
   j_deleteTeam: function (a) { return j_deleteTeam(a[0], a[1]); },
   j_reset: function (a) { return j_reset(a[0]); }
 };
-function api_(fn, args) {
+function api_(fn, args, callback) {
   var out;
   try {
     if (!API_.hasOwnProperty(fn)) throw new Error('Белгісіз әрекет');
@@ -86,7 +86,11 @@ function api_(fn, args) {
   } catch (err) {
     out = { ok: false, error: String(err && err.message || err) };
   }
-  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+  var json = JSON.stringify(out);
+  if (callback && /^[A-Za-z_$][\w$.]{0,60}$/.test(callback)) {   // JSONP для страниц, открытых как файл
+    return ContentService.createTextOutput(callback + '(' + json + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
 }
 
 /** Запустите один раз из редактора: создаёт таблицу с данными. */
